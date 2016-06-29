@@ -1,14 +1,13 @@
 import React from 'react';
 import Counter from './Counter';
-import Exercises from './Exercises';
+import ExerciseList from './ExerciseList';
+import Exercise from './Exercise';
 
 export default class App extends React.Component {
   render() {
     return (
       <div id="content" className="uk-container uk-grid">
-        <h1>&nbsp;</h1>
-        {/*<Counter />*/}
-        <Exercises />
+        <ExerciseList />
         <Exercise />
       </div>
     );

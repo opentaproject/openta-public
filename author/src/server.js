@@ -20,8 +20,9 @@ server.route({
 server.route({
   method: 'GET',
   path: '/exercise/{name}',
+  config: {cors: true},
   handler: (request, reply) => {
-    var json = showExercise('./exercises/' + request.params.name);
+    var json = showExercise('./exercises/' + request.params.name + '/problem.xml');
     reply(json);
   }
 });
@@ -31,6 +32,20 @@ server.route({
   path: '/exercises',
   config: {cors: true},
   handler: (request, reply) => reply(listExercises())
+});
+
+server.register(require('inert'), err => {
+  if(err) {
+    throw err;
+  }
+
+  server.route({
+    method: 'GET',
+    path: '/exercise/{name}/{asset}',
+    handler: (request, reply) => {
+      reply.file('./exercises/' + request.params.name + '/' + request.params.asset);
+    }
+  });
 });
 
 server.start( (err) => {
