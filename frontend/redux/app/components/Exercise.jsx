@@ -17,8 +17,20 @@ class BaseExercise extends Component {
     var exercisejson = this.props.exercisejson;
     var figure = this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
     var name = this.props.exerciseName;
+    var questions = [];
+    if(exercisejson.problem) {
+      questions = exercisejson.problem.thecorrectanswer.map( q => (
+          <div className="uk-panel uk-panel-box uk-margin-top uk-border-rounded">
+              <label className="uk-form-row">{q.$.question}</label>
+              <div className="uk-form-icon uk-width-1-1">
+                <i className="uk-icon-pencil"/>
+                <input className="uk-width-1-1" type="text"></input>
+              </div>
+          </div>
+      ) );
+    }
     return (
-      <div className="uk-width-medium-3-4">
+      <div className="uk-width-medium-3-4 uk-margin-top">
         <article className="uk-article uk-width-medium-3-4" ref="exercise">
           <h1 className="uk-article-title">{exercisejson.problem ? exercisejson.problem.name : "No name"}</h1>
           <div className="uk-clearfix">
@@ -28,7 +40,9 @@ class BaseExercise extends Component {
             <span dangerouslySetInnerHTML={{__html: exercisejson.problem ? exercisejson.problem.question[0].text[0]._ : ""}} />
           </div>
           <hr className="uk-article-divider"/>
-          <div className="uk-panel uk-panel-box">Test</div>
+          <form className="uk-form">
+          {questions}
+          </form>
         </article>
       </div>
     );

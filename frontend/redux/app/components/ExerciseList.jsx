@@ -8,9 +8,9 @@ function listClass(item, active) {
 
 const BaseExercises = ({ exerciselist, activeExercise, onExerciseClick, onExercisesClick }) => (
   <div className="uk-width-medium-1-4">
-    <h2>Exercises</h2>
-    <button onClick={onExercisesClick}>Fetch</button>
-    <ul className="uk-nav uk-nav-side">
+    <div className="uk-panel uk-panel-box uk-margin-top">
+    <h3 className="uk-panel-title">Exercises</h3>
+    <ul className="uk-nav uk-nav-side uk-list-line">
     {exerciselist.map( exercise => ( 
                       <li className={exercise === activeExercise ? "uk-active" : ""}>
                         <a onClick={() => onExerciseClick(exercise)}>
@@ -20,13 +20,16 @@ const BaseExercises = ({ exerciselist, activeExercise, onExerciseClick, onExerci
                           </li>
                           </ul>
                         </a>
-                      </li> )
+                      </li>
+                                   )
                      )}
     {/* //{exerciselist.map( exercise => { return <span>{exercise}</span> } )}
       //<button onClick={onMinusClick}>-</button>
       //{count}
       //<button onClick={onPlusClick}>+</button>} */}
     </ul>
+    </div>
+  <button className="uk-margin-top" onClick={onExercisesClick}>Fetch</button>
   </div>
 );
 
