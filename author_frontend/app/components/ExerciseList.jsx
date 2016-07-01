@@ -16,7 +16,7 @@ const BaseExercises = ({ exerciselist, activeExercise, onExerciseClick, onExerci
                       <li className={exercise === activeExercise ? "uk-active" : ""}>
                         <a onClick={() => onExerciseClick(exercise)}>
                           <ul>
-                          <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'http://localhost:8000/exercise/' + exercise + '/thumbnail.png'}/>
+                          <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'http://localhost:8000/exercise/' + exercise + '/asset/thumbnail.png'}/>
                           <li>{exercise}</li>
                           </li>
                           </ul>

@@ -9,7 +9,8 @@ class BaseExercise extends Component {
 
   static propTypes = {
   exercisejson: PropTypes.object.isRequired,
-  exerciseName: PropTypes.string.isRequired
+  exerciseName: PropTypes.string.isRequired,
+  onQuestionInputKeyUp: PropTypes.func
 };
 
   //const BaseExercise = ({ exercisejson }) => (
@@ -17,14 +18,15 @@ class BaseExercise extends Component {
     var exercisejson = this.props.exercisejson;
     var figure = this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
     var name = this.props.exerciseName;
+    var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
     var questions = [];
     if(exercisejson.problem) {
-      questions = exercisejson.problem.thecorrectanswer.map( q => (
+      questions = exercisejson.problem.thecorrectanswer.map( (q, index) => (
           <div className="uk-panel uk-panel-box uk-margin-top uk-border-rounded">
               <label className="uk-form-row">{q.$.question}</label>
               <div className="uk-form-icon uk-width-1-1">
                 <i className="uk-icon-pencil"/>
-                <input className="uk-width-1-1" type="text"></input>
+                <input className="uk-width-1-1" type="text" onKeyUp={(event) => onQuestionInputKeyUp(Object.assign({}, event), name, index)}></input>
               </div>
           </div>
       ) );
@@ -35,7 +37,7 @@ class BaseExercise extends Component {
           <h1 className="uk-article-title">{exercisejson.problem ? exercisejson.problem.name : "No name"}</h1>
           <div className="uk-clearfix">
             <div className="uk-align-medium-right uk-width-medium-2-4">
-              <img style={{maxHeight: '100pt'}} src={'http://localhost:8000/exercise/' + name + '/' + figure} alt=""/>
+              <img style={{maxHeight: '100pt'}} src={'http://localhost:8000/exercise/' + name + '/asset/' + figure} alt=""/>
             </div>
             <span dangerouslySetInnerHTML={{__html: exercisejson.problem ? exercisejson.problem.question[0].text[0]._ : ""}} />
           </div>
@@ -58,8 +60,28 @@ class BaseExercise extends Component {
 //  exercisejson: PropTypes.object.isRequired
 //};
 
-//BaseExercise.componentDidMount = root => MathJax.Hub.Queue(["Typeset", MathJax.Hub, root]);
-//BaseExercise.componentDidMount = root => console.log("Mounted");
+function checkQuestion(exercise, question, expression) {
+  return dispatch => {
+    var payload = {
+      expression: expression
+    }
+    var data = new FormData();
+    data.append('json', JSON.stringify(payload));
+    var fetchconfig = {
+      method: "POST",
+      body: data
+    }
+      
+    fetch('http://localhost:8000/exercise/' + exercise + '/question/' + question + '/check', fetchconfig)
+    .then(res => console.dir(res));
+    return "True";
+  }
+}
+
+function handleQuestionInputKeyUp(dispatch, event, exercise, question) {
+  console.dir([event, exercise, question]);
+  dispatch(checkQuestion(exercise, question, event.target.value));
+}
 
 const mapStateToProps = state => (
   {
@@ -67,4 +89,10 @@ const mapStateToProps = state => (
     exerciseName: state.activeExercise
   });
 
-export default connect(mapStateToProps)(BaseExercise)
+const mapDispatchToProps = dispatch => {
+  return {
+    onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question)
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(BaseExercise)

@@ -4,6 +4,7 @@ const Hapi = require('hapi');
 
 //Project imports
 import { listExercises, showExercise } from "./api/exercises.js";
+import { initSymbolic } from "./api/symbolic.js";
 
 const server = new Hapi.Server();
 server.connection({
@@ -28,6 +29,22 @@ server.route({
 });
 
 server.route({
+  method: 'POST',
+  path: '/exercise/{name}/question/{num}/check',
+  config: {
+    cors: true/*{
+            origin: ['*'],
+            additionalHeaders: ['*']
+        }*/
+  },
+  handler: (request, reply) => {
+    var json = JSON.parse(request.payload.json);
+    correct = checkQuestion(request.params.name, request.params.num, json.expression);
+    reply("True");
+  }
+});
+
+server.route({
   method: 'GET',
   path: '/exercises',
   config: {cors: true},
@@ -41,12 +58,14 @@ server.register(require('inert'), err => {
 
   server.route({
     method: 'GET',
-    path: '/exercise/{name}/{asset}',
+    path: '/exercise/{name}/asset/{asset}',
     handler: (request, reply) => {
       reply.file('./exercises/' + request.params.name + '/' + request.params.asset);
     }
   });
 });
+
+initSymbolic();
 
 server.start( (err) => {
   if(err) {
