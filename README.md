@@ -1,6 +1,6 @@
 # OpenTA
 # Author
-A (to be) self contained package for local development of exercises. In the current version it consists of a backend (author_backend_nodejs) serving the exercises and a frontend (author_frontend) for viewing the rendered exercises in a browser.
+A (to be) self contained package for local development of exercises. In the current version it consists of a backend (**author_backend_nodejs**) serving the exercises and a frontend (**author_frontend**) for viewing the rendered exercises in a browser.
 ## Author backend (nodejs version)
 A nodejs module serving exercises from the filesystem.
 ### Installation
