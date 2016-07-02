@@ -1,4 +1,10 @@
-export default (state = { exercises: ['test'], activeExerciseJSON: {}, activeExercise: "" }, action) => {
+var defaultState = { 
+  exercises: ['test'], 
+  activeExerciseJSON: {}, 
+  activeExercise: "" 
+};
+
+export default (state = defaultState, action) => {
   switch (action.type) {
     case 'UPDATE_ACTIVE_EXERCISE_NAME':
       return Object.assign({}, state, {activeExercise: action.exerciseName});

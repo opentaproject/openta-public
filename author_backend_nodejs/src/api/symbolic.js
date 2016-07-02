@@ -16,7 +16,23 @@ export function initSymbolic() {
 }
 
 export function compareExpressions(variables, expression1, expression2) {
-  return client.invoke("compareExpressions", variables, expression1, expression2);
+  return new Promise( (resolve, reject) => {
+    client.invoke("compareNumeric", variables, expression1, expression2,
+                 (err, res, more) => {
+                 if(err)reject(err);
+                 resolve(res);
+                 });
+  });
+}
+
+export function toLatex(expression) {
+  return new Promise( (resolve, reject) => {
+    client.invoke("toLatex", expression, 
+                  (err, res, more) => {
+                    if(err)reject(err);
+                    resolve(res);
+                  });
+  });
 }
 
 //export function parse

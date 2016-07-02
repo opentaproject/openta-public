@@ -3,7 +3,7 @@
 const Hapi = require('hapi');
 
 //Project imports
-import { listExercises, showExercise } from "./api/exercises.js";
+import { listExercises, getExerciseXMLasJSON, checkQuestion } from "./api/exercises.js";
 import { initSymbolic } from "./api/symbolic.js";
 
 const server = new Hapi.Server();
@@ -23,7 +23,7 @@ server.route({
   path: '/exercise/{name}',
   config: {cors: true},
   handler: (request, reply) => {
-    var json = showExercise('./exercises/' + request.params.name + '/problem.xml');
+    var json = getExerciseXMLasJSON('./exercises/' + request.params.name + '/problem.xml');
     reply(json);
   }
 });
@@ -39,8 +39,9 @@ server.route({
   },
   handler: (request, reply) => {
     var json = JSON.parse(request.payload.json);
-    correct = checkQuestion(request.params.name, request.params.num, json.expression);
-    reply("True");
+    var result = checkQuestion(request.params.name, request.params.num, json.expression)
+    .then( res => { console.dir(res); return res; } );
+    reply(result);
   }
 });
 

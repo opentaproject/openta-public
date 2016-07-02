@@ -73,7 +73,9 @@ function checkQuestion(exercise, question, expression) {
     }
       
     fetch('http://localhost:8000/exercise/' + exercise + '/question/' + question + '/check', fetchconfig)
-    .then(res => console.dir(res));
+    .then(res => res.json())
+//    .then(json => dispatch(updateQuestionResponse
+    .then(json => console.dir(json));
     return "True";
   }
 }
