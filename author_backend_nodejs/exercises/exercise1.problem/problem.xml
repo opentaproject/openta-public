@@ -2,7 +2,7 @@
 <!DOCTYPE problem SYSTEM "../../problem.dtd">
 <problem>
 <name>Acceleration med trissor</name>
-<figure>figure.jpg</figure>
+<figure>figure.png</figure>
 <question>
 <text lang="latex"> <![CDATA[
   Personen med massan $m$ drar i linan med kraften $T$. Beräkna personens acceleration (med positiv riktning uppåt) under antagandet att trissor, gungan och fästanordningar är masslösa. (Antag också att alla delar av linan i figuren är vertikala).
