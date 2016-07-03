@@ -59,10 +59,11 @@ export function checkQuestion(exercise, question, expression) {
       console.log(expression);
         return Promise.all(
           [
-            compareExpressions(JSON.stringify(variables), correct, expression),
+            compareExpressions(JSON.stringify(variables), correct, expression)
+            .then(res => JSON.parse(res)),
             toLatex(expression)
           ])
-          .then( res => ({ equal: res[0], latex: res[1] }) );
+          .then( res => (Object.assign({}, res[0], { latex: res[1] }) ) );
       } catch(err) {
         console.dir(err)
         return {

@@ -58,10 +58,16 @@ class SymbolicRPC(object):
         value1 = sympy.sympify(sexpression1).subs(varsubs).subs(uniteval).evalf()
         value2 = sympy.sympify(sexpression2).subs(varsubs).subs(uniteval).evalf()
         diff = sympy.Abs(value2 - value1)
-        if float(diff) < 1e-10:
-            return True
+        response = {}
+        if diff.is_constant():
+            value = float(diff)
+            if value < 1e-10:
+                response['correct'] = True
+            else:
+                response['correct'] = False
         else:
-            return False
+            response['error'] = "Failed to evaluate expression"
+        return json.dumps(response)
 
     def toLatex(self, expression):
         latex = sympy.latex(sympy.sympify(asciiToSympy(expression)))

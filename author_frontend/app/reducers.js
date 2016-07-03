@@ -1,7 +1,8 @@
 var defaultState = { 
   exercises: ['test'], 
   activeExerciseJSON: {}, 
-  activeExercise: "" 
+  activeExercise: "",
+  exerciseState: {"3_05_7.no_problem": {alerts: [1]}}
 };
 
 export default (state = defaultState, action) => {
@@ -12,6 +13,8 @@ export default (state = defaultState, action) => {
       return Object.assign({}, state, {activeExerciseJSON: action.exerciseJSON});
     case 'UPDATE_EXERCISES':
       return Object.assign({}, state, {exercises: action.exercises});
+    case 'UPDATE_QUESTION_RESPONSE':
+      return Object.assign({}, state, action.data);
     default:
       return state
   }
