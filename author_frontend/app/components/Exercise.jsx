@@ -2,6 +2,7 @@ import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import Alert from './Alert.jsx';
+import XMLEditor from './XMLEditor.jsx';
 import _ from 'lodash';
 
 class BaseExercise extends Component {
@@ -51,6 +52,7 @@ class BaseExercise extends Component {
           {questions}
           </form>
         </article>
+        <XMLEditor/>
       </div>
     );
   }

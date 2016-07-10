@@ -34,6 +34,12 @@ export function getExerciseXMLasJSON(exercise) {
   return problemdata;
 }
 
+export function getExerciseXML(exercise) {
+  var problemdata = fs.readFile(exercise, 'utf8')
+    .catch( err => console.log(exercise + ': ' + err) );
+  return problemdata;
+}
+
 function parseIngress(ingress) {
   try{ 
     var variables = ingress.split(';')

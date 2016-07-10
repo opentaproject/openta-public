@@ -1,6 +1,7 @@
 exports.config = {
   hot: true,
 
+  npm: { styles: { codemirror: ['lib/codemirror.css'] } },
   files: {
     javascripts: { joinTo: 'app.js' },
     stylesheets: { joinTo: 'app.css' }
