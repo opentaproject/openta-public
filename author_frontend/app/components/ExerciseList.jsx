@@ -73,12 +73,38 @@ function updateActiveExerciseName(exercise) {
   };
 }
 
+function updateActiveExerciseXML(exercise, xml) {
+  var data = {
+    exerciseState: {
+      [exercise]: {
+        xml: xml
+      }
+    }
+  };
+  return {
+    type: 'UPDATE_ACTIVE_EXERCISE_XML',
+    exercise: exercise,
+    data: data
+  };
+}
+
+function fetchExerciseXML(exercise) {
+  return dispatch => {
+    return fetch('http://localhost:8000/exercise/' + exercise + '/xml')
+      .then(res => res.text())
+      .then( xml => dispatch(updateActiveExerciseXML(exercise, xml)));
+  }
+}
+
 function fetchExercise(exercise) {
   return dispatch => {
     dispatch(updateActiveExerciseName(exercise));
     return fetch('http://localhost:8000/exercise/' + exercise)
       .then(response => response.json())
-      .then(json => dispatch(updateActiveExercise(json)))
+      .then(json => {
+        dispatch(fetchExerciseXML(exercise));
+        dispatch(updateActiveExercise(json));
+      })
       .catch( err => console.log(err) );
   };
 }
