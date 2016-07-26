@@ -3,9 +3,11 @@ import { connect } from 'react-redux';
 import Codemirror from 'react-codemirror';
 require('codemirror/mode/xml/xml');
 
+// Make this presentational, pass state via props
+
 const BaseXMLEditor = ({ xmlCode, onChange }) => (
-  <div className="uk-panel uk-panel-box">
-    <Codemirror value={xmlCode} options={{mode: 'xml', lineWrapping: true, theme: 'monokai', lineNumbers: true}} onChange={onChange}/>
+  <div className="uk-panel uk-panel-box uk-margin-top" style={{height:"80vh"}}>
+    <Codemirror value={xmlCode} options={{mode: 'xml', lineWrapping: true, theme: 'monokai', lineNumbers: true}} onChange={onChange}/> 
   </div>
 );
 

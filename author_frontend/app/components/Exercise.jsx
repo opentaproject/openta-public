@@ -38,11 +38,13 @@ class BaseExercise extends Component {
       )} );
     }
     return (
-      <div className="uk-width-medium-3-4 uk-margin-top">
-        <article className="uk-article uk-width-medium-3-4" ref="exercise" key={name}>
+      <div className="uk-width-medium-5-6">
+        <ul className="uk-grid uk-grid-width-xlarge-1-2">
+        <li>
+        <article className="uk-article uk-margin-top" ref="exercise" key={name}>
           <h1 className="uk-article-title">{exercisejson.problem ? exercisejson.problem.name : "No name"}</h1>
           <div className="uk-clearfix">
-            <div className="uk-align-medium-right uk-width-medium-2-4">
+            <div className="uk-align-medium-right">
               <img style={{maxHeight: '100pt'}} src={'http://localhost:8000/exercise/' + name + '/asset/' + figure} alt=""/>
             </div>
             <span dangerouslySetInnerHTML={{__html: exercisejson.problem ? exercisejson.problem.question[0].text[0]._ : ""}} />
@@ -52,7 +54,11 @@ class BaseExercise extends Component {
           {questions}
           </form>
         </article>
+        </li>
+        <li>
         <XMLEditor/>
+        </li>
+        </ul>
       </div>
     );
   }

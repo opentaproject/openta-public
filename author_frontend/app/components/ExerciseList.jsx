@@ -7,7 +7,7 @@ function listClass(item, active) {
 }
 
 const BaseExercises = ({ exerciselist, activeExercise, onExerciseClick, onExercisesClick }) => (
-  <div className="uk-width-medium-1-4">
+  <div className="uk-width-medium-1-6">
     <div className="uk-panel uk-panel-box uk-margin-top">
     <h3 className="uk-panel-title">Exercises</h3>
     <ul className="uk-nav uk-nav-side uk-list-line">
@@ -16,7 +16,7 @@ const BaseExercises = ({ exerciselist, activeExercise, onExerciseClick, onExerci
                         <a onClick={() => onExerciseClick(exercise)}>
                           <ul>
                           <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'http://localhost:8000/exercise/' + exercise + '/asset/thumbnail.png'}/>
-                          <li>{exercise}</li>
+                          <li className="uk-text-break">{exercise.split('.')[0]}</li>
                           </li>
                           </ul>
                         </a>
