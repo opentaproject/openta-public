@@ -47,8 +47,7 @@ class BaseExercise extends Component {
           </div>
       )} );
     }
-    return (
-      <div className="uk-width-medium-5-6">
+    var exerciseDOM = (
         <ul className="uk-grid uk-grid-width-xlarge-1-2">
         <li key="exercise">
         <article className="uk-article uk-margin-top" ref="exercise" key={name}>
@@ -69,6 +68,10 @@ class BaseExercise extends Component {
         <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, name)}/>
         </li>
         </ul>
+    );
+    return (
+      <div className="uk-width-medium-5-6">
+      {name ? exerciseDOM : ""}
       </div>
     );
   }
