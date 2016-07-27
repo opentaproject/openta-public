@@ -5,6 +5,11 @@ import Alert from './Alert.jsx';
 import XMLEditor from './XMLEditor.jsx';
 import xml2js from 'xml2js';
 import _ from 'lodash';
+import { 
+  updateQuestionResponse, 
+  updateActiveExerciseXML, 
+  updateActiveExercise  
+} from '../actions.js';
 
 var XMLParser = new xml2js.Parser({trim:true});
 
@@ -32,7 +37,7 @@ class BaseExercise extends Component {
       questions = exercisejson.problem.thecorrectanswer.map( (q, index) => {
         var alerts = _.get(this.props.exerciseState, 'question.' + index + '.alerts',[]);
           return (
-          <div className="uk-panel uk-panel-box uk-margin-top uk-border-rounded">
+          <div className="uk-panel uk-panel-box uk-margin-top uk-border-rounded" key={index}>
               <label className="uk-form-row">{q.$.question}</label>
               <div className="uk-form-icon uk-width-1-1">
                 <i className="uk-icon-pencil"/>
@@ -45,7 +50,7 @@ class BaseExercise extends Component {
     return (
       <div className="uk-width-medium-5-6">
         <ul className="uk-grid uk-grid-width-xlarge-1-2">
-        <li>
+        <li key="exercise">
         <article className="uk-article uk-margin-top" ref="exercise" key={name}>
           <h1 className="uk-article-title">{exercisejson.problem ? exercisejson.problem.name : "No name"}</h1>
           <div className="uk-clearfix">
@@ -60,7 +65,7 @@ class BaseExercise extends Component {
           </form>
         </article>
         </li>
-        <li>
+        <li key="xml">
         <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, name)}/>
         </li>
         </ul>
@@ -71,40 +76,6 @@ class BaseExercise extends Component {
   componentDidUpdate(props,state,root) {
     var node = ReactDOM.findDOMNode(this.refs.exercise);
     MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
-  }
-}
-
-function updateQuestionResponse(exercise, question, response) {
-  var alerts = []
-  if(response.error) {
-    alerts.push( ( <Alert message={response.error} type="error"/> )
-               );
-  }
-  if(response.correct !== undefined) {
-    if(response.correct) {
-      var message = '$' + _.get(response, 'latex', '') + '$' + " is correct!";
-      alerts.push( (<Alert message={message} type="success"/>) );
-    } else {
-      var message = '$' + _.get(response, 'latex', '') + '$' + " is incorrect.";
-      alerts.push( (<Alert message={message} type="warning"/> ) );
-    }
-  }
-  var data = { 
-    exerciseState: { 
-      [exercise]: {
-        question: {
-         [question]: {
-           alerts: alerts
-         }
-        }
-      }
-    }
-  }; 
-  return {
-    type: 'UPDATE_QUESTION_RESPONSE',
-    exercise: exercise,
-    question: question,
-    data: data
   }
 }
 
@@ -133,30 +104,7 @@ function handleQuestionInputKeyUp(dispatch, event, exercise, question) {
     dispatch(checkQuestion(exercise, question, event.target.value));
 }
 
-function updateActiveExercise(exerciseJSON) {
-  return {
-    type: 'UPDATE_ACTIVE_EXERCISE',
-    exerciseJSON: exerciseJSON
-  };
-}
-
-function updateActiveExerciseXML(exercise, xml) {
-  var data = {
-    exerciseState: {
-      [exercise]: {
-        xml: xml
-      }
-    }
-  };
-  return {
-    type: 'UPDATE_ACTIVE_EXERCISE_XML',
-    exercise: exercise,
-    data: data
-  };
-}
-
 function handleXMLChange(dispatch, xml, exercise) {
-  console.log(xml);
   XMLParser.parseString(xml, (err, result) => {
     if(err || result === null) {
       console.dir(err);

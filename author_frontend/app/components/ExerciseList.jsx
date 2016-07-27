@@ -1,5 +1,10 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
+import {
+  fetchExercises, 
+  fetchExerciseXML,
+  fetchExercise
+} from '../fetchers.js';
 
 function listClass(item, active) {
   if(item === active)return "uk-active";
@@ -41,73 +46,6 @@ const mapStateToProps = state => (
     exerciselist: state.exercises,
     activeExercise: state.activeExercise }
 );
-
-function updateExercises(exercises) {
-  return {
-    type: 'UPDATE_EXERCISES',
-    exercises: exercises
-  };
-}
-
-function fetchExercises() {
-  return dispatch => {
-    return fetch('http://localhost:8000/exercises')
-      //.then(response => {console.dir(response); return response;})
-      .then(response => response.json())
-      .then(json => dispatch(updateExercises(json)))
-      .catch( err => console.log(err) );
-  };
-}
-
-function updateActiveExercise(exerciseJSON) {
-  return {
-    type: 'UPDATE_ACTIVE_EXERCISE',
-    exerciseJSON: exerciseJSON
-  };
-}
-
-function updateActiveExerciseName(exercise) {
-  return {
-    type: 'UPDATE_ACTIVE_EXERCISE_NAME',
-    exerciseName: exercise
-  };
-}
-
-function updateActiveExerciseXML(exercise, xml) {
-  var data = {
-    exerciseState: {
-      [exercise]: {
-        xml: xml
-      }
-    }
-  };
-  return {
-    type: 'UPDATE_ACTIVE_EXERCISE_XML',
-    exercise: exercise,
-    data: data
-  };
-}
-
-function fetchExerciseXML(exercise) {
-  return dispatch => {
-    return fetch('http://localhost:8000/exercise/' + exercise + '/xml')
-      .then(res => res.text())
-      .then( xml => dispatch(updateActiveExerciseXML(exercise, xml)));
-  }
-}
-
-function fetchExercise(exercise) {
-  return dispatch => {
-    dispatch(updateActiveExerciseName(exercise));
-    return fetch('http://localhost:8000/exercise/' + exercise)
-      .then(response => response.json())
-      .then(json => {
-        dispatch(fetchExerciseXML(exercise));
-        dispatch(updateActiveExercise(json));
-      })
-      .catch( err => console.log(err) );
-  };
-}
 
 const mapDispatchToProps = dispatch => {
   return {

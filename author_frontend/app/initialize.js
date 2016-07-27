@@ -5,9 +5,11 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import counterApp from './reducers';
 import App from 'components/App';
+import { fetchExercises } from './fetchers';
 
 //const store = createStore(counterApp, module.hot && module.hot.data && module.hot.data.counter || { exercises: ['test'] });
 const store = createStore(counterApp, applyMiddleware(thunk));
+store.dispatch( fetchExercises() );
 
 if (module.hot) {
   module.hot.accept('./reducers', () => {
