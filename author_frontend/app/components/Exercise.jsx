@@ -3,7 +3,10 @@ import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import Alert from './Alert.jsx';
 import XMLEditor from './XMLEditor.jsx';
+import xml2js from 'xml2js';
 import _ from 'lodash';
+
+var XMLParser = new xml2js.Parser({trim:true});
 
 class BaseExercise extends Component {
   constructor() {
@@ -14,11 +17,13 @@ class BaseExercise extends Component {
   exercisejson: PropTypes.object.isRequired,
   exerciseName: PropTypes.string.isRequired,
   onQuestionInputKeyUp: PropTypes.func,
+  onXMLChange: PropTypes.func,
   exerciseState: PropTypes.object
 };
 
   render() {
     var exercisejson = this.props.exercisejson;
+    var exercisexml = _.get(this.props.exerciseState, "xml", '');
     var figure = this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
     var name = this.props.exerciseName;
     var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
@@ -56,7 +61,7 @@ class BaseExercise extends Component {
         </article>
         </li>
         <li>
-        <XMLEditor/>
+        <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, name)}/>
         </li>
         </ul>
       </div>
@@ -128,6 +133,41 @@ function handleQuestionInputKeyUp(dispatch, event, exercise, question) {
     dispatch(checkQuestion(exercise, question, event.target.value));
 }
 
+function updateActiveExercise(exerciseJSON) {
+  return {
+    type: 'UPDATE_ACTIVE_EXERCISE',
+    exerciseJSON: exerciseJSON
+  };
+}
+
+function updateActiveExerciseXML(exercise, xml) {
+  var data = {
+    exerciseState: {
+      [exercise]: {
+        xml: xml
+      }
+    }
+  };
+  return {
+    type: 'UPDATE_ACTIVE_EXERCISE_XML',
+    exercise: exercise,
+    data: data
+  };
+}
+
+function handleXMLChange(dispatch, xml, exercise) {
+  console.log(xml);
+  XMLParser.parseString(xml, (err, result) => {
+    if(err || result === null) {
+      console.dir(err);
+    }
+    else {
+      dispatch(updateActiveExerciseXML(exercise, xml));
+      dispatch(updateActiveExercise(result));
+    }
+  });
+}
+
 const mapStateToProps = state => {
   var activeExerciseState = _.get(state.exerciseState, state.activeExercise, {});
   return (
@@ -140,7 +180,8 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question)
+    onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question),
+    onXMLChange: (xml, exercise) => handleXMLChange(dispatch, xml, exercise)//_.throttle((xml) => handleXMLChange(dispatch, xml), 500)
   }
 }
 
