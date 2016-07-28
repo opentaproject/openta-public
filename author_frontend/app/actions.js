@@ -5,32 +5,26 @@ function updateExercises(exercises) {//{{{
   };
 }//}}}
 
-function updateActiveExercise(exerciseJSON) {//{{{
+function updateExerciseJSON(exercise, json) {//{{{
+  return {
+    type: 'UPDATE_EXERCISE_JSON',
+    exercise: exercise,
+    json: json
+  };
+}//}}}
+
+function updateActiveExercise(exercise) {//{{{
   return {
     type: 'UPDATE_ACTIVE_EXERCISE',
-    exerciseJSON: exerciseJSON
+    activeExercise: exercise
   };
 }//}}}
 
-function updateActiveExerciseName(exercise) {//{{{
+function updateExerciseXML(exercise, xml) {//{{{
   return {
-    type: 'UPDATE_ACTIVE_EXERCISE_NAME',
-    exerciseName: exercise
-  };
-}//}}}
-
-function updateActiveExerciseXML(exercise, xml) {//{{{
-  var data = {
-    exerciseState: {
-      [exercise]: {
-        xml: xml
-      }
-    }
-  };
-  return {
-    type: 'UPDATE_ACTIVE_EXERCISE_XML',
+    type: 'UPDATE_EXERCISE_XML',
     exercise: exercise,
-    data: data
+    xml: xml
   };
 }//}}}
 
@@ -68,4 +62,4 @@ function updateQuestionResponse(exercise, question, response) {//{{{
   }
 }//}}}
 
-export { updateExercises, updateActiveExercise, updateActiveExerciseName, updateActiveExerciseXML, updateQuestionResponse }
+export { updateExercises, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse }

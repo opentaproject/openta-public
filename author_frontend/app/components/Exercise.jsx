@@ -8,8 +8,8 @@ import _ from 'lodash';
 import immutable from 'immutable';
 import { 
   updateQuestionResponse, 
-  updateActiveExerciseXML, 
-  updateActiveExercise  
+  updateExerciseXML, 
+  updateExerciseJSON  
 } from '../actions.js';
 
 var XMLParser = new xml2js.Parser({trim:true});
@@ -20,7 +20,6 @@ class BaseExercise extends Component {
   } 
 
   static propTypes = {
-  exercisejson: PropTypes.object.isRequired,
   exerciseName: PropTypes.string.isRequired,
   onQuestionInputKeyUp: PropTypes.func,
   onXMLChange: PropTypes.func,
@@ -28,10 +27,10 @@ class BaseExercise extends Component {
 };
 
   render() {
-    var exercisejson = this.props.exercisejson;
     var exerciseState = this.props.exerciseState;
+    var exercisejson = exerciseState.get('json', immutable.Map({}) );
     var exercisexml = exerciseState.get('xml','');//_.get(this.props.exerciseState, "xml", '');
-    var figure = exercisejson.getIn(['problem','figure',0],'');//this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
+    var figure = exercisejson.getIn(['problem','figure',0]);//this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
     var name = this.props.exerciseName;
     var renderName = exercisejson.getIn(['problem','name'], "No name");
     var renderText = exercisejson.getIn(['problem','question',0,'text',0,'_'], "");
@@ -58,7 +57,7 @@ class BaseExercise extends Component {
           <h1 className="uk-article-title">{renderName}</h1>
           <div className="uk-clearfix">
             <div className="uk-align-medium-right">
-              <img style={{maxHeight: '100pt'}} src={'http://localhost:8000/exercise/' + name + '/asset/' + figure} alt=""/>
+            { figure && <img style={{maxHeight: '100pt'}} src={'http://localhost:8000/exercise/' + name + '/asset/' + figure} alt=""/> }
             </div>
             <span dangerouslySetInnerHTML={{__html: renderText}} />
           </div>
@@ -117,8 +116,8 @@ function handleXMLChange(dispatch, xml, exercise) {
       console.dir(err);
     }
     else {
-      dispatch(updateActiveExerciseXML(exercise, xml));
-      dispatch(updateActiveExercise(result));
+      dispatch(updateExerciseXML(exercise, xml));
+      dispatch(updateExerciseJSON(exercise, result));
     }
   });
 }
@@ -128,7 +127,6 @@ const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
   return (
   {
-    exercisejson: state.get('activeExerciseJSON'),
     exerciseName: state.get('activeExercise'),
     exerciseState: activeExerciseState
   })
@@ -137,7 +135,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question),
-    onXMLChange: (xml, exercise) => handleXMLChange(dispatch, xml, exercise)//_.throttle((xml) => handleXMLChange(dispatch, xml), 500)
+    onXMLChange: /*(xml, exercise) => handleXMLChange(dispatch, xml, exercise)*/ _.throttle((xml, exercise) => handleXMLChange(dispatch, xml, exercise), 1000)
   }
 }
 

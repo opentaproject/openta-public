@@ -6,6 +6,8 @@ import {
   fetchExercise
 } from '../fetchers.js';
 
+import immutable from 'immutable';
+
 function listClass(item, active) {
   if(item === active)return "uk-active";
   else return "";
@@ -39,11 +41,12 @@ BaseExercises.propTypes = {
   onExercisesClick: PropTypes.func.isRequired
 };
 
-const mapStateToProps = state => (
+const mapStateToProps = state => {
+  return (
   {
-    exerciselist: state.get('exercises'),
+    exerciselist: state.get('exercises', []),
     activeExercise: state.get('activeExercise') }
-);
+)};
 
 const mapDispatchToProps = dispatch => {
   return {

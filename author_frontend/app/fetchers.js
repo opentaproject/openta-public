@@ -1,7 +1,7 @@
 import { 
   updateExercises,
-  updateActiveExerciseXML,
-  updateActiveExerciseName,
+  updateExerciseXML,
+  updateExerciseJSON,
   updateActiveExercise
 } from './actions.js';
 
@@ -20,18 +20,18 @@ function fetchExerciseXML(exercise) {
   return dispatch => {
     return fetch('http://localhost:8000/exercise/' + exercise + '/xml')
       .then(res => res.text())
-      .then( xml => dispatch(updateActiveExerciseXML(exercise, xml)));
+      .then( xml => dispatch(updateExerciseXML(exercise, xml)));
   }
 }
 
 function fetchExercise(exercise) {
   return dispatch => {
-    dispatch(updateActiveExerciseName(exercise));
+    dispatch(updateActiveExercise(exercise));
     return fetch('http://localhost:8000/exercise/' + exercise)
       .then(response => response.json())
       .then(json => {
         dispatch(fetchExerciseXML(exercise));
-        dispatch(updateActiveExercise(json));
+        dispatch(updateExerciseJSON(exercise, json));
       })
       .catch( err => console.log(err) );
   };
