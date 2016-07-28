@@ -5,6 +5,7 @@ import Alert from './Alert.jsx';
 import XMLEditor from './XMLEditor.jsx';
 import xml2js from 'xml2js';
 import _ from 'lodash';
+import immutable from 'immutable';
 import { 
   updateQuestionResponse, 
   updateActiveExerciseXML, 
@@ -28,17 +29,20 @@ class BaseExercise extends Component {
 
   render() {
     var exercisejson = this.props.exercisejson;
-    var exercisexml = _.get(this.props.exerciseState, "xml", '');
-    var figure = this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
+    var exerciseState = this.props.exerciseState;
+    var exercisexml = exerciseState.get('xml','');//_.get(this.props.exerciseState, "xml", '');
+    var figure = exercisejson.getIn(['problem','figure',0],'');//this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
     var name = this.props.exerciseName;
+    var renderName = exercisejson.getIn(['problem','name'], "No name");
+    var renderText = exercisejson.getIn(['problem','question',0,'text',0,'_'], "");
     var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
     var questions = [];
-    if(exercisejson.problem) {
-      questions = exercisejson.problem.thecorrectanswer.map( (q, index) => {
-        var alerts = _.get(this.props.exerciseState, 'question.' + index + '.alerts',[]);
+    if(exercisejson.has('problem')) {
+      questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).map( (q, index) => {
+        var alerts = exerciseState.getIn(['question',index,'alerts'],immutable.List([])).toList();//_.get(this.props.exerciseState, 'question.' + index + '.alerts',[]);
           return (
           <div className="uk-panel uk-panel-box uk-margin-top uk-border-rounded" key={index}>
-              <label className="uk-form-row">{q.$.question}</label>
+              <label className="uk-form-row">{q.getIn(['$','question'],'')}</label>
               <div className="uk-form-icon uk-width-1-1">
                 <i className="uk-icon-pencil"/>
                 <input className="uk-width-1-1" type="text" onKeyUp={(event) => onQuestionInputKeyUp(Object.assign({}, event), name, index)}></input>
@@ -51,12 +55,12 @@ class BaseExercise extends Component {
         <ul className="uk-grid uk-grid-width-xlarge-1-2">
         <li key="exercise">
         <article className="uk-article uk-margin-top" ref="exercise" key={name}>
-          <h1 className="uk-article-title">{exercisejson.problem ? exercisejson.problem.name : "No name"}</h1>
+          <h1 className="uk-article-title">{renderName}</h1>
           <div className="uk-clearfix">
             <div className="uk-align-medium-right">
               <img style={{maxHeight: '100pt'}} src={'http://localhost:8000/exercise/' + name + '/asset/' + figure} alt=""/>
             </div>
-            <span dangerouslySetInnerHTML={{__html: exercisejson.problem ? exercisejson.problem.question[0].text[0]._ : ""}} />
+            <span dangerouslySetInnerHTML={{__html: renderText}} />
           </div>
           <hr className="uk-article-divider"/>
           <form className="uk-form">
@@ -120,11 +124,12 @@ function handleXMLChange(dispatch, xml, exercise) {
 }
 
 const mapStateToProps = state => {
-  var activeExerciseState = _.get(state.exerciseState, state.activeExercise, {});
+  //var activeExerciseState = _.get(state.exerciseState, state.activeExercise, {});
+  var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
   return (
   {
-    exercisejson: state.activeExerciseJSON,
-    exerciseName: state.activeExercise,
+    exercisejson: state.get('activeExerciseJSON'),
+    exerciseName: state.get('activeExercise'),
     exerciseState: activeExerciseState
   })
 };

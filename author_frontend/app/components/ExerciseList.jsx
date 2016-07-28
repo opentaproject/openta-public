@@ -41,8 +41,8 @@ BaseExercises.propTypes = {
 
 const mapStateToProps = state => (
   {
-    exerciselist: state.exercises,
-    activeExercise: state.activeExercise }
+    exerciselist: state.get('exercises'),
+    activeExercise: state.get('activeExercise') }
 );
 
 const mapDispatchToProps = dispatch => {
