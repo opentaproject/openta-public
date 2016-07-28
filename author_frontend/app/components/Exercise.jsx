@@ -30,10 +30,10 @@ class BaseExercise extends Component {
     var exerciseState = this.props.exerciseState;
     var exercisejson = exerciseState.get('json', immutable.Map({}) );
     var exercisexml = exerciseState.get('xml','');//_.get(this.props.exerciseState, "xml", '');
-    var figure = exercisejson.getIn(['problem','figure',0]);//this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
+    var figure = exercisejson.getIn(['problem','figure','$']);//this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
     var name = this.props.exerciseName;
-    var renderName = exercisejson.getIn(['problem','name'], "No name");
-    var renderText = exercisejson.getIn(['problem','question',0,'text',0,'_'], "");
+    var renderName = exercisejson.getIn(['problem','name','$'], "No name");
+    var renderText = exercisejson.getIn(['problem','question','text','$'], "");
     var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
     var questions = [];
     if(exercisejson.has('problem')) {
@@ -41,7 +41,7 @@ class BaseExercise extends Component {
         var alerts = exerciseState.getIn(['question',index,'alerts'],immutable.List([])).toList();//_.get(this.props.exerciseState, 'question.' + index + '.alerts',[]);
           return (
           <div className="uk-panel uk-panel-box uk-margin-top uk-border-rounded" key={index}>
-              <label className="uk-form-row">{q.getIn(['$','question'],'')}</label>
+              <label className="uk-form-row">{q.getIn(['@question'],'')}</label>
               <div className="uk-form-icon uk-width-1-1">
                 <i className="uk-icon-pencil"/>
                 <input className="uk-width-1-1" type="text" onKeyUp={(event) => onQuestionInputKeyUp(Object.assign({}, event), name, index)}></input>
