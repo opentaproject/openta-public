@@ -6,8 +6,16 @@ from pyramid.request import Request
 from pyramid.view import view_config
 from pyramid.events import NewRequest
 from pyramid.httpexceptions import HTTPNotFound
-from xmljson import badgerfish as bf
 from xml.etree.ElementTree import fromstring
+from symbolic_server import Symbolic
+from response import (
+    exercisesResponse,
+    exerciseJSONResponse,
+    exerciseXMLResponse,
+    exerciseAssetResponse,
+    exerciseCheckResponse,
+)
+
 from json import dumps
 import os
 
@@ -31,49 +39,6 @@ def hello_world(request):
     return Response('Hello %(name)s!' % request.matchdict)
 
 
-def exercises(request):
-    exerciselist = []
-    try:
-        exerciselist = [
-            name
-            for name in os.listdir('./exercises/')
-            if os.path.isdir(os.path.join('./exercises', name))
-        ]
-    except Exception:
-        pass
-    print(exerciselist)
-    return exerciselist
-
-
-def exerciseJSON(request):
-    obj = {}
-    try:
-        xmlfile = open('./exercises/{name}/problem.xml'.format(**request.matchdict))
-        xml = xmlfile.read()
-        obj = bf.data(fromstring(xml))
-    except Exception:
-        pass
-    return obj
-
-
-def exerciseXML(request):
-    xml = ''
-    try:
-        xmlfile = open('./exercises/{name}/problem.xml'.format(**request.matchdict))
-        xml = xmlfile.read()
-    except Exception:
-        pass
-    return xml
-
-
-def exerciseAsset(request):
-    file = './exercises/{name}/{asset}'.format(**request.matchdict)
-    if os.path.isfile(file):
-        return FileResponse(file, request=request)
-    else:
-        return HTTPNotFound('Asset does not exist.')
-
-
 if __name__ == '__main__':
     config = Configurator()
 
@@ -81,11 +46,13 @@ if __name__ == '__main__':
     config.add_route('exercisexml', '/exercise/{name}/xml')
     config.add_route('exercises', '/exercises')
     config.add_route('exerciseasset', '/exercise/{name}/asset/{asset}')
+    config.add_route('exercisecheck', '/exercise/{name}/question/{num}/check')
 
-    config.add_view(exercises, route_name='exercises', renderer='json')
-    config.add_view(exerciseJSON, route_name='exercisejson', renderer='json')
-    config.add_view(exerciseXML, route_name='exercisexml', renderer='string')
-    config.add_view(exerciseAsset, route_name='exerciseasset')
+    config.add_view(exercisesResponse, route_name='exercises', renderer='json')
+    config.add_view(exerciseJSONResponse, route_name='exercisejson', renderer='json')
+    config.add_view(exerciseXMLResponse, route_name='exercisexml', renderer='string')
+    config.add_view(exerciseAssetResponse, route_name='exerciseasset')
+    config.add_view(exerciseCheckResponse, route_name='exercisecheck', renderer='json')
 
     config.add_subscriber(add_cors_headers_response_callback, NewRequest)
     app = config.make_wsgi_app()
