@@ -90,8 +90,9 @@ function checkQuestion(exercise, question, expression) {
     var payload = {
       expression: expression
     }
-    var data = new FormData();
-    data.append('json', JSON.stringify(payload));
+    //var data = new FormData();
+    //data.append('json', new Blob([JSON.stringify(payload)], {type: 'application/json'}));
+    var data = JSON.stringify(payload);
     var fetchconfig = {
       method: "POST",
       body: data
