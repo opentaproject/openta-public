@@ -8,9 +8,9 @@ uniteval = {meter: 1, second: 1, kg: 1}
 
 def asciiToSympy(expression):
     dict = {'^': '**'}
-    result = expression
-    result = re.sub(r'([a-zA-Z0-9]) ([a-zA-Z0-9])', r'\1*\2', result)
-    for old, new in dict.iteritems():
+    # result = expression
+    result = re.sub(r"([a-zA-Z0-9]) ([a-zA-Z0-9])", r"\1*\2", expression)
+    for old, new in dict.items():
         result = result.replace(old, new)
     return result
 
@@ -51,6 +51,8 @@ class Symbolic:
         svariables = asciiToSympy(variables)
         sexpression1 = asciiToSympy(expression1)
         sexpression2 = asciiToSympy(expression2)
+        print(sexpression1)
+        print(sexpression2)
         # Parse variables from JSON format into substitution dictionary
         varsubs = self.parseVariables(svariables)
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.

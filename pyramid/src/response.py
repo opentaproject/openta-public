@@ -1,6 +1,6 @@
 from pyramid.response import Response, FileResponse
 from pyramid.httpexceptions import HTTPNotFound
-from exercises import exercises, exerciseJSON, exerciseXML
+from exercises import exercises, exerciseJSON, exerciseXML, exerciseCheck
 import os
 
 
@@ -29,6 +29,8 @@ def exerciseAssetResponse(request):  # {{{
         return HTTPNotFound('Asset does not exist.')  # }}}
 
 
-def exerciseCheckResponse(request):
-    print(request.json_body)
-    return 'ok'
+def exerciseCheckResponse(request):  # {{{
+    exerciseCheck(
+        request.matchdict['name'], int(request.matchdict['num']), request.json_body['expression']
+    )
+    return 'ok'  # }}}

@@ -4,6 +4,21 @@ import traceback
 from xml.etree.ElementTree import fromstring
 import os
 import sys
+import functools
+import operator
+import json as JSON
+from symbolic_server import Symbolic
+
+symbolic = Symbolic()
+
+
+def deep_get(dictionary, *keys):
+    return functools.reduce(lambda d, key: d.get(key) if d else None, keys, dictionary)
+
+
+def nested_print(d):
+    print(JSON.dumps(d, indent=4))
+    return
 
 
 def exercises():  # {{{
@@ -46,6 +61,35 @@ def exerciseXML(path):  # {{{
         print(traceback.format_exc())
         pass
     return xml  # }}}
+
+
+def compose(*funcs):
+    return lambda x: functools.reduce(lambda v, f: f(v), funcs, x)
+
+
+def parseIngress(ingress):
+    rawvars = ingress.split(';')
+    pipeline = compose(
+        functools.partial(filter, operator.truth),
+        functools.partial(map, lambda x: x.split('=')),
+        functools.partial(map, lambda x: {'name': x[0].strip(), 'value': x[1].strip()}),
+    )
+    variables = list(pipeline(rawvars))
+    return variables
+
+
+def exerciseCheck(exercise, question, expression):  # {{{
+    json = exerciseJSON(exercise)
+    # print(JSON.dumps(deep_get(json,'problem','thecorrectanswer'), indent=4))
+    questions = deep_get(json, 'problem', 'thecorrectanswer')
+    if question < len(questions):
+        variables = parseIngress(questions[0].get('$'))
+        print(
+            symbolic.compareNumeric(JSON.dumps(variables), expression, questions[question].get('$'))
+        )
+        # nested_print(questions[question].get('$'))
+    # nested_print(questions[1].get('$'))
+    return True  # }}}
 
 
 # This is waiting for rewrite of exerciseJSON
