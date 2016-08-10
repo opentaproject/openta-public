@@ -37,7 +37,8 @@ class BaseExercise extends Component {
     var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
     var questions = [];
     if(exercisejson.has('problem')) {
-      questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).map( (q, index) => {
+      console.log(exercisejson.getIn(['problem', 'thecorrectanswer']));
+      questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).rest().map( (q, index) => {
         //!!!!!! The list is a list of Map types.
         var alerts = exerciseState.getIn(['question',index.toString(),'alerts'],immutable.List([])).toList()
           .map( alert => {console.dir(alert); return (<Alert message={alert.get('message')} type={alert.get('type')}/>);} );
