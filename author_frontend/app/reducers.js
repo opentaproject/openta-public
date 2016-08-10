@@ -22,7 +22,7 @@ export default (state = defaultState, action) => {
     case 'UPDATE_EXERCISES':
       return state.set('exercises', action.exercises);
     case 'UPDATE_QUESTION_RESPONSE':
-      return logImmutable(state.mergeDeep(action.data));
+      return state.mergeDeep(action.data);
     case 'UPDATE_EXERCISE_XML':
       return state.setIn(['exerciseState', action.exercise, 'xml'], action.xml);
     default:

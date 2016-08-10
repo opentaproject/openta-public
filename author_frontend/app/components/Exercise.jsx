@@ -37,11 +37,9 @@ class BaseExercise extends Component {
     var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
     var questions = [];
     if(exercisejson.has('problem')) {
-      console.log(exercisejson.getIn(['problem', 'thecorrectanswer']));
-      questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).rest().map( (q, index) => {
-        //!!!!!! The list is a list of Map types.
+      questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).map( (q, index) => {
         var alerts = exerciseState.getIn(['question',index.toString(),'alerts'],immutable.List([])).toList()
-          .map( alert => {console.dir(alert); return (<Alert message={alert.get('message')} type={alert.get('type')}/>);} );
+          .map( (alert, alertindex) => (<Alert message={alert.get('message')} type={alert.get('type')} key={alertindex}/>) );
         return (
           <div className="uk-panel uk-panel-box uk-margin-top uk-border-rounded" key={index}>
               <label className="uk-form-row">{q.getIn(['@question'],'')}</label>
@@ -51,7 +49,8 @@ class BaseExercise extends Component {
               </div>
               {alerts}
           </div>
-      )} );
+      )
+      } );
     }
     var exerciseDOM = (
         <ul className="uk-grid uk-grid-width-xlarge-1-2">

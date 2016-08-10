@@ -2,6 +2,7 @@ import sympy
 import json
 import re
 from sympy.core.sympify import SympifyError
+import traceback
 
 meter, second, kg = sympy.symbols('meter,second,kg')
 uniteval = {meter: 1, second: 1, kg: 1}
