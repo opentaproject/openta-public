@@ -84,11 +84,16 @@ def exerciseCheck(exercise, question, expression):  # {{{
     questions = deep_get(json, 'problem', 'thecorrectanswer')
     if question < len(questions):
         variables = parseIngress(questions[0].get('$'))
-        print(
-            symbolic.compareNumeric(JSON.dumps(variables), expression, questions[question].get('$'))
-        )
+        correct = questions[question].get('$').replace(';', '')
+        result = symbolic.compareNumeric(JSON.dumps(variables), expression, correct)
+        latex = {'latex': symbolic.toLatex(expression)}
+        result.update(latex)
+        # Need to merge with result dictionary...
+        return result
+
         # nested_print(questions[question].get('$'))
     # nested_print(questions[1].get('$'))
+
     return True  # }}}
 
 

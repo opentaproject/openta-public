@@ -1,3 +1,8 @@
+import _ from 'lodash'
+import React from 'react';
+import ReactDOM from 'react-dom';
+import Alert from './components/Alert.jsx';
+
 function updateExercises(exercises) {//{{{
   return {
     type: 'UPDATE_EXERCISES',
@@ -31,16 +36,18 @@ function updateExerciseXML(exercise, xml) {//{{{
 function updateQuestionResponse(exercise, question, response) {//{{{
   var alerts = []
   if(response.error) {
-    alerts.push( ( <Alert message={response.error} type="error"/> )
-               );
+    //alerts.push( ( <Alert message={response.error} type="error"/> )
+    alerts.push( { type:"error", message: response.error } );
   }
   if(response.correct !== undefined) {
     if(response.correct) {
       var message = '$' + _.get(response, 'latex', '') + '$' + " is correct!";
-      alerts.push( (<Alert message={message} type="success"/>) );
+      //alerts.push( (<Alert message={message} type="success"/>) );
+      alerts.push( { type:"success", message: message } );
     } else {
       var message = '$' + _.get(response, 'latex', '') + '$' + " is incorrect.";
-      alerts.push( (<Alert message={message} type="warning"/> ) );
+      //alerts.push( (<Alert message={message} type="warning"/> ) );
+      alerts.push( { type:"warning", message: message } );
     }
   }
   var data = { 

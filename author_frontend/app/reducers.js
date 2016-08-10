@@ -9,7 +9,7 @@ var defaultState = immutable.fromJS({
 });
 
 function logImmutable(x) {
-  console.dir(JSON.stringify(x));
+  console.log(JSON.stringify(x, null, 4));
   return x;
 }
 
@@ -22,7 +22,7 @@ export default (state = defaultState, action) => {
     case 'UPDATE_EXERCISES':
       return state.set('exercises', action.exercises);
     case 'UPDATE_QUESTION_RESPONSE':
-      return state.mergeDeep(action.data);
+      return logImmutable(state.mergeDeep(action.data));
     case 'UPDATE_EXERCISE_XML':
       return state.setIn(['exerciseState', action.exercise, 'xml'], action.xml);
     default:

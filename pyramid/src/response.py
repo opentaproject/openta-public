@@ -30,7 +30,8 @@ def exerciseAssetResponse(request):  # {{{
 
 
 def exerciseCheckResponse(request):  # {{{
-    exerciseCheck(
+    result = exerciseCheck(
         request.matchdict['name'], int(request.matchdict['num']), request.json_body['expression']
     )
-    return 'ok'  # }}}
+    print(result)
+    return result  # }}}

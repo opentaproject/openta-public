@@ -38,8 +38,10 @@ class BaseExercise extends Component {
     var questions = [];
     if(exercisejson.has('problem')) {
       questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).map( (q, index) => {
-        var alerts = exerciseState.getIn(['question',index,'alerts'],immutable.List([])).toList();//_.get(this.props.exerciseState, 'question.' + index + '.alerts',[]);
-          return (
+        //!!!!!! The list is a list of Map types.
+        var alerts = exerciseState.getIn(['question',index.toString(),'alerts'],immutable.List([])).toList()
+          .map( alert => {console.dir(alert); return (<Alert message={alert.message} type={alert.type}/>);} );
+        return (
           <div className="uk-panel uk-panel-box uk-margin-top uk-border-rounded" key={index}>
               <label className="uk-form-row">{q.getIn(['@question'],'')}</label>
               <div className="uk-form-icon uk-width-1-1">

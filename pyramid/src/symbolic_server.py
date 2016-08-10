@@ -68,7 +68,7 @@ class Symbolic:
                 response['correct'] = False
         else:
             response['error'] = "Failed to evaluate expression"
-        return json.dumps(response)
+        return response
 
     def toLatex(self, expression):
         latex = sympy.latex(sympy.sympify(asciiToSympy(expression)))
