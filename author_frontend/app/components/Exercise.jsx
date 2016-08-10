@@ -40,7 +40,7 @@ class BaseExercise extends Component {
       questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).map( (q, index) => {
         //!!!!!! The list is a list of Map types.
         var alerts = exerciseState.getIn(['question',index.toString(),'alerts'],immutable.List([])).toList()
-          .map( alert => {console.dir(alert); return (<Alert message={alert.message} type={alert.type}/>);} );
+          .map( alert => {console.dir(alert); return (<Alert message={alert.get('message')} type={alert.get('type')}/>);} );
         return (
           <div className="uk-panel uk-panel-box uk-margin-top uk-border-rounded" key={index}>
               <label className="uk-form-row">{q.getIn(['@question'],'')}</label>
