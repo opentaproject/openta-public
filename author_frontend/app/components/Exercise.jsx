@@ -37,7 +37,8 @@ class BaseExercise extends Component {
     var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
     var questions = [];
     if(exercisejson.has('problem')) {
-      questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).map( (q, index) => {
+      questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).rest().map( (q, index_) => {
+        var index = index_ + 1;
         var alerts = exerciseState.getIn(['question',index.toString(),'alerts'],immutable.List([])).toList()
           .map( (alert, alertindex) => (<Alert message={alert.get('message')} type={alert.get('type')} key={alertindex}/>) );
         return (
@@ -64,7 +65,7 @@ class BaseExercise extends Component {
             <span dangerouslySetInnerHTML={{__html: renderText}} />
           </div>
           <hr className="uk-article-divider"/>
-          <form className="uk-form">
+          <form className="uk-form" onSubmit={(event) => event.preventDefault()}>
           {questions}
           </form>
         </article>
@@ -109,8 +110,9 @@ function checkQuestion(exercise, question, expression) {
 }
 
 function handleQuestionInputKeyUp(dispatch, event, exercise, question) {
-  if(event.keyCode == 13)
+  if(event.keyCode == 13) {
     dispatch(checkQuestion(exercise, question, event.target.value));
+  }
 }
 
 function handleXMLChange(dispatch, xml, exercise) {
