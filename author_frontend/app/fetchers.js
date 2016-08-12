@@ -24,9 +24,10 @@ function fetchExerciseXML(exercise) {
   }
 }
 
-function fetchExercise(exercise) {
+function fetchExercise(exercise, empty) {
   return dispatch => {
     dispatch(updateActiveExercise(exercise));
+    if(empty) {
     return fetch('http://localhost:8000/exercise/' + exercise)
       .then(response => response.json())
       .then(json => {
@@ -34,6 +35,9 @@ function fetchExercise(exercise) {
         dispatch(updateExerciseJSON(exercise, json));
       })
       .catch( err => console.log(err) );
+  } else {
+    return;
+  }
   };
 }
 

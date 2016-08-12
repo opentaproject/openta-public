@@ -18,8 +18,7 @@ export default (state = defaultState, action) => {
     case 'UPDATE_ACTIVE_EXERCISE':
       return state.set('activeExercise', action.activeExercise);
     case 'UPDATE_EXERCISE_JSON':
-      logImmutable(state);
-      return logImmutable(state.setIn(['exerciseState',action.exercise, 'json'], immutable.fromJS(action.json)));
+      return state.setIn(['exerciseState',action.exercise, 'json'], immutable.fromJS(action.json));
     case 'UPDATE_EXERCISES':
       return state.set('exercises', action.exercises);
     case 'UPDATE_QUESTION_RESPONSE':
