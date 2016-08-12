@@ -12,7 +12,15 @@ import {
   updateExerciseJSON  
 } from '../actions.js';
 
-var XMLParser = new xml2js.Parser({trim:true});
+var XMLParser = new xml2js.Parser({
+  trim:true,
+  explicitArray: false,
+  explicitCharkey: true,
+  charkey: '$',
+  attrkey: '@',
+  mergeAttrs: true,
+  attrNameProcessors: [ (name) => '@' + name ]
+});
 
 class BaseExercise extends Component {
   constructor() {
