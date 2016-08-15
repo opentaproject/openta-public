@@ -14,6 +14,7 @@ from response import (
     exerciseXMLResponse,
     exerciseAssetResponse,
     exerciseCheckResponse,
+    exerciseSaveResponse,
 )
 
 from json import dumps
@@ -47,12 +48,14 @@ if __name__ == '__main__':
     config.add_route('exercises', '/exercises')
     config.add_route('exerciseasset', '/exercise/{name}/asset/{asset}')
     config.add_route('exercisecheck', '/exercise/{name}/question/{num}/check')
+    config.add_route('exercisesave', '/exercise/{name}/save')
 
     config.add_view(exercisesResponse, route_name='exercises', renderer='json')
     config.add_view(exerciseJSONResponse, route_name='exercisejson', renderer='json')
     config.add_view(exerciseXMLResponse, route_name='exercisexml', renderer='string')
     config.add_view(exerciseAssetResponse, route_name='exerciseasset')
     config.add_view(exerciseCheckResponse, route_name='exercisecheck', renderer='json')
+    config.add_view(exerciseSaveResponse, route_name='exercisesave', renderer='json')
 
     config.add_subscriber(add_cors_headers_response_callback, NewRequest)
     app = config.make_wsgi_app()

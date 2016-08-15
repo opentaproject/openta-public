@@ -69,4 +69,28 @@ function updateQuestionResponse(exercise, question, response) {//{{{
   }
 }//}}}
 
-export { updateExercises, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse }
+function setSavePendingState(exercise, pending) {
+  return {
+    type: 'SET_SAVE_PENDING',
+    exercise: exercise,
+    pending: pending
+  }
+}
+
+function setResetPendingState(exercise, pending) {
+  return {
+    type: 'SET_SAVE_PENDING',
+    exercise: exercise,
+    pending: pending
+  }
+}
+
+function setExerciseModifiedState(exercise, modified) {
+  return {
+    type: 'SET_EXERCISE_MODIFIED',
+    exercise: exercise,
+    modified: modified
+  }
+}
+
+export { updateExercises, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setExerciseModifiedState }

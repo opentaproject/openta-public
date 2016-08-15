@@ -1,6 +1,6 @@
 from pyramid.response import Response, FileResponse
 from pyramid.httpexceptions import HTTPNotFound
-from exercises import exercises, exerciseJSON, exerciseXML, exerciseCheck
+from exercises import exercises, exerciseJSON, exerciseXML, exerciseCheck, exerciseSave
 import os
 
 
@@ -35,3 +35,12 @@ def exerciseCheckResponse(request):  # {{{
     )
     print(result)
     return result  # }}}
+
+
+def exerciseSaveResponse(request):
+    result = {}
+    try:
+        result = exerciseSave(request.matchdict['name'], request.json_body['xml'])
+    except IOError:
+        result = {'success': False}
+    return result

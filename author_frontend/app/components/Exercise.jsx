@@ -9,8 +9,12 @@ import immutable from 'immutable';
 import { 
   updateQuestionResponse, 
   updateExerciseXML, 
-  updateExerciseJSON  
+  updateExerciseJSON,
+  setExerciseModifiedState
 } from '../actions.js';
+import {
+  saveExercise
+} from '../fetchers.js';
 
 var XMLParser = new xml2js.Parser({
   trim:true,
@@ -22,6 +26,13 @@ var XMLParser = new xml2js.Parser({
   attrNameProcessors: [ (name) => '@' + name ]
 });
 
+var Tools = ({showsave, onsave, savepending, showreset, onreset}) => (
+  <div className="uk-button-group">
+    { showsave && <a className="uk-button uk-button-success" onClick={onsave}>Save {savepending && <i className="uk-icon-cog uk-icon-spin"></i>} </a> }
+    { showreset && <a className="uk-button uk-button-primary" onClick={onreset}>Reset</a> }
+  </div>
+);
+
 class BaseExercise extends Component {
   constructor() {
     super();
@@ -30,6 +41,7 @@ class BaseExercise extends Component {
   static propTypes = {
   exerciseName: PropTypes.string.isRequired,
   onQuestionInputKeyUp: PropTypes.func,
+  onSave: PropTypes.func,
   onXMLChange: PropTypes.func,
   exerciseState: PropTypes.object
 };
@@ -43,6 +55,9 @@ class BaseExercise extends Component {
     var renderName = exercisejson.getIn(['problem','name','$'], "No name");
     var renderText = exercisejson.getIn(['problem','question','text','$'], "");
     var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
+    var onSave = this.props.onSave;
+    var savePending = exerciseState.get('savepending');
+    var modified = exerciseState.get('modified');
     var questions = [];
     if(exercisejson.has('problem')) {
       questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).rest().map( (q, index_) => {
@@ -65,7 +80,10 @@ class BaseExercise extends Component {
         <ul className="uk-grid uk-grid-width-xlarge-1-2">
         <li key="exercise">
         <article className="uk-article uk-margin-top" ref="exercise" key={name}>
+          <div className="uk-grid">
           <h1 className="uk-article-title">{renderName}</h1>
+          { modified && <Tools showsave={true} savepending={savePending} showreset={true} onsave={(event) => onSave(name)}/> }
+          </div>
           <div className="uk-clearfix">
             <div className="uk-align-medium-right">
             { figure && <img style={{maxHeight: '100pt'}} src={'http://localhost:8000/exercise/' + name + '/asset/' + figure} alt=""/> }
@@ -131,8 +149,14 @@ function handleXMLChange(dispatch, xml, exercise) {
     else {
       dispatch(updateExerciseXML(exercise, xml));
       dispatch(updateExerciseJSON(exercise, result));
+      dispatch(setExerciseModifiedState(exercise, true));
     }
   });
+}
+
+function handleSave(dispatch, exercise) {
+  console.log("Save " + exercise);
+  dispatch(saveExercise(exercise));
 }
 
 const mapStateToProps = state => {
@@ -148,7 +172,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question),
-    onXMLChange: /*(xml, exercise) => handleXMLChange(dispatch, xml, exercise)*/ _.throttle((xml, exercise) => handleXMLChange(dispatch, xml, exercise), 1000)
+    onXMLChange: /*(xml, exercise) => handleXMLChange(dispatch, xml, exercise)*/ _.throttle((xml, exercise) => handleXMLChange(dispatch, xml, exercise), 1000),
+    onSave: (exercise) => handleSave(dispatch, exercise)
   }
 }
 

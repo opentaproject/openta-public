@@ -8,6 +8,7 @@ import functools
 import operator
 import json as JSON
 from symbolic_server import Symbolic
+from time import sleep
 
 symbolic = Symbolic()
 
@@ -95,6 +96,14 @@ def exerciseCheck(exercise, question, expression):  # {{{
     # nested_print(questions[1].get('$'))
 
     return True  # }}}
+
+
+def exerciseSave(exercise, xml):
+    print('Saving ' + exercise)
+    with open('./exercises/{path}/problem.xml'.format(path=exercise), 'w') as file:
+        file.write(xml)
+    sleep(5)
+    return {'success': True}
 
 
 # This is waiting for rewrite of exerciseJSON

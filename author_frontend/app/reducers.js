@@ -1,4 +1,5 @@
 import immutable from 'immutable';
+import {logImmutable} from 'immutablehelpers.js';
 
 var defaultState = immutable.fromJS({ 
   exercises: ['test'], 
@@ -7,11 +8,6 @@ var defaultState = immutable.fromJS({
   activeExercise: "",
   exerciseState: {"3_05_7.no_problem": {alerts: [1]}}
 });
-
-function logImmutable(x) {
-  console.log(JSON.stringify(x, null, 4));
-  return x;
-}
 
 export default (state = defaultState, action) => {
   switch (action.type) {
@@ -25,6 +21,11 @@ export default (state = defaultState, action) => {
       return state.mergeDeep(action.data);
     case 'UPDATE_EXERCISE_XML':
       return state.setIn(['exerciseState', action.exercise, 'xml'], action.xml);
+    case 'SET_SAVE_PENDING':
+      return state.setIn(['exerciseState', action.exercise, 'savepending'], action.pending);
+    case 'SET_EXERCISE_MODIFIED':
+      return logImmutable(state.setIn(['exerciseState', action.exercise, 'modified'], action.modified));
+
     default:
       return state
   }

@@ -2,8 +2,11 @@ import {
   updateExercises,
   updateExerciseXML,
   updateExerciseJSON,
-  updateActiveExercise
+  updateActiveExercise,
+  setSavePendingState,
+  setExerciseModifiedState
 } from './actions.js';
+import {logImmutable} from 'immutablehelpers.js'
 
 function fetchExercises() {
   return dispatch => {
@@ -41,8 +44,34 @@ function fetchExercise(exercise, empty) {
   };
 }
 
+function saveExercise(exercise) {
+  return (dispatch, getState) => {
+    var state = getState();
+    var xml = state.getIn(['exerciseState', exercise, 'xml']);
+    var payload = {
+      exercise: exercise,
+      xml: xml
+    }
+    var data = JSON.stringify(payload);
+    var fetchconfig = {
+      method: "POST",
+      body: data
+    }
+    dispatch(setSavePendingState(exercise, true));
+    return fetch('http://localhost:8000/exercise/' + exercise + '/save', fetchconfig)
+    .catch( err => console.dir(err) )
+    .then(res => res.json())
+    .then( json => console.dir(json) )
+    .then( () => {
+      dispatch(setSavePendingState(exercise, false));
+      dispatch(setExerciseModifiedState(exercise, false));
+    });
+  }
+}
+
 export {
   fetchExercises, 
   fetchExerciseXML,
-  fetchExercise 
+  fetchExercise,
+  saveExercise
 };
