@@ -77,9 +77,17 @@ function setSavePendingState(exercise, pending) {
   }
 }
 
+function setSaveError(exercise, error) {
+  return {
+    type: 'SET_SAVE_ERROR',
+    exercise: exercise,
+    error: error
+  }
+}
+
 function setResetPendingState(exercise, pending) {
   return {
-    type: 'SET_SAVE_PENDING',
+    type: 'SET_RESET_PENDING',
     exercise: exercise,
     pending: pending
   }
@@ -93,4 +101,4 @@ function setExerciseModifiedState(exercise, modified) {
   }
 }
 
-export { updateExercises, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setExerciseModifiedState }
+export { updateExercises, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState }

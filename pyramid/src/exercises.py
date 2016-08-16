@@ -9,6 +9,7 @@ import operator
 import json as JSON
 from symbolic_server import Symbolic
 from time import sleep
+from random import random
 
 symbolic = Symbolic()
 
@@ -102,7 +103,9 @@ def exerciseSave(exercise, xml):
     print('Saving ' + exercise)
     with open('./exercises/{path}/problem.xml'.format(path=exercise), 'w') as file:
         file.write(xml)
-    sleep(5)
+    sleep(0.5)
+    if random() > 0.5:
+        raise IOError('Simulated IOError')
     return {'success': True}
 
 

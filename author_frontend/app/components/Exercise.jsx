@@ -13,7 +13,8 @@ import {
   setExerciseModifiedState
 } from '../actions.js';
 import {
-  saveExercise
+  saveExercise,
+  fetchExercise
 } from '../fetchers.js';
 
 var XMLParser = new xml2js.Parser({
@@ -26,10 +27,14 @@ var XMLParser = new xml2js.Parser({
   attrNameProcessors: [ (name) => '@' + name ]
 });
 
-var Tools = ({showsave, onsave, savepending, showreset, onreset}) => (
-  <div className="uk-button-group">
-    { showsave && <a className="uk-button uk-button-success" onClick={onsave}>Save {savepending && <i className="uk-icon-cog uk-icon-spin"></i>} </a> }
-    { showreset && <a className="uk-button uk-button-primary" onClick={onreset}>Reset</a> }
+var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => (
+  <div>
+    <div className="uk-button-group"> 
+        { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
+        { showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary uk-margin-right" onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a> }
+    </div>
+      { saveerror && !savepending && (<div className="uk-badge uk-badge-danger uk-margin-right">Error while saving, try again or consider manual backup.</div>) }
+      { savesuccess && (<div className="uk-badge uk-badge-success">Saved</div>) }
   </div>
 );
 
@@ -42,6 +47,7 @@ class BaseExercise extends Component {
   exerciseName: PropTypes.string.isRequired,
   onQuestionInputKeyUp: PropTypes.func,
   onSave: PropTypes.func,
+  onReset: PropTypes.func,
   onXMLChange: PropTypes.func,
   exerciseState: PropTypes.object
 };
@@ -56,7 +62,10 @@ class BaseExercise extends Component {
     var renderText = exercisejson.getIn(['problem','question','text','$'], "");
     var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
     var onSave = this.props.onSave;
+    var onReset = this.props.onReset;
     var savePending = exerciseState.get('savepending');
+    var saveError = exerciseState.get('saveerror');
+    var resetPending = exerciseState.get('resetpending');
     var modified = exerciseState.get('modified');
     var questions = [];
     if(exercisejson.has('problem')) {
@@ -82,7 +91,7 @@ class BaseExercise extends Component {
         <article className="uk-article uk-margin-top" ref="exercise" key={name}>
           <div className="uk-grid">
           <h1 className="uk-article-title">{renderName}</h1>
-          { modified && <Tools showsave={true} savepending={savePending} showreset={true} onsave={(event) => onSave(name)}/> }
+          <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(name)} onreset={(event) => onReset(name)}/>
           </div>
           <div className="uk-clearfix">
             <div className="uk-align-medium-right">
@@ -158,6 +167,10 @@ function handleSave(dispatch, exercise) {
   console.log("Save " + exercise);
   dispatch(saveExercise(exercise));
 }
+function handleReset(dispatch, exercise) {
+  console.log("Reset " + exercise);
+  dispatch(fetchExercise(exercise, true));
+}
 
 const mapStateToProps = state => {
   //var activeExerciseState = _.get(state.exerciseState, state.activeExercise, {});
@@ -173,7 +186,8 @@ const mapDispatchToProps = dispatch => {
   return {
     onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question),
     onXMLChange: /*(xml, exercise) => handleXMLChange(dispatch, xml, exercise)*/ _.throttle((xml, exercise) => handleXMLChange(dispatch, xml, exercise), 1000),
-    onSave: (exercise) => handleSave(dispatch, exercise)
+    onSave: (exercise) => handleSave(dispatch, exercise),
+    onReset: (exercise) => handleReset(dispatch, exercise)
   }
 }
 

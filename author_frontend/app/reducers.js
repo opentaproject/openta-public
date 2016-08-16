@@ -23,8 +23,12 @@ export default (state = defaultState, action) => {
       return state.setIn(['exerciseState', action.exercise, 'xml'], action.xml);
     case 'SET_SAVE_PENDING':
       return state.setIn(['exerciseState', action.exercise, 'savepending'], action.pending);
+    case 'SET_SAVE_ERROR':
+      return state.setIn(['exerciseState', action.exercise, 'saveerror'], action.error);
+    case 'SET_RESET_PENDING':
+      return state.setIn(['exerciseState', action.exercise, 'resetpending'], action.pending);
     case 'SET_EXERCISE_MODIFIED':
-      return logImmutable(state.setIn(['exerciseState', action.exercise, 'modified'], action.modified));
+      return state.setIn(['exerciseState', action.exercise, 'modified'], action.modified);
 
     default:
       return state
