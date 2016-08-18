@@ -37,13 +37,22 @@ def exercise_xml(request, exercise):
 
 @api_view(['POST'])
 def exercise_save(request, exercise):
-    return exerciseSave(exercise, request.data)
+    result = {}
+    dbexercise = Exercise.objects.get(exercise_name=exercise)
+    try:
+        result = exerciseSave(dbexercise.path + '/' + exercise, request.data['xml'])
+    except IOError:
+        result = {'success': False}
+    return Response(result)
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def exercise_check(request, exercise, question):
-    print(request.data)
-    return {}
+    dbexercise = Exercise.objects.get(exercise_name=exercise)
+    result = exerciseCheck(
+        dbexercise.path + '/' + exercise, int(question), request.data['expression']
+    )
+    return Response(result)
 
 
 @api_view(['GET'])

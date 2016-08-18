@@ -63,6 +63,7 @@ function saveExercise(exercise) {
     var data = JSON.stringify(payload);
     var fetchconfig = {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: data
     }
     dispatch(setSavePendingState(exercise, true));

@@ -79,6 +79,7 @@ def parseIngress(ingress):  # {{{
 
 def exerciseCheck(exercise, question, expression):  # {{{
     json = exerciseJSON(exercise)
+    print(JSON.dumps(json, indent=4))
     # print(JSON.dumps(deep_get(json,'problem','thecorrectanswer'), indent=4))
     questions = deep_get(json, 'problem', 'thecorrectanswer')
     if question < len(questions):

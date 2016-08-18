@@ -139,6 +139,7 @@ function checkQuestion(exercise, question, expression) {
     var data = JSON.stringify(payload);
     var fetchconfig = {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: data
     }
       

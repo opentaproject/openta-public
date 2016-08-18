@@ -21,7 +21,7 @@ def asciiToSympy(expression):
 #    return expression.subs(subs)
 
 
-def parseVariables(self, variables):
+def parseVariables(variables):
     sym = {}
     # Decode JSON string into python lists/dictionaries
     vars = json.loads(variables)
@@ -35,8 +35,8 @@ def parseVariables(self, variables):
     return subs
 
 
-def evaluate(self, variables, expression):
-    subs = self.parseVariables(variables)
+def evaluate(variables, expression):
+    subs = parseVariables(variables)
     # Parse expression and evaluate with specified values
     value = sympy.sympify(expression).evalf(subs=subs)
     response = {}
@@ -47,7 +47,7 @@ def evaluate(self, variables, expression):
     return json.dumps(response)
 
 
-def compareNumeric(self, variables, expression1, expression2):
+def compareNumeric(variables, expression1, expression2):
     # Do some initial formatting
     response = {}
     try:
@@ -55,7 +55,7 @@ def compareNumeric(self, variables, expression1, expression2):
         sexpression1 = asciiToSympy(expression1)
         sexpression2 = asciiToSympy(expression2)
         # Parse variables from JSON format into substitution dictionary
-        varsubs = self.parseVariables(svariables)
+        varsubs = parseVariables(svariables)
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
         value1 = sympy.sympify(sexpression1).subs(varsubs).subs(uniteval).evalf()
         value2 = sympy.sympify(sexpression2).subs(varsubs).subs(uniteval).evalf()
@@ -88,7 +88,7 @@ def compareNumeric(self, variables, expression1, expression2):
     return response
 
 
-def toLatex(self, expression):
+def toLatex(expression):
     latex = ""
     try:
         latex = sympy.latex(sympy.sympify(asciiToSympy(expression)))
