@@ -1,4 +1,3 @@
-from pyramid.response import Response, FileResponse
 from xmljson import badgerfish as bf
 import traceback
 from xml.etree.ElementTree import fromstring
@@ -7,11 +6,10 @@ import sys
 import functools
 import operator
 import json as JSON
-from symbolic_server import Symbolic
+import exercises.symbolic as symbolic
 from time import sleep
 from random import random
-
-symbolic = Symbolic()
+from exercises.paths import EXERCISES_PATH
 
 
 def deep_get(dictionary, *keys):
@@ -23,13 +21,17 @@ def nested_print(d):
     return
 
 
+def compose(*funcs):
+    return lambda x: functools.reduce(lambda v, f: f(v), funcs, x)
+
+
 def exercises():  # {{{
     exerciselist = []
     try:
         exerciselist = [
             name
-            for name in os.listdir('./exercises/')
-            if os.path.isdir(os.path.join('./exercises', name))
+            for name in os.listdir(EXERCISES_PATH)
+            if os.path.isdir(os.path.join(EXERCISES_PATH, name))
         ]
     except Exception:
         print(traceback.format_exc())
@@ -38,12 +40,11 @@ def exercises():  # {{{
     return exerciselist  # }}}
 
 
-# Need to split into JSON reading part and request handling
 def exerciseJSON(path):  # {{{
     obj = {}
     try:
-        print('./exercises/{path}/problem.xml'.format(path=path))
-        xmlfile = open('./exercises/{path}/problem.xml'.format(path=path))
+        print(EXERCISES_PATH + '/{path}/problem.xml'.format(path=path))
+        xmlfile = open(EXERCISES_PATH + '/{path}/problem.xml'.format(path=path))
         xml = xmlfile.read()
         obj = bf.data(fromstring(xml))
     except Exception:
@@ -56,7 +57,7 @@ def exerciseJSON(path):  # {{{
 def exerciseXML(path):  # {{{
     xml = ''
     try:
-        xmlfile = open('./exercises/{path}/problem.xml'.format(path=path))
+        xmlfile = open(EXERCISES_PATH + '/{path}/problem.xml'.format(path=path))
         xml = xmlfile.read()
     except Exception:
         print("exerciseXML: Error reading XML for {path}".format(path=path))
@@ -65,11 +66,7 @@ def exerciseXML(path):  # {{{
     return xml  # }}}
 
 
-def compose(*funcs):
-    return lambda x: functools.reduce(lambda v, f: f(v), funcs, x)
-
-
-def parseIngress(ingress):
+def parseIngress(ingress):  # {{{
     rawvars = ingress.split(';')
     pipeline = compose(
         functools.partial(filter, operator.truth),
@@ -77,7 +74,7 @@ def parseIngress(ingress):
         functools.partial(map, lambda x: {'name': x[0].strip(), 'value': x[1].strip()}),
     )
     variables = list(pipeline(rawvars))
-    return variables
+    return variables  # }}}
 
 
 def exerciseCheck(exercise, question, expression):  # {{{
@@ -99,16 +96,11 @@ def exerciseCheck(exercise, question, expression):  # {{{
     return True  # }}}
 
 
-def exerciseSave(exercise, xml):
+def exerciseSave(exercise, xml):  # {{{
     print('Saving ' + exercise)
-    with open('./exercises/{path}/problem.xml'.format(path=exercise), 'w') as file:
+    with open(EXERCISES_PATH + '/{path}/problem.xml'.format(path=exercise), 'w') as file:
         file.write(xml)
     sleep(0.5)
     if random() > 0.5:
         raise IOError('Simulated IOError')
-    return {'success': True}
-
-
-# This is waiting for rewrite of exerciseJSON
-# def checkExercise(exercise, question, expression):
-#    json = exer
+    return {'success': True}  # }}}

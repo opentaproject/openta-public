@@ -1,6 +1,7 @@
 from django.db import models
 import os
 from functools import reduce
+from exercises.paths import EXERCISES_PATH
 
 # /Dynamics/Week 1/problem1
 # /Dynamics/Week 1/problem2
@@ -10,16 +11,6 @@ from functools import reduce
 # /Statics/Week 2/problem1
 
 # Folders [ Name ]
-
-EXERCISES_PATH = "../../exercises"
-
-
-def getFromDict(dataDict, mapList):
-    return reduce(lambda d, k: d[k], mapList, dataDict)
-
-
-def setInDict(dataDict, mapList, value):
-    getFromDict(dataDict, mapList[:-1])[mapList[-1]] = value
 
 
 class ExerciseManager(models.Manager):

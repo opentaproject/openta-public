@@ -1,0 +1,1 @@
+EXERCISES_PATH = "../../exercises"
