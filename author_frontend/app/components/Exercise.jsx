@@ -27,6 +27,8 @@ var XMLParser = new xml2js.Parser({
   attrNameProcessors: [ (name) => '@' + name ]
 });
 
+var throttleParseXML = _.throttle(XMLParser.parseString, 1000);
+
 var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => (
   <div>
     <div className="uk-button-group"> 
@@ -158,12 +160,12 @@ function handleQuestionInputKeyUp(dispatch, event, exercise, question) {
 }
 
 function handleXMLChange(dispatch, xml, exercise) {
-  XMLParser.parseString(xml, (err, result) => {
+  dispatch(updateExerciseXML(exercise, xml));
+  throttleParseXML(xml, (err, result) => {
     if(err || result === null) {
       console.dir(err);
     }
     else {
-      dispatch(updateExerciseXML(exercise, xml));
       dispatch(updateExerciseJSON(exercise, result));
       dispatch(setExerciseModifiedState(exercise, true));
     }
@@ -192,7 +194,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question),
-    onXMLChange: /*(xml, exercise) => handleXMLChange(dispatch, xml, exercise)*/ _.throttle((xml, exercise) => handleXMLChange(dispatch, xml, exercise), 1000),
+    //onXMLChange: /*(xml, exercise) => handleXMLChange(dispatch, xml, exercise)*/ _.throttle((xml, exercise) => handleXMLChange(dispatch, xml, exercise), 1000),
+    onXMLChange: (xml, exercise) => handleXMLChange(dispatch, xml, exercise) /* _.throttle((xml, exercise) => handleXMLChange(dispatch, xml, exercise), 1000)*/,
     onSave: (exercise) => handleSave(dispatch, exercise),
     onReset: (exercise) => handleReset(dispatch, exercise)
   }
