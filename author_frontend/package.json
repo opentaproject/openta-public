@@ -12,6 +12,7 @@
     "prod": "brunch build --production"
   },
   "dependencies": {
+    "after-brunch": "0.0.5",
     "immutable": "^3.8.1",
     "jquery": "^3.0.0",
     "react": "~0.14.7",

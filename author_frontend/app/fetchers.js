@@ -15,6 +15,7 @@ function fetchExercises() {
     return fetch('http://localhost:8000/exercises')
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
+      .then(json => json.map( item => item.exercise_name ))
       .then(json => dispatch(updateExercises(json)))
       .catch( err => console.log(err) );
   };
@@ -24,7 +25,8 @@ function fetchExercises() {
 function fetchExerciseXML(exercise) {
   return dispatch => {
     return fetch('http://localhost:8000/exercise/' + exercise + '/xml')
-      .then(res => res.text())
+      .then(res => res.json())
+      .then( json => json.xml )
       .then( xml => dispatch(updateExerciseXML(exercise, xml)));
   }
 }

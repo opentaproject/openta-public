@@ -11,6 +11,9 @@ exports.config = {
     babel: { 
       presets: ['es2015', 'react'],
       plugins: ["transform-class-properties"]
-    }
+    },
+    afterBrunch: [
+      'cp -r public/* ../django/backend/author/static/'
+    ]
   }
 };

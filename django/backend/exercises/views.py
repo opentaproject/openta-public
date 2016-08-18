@@ -32,7 +32,7 @@ def exercise_json(request, exercise):
 @api_view(['GET'])
 def exercise_xml(request, exercise):
     dbexercise = Exercise.objects.get(exercise_name=exercise)
-    return Response(exerciseXML(dbexercise.path + '/' + exercise))
+    return Response({'xml': exerciseXML(dbexercise.path + '/' + exercise)})
 
 
 @api_view(['POST'])
