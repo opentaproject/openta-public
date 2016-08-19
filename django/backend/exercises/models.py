@@ -30,15 +30,12 @@ class ExerciseManager(models.Manager):
             questions = deep_get(json, 'problem', 'thecorrectanswer')
             print(name)
             for index, question in enumerate(questions):
-                if question['@id'] != 'ingress':
-                    if '@id' in question:
-                        question_id = 'q' + str(question['@id'])
-                    else:
-                        question_id = index
-                # dbquestion = Question(exercise_name = dbexercise, )
-                print("Id: " + str(question['@id']))
-                # print(str(index) + " # " + question
-                print(question)
+                question_id = index
+                if '@id' in question and question['@id'] != 'ingress':
+                    question_id = 'q' + str(question['@id'])
+                dbquestion, created = Question.objects.get_or_create(
+                    exercise_name=dbexercise, question_id=question_id
+                )
 
     def folder_structure(self):
         folders = {}
