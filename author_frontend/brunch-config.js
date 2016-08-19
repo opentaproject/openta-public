@@ -13,7 +13,7 @@ exports.config = {
       plugins: ["transform-class-properties"]
     },
     afterBrunch: [
-      'cp -r public/* ../django/backend/author/static/'
+      'cp -r public/* ../django/backend/static/'
     ]
   }
 };
