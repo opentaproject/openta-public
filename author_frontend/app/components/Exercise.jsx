@@ -2,8 +2,6 @@ import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import Alert from './Alert.jsx';
-import XMLEditor from './XMLEditor.jsx';
-import xml2js from 'xml2js';
 import _ from 'lodash';
 import immutable from 'immutable';
 import { 
@@ -17,29 +15,6 @@ import {
   fetchExercise
 } from '../fetchers.js';
 
-var XMLParser = new xml2js.Parser({
-  trim:true,
-  explicitArray: false,
-  explicitCharkey: true,
-  charkey: '$',
-  attrkey: '@',
-  mergeAttrs: true,
-  attrNameProcessors: [ (name) => '@' + name ]
-});
-
-var throttleParseXML = _.throttle(XMLParser.parseString, 1000);
-
-var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => (
-  <div>
-    <div className="uk-button-group"> 
-        { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
-        { showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary uk-margin-right" onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a> }
-    </div>
-      { saveerror && !savepending && (<div className="uk-badge uk-badge-danger uk-margin-right">Error while saving, try again or consider manual backup.</div>) }
-      { savesuccess && (<div className="uk-badge uk-badge-success">Saved</div>) }
-  </div>
-);
-
 class BaseExercise extends Component {
   constructor() {
     super();
@@ -48,27 +23,27 @@ class BaseExercise extends Component {
   static propTypes = {
   exerciseName: PropTypes.string.isRequired,
   onQuestionInputKeyUp: PropTypes.func,
-  onSave: PropTypes.func,
-  onReset: PropTypes.func,
-  onXMLChange: PropTypes.func,
+  //onSave: PropTypes.func,
+  //onReset: PropTypes.func,
+  //onXMLChange: PropTypes.func,
   exerciseState: PropTypes.object
 };
 
   render() {
     var exerciseState = this.props.exerciseState;
     var exercisejson = exerciseState.get('json', immutable.Map({}) );
-    var exercisexml = exerciseState.get('xml','');//_.get(this.props.exerciseState, "xml", '');
+    //var exercisexml = exerciseState.get('xml','');//_.get(this.props.exerciseState, "xml", '');
     var figure = exercisejson.getIn(['problem','figure','$']);//this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
     var name = this.props.exerciseName;
     var renderName = exercisejson.getIn(['problem','name','$'], "No name");
     var renderText = exercisejson.getIn(['problem','question','text','$'], "");
     var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
-    var onSave = this.props.onSave;
-    var onReset = this.props.onReset;
-    var savePending = exerciseState.get('savepending');
-    var saveError = exerciseState.get('saveerror');
-    var resetPending = exerciseState.get('resetpending');
-    var modified = exerciseState.get('modified');
+    //var onSave = this.props.onSave;
+    //var onReset = this.props.onReset;
+    //var savePending = exerciseState.get('savepending');
+    //var saveError = exerciseState.get('saveerror');
+    //var resetPending = exerciseState.get('resetpending');
+    //var modified = exerciseState.get('modified');
     var questions = [];
     if(exercisejson.has('problem')) {
       questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).rest().map( (q, index_) => {
@@ -100,12 +75,9 @@ class BaseExercise extends Component {
       } );
     }
     var exerciseDOM = (
-        <ul className="uk-grid uk-grid-width-xlarge-1-2">
-        <li key="exercise">
         <article className="uk-article uk-margin-top" ref="exercise" key={name}>
           <div className="uk-grid">
           <h1 className="uk-article-title">{renderName}</h1>
-          <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(name)} onreset={(event) => onReset(name)}/>
           </div>
           <div className="uk-clearfix">
             <div className="uk-align-medium-right">
@@ -118,17 +90,16 @@ class BaseExercise extends Component {
           {questions}
           </form>
         </article>
-        </li>
-        <li key="xml">
-        <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, name)}/>
-        </li>
-        </ul>
     );
     return (
-      <div className="uk-width-medium-5-6">
+      <div>
       {name ? exerciseDOM : ""}
       </div>
     );
+    /*(
+      <div className="uk-width-medium-5-6">
+      {name ? exerciseDOM : ""}
+      </div>*/
   }
 
   componentDidUpdate(props,state,root) {
@@ -165,27 +136,6 @@ function handleQuestionInputKeyUp(dispatch, event, exercise, question) {
   }
 }
 
-function handleXMLChange(dispatch, xml, exercise) {
-  dispatch(updateExerciseXML(exercise, xml));
-  throttleParseXML(xml, (err, result) => {
-    if(err || result === null) {
-      console.dir(err);
-    }
-    else {
-      dispatch(updateExerciseJSON(exercise, result));
-      dispatch(setExerciseModifiedState(exercise, true));
-    }
-  });
-}
-
-function handleSave(dispatch, exercise) {
-  console.log("Save " + exercise);
-  dispatch(saveExercise(exercise));
-}
-function handleReset(dispatch, exercise) {
-  console.log("Reset " + exercise);
-  dispatch(fetchExercise(exercise, true));
-}
 
 const mapStateToProps = state => {
   //var activeExerciseState = _.get(state.exerciseState, state.activeExercise, {});
@@ -200,10 +150,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question),
-    //onXMLChange: /*(xml, exercise) => handleXMLChange(dispatch, xml, exercise)*/ _.throttle((xml, exercise) => handleXMLChange(dispatch, xml, exercise), 1000),
-    onXMLChange: (xml, exercise) => handleXMLChange(dispatch, xml, exercise) /* _.throttle((xml, exercise) => handleXMLChange(dispatch, xml, exercise), 1000)*/,
-    onSave: (exercise) => handleSave(dispatch, exercise),
-    onReset: (exercise) => handleReset(dispatch, exercise)
   }
 }
 
