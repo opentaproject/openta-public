@@ -2,6 +2,7 @@ from django.db import models
 import os
 from functools import reduce
 from exercises.paths import EXERCISES_PATH
+from exercises.parsing import deep_get, exerciseJSON
 
 # /Dynamics/Week 1/problem1
 # /Dynamics/Week 1/problem2
@@ -24,7 +25,20 @@ class ExerciseManager(models.Manager):
                     exerciselist.append((name, relpath))
         print(exerciselist)
         for name, path in exerciselist:
-            obj, created = self.get_or_create(exercise_name=name, defaults={'path': path})
+            dbexercise, created = self.get_or_create(exercise_name=name, defaults={'path': path})
+            json = exerciseJSON(path + '/' + name)
+            questions = deep_get(json, 'problem', 'thecorrectanswer')
+            print(name)
+            for index, question in enumerate(questions):
+                if question['@id'] != 'ingress':
+                    if '@id' in question:
+                        question_id = 'q' + str(question['@id'])
+                    else:
+                        question_id = index
+                # dbquestion = Question(exercise_name = dbexercise, )
+                print("Id: " + str(question['@id']))
+                # print(str(index) + " # " + question
+                print(question)
 
     def folder_structure(self):
         folders = {}
@@ -49,7 +63,7 @@ class Exercise(models.Model):
 
 class Question(models.Model):
     class Meta:
-        unique_together = ('number', 'exercise_name')
+        unique_together = ('question_id', 'exercise_name')
 
-    number = models.IntegerField()
+    question_id = models.CharField(max_length=255)
     exercise_name = models.ForeignKey(Exercise)

@@ -34,20 +34,24 @@ function updateExerciseXML(exercise, xml) {//{{{
 }//}}}
 
 function updateQuestionResponse(exercise, question, response) {//{{{
-  var alerts = []
+  var alerts = [];
+  var status = "";
   if(response.error) {
     //alerts.push( ( <Alert message={response.error} type="error"/> )
     alerts.push( { type:"error", message: response.error } );
+    status = "error";
   }
   if(response.correct !== undefined) {
     if(response.correct) {
       var message = '$' + _.get(response, 'latex', '') + '$' + " is correct!";
       //alerts.push( (<Alert message={message} type="success"/>) );
       alerts.push( { type:"success", message: message } );
+      status = "correct";
     } else {
       var message = '$' + _.get(response, 'latex', '') + '$' + " is incorrect.";
       //alerts.push( (<Alert message={message} type="warning"/> ) );
       alerts.push( { type:"warning", message: message } );
+      status = "incorrect";
     }
   }
   var data = { 
@@ -55,6 +59,7 @@ function updateQuestionResponse(exercise, question, response) {//{{{
       [exercise]: {
         question: {
          [question]: {
+           status: status,
            alerts: alerts
          }
         }

@@ -69,6 +69,14 @@ function saveExercise(exercise) {
     dispatch(setSavePendingState(exercise, true));
     return fetch('http://localhost:8000/exercise/' + exercise + '/save', fetchconfig)
     .catch( err => console.dir("Fetch error" + err) )
+    .then( res => {
+      if(res.status >= 300) {
+        throw res.status;
+      } 
+      else {
+        return res;
+      }
+    })
     .then(res => res.json())
     .then( json => {
       if(_.get(json, 'success', false)) {
@@ -77,10 +85,13 @@ function saveExercise(exercise) {
         dispatch(setSaveError(exercise, false));
       } 
       else {
+        throw "Parse error";
+      }
+    })
+    .catch( err => {
         dispatch(setSavePendingState(exercise, false));
         dispatch(setSaveError(exercise, true));
-        console.log('Error while saving');
-      }
+        console.log('Error while saving:' + err);
     });
   }
 }

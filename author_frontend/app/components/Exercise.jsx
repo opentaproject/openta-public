@@ -75,16 +75,22 @@ class BaseExercise extends Component {
         var index = index_ + 1;
         var alerts = exerciseState.getIn(['question',index.toString(),'alerts'],immutable.List([])).toList()
           .map( (alert, alertindex) => (<Alert message={alert.get('message')} type={alert.get('type')} key={alertindex}/>) );
+        var status = exerciseState.getIn(['question', index.toString(), 'status'], 'none');
+        var inputClass = {
+          error: 'uk-form-danger',
+          correct: 'uk-form-success',
+          incorrect: '',
+          none: ''
+        };
         return (
           <div>
-          <h3>Test</h3>
-          <div className="uk-block uk-block-primary uk-contrast uk-margin-top uk-padding-top-remove" key={index}>
+          <div className="uk-panel uk-panel-box uk-margin-top" key={index}>
           {/*<div className="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top uk-border-rounded" key={index}>*/}
               <div className="uk-container">
               <label className="uk-form-row">{q.getIn(['@question'],'')}</label>
               <div className="uk-form-icon uk-width-1-1">
                 <i className="uk-icon-pencil"/>
-                <input className="uk-width-1-1" type="text" onKeyUp={(event) => onQuestionInputKeyUp(Object.assign({}, event), name, index)}></input>
+                <input className={"uk-width-1-1 " + inputClass[status]} type="text" onKeyUp={(event) => onQuestionInputKeyUp(Object.assign({}, event), name, index)}></input>
               </div>
               {alerts}
               </div>

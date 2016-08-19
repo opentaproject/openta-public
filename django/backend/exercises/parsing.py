@@ -101,7 +101,7 @@ def exerciseSave(exercise, xml):  # {{{
     print('Saving ' + exercise)
     with open(EXERCISES_PATH + '/{path}/problem.xml'.format(path=exercise), 'w') as file:
         file.write(xml)
-    sleep(0.5)
-    if random() > 0.5:
-        raise IOError('Simulated IOError')
+    # sleep(0.5)
+    # if random() > 0.5:
+    #    raise IOError('Simulated IOError')
     return {'success': True}  # }}}
