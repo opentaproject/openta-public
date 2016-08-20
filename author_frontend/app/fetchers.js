@@ -21,7 +21,7 @@ function cfetch(url, options = {}) {
   }));
 }
 
-function fetchLoginstatus() {
+function fetchLoginStatus() {
   return dispatch => {
     return cfetch('/loggedin')
     .then(response => response.json() )
@@ -120,6 +120,7 @@ function saveExercise(exercise) {
 }
 
 export {
+  fetchLoginStatus,
   fetchExercises, 
   fetchExerciseXML,
   fetchExercise,
