@@ -3,6 +3,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import Alert from './components/Alert.jsx';
 
+function updateLoginStatus(data) {//{{{
+  return {
+    type: 'UPDATE_LOGIN_STATUS',
+    data: data
+  }
+}//}}}
+
 function updateExercises(exercises) {//{{{
   return {
     type: 'UPDATE_EXERCISES',
@@ -74,36 +81,36 @@ function updateQuestionResponse(exercise, question, response) {//{{{
   }
 }//}}}
 
-function setSavePendingState(exercise, pending) {
+function setSavePendingState(exercise, pending) {//{{{
   return {
     type: 'SET_SAVE_PENDING',
     exercise: exercise,
     pending: pending
   }
-}
+}//}}}
 
-function setSaveError(exercise, error) {
+function setSaveError(exercise, error) {//{{{
   return {
     type: 'SET_SAVE_ERROR',
     exercise: exercise,
     error: error
   }
-}
+}//}}}
 
-function setResetPendingState(exercise, pending) {
+function setResetPendingState(exercise, pending) {//{{{
   return {
     type: 'SET_RESET_PENDING',
     exercise: exercise,
     pending: pending
   }
-}
+}//}}}
 
-function setExerciseModifiedState(exercise, modified) {
+function setExerciseModifiedState(exercise, modified) {//{{{
   return {
     type: 'SET_EXERCISE_MODIFIED',
     exercise: exercise,
     modified: modified
   }
-}
+}//}}}
 
-export { updateExercises, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState }
+export { updateLoginStatus, updateExercises, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState }

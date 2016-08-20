@@ -1,4 +1,5 @@
 import { 
+  updateLoginStatus,
   updateExercises,
   updateExerciseXML,
   updateExerciseJSON,
@@ -9,10 +10,32 @@ import {
   setExerciseModifiedState
 } from './actions.js';
 import {logImmutable} from 'immutablehelpers.js'
+import {getcookie} from 'cookies.js'
+
+var CSRF_TOKEN = getcookie('csrftoken')[0]; 
+
+function cfetch(url, options = {}) {
+  return fetch(url, Object.assign(options, {
+      headers: { 'X-CSRFToken': CSRF_TOKEN },
+      credentials: 'same-origin'
+  }));
+}
+
+function fetchLoginstatus() {
+  return dispatch => {
+    return cfetch('/loggedin')
+    .then(response => response.json() )
+    .then(json => ({
+      username: json.username,
+      admin: json.admin
+    }))
+    .then(data => dispatch(updateLoginStatus(data)));
+  };
+}
 
 function fetchExercises() {
   return dispatch => {
-    return fetch('http://localhost:8000/exercises')
+    return cfetch('http://localhost:8000/exercises/')
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
       .then(json => json.map( item => item.exercise_name ))
@@ -24,7 +47,7 @@ function fetchExercises() {
 
 function fetchExerciseXML(exercise) {
   return dispatch => {
-    return fetch('http://localhost:8000/exercise/' + exercise + '/xml')
+    return cfetch('http://localhost:8000/exercise/' + exercise + '/xml')
       .then(res => res.json())
       .then( json => json.xml )
       .then( xml => dispatch(updateExerciseXML(exercise, xml)));
@@ -36,7 +59,7 @@ function fetchExercise(exercise, empty) {
     dispatch(updateActiveExercise(exercise));
     if(empty) {
     dispatch(setResetPendingState(exercise, true));
-    return fetch('http://localhost:8000/exercise/' + exercise)
+    return cfetch('http://localhost:8000/exercise/' + exercise)
       .then(response => response.json())
       .then(json => {
         dispatch(fetchExerciseXML(exercise));
@@ -67,7 +90,7 @@ function saveExercise(exercise) {
       body: data
     }
     dispatch(setSavePendingState(exercise, true));
-    return fetch('http://localhost:8000/exercise/' + exercise + '/save', fetchconfig)
+    return cfetch('http://localhost:8000/exercise/' + exercise + '/save', fetchconfig)
     .catch( err => console.dir("Fetch error" + err) )
     .then( res => {
       if(res.status >= 300) {

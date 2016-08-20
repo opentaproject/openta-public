@@ -11,6 +11,8 @@ var defaultState = immutable.fromJS({
 
 export default (state = defaultState, action) => {
   switch (action.type) {
+    case 'UPDATE_LOGIN_STATUS':
+      return state.set('login', action.data);
     case 'UPDATE_ACTIVE_EXERCISE':
       return state.set('activeExercise', action.activeExercise);
     case 'UPDATE_EXERCISE_JSON':
