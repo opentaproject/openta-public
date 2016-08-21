@@ -5,7 +5,6 @@ import Alert from './Alert.jsx';
 import _ from 'lodash';
 import immutable from 'immutable';
 import { 
-  updateQuestionResponse, 
   updateExerciseXML, 
   updateExerciseJSON,
   setExerciseModifiedState

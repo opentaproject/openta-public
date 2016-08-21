@@ -77,7 +77,7 @@ class BaseAuthorExercise extends Component {
         </li>
         </ul>
     );
-    return authorDOM;
+    return name ? authorDOM : (<span/>);
   }
 }
 

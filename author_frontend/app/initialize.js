@@ -2,14 +2,15 @@ import 'whatwg-fetch';
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { createStore, applyMiddleware } from 'redux';
+import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import counterApp from './reducers';
 import App from 'components/App';
 import { fetchExercises, fetchLoginStatus } from './fetchers';
 
 //const store = createStore(counterApp, module.hot && module.hot.data && module.hot.data.counter || { exercises: ['test'] });
-const store = createStore(counterApp, applyMiddleware(thunk));
+//const store = createStore(counterApp, applyMiddleware(thunk));
+const store = createStore(counterApp, compose(applyMiddleware(thunk), window.devToolsExtension ? window.devToolsExtension() : f => f));
 store.dispatch( fetchExercises() );
 store.dispatch( fetchLoginStatus() );
 

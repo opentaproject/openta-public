@@ -8,12 +8,16 @@ import LoginInfo from './LoginInfo';
 export default class App extends React.Component {
   render() {
     return (
-      <div id="content" className="uk-container uk-grid uk-container-center">
-      {/*<LoginInfo/>*/}
-        <ExerciseList />
-        <div className="uk-width-medium-5-6">
-          <AuthorExercise />
+      <div>
+      <LoginInfo/>
+      <div id="content" className="uk-container uk-container-center">
+        <div id="main" className="uk-grid">
+          <ExerciseList />
+          <div className="uk-width-medium-5-6">
+            <AuthorExercise />
+          </div>
         </div>
+      </div>
       </div>
     );
   }

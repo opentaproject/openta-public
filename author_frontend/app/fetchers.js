@@ -43,7 +43,7 @@ function fetchLoginStatus() {
 
 function fetchExercises() {
   return dispatch => {
-    return jsonfetch('http://localhost:8000/exercises/')
+    return jsonfetch('/exercises/')
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
       .then(json => json.map( item => item.exercise_name ))
@@ -55,7 +55,7 @@ function fetchExercises() {
 
 function fetchExerciseXML(exercise) {
   return dispatch => {
-    return jsonfetch('http://localhost:8000/exercise/' + exercise + '/xml')
+    return jsonfetch('/exercise/' + exercise + '/xml')
       .then(res => res.json())
       .then( json => json.xml )
       .then( xml => dispatch(updateExerciseXML(exercise, xml)));
@@ -67,7 +67,7 @@ function fetchExercise(exercise, empty) {
     dispatch(updateActiveExercise(exercise));
     if(empty) {
     dispatch(setResetPendingState(exercise, true));
-    return jsonfetch('http://localhost:8000/exercise/' + exercise)
+    return jsonfetch('/exercise/' + exercise)
       .then(response => response.json())
       .then(json => {
         dispatch(fetchExerciseXML(exercise));
@@ -98,7 +98,7 @@ function saveExercise(exercise) {
       body: data
     }
     dispatch(setSavePendingState(exercise, true));
-    return jsonfetch('http://localhost:8000/exercise/' + exercise + '/save', fetchconfig)
+    return jsonfetch('/exercise/' + exercise + '/save', fetchconfig)
     .catch( err => console.dir("Fetch error" + err) )
     .then( res => {
       if(res.status >= 300) {
@@ -141,7 +141,7 @@ function checkQuestion(exercise, question, expression) {
       body: data
     }
       
-    jsonfetch('http://localhost:8000/exercise/' + exercise + '/question/' + question + '/check', fetchconfig)
+    jsonfetch('/exercise/' + exercise + '/question/' + question + '/check', fetchconfig)
     .catch( err => console.log("checkQuestion error!") )
     .then(res => res.json())
     .then(json => { dispatch(updateQuestionResponse(exercise, question, json)); return json});
