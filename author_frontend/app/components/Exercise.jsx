@@ -12,7 +12,8 @@ import {
 } from '../actions.js';
 import {
   saveExercise,
-  fetchExercise
+  fetchExercise,
+  checkQuestion
 } from '../fetchers.js';
 
 class BaseExercise extends Component {
@@ -108,27 +109,6 @@ class BaseExercise extends Component {
   }
 }
 
-function checkQuestion(exercise, question, expression) {
-  return dispatch => {
-    var payload = {
-      expression: expression
-    }
-    //var data = new FormData();
-    //data.append('json', new Blob([JSON.stringify(payload)], {type: 'application/json'}));
-    var data = JSON.stringify(payload);
-    var fetchconfig = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: data
-    }
-      
-    fetch('http://localhost:8000/exercise/' + exercise + '/question/' + question + '/check', fetchconfig)
-    .catch( err => console.log("checkQuestion error!") )
-    .then(res => res.json())
-    .then(json => { dispatch(updateQuestionResponse(exercise, question, json)); return json});
-    //.then(json => console.dir(json))
-  }
-}
 
 function handleQuestionInputKeyUp(dispatch, event, exercise, question) {
   if(event.keyCode == 13) {
