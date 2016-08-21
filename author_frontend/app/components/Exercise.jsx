@@ -81,7 +81,7 @@ class BaseExercise extends Component {
           </div>
           <div className="uk-clearfix">
             <div className="uk-align-medium-right">
-            { figure && <img style={{maxHeight: '100pt'}} src={'http://localhost:8000/exercise/' + name + '/asset/' + figure} alt=""/> }
+            { figure && <img style={{maxHeight: '100pt'}} src={'/exercise/' + name + '/asset/' + figure} alt=""/> }
             </div>
             <span dangerouslySetInnerHTML={{__html: renderText}} />
           </div>

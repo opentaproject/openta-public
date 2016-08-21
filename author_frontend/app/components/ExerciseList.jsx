@@ -21,7 +21,7 @@ const BaseExercises = ({ exerciselist, activeExercise, exerciseState, onExercise
                       <li className={exercise === activeExercise ? "uk-active" : ""}>
                         <a onClick={() => onExerciseClick(exercise, exerciseState.getIn([exercise,'json'], immutable.Map({})).isEmpty())}>
                           <ul>
-                          <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'http://localhost:8000/exercise/' + exercise + '/asset/thumbnail.png'}/>
+                          <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise + '/asset/thumbnail.png'}/>
                           <li className="uk-text-break">{exercise.split('.')[0]}</li>
                           </li>
                           </ul>

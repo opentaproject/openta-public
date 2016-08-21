@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
+import { connect } from 'react-redux';
 import Counter from './Counter';
 import ExerciseList from './ExerciseList';
 import Exercise from './Exercise';
 import AuthorExercise from './AuthorExercise';
 import LoginInfo from './LoginInfo';
 
-export default class App extends React.Component {
+class BaseApp extends React.Component {
+  static propTypes = {
+    login: PropTypes.object
+  };
   render() {
     return (
       <div>
@@ -14,7 +18,7 @@ export default class App extends React.Component {
         <div id="main" className="uk-grid">
           <ExerciseList />
           <div className="uk-width-medium-5-6">
-            <AuthorExercise />
+          { this.props.admin ? <AuthorExercise /> : <Exercise/> }
           </div>
         </div>
       </div>
@@ -22,3 +26,9 @@ export default class App extends React.Component {
     );
   }
 }
+
+const mapStateToProps = state => ({
+  admin: state.getIn(['login', 'admin'])
+});
+
+export default connect(mapStateToProps)(BaseApp)
