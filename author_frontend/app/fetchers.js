@@ -13,6 +13,7 @@ import {
 import {logImmutable} from 'immutablehelpers.js'
 import {getcookie} from 'cookies.js'
 import immutable from 'immutable'
+import _ from 'lodash'
 
 var CSRF_TOKEN = getcookie('csrftoken')[0]; 
 
