@@ -1,26 +1,40 @@
 # OpenTA
-# Author
-A (to be) self contained package for local development of exercises. In the current version it consists of a backend (**author_backend_nodejs**) serving the exercises and a frontend (**author_frontend**) for viewing the rendered exercises in a browser.
-## Author backend (nodejs version)
-A nodejs module serving exercises from the filesystem.
-### Installation
-Requires: [NPM](https://nodejs.org) package system.
+A web-based platform for E-learning. Consists of a Python backend together with a web front end.
 
-Install all dependencies (specified in package.json) with
+## Installation
+The following will assume the repository is cloned into a folder ```openta/```.
+
+Requires: 
+* [Python 3](https://www.python.org)
+
+Enter the backend subfolder with ```cd django```.
+Create a python 3 environment in a subdirectory ```env``` (name not important) with
 ```
-cd author_backend_nodejs
-npm install
+virtualenv env
 ```
-Compile and run with
+Enter the environment with
 ```
-npm run bstart
+source env/bin/activate
 ```
+
+Install all dependencies with
+```
+pip install -r requirements.txt
+```
+
+Start development server with
+```
+cd backend
+python manage.py runserver
+```
+
 ### Summary of third party libraries
-* [Hapi](http://www.hapijs.com): A server framework with routing
-* [xml2js](https://github.com/Leonidas-from-XIV/node-xml2js): XML parser
+* [Django](https://www.djangoproject.com/) 
+* [Django-rest-framework (DRF)](http://www.django-rest-framework.org/)
+* [Sympy](http://www.sympy.org/)
 
-## Author frontend
-A web frontend for viewing exercises served by the backend.
+## Front-end
+A web frontend for viewing/editing exercises served by the backend.
 
 ### Installation
 Requires: 
@@ -33,16 +47,14 @@ Install all dependencies (specified in package.json) with
 cd author_frontend
 npm install
 ```
-Build frontend
+Build frontend and copy the bundle to the django server (as specified in brunch-config.js)
 ```
 brunch build
 ```
-Start development server (in the deployed version this will be served by backend)
+Alternatively, start a live-development watcher that recompiles and copies the files whenever something changes
 ```
-brunch watch --server
+brunch watch
 ```
-(This starts a hot reload server, i.e. no need to restart when editing existing source files).
-Access in browser at [http://localhost:3333](http://localhost:3333).
 
 ### Summary of third party libraries
 * [React](https://facebook.github.io/react/): JS GUI framework
