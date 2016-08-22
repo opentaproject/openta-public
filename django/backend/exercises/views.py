@@ -16,11 +16,17 @@ def exercise_list(request):
     """
     # Exercise.objects.sync_with_disc()
     # Exercise.objects.folder_structure()
-    print('hoop')
     exercises = Exercise.objects.all()
     serializer = ExerciseSerializer(exercises, many=True)
-    print(serializer.data)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+def exercise_tree(request):
+    """
+    Get exercise tree
+    """
+    return Response(Exercise.objects.folder_structure())
 
 
 @api_view(['GET'])

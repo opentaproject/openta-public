@@ -5,6 +5,7 @@ import ExerciseList from './ExerciseList';
 import Exercise from './Exercise';
 import AuthorExercise from './AuthorExercise';
 import LoginInfo from './LoginInfo';
+import Course from './Course';
 
 class BaseApp extends React.Component {
   static propTypes = {
@@ -16,9 +17,10 @@ class BaseApp extends React.Component {
       <LoginInfo/>
       <div id="content" className="uk-container uk-container-center">
         <div id="main" className="uk-grid">
-          <ExerciseList />
+        { /* <ExerciseList /> */ }
           <div className="uk-width-medium-5-6">
-          { this.props.admin ? <AuthorExercise /> : <Exercise/> }
+          <Course/>
+          { /*this.props.admin ? <AuthorExercise /> : <Exercise/>*/ }
           </div>
         </div>
       </div>

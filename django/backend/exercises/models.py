@@ -16,10 +16,12 @@ from exercises.parsing import deep_get, exerciseJSON
 
 class ExerciseManager(models.Manager):
     def sync_with_disc(self):
+        print("Syncing with disc...")
         exerciselist = []
         for root, directories, filenames in os.walk(EXERCISES_PATH):
             for filename in filenames:
                 if filename == 'problem.xml':
+                    print(root)
                     name = os.path.basename(os.path.normpath(root))
                     relpath = os.path.dirname(root[len(EXERCISES_PATH) :])
                     exerciselist.append((name, relpath))
@@ -50,10 +52,18 @@ class ExerciseManager(models.Manager):
         for path in list(map(lambda x: x.split('/')[1:], unique_paths)):
             traverse = folders
             for folder in path:
-                if folder in traverse:
-                    traverse = traverse[folder]
+                if not ('folders' in traverse):
+                    traverse['folders'] = {}
+                if folder in traverse['folders']:
+                    traverse = traverse['folders'][folder]['content']
                 else:
-                    traverse[folder] = {}
+                    traverse['folders'][folder] = {'content': {}}
+        for exercise in exercises:
+            paths = list(filter(lambda x: x != '', exercise.path.split('/')[1:]))
+            root = reduce(lambda a, b: a['folders'].get(b)['content'], paths, folders)
+            if 'exercises' not in root:
+                root['exercises'] = {}
+            root['exercises'].update({exercise.exercise_name: {}})
         return folders
 
 

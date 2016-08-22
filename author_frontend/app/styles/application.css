@@ -9,3 +9,10 @@
 .ta-nav {
   background-color: #eeeeee
 }
+
+.exercise-thumb-nav {
+  -webkit-backface-visibility: hidden;
+  height: 80px;
+  max-width: 100px;
+}
+

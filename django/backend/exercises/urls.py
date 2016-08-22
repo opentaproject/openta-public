@@ -4,6 +4,7 @@ from exercises import views
 
 urlpatterns = [
     url(r'^exercises/$', views.exercise_list),
+    url(r'^exercises/tree/$', views.exercise_tree),
     url(r'^exercise/(?P<exercise>[\w\.]+)$', views.exercise_json),
     url(r'^exercise/(?P<exercise>[\w\.]+)/xml$', views.exercise_xml),
     url(r'^exercise/(?P<exercise>[\w\.]+)/asset/(?P<asset>[\w\.]+)$', views.exercise_asset),

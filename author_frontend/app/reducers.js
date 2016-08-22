@@ -19,6 +19,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['exerciseState',action.exercise, 'json'], immutable.fromJS(action.json));
     case 'UPDATE_EXERCISES':
       return state.set('exercises', action.exercises);
+    case 'UPDATE_EXERCISE_TREE':
+      return state.set('exerciseTree', action.exercisetree);
     case 'UPDATE_QUESTION_RESPONSE':
       return state.mergeDeep(action.data);
     case 'UPDATE_EXERCISE_XML':

@@ -17,6 +17,13 @@ function updateExercises(exercises) {//{{{
   };
 }//}}}
 
+function updateExerciseTree(exercisetree) {//{{{
+  return {
+    type: 'UPDATE_EXERCISE_TREE',
+    exercisetree: exercisetree
+  };
+}//}}}
+
 function updateExerciseJSON(exercise, json) {//{{{
   return {
     type: 'UPDATE_EXERCISE_JSON',
@@ -113,4 +120,4 @@ function setExerciseModifiedState(exercise, modified) {//{{{
   }
 }//}}}
 
-export { updateLoginStatus, updateExercises, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState }
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState }

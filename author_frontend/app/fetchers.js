@@ -2,6 +2,7 @@ import {
   updateQuestionResponse, 
   updateLoginStatus,
   updateExercises,
+  updateExerciseTree,
   updateExerciseXML,
   updateExerciseJSON,
   updateActiveExercise,
@@ -48,6 +49,16 @@ function fetchExercises() {
       .then(response => response.json())
       .then(json => json.map( item => item.exercise_name ))
       .then(json => dispatch(updateExercises(json)))
+      .catch( err => console.log(err) );
+  };
+}
+
+function fetchExerciseTree() {
+  return dispatch => {
+    return jsonfetch('/exercises/tree')
+      //.then(response => {console.dir(response); return response;})
+      .then(response => response.json())
+      .then(json => dispatch(updateExerciseTree(json)))
       .catch( err => console.log(err) );
   };
 }
@@ -152,6 +163,7 @@ function checkQuestion(exercise, question, expression) {
 export {
   fetchLoginStatus,
   fetchExercises, 
+  fetchExerciseTree, 
   fetchExerciseXML,
   fetchExercise,
   saveExercise,
