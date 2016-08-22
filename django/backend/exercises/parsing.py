@@ -43,7 +43,7 @@ def exercises():  # {{{
 def exerciseJSON(path):  # {{{
     obj = {}
     try:
-        print(EXERCISES_PATH + '/{path}/problem.xml'.format(path=path))
+        # print(EXERCISES_PATH + '/{path}/problem.xml'.format(path=path))
         xmlfile = open(EXERCISES_PATH + '/{path}/problem.xml'.format(path=path))
         xml = xmlfile.read()
         obj = bf.data(fromstring(xml))

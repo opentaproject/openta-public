@@ -23,12 +23,12 @@ class ExerciseManager(models.Manager):
                     name = os.path.basename(os.path.normpath(root))
                     relpath = os.path.dirname(root[len(EXERCISES_PATH) :])
                     exerciselist.append((name, relpath))
-        print(exerciselist)
         for name, path in exerciselist:
             dbexercise, created = self.get_or_create(exercise_name=name, defaults={'path': path})
+            if created:
+                print('Adding ' + path + '/' + name + ' to database.')
             json = exerciseJSON(path + '/' + name)
             questions = deep_get(json, 'problem', 'thecorrectanswer')
-            print(name)
             for index, question in enumerate(questions):
                 question_id = index
                 if '@id' in question and question['@id'] != 'ingress':
@@ -36,6 +36,11 @@ class ExerciseManager(models.Manager):
                 dbquestion, created = Question.objects.get_or_create(
                     exercise_name=dbexercise, question_id=question_id
                 )
+        for exercise in self.all():
+            fullpath = exercise.path + '/' + exercise.exercise_name + '/problem.xml'
+            if not os.path.isfile(EXERCISES_PATH + fullpath):
+                exercise.delete()
+                print('Deleting non existing ' + fullpath + ' from database.')
 
     def folder_structure(self):
         folders = {}
