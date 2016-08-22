@@ -1,27 +1,29 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import {
+  fetchExercise,
   fetchExercises, 
+  fetchSameFolder,
 } from '../fetchers.js';
 
 import immutable from 'immutable';
 
-const BaseCourse = ({ exercisetree, currentpath }) => {
+const BaseCourse = ({ exercisetree, currentpath, onExerciseClick }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
-  function parseFolder( folder ) {
+  function parseFolder( folder, foldername ) {
     var exercises = [], children = [];
     if(folder.exercises)
       exercises = Object.keys(folder.exercises).sort().map( exercise => (
         <li>
-          <a className="uk-thumbnail">
+          <a className="uk-thumbnail" onClick={(ev) => onExerciseClick(exercise, foldername)}>
             <img className="exercise-thumb-nav" src={"/exercise/" + exercise + "/asset/thumbnail.png"}/>
             <div className="uk-thumbnail-caption">{exercise.split('.')[0]}</div>
           </a>
         </li>));
     if(folder.folders)
-      children = Object.keys(folder.folders).sort().map ( childfolder => ({name: childfolder, content: parseFolder( folder.folders[childfolder].content )}) );
+      children = Object.keys(folder.folders).sort().map ( childfolder => ({name: childfolder, content: parseFolder( folder.folders[childfolder].content, childfolder)}) );
 
     var DOM = (
       <div>
@@ -42,7 +44,7 @@ const BaseCourse = ({ exercisetree, currentpath }) => {
   }
   if(exercisetree) {
   console.dir(exercisetree);
-  var top = parseFolder(exercisetree);
+  var top = parseFolder(exercisetree, "/");
   return (
   <div className="uk-content-center">
     <ul className="uk-list">
@@ -59,8 +61,15 @@ const BaseCourse = ({ exercisetree, currentpath }) => {
 const mapStateToProps = state => ({
   exercisetree: state.get('exerciseTree'),
   currentpath: state.get('currentpath')
-})
+});
 
-export default connect(mapStateToProps)(BaseCourse);
+const mapDispatchToProps = dispatch => ({
+  onExerciseClick: (exercise, folder) => {
+    dispatch(fetchExercise(exercise, true));
+    dispatch(fetchSameFolder(exercise, folder));
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(BaseCourse);
 
 

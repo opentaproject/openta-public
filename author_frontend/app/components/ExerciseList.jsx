@@ -6,6 +6,8 @@ import {
   fetchExercise
 } from '../fetchers.js';
 
+import { updateActiveExercise } from '../actions.js';
+
 import immutable from 'immutable';
 
 function listClass(item, active) {
@@ -13,10 +15,12 @@ function listClass(item, active) {
   else return "";
 }
 
-const BaseExercises = ({ exerciselist, activeExercise, exerciseState, onExerciseClick, onExercisesClick }) => (
+const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onExercisesClick, onBack }) => (
   <div className="uk-width-medium-1-6" id="exercises-menu">
     <ul className="uk-nav uk-nav-side uk-list-space exercise-menu">
-    <li className="uk-nav-header">Exercises</li>
+    <li className="uk-nav-header">
+      <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder}</span>
+    </li>
     {exerciselist.map( exercise => ( 
                       <li className={exercise === activeExercise ? "uk-active" : ""}>
                         <a onClick={() => onExerciseClick(exercise, exerciseState.getIn([exercise,'json'], immutable.Map({})).isEmpty())}>
@@ -36,17 +40,20 @@ const BaseExercises = ({ exerciselist, activeExercise, exerciseState, onExercise
 
 BaseExercises.propTypes = {
   exerciselist: PropTypes.array.isRequired,
+  folder: PropTypes.string,
   activeExercise: PropTypes.string,
   exerciseState: PropTypes.object,
   onExerciseClick: PropTypes.func.isRequired,
-  onExercisesClick: PropTypes.func.isRequired
+  onExercisesClick: PropTypes.func.isRequired,
+  onBack: PropTypes.func,
 };
 
 const mapStateToProps = state => {
   var exerciseState = state.getIn(['exerciseState'], immutable.Map({}));
   return (
   {
-    exerciselist: state.get('exercises', []),
+    exerciselist: state.get('exercises', []).sort(),
+    folder: state.get('folder', ""),
     activeExercise: state.get('activeExercise') ,
     exerciseState: exerciseState
   }
@@ -56,7 +63,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onExerciseClick: (exercise, empty) => dispatch(fetchExercise(exercise, empty)),
-    onExercisesClick: () => dispatch(fetchExercises())
+    onExercisesClick: () => dispatch(fetchExercises()),
+    onBack: () => dispatch(updateActiveExercise(""))
   };
 };
 

@@ -30,6 +30,14 @@ def exercise_tree(request):
 
 
 @api_view(['GET'])
+def other_exercises_from_folder(request, exercise):
+    dbexercise = Exercise.objects.get(exercise_name=exercise)
+    other = Exercise.objects.filter(path=dbexercise.path)
+    serializer = ExerciseSerializer(other, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
 def exercise_json(request, exercise):
     dbexercise = Exercise.objects.get(exercise_name=exercise)
     return Response(exerciseJSON(dbexercise.path + '/' + exercise))

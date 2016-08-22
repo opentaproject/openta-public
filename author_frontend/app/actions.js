@@ -10,10 +10,11 @@ function updateLoginStatus(data) {//{{{
   }
 }//}}}
 
-function updateExercises(exercises) {//{{{
+function updateExercises(exercises, folder) {//{{{
   return {
     type: 'UPDATE_EXERCISES',
-    exercises: exercises
+    exercises: exercises,
+    folder: folder
   };
 }//}}}
 

@@ -63,6 +63,16 @@ function fetchExerciseTree() {
   };
 }
 
+function fetchSameFolder(exercise, folder) {
+  return dispatch => {
+    return jsonfetch('/exercise/' + exercise + '/samefolder')
+      //.then(response => {console.dir(response); return response;})
+      .then(response => response.json())
+      .then(json => json.map( item => item.exercise_name ))
+      .then(json => dispatch(updateExercises(json, folder)))
+      .catch( err => console.log(err) );
+  };
+}
 
 function fetchExerciseXML(exercise) {
   return dispatch => {
@@ -163,6 +173,7 @@ function checkQuestion(exercise, question, expression) {
 export {
   fetchLoginStatus,
   fetchExercises, 
+  fetchSameFolder,
   fetchExerciseTree, 
   fetchExerciseXML,
   fetchExercise,

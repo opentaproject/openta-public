@@ -2,7 +2,8 @@ import immutable from 'immutable';
 import {logImmutable} from 'immutablehelpers.js';
 
 var defaultState = immutable.fromJS({ 
-  exercises: ['test'], 
+  exercises: [], 
+  folder: "",
   //activeExerciseJSON: {}, 
   //activeExerciseXML: "",
   activeExercise: "",
@@ -18,7 +19,10 @@ export default (state = defaultState, action) => {
     case 'UPDATE_EXERCISE_JSON':
       return state.setIn(['exerciseState',action.exercise, 'json'], immutable.fromJS(action.json));
     case 'UPDATE_EXERCISES':
-      return state.set('exercises', action.exercises);
+      return state.merge({
+        'exercises': action.exercises,
+        'folder': action.folder
+      });
     case 'UPDATE_EXERCISE_TREE':
       return state.set('exerciseTree', action.exercisetree);
     case 'UPDATE_QUESTION_RESPONSE':

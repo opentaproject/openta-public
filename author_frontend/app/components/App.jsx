@@ -9,7 +9,8 @@ import Course from './Course';
 
 class BaseApp extends React.Component {
   static propTypes = {
-    login: PropTypes.object
+    admin: PropTypes.bool,
+    activeExercise: PropTypes.string
   };
   render() {
     return (
@@ -17,9 +18,9 @@ class BaseApp extends React.Component {
       <LoginInfo/>
       <div id="content" className="uk-container uk-container-center">
         <div id="main" className="uk-grid">
-        { /* <ExerciseList /> */ }
+        { this.props.activeExercise !== "" ? <ExerciseList /> : "" }
           <div className="uk-width-medium-5-6">
-          <Course/>
+        { this.props.activeExercise === "" ? <Course/> : (this.props.admin ? <AuthorExercise /> : <Exercise/>) }
           { /*this.props.admin ? <AuthorExercise /> : <Exercise/>*/ }
           </div>
         </div>
@@ -30,7 +31,8 @@ class BaseApp extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  admin: state.getIn(['login', 'admin'])
+  admin: state.getIn(['login', 'admin']),
+  activeExercise: state.get('activeExercise')
 });
 
 export default connect(mapStateToProps)(BaseApp)
