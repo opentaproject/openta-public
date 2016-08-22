@@ -1,7 +1,11 @@
 # OpenTA
-A web-based platform for E-learning. Consists of a Python backend together with a web front end.
+A web-based platform for E-learning. Consists of a Python backend together with a web front end. Try it out by running the django development server locally (see below). 
 
-## Installation
+When cloning this repository a file based sqlite database is provided with two users (user:password):
+* teacher:learning, can edit exercises via the author interface.
+* student:learning, can view and answer exercises.
+
+## Backend Installation
 The following will assume the repository is cloned into a folder ```openta/```.
 
 Requires: 
@@ -33,10 +37,9 @@ python manage.py runserver
 * [Django-rest-framework (DRF)](http://www.django-rest-framework.org/)
 * [Sympy](http://www.sympy.org/)
 
-## Front-end
+## Front-end installation
 A web frontend for viewing/editing exercises served by the backend.
 
-### Installation
 Requires: 
 * [NPM](https://nodejs.org) package system
 * [Brunch](http://brunch.io/): A html/js build tool used during development
