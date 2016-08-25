@@ -8,18 +8,24 @@ import {
 
 import immutable from 'immutable';
 
-const BaseCourse = ({ exercisetree, currentpath, onExerciseClick }) => {
+const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
   function parseFolder( folder, foldername ) {
     var exercises = [], children = [];
     if(folder.exercises) {
+      //exerciseState.getIn([exercise, 'correct'], false)
       exercises = Object.keys(folder.exercises).sort().map( exercise => (
         <li>
           <a className="uk-thumbnail" onClick={(ev) => onExerciseClick(exercise, foldername)}>
+          <div className="exercise-thumb-wrap">
             <img className="exercise-thumb-nav" src={"/exercise/" + exercise + "/asset/thumbnail.png"}/>
-            <div className="uk-thumbnail-caption">{exercise.split('.')[0]} {/*folder.exercises[exercise].correct ? "correct" : "incorrect"*/ }</div>
+            {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success exercise-thumb-badge"><i className="uk-icon uk-icon-check"></i></span> }
+            </div>
+            <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
+            {folder.exercises[exercise].name}
+            </div>
           </a>
         </li>));
         console.dir(folder.exercises);
@@ -61,6 +67,7 @@ const BaseCourse = ({ exercisetree, currentpath, onExerciseClick }) => {
 }
 
 const mapStateToProps = state => ({
+  exerciseState: state.get('exerciseState'),
   exercisetree: state.get('exerciseTree'),
   currentpath: state.get('currentpath')
 });

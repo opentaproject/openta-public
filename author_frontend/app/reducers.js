@@ -18,6 +18,10 @@ export default (state = defaultState, action) => {
       return state.set('activeExercise', action.activeExercise);
     case 'UPDATE_EXERCISE_JSON':
       return state.setIn(['exerciseState',action.exercise, 'json'], immutable.fromJS(action.json));
+    case 'UPDATE_EXERCISE_STATE':
+      return state.mergeDeepIn(['exerciseState', action.exercise], action.state);
+    case 'UPDATE_EXERCISES_STATE':
+      return state.mergeDeepIn(['exerciseState'], action.state);
     case 'UPDATE_EXERCISES':
       return state.merge({
         'exercises': immutable.fromJS(action.exercises),

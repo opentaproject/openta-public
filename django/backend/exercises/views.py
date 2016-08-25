@@ -16,15 +16,31 @@ def exercises_reload(request):
 
 
 @api_view(['GET'])
+def exercise(request, exercise):
+    exercise = Exercise.objects.get(exercise_key=exercise)
+    correct = exercise.user_is_correct(request.user)
+    serializer = ExerciseSerializer(exercise)
+    data = serializer.data
+    data['correct'] = correct
+    return Response(data)
+
+
+@api_view(['GET'])
 def exercise_list(request):
     """
     List all exercises
     """
     # Exercise.objects.sync_with_disc()
     # Exercise.objects.folder_structure()
+    response = []
     exercises = Exercise.objects.all()
-    serializer = ExerciseSerializer(exercises, many=True)
-    return Response(serializer.data)
+    for exercise in exercises:
+        correct = exercise.user_is_correct(request.user)
+        serializer = ExerciseSerializer(exercise)
+        data = serializer.data
+        data['correct'] = correct
+        response.append(data)
+    return Response(response)
 
 
 @api_view(['GET'])

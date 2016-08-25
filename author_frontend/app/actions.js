@@ -25,6 +25,21 @@ function updateExerciseTree(exercisetree) {//{{{
   };
 }//}}}
 
+function updateExerciseState(exercise, state) {
+  return {
+    type: 'UPDATE_EXERCISE_STATE',
+    state: state,
+    exercise: exercise
+  };
+}
+
+function updateExercisesState(state) {
+  return {
+    type: 'UPDATE_EXERCISES_STATE',
+    state: state
+  };
+}
+
 function updateExerciseJSON(exercise, json) {//{{{
   return {
     type: 'UPDATE_EXERCISE_JSON',
@@ -121,4 +136,4 @@ function setExerciseModifiedState(exercise, modified) {//{{{
   }
 }//}}}
 
-export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState }
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState }

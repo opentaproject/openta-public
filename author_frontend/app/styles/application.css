@@ -10,9 +10,31 @@
   background-color: #eeeeee
 }
 
+.exercise-thumb-wrap {
+  position: relative;
+  left: 0;
+  top: 0;
+}
 .exercise-thumb-nav {
+  position: relative;
+  top: 0;
+  left: 0;
   -webkit-backface-visibility: hidden;
   height: 80px;
   max-width: 100px;
+}
+
+.exercise-thumb-badge {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.exercise-thumb-nav-caption {
+  max-width: 100px;
+}
+
+.exercise-thumb-correct {
+  background-color: #00FF00
 }
 

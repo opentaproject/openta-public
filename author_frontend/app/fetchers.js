@@ -5,6 +5,8 @@ import {
   updateExerciseTree,
   updateExerciseXML,
   updateExerciseJSON,
+  updateExerciseState,
+  updateExercisesState,
   updateActiveExercise,
   setSavePendingState,
   setResetPendingState,
@@ -47,8 +49,13 @@ function fetchExercises() {
     return jsonfetch('/exercises/')
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
+      .then(json => json.map( exercise =>
+                             ({
+                               [exercise.exercise_key]: { ...exercise }
+                             }) ))
+      .then(json => json.reduce( (a,b) => Object.assign(a,b) ))
       //.then(json => json.map( item => item.exercise_name ))
-      .then(json => dispatch(updateExercises(json)))
+      .then(json => dispatch(updateExercisesState(json)))
       .catch( err => console.log(err) );
   };
 }
@@ -83,12 +90,20 @@ function fetchExerciseXML(exercise) {
   }
 }
 
+function fetchExerciseRemoteState(exercise) {
+  return dispatch => {
+    return jsonfetch('/exercise/' + exercise)
+      .then(response => response.json() )
+      .then(json => dispatch(updateExerciseState(exercise, json)));
+  }
+}
+
 function fetchExercise(exercise, empty) {
   return dispatch => {
     dispatch(updateActiveExercise(exercise));
     if(empty) {
     dispatch(setResetPendingState(exercise, true));
-    return jsonfetch('/exercise/' + exercise)
+    return jsonfetch('/exercise/' + exercise + '/json')
       .then(response => response.json())
       .then(json => {
         dispatch(fetchExerciseXML(exercise));
@@ -165,7 +180,8 @@ function checkQuestion(exercise, question, expression) {
     jsonfetch('/exercise/' + exercise + '/question/' + question + '/check', fetchconfig)
     .catch( err => console.log("checkQuestion error!") )
     .then(res => res.json())
-    .then(json => { dispatch(updateQuestionResponse(exercise, question, json)); return json});
+    .then(json => { dispatch(updateQuestionResponse(exercise, question, json)); return json})
+    .then( json => dispatch(fetchExerciseRemoteState(exercise)))
     //.then(json => console.dir(json))
   }
 }

@@ -7,7 +7,8 @@ urlpatterns = [
     url(r'^exercises/reload/$', views.exercises_reload),
     url(r'^exercises/tree/$', views.exercise_tree),
     url(r'^exercise/(?P<exercise>[\w\.]+)/samefolder$', views.other_exercises_from_folder),
-    url(r'^exercise/(?P<exercise>[\w\.]+)$', views.exercise_json),
+    url(r'^exercise/(?P<exercise>[\w\.]+)/json$', views.exercise_json),
+    url(r'^exercise/(?P<exercise>[\w\.]+)$', views.exercise),
     url(r'^exercise/(?P<exercise>[\w\.]+)/xml$', views.exercise_xml),
     url(r'^exercise/(?P<exercise>[\w\.]+)/asset/(?P<asset>[\w\.]+)$', views.exercise_asset),
     url(

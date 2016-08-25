@@ -101,7 +101,9 @@ class ExerciseManager(models.Manager):
             root = reduce(lambda a, b: a['folders'].get(b)['content'], paths, folders)
             if 'exercises' not in root:
                 root['exercises'] = {}
-            root['exercises'].update({exercise.exercise_key: {'correct': allcorrect}})
+            root['exercises'].update(
+                {exercise.exercise_key: {'name': exercise.name, 'correct': allcorrect}}
+            )
         return folders
 
 
@@ -114,6 +116,18 @@ class Exercise(models.Model):
 
     def __str__(self):
         return self.name + ': ' + self.path
+
+    def user_is_correct(self, user):
+        allcorrect = True
+        questions = Question.objects.filter(exercise=self)
+        for question in questions:
+            try:
+                answer = Answer.objects.filter(user=user, question=question).latest('date')
+                if not answer.correct:
+                    allcorrect = False
+            except ObjectDoesNotExist:
+                allcorrect = False
+        return allcorrect
 
 
 class Question(models.Model):
