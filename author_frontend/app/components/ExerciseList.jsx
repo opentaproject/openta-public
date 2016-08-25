@@ -22,7 +22,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
       <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder}</span>
     </li>
     {exerciselist.map( exercise => ( 
-                      <li className={exercise === activeExercise ? "uk-active" : ""}>
+                      <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""}>
                         <a onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise,'json'], immutable.Map({})).isEmpty())}>
                           <ul>
                           <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
