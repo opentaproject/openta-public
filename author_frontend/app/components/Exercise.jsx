@@ -46,11 +46,13 @@ class BaseExercise extends Component {
     //var modified = exerciseState.get('modified');
     var questions = [];
     if(exercisejson.has('problem')) {
-      questions = exercisejson.getIn(['problem','thecorrectanswer'],{}).rest().map( (q, index_) => {
-        var index = index_ + 1;
-        var alerts = exerciseState.getIn(['question',index.toString(),'alerts'],immutable.List([])).toList()
+      questions = exercisejson.getIn(['problem','thecorrectanswer'],{})
+      .filter( q => q.get('@id') !== 'ingress')
+      .map( (q, index_) => {
+        var question_id = q.get('@id', '__auto__' + (index_).toString());
+        var alerts = exerciseState.getIn(['question',question_id,'alerts'],immutable.List([])).toList()
           .map( (alert, alertindex) => (<Alert message={alert.get('message')} type={alert.get('type')} key={alertindex}/>) );
-        var status = exerciseState.getIn(['question', index.toString(), 'status'], 'none');
+        var status = exerciseState.getIn(['question', question_id, 'status'], 'none');
         var inputClass = {
           error: 'uk-form-danger',
           correct: 'uk-form-success',
@@ -59,13 +61,13 @@ class BaseExercise extends Component {
         };
         return (
           <div>
-          <div className="uk-panel uk-panel-box uk-margin-top" key={index}>
+          <div className="uk-panel uk-panel-box uk-margin-top" key={index_}>
           {/*<div className="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top uk-border-rounded" key={index}>*/}
               <div className="uk-container">
               <label className="uk-form-row">{q.getIn(['@question'],'')}</label>
               <div className="uk-form-icon uk-width-1-1">
                 <i className="uk-icon-pencil"/>
-                <input className={"uk-width-1-1 " + inputClass[status]} type="text" onKeyUp={(event) => onQuestionInputKeyUp(Object.assign({}, event), name, index)}></input>
+                <input className={"uk-width-1-1 " + inputClass[status]} type="text" onKeyUp={(event) => onQuestionInputKeyUp(Object.assign({}, event), name, question_id)}></input>
               </div>
               {alerts}
               </div>

@@ -21,11 +21,11 @@
 <thecorrectanswer question="$a_A$ när blocken glider">
   (-mu*ma*g+2*P)/ma;
 </thecorrectanswer>
-<thecorrectanswer question="$a_B$ när blocken glider">
+<thecorrectanswer question="$a_B$ när blocken glider" id="q2">
   mu*ma*g/mb;
 </thecorrectanswer>
-<thecorrectanswer question="$a$ när blocken inte glider">
-  2*P/(ma+mb);
+  <thecorrectanswer question="$a_B$ när blocken glider">
+  mu*ma*g/mb;
 </thecorrectanswer>
 
 </problem>

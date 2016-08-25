@@ -14,14 +14,16 @@ const BaseCourse = ({ exercisetree, currentpath, onExerciseClick }) => {
   }
   function parseFolder( folder, foldername ) {
     var exercises = [], children = [];
-    if(folder.exercises)
+    if(folder.exercises) {
       exercises = Object.keys(folder.exercises).sort().map( exercise => (
         <li>
           <a className="uk-thumbnail" onClick={(ev) => onExerciseClick(exercise, foldername)}>
             <img className="exercise-thumb-nav" src={"/exercise/" + exercise + "/asset/thumbnail.png"}/>
-            <div className="uk-thumbnail-caption">{exercise.split('.')[0]}</div>
+            <div className="uk-thumbnail-caption">{exercise.split('.')[0]} {/*folder.exercises[exercise].correct ? "correct" : "incorrect"*/ }</div>
           </a>
         </li>));
+        console.dir(folder.exercises);
+    }
     if(folder.folders)
       children = Object.keys(folder.folders).sort().map ( childfolder => ({name: childfolder, content: parseFolder( folder.folders[childfolder].content, childfolder)}) );
 

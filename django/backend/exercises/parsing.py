@@ -25,6 +25,24 @@ def compose(*funcs):
     return lambda x: functools.reduce(lambda v, f: f(v), funcs, x)
 
 
+def is_integer(string):
+    try:
+        int(string)
+        return True
+    except ValueError:
+        return False
+
+
+def legacy_process_questions(questions):
+    proper_questions = list(
+        filter(lambda q: ('@id' not in q) or (q['@id'] != 'ingress'), questions)
+    )
+    for index, q in enumerate(proper_questions):
+        if not '@id' in q:
+            proper_questions[index]['@id'] = "__auto__" + str(index)
+    return proper_questions
+
+
 def exercises():  # {{{
     exerciselist = []
     try:
@@ -77,14 +95,29 @@ def parseIngress(ingress):  # {{{
     return variables  # }}}
 
 
-def exerciseCheck(exercise, question, expression):  # {{{
+def exerciseCheck(exercise, question_id, expression):  # {{{
     json = exerciseJSON(exercise)
-    print(JSON.dumps(json, indent=4))
+    # print(JSON.dumps(json, indent=4))
     # print(JSON.dumps(deep_get(json,'problem','thecorrectanswer'), indent=4))
     questions = deep_get(json, 'problem', 'thecorrectanswer')
-    if question < len(questions):
-        variables = parseIngress(questions[0].get('$'))
-        correct = questions[question].get('$').replace(';', '')
+    proper_questions = legacy_process_questions(questions)
+    question = None
+    matched = list(filter(lambda x: x.get('@id') == question_id, proper_questions))
+    ingress_match = list(filter(lambda x: x.get('@id') == 'ingress', questions))
+
+    if len(matched) == 1:
+        question = matched[0]
+    else:
+        raise Exception('Invalid question id')
+
+    if len(ingress_match) == 1:
+        ingress = ingress_match[0]
+    else:
+        raise Exception('No question ingress')
+    if question:
+        # variables = parseIngress(questions[0].get('$'))
+        variables = parseIngress(ingress.get('$'))
+        correct = question.get('$').replace(';', '')
         result = symbolic.compareNumeric(JSON.dumps(variables), expression, correct)
         latex = {'latex': symbolic.toLatex(expression)}
         result.update(latex)
@@ -93,8 +126,8 @@ def exerciseCheck(exercise, question, expression):  # {{{
 
         # nested_print(questions[question].get('$'))
     # nested_print(questions[1].get('$'))
-
-    return True  # }}}
+    else:
+        raise Exception('No question match')  # }}}
 
 
 def exerciseSave(exercise, xml):  # {{{

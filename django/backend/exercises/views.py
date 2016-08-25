@@ -2,11 +2,17 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from exercises.models import Exercise, Question
+from exercises.models import Exercise, Question, Answer
 from exercises.serializers import ExerciseSerializer
 from exercises.parsing import exerciseJSON, exerciseXML, exerciseCheck, exerciseSave
 from django.http import FileResponse
 from exercises.paths import EXERCISES_PATH
+
+
+@api_view(['POST', 'GET'])
+def exercises_reload(request):
+    Exercise.objects.sync_with_disc()
+    return Response("Reloaded")
 
 
 @api_view(['GET'])
@@ -26,7 +32,7 @@ def exercise_tree(request):
     """
     Get exercise tree
     """
-    return Response(Exercise.objects.folder_structure())
+    return Response(Exercise.objects.folder_structure(request.user))
 
 
 @api_view(['GET'])
@@ -62,10 +68,15 @@ def exercise_save(request, exercise):
 
 @api_view(['POST'])
 def exercise_check(request, exercise, question):
+    print(question)
+    answer = request.data['expression']
     dbexercise = Exercise.objects.get(exercise_name=exercise)
-    result = exerciseCheck(
-        dbexercise.path + '/' + exercise, int(question), request.data['expression']
-    )
+    dbquestion = Question.objects.get(exercise=dbexercise, question_id=question)
+    result = exerciseCheck(dbexercise.path + '/' + exercise, question, answer)
+    if 'correct' in result:
+        dbanswer = Answer.objects.create(
+            user=request.user, question=dbquestion, answer=answer, correct=result['correct']
+        )
     return Response(result)
 
 
