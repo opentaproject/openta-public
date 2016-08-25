@@ -41,7 +41,7 @@ python manage.py runserver
 A web frontend for viewing/editing exercises served by the backend.
 
 Requires: 
-* [NPM](https://nodejs.org) package system
+* [NodeJS (>6.0) & NPM](https://nodejs.org) package system
 * [Brunch](http://brunch.io/): A html/js build tool used during development
 (can be installed systemwide with ```npm install -g brunch``` (needs sudo if on *nix))
 
