@@ -20,7 +20,7 @@ export default (state = defaultState, action) => {
       return state.setIn(['exerciseState',action.exercise, 'json'], immutable.fromJS(action.json));
     case 'UPDATE_EXERCISES':
       return state.merge({
-        'exercises': action.exercises,
+        'exercises': immutable.fromJS(action.exercises),
         'folder': action.folder
       });
     case 'UPDATE_EXERCISE_TREE':

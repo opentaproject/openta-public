@@ -1,3 +1,4 @@
+"use strict";
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
@@ -21,7 +22,7 @@ class BaseExercise extends Component {
   } 
 
   static propTypes = {
-  exerciseName: PropTypes.string.isRequired,
+  exerciseKey: PropTypes.string.isRequired,
   onQuestionInputKeyUp: PropTypes.func,
   //onSave: PropTypes.func,
   //onReset: PropTypes.func,
@@ -34,7 +35,7 @@ class BaseExercise extends Component {
     var exercisejson = exerciseState.get('json', immutable.Map({}) );
     //var exercisexml = exerciseState.get('xml','');//_.get(this.props.exerciseState, "xml", '');
     var figure = exercisejson.getIn(['problem','figure','$']);//this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
-    var name = this.props.exerciseName;
+    var exerciseKey = this.props.exerciseKey;
     var renderName = exercisejson.getIn(['problem','name','$'], "No name");
     var renderText = exercisejson.getIn(['problem','question','text','$'], "");
     var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
@@ -67,7 +68,7 @@ class BaseExercise extends Component {
               <label className="uk-form-row">{q.getIn(['@question'],'')}</label>
               <div className="uk-form-icon uk-width-1-1">
                 <i className="uk-icon-pencil"/>
-                <input className={"uk-width-1-1 " + inputClass[status]} type="text" onKeyUp={(event) => onQuestionInputKeyUp(Object.assign({}, event), name, question_id)}></input>
+                <input className={"uk-width-1-1 " + inputClass[status]} type="text" onKeyUp={(event) => onQuestionInputKeyUp(Object.assign({}, event), exerciseKey, question_id)}></input>
               </div>
               {alerts}
               </div>
@@ -83,7 +84,7 @@ class BaseExercise extends Component {
           </div>
           <div className="uk-clearfix">
             <div className="uk-align-medium-right">
-            { figure && <img style={{maxHeight: '100pt'}} src={'/exercise/' + name + '/asset/' + figure} alt=""/> }
+            { figure && <img style={{maxHeight: '100pt'}} src={'/exercise/' + exerciseKey + '/asset/' + figure} alt=""/> }
             </div>
             <span dangerouslySetInnerHTML={{__html: renderText}} />
           </div>
@@ -95,7 +96,7 @@ class BaseExercise extends Component {
     );
     return (
       <div>
-      {name ? exerciseDOM : ""}
+      {exerciseKey ? exerciseDOM : ""}
       </div>
     );
     /*(
@@ -123,7 +124,7 @@ const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
   return (
   {
-    exerciseName: state.get('activeExercise'),
+    exerciseKey: state.get('activeExercise'),
     exerciseState: activeExerciseState
   })
 };

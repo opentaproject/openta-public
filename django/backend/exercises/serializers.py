@@ -6,10 +6,10 @@ from exercises.models import Question
 class ExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exercise
-        fields = ('exercise_name', 'path')
+        fields = ('exercise_key', 'name', 'path')
 
 
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = ('exercise_name', 'question_id')
+        fields = ('exercise', 'question_id')

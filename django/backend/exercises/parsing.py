@@ -1,6 +1,8 @@
 from xmljson import badgerfish as bf
 import traceback
-from xml.etree.ElementTree import fromstring
+from xml.etree.ElementTree import fromstring, ParseError
+
+# from lxml.etree import tostring, Element, fromstring
 import os
 import sys
 import functools
@@ -72,6 +74,20 @@ def exerciseJSON(path):  # {{{
     return obj  # }}}
 
 
+def parseLegacyXMLtoJSON(path):
+    try:
+        json = exerciseJSON(path)
+        if not deep_get(json, 'problem', '@key'):
+            raise ValueError('No key')
+        return (True, json)
+    except ValueError as err:
+        print(err)
+        return (False, {})
+    except ParseError as err:
+        print(err)
+        return (False, {})
+
+
 def exerciseXML(path):  # {{{
     xml = ''
     try:
@@ -82,6 +98,11 @@ def exerciseXML(path):  # {{{
         print(traceback.format_exc())
         pass
     return xml  # }}}
+
+
+# def exerciseSaveFromJSON(path, json):
+#    etree = bf.etree(json, root=Element('root'))
+#    print(tostring(etree))
 
 
 def parseIngress(ingress):  # {{{

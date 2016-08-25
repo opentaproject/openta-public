@@ -23,10 +23,10 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
     </li>
     {exerciselist.map( exercise => ( 
                       <li className={exercise === activeExercise ? "uk-active" : ""}>
-                        <a onClick={() => onExerciseClick(exercise, exerciseState.getIn([exercise,'json'], immutable.Map({})).isEmpty())}>
+                        <a onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise,'json'], immutable.Map({})).isEmpty())}>
                           <ul>
-                          <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise + '/asset/thumbnail.png'}/>
-                          <li className="uk-text-break">{exercise.split('.')[0]}</li>
+                          <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
+                          <li className="uk-text-break">{exercise.get('name')}</li>
                           </li>
                           </ul>
                         </a>
@@ -52,7 +52,7 @@ const mapStateToProps = state => {
   var exerciseState = state.getIn(['exerciseState'], immutable.Map({}));
   return (
   {
-    exerciselist: state.get('exercises', []).sort(),
+    exerciselist: state.get('exercises', immutable.List([])).sort(),
     folder: state.get('folder', ""),
     activeExercise: state.get('activeExercise') ,
     exerciseState: exerciseState

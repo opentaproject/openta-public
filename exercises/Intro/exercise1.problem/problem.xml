@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE problem SYSTEM "../../problem.dtd">
-<problem>
+<problem key="key1">
 <name>Acceleration med trissor</name>
 <figure>figure.jpg</figure>
 <question>

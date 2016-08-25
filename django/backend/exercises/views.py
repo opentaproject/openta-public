@@ -37,30 +37,31 @@ def exercise_tree(request):
 
 @api_view(['GET'])
 def other_exercises_from_folder(request, exercise):
-    dbexercise = Exercise.objects.get(exercise_name=exercise)
-    other = Exercise.objects.filter(path=dbexercise.path)
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
+    other = Exercise.objects.filter(folder=dbexercise.folder)
     serializer = ExerciseSerializer(other, many=True)
+    print(serializer.data)
     return Response(serializer.data)
 
 
 @api_view(['GET'])
 def exercise_json(request, exercise):
-    dbexercise = Exercise.objects.get(exercise_name=exercise)
-    return Response(exerciseJSON(dbexercise.path + '/' + exercise))
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
+    return Response(exerciseJSON(dbexercise.path))
 
 
 @api_view(['GET'])
 def exercise_xml(request, exercise):
-    dbexercise = Exercise.objects.get(exercise_name=exercise)
-    return Response({'xml': exerciseXML(dbexercise.path + '/' + exercise)})
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
+    return Response({'xml': exerciseXML(dbexercise.path)})
 
 
 @api_view(['POST'])
 def exercise_save(request, exercise):
     result = {}
-    dbexercise = Exercise.objects.get(exercise_name=exercise)
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
-        result = exerciseSave(dbexercise.path + '/' + exercise, request.data['xml'])
+        result = exerciseSave(dbexercise.path, request.data['xml'])
     except IOError:
         result = {'success': False}
     return Response(result)
@@ -70,9 +71,9 @@ def exercise_save(request, exercise):
 def exercise_check(request, exercise, question):
     print(question)
     answer = request.data['expression']
-    dbexercise = Exercise.objects.get(exercise_name=exercise)
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
     dbquestion = Question.objects.get(exercise=dbexercise, question_id=question)
-    result = exerciseCheck(dbexercise.path + '/' + exercise, question, answer)
+    result = exerciseCheck(dbexercise.path, question, answer)
     if 'correct' in result:
         dbanswer = Answer.objects.create(
             user=request.user, question=dbquestion, answer=answer, correct=result['correct']
@@ -82,10 +83,10 @@ def exercise_check(request, exercise, question):
 
 @api_view(['GET'])
 def exercise_asset(request, exercise, asset):
-    dbexercise = Exercise.objects.get(exercise_name=exercise)
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
     return FileResponse(
         open(
-            '{root}/{path}/{exercise}/{asset}'.format(
+            '{root}/{path}/{asset}'.format(
                 root=EXERCISES_PATH, path=dbexercise.path, exercise=exercise, asset=asset
             ),
             'rb',

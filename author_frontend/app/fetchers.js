@@ -47,7 +47,7 @@ function fetchExercises() {
     return jsonfetch('/exercises/')
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
-      .then(json => json.map( item => item.exercise_name ))
+      //.then(json => json.map( item => item.exercise_name ))
       .then(json => dispatch(updateExercises(json)))
       .catch( err => console.log(err) );
   };
@@ -68,7 +68,7 @@ function fetchSameFolder(exercise, folder) {
     return jsonfetch('/exercise/' + exercise + '/samefolder')
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
-      .then(json => json.map( item => item.exercise_name ))
+      //.then(json => json.map( item => item.exercise_name ))
       .then(json => dispatch(updateExercises(json, folder)))
       .catch( err => console.log(err) );
   };

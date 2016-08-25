@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE problem SYSTEM "../../problem.dtd">
-<problem>
-<name>Friktion</name>
+<problem key="key2">
+<name>Friktion 2</name>
 <figure>figure.png</figure>
 <question>
 <text lang="latex"> <![CDATA[
