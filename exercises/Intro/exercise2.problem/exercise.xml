@@ -1,0 +1,30 @@
+<exercise key="exercise2">
+<name>Kinetic energy</name>
+<figure>figure.jpg</figure>
+<text>A particle has mass $m$ and is moving with velocity $v$.</text>
+
+<question key="q1" type="compareNumeric">
+  <variables>
+    m=1; v=2;
+  </variables>
+  <text>
+    What is the particles kinetic energy?
+  </text>
+  <expression>
+    m*v^2/2
+  </expression>
+</question>
+
+<question key="q2" type="compareNumeric">
+  <variables>
+    m=1; v=2;
+  </variables>
+  <text>
+    What is the particles kinetic energy?
+  </text>
+  <expression>
+    m*v^2/2
+  </expression>
+</question>
+
+</exercise>

@@ -2,11 +2,11 @@ from django.db import models
 import os
 from functools import reduce
 from exercises.paths import EXERCISES_PATH
-from exercises.parsing import deep_get, legacy_process_questions, exerciseJSON, parseLegacyXMLtoJSON
+from exercises.parsing import exercise_validate_and_json, question_validate
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
-import exercises.util as util
+from exercises.util import deep_get, nested_print
 from functools import partial
 import json as JSON
 
@@ -21,51 +21,49 @@ import json as JSON
 
 
 class ExerciseManager(models.Manager):
-    def add_legacy_exercise(self, path):
-        (valid, json) = parseLegacyXMLtoJSON(path)
+    def add_exercise(self, path):
+        (valid, json) = exercise_validate_and_json(path)
         if valid:
-            name = deep_get(json, 'problem', 'name', '$')
-            key = deep_get(json, 'problem', '@key')
-            if not key:
-                print('No key for ' + path)
-            else:
-                dbexercise, created = self.get_or_create(
-                    exercise_key=key,
-                    defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)},
+            name = deep_get(json, 'exercise', 'name', '$')
+            key = deep_get(json, 'exercise', '@key')
+            dbexercise, created = self.get_or_create(
+                exercise_key=key,
+                defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)},
+            )
+            if created:
+                print('Adding ' + path + '/' + name + ' to database.')
+            questions = deep_get(json, 'exercise', 'question')
+            for key, question in questions.items():
+                if not question_validate(question):
+                    print(path + " contains invalid question: ")
+                    nested_print(question)
+                    return
+                dbquestion, created = Question.objects.get_or_create(
+                    exercise=dbexercise, question_id=question['@key']
                 )
-                if created:
-                    print('Adding ' + path + '/' + name + ' to database.')
-                questions = deep_get(json, 'problem', 'thecorrectanswer')
-                # util.nested_print(list(proper_questions))
-                proper_questions = legacy_process_questions(questions)
-                for question in proper_questions:
-                    dbquestion, created = Question.objects.get_or_create(
-                        exercise=dbexercise, question_id=question['@id']
-                    )
-                for question in Question.objects.filter(exercise=dbexercise):
-                    bool_list = map(
-                        lambda jsonitem: jsonitem['@id'] == question.question_id, proper_questions
-                    )
-                    exists = reduce(lambda a, b: a or b, bool_list, False)
-                    if not exists:
-                        question.delete()
+            for question in Question.objects.filter(exercise=dbexercise):
+                bool_list = map(
+                    lambda jsonitem: jsonitem['@key'] == question.question_id, questions.values()
+                )
+                exists = reduce(lambda a, b: a or b, bool_list, False)
+                if not exists:
+                    question.delete()
 
     def sync_with_disc(self):
         print("Syncing with disc...")
         exerciselist = []
         for root, directories, filenames in os.walk(EXERCISES_PATH):
             for filename in filenames:
-                if filename == 'problem.xml':
-                    print(root)
+                if filename == 'exercise.xml':
                     name = os.path.basename(os.path.normpath(root))
                     relpath = root[len(EXERCISES_PATH) :]
                     exerciselist.append((name, relpath))
         for name, path in exerciselist:
-            self.add_legacy_exercise(path)
+            self.add_exercise(path)
         for exercise in self.all():
-            fullpath = exercise.path + '/problem.xml'
-            (valid, _) = parseLegacyXMLtoJSON(exercise.path)
-            if not os.path.isfile(EXERCISES_PATH + fullpath) or not valid:
+            fullpath = exercise.path + '/exercise.xml'
+            (valid, _) = exercise_validate_and_json(exercise.path)
+            if not valid:
                 exercise.delete()
                 print('Deleting non existing ' + fullpath + ' from database.')
 

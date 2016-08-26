@@ -1,83 +1,28 @@
 from xmljson import badgerfish as bf
-import traceback
 from xml.etree.ElementTree import fromstring, ParseError
-
-# from lxml.etree import tostring, Element, fromstring
-import os
-import sys
-import functools
-import operator
-import json as JSON
-import exercises.symbolic as symbolic
-from time import sleep
-from random import random
 from exercises.paths import EXERCISES_PATH
+from exercises.util import deep_get, nested_print
+from functools import reduce
 
 
-def deep_get(dictionary, *keys):
-    return functools.reduce(lambda d, key: d.get(key) if d else None, keys, dictionary)
-
-
-def nested_print(d):
-    print(JSON.dumps(d, indent=4))
-    return
-
-
-def compose(*funcs):
-    return lambda x: functools.reduce(lambda v, f: f(v), funcs, x)
-
-
-def is_integer(string):
-    try:
-        int(string)
-        return True
-    except ValueError:
-        return False
-
-
-def legacy_process_questions(questions):
-    proper_questions = list(
-        filter(lambda q: ('@id' not in q) or (q['@id'] != 'ingress'), questions)
-    )
-    for index, q in enumerate(proper_questions):
-        if not '@id' in q:
-            proper_questions[index]['@id'] = "__auto__" + str(index)
-    return proper_questions
-
-
-def exercises():  # {{{
-    exerciselist = []
-    try:
-        exerciselist = [
-            name
-            for name in os.listdir(EXERCISES_PATH)
-            if os.path.isdir(os.path.join(EXERCISES_PATH, name))
-        ]
-    except Exception:
-        print(traceback.format_exc())
-        pass
-    print(exerciselist)
-    return exerciselist  # }}}
-
-
-def exerciseJSON(path):  # {{{
-    obj = {}
-    try:
-        # print(EXERCISES_PATH + '/{path}/problem.xml'.format(path=path))
-        xmlfile = open(EXERCISES_PATH + '/{path}/problem.xml'.format(path=path))
-        xml = xmlfile.read()
-        obj = bf.data(fromstring(xml))
-    except Exception:
-        print("exerciseJSON: Error reading or parsing JSON for {path}".format(path=path))
-        print(traceback.format_exc())
-        pass
+def exercise_json(path):  # {{{
+    xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
+    xml = xmlfile.read()
+    obj = bf.data(fromstring(xml))
+    questions = deep_get(obj, 'exercise', 'question')
+    if questions:
+        if not isinstance(questions, list):
+            questions = [questions]
+        questions = map(lambda q: {q['@key']: q}, questions)
+        questions = reduce(lambda a, b: {**a, **b}, questions)
+        obj['exercise']['question'] = questions
     return obj  # }}}
 
 
-def parseLegacyXMLtoJSON(path):
+def exercise_validate_and_json(path):
     try:
-        json = exerciseJSON(path)
-        if not deep_get(json, 'problem', '@key'):
+        json = exercise_json(path)
+        if not deep_get(json, 'exercise', '@key'):
             raise ValueError('No key')
         return (True, json)
     except ValueError as err:
@@ -86,76 +31,26 @@ def parseLegacyXMLtoJSON(path):
     except ParseError as err:
         print(err)
         return (False, {})
+    except IOError as err:
+        print(err)
+        return (False, {})
 
 
-def exerciseXML(path):  # {{{
-    xml = ''
-    try:
-        xmlfile = open(EXERCISES_PATH + '/{path}/problem.xml'.format(path=path))
-        xml = xmlfile.read()
-    except Exception:
-        print("exerciseXML: Error reading XML for {path}".format(path=path))
-        print(traceback.format_exc())
-        pass
+def question_validate(question):
+    if not '@key' in question:
+        return False
+    return True
+
+
+def exercise_xml(path):  # {{{
+    print("path: " + path)
+    xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
+    xml = xmlfile.read()
     return xml  # }}}
 
 
-# def exerciseSaveFromJSON(path, json):
-#    etree = bf.etree(json, root=Element('root'))
-#    print(tostring(etree))
-
-
-def parseIngress(ingress):  # {{{
-    rawvars = ingress.split(';')
-    pipeline = compose(
-        functools.partial(filter, operator.truth),
-        functools.partial(map, lambda x: x.split('=')),
-        functools.partial(map, lambda x: {'name': x[0].strip(), 'value': x[1].strip()}),
-    )
-    variables = list(pipeline(rawvars))
-    return variables  # }}}
-
-
-def exerciseCheck(exercise, question_id, expression):  # {{{
-    json = exerciseJSON(exercise)
-    # print(JSON.dumps(json, indent=4))
-    # print(JSON.dumps(deep_get(json,'problem','thecorrectanswer'), indent=4))
-    questions = deep_get(json, 'problem', 'thecorrectanswer')
-    proper_questions = legacy_process_questions(questions)
-    question = None
-    matched = list(filter(lambda x: x.get('@id') == question_id, proper_questions))
-    ingress_match = list(filter(lambda x: x.get('@id') == 'ingress', questions))
-
-    if len(matched) == 1:
-        question = matched[0]
-    else:
-        raise Exception('Invalid question id')
-
-    if len(ingress_match) == 1:
-        ingress = ingress_match[0]
-    else:
-        raise Exception('No question ingress')
-    if question:
-        # variables = parseIngress(questions[0].get('$'))
-        variables = parseIngress(ingress.get('$'))
-        correct = question.get('$').replace(';', '')
-        result = symbolic.compareNumeric(JSON.dumps(variables), expression, correct)
-        latex = {'latex': symbolic.toLatex(expression)}
-        result.update(latex)
-        # Need to merge with result dictionary...
-        return result
-
-        # nested_print(questions[question].get('$'))
-    # nested_print(questions[1].get('$'))
-    else:
-        raise Exception('No question match')  # }}}
-
-
-def exerciseSave(exercise, xml):  # {{{
+def exercise_save(exercise, xml):  # {{{
     print('Saving ' + exercise)
-    with open(EXERCISES_PATH + '/{path}/problem.xml'.format(path=exercise), 'w') as file:
+    with open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise), 'w') as file:
         file.write(xml)
-    # sleep(0.5)
-    # if random() > 0.5:
-    #    raise IOError('Simulated IOError')
     return {'success': True}  # }}}

@@ -1,0 +1,137 @@
+"use strict";
+import React, { PropTypes, Component } from 'react';
+import { connect } from 'react-redux';
+import ReactDOM from 'react-dom';
+import Alert from './Alert.jsx';
+import _ from 'lodash';
+import immutable from 'immutable';
+import { 
+  updateExerciseXML, 
+  updateExerciseJSON,
+  setExerciseModifiedState
+} from '../actions.js';
+import {
+  saveExercise,
+  fetchExercise,
+  checkQuestion
+} from '../fetchers.js';
+
+class BaseExercise extends Component {
+  constructor() {
+    super();
+  } 
+
+  static propTypes = {
+  exerciseKey: PropTypes.string.isRequired,
+  onQuestionInputKeyUp: PropTypes.func,
+  //onSave: PropTypes.func,
+  //onReset: PropTypes.func,
+  //onXMLChange: PropTypes.func,
+  exerciseState: PropTypes.object
+};
+
+  render() {
+    var exerciseState = this.props.exerciseState;
+    var exercisejson = exerciseState.get('json', immutable.Map({}) );
+    //var exercisexml = exerciseState.get('xml','');//_.get(this.props.exerciseState, "xml", '');
+    var figure = exercisejson.getIn(['problem','figure','$']);//this.props.exercisejson.problem ? exercisejson.problem.figure[0] : "";
+    var exerciseKey = this.props.exerciseKey;
+    var renderName = exercisejson.getIn(['problem','name','$'], "No name");
+    var renderText = exercisejson.getIn(['problem','question','text','$'], "");
+    var onQuestionInputKeyUp = this.props.onQuestionInputKeyUp;
+    //var onSave = this.props.onSave;
+    //var onReset = this.props.onReset;
+    //var savePending = exerciseState.get('savepending');
+    //var saveError = exerciseState.get('saveerror');
+    //var resetPending = exerciseState.get('resetpending');
+    //var modified = exerciseState.get('modified');
+    var questions = [];
+    if(exercisejson.has('problem')) {
+      questions = exercisejson.getIn(['problem','thecorrectanswer'],{})
+      .filter( q => q.get('@id') !== 'ingress')
+      .map( (q, index_) => {
+        var question_id = q.get('@id', '__auto__' + (index_).toString());
+        var alerts = exerciseState.getIn(['question',question_id,'alerts'],immutable.List([])).toList()
+          .map( (alert, alertindex) => (<Alert message={alert.get('message')} type={alert.get('type')} key={alertindex}/>) );
+        var status = exerciseState.getIn(['question', question_id, 'status'], 'none');
+        var inputClass = {
+          error: 'uk-form-danger',
+          correct: 'uk-form-success',
+          incorrect: '',
+          none: ''
+        };
+        return (
+          <div>
+          <div className="uk-panel uk-panel-box uk-margin-top" key={index_}>
+              <div className="uk-container">
+              <label className="uk-form-row">{q.getIn(['@question'],'')}</label>
+              <div className="uk-form-icon uk-width-1-1">
+                <i className="uk-icon-pencil"/>
+                <input className={"uk-width-1-1 " + inputClass[status]} type="text" onKeyUp={(event) => onQuestionInputKeyUp(Object.assign({}, event), exerciseKey, question_id)}></input>
+              </div>
+              {alerts}
+              </div>
+          </div>
+          </div>
+      )
+      } );
+    }
+    var exerciseDOM = (
+        <article className="uk-article uk-margin-top" ref="exercise" key={name}>
+          <div className="uk-grid">
+          <h1 className="uk-article-title">{renderName}</h1>
+          </div>
+          <div className="uk-clearfix">
+            <div className="uk-align-medium-right">
+            { figure && <img style={{maxHeight: '100pt'}} src={'/exercise/' + exerciseKey + '/asset/' + figure} alt=""/> }
+            </div>
+            <span dangerouslySetInnerHTML={{__html: renderText}} />
+          </div>
+          <hr className="uk-article-divider"/>
+          <form className="uk-form" onSubmit={(event) => event.preventDefault()}>
+          {questions}
+          </form>
+        </article>
+    );
+    return (
+      <div>
+      {exerciseKey ? exerciseDOM : ""}
+      </div>
+    );
+    /*(
+      <div className="uk-width-medium-5-6">
+      {name ? exerciseDOM : ""}
+      </div>*/
+  }
+
+  componentDidUpdate(props,state,root) {
+    var node = ReactDOM.findDOMNode(this.refs.exercise);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
+  }
+}
+
+
+function handleQuestionInputKeyUp(dispatch, event, exercise, question) {
+  if(event.keyCode == 13) {
+    dispatch(checkQuestion(exercise, question, event.target.value));
+  }
+}
+
+
+const mapStateToProps = state => {
+  //var activeExerciseState = _.get(state.exerciseState, state.activeExercise, {});
+  var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
+  return (
+  {
+    exerciseKey: state.get('activeExercise'),
+    exerciseState: activeExerciseState
+  })
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question),
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(BaseExercise)

@@ -4,7 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from exercises.models import Exercise, Question, Answer
 from exercises.serializers import ExerciseSerializer
-from exercises.parsing import exerciseJSON, exerciseXML, exerciseCheck, exerciseSave
+from exercises import parsing
+from exercises.question import question_check
 from django.http import FileResponse
 from exercises.paths import EXERCISES_PATH
 
@@ -63,13 +64,13 @@ def other_exercises_from_folder(request, exercise):
 @api_view(['GET'])
 def exercise_json(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    return Response(exerciseJSON(dbexercise.path))
+    return Response(parsing.exercise_json(dbexercise.path))
 
 
 @api_view(['GET'])
 def exercise_xml(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    return Response({'xml': exerciseXML(dbexercise.path)})
+    return Response({'xml': parsing.exercise_xml(dbexercise.path)})
 
 
 @api_view(['POST'])
@@ -77,7 +78,7 @@ def exercise_save(request, exercise):
     result = {}
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
-        result = exerciseSave(dbexercise.path, request.data['xml'])
+        result = parsing.exercise_save(dbexercise.path, request.data['xml'])
     except IOError:
         result = {'success': False}
     return Response(result)
@@ -89,7 +90,7 @@ def exercise_check(request, exercise, question):
     answer = request.data['expression']
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     dbquestion = Question.objects.get(exercise=dbexercise, question_id=question)
-    result = exerciseCheck(dbexercise.path, question, answer)
+    result = question_check(dbexercise.path, question, answer)
     if 'correct' in result:
         dbanswer = Answer.objects.create(
             user=request.user, question=dbquestion, answer=answer, correct=result['correct']
