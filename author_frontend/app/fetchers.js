@@ -163,24 +163,24 @@ function saveExercise(exercise) {
   }
 }
 
-function checkQuestion(exercise, question, expression) {
+function checkQuestion(exerciseKey, questionKey, questionData) {
   return dispatch => {
     var payload = {
-      expression: expression
+      questionData: questionData
     }
     //var data = new FormData();
     //data.append('json', new Blob([JSON.stringify(payload)], {type: 'application/json'}));
-    var data = JSON.stringify(payload);
+    var postData = JSON.stringify(payload);
     var fetchconfig = {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: data
+      body: postData
     }
       
-    jsonfetch('/exercise/' + exercise + '/question/' + question + '/check', fetchconfig)
+    jsonfetch('/exercise/' + exerciseKey + '/question/' + questionKey + '/check', fetchconfig)
     .catch( err => console.log("checkQuestion error!") )
     .then(res => res.json())
-    .then(json => { dispatch(updateQuestionResponse(exercise, question, json)); return json})
+    .then(json => { dispatch(updateQuestionResponse(exerciseKey, questionKey, json)); return json})
     .then( json => dispatch(fetchExerciseRemoteState(exercise)))
     //.then(json => console.dir(json))
   }

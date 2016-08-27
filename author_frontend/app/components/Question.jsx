@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import Alert from './Alert.jsx';
 import immutable from 'immutable';
 import QuestionCompareNumeric from './QuestionCompareNumeric.jsx';
+import { checkQuestion } from '../fetchers.js'
 
 const questionDispatch = {
   'compareNumeric': QuestionCompareNumeric,

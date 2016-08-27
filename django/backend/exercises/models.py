@@ -26,24 +26,45 @@ class ExerciseManager(models.Manager):
         if valid:
             name = deep_get(json, 'exercise', 'name', '$')
             key = deep_get(json, 'exercise', '@key')
-            dbexercise, created = self.get_or_create(
+            dbexercise, created = self.update_or_create(
                 exercise_key=key,
                 defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)},
             )
             if created:
                 print('Adding ' + path + '/' + name + ' to database.')
+            else:
+                print('Updated ' + path + '/' + name)
             questions = deep_get(json, 'exercise', 'question')
             for key, question in questions.items():
                 if not question_validate(question):
                     print(path + " contains invalid question: ")
                     nested_print(question)
                     return
-                dbquestion, created = Question.objects.get_or_create(
-                    exercise=dbexercise, question_id=question['@key']
+                dbquestion, created = Question.objects.update_or_create(
+                    exercise=dbexercise,
+                    question_key=question['@key'],
+                    defaults={'type': question['@type']},
                 )
+                if created:
+                    print(
+                        name
+                        + ': Adding question '
+                        + question['@key']
+                        + ' of type '
+                        + question['@type']
+                    )
+                else:
+                    print(
+                        name
+                        + ': Updating question '
+                        + question['@key']
+                        + ' of type '
+                        + question['@type']
+                    )
+
             for question in Question.objects.filter(exercise=dbexercise):
                 bool_list = map(
-                    lambda jsonitem: jsonitem['@key'] == question.question_id, questions.values()
+                    lambda jsonitem: jsonitem['@key'] == question.question_key, questions.values()
                 )
                 exists = reduce(lambda a, b: a or b, bool_list, False)
                 if not exists:
@@ -130,13 +151,14 @@ class Exercise(models.Model):
 
 class Question(models.Model):
     class Meta:
-        unique_together = ('question_id', 'exercise')
+        unique_together = ('question_key', 'exercise')
 
-    question_id = models.CharField(max_length=255)
+    question_key = models.CharField(max_length=255)
     exercise = models.ForeignKey(Exercise)
+    type = models.CharField(max_length=255, default='none')
 
     def __str__(self):
-        return self.exercise.name + ": " + self.question_id
+        return self.exercise.name + ": " + self.question_key
 
 
 class Answer(models.Model):

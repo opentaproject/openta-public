@@ -12,7 +12,7 @@ var inputClass = {
   none: ''
 };
 
-class BaseQuestion extends Component {
+export default class extends Component {
   static propTypes = {
     questionData: PropTypes.object,
     submitFunction: PropTypes.func,
@@ -36,11 +36,11 @@ class BaseQuestion extends Component {
 }
 }
 
-const mapStateToProps = state => {
+/*const mapStateToProps = state => {
   return (
   {
     prop1: 'test'
   })
 };
 
-export default connect(mapStateToProps)(BaseQuestion)
+export default connect(mapStateToProps)(BaseQuestion)*/

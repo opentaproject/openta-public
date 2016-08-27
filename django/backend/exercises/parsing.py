@@ -36,12 +36,6 @@ def exercise_validate_and_json(path):
         return (False, {})
 
 
-def question_validate(question):
-    if not '@key' in question:
-        return False
-    return True
-
-
 def exercise_xml(path):  # {{{
     print("path: " + path)
     xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
@@ -54,3 +48,15 @@ def exercise_save(exercise, xml):  # {{{
     with open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise), 'w') as file:
         file.write(xml)
     return {'success': True}  # }}}
+
+
+def question_validate(question):
+    if not '@key' in question:
+        return False
+    return True
+
+
+def question_json_get(exercise_path, question_key):
+    json = exercise_json(exercise_path)
+    question_json = deep_get(json, 'exercise', 'question', question_key)
+    return question_json

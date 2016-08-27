@@ -87,14 +87,13 @@ def exercise_save(request, exercise):
 @api_view(['POST'])
 def exercise_check(request, exercise, question):
     print(question)
-    answer = request.data['expression']
-    dbexercise = Exercise.objects.get(exercise_key=exercise)
-    dbquestion = Question.objects.get(exercise=dbexercise, question_id=question)
-    result = question_check(dbexercise.path, question, answer)
-    if 'correct' in result:
-        dbanswer = Answer.objects.create(
-            user=request.user, question=dbquestion, answer=answer, correct=result['correct']
-        )
+    data = request.data['questionData']
+    # dbexercise = Exercise.objects.get(exercise_key=exercise)
+    # dbquestion = Question.objects.get(exercise=dbexercise, question_id=question)
+    # result = question_check(dbexercise.path, question, answer)
+    # if 'correct' in result:
+    #    dbanswer = Answer.objects.create(user=request.user, question=dbquestion, answer=answer, correct=result['correct'])
+    result = question_check(exercise, question, data)
     return Response(result)
 
 

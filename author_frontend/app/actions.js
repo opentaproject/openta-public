@@ -25,20 +25,20 @@ function updateExerciseTree(exercisetree) {//{{{
   };
 }//}}}
 
-function updateExerciseState(exercise, state) {
+function updateExerciseState(exercise, state) {//{{{
   return {
     type: 'UPDATE_EXERCISE_STATE',
     state: state,
     exercise: exercise
   };
-}
+}//}}}
 
-function updateExercisesState(state) {
+function updateExercisesState(state) {//{{{
   return {
     type: 'UPDATE_EXERCISES_STATE',
     state: state
   };
-}
+}//}}}
 
 function updateExerciseJSON(exercise, json) {//{{{
   return {
@@ -63,15 +63,15 @@ function updateExerciseXML(exercise, xml) {//{{{
   };
 }//}}}
 
-function updateQuestionResponse(exercise, question, response) {//{{{
-  var alerts = [];
-  var status = "";
-  if(response.error) {
+function updateQuestionResponse(exerciseKey, questionKey, response) {//{{{
+  /*var alerts = [];
+  var status = "";*/
+  /*if(response.error) {
     //alerts.push( ( <Alert message={response.error} type="error"/> )
     alerts.push( { type:"error", message: response.error } );
     status = "error";
-  }
-  if(response.correct !== undefined) {
+  }*/
+  /*if(response.correct !== undefined) {
     if(response.correct) {
       var message = '$' + _.get(response, 'latex', '') + '$' + " is correct!";
       //alerts.push( (<Alert message={message} type="success"/>) );
@@ -83,14 +83,13 @@ function updateQuestionResponse(exercise, question, response) {//{{{
       alerts.push( { type:"warning", message: message } );
       status = "incorrect";
     }
-  }
+  }*/
   var data = { 
     exerciseState: { 
       [exercise]: {
         question: {
          [question]: {
-           status: status,
-           alerts: alerts
+           response: response
          }
         }
       }
@@ -98,8 +97,8 @@ function updateQuestionResponse(exercise, question, response) {//{{{
   }; 
   return {
     type: 'UPDATE_QUESTION_RESPONSE',
-    exercise: exercise,
-    question: question,
+    exercise: exerciseKey,
+    question: questionKey,
     data: data
   }
 }//}}}
