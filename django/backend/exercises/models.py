@@ -35,7 +35,7 @@ class ExerciseManager(models.Manager):
             else:
                 print('Updated ' + path + '/' + name)
             questions = deep_get(json, 'exercise', 'question')
-            for key, question in questions.items():
+            for question in questions:
                 if not question_validate(question):
                     print(path + " contains invalid question: ")
                     nested_print(question)
@@ -64,7 +64,7 @@ class ExerciseManager(models.Manager):
 
             for question in Question.objects.filter(exercise=dbexercise):
                 bool_list = map(
-                    lambda jsonitem: jsonitem['@key'] == question.question_key, questions.values()
+                    lambda jsonitem: jsonitem['@key'] == question.question_key, questions
                 )
                 exists = reduce(lambda a, b: a or b, bool_list, False)
                 if not exists:

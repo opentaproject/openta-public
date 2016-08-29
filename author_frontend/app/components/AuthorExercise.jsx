@@ -84,12 +84,14 @@ class BaseAuthorExercise extends Component {
 function handleXMLChange(dispatch, xml, exercise) {
   dispatch(updateExerciseXML(exercise, xml));
   throttleParseXML(xml, (err, result) => {
-    console.dir(result)
     if(err || result === null) {
       console.dir(err);
     }
     else {
-      console.log("change");
+      var questions = _.get(result, 'exercise.question', {});
+      if(questions.constructor !== Array)
+        _.set(result, 'exercise.question', [questions]);
+
       dispatch(updateExerciseJSON(exercise, result));
       dispatch(setExerciseModifiedState(exercise, true));
     }

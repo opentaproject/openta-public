@@ -17,7 +17,7 @@ class BaseQuestion extends Component {
     var exerciseState = this.props.exerciseState;
     var onQuestionSubmit = this.props.onQuestionSubmit;
     var json = exerciseState.get('json', immutable.Map({}));
-    var question = json.getIn(['exercise','question', questionKey], immutable.Map({}));
+    var question = json.getIn(['exercise','question'], immutable.List([])).find( q => q.get('@key') == questionKey, immutable.Map({}));
     var questionState = exerciseState.getIn(['question', questionKey], immutable.Map({}))
     var questionType = question.get('@type', undefined);
     if(questionType) {

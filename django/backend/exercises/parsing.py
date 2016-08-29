@@ -13,9 +13,9 @@ def exercise_json(path):  # {{{
     if questions:
         if not isinstance(questions, list):
             questions = [questions]
-        questions = map(lambda q: {q['@key']: q}, questions)
-        questions = reduce(lambda a, b: {**a, **b}, questions)
-        obj['exercise']['question'] = questions
+            obj['exercise']['question'] = questions
+    #    questions = map( lambda q: { q['@key']: q }, questions)
+    #    questions = reduce(lambda a, b: {**a, **b}, questions)
     return obj  # }}}
 
 
@@ -58,5 +58,10 @@ def question_validate(question):
 
 def question_json_get(exercise_path, question_key):
     json = exercise_json(exercise_path)
-    question_json = deep_get(json, 'exercise', 'question', question_key)
-    return question_json
+    # question_json = deep_get(json, 'exercise', 'question', question_key)
+    questions = deep_get(json, 'exercise', 'question')
+    found = list(filter(lambda q: q['@key'] == question_key, questions))
+    if len(found) == 1:
+        return found[0]
+    else:
+        return "{}"
