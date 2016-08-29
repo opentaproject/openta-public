@@ -163,10 +163,10 @@ function saveExercise(exercise) {
   }
 }
 
-function checkQuestion(exerciseKey, questionKey, questionData) {
+function checkQuestion(exerciseKey, questionKey, answerData) {
   return dispatch => {
     var payload = {
-      questionData: questionData
+      answerData: answerData
     }
     //var data = new FormData();
     //data.append('json', new Blob([JSON.stringify(payload)], {type: 'application/json'}));
@@ -181,7 +181,7 @@ function checkQuestion(exerciseKey, questionKey, questionData) {
     .catch( err => console.log("checkQuestion error!") )
     .then(res => res.json())
     .then(json => { dispatch(updateQuestionResponse(exerciseKey, questionKey, json)); return json})
-    .then( json => dispatch(fetchExerciseRemoteState(exercise)))
+    //.then( json => dispatch(fetchExerciseRemoteState(exerciseKey)))
     //.then(json => console.dir(json))
   }
 }

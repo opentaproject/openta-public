@@ -21,10 +21,11 @@ def asciiToSympy(expression):
 #    return expression.subs(subs)
 
 
-def parseVariables(variables):
+def parse_variables(variables):
     sym = {}
     # Decode JSON string into python lists/dictionaries
-    vars = json.loads(variables)
+    # vars = json.loads(variables)
+    vars = variables
     # Declare new sympy symbol for every variable
     for var in vars:
         sym[var['name']] = sympy.symbols(var['name'])
@@ -36,7 +37,7 @@ def parseVariables(variables):
 
 
 def evaluate(variables, expression):
-    subs = parseVariables(variables)
+    subs = parse_variables(variables)
     # Parse expression and evaluate with specified values
     value = sympy.sympify(expression).evalf(subs=subs)
     response = {}
@@ -47,15 +48,14 @@ def evaluate(variables, expression):
     return json.dumps(response)
 
 
-def compareNumeric(variables, expression1, expression2):
+def compare_numeric(variables, expression1, expression2):
     # Do some initial formatting
     response = {}
     try:
-        svariables = asciiToSympy(variables)
         sexpression1 = asciiToSympy(expression1)
         sexpression2 = asciiToSympy(expression2)
-        # Parse variables from JSON format into substitution dictionary
-        varsubs = parseVariables(svariables)
+        # Parse variables into substitution dictionary
+        varsubs = parse_variables(variables)
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
         value1 = sympy.sympify(sexpression1).subs(varsubs).subs(uniteval).evalf()
         value2 = sympy.sympify(sexpression2).subs(varsubs).subs(uniteval).evalf()
@@ -82,13 +82,10 @@ def compareNumeric(variables, expression1, expression2):
         print(traceback.format_exc())
         response['error'] = "Failed to evaluate expression"
         pass
-    except Exception:
-        print("compareNumeric Exception")
-        pass
     return response
 
 
-def toLatex(expression):
+def to_latex(expression):
     latex = ""
     try:
         latex = sympy.latex(sympy.sympify(asciiToSympy(expression)))

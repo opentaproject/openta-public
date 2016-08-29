@@ -165,6 +165,7 @@ class Answer(models.Model):
     user = models.ForeignKey(User)
     question = models.ForeignKey(Question)
     answer = models.TextField()
+    grader_response = models.TextField(default='')
     correct = models.BooleanField()
     date = models.DateTimeField(default=now)
 

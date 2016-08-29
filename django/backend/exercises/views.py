@@ -9,6 +9,12 @@ from exercises.question import question_check
 from django.http import FileResponse
 from exercises.paths import EXERCISES_PATH
 
+import sys
+import os
+
+sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + '/../../../questiontypes'))
+import question_types
+
 
 @api_view(['POST', 'GET'])
 def exercises_reload(request):
@@ -87,13 +93,13 @@ def exercise_save(request, exercise):
 @api_view(['POST'])
 def exercise_check(request, exercise, question):
     print(question)
-    data = request.data['questionData']
+    answer_data = request.data['answerData']
     # dbexercise = Exercise.objects.get(exercise_key=exercise)
     # dbquestion = Question.objects.get(exercise=dbexercise, question_id=question)
     # result = question_check(dbexercise.path, question, answer)
     # if 'correct' in result:
     #    dbanswer = Answer.objects.create(user=request.user, question=dbquestion, answer=answer, correct=result['correct'])
-    result = question_check(exercise, question, data)
+    result = question_check(request.user, exercise, question, answer_data)
     return Response(result)
 
 

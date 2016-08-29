@@ -4,20 +4,17 @@ import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import Alert from './Alert.jsx';
 import immutable from 'immutable';
-import QuestionCompareNumeric from './QuestionCompareNumeric.jsx';
 import { checkQuestion } from '../fetchers.js'
-
-const questionDispatch = {
-  'compareNumeric': QuestionCompareNumeric,
-  'none': 'div'
-};
+import { questionDispatch } from './questiontypes/question_type_dispatch.js'
+import * as qt from './questiontypes/question_types.js'
 
 const BaseQuestion = ({exerciseKey, questionKey, exerciseState, onQuestionSubmit}) => {
   var json = exerciseState.get('json', immutable.Map({}));
   var question = json.getIn(['exercise','question',questionKey], immutable.Map({}));
+  var response = exerciseState.getIn(['question', questionKey, 'response'], immutable.Map({}))
   var questionType = question.get('@type', undefined);
   if(questionType) {
-    var questionDOM = React.createElement(questionDispatch[questionType], { questionData: question, submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data)}); 
+    var questionDOM = React.createElement(questionDispatch[questionType], { questionData: question, responseData: response, submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data)}); 
     return questionDOM;
   } 
   else {

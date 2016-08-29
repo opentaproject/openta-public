@@ -18,28 +18,27 @@ function listClass(item, active) {
 const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onExercisesClick, onBack }) => (
   <div className="uk-width-medium-1-6" id="exercises-menu">
     <ul className="uk-nav uk-nav-side uk-list-space exercise-menu">
-    <li className="uk-nav-header">
+    <li className="uk-nav-header" key="header">
       <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder}</span>
     </li>
     {exerciselist.map( exercise => ( 
-                      <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""}>
+                      <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
                         <a onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise,'json'], immutable.Map({})).isEmpty())}>
                           <ul>
-                          <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
+                          <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/></li>
                           <li className="uk-text-break">{exercise.get('name')}</li>
-                          </li>
                           </ul>
                         </a>
                       </li>
                                    )
-                     )}
+                     ).toArray()}
     </ul>
   <button className="uk-margin-top" onClick={onExercisesClick}>Fetch</button>
   </div>
 );
 
 BaseExercises.propTypes = {
-  exerciselist: PropTypes.array.isRequired,
+  exerciselist: PropTypes.object.isRequired,
   folder: PropTypes.string,
   activeExercise: PropTypes.string,
   exerciseState: PropTypes.object,

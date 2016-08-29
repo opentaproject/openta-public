@@ -2,8 +2,9 @@
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
-import Alert from './Alert.jsx';
+import Alert from '../Alert.jsx';
 import immutable from 'immutable';
+import { registerQuestionType } from './question_type_dispatch.js'
 
 var inputClass = {
   error: 'uk-form-danger',
@@ -12,23 +13,27 @@ var inputClass = {
   none: ''
 };
 
-export default class extends Component {
+export default class QuestionCompareNumeric extends Component {
   static propTypes = {
     questionData: PropTypes.object,
+    responseData: PropTypes.object,
     submitFunction: PropTypes.func,
   }
   render() {  
-  var data = this.props.questionData;
+  var question = this.props.questionData;
+  var response = this.props.responseData;
   var submit = this.props.submitFunction;
+  var error = response.getIn(['error']);
   return (
     <div>
-      <div className="uk-panel uk-panel-box uk-margin-top" key={data.get('@key')}>
+      <div className="uk-panel uk-panel-box uk-margin-top" key={question.get('@key')}>
         <div className="uk-container">
-          <label className="uk-form-row">{data.get('text','')}</label>
+          <label className="uk-form-row">{question.get('text','')}</label>
           <div className="uk-form-icon uk-width-1-1">
             <i className="uk-icon-pencil"/>
             <input className={"uk-width-1-1 "} type="text" onKeyUp={(event) => { if(event.keyCode === 13)submit(event.target.value) } }></input>
           </div>
+        { error && <Alert message={error} type="error"/> }
         </div>
       </div>
     </div>
@@ -36,11 +41,6 @@ export default class extends Component {
 }
 }
 
-/*const mapStateToProps = state => {
-  return (
-  {
-    prop1: 'test'
-  })
-};
+registerQuestionType('compareNumeric', QuestionCompareNumeric);
 
-export default connect(mapStateToProps)(BaseQuestion)*/
+console.log('CompareNumeric registered!');

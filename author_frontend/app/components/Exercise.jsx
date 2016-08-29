@@ -33,6 +33,13 @@ class BaseExercise extends Component {
     var state = this.props.exerciseState;
     var json = state.get('json', immutable.Map({}));
     var figure = json.getIn(['exercise', 'figure', '$']);
+    var questions = json.getIn(['exercise', 'question'], immutable.Map({}));
+
+    var questionsDOMArray = questions.keySeq().map( questionKey => (
+          <form key={questionKey} className="uk-form" onSubmit={(event) => event.preventDefault()}>
+            <Question exerciseKey={key} questionKey={questionKey}/>
+          </form>
+    ));
 
     var exerciseDOM = (
         <article className="uk-article uk-margin-top" ref="exercise" key={key}>
@@ -46,9 +53,7 @@ class BaseExercise extends Component {
             <span dangerouslySetInnerHTML={{__html: json.getIn(['exercise','text','$'])}} />
           </div>
           <hr className="uk-article-divider"/>
-          <form className="uk-form" onSubmit={(event) => event.preventDefault()}>
-          <Question exerciseKey={key} questionKey={"q1"}/> 
-          </form>
+          { questionsDOMArray }
         </article>
     );
 

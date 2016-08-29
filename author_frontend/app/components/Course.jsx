@@ -17,7 +17,7 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
     if(folder.exercises) {
       //exerciseState.getIn([exercise, 'correct'], false)
       exercises = Object.keys(folder.exercises).sort().map( exercise => (
-        <li>
+        <li key={exerciseState.getIn([exercise, 'exercise_key'])}>
           <a className="uk-thumbnail" onClick={(ev) => onExerciseClick(exercise, foldername)}>
           <div className="exercise-thumb-wrap">
             <img className="exercise-thumb-nav" src={"/exercise/" + exercise + "/asset/thumbnail.png"}/>
@@ -28,7 +28,6 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
             </div>
           </a>
         </li>));
-        console.dir(folder.exercises);
     }
     if(folder.folders)
       children = Object.keys(folder.folders).sort().map ( childfolder => ({name: childfolder, content: parseFolder( folder.folders[childfolder].content, childfolder)}) );
@@ -40,8 +39,8 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
       </ul>
         <dl className="uk-description-list-line">
       { children.map( child => [
-          (<dt className="uk-text-large"><i className="uk-icon uk-icon-navicon"></i> {child.name} </dt>),
-          (<dd> {child.content} </dd>)]
+          (<dt className="uk-text-large" key={"dt"+child.name}><i className="uk-icon uk-icon-navicon"></i> {child.name} </dt>),
+          (<dd key={"dd"+child.name}> {child.content} </dd>)]
       )
       }
         </dl>
@@ -51,7 +50,6 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
     //return exercises.concat( flatten(children) );
   }
   if(exercisetree) {
-  console.dir(exercisetree);
   var top = parseFolder(exercisetree, "/");
   return (
   <div className="uk-content-center">

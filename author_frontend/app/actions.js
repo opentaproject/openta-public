@@ -86,9 +86,9 @@ function updateQuestionResponse(exerciseKey, questionKey, response) {//{{{
   }*/
   var data = { 
     exerciseState: { 
-      [exercise]: {
+      [exerciseKey]: {
         question: {
-         [question]: {
+         [questionKey]: {
            response: response
          }
         }

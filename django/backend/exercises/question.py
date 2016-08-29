@@ -1,23 +1,32 @@
-from exercises.models import Exercise, Question
+from exercises.models import Exercise, Question, Answer
 from exercises.parsing import question_json_get
 from exercises.util import nested_print
+import json
+
+question_check_dispatch = {}
 
 
-def question_check_compare_numeric(question_json, answer_data):
-    print('Check numeric!')
-    return {'correct': False}
+def register_question_type(question_type, grading_function):
+    question_check_dispatch[question_type] = grading_function
 
 
-question_check_dispatch = {'compareNumeric': question_check_compare_numeric}
-
-
-def question_check(exercise_key, question_key, answer_data):
+def question_check(user, exercise_key, question_key, answer_data):
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
     question_json = question_json_get(dbexercise.path, question_key)
     nested_print(question_json)
     if dbquestion.type in question_check_dispatch:
         result = question_check_dispatch[dbquestion.type](question_json, answer_data)
+        correct = False
+        if 'correct' in result:
+            correct = result['correct']
+        dbanswer = Answer.objects.create(
+            user=user,
+            question=dbquestion,
+            answer=answer_data,
+            grader_response=json.dumps(result),
+            correct=correct,
+        )
         return result
     else:
         return {'error': 'No grading function for question type ' + dbquestion.type}
