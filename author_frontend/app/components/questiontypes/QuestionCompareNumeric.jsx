@@ -24,6 +24,8 @@ export default class QuestionCompareNumeric extends Component {
   var response = this.props.responseData;
   var submit = this.props.submitFunction;
   var error = response.getIn(['error']);
+  var correct = response.getIn(['correct'], false);
+  var latex = response.getIn(['latex'], '');
   return (
     <div>
       <div className="uk-panel uk-panel-box uk-margin-top" key={question.get('@key')}>
@@ -33,7 +35,9 @@ export default class QuestionCompareNumeric extends Component {
             <i className="uk-icon-pencil"/>
             <input className={"uk-width-1-1 "} type="text" onKeyUp={(event) => { if(event.keyCode === 13)submit(event.target.value) } }></input>
           </div>
-        { error && <Alert message={error} type="error"/> }
+        { error && <Alert message={error} type="error" key="err"/> }
+        { !correct && <Alert message="Incorrect" type="warning" key="incorrect"/> }
+        { correct && <Alert message={"$" + latex + "$" + " is correct!"} type="success" key="correct"/> }
         </div>
       </div>
     </div>

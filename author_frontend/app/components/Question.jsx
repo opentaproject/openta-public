@@ -8,17 +8,35 @@ import { checkQuestion } from '../fetchers.js'
 import { questionDispatch } from './questiontypes/question_type_dispatch.js'
 import * as qt from './questiontypes/question_types.js'
 
-const BaseQuestion = ({exerciseKey, questionKey, exerciseState, onQuestionSubmit}) => {
-  var json = exerciseState.get('json', immutable.Map({}));
-  var question = json.getIn(['exercise','question',questionKey], immutable.Map({}));
-  var response = exerciseState.getIn(['question', questionKey, 'response'], immutable.Map({}))
-  var questionType = question.get('@type', undefined);
-  if(questionType) {
-    var questionDOM = React.createElement(questionDispatch[questionType], { questionData: question, responseData: response, submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data)}); 
-    return questionDOM;
-  } 
-  else {
-    return (<div>Invalid question</div>);
+//const BaseQuestion = ({exerciseKey, questionKey, exerciseState, onQuestionSubmit}) => {
+class BaseQuestion extends Component {
+  render() {
+    var questionType = this.props.questionType;
+    var questionKey = this.props.questionKey;
+    var exerciseKey = this.props.exerciseKey;
+    var exerciseState = this.props.exerciseState;
+    var onQuestionSubmit = this.props.onQuestionSubmit;
+    var json = exerciseState.get('json', immutable.Map({}));
+    var question = json.getIn(['exercise','question', questionKey], immutable.Map({}));
+    var response = exerciseState.getIn(['question', questionKey, 'response'], immutable.Map({}))
+    var questionType = question.get('@type', undefined);
+    if(questionType) {
+      var questionDOM = React.createElement(questionDispatch[questionType], { 
+        questionData: question, 
+        responseData: response, 
+        submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data),
+          ref: (ref) => this.questionref = ref
+      }); 
+      return questionDOM;
+    } 
+    else {
+      return (<div>Invalid question</div>);
+    }
+  }
+
+  componentDidUpdate(props,state,root) {
+    var node = ReactDOM.findDOMNode(this.questionref);
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
   }
 }
 

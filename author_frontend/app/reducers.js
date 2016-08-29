@@ -30,7 +30,8 @@ export default (state = defaultState, action) => {
     case 'UPDATE_EXERCISE_TREE':
       return state.set('exerciseTree', action.exercisetree);
     case 'UPDATE_QUESTION_RESPONSE':
-      return state.mergeDeep(action.data);
+      return state.setIn(['exerciseState', action.exercise, 'question', action.question, 'response'], immutable.fromJS(action.response));
+      //return state.mergeDeep(action.data);
     case 'UPDATE_EXERCISE_XML':
       return state.setIn(['exerciseState', action.exercise, 'xml'], action.xml);
     case 'SET_SAVE_PENDING':
