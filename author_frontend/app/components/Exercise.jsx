@@ -62,10 +62,7 @@ class BaseExercise extends Component {
 
   componentDidUpdate(props,state,root) {
     var node = ReactDOM.findDOMNode(this.refs.exercise);
-    console.dir(node)
-    console.dir(MathJax)
     MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
-    console.log("Component updated!");
   }
 }
 

@@ -15,6 +15,10 @@ urlpatterns = [
         r'^exercise/(?P<exercise>[\w\.]+)/question/(?P<question>[\w]+)/check$', views.exercise_check
     ),
     url(r'^exercise/(?P<exercise>[\w\.]+)/save$', views.exercise_save),
+    url(
+        r'^exercise/(?P<exercise>[\w\.]+)/question/(?P<question>[\w]+)/latest$',
+        views.question_last_answer,
+    ),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

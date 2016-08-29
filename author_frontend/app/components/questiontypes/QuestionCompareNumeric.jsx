@@ -16,16 +16,17 @@ var inputClass = {
 export default class QuestionCompareNumeric extends Component {
   static propTypes = {
     questionData: PropTypes.object,
-    responseData: PropTypes.object,
+    questionState: PropTypes.object,
     submitFunction: PropTypes.func,
   }
   render() {  
   var question = this.props.questionData;
-  var response = this.props.responseData;
+  var state = this.props.questionState;
   var submit = this.props.submitFunction;
-  var error = response.getIn(['error']);
-  var correct = response.getIn(['correct'], false);
-  var latex = response.getIn(['latex'], '');
+  var lastAnswer = state.getIn(['answer'], '');
+  var correct = state.getIn(['response','correct'], false);
+  var latex = state.getIn(['response','latex'], '');
+  var error = state.getIn(['response','error']);
   return (
     <div>
       <div className="uk-panel uk-panel-box uk-margin-top" key={question.get('@key')}>
@@ -33,7 +34,7 @@ export default class QuestionCompareNumeric extends Component {
           <label className="uk-form-row">{question.get('text','')}</label>
           <div className="uk-form-icon uk-width-1-1">
             <i className="uk-icon-pencil"/>
-            <input className={"uk-width-1-1 "} type="text" onKeyUp={(event) => { if(event.keyCode === 13)submit(event.target.value) } }></input>
+            <input className={"uk-width-1-1 "} type="text" defaultValue={lastAnswer} onKeyUp={(event) => { if(event.keyCode === 13)submit(event.target.value) } }></input>
           </div>
         { error && <Alert message={error} type="error" key="err"/> }
         { !correct && <Alert message="Incorrect" type="warning" key="incorrect"/> }

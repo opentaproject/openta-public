@@ -181,7 +181,7 @@ function checkQuestion(exerciseKey, questionKey, answerData) {
     .catch( err => console.log("checkQuestion error!") )
     .then(res => res.json())
     .then(json => { dispatch(updateQuestionResponse(exerciseKey, questionKey, json)); return json})
-    //.then( json => dispatch(fetchExerciseRemoteState(exerciseKey)))
+    .then( json => dispatch(fetchExerciseRemoteState(exerciseKey)))
     //.then(json => console.dir(json))
   }
 }

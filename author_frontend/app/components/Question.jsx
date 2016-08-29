@@ -18,12 +18,12 @@ class BaseQuestion extends Component {
     var onQuestionSubmit = this.props.onQuestionSubmit;
     var json = exerciseState.get('json', immutable.Map({}));
     var question = json.getIn(['exercise','question', questionKey], immutable.Map({}));
-    var response = exerciseState.getIn(['question', questionKey, 'response'], immutable.Map({}))
+    var questionState = exerciseState.getIn(['question', questionKey], immutable.Map({}))
     var questionType = question.get('@type', undefined);
     if(questionType) {
       var questionDOM = React.createElement(questionDispatch[questionType], { 
         questionData: question, 
-        responseData: response, 
+        questionState: questionState, 
         submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data),
           ref: (ref) => this.questionref = ref
       }); 
