@@ -24,7 +24,7 @@ class ExerciseManager(models.Manager):
     def add_exercise(self, path):
         (valid, json) = exercise_validate_and_json(path)
         if valid:
-            name = deep_get(json, 'exercise', 'name', '$')
+            name = deep_get(json, 'exercise', 'exercisename', '$')
             key = deep_get(json, 'exercise', '@key')
             dbexercise, created = self.update_or_create(
                 exercise_key=key,

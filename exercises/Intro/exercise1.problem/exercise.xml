@@ -1,17 +1,17 @@
 <exercise key="key1">
-  <name>Kinetic energy</name>
+  <exercisename>Kinetic energy</exercisename>
   <figure>figure.jpg</figure>
-  <text>A part   icle has mass $m$ and is moving with velocity $v$.</text>
+  <exercisetext>A particle has mass $m$ and is moving with velocity $v$ at a height $h$ over the earths surface.</exercisetext>
 
 <question key="q1" type="compareNumeric">
   <variables>
-    m=1; v=2;
+    m=3; v=7; h=11; g = 13;
   </variables>
   <text>
-    What is the particles kinetic energy?
+    What is the total mechanical energy of the particle?
   </text>
   <expression>
-    m*v^2/2
+    m*v^2/2 + m*g*h
   </expression>
 </question>
 

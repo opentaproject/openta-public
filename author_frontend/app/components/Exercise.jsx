@@ -43,13 +43,13 @@ class BaseExercise extends Component {
     var exerciseDOM = (
         <article className="uk-article uk-margin-top" ref="exercise" key={key}>
           <div className="uk-grid">
-          <h1 className="uk-article-title">{json.getIn(['exercise','name','$'])}</h1>
+          <h1 className="uk-article-title">{json.getIn(['exercise','exercisename','$'])}</h1>
           </div>
           <div className="uk-clearfix">
             <div className="uk-align-medium-right">
             { figure && <img style={{maxHeight: '100pt'}} src={'/exercise/' + key + '/asset/' + figure} alt=""/> }
             </div>
-            <span dangerouslySetInnerHTML={{__html: json.getIn(['exercise','text','$'])}} />
+            <span dangerouslySetInnerHTML={{__html: json.getIn(['exercise','exercisetext','$'])}} />
           </div>
           <hr className="uk-article-divider"/>
           { questionsDOMArray }

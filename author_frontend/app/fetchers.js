@@ -102,8 +102,8 @@ function fetchExercise(exercise, empty) {
   return dispatch => {
     dispatch(updateActiveExercise(exercise));
     if(empty) {
-    dispatch(setResetPendingState(exercise, true));
-    return jsonfetch('/exercise/' + exercise + '/json')
+      dispatch(setResetPendingState(exercise, true));
+      return jsonfetch('/exercise/' + exercise + '/json')
       .then(response => response.json())
       .then(json => {
         dispatch(fetchExerciseXML(exercise));
@@ -113,9 +113,9 @@ function fetchExercise(exercise, empty) {
         dispatch(setSaveError(exercise, undefined));
       })
       .catch( err => console.log(err) );
-  } else {
-    return;
-  }
+    } else {
+      return;
+    }
   };
 }
 

@@ -1,26 +1,14 @@
 <exercise key="exercise2">
-<name>Kinetic energy</name>
-<figure>figure.jpg</figure>
-<text>A part icl has mass $m$ and is movi ng with velocity $v$.</text>
+<exercisename>Kinetic energy</exercisename>
+<figure>figure.png</figure>
+<exercisetext>A particle has mass $m$ and is moving with velocity $v$.</exercisetext>
 
 <question key="q1" type="compareNumeric">
   <variables>
-    m=1; v=2;
+    m=3; v=7;
   </variables>
   <text>
-    What is the particles kinetic energy?
-  </text>
-  <expression>
-    m*v^2/2
-  </expression>
-</question>
-
-<question key="q2" type="compareNumeric">
-  <variables>
-    m=1; v=2;
-  </variables>
-  <text>
-    What is the particles kinetic energy?
+    What is the kinetic energy of the particle?
   </text>
   <expression>
     m*v^2/2
