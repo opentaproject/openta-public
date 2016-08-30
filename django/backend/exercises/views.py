@@ -85,8 +85,9 @@ def exercise_save(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
         result = parsing.exercise_save(dbexercise.path, request.data['xml'])
-    except IOError:
-        result = {'success': False}
+        Exercise.objects.add_exercise(dbexercise.path)
+    except (ExerciseParseError, IOError) as e:
+        result = {'success': False, 'error': str(e)}
     return Response(result)
 
 

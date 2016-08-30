@@ -5,6 +5,14 @@ from exercises.util import deep_get, nested_print
 from functools import reduce
 
 
+class ExerciseParseError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
 def exercise_json(path):  # {{{
     xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
@@ -22,18 +30,22 @@ def exercise_json(path):  # {{{
 def exercise_validate_and_json(path):
     try:
         json = exercise_json(path)
-        if not deep_get(json, 'exercise', '@key'):
-            raise ValueError('No key')
-        return (True, json)
-    except ValueError as err:
-        print(err)
-        return (False, {})
-    except ParseError as err:
-        print(err)
-        return (False, {})
-    except IOError as err:
-        print(err)
-        return (False, {})
+    except ParseError as e:
+        raise ExerciseParseError(e)
+    if not deep_get(json, 'exercise', '@key'):
+        raise ExerciseParseError('No exercise key')
+    return json
+
+
+# except ValueError as err:
+#     print(err)
+#     return (False, {}, err)
+# except ParseError as err:
+#     print(err)
+#     return (False, {}, err)
+# except IOError as err:
+#     print(err)
+#     return (False, {}, err)
 
 
 def exercise_xml(path):  # {{{

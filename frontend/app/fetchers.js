@@ -152,7 +152,10 @@ function saveExercise(exercise) {
         dispatch(setSaveError(exercise, false));
       } 
       else {
-        throw "Parse error";
+        dispatch(setSavePendingState(exercise, false));
+        dispatch(setExerciseModifiedState(exercise, true));
+        dispatch(setSaveError(exercise, true));
+        //dispatch(
       }
     })
     .catch( err => {

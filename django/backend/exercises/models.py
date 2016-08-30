@@ -2,7 +2,7 @@ from django.db import models
 import os
 from functools import reduce
 from exercises.paths import EXERCISES_PATH
-from exercises.parsing import exercise_validate_and_json, question_validate
+from exercises.parsing import exercise_validate_and_json, question_validate, ExerciseParseError
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
@@ -21,54 +21,62 @@ import json as JSON
 
 
 class ExerciseManager(models.Manager):
+    def mend_answers(self):
+        '''
+        Tries to match orphan answers with an exercise and question.
+        '''
+        answers = Answer.objects.filter(question__isnull=True)
+        for answer in answers:
+            try:
+                question = Question.objects.get(
+                    exercise__exercise_key=answer.exercise_key, question_key=answer.question_key
+                )
+                answer.question = question
+                answer.save()
+                print("Found question for orphan answer")
+            except ObjectDoesNotExist:
+                pass
+
     def add_exercise(self, path):
-        (valid, json) = exercise_validate_and_json(path)
-        if valid:
-            name = deep_get(json, 'exercise', 'exercisename', '$')
-            key = deep_get(json, 'exercise', '@key')
-            dbexercise, created = self.update_or_create(
-                exercise_key=key,
-                defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)},
+        json = exercise_validate_and_json(path)
+        name = deep_get(json, 'exercise', 'exercisename', '$')
+        key = deep_get(json, 'exercise', '@key')
+        dbexercise, created = self.update_or_create(
+            exercise_key=key, defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)}
+        )
+        if created:
+            print('Adding ' + path + '/' + name + ' to database.')
+        else:
+            print('Updated ' + path + '/' + name)
+        questions = deep_get(json, 'exercise', 'question')
+        for question in questions:
+            if not question_validate(question):
+                print(path + " contains invalid question: ")
+                nested_print(question)
+                raise ExerciseParseError("Invalid question in " + name)
+            dbquestion, created = Question.objects.update_or_create(
+                exercise=dbexercise,
+                question_key=question['@key'],
+                defaults={'type': question['@type']},
             )
             if created:
-                print('Adding ' + path + '/' + name + ' to database.')
+                print(
+                    name + ': Adding question ' + question['@key'] + ' of type ' + question['@type']
+                )
             else:
-                print('Updated ' + path + '/' + name)
-            questions = deep_get(json, 'exercise', 'question')
-            for question in questions:
-                if not question_validate(question):
-                    print(path + " contains invalid question: ")
-                    nested_print(question)
-                    return
-                dbquestion, created = Question.objects.update_or_create(
-                    exercise=dbexercise,
-                    question_key=question['@key'],
-                    defaults={'type': question['@type']},
+                print(
+                    name
+                    + ': Updating question '
+                    + question['@key']
+                    + ' of type '
+                    + question['@type']
                 )
-                if created:
-                    print(
-                        name
-                        + ': Adding question '
-                        + question['@key']
-                        + ' of type '
-                        + question['@type']
-                    )
-                else:
-                    print(
-                        name
-                        + ': Updating question '
-                        + question['@key']
-                        + ' of type '
-                        + question['@type']
-                    )
 
-            for question in Question.objects.filter(exercise=dbexercise):
-                bool_list = map(
-                    lambda jsonitem: jsonitem['@key'] == question.question_key, questions
-                )
-                exists = reduce(lambda a, b: a or b, bool_list, False)
-                if not exists:
-                    question.delete()
+        for question in Question.objects.filter(exercise=dbexercise):
+            bool_list = map(lambda jsonitem: jsonitem['@key'] == question.question_key, questions)
+            exists = reduce(lambda a, b: a or b, bool_list, False)
+            if not exists:
+                question.delete()
 
     def sync_with_disc(self):
         print("Syncing with disc...")
@@ -80,13 +88,18 @@ class ExerciseManager(models.Manager):
                     relpath = root[len(EXERCISES_PATH) :]
                     exerciselist.append((name, relpath))
         for name, path in exerciselist:
-            self.add_exercise(path)
+            try:
+                self.add_exercise(path)
+            except (ExerciseParseError, IOError) as e:
+                print("Failed to add " + name + " because " + str(e))
         for exercise in self.all():
             fullpath = exercise.path + '/exercise.xml'
-            (valid, _) = exercise_validate_and_json(exercise.path)
-            if not valid:
+            try:
+                exercise_validate_and_json(exercise.path)
+            except (ExerciseParseError, IOError):
                 exercise.delete()
                 print('Deleting non existing ' + fullpath + ' from database.')
+        self.mend_answers()
 
     def folder_structure(self, user):
         folders = {}
@@ -163,7 +176,9 @@ class Question(models.Model):
 
 class Answer(models.Model):
     user = models.ForeignKey(User)
-    question = models.ForeignKey(Question)
+    question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
+    question_key = models.CharField(max_length=255, default='')
+    exercise_key = models.CharField(max_length=255, default='')
     answer = models.TextField()
     grader_response = models.TextField(default='')
     correct = models.BooleanField()
