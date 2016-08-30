@@ -1,7 +1,7 @@
 exports.config = {
   //hot: true,
 
-  npm: { styles: { codemirror: ['lib/codemirror.css', 'theme/monokai.css'] } },
+  npm: { styles: { codemirror: ['lib/codemirror.css', 'theme/paraiso-light.css'] } },
   files: {
     //javascripts: { joinTo: {
     //  //'app.js': ['app/**/*', '../questiontypes/**/*'],

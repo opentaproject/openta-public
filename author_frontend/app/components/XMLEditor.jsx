@@ -7,7 +7,7 @@ require('codemirror/mode/xml/xml');
 
 export default ({ xmlCode, onChange }) => (
   <div className="uk-panel uk-panel-box uk-margin-top" style={{height:"80vh"}}>
-    <Codemirror value={xmlCode} options={{mode: 'xml', lineWrapping: true, theme: 'monokai', lineNumbers: true}} onChange={onChange}/> 
+    <Codemirror value={xmlCode} options={{mode: 'xml', lineWrapping: true, theme: 'paraiso-light', lineNumbers: true}} onChange={onChange}/> 
   </div>
 );
 
