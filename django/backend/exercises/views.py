@@ -70,7 +70,11 @@ def other_exercises_from_folder(request, exercise):
 @api_view(['GET'])
 def exercise_json(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    return Response(parsing.exercise_json(dbexercise.path))
+    try:
+        exercisejson = parsing.exercise_json(dbexercise.path)
+        return Response(exercisejson)
+    except parsing.ExerciseParseError as e:
+        return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])

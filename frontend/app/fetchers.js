@@ -101,12 +101,23 @@ function fetchExerciseRemoteState(exercise) {
 function fetchExercise(exercise, empty) {
   return dispatch => {
     dispatch(updateActiveExercise(exercise));
+    dispatch(fetchExerciseXML(exercise));
     if(empty) {
       dispatch(setResetPendingState(exercise, true));
       return jsonfetch('/exercise/' + exercise + '/json')
+      .then(response => {
+        if(response.status >= 300){
+          response.text().then( t => console.log(t) );
+          dispatch(setResetPendingState(exercise, false));
+          dispatch(setExerciseModifiedState(exercise, false));
+          dispatch(setSaveError(exercise, undefined));
+          throw response.status;
+        }
+        return response;
+      }
+       )
       .then(response => response.json())
       .then(json => {
-        dispatch(fetchExerciseXML(exercise));
         dispatch(updateExerciseJSON(exercise, json));
         dispatch(setResetPendingState(exercise, false));
         dispatch(setExerciseModifiedState(exercise, false));

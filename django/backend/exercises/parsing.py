@@ -3,6 +3,8 @@ from xml.etree.ElementTree import fromstring, ParseError
 from exercises.paths import EXERCISES_PATH
 from exercises.util import deep_get, nested_print
 from functools import reduce
+import os.path
+import uuid
 
 
 class ExerciseParseError(Exception):
@@ -13,10 +15,48 @@ class ExerciseParseError(Exception):
         return repr(self.value)
 
 
+class ExerciseNotFound(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return repr(self.value)
+
+
+def is_exercise(path):
+    return os.path.isfile(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
+
+
+def exercise_key_get(path):
+    with open(EXERCISES_PATH + '/{path}/exercisekey'.format(path=path)) as keyfile:
+        exercisekey = keyfile.read().strip(" \n")
+        return exercisekey
+
+
+def exercise_key_set(path, key):
+    with open(EXERCISES_PATH + '/{path}/exercisekey'.format(path=path), 'w') as keyfile:
+        print(key)
+        keyfile.write(key)
+    return key
+
+
+def exercise_key_get_or_create(path):
+    try:
+        key = exercise_key_get(path)
+        return key
+    except IOError:
+        key = exercise_key_set(path, str(uuid.uuid4()))
+        return key
+
+
 def exercise_json(path):  # {{{
     xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
-    obj = bf.data(fromstring(xml))
+    obj = {}
+    try:
+        obj = bf.data(fromstring(xml))
+    except ParseError as e:
+        raise ExerciseParseError(e)
     questions = deep_get(obj, 'exercise', 'question')
     if questions:
         if not isinstance(questions, list):
@@ -28,13 +68,7 @@ def exercise_json(path):  # {{{
 
 
 def exercise_validate_and_json(path):
-    try:
-        json = exercise_json(path)
-    except ParseError as e:
-        raise ExerciseParseError(e)
-    if not deep_get(json, 'exercise', '@key'):
-        raise ExerciseParseError('No exercise key')
-    return json
+    return exercise_json(path)
 
 
 # except ValueError as err:

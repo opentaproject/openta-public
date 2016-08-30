@@ -7,8 +7,12 @@ def nested_print(d):
     return
 
 
-def deep_get(dictionary, *keys):
-    return functools.reduce(lambda d, key: d.get(key) if d else None, keys, dictionary)
+def deep_get(dictionary, *keys, default=None):
+    result = functools.reduce(lambda d, key: d.get(key) if d else None, keys, dictionary)
+    if result == None:
+        return default
+    else:
+        return result
 
 
 def compose(*funcs):

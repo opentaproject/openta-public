@@ -2,22 +2,20 @@ from django.db import models
 import os
 from functools import reduce
 from exercises.paths import EXERCISES_PATH
-from exercises.parsing import exercise_validate_and_json, question_validate, ExerciseParseError
+from exercises.parsing import (
+    exercise_validate_and_json,
+    question_validate,
+    ExerciseParseError,
+    exercise_key_get_or_create,
+    is_exercise,
+    ExerciseNotFound,
+)
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
 from exercises.util import deep_get, nested_print
 from functools import partial
 import json as JSON
-
-# /Dynamics/Week 1/problem1
-# /Dynamics/Week 1/problem2
-# /Dynamics/Week 2/problem1
-# /Statics/Week 1/problem1
-# /Statics/Week 1/problem2
-# /Statics/Week 2/problem1
-
-# Folders [ Name ]
 
 
 class ExerciseManager(models.Manager):
@@ -38,9 +36,16 @@ class ExerciseManager(models.Manager):
                 pass
 
     def add_exercise(self, path):
-        json = exercise_validate_and_json(path)
-        name = deep_get(json, 'exercise', 'exercisename', '$')
-        key = deep_get(json, 'exercise', '@key')
+        result = {}
+        json = {}
+        if not is_exercise(path):
+            raise ExerciseNotFound(path)
+        try:
+            json = exercise_validate_and_json(path)
+        except ExerciseParseError as e:
+            result['error'] = str(e)
+        name = deep_get(json, 'exercise', 'exercisename', '$', default="No name")
+        key = exercise_key_get_or_create(path)
         dbexercise, created = self.update_or_create(
             exercise_key=key, defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)}
         )
@@ -48,7 +53,7 @@ class ExerciseManager(models.Manager):
             print('Adding ' + path + '/' + name + ' to database.')
         else:
             print('Updated ' + path + '/' + name)
-        questions = deep_get(json, 'exercise', 'question')
+        questions = deep_get(json, 'exercise', 'question', default=[])
         for question in questions:
             if not question_validate(question):
                 print(path + " contains invalid question: ")
@@ -94,9 +99,7 @@ class ExerciseManager(models.Manager):
                 print("Failed to add " + name + " because " + str(e))
         for exercise in self.all():
             fullpath = exercise.path + '/exercise.xml'
-            try:
-                exercise_validate_and_json(exercise.path)
-            except (ExerciseParseError, IOError):
+            if not is_exercise(exercise.path):
                 exercise.delete()
                 print('Deleting non existing ' + fullpath + ' from database.')
         self.mend_answers()
