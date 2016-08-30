@@ -90,9 +90,13 @@ def exercise_save(request, exercise):
     try:
         result = parsing.exercise_save(dbexercise.path, request.data['xml'])
         Exercise.objects.add_exercise(dbexercise.path)
-    except (ExerciseParseError, IOError) as e:
+        return Response(result)
+    except parsing.ExerciseParseError as e:
+        result = {'success': True, 'error': str(e)}
+        return Response(result)
+    except IOError as e:
         result = {'success': False, 'error': str(e)}
-    return Response(result)
+        return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['POST'])

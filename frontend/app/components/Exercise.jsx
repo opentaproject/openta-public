@@ -23,6 +23,7 @@ class BaseExercise extends Component {
   } 
 
   static propTypes = {
+    admin: PropTypes.bool,
   exerciseKey: PropTypes.string.isRequired,
   onQuestionInputKeyUp: PropTypes.func,
   exerciseState: PropTypes.object
@@ -35,9 +36,12 @@ class BaseExercise extends Component {
     var figure = json.getIn(['exercise', 'figure', '$']);
     var questions = json.getIn(['exercise', 'question'], immutable.List([]));
     var questionsDOMArray = questions.map( question => (
+          <div>
+          { questions.filter( q => q.get('@key') == question.get('@key') ).count() > 1 && this.props.admin && <Alert message="Duplicate question keys! (If you copied a question please change the key attribute)" type="error"/> } 
           <form key={question.get('@key')} className="uk-form" onSubmit={(event) => event.preventDefault()}>
             <Question exerciseKey={key} questionKey={question.get('@key')}/>
           </form>
+          </div>
     ));
 
     var exerciseDOM = (
@@ -70,6 +74,7 @@ const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
   return (
   {
+    admin: state.getIn(['login', 'admin']),
     exerciseKey: state.get('activeExercise'),
     exerciseState: activeExerciseState
   })

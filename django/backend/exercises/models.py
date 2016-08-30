@@ -54,6 +54,9 @@ class ExerciseManager(models.Manager):
         else:
             print('Updated ' + path + '/' + name)
         questions = deep_get(json, 'exercise', 'question', default=[])
+        keys = [q['@key'] for q in questions if '@key' in q]
+        if len(keys) > len(set(keys)):
+            raise ExerciseParseError("Duplicate question keys!")
         for question in questions:
             if not question_validate(question):
                 print(path + " contains invalid question: ")

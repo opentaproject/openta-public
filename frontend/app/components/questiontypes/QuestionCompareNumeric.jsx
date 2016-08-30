@@ -28,8 +28,6 @@ export default class QuestionCompareNumeric extends Component {
   var latex = state.getIn(['response','latex'], '');
   var error = state.getIn(['response','error']);
   return (
-    <div>
-      <div className="uk-panel uk-panel-box uk-margin-top" key={question.get('@key')}>
         <div className="uk-container">
           <label className="uk-form-row">{question.get('text','')}</label>
           <div className="uk-form-icon uk-width-1-1">
@@ -40,8 +38,6 @@ export default class QuestionCompareNumeric extends Component {
         { !correct && <Alert message="Incorrect" type="warning" key="incorrect"/> }
         { correct && <Alert message={"$" + latex + "$" + " is correct!"} type="success" key="correct"/> }
         </div>
-      </div>
-    </div>
   );
 }
 }

@@ -27,7 +27,17 @@ class BaseQuestion extends Component {
         submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data),
           ref: (ref) => this.questionref = ref
       }); 
-      return questionDOM;
+      var alerts = [];
+      if(question.get('@key', undefined) == undefined && this.props.admin) {
+       alerts.push( (<Alert message="No question key, please add an attribute key=..." type="error"/>));
+      }
+      var topDOM = React.createElement('div', {
+        className: "uk-panel uk-panel-box uk-margin-bottom",
+        key: questionKey
+      }, [ 
+        alerts,
+        questionDOM]);
+      return topDOM;
     } 
     else {
       return (<div>Invalid question</div>);
@@ -44,6 +54,7 @@ const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
   return (
   {
+    admin: state.getIn(['login', 'admin']),
     exerciseState: activeExerciseState
   })
 };
