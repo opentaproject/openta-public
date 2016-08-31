@@ -47,7 +47,7 @@ Requires:
 
 Install all dependencies (specified in package.json) with
 ```
-cd author_frontend
+cd frontend
 npm install
 ```
 Build frontend and copy the bundle to the django server (as specified in brunch-config.js)
@@ -63,3 +63,30 @@ brunch watch
 * [React](https://facebook.github.io/react/): JS GUI framework
 * [Redux](http://redux.js.org/): State management library
 * [UIKit](http://getuikit.com/): CSS framework
+ 
+## Exercise format
+An exercise consists of a directory containing a definition file ```exercise.xml``` together with a file ```exercisekey``` and possibly additional assets such as figures/pdf.
+
+### ```exercisekey```
+Contains a unique key (up to 255 bytes of UTF8 encoded ASCII) that identifies the exercise to the database. A key file can be added and assigned manually, but is automatically generated as a [uuid4](https://docs.python.org/3.5/library/uuid.html) identifier if not present.
+
+### ```exercise.xml```
+Contains all exercise data, a typical example: 
+```xml
+<exercise>
+  <exercisename>...</exercisename>
+  <figure>...</figure>
+  <exercisetext>...</exercisetext>
+  
+  <question key=... type=...>
+    ....
+  </question>
+</exercise>
+```
+
+### Tags
+| Tag       | Attributes | Description |
+| ---       | ---------- | ----------- |
+| ```exercise```  | None           | Root tag  |
+| ```exercisename``` | | The visible name/title of the exercise |
+| ```question``` | ```key``` = unique id (within the exercise), ```type``` = question type (see ...) | Question root tag |
