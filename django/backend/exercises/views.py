@@ -36,16 +36,10 @@ def exercise_list(request):
     """
     List all exercises
     """
-    # Exercise.objects.sync_with_disc()
-    # Exercise.objects.folder_structure()
     response = []
     exercises = Exercise.objects.all()
     for exercise in exercises:
         data = serialize_exercise_with_question_data(exercise, request.user)
-        # correct = exercise.user_is_correct(request.user)
-        # serializer = ExerciseSerializer(exercise)
-        # data = serializer.data
-        # data['correct'] = correct
         response.append(data)
     return Response(response)
 
@@ -103,11 +97,6 @@ def exercise_save(request, exercise):
 def exercise_check(request, exercise, question):
     print(question)
     answer_data = request.data['answerData']
-    # dbexercise = Exercise.objects.get(exercise_key=exercise)
-    # dbquestion = Question.objects.get(exercise=dbexercise, question_id=question)
-    # result = question_check(dbexercise.path, question, answer)
-    # if 'correct' in result:
-    #    dbanswer = Answer.objects.create(user=request.user, question=dbquestion, answer=answer, correct=result['correct'])
     result = question_check(request.user, exercise, question, answer_data)
     return Response(result)
 

@@ -10,21 +10,15 @@ uniteval = {meter: 1, second: 1, kg: 1}
 
 def asciiToSympy(expression):
     dict = {'^': '**'}
-    # result = expression
     result = re.sub(r"([a-zA-Z0-9]) ([a-zA-Z0-9])", r"\1*\2", expression)
     for old, new in dict.items():
         result = result.replace(old, new)
     return result
 
 
-# def evaluateUnits(expression):
-#    return expression.subs(subs)
-
-
 def parse_variables(variables):
     sym = {}
     # Decode JSON string into python lists/dictionaries
-    # vars = json.loads(variables)
     vars = variables
     # Declare new sympy symbol for every variable
     for var in vars:

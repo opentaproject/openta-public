@@ -22,6 +22,10 @@ def question_check_compare_numeric(question_json, answer_data):
     variables = parse_variables(question_json['variables']['$'])
     correct = question_json['expression']['$']
     result = symbolic.compare_numeric(variables, answer_data, correct)
+    if 'correct' in result:
+        result['status'] = 'correct' if result['correct'] else 'incorrect'
+    elif 'error' in result:
+        result['status'] = 'error'
     latex = {'latex': symbolic.to_latex(answer_data)}
     result.update(latex)
     return result
