@@ -10,6 +10,8 @@ from exercises.modelhelpers import serialize_exercise_with_question_data
 from django.http import FileResponse
 from exercises.paths import EXERCISES_PATH
 import json
+import time
+import random
 
 import sys
 import os

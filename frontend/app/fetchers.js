@@ -8,6 +8,8 @@ import {
   updateExerciseState,
   updateExercisesState,
   updateActiveExercise,
+  updatePendingState,
+  updatePendingStateIn,
   setSavePendingState,
   setResetPendingState,
   setSaveError,
@@ -83,8 +85,13 @@ function fetchSameFolder(exercise, folder) {
 
 function fetchExerciseXML(exercise) {
   return dispatch => {
+    dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingXML'], true));
     return jsonfetch('/exercise/' + exercise + '/xml')
-      .then(res => res.json())
+      .then( res => { 
+        dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingXML'], false));
+        return res;
+      })
+      .then( res => res.json() )
       .then( json => json.xml )
       .then( xml => dispatch(updateExerciseXML(exercise, xml)));
   }
@@ -104,7 +111,12 @@ function fetchExercise(exercise, empty) {
     dispatch(fetchExerciseXML(exercise));
     if(empty) {
       dispatch(setResetPendingState(exercise, true));
+      dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingJSON'], true));
       return jsonfetch('/exercise/' + exercise + '/json')
+      .then( res => {
+        dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingJSON'], false));
+        return res;
+      })
       .then(response => {
         if(response.status >= 300){
           response.text().then( t => console.log(t) );
@@ -190,7 +202,7 @@ function checkQuestion(exerciseKey, questionKey, answerData) {
       headers: { "Content-Type": "application/json" },
       body: postData
     }
-      
+    //dispatch(updatePendingState( { exercises: {[exerciseKey]: {question: { [questionKey] } }}));
     jsonfetch('/exercise/' + exerciseKey + '/question/' + questionKey + '/check', fetchconfig)
     .catch( err => console.log("checkQuestion error!") )
     .then(res => res.json())

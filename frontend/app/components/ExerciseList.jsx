@@ -7,15 +7,15 @@ import {
 } from '../fetchers.js';
 
 import { updateActiveExercise } from '../actions.js';
-
 import immutable from 'immutable';
+import Spinner from './Spinner.jsx'
 
 function listClass(item, active) {
   if(item === active)return "uk-active";
   else return "";
 }
 
-const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onExercisesClick, onBack }) => (
+const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onBack, pendingState }) => (
   <div className="uk-width-medium-1-6" id="exercises-menu">
     <ul className="uk-nav uk-nav-side uk-list-space exercise-menu">
     <li className="uk-nav-header" key="header">
@@ -25,15 +25,19 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
                       <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
                         <a onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
                           <ul>
-                          <li><img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/></li>
-                          <li className="uk-text-break">{exercise.get('name')}</li>
+                            <li>
+                              <div className="exercise-thumb-wrap">
+                              <img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
+                                {exerciseState.getIn([exercise.get('exercise_key'), 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success exercise-thumb-badge"><i className="uk-icon uk-icon-check"></i></span> }
+                              </div>
+                            </li>
+                            <li className="uk-text-break">{exercise.get('name')}</li>
                           </ul>
                         </a>
                       </li>
                                    )
                      ).toArray()}
     </ul>
-  <button className="uk-margin-top" onClick={onExercisesClick}>Fetch</button>
   </div>
 );
 
@@ -42,8 +46,8 @@ BaseExercises.propTypes = {
   folder: PropTypes.string,
   activeExercise: PropTypes.string,
   exerciseState: PropTypes.object,
+  pendingState: PropTypes.object,
   onExerciseClick: PropTypes.func.isRequired,
-  onExercisesClick: PropTypes.func.isRequired,
   onBack: PropTypes.func,
 };
 
@@ -54,7 +58,8 @@ const mapStateToProps = state => {
     exerciselist: state.get('exercises', immutable.List([])).sort(),
     folder: state.get('folder', ""),
     activeExercise: state.get('activeExercise') ,
-    exerciseState: exerciseState
+    exerciseState: exerciseState,
+    pendingState: state.get('pendingState')
   }
   )
 };
@@ -62,7 +67,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onExerciseClick: (exercise, empty) => dispatch(fetchExercise(exercise, empty)),
-    onExercisesClick: () => dispatch(fetchExercises()),
     onBack: () => dispatch(updateActiveExercise(""))
   };
 };

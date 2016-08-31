@@ -5,6 +5,7 @@ import {
   fetchExercises, 
   fetchSameFolder,
 } from '../fetchers.js';
+import Spinner from './Spinner.jsx';
 
 import immutable from 'immutable';
 

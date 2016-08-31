@@ -34,7 +34,7 @@ export default class QuestionCompareNumeric extends Component {
 
   // System state data
   var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
-  var correct = state.getIn(['response','correct'], false); // Boolean indicating if the grader reported correct answer
+  var correct = state.getIn(['response','correct'], undefined); // Boolean indicating if the grader reported correct answer
 
   // Custom state data
   var latex = state.getIn(['response','latex'], ''); // Custom field containing the latex code obtained from SymPy.
@@ -50,7 +50,7 @@ export default class QuestionCompareNumeric extends Component {
             <input className={"uk-width-1-1 " + inputClass[status]} type="text" defaultValue={lastAnswer} onKeyUp={(event) => { if(event.keyCode === 13)submit(event.target.value) } }></input>
           </div>
         { error && <Alert message={error} type="error" key="err"/> }
-        { !correct && <Alert message="Incorrect" type="warning" key="incorrect"/> }
+        { !correct && lastAnswer !== '' && <Alert message="Incorrect" type="warning" key="incorrect"/> }
         { correct && <Alert message={"$" + latex + "$" + " is correct!"} type="success" key="correct"/> }
         </div>
   );

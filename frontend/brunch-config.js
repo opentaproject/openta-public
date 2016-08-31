@@ -1,6 +1,9 @@
 exports.config = {
   //hot: true,
-
+ watcher: {
+     awaitWriteFinish: true,
+     usePolling: true
+   },
   npm: { styles: { codemirror: ['lib/codemirror.css', 'theme/paraiso-light.css'] } },
   files: {
     //javascripts: { joinTo: {

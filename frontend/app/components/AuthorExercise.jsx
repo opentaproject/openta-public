@@ -6,6 +6,7 @@ import _ from 'lodash';
 import immutable from 'immutable';
 import XMLEditor from './XMLEditor.jsx';
 import xml2js from 'xml2js';
+import Spinner from './Spinner.jsx';
 
 import Exercise from './Exercise';
 
@@ -49,16 +50,18 @@ class BaseAuthorExercise extends Component {
   } 
 
   static propTypes = {
-  exerciseName: PropTypes.string.isRequired,
+  exerciseKey: PropTypes.string.isRequired,
   onSave: PropTypes.func,
   onReset: PropTypes.func,
   onXMLChange: PropTypes.func,
-  exerciseState: PropTypes.object
+  exerciseState: PropTypes.object,
+  pendingState: PropTypes.object
 };
 
   render() {
-    var name = this.props.exerciseName;
+    var key = this.props.exerciseKey;
     var exerciseState = this.props.exerciseState;
+    var pendingState = this.props.pendingState;
     var exercisexml = exerciseState.get('xml','');
     var onSave = this.props.onSave;
     var onReset = this.props.onReset;
@@ -66,18 +69,20 @@ class BaseAuthorExercise extends Component {
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
     var modified = exerciseState.get('modified');
+    var loading = pendingState.getIn(['exercises', key, 'loadingXML'],false);
     var authorDOM = (
     <ul className="uk-grid uk-grid-width-xlarge-1-2">
         <li key="exercise">
-          <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(name)} onreset={(event) => onReset(name)}/>
+          <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(key)} onreset={(event) => onReset(key)}/>
           <Exercise/>
         </li>
         <li key="xml">
-        <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, name)}/>
+        { loading && <Spinner/> }
+        { !loading && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
         </li>
         </ul>
     );
-    return name ? authorDOM : (<span/>);
+    return key ? authorDOM : (<span/>);
   }
 }
 
@@ -112,8 +117,9 @@ const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
   return (
   {
-    exerciseName: state.get('activeExercise'),
-    exerciseState: activeExerciseState
+    exerciseKey: state.get('activeExercise'),
+    exerciseState: activeExerciseState,
+    pendingState: state.get('pendingState')
   })
 };
 

@@ -42,6 +42,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['exerciseState', action.exercise, 'resetpending'], action.pending);
     case 'SET_EXERCISE_MODIFIED':
       return state.setIn(['exerciseState', action.exercise, 'modified'], action.modified);
+    case 'UPDATE_PENDING_STATE':
+      return state.mergeDeepIn(['pendingState'], action.pendingstate);
 
     default:
       return state

@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import Alert from './Alert.jsx';
 import Question from './Question.jsx';
+import Spinner from './Spinner.jsx';
 import immutable from 'immutable';
 
 import { 
@@ -26,12 +27,14 @@ class BaseExercise extends Component {
     admin: PropTypes.bool,
   exerciseKey: PropTypes.string.isRequired,
   onQuestionInputKeyUp: PropTypes.func,
-  exerciseState: PropTypes.object
+  exerciseState: PropTypes.object,
+  pendingState: PropTypes.object
 };
 
   render() {
     var key = this.props.exerciseKey;
     var state = this.props.exerciseState;
+    var pendingState = this.props.pendingState;
     var json = state.get('json', immutable.Map({}));
     var figure = json.getIn(['exercise', 'figure', '$']);
     var questions = json.getIn(['exercise', 'question'], immutable.List([]));
@@ -55,12 +58,16 @@ class BaseExercise extends Component {
             </div>
             <span dangerouslySetInnerHTML={{__html: json.getIn(['exercise','exercisetext','$'])}} />
           </div>
-          <hr className="uk-article-divider"/>
+          { /* <hr className="uk-article-divider"/> */ }
           { questionsDOMArray }
         </article>
     );
 
-    return exerciseDOM;
+    if(pendingState.getIn(['exercises', key, 'loadingJSON'], false)) {
+      return (<Spinner/>);
+    }
+    else 
+      return exerciseDOM;
   }
 
   componentDidUpdate(props,state,root) {
@@ -76,7 +83,8 @@ const mapStateToProps = state => {
   {
     admin: state.getIn(['login', 'admin']),
     exerciseKey: state.get('activeExercise'),
-    exerciseState: activeExerciseState
+    exerciseState: activeExerciseState,
+    pendingState: state.get('pendingState')
   })
 };
 

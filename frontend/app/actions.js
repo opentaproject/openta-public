@@ -2,6 +2,7 @@ import _ from 'lodash'
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Alert from './components/Alert.jsx';
+import immutable from 'immutable';
 
 function updateLoginStatus(data) {//{{{
   return {
@@ -104,4 +105,19 @@ function setExerciseModifiedState(exercise, modified) {//{{{
   }
 }//}}}
 
-export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState }
+function updatePendingState(pendingstate) {
+  return {
+    type: 'UPDATE_PENDING_STATE',
+    pendingstate: pendingstate
+  }
+}
+
+function updatePendingStateIn(path, pending) {
+  var data = immutable.Map({});
+  return {
+    type: 'UPDATE_PENDING_STATE',
+    pendingstate: data.setIn(path, pending)
+  }
+}
+
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn}

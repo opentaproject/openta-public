@@ -1,13 +1,24 @@
-from exercises.question import register_question_type
+'''
+This is the server side implementation of the question type compareNumeric.
+'''
+
+from exercises.question import (
+    register_question_type,
+)  # This function is used to register the question type
+
+# Below are imports that are specific to this question type
 import functools
 import operator
 import exercises.symbolic as symbolic
 from exercises.util import compose
 
-# import exercises.question
-
 
 def parse_variables(variables):  # {{{
+    '''
+    Parses the variable field.
+    Takes a string with variables in the format "var1=x; var2=y; var3=z" and converts into a list of the form
+    [ { 'name': 'var1', 'value': 'x'}, ... ]
+    '''
     rawvars = variables.split(';')
     pipeline = compose(
         functools.partial(filter, operator.truth),
@@ -18,7 +29,32 @@ def parse_variables(variables):  # {{{
     return variables  # }}}
 
 
+# The function below is the core of the server interface and the only mandatory component.
 def question_check_compare_numeric(question_json, answer_data):
+    '''Checks a symbolic answer by numeric evaluation.
+
+    Args:
+        question_json (dictionary): The JSON representation of the <question> XML content
+        answer_data (dynamic): The answer provided by the frontend
+    Returns:
+        (dictionary)
+        {
+            correct: true/false
+            error: (optional)
+            status: correct/incorrect/error
+            latex: latex representation of answer_data by sympy
+        }
+    Notes:
+    Expects the XML format:
+        <question type=compareNumeric>
+            <variables>
+                var1=value1; var2=value2; ...
+            </variables>
+            <expression>
+                f(var1,var2,...)
+            </expression>
+        </question>
+    '''
     variables = parse_variables(question_json['variables']['$'])
     correct = question_json['expression']['$']
     result = symbolic.compare_numeric(variables, answer_data, correct)
@@ -31,4 +67,5 @@ def question_check_compare_numeric(question_json, answer_data):
     return result
 
 
+# This function call registers the question type with the system
 register_question_type('compareNumeric', question_check_compare_numeric)
