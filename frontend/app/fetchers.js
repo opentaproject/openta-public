@@ -202,8 +202,12 @@ function checkQuestion(exerciseKey, questionKey, answerData) {
       headers: { "Content-Type": "application/json" },
       body: postData
     }
-    //dispatch(updatePendingState( { exercises: {[exerciseKey]: {question: { [questionKey] } }}));
+    dispatch(updatePendingStateIn( ['exercises', exerciseKey, 'questions', questionKey, 'waiting'], true));
     jsonfetch('/exercise/' + exerciseKey + '/question/' + questionKey + '/check', fetchconfig)
+    .then( res => {
+      dispatch(updatePendingStateIn( ['exercises', exerciseKey, 'questions', questionKey, 'waiting'], false));
+      return res;
+    })
     .catch( err => console.log("checkQuestion error!") )
     .then(res => res.json())
     .then(json => { dispatch(updateQuestionResponse(exerciseKey, questionKey, json)); return json})

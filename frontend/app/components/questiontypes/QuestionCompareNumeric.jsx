@@ -21,6 +21,7 @@ export default class QuestionCompareNumeric extends Component {
     questionData: PropTypes.object, // Data from exercise XML file, i.e. whats inside the <question> tag
     questionState: PropTypes.object, // Current question state together with response data from server
     submitFunction: PropTypes.func, // Call this function to submit an answer to the server. The only parameter is the answer data which is unconstrained: It could be a simple string as below or a dictionary of values if more information needs to be conveyed.
+    questionPending: PropTypes.bool, // Indicates when we are waiting for a server response
   }
 
   /* render gets called every time the question is shown on screen */
@@ -29,6 +30,7 @@ export default class QuestionCompareNumeric extends Component {
   var question = this.props.questionData;
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
+  var pending = this.props.questionPending;
 
   /* Both the questionData and questionState are of type Map from immutable.js. They are nested dictionaries that are accessed via the get and getIn functions. For example question.get('text') retrieves <question> <text> * </text> </question>. Deeper structures can be accessed with getIn, for example question.getIn(['tag1', 'tag2']) would retrieve <question> <tag1> <tag2> * </tag2> </tag1> </question>. */
 
@@ -46,11 +48,12 @@ export default class QuestionCompareNumeric extends Component {
         <div className="uk-container">
           <label className="uk-form-row">{question.get('text','')}</label>
           <div className="uk-form-icon uk-width-1-1">
-            <i className="uk-icon-pencil"/>
+          { !pending && <i className="uk-icon-pencil"/> }
+          { pending && <i className="uk-icon-cog uk-icon-spin"/> }
             <input className={"uk-width-1-1 " + inputClass[status]} type="text" defaultValue={lastAnswer} onKeyUp={(event) => { if(event.keyCode === 13)submit(event.target.value) } }></input>
           </div>
         { error && <Alert message={error} type="error" key="err"/> }
-        { !correct && lastAnswer !== '' && <Alert message="Incorrect" type="warning" key="incorrect"/> }
+        { !correct && lastAnswer !== '' && <Alert message={"$" + latex + "$" + " is incorrect"} type="warning" key="incorrect"/> }
         { correct && <Alert message={"$" + latex + "$" + " is correct!"} type="success" key="correct"/> }
         </div>
   );

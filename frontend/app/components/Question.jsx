@@ -3,6 +3,7 @@ import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import Alert from './Alert.jsx';
+import Spinner from './Spinner.jsx';
 import immutable from 'immutable';
 import { checkQuestion } from '../fetchers.js'
 import { questionDispatch } from './questiontypes/question_type_dispatch.js'
@@ -15,6 +16,7 @@ class BaseQuestion extends Component {
     var questionKey = this.props.questionKey;
     var exerciseKey = this.props.exerciseKey;
     var exerciseState = this.props.exerciseState;
+    var pendingState = this.props.pendingState;
     var onQuestionSubmit = this.props.onQuestionSubmit;
     var json = exerciseState.get('json', immutable.Map({}));
     var question = json.getIn(['exercise','question'], immutable.List([])).find( q => q.get('@key') == questionKey, immutable.Map({}));
@@ -24,6 +26,7 @@ class BaseQuestion extends Component {
       var questionDOM = React.createElement(questionDispatch[questionType], { 
         questionData: question, 
         questionState: questionState, 
+        questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.get('@key'), 'waiting'], false),
         submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data),
           ref: (ref) => this.questionref = ref
       }); 
@@ -55,7 +58,8 @@ const mapStateToProps = state => {
   return (
   {
     admin: state.getIn(['login', 'admin']),
-    exerciseState: activeExerciseState
+    exerciseState: activeExerciseState,
+    pendingState: state.get('pendingState')
   })
 };
 
