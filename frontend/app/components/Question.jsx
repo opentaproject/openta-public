@@ -19,19 +19,19 @@ class BaseQuestion extends Component {
     var pendingState = this.props.pendingState;
     var onQuestionSubmit = this.props.onQuestionSubmit;
     var json = exerciseState.get('json', immutable.Map({}));
-    var question = json.getIn(['exercise','question'], immutable.List([])).find( q => q.get('@key') == questionKey, immutable.Map({}));
+    var question = json.getIn(['exercise','question'], immutable.List([])).find( q => q.getIn(['@attr','key']) == questionKey, immutable.Map({}));
     var questionState = exerciseState.getIn(['question', questionKey], immutable.Map({}))
-    var questionType = question.get('@type', undefined);
+    var questionType = question.getIn(['@attr','type'], undefined);
     if(questionType) {
       var questionDOM = React.createElement(questionDispatch[questionType], { 
         questionData: question, 
         questionState: questionState, 
-        questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.get('@key'), 'waiting'], false),
+        questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.getIn(['@attr','key']), 'waiting'], false),
         submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data),
           ref: (ref) => this.questionref = ref
       }); 
       var alerts = [];
-      if(question.get('@key', undefined) == undefined && this.props.admin) {
+      if(question.getIn(['@attr','key'], undefined) == undefined && this.props.admin) {
        alerts.push( (<Alert message="No question key, please add an attribute key=..." type="error"/>));
       }
       var topDOM = React.createElement('div', {

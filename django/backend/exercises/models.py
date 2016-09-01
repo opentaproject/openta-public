@@ -54,7 +54,13 @@ class ExerciseManager(models.Manager):
         else:
             print('Updated ' + path + '/' + name)
         questions = deep_get(json, 'exercise', 'question', default=[])
-        keys = [q['@key'] for q in questions if '@key' in q]
+        # def merge_attrs(question):
+        #    if '@attr' in question:
+        #        for attr, value in question['@attr'].items():
+        #            question['@' + attr] = value
+        #    return question
+        # questions = list(map(merge_attrs, questions))
+        keys = [q['@attr']['key'] for q in questions if '@attr' in q and 'key' in q['@attr']]
         if len(keys) > len(set(keys)):
             raise ExerciseParseError("Duplicate question keys!")
         for question in questions:
@@ -64,24 +70,30 @@ class ExerciseManager(models.Manager):
                 raise ExerciseParseError("Invalid question in " + name)
             dbquestion, created = Question.objects.update_or_create(
                 exercise=dbexercise,
-                question_key=question['@key'],
-                defaults={'type': question['@type']},
+                question_key=question['@attr']['key'],
+                defaults={'type': question['@attr']['type']},
             )
             if created:
                 print(
-                    name + ': Adding question ' + question['@key'] + ' of type ' + question['@type']
+                    name
+                    + ': Adding question '
+                    + question['@attr']['key']
+                    + ' of type '
+                    + question['@attr']['type']
                 )
             else:
                 print(
                     name
                     + ': Updating question '
-                    + question['@key']
+                    + question['@attr']['key']
                     + ' of type '
-                    + question['@type']
+                    + question['@attr']['type']
                 )
 
         for question in Question.objects.filter(exercise=dbexercise):
-            bool_list = map(lambda jsonitem: jsonitem['@key'] == question.question_key, questions)
+            bool_list = map(
+                lambda jsonitem: jsonitem['@attr']['key'] == question.question_key, questions
+            )
             exists = reduce(lambda a, b: a or b, bool_list, False)
             if not exists:
                 question.delete()

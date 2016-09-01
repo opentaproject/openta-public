@@ -1,4 +1,4 @@
-from xmljson import badgerfish as bf
+from exercises.xmljson import badgerfish as bf
 from xml.etree.ElementTree import fromstring, ParseError
 from exercises.paths import EXERCISES_PATH
 from exercises.util import deep_get, nested_print
@@ -97,7 +97,7 @@ def exercise_save(exercise, xml):  # {{{
 
 
 def question_validate(question):
-    if not '@key' in question:
+    if not '@attr' in question or not 'key' in question['@attr']:
         return False
     return True
 
@@ -106,7 +106,12 @@ def question_json_get(exercise_path, question_key):
     json = exercise_json(exercise_path)
     # question_json = deep_get(json, 'exercise', 'question', question_key)
     questions = deep_get(json, 'exercise', 'question')
-    found = list(filter(lambda q: q['@key'] == question_key, questions))
+    found = list(
+        filter(
+            lambda q: '@attr' in q and 'key' in q['@attr'] and q['@attr']['key'] == question_key,
+            questions,
+        )
+    )
     if len(found) == 1:
         return found[0]
     else:

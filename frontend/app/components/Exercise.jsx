@@ -31,37 +31,90 @@ class BaseExercise extends Component {
   pendingState: PropTypes.object
 };
 
+  renderQuestion = (itemjson, json, exerciseKey) => {
+    var questions = json.getIn(['exercise', 'question'], immutable.List([]));
+    var question = itemjson;
+    return (
+          <div>
+          { questions.filter( q => q.getIn(['@attr','key']) == question.getIn(['@attr','key']) ).count() > 1 && this.props.admin && <Alert message="Duplicate question keys! (If you copied a question please change the key attribute)" type="error"/> } 
+          <form key={question.getIn(['@attr','key'])} className="uk-form" onSubmit={(event) => event.preventDefault()}>
+            <Question exerciseKey={exerciseKey} questionKey={question.getIn(['@attr','key'])}/>
+          </form>
+          </div>
+    );
+  }
+
+  renderExerciseText = (itemjson, json, exerciseKey) => {
+    return (
+      <span dangerouslySetInnerHTML={{__html: itemjson.get('$')}} />
+    );
+  }
+
+  renderFigure = (itemjson, json, exerciseKey) => {
+    return (
+            <div className="uk-align-medium-right">
+              <img style={{maxHeight: '100pt'}} src={'/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/>
+            </div>
+    );
+  }
+
+  renderName = (itemjson, json, exerciseKey) => {
+    return (
+          <h1 className="uk-article-title">{itemjson.get('$')}</h1>
+    );
+  }
+
   render() {
     var key = this.props.exerciseKey;
     var state = this.props.exerciseState;
     var pendingState = this.props.pendingState;
     var json = state.get('json', immutable.Map({}));
-    var figure = json.getIn(['exercise', 'figure', '$']);
-    var questions = json.getIn(['exercise', 'question'], immutable.List([]));
-    var questionsDOMArray = questions.map( question => (
-          <div>
-          { questions.filter( q => q.get('@key') == question.get('@key') ).count() > 1 && this.props.admin && <Alert message="Duplicate question keys! (If you copied a question please change the key attribute)" type="error"/> } 
-          <form key={question.get('@key')} className="uk-form" onSubmit={(event) => event.preventDefault()}>
-            <Question exerciseKey={key} questionKey={question.get('@key')}/>
-          </form>
-          </div>
-    ));
-
+    var itemDispatch = {
+      'exercisename': this.renderName,
+      'exercisetext': this.renderExerciseText,
+      'figure': this.renderFigure,
+      'question': this.renderQuestion
+    };
+    //var figure = json.getIn(['exercise', 'figure', '$']);
+    //var questions = json.getIn(['exercise', 'question'], immutable.List([]));
+    console.dir(json);
+    var items = json.getIn(['exercise','$children$'], immutable.List([]))
+              .map(child => {
+                if(child.get('#name') in itemDispatch)
+                  return itemDispatch[child.get('#name')](child, json, key);
+                else
+                  return '';
+              });
+    console.dir(items);
     var exerciseDOM = (
         <article className="uk-article uk-margin-top" ref="exercise" key={key}>
-          <div className="uk-grid">
-          <h1 className="uk-article-title">{json.getIn(['exercise','exercisename','$'])}</h1>
-          </div>
-          <div className="uk-clearfix">
-            <div className="uk-align-medium-right">
-            { figure && <img style={{maxHeight: '100pt'}} src={'/exercise/' + key + '/asset/' + figure} alt=""/> }
-            </div>
-            <span dangerouslySetInnerHTML={{__html: json.getIn(['exercise','exercisetext','$'])}} />
-          </div>
-          { /* <hr className="uk-article-divider"/> */ }
-          { questionsDOMArray }
+          {items}
         </article>
     );
+//    var questionsDOMArray = questions.map( question => (
+//          <div>
+//          { questions.filter( q => q.getIn(['@attr','key']) == question.getIn(['@attr','key']) ).count() > 1 && this.props.admin && <Alert message="Duplicate question keys! (If you copied a question please change the key attribute)" type="error"/> } 
+//          <form key={question.getIn(['@attr','key'])} className="uk-form" onSubmit={(event) => event.preventDefault()}>
+//            <Question exerciseKey={key} questionKey={question.getIn(['@attr','key'])}/>
+//          </form>
+//          </div>
+//    ));
+//
+//    var exerciseDOM = (
+//        <article className="uk-article uk-margin-top" ref="exercise" key={key}>
+//          <div className="uk-grid">
+//          <h1 className="uk-article-title">{json.getIn(['exercise','exercisename','$'])}</h1>
+//          </div>
+//          <div className="uk-clearfix">
+//            <div className="uk-align-medium-right">
+//            { figure && <img style={{maxHeight: '100pt'}} src={'/exercise/' + key + '/asset/' + figure} alt=""/> }
+//            </div>
+//            <span dangerouslySetInnerHTML={{__html: json.getIn(['exercise','exercisetext','$'])}} />
+//          </div>
+//          { /* <hr className="uk-article-divider"/> */ }
+//          { questionsDOMArray }
+//        </article>
+//    );
 
     if(pendingState.getIn(['exercises', key, 'loadingJSON'], false)) {
       return (<Spinner/>);

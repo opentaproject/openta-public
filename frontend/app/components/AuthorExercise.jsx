@@ -26,9 +26,12 @@ var XMLParser = new xml2js.Parser({
   explicitArray: false,
   explicitCharkey: true,
   charkey: '$',
-  attrkey: '@',
-  mergeAttrs: true,
-  attrNameProcessors: [ (name) => '@' + name ]
+  attrkey: '@attr',
+  //mergeAttrs: true,
+  explicitChildren: true,
+  preserveChildrenOrder: true,
+  childkey: '$children$',
+  //attrNameProcessors: [ (name) => '@' + name ]
 });
 
 var throttleParseXML = _.throttle(XMLParser.parseString, 1000);
