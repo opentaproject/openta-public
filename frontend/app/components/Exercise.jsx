@@ -45,17 +45,25 @@ class BaseExercise extends Component {
   }
 
   renderExerciseText = (itemjson, json, exerciseKey) => {
+    var children = itemjson.get('$children$', immutable.List([]))
+                    .map(child => this.dispatchElement(child, json, exerciseKey));
     return (
+      <div className="uk-clearfix">
+      <div className="uk-align-medium-right">{children}</div>
       <span dangerouslySetInnerHTML={{__html: itemjson.get('$')}} />
+      </div>
     );
   }
 
   renderFigure = (itemjson, json, exerciseKey) => {
     return (
-            <div className="uk-align-medium-right">
               <img style={{maxHeight: '100pt'}} src={'/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/>
-            </div>
     );
+    //return (
+    //        <div className="uk-align-medium-right">
+    //          <img style={{maxHeight: '100pt'}} src={'/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/>
+    //        </div>
+    //);
   }
 
   renderName = (itemjson, json, exerciseKey) => {
@@ -64,28 +72,28 @@ class BaseExercise extends Component {
     );
   }
 
-  render() {
-    var key = this.props.exerciseKey;
-    var state = this.props.exerciseState;
-    var pendingState = this.props.pendingState;
-    var json = state.get('json', immutable.Map({}));
+  dispatchElement = (element, json, exerciseKey) => {
     var itemDispatch = {
       'exercisename': this.renderName,
       'exercisetext': this.renderExerciseText,
       'figure': this.renderFigure,
       'question': this.renderQuestion
     };
+    if(element.get('#name') in itemDispatch)
+      return itemDispatch[element.get('#name')](element, json, exerciseKey);
+    else
+      return '<span/>';
+  }
+
+  render() {
+    var key = this.props.exerciseKey;
+    var state = this.props.exerciseState;
+    var pendingState = this.props.pendingState;
+    var json = state.get('json', immutable.Map({}));
     //var figure = json.getIn(['exercise', 'figure', '$']);
     //var questions = json.getIn(['exercise', 'question'], immutable.List([]));
-    console.dir(json);
     var items = json.getIn(['exercise','$children$'], immutable.List([]))
-              .map(child => {
-                if(child.get('#name') in itemDispatch)
-                  return itemDispatch[child.get('#name')](child, json, key);
-                else
-                  return '';
-              });
-    console.dir(items);
+              .map( child => this.dispatchElement(child, json, key) );
     var exerciseDOM = (
         <article className="uk-article uk-margin-top" ref="exercise" key={key}>
           {items}
@@ -125,7 +133,11 @@ class BaseExercise extends Component {
 
   componentDidUpdate(props,state,root) {
     var node = ReactDOM.findDOMNode(this.refs.exercise);
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
+    //MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
+    if(node !== null)
+      renderMathInElement(node, {
+        delimiters: [{left: "$", right: "$", display: false}]
+      });
   }
 }
 

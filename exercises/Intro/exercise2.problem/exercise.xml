@@ -26,5 +26,14 @@
     m*v^2
   </expression>
 </question>
+  <question key="q3" type="compareNumeric">
+    <text>Vad är $x^2$?</text>
+    <variables>
+      x=2;
+    </variables>
+    <expression>
+      x^2
+    </expression>
+  </question>
 
 </exercise>

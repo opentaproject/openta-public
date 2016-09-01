@@ -22,7 +22,7 @@ class BaseQuestion extends Component {
     var question = json.getIn(['exercise','question'], immutable.List([])).find( q => q.getIn(['@attr','key']) == questionKey, immutable.Map({}));
     var questionState = exerciseState.getIn(['question', questionKey], immutable.Map({}))
     var questionType = question.getIn(['@attr','type'], undefined);
-    if(questionType) {
+    if(questionType && questionType in questionDispatch) {
       var questionDOM = React.createElement(questionDispatch[questionType], { 
         questionData: question, 
         questionState: questionState, 
@@ -49,7 +49,11 @@ class BaseQuestion extends Component {
 
   componentDidUpdate(props,state,root) {
     var node = ReactDOM.findDOMNode(this.questionref);
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
+    //MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
+    if(node !== null)
+      renderMathInElement(node, {
+        delimiters: [{left: "$", right: "$", display: false}]
+      });
   }
 }
 

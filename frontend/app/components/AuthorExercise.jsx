@@ -31,6 +31,7 @@ var XMLParser = new xml2js.Parser({
   explicitChildren: true,
   preserveChildrenOrder: true,
   childkey: '$children$',
+  strict: true
   //attrNameProcessors: [ (name) => '@' + name ]
 });
 
@@ -91,6 +92,7 @@ class BaseAuthorExercise extends Component {
 
 function handleXMLChange(dispatch, xml, exercise) {
   dispatch(updateExerciseXML(exercise, xml));
+  XMLParser.reset();
   throttleParseXML(xml, (err, result) => {
     if(err || result === null) {
       console.dir(err);
