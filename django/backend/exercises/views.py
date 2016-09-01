@@ -59,7 +59,6 @@ def other_exercises_from_folder(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     other = Exercise.objects.filter(folder=dbexercise.folder)
     serializer = ExerciseSerializer(other, many=True)
-    print(serializer.data)
     return Response(serializer.data)
 
 
@@ -97,7 +96,6 @@ def exercise_save(request, exercise):
 
 @api_view(['POST'])
 def exercise_check(request, exercise, question):
-    print(question)
     answer_data = request.data['answerData']
     result = question_check(request.user, exercise, question, answer_data)
     return Response(result)
