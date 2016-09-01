@@ -62,24 +62,11 @@ def exercise_json(path):  # {{{
         if not isinstance(questions, list):
             questions = [questions]
             obj['exercise']['question'] = questions
-    #    questions = map( lambda q: { q['@key']: q }, questions)
-    #    questions = reduce(lambda a, b: {**a, **b}, questions)
     return obj  # }}}
 
 
 def exercise_validate_and_json(path):
     return exercise_json(path)
-
-
-# except ValueError as err:
-#     print(err)
-#     return (False, {}, err)
-# except ParseError as err:
-#     print(err)
-#     return (False, {}, err)
-# except IOError as err:
-#     print(err)
-#     return (False, {}, err)
 
 
 def exercise_xml(path):  # {{{
@@ -104,7 +91,6 @@ def question_validate(question):
 
 def question_json_get(exercise_path, question_key):
     json = exercise_json(exercise_path)
-    # question_json = deep_get(json, 'exercise', 'question', question_key)
     questions = deep_get(json, 'exercise', 'question')
     found = list(
         filter(
