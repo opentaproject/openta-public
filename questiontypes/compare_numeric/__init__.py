@@ -11,6 +11,7 @@ import functools
 import operator
 import exercises.symbolic as symbolic
 from exercises.util import compose
+from lxml import etree
 
 
 def parse_variables(variables):  # {{{
@@ -30,11 +31,12 @@ def parse_variables(variables):  # {{{
 
 
 # The function below is the core of the server interface and the only mandatory component.
-def question_check_compare_numeric(question_json, answer_data):
+def question_check_compare_numeric(question_json, question_xmltree, answer_data):
     '''Checks a symbolic answer by numeric evaluation.
 
     Args:
         question_json (dictionary): The JSON representation of the <question> XML content
+        question_xmltree (etree.Element): The XML ETree representation of the <question> XML content
         answer_data (dynamic): The answer provided by the frontend
     Returns:
         (dictionary)
@@ -55,9 +57,14 @@ def question_check_compare_numeric(question_json, answer_data):
             </expression>
         </question>
     '''
-    variables = parse_variables(question_json['variables']['$'])
-    correct = question_json['expression']['$']
-    result = symbolic.compare_numeric(variables, answer_data, correct)
+    # variables = parse_variables(question_json['variables']['$'])
+    # if 'global' in question_json and 'variables' in question_json['global']:
+    variables = []
+    variables_element = question_xmltree.find('variable')
+    if variables_element:
+        variables = parse_variables(variables_element.text)
+    correct_answer = question_xmltree.find('expression').text
+    result = symbolic.compare_numeric(variables, answer_data, correct_answer)
     if 'correct' in result:
         result['status'] = 'correct' if result['correct'] else 'incorrect'
     elif 'error' in result:

@@ -1,7 +1,7 @@
 <exercise>
 <exercisename>Kinetic energy</exercisename>
 <figure>figure.png</figure>
-<exercisetext>A particle has mass $m$ and is moving with velocity $v$.</exercisetext>
+<exercisetext>A particle has mass $m$ and is moving with velocity $v$.</exercisetext> 
 
 <question key="q2" type="compareNumeric">
   <variables>

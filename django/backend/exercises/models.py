@@ -9,6 +9,8 @@ from exercises.parsing import (
     exercise_key_get_or_create,
     is_exercise,
     ExerciseNotFound,
+    exercise_xmltree,
+    question_validate_xmltree,
 )
 from django.contrib.auth.models import User
 from django.utils.timezone import now
@@ -41,10 +43,10 @@ class ExerciseManager(models.Manager):
         if not is_exercise(path):
             raise ExerciseNotFound(path)
         try:
-            json = exercise_validate_and_json(path)
+            exercisetree = exercise_xmltree(path)
         except ExerciseParseError as e:
             result['error'] = str(e)
-        name = deep_get(json, 'exercise', 'exercisename', '$', default="No name")
+        name = (exercisetree.xpath('/exercise/exercisename/text()') or ['No name'])[0]
         key = exercise_key_get_or_create(path)
         dbexercise, created = self.update_or_create(
             exercise_key=key, defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)}
@@ -53,47 +55,39 @@ class ExerciseManager(models.Manager):
             print('Adding ' + path + '/' + name + ' to database.')
         else:
             print('Updated ' + path + '/' + name)
-        questions = deep_get(json, 'exercise', 'question', default=[])
-        # def merge_attrs(question):
-        #    if '@attr' in question:
-        #        for attr, value in question['@attr'].items():
-        #            question['@' + attr] = value
-        #    return question
-        # questions = list(map(merge_attrs, questions))
-        keys = [q['@attr']['key'] for q in questions if '@attr' in q and 'key' in q['@attr']]
+        questions = exercisetree.xpath('/exercise/question[@key and @type]')
+        keys = [x.get('key') for x in questions]
         if len(keys) > len(set(keys)):
             raise ExerciseParseError("Duplicate question keys!")
         for question in questions:
-            if not question_validate(question):
+            if not question_validate_xmltree(question):
                 print(path + " contains invalid question: ")
                 nested_print(question)
                 raise ExerciseParseError("Invalid question in " + name)
             dbquestion, created = Question.objects.update_or_create(
                 exercise=dbexercise,
-                question_key=question['@attr']['key'],
-                defaults={'type': question['@attr']['type']},
+                question_key=question.get('key'),
+                defaults={'type': question.get('type')},
             )
             if created:
                 print(
                     name
                     + ': Adding question '
-                    + question['@attr']['key']
+                    + question.get('key')
                     + ' of type '
-                    + question['@attr']['type']
+                    + question.get('type')
                 )
             else:
                 print(
                     name
                     + ': Updating question '
-                    + question['@attr']['key']
+                    + question.get('key')
                     + ' of type '
-                    + question['@attr']['type']
+                    + question.get('type')
                 )
 
         for question in Question.objects.filter(exercise=dbexercise):
-            bool_list = map(
-                lambda jsonitem: jsonitem['@attr']['key'] == question.question_key, questions
-            )
+            bool_list = map(lambda q: q.get('key') == question.question_key, questions)
             exists = reduce(lambda a, b: a or b, bool_list, False)
             if not exists:
                 question.delete()

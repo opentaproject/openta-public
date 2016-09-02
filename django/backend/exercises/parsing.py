@@ -1,5 +1,6 @@
 from exercises.xmljson import badgerfish as bf
 from xml.etree.ElementTree import fromstring, ParseError
+from lxml import etree
 from exercises.paths import EXERCISES_PATH
 from exercises.util import deep_get, nested_print
 from functools import reduce
@@ -35,7 +36,6 @@ def exercise_key_get(path):
 
 def exercise_key_set(path, key):
     with open(EXERCISES_PATH + '/{path}/exercisekey'.format(path=path), 'w') as keyfile:
-        print(key)
         keyfile.write(key)
     return key
 
@@ -70,7 +70,6 @@ def exercise_validate_and_json(path):
 
 
 def exercise_xml(path):  # {{{
-    print("path: " + path)
     xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
     return xml  # }}}
@@ -89,6 +88,33 @@ def question_validate(question):
     return True
 
 
+def question_validate_xmltree(question):
+    if question.get('key') == None or question.get('type') == None:
+        return False
+    return True
+
+
+def exercise_xmltree(exercise_path):
+    xmlfile = EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise_path)
+    parser = etree.XMLParser(remove_blank_text=True)
+    try:
+        root = etree.parse(xmlfile, parser)
+        return root
+    except etree.XMLSyntaxError as e:
+        raise ExerciseParseError(e)
+
+
+def question_xmltree_get(exercise_path, question_key):
+    xmlfile = EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise_path)
+    parser = etree.XMLParser(remove_blank_text=True)
+    try:
+        root = etree.parse(xmlfile, parser)
+        question = root.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
+        return question
+    except etree.XMLSyntaxError as e:
+        raise ExerciseParseError(e)
+
+
 def question_json_get(exercise_path, question_key):
     json = exercise_json(exercise_path)
     questions = deep_get(json, 'exercise', 'question')
@@ -99,6 +125,20 @@ def question_json_get(exercise_path, question_key):
         )
     )
     if len(found) == 1:
+        global_data = deep_get(json, 'exercise', 'global')
+        if global_data and 'type' in found[0]['@attr']:
+            if not isinstance(global_data, list):
+                global_data = [global_data]
+            global_for_type = list(
+                filter(
+                    lambda g: '@attr' in g
+                    and 'type' in g['@attr']
+                    and g['@attr']['type'] == found[0]['@attr']['type'],
+                    global_data,
+                )
+            )
+            if len(global_for_type) == 1:
+                found[0].update({'global': global_for_type[0]})
         return found[0]
     else:
         return "{}"

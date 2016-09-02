@@ -61,7 +61,7 @@ def compare_numeric(variables, expression1, expression2):
             else:
                 response['correct'] = False
         else:
-            print(type(diff.free_symbols))
+            # print(type(diff.free_symbols))
             unrecognised = ', '.join(list(map(sympy.latex, diff.free_symbols)))
             # for sym in diff.free_symbols:
             #    print(sym)
@@ -83,7 +83,6 @@ def to_latex(expression):
     latex = ""
     try:
         latex = sympy.latex(sympy.sympify(asciiToSympy(expression)))
-        print(latex)
     except Exception:
         print("toLatex exception")
         pass
