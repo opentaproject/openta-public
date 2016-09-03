@@ -59,9 +59,9 @@ export default class QuestionCompareNumeric extends Component {
   var response = {}
   if(this.state.value === lastAnswer) {
     if(correct)
-       response = (<Alert message={"$" + latex + "$" + " is correct!"} type="success" key="input" hasMath={true}/>);
+       response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " is correct!"} type="success" key="input" hasMath={true}/>);
     else
-      response = (<Alert message={"$" + latex + "$" + " is incorrect"} type="warning" key="input" hasMath={true}/>);
+      response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " is incorrect"} type="warning" key="input" hasMath={true}/>);
   } else {
     response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$"} hasMath={true} key="input"/>);
   }

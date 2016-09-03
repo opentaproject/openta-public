@@ -42,10 +42,9 @@ class ExerciseManager(models.Manager):
         json = {}
         if not is_exercise(path):
             raise ExerciseNotFound(path)
-        try:
-            exercisetree = exercise_xmltree(path)
-        except ExerciseParseError as e:
-            result['error'] = str(e)
+        exercisetree = exercise_xmltree(path)
+        # except ExerciseParseError as e:
+        #    result['error'] = str(e)
         name = (exercisetree.xpath('/exercise/exercisename/text()') or ['No name'])[0]
         key = exercise_key_get_or_create(path)
         dbexercise, created = self.update_or_create(

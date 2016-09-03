@@ -1,10 +1,9 @@
 <exercise>
   <exercisename>Kinetic energy</exercisename>
-  <figure>figure.jpg</figure>
-  <exercisetext>A particle has mass $m$ and is moving with velocity $v$ at a height $h$ over the earths surface.</exercisetext>
-<global type="compareNumeric">
-  <test></test>
-</global>
+
+  <exercisetext>A particle has mass $m$ and is moving with velocity $v$ at a height $h$ over the earths surface.
+    <figure>figure.jpg</figure>
+  </exercisetext>
 <question key="q1" type="compareNumeric">
   <variables>
     m=3; v=7; h=11; g = 13;
@@ -16,5 +15,4 @@
     m*v^2/2 + m*g*h
   </expression>
 </question>
-
 </exercise>

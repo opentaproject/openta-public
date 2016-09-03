@@ -3,13 +3,10 @@
 <figure>figure.png</figure>
 <exercisetext>A particle has mass $m$ and is moving with velocity $v$.</exercisetext>
 <global type="compareNumeric">
-	v=7;  
+	m=3;v=7;
 </global>
 
 <question key="q2" type="compareNumeric">
-  <variables>
-    m=3;
-  </variables>
   <text>
     What is the kinetic energy of the particle?
   </text>
@@ -17,26 +14,4 @@
     m*v^2
   </expression>
 </question>
-
-  <question key="q1" type="compareNumeric">
-  <variables>
-    m=3; v=7;
-  </variables>
-  <text>
-    What is the kinetic energy of the particle?
-  </text>
-  <expression>
-    m*v^2
-  </expression>
-</question>
-  <question key="q3" type="compareNumeric">
-    <text>Vad är $x^2$?</text>
-    <variables>
-      x=2;
-    </variables>
-    <expression>
-      x^2
-    </expression>
-  </question>
-
 </exercise>

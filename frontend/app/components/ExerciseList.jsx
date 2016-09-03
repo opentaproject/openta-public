@@ -16,7 +16,7 @@ function listClass(item, active) {
 }
 
 const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onBack, pendingState }) => (
-  <div className="uk-width-medium-1-6" id="exercises-menu">
+  <div className="uk-text-center" id="exercises-menu">
     <ul className="uk-nav uk-nav-side uk-list-space exercise-menu">
     <li className="uk-nav-header" key="header">
       <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder}</span>

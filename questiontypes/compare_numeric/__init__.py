@@ -68,7 +68,7 @@ def question_check_compare_numeric(question_json, question_xmltree, answer_data,
     variables_element = question_xmltree.find('variables')
     if variables_element is not None:
         variables = parse_variables(variables_element.text)
-    if global_xmltree is not None:
+    if global_xmltree is not None and global_xmltree.text is not None:
         global_variables = parse_variables(global_xmltree.text)
         variables += global_variables
     correct_answer = question_xmltree.find('expression').text
