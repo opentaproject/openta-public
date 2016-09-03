@@ -5,6 +5,7 @@ This is the server side implementation of the question type compareNumeric.
 from exercises.question import (
     register_question_type,
 )  # This function is used to register the question type
+from exercises.question import QuestionError
 
 # Below are imports that are specific to this question type
 import functools
@@ -20,18 +21,22 @@ def parse_variables(variables):  # {{{
     Takes a string with variables in the format "var1=x; var2=y; var3=z" and converts into a list of the form
     [ { 'name': 'var1', 'value': 'x'}, ... ]
     '''
-    rawvars = variables.split(';')
-    pipeline = compose(
-        functools.partial(filter, operator.truth),
-        functools.partial(map, lambda x: x.split('=')),
-        functools.partial(map, lambda x: {'name': x[0].strip(), 'value': x[1].strip()}),
-    )
-    variables = list(pipeline(rawvars))
-    return variables  # }}}
+    rawvars = variables.strip(" \n\t").split(';')
+    print(rawvars)
+    try:
+        pipeline = compose(
+            functools.partial(filter, operator.truth),
+            functools.partial(map, lambda x: x.split('=')),
+            functools.partial(map, lambda x: {'name': x[0].strip(), 'value': x[1].strip()}),
+        )
+        variables = list(pipeline(rawvars))
+        return variables  # }}}
+    except IndexError:
+        raise QuestionError("Cannot parse variables")
 
 
 # The function below is the core of the server interface and the only mandatory component.
-def question_check_compare_numeric(question_json, question_xmltree, answer_data):
+def question_check_compare_numeric(question_json, question_xmltree, answer_data, global_xmltree):
     '''Checks a symbolic answer by numeric evaluation.
 
     Args:
@@ -60,9 +65,12 @@ def question_check_compare_numeric(question_json, question_xmltree, answer_data)
     # variables = parse_variables(question_json['variables']['$'])
     # if 'global' in question_json and 'variables' in question_json['global']:
     variables = []
-    variables_element = question_xmltree.find('variable')
-    if variables_element:
+    variables_element = question_xmltree.find('variables')
+    if variables_element is not None:
         variables = parse_variables(variables_element.text)
+    if global_xmltree is not None:
+        global_variables = parse_variables(global_xmltree.text)
+        variables += global_variables
     correct_answer = question_xmltree.find('expression').text
     result = symbolic.compare_numeric(variables, answer_data, correct_answer)
     if 'correct' in result:

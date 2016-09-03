@@ -82,7 +82,7 @@ class BaseExercise extends Component {
     if(element.get('#name') in itemDispatch)
       return itemDispatch[element.get('#name')](element, json, exerciseKey);
     else
-      return '<span/>';
+      return (<span/>);
   }
 
   render() {

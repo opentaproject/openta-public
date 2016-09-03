@@ -24,8 +24,14 @@ export default class Alert extends Component {
     );
   }
 
-  componentDidMount(props,state,root) {
+  componentDidUpdate(props,state,root) {
     if(this.props.hasMath) {
+    var node = ReactDOM.findDOMNode(this);
+    //MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
+    if(node !== null)
+      renderMathInElement(node, {
+        delimiters: [{left: "$", right: "$", display: false}]
+      });
       //var node = ReactDOM.findDOMNode(this.refs.alert);
       //MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
     }

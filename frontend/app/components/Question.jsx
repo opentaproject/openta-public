@@ -69,7 +69,6 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
     onQuestionSubmit: (exerciseKey, questionKey, data) => dispatch(checkQuestion(exerciseKey, questionKey, data))
-    //onQuestionSubmit: (exerciseKey, questionKey, data) => console.log(data) 
   });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseQuestion)

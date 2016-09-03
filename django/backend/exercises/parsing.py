@@ -104,15 +104,11 @@ def exercise_xmltree(exercise_path):
         raise ExerciseParseError(e)
 
 
-def question_xmltree_get(exercise_path, question_key):
-    xmlfile = EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise_path)
-    parser = etree.XMLParser(remove_blank_text=True)
-    try:
-        root = etree.parse(xmlfile, parser)
-        question = root.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
-        return question
-    except etree.XMLSyntaxError as e:
-        raise ExerciseParseError(e)
+def question_xmltree_get(exercise_xmltree, question_key):
+    question = exercise_xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[
+        0
+    ]
+    return question
 
 
 def question_json_get(exercise_path, question_key):
