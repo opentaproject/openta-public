@@ -75,16 +75,16 @@ class BaseAuthorExercise extends Component {
     var modified = exerciseState.get('modified');
     var loading = pendingState.getIn(['exercises', key, 'loadingXML'],false);
     var authorDOM = (
-    <div className="uk-grid">
-        <div key="exercise" className="uk-width-large-2-6">
+      <div className="uk-grid admin">
+        <div key="exercise" className="exercise-admin">
           <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(key)} onreset={(event) => onReset(key)}/>
           <Exercise/>
         </div>
-        <div key="xml" className="uk-width-large-4-6">
+        <div key="xml" className="xmleditor">
         { loading && <Spinner/> }
         { !loading && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
         </div>
-        </div>
+      </div>
     );
     return key ? authorDOM : (<span/>);
   }

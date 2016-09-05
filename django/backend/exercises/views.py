@@ -21,20 +21,20 @@ import question_types
 
 
 @api_view(['POST', 'GET'])
-def exercises_reload(request):
+def exercises_reload(request):  # {{{
     Exercise.objects.sync_with_disc()
-    return Response("Reloaded")
+    return Response("Reloaded")  # }}}
 
 
 @api_view(['GET'])
-def exercise(request, exercise):
+def exercise(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     data = serialize_exercise_with_question_data(dbexercise, request.user)
-    return Response(data)
+    return Response(data)  # }}}
 
 
 @api_view(['GET'])
-def exercise_list(request):
+def exercise_list(request):  # {{{
     """
     List all exercises
     """
@@ -43,33 +43,33 @@ def exercise_list(request):
     for exercise in exercises:
         data = serialize_exercise_with_question_data(exercise, request.user)
         response.append(data)
-    return Response(response)
+    return Response(response)  # }}}
 
 
 @api_view(['GET'])
-def exercise_tree(request):
+def exercise_tree(request):  # {{{
     """
     Get exercise tree
     """
-    return Response(Exercise.objects.folder_structure(request.user))
+    return Response(Exercise.objects.folder_structure(request.user))  # }}}
 
 
 @api_view(['GET'])
-def other_exercises_from_folder(request, exercise):
+def other_exercises_from_folder(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     other = Exercise.objects.filter(folder=dbexercise.folder)
     serializer = ExerciseSerializer(other, many=True)
-    return Response(serializer.data)
+    return Response(serializer.data)  # }}}
 
 
 @api_view(['GET'])
-def exercise_json(request, exercise):
+def exercise_json(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
         exercisejson = parsing.exercise_json(dbexercise.path)
         return Response(exercisejson)
     except parsing.ExerciseParseError as e:
-        return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}
 
 
 @api_view(['GET'])
@@ -79,7 +79,7 @@ def exercise_xml(request, exercise):
 
 
 @api_view(['POST'])
-def exercise_save(request, exercise):
+def exercise_save(request, exercise):  # {{{
     result = {}
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
@@ -91,18 +91,18 @@ def exercise_save(request, exercise):
         return Response(result)
     except IOError as e:
         result = {'success': False, 'error': str(e)}
-        return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}
 
 
 @api_view(['POST'])
-def exercise_check(request, exercise, question):
+def exercise_check(request, exercise, question):  # {{{
     answer_data = request.data['answerData']
     result = question_check(request.user, exercise, question, answer_data)
-    return Response(result)
+    return Response(result)  # }}}
 
 
 @api_view(['GET'])
-def exercise_asset(request, exercise, asset):
+def exercise_asset(request, exercise, asset):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     return FileResponse(
         open(
@@ -111,13 +111,19 @@ def exercise_asset(request, exercise, asset):
             ),
             'rb',
         )
-    )
+    )  # }}}
 
 
 @api_view(['GET'])
-def question_last_answer(request, exercise, question):
+def question_last_answer(request, exercise, question):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     dbquestion = Question.objects.get(exercise=dbexercise, question_key=question)
     dbanswer = Answer.objects.filter(user=request.user, question=dbquestion).latest('date')
     serializer = AnswerSerializer(dbanswer)
-    return Response(serializer.data)
+    return Response(serializer.data)  # }}}
+
+
+@api_view(['POST'])
+def upload_answer_image(request):
+    nested_print(request.data)
+    return Response({})

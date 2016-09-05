@@ -203,3 +203,10 @@ class Answer(models.Model):
             + "} which is "
             + ("correct" if self.correct else "incorrect")
         )
+
+
+# class ImageAnswer(models.Model):
+#    user = models.ForeignKey(User)
+#    exercise = models.ForeignKey(Exercise)
+#    date = models.DateTimeField(default=now)
+#    image = models.ImageField(upload_to="answerimages/")

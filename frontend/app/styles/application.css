@@ -1,40 +1,140 @@
 .CodeMirror {
-  height: 80vh;
-}
+  height: 80vh; }
 
 .exercise-menu {
-  border-right:1px solid #929292
-}
+  border-right: 1px solid #929292; }
 
+/*@media (min-width: 960px) {
+  @include layout(0.1, 0.33);
+}*/
+@media (max-width: 480px) {
+  .exercise-list {
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box; }
+
+  .exercise {
+    width: 100%;
+    box-sizing: border-box; }
+
+  .exercise-spacing {
+    width: -50%;
+    padding: 0;
+    box-sizing: border-box; }
+
+  .admin {
+    width: 100%;
+    box-sizing: border-box; }
+
+  .exercise-admin {
+    width: 100%;
+    box-sizing: border-box; }
+
+  .xmleditor {
+    width: 100%;
+    box-sizing: border-box; } }
+@media (min-width: 480px) and (max-width: 768px) {
+  .exercise-list {
+    width: 20%;
+    padding: 0;
+    box-sizing: border-box; }
+
+  .exercise {
+    width: 80%;
+    box-sizing: border-box; }
+
+  .exercise-spacing {
+    width: -0.01%;
+    padding: 0;
+    box-sizing: border-box; }
+
+  .admin {
+    width: 80%;
+    box-sizing: border-box; }
+
+  .exercise-admin {
+    width: 100%;
+    box-sizing: border-box; }
+
+  .xmleditor {
+    width: 100%;
+    box-sizing: border-box; } }
+@media (min-width: 768px) and (max-width: 960px) {
+  .exercise-list {
+    width: 20%;
+    padding: 0;
+    box-sizing: border-box; }
+
+  .exercise {
+    width: 45%;
+    box-sizing: border-box; }
+
+  .exercise-spacing {
+    width: 17.5%;
+    padding: 0;
+    box-sizing: border-box; }
+
+  .admin {
+    width: 80%;
+    box-sizing: border-box; }
+
+  .exercise-admin {
+    width: 100%;
+    box-sizing: border-box; }
+
+  .xmleditor {
+    width: 100%;
+    box-sizing: border-box; } }
+@media (min-width: 960px) {
+  .exercise-list {
+    width: 10%;
+    padding: 0;
+    box-sizing: border-box; }
+
+  .exercise {
+    width: 33%;
+    box-sizing: border-box; }
+
+  .exercise-spacing {
+    width: 28.49%;
+    padding: 0;
+    box-sizing: border-box; }
+
+  .admin {
+    width: 90%;
+    box-sizing: border-box; }
+
+  .exercise-admin {
+    width: 36.66%;
+    box-sizing: border-box; }
+
+  .xmleditor {
+    width: 63.33%;
+    box-sizing: border-box; } }
 .ta-nav {
-  background-color: #eeeeee
-}
+  background-color: #eeeeee; }
 
 .exercise-thumb-wrap {
+  display: inline-block;
   position: relative;
   left: 0;
-  top: 0;
-}
+  top: 0; }
+
 .exercise-thumb-nav {
   position: relative;
   top: 0;
   left: 0;
   -webkit-backface-visibility: hidden;
   height: 80px;
-  max-width: 100px;
-}
+  max-width: 100px; }
 
 .exercise-thumb-badge {
   position: absolute;
-  left: 0;
-  top: 0;
-}
+  left: -15%;
+  top: -15%; }
 
 .exercise-thumb-nav-caption {
-  max-width: 100px;
-}
+  max-width: 100px; }
 
 .exercise-thumb-correct {
-  background-color: #00FF00
-}
-
+  background-color: #00FF00; }

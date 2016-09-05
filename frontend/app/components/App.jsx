@@ -16,17 +16,15 @@ class BaseApp extends React.Component {
     return (
       <div>
         <LoginInfo/>
-        <div id="content" className={this.props.admin ? "" : "uk-container uk-container-center"}>
+        <div id="content" className="">
           <div id="main" className="uk-grid">
-            <div className={"uk-container-center uk-grid " + (this.props.admin ? "uk-width-medium-1-1" : "uk-width-large-4-6")}>
+            <div className="uk-container-center uk-grid uk-width-1-1">
               { this.props.activeExercise === "" && <div className="uk-width-1-1"><Course/></div> }  
-              <div className={this.props.admin ? "uk-width-medium-1-6" : "uk-width-large-2-10 uk-width-medium-1-4"}>
+              { this.props.admin ? <span/> : <div className="exercise-spacing"></div> }
+              <div className="exercise-list">
               { this.props.activeExercise !== "" ? <ExerciseList /> : "" }
               </div>
-              <div className={this.props.admin ? "uk-width-medium-5-6" : "uk-width-large-6-10 uk-width-medium-3-4"}>
-              { this.props.activeExercise === "" ? (<span/>) : (this.props.admin ? <AuthorExercise /> : <Exercise/>) }
-              </div>
-              { !this.props.admin && <div className="uk-width-medium-2-10"/> }
+              { this.props.activeExercise === "" ? (<span/>) : (this.props.admin ? <AuthorExercise /> : <div className="exercise"><Exercise/></div>) }
             </div>
           </div>
         </div>

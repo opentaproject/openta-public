@@ -1,0 +1,113 @@
+.CodeMirror {
+  height: 80vh;
+}
+
+.exercise-menu {
+  border-right:1px solid #929292
+}
+
+$exercise: 0.33;
+$exerciselist: 0.1;
+
+@function round($frac) {
+  @return floor($frac * 100) / 100;
+}
+
+@mixin layout($exerciselist, $exercise, $calcadmin, $onecolumn) {
+  .exercise-list {
+    width: percentage($exerciselist);
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .exercise {
+    width: percentage($exercise);
+    box-sizing: border-box;
+  }
+
+  .exercise-spacing {
+    width: round(percentage((1 - $exercise - $exerciselist)/2));
+    padding:0;
+    box-sizing: border-box;
+  }
+
+  .admin {
+    @if not($onecolumn) {
+     width: percentage(1 - $exerciselist);
+  }
+  @else {
+    width: 100%;
+  }
+    box-sizing: border-box;
+  }
+
+  .exercise-admin {
+    @if $calcadmin {
+      width: round(percentage($exercise / (1-$exerciselist)));
+    }
+    @else {
+      width: 100%;
+    }
+    box-sizing: border-box;
+  }
+
+  .xmleditor {
+    @if $calcadmin {
+      width: round(percentage(1 - $exercise / (1-$exerciselist)));
+    }
+    @else {
+      width:100%;
+    }
+    box-sizing: border-box;
+  }
+}
+
+/*@media (min-width: 960px) {
+  @include layout(0.1, 0.33);
+}*/
+@media (max-width:480px) {
+  @include layout(1,1, false, true);
+}
+@media (min-width: 480px) and (max-width:768px) {
+  @include layout(0.2, 0.8, false, false);
+}
+@media (min-width: 768px) and (max-width:960px) {
+  @include layout(0.2, 0.45, false, false);
+}
+@media (min-width: 960px) {
+  @include layout(0.1, 0.33, true, false);
+}
+
+.ta-nav {
+  background-color: #eeeeee
+}
+
+.exercise-thumb-wrap {
+  display: inline-block;
+  position: relative;
+  left: 0;
+  top: 0;
+}
+.exercise-thumb-nav {
+  position: relative;
+  top: 0;
+  left: 0;
+  -webkit-backface-visibility: hidden;
+  height: 80px;
+  max-width: 100px;
+}
+
+.exercise-thumb-badge {
+  position: absolute;
+  left: -15%;
+  top: -15%;
+}
+
+.exercise-thumb-nav-caption {
+  max-width: 100px;
+}
+
+.exercise-thumb-correct {
+  background-color: #00FF00
+}
+
