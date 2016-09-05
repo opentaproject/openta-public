@@ -7,8 +7,9 @@ from exercises.serializers import ExerciseSerializer, AnswerSerializer
 from exercises import parsing
 from exercises.question import question_check
 from exercises.modelhelpers import serialize_exercise_with_question_data
-from django.http import FileResponse
+from django.http import FileResponse, HttpResponse
 from exercises.paths import EXERCISES_PATH
+import backend.settings as settings
 import json
 import time
 import random
@@ -104,14 +105,23 @@ def exercise_check(request, exercise, question):  # {{{
 @api_view(['GET'])
 def exercise_asset(request, exercise, asset):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    return FileResponse(
-        open(
-            '{root}/{path}/{asset}'.format(
-                root=EXERCISES_PATH, path=dbexercise.path, exercise=exercise, asset=asset
-            ),
-            'rb',
+    if settings.RUNNING_DEVSERVER:
+        return FileResponse(
+            open(
+                '{root}/{path}/{asset}'.format(
+                    root=EXERCISES_PATH, path=dbexercise.path, asset=asset
+                ),
+                'rb',
+            )
         )
-    )  # }}}
+    else:
+        response = HttpResponse()
+        response["Content-Disposition"] = "attachment; filename={0}".format(asset)
+        response["X-Accel-Redirect"] = "/exerciseasset/{path}/{asset}".format(
+            path=dbexercise.path, asset=asset
+        )
+        return response
+    # }}}
 
 
 @api_view(['GET'])
