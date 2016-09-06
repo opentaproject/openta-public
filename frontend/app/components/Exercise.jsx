@@ -6,6 +6,7 @@ import Alert from './Alert.jsx';
 import Question from './Question.jsx';
 import Spinner from './Spinner.jsx';
 import immutable from 'immutable';
+import ExerciseImageUpload from './ExerciseImageUpload.jsx';
 
 import { 
   updateExerciseXML, 
@@ -96,6 +97,7 @@ class BaseExercise extends Component {
               .map( child => this.dispatchElement(child, json, key) );
     var exerciseDOM = (
         <article className="uk-article uk-margin-top" ref="exercise" key={key}>
+        <ExerciseImageUpload/>
           {items}
         </article>
     );

@@ -18,6 +18,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from exercises.util import deep_get, nested_print
 from functools import partial
 import json as JSON
+import uuid
 
 
 class ExerciseManager(models.Manager):
@@ -205,8 +206,23 @@ class Answer(models.Model):
         )
 
 
-# class ImageAnswer(models.Model):
-#    user = models.ForeignKey(User)
-#    exercise = models.ForeignKey(Exercise)
-#    date = models.DateTimeField(default=now)
-#    image = models.ImageField(upload_to="answerimages/")
+def answer_image_filename(instance, filename):
+    return '/'.join(
+        [
+            'answerimages',
+            instance.user.username,
+            instance.exercise.exercise_key,
+            str(uuid.uuid4()) + os.path.splitext(filename)[1],
+        ]
+    )
+
+
+class ImageAnswer(models.Model):
+    user = models.ForeignKey(User)
+    exercise = models.ForeignKey(Exercise)
+    exercise_key = models.CharField(max_length=255, default='')
+    date = models.DateTimeField(default=now)
+    image = models.ImageField(upload_to=answer_image_filename)
+
+    def __str__(self):
+        return self.user.username + " image for " + self.exercise.name

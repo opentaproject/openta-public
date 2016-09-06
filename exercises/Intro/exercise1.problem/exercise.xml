@@ -15,4 +15,15 @@
     m*v^2/2 + m*g*h
   </expression>
 </question>
+  <question key="q2" type="compareNumeric">
+  <variables>
+    m=3; v=7; h=11; g = 13;
+  </variables>
+  <text>
+    What the total mechanical energy of the particle?
+  </text>
+  <expression>
+    m*v^2/2
+  </expression>
+</question>
 </exercise>

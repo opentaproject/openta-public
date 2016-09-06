@@ -1,14 +1,16 @@
 from django.shortcuts import render
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
-from exercises.models import Exercise, Question, Answer
+from rest_framework.parsers import MultiPartParser
+from exercises.models import Exercise, Question, Answer, ImageAnswer
 from exercises.serializers import ExerciseSerializer, AnswerSerializer
 from exercises import parsing
 from exercises.question import question_check
 from exercises.modelhelpers import serialize_exercise_with_question_data
-from django.http import FileResponse, HttpResponse
 from exercises.paths import EXERCISES_PATH
+from exercises.util import nested_print
+from django.http import FileResponse, HttpResponse
 import backend.settings as settings
 import json
 import time
@@ -134,6 +136,16 @@ def question_last_answer(request, exercise, question):  # {{{
 
 
 @api_view(['POST'])
-def upload_answer_image(request):
-    nested_print(request.data)
+@parser_classes((MultiPartParser,))
+def upload_answer_image(request, exercise):
+    print(request.FILES['file'])
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
+    if request.FILES['file'].size > 10e6:
+        return Response("Image larger than 10mb", status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    image_answer = ImageAnswer(
+        user=request.user, exercise=dbexercise, exercise_key=exercise, image=request.FILES['file']
+    )
+    image_answer.save()
+    # nested_print(request.data)
     return Response({})
