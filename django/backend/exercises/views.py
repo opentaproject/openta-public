@@ -116,6 +116,7 @@ def serve_file(path, filename, **kwargs):
             return FileResponse(open(dev_path, 'rb'))
     else:
         response = HttpResponse()
+        response["Content-Type"] = content_type if content_type else ""
         response["Content-Disposition"] = "attachment; filename={0}".format(filename)
         response["X-Accel-Redirect"] = path
         return response
@@ -127,17 +128,10 @@ def exercise_asset(request, exercise, asset):  # {{{
     return serve_file(
         "/exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset),
         asset,
-        devpath='{root}/{path}/{asset}'.format(
+        dev_path='{root}/{path}/{asset}'.format(
             root=EXERCISES_PATH, path=dbexercise.path, asset=asset
         ),
     )
-    # if settings.RUNNING_DEVSERVER:
-    #    return FileResponse(open('{root}/{path}/{asset}'.format(root=EXERCISES_PATH, path=dbexercise.path, asset=asset),'rb'))
-    # else:
-    #    response = HttpResponse()
-    #    response["Content-Disposition"] = "attachment; filename={0}".format(asset)
-    #    response["X-Accel-Redirect"] = "/exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset)
-    #    return response
     # }}}
 
 

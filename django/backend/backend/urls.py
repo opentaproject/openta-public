@@ -23,5 +23,5 @@ urlpatterns = [
     url(r'^loggedin/', backendviews.login_status),
     url(r'^', include('exercises.urls')),
     url(r'^', include('django.contrib.auth.urls')),
-    url(r'^$', auth_views.login),
+    url(r'^$', backendviews.login_required(backendviews.main)),
 ]

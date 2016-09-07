@@ -38,6 +38,12 @@ function fetchLoginStatus() {
   return dispatch => {
     return jsonfetch('/loggedin')
     .then(response => response.json() )
+    .then(json => {
+      if(!json.username) {
+        window.location.href="/login";
+      }
+      return json;
+    })
     .then(json => ({
       username: json.username,
       admin: json.admin
