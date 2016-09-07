@@ -105,12 +105,15 @@ def exercise_check(request, exercise, question):  # {{{
     return Response(result)  # }}}
 
 
-def serve_file(path, content_type=None):
+def serve_file(path, **kwargs):
+    content_type = kwargs['content_type'] if 'content_type' in kwargs else None
+    dev_path = kwargs['dev_path'] if 'dev_path' in kwargs else path
+
     if settings.RUNNING_DEVSERVER:
         if content_type:
-            return FileResponse(open(path, 'rb'), content_type)
+            return FileResponse(open(dev_path, 'rb'), content_type)
         else:
-            return FileResponse(open(path, 'rb'))
+            return FileResponse(open(dev_path, 'rb'))
     else:
         response = HttpResponse()
         response["Content-Disposition"] = "attachment; filename={0}".format(os.path.basename(path))
@@ -122,7 +125,10 @@ def serve_file(path, content_type=None):
 def exercise_asset(request, exercise, asset):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     return serve_file(
-        '{root}/{path}/{asset}'.format(root=EXERCISES_PATH, path=dbexercise.path, asset=asset)
+        "/exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset),
+        devpath='{root}/{path}/{asset}'.format(
+            root=EXERCISES_PATH, path=dbexercise.path, asset=asset
+        ),
     )
     # if settings.RUNNING_DEVSERVER:
     #    return FileResponse(open('{root}/{path}/{asset}'.format(root=EXERCISES_PATH, path=dbexercise.path, asset=asset),'rb'))
@@ -163,8 +169,11 @@ def upload_answer_image(request, exercise):
 def answer_image_view(request, image_id):
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
+        print(image_answer.image.name)
         if image_answer.user == request.user or request.user.is_staff:
-            return serve_file(image_answer.image.path, "image/jpeg")
+            return serve_file(
+                image_answer.image.name, content_type="image/jpeg", dev_path=image_answer.image.path
+            )
         else:
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
     except ObjectDoesNotExist:
