@@ -173,7 +173,7 @@ def answer_image_view(request, image_id):
         print(image_answer.image.name)
         if image_answer.user == request.user or request.user.is_staff:
             return serve_file(
-                image_answer.image.name,
+                '/' + image_answer.image.name,
                 os.path.basename(image_answer.image.name),
                 content_type="image/jpeg",
                 dev_path=image_answer.image.path,
