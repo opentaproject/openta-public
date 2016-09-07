@@ -217,10 +217,15 @@ function checkQuestion(exerciseKey, questionKey, answerData) {
 }
 
 function uploadProgress(dispatch, evt, exerciseKey) {
-  if(evt.loaded && evt.total > 0) {
+  if(evt.loaded && evt.total && evt.total > 0) {
     dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], evt.loaded / evt.total));
   }
+  else if(evt.position && evt.totalSize && evt.totalSize > 0) {
+    dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], evt.position / evt.totalSize));
+  }
 }
+
+var throttleUploadProgress = _.throttle(uploadProgress, 300);
 
 function uploadImage(exerciseKey, file) {
   return dispatch => {
@@ -232,7 +237,7 @@ function uploadImage(exerciseKey, file) {
       xhr.setRequestHeader('X-CSRFToken', CSRF_TOKEN);
       xhr.setRequestHeader('Accept', 'application/json');
       if(xhr.upload) 
-        xhr.upload.onprogress = (evt) => uploadProgress(dispatch, evt, exerciseKey);//console.log(evt.loaded / evt.total);
+        xhr.upload.onprogress = (evt) => throttleUploadProgress(dispatch, evt, exerciseKey);//console.log(evt.loaded / evt.total);
       xhr.onload = () => {
         console.dir(xhr.responseText);
         dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageuploadpending'], false));
