@@ -11,6 +11,7 @@ from exercises.modelhelpers import serialize_exercise_with_question_data
 from exercises.paths import EXERCISES_PATH
 from exercises.util import nested_print
 from django.http import FileResponse, HttpResponse
+from django.core.exceptions import ObjectDoesNotExist
 import backend.settings as settings
 import json
 import time
@@ -104,25 +105,32 @@ def exercise_check(request, exercise, question):  # {{{
     return Response(result)  # }}}
 
 
+def serve_file(path, content_type=None):
+    if settings.RUNNING_DEVSERVER:
+        if content_type:
+            return FileResponse(open(path, 'rb'), content_type)
+        else:
+            return FileResponse(open(path, 'rb'))
+    else:
+        response = HttpResponse()
+        response["Content-Disposition"] = "attachment; filename={0}".format(os.path.basename(path))
+        response["X-Accel-Redirect"] = path
+        return response
+
+
 @api_view(['GET'])
 def exercise_asset(request, exercise, asset):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    if settings.RUNNING_DEVSERVER:
-        return FileResponse(
-            open(
-                '{root}/{path}/{asset}'.format(
-                    root=EXERCISES_PATH, path=dbexercise.path, asset=asset
-                ),
-                'rb',
-            )
-        )
-    else:
-        response = HttpResponse()
-        response["Content-Disposition"] = "attachment; filename={0}".format(asset)
-        response["X-Accel-Redirect"] = "/exerciseasset/{path}/{asset}".format(
-            path=dbexercise.path, asset=asset
-        )
-        return response
+    return serve_file(
+        '{root}/{path}/{asset}'.format(root=EXERCISES_PATH, path=dbexercise.path, asset=asset)
+    )
+    # if settings.RUNNING_DEVSERVER:
+    #    return FileResponse(open('{root}/{path}/{asset}'.format(root=EXERCISES_PATH, path=dbexercise.path, asset=asset),'rb'))
+    # else:
+    #    response = HttpResponse()
+    #    response["Content-Disposition"] = "attachment; filename={0}".format(asset)
+    #    response["X-Accel-Redirect"] = "/exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset)
+    #    return response
     # }}}
 
 
@@ -149,3 +157,15 @@ def upload_answer_image(request, exercise):
     image_answer.save()
     # nested_print(request.data)
     return Response({})
+
+
+@api_view(['GET'])
+def answer_image_view(request, image_id):
+    try:
+        image_answer = ImageAnswer.objects.get(pk=image_id)
+        if image_answer.user == request.user or request.user.is_staff:
+            return serve_file(image_answer.image.path, "image/jpeg")
+        else:
+            return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except ObjectDoesNotExist:
+        return Response("invalid answer image id", status.HTTP_500_INTERNAL_SERVER_ERROR)

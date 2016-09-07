@@ -17,6 +17,7 @@ urlpatterns = [
     ),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/save$', views.exercise_save),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/imageupload$', views.upload_answer_image),
+    url(r'^imageanswer/(?P<image_id>[0-9]+)$', views.answer_image_view),
     url(
         r'^exercise/(?P<exercise>[\w\.-]+)/question/(?P<question>[\w]+)/latest$',
         views.question_last_answer,
