@@ -105,7 +105,7 @@ def exercise_check(request, exercise, question):  # {{{
     return Response(result)  # }}}
 
 
-def serve_file(path, **kwargs):
+def serve_file(path, filename, **kwargs):
     content_type = kwargs['content_type'] if 'content_type' in kwargs else None
     dev_path = kwargs['dev_path'] if 'dev_path' in kwargs else path
 
@@ -116,7 +116,7 @@ def serve_file(path, **kwargs):
             return FileResponse(open(dev_path, 'rb'))
     else:
         response = HttpResponse()
-        response["Content-Disposition"] = "attachment; filename={0}".format(os.path.basename(path))
+        response["Content-Disposition"] = "attachment; filename={0}".format(filename)
         response["X-Accel-Redirect"] = path
         return response
 
@@ -126,6 +126,7 @@ def exercise_asset(request, exercise, asset):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     return serve_file(
         "/exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset),
+        asset,
         devpath='{root}/{path}/{asset}'.format(
             root=EXERCISES_PATH, path=dbexercise.path, asset=asset
         ),
@@ -172,7 +173,10 @@ def answer_image_view(request, image_id):
         print(image_answer.image.name)
         if image_answer.user == request.user or request.user.is_staff:
             return serve_file(
-                image_answer.image.name, content_type="image/jpeg", dev_path=image_answer.image.path
+                image_answer.image.name,
+                os.path.basename(image_answer.image.name),
+                content_type="image/jpeg",
+                dev_path=image_answer.image.path,
             )
         else:
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
