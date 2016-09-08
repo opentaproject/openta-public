@@ -21,13 +21,14 @@ def parse_variables(variables):  # {{{
     Takes a string with variables in the format "var1=x; var2=y; var3=z" and converts into a list of the form
     [ { 'name': 'var1', 'value': 'x'}, ... ]
     '''
-    rawvars = variables.strip(" \n\t").split(';')
-    print(rawvars)
+    rawvars = " ".join(variables.split()).split(';')
     try:
         pipeline = compose(
             functools.partial(filter, operator.truth),
             functools.partial(map, lambda x: x.split('=')),
-            functools.partial(map, lambda x: {'name': x[0].strip(), 'value': x[1].strip()}),
+            functools.partial(
+                map, lambda x: {'name': x[0].strip(' \n\t'), 'value': x[1].strip(' \n\t')}
+            ),
         )
         variables = list(pipeline(rawvars))
         return variables  # }}}
@@ -72,7 +73,13 @@ def question_check_compare_numeric(question_json, question_xmltree, answer_data,
         global_variables = parse_variables(global_xmltree.text)
         variables += global_variables
     correct_answer = question_xmltree.find('expression').text
+    result = {}
+    # try:
     result = symbolic.compare_numeric(variables, answer_data, correct_answer)
+    # except SympifyError as e:
+    #    print(e)
+    # print(answer_data)
+    # print(correct_answer)
     if 'correct' in result:
         result['status'] = 'correct' if result['correct'] else 'incorrect'
     elif 'error' in result:

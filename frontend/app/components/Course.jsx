@@ -40,7 +40,7 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
       </ul>
         <dl className="uk-description-list-line">
       { children.map( child => [
-          (<dt className="uk-text-large" key={"dt"+child.name}><i className="uk-icon uk-icon-navicon"></i> {child.name} </dt>),
+          (<dt className="uk-text-large" key={"dt"+child.name}><i className="uk-icon uk-icon-navicon"></i> {child.name.split('.')[0]} </dt>),
           (<dd key={"dd"+child.name}> {child.content} </dd>)]
       )
       }

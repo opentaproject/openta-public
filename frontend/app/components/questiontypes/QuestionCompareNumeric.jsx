@@ -56,13 +56,13 @@ export default class QuestionCompareNumeric extends Component {
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
-  var response = {}
-  if(this.state.value === lastAnswer) {
+  var response = ""
+  if(this.state.value === lastAnswer && lastAnswer !== '') {
     if(correct)
        response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " is correct!"} type="success" key="input" hasMath={true}/>);
     else
       response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " is incorrect"} type="warning" key="input" hasMath={true}/>);
-  } else {
+  } else if(this.state.value !== ''){
     response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$"} hasMath={true} key="input"/>);
   }
   return (

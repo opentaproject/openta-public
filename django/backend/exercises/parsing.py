@@ -1,4 +1,4 @@
-from exercises.xmljson import badgerfish as bf
+from exercises.xmljson import BadgerFish
 from xml.etree.ElementTree import fromstring, ParseError
 from lxml import etree
 from exercises.paths import EXERCISES_PATH
@@ -6,6 +6,8 @@ from exercises.util import deep_get, nested_print
 from functools import reduce
 import os.path
 import uuid
+
+bf = BadgerFish(xml_fromstring=False)
 
 
 class ExerciseParseError(Exception):

@@ -1,5 +1,5 @@
 from lxml import etree
-import sys
+import sys, os
 
 
 def get_xmltree(path):
@@ -25,6 +25,7 @@ def add_converted_text(root, newroot, oldname, newname):
     if old is not None:
         new = etree.SubElement(newroot, newname)
         new.text = old.text
+        return new
 
 
 def convert(exercise_path):
@@ -39,7 +40,9 @@ def convert(exercise_path):
     out = etree.Element('exercise')
     out_tree = etree.ElementTree(out)
 
-    add_converted_text(problem, out, "name", "exercisename")
+    newname = add_converted_text(problem, out, "name", "exercisename")
+    newname.text = newname.text.replace('Dynamics ', '')
+    newname.text = newname.text.replace('Statics ', '')
 
     problemtext = problem.xpath("/problem/question/text/text()")
     if problemtext:
@@ -62,15 +65,25 @@ def convert(exercise_path):
             newtext = etree.SubElement(newquestion, 'text')
             newtext.text = question.get('question')
             newexp = etree.SubElement(newquestion, 'expression')
-            newexp.text = question.text
-    print(etree.tostring(out, pretty_print=True, encoding="unicode"))
+            newexp.text = question.text.strip()
+    return etree.tostring(out, pretty_print=True, encoding="unicode")
+
+
+def convert_recursive(path):
+    for root, directories, filenames in os.walk(path):
+        for filename in filenames:
+            if filename == 'problem.xml':
+                fullpath = os.path.join(root, filename)
+                newpath = os.path.join(root, 'exercise.xml')
+                with open(newpath, 'w') as f:
+                    f.write(convert(fullpath))
 
 
 def main(files):
-    if not files:
-        print("No file given")
-        return
-    convert(files[0])
+    # if not files:
+    #    print("No file given")
+    #    return
+    convert_recursive('./')
 
 
 if __name__ == "__main__":

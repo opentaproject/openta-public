@@ -19,7 +19,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
   <div className="uk-text-center" id="exercises-menu">
     <ul className="uk-nav uk-nav-side uk-list-space exercise-menu">
     <li className="uk-nav-header" key="header">
-      <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder}</span>
+      <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
     </li>
     {exerciselist.map( exercise => ( 
                       <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>

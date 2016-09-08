@@ -1,4 +1,5 @@
 import sympy
+from sympy.abc import _clash1, _clash2, _clash
 import json
 import re
 from sympy.core.sympify import SympifyError
@@ -7,10 +8,14 @@ import traceback
 meter, second, kg = sympy.symbols('meter,second,kg')
 uniteval = {meter: 1, second: 1, kg: 1}
 
+_newclash = _clash.update({'pi': sympy.pi})
+
 
 def asciiToSympy(expression):
     dict = {'^': '**'}
     result = re.sub(r"([a-zA-Z0-9]) ([a-zA-Z0-9])", r"\1*\2", expression)
+    result = re.sub(r"([0-9])([a-zA-Z])", r"\1*\2*", result)
+    result = re.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)])", r"\1)*(\2", result)
     for old, new in dict.items():
         result = result.replace(old, new)
     return result
@@ -26,7 +31,7 @@ def parse_variables(variables):
     # Create substituion dictionary
     subs = {}
     for var in vars:
-        subs[sym[var['name']]] = sympy.sympify(var['value'])
+        subs[sym[var['name']]] = sympy.sympify(asciiToSympy(var['value']), _clash)
     return subs
 
 
@@ -51,8 +56,8 @@ def compare_numeric(variables, expression1, expression2):
         # Parse variables into substitution dictionary
         varsubs = parse_variables(variables)
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
-        value1 = sympy.sympify(sexpression1).subs(varsubs).subs(uniteval).evalf()
-        value2 = sympy.sympify(sexpression2).subs(varsubs).subs(uniteval).evalf()
+        value1 = sympy.sympify(sexpression1, _clash).subs(varsubs).subs(uniteval).evalf()
+        value2 = sympy.sympify(sexpression2, _clash).subs(varsubs).subs(uniteval).evalf()
         diff = sympy.Abs(value2 - value1)
         if diff.is_constant():
             value = float(diff)
@@ -71,8 +76,9 @@ def compare_numeric(variables, expression1, expression2):
                 response['error'] = (
                     response['error'] + ': ' + unrecognised + ' are not valid variables.'
                 )
-    except SympifyError:
+    except SympifyError as e:
         print("SympifyError")
+        print(e)
         print(traceback.format_exc())
         response['error'] = "Failed to evaluate expression"
         pass
@@ -82,7 +88,7 @@ def compare_numeric(variables, expression1, expression2):
 def to_latex(expression):
     latex = ""
     try:
-        latex = sympy.latex(sympy.sympify(asciiToSympy(expression)))
+        latex = sympy.latex(sympy.sympify(asciiToSympy(expression), _clash))
     except Exception:
         print("toLatex exception")
         pass
