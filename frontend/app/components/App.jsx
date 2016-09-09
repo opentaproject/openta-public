@@ -19,7 +19,8 @@ class BaseApp extends React.Component {
         <div id="content" className="">
           <div id="main" className="uk-grid">
             <div className="uk-container-center uk-grid uk-width-1-1">
-              { this.props.activeExercise === "" && <div className="uk-width-1-1"><Course/></div> }  
+              { this.props.activeExercise === "" && <div className="uk-width-medium-1-6"/> }
+              { this.props.activeExercise === "" && <div className="uk-width-medium-2-3"><Course/></div> }  
               { this.props.admin ? <span/> : <div className="exercise-spacing"></div> }
               <div className="exercise-list">
               { this.props.activeExercise !== "" ? <ExerciseList /> : "" }

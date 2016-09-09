@@ -35,7 +35,7 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
 
     var DOM = (
       <div>
-      <ul className="uk-thumbnav uk-flex uk-flex-bottom uk-flex-space-between">
+      <ul className="uk-thumbnav uk-flex uk-flex-bottom ">
         {exercises}
       </ul>
         <dl className="uk-description-list-line">
