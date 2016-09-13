@@ -20,7 +20,7 @@ import random
 import sys
 import os
 
-sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + '/../../../questiontypes'))
+sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + '/../../../../questiontypes'))
 import question_types
 
 
@@ -71,6 +71,7 @@ def exercise_json(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
         exercisejson = parsing.exercise_json(dbexercise.path)
+        # questions = deep_get(exercisejson, 'exercise', 'question')
         return Response(exercisejson)
     except parsing.ExerciseParseError as e:
         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}

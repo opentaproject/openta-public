@@ -7,6 +7,7 @@ var defaultState = immutable.fromJS({
   //activeExerciseJSON: {}, 
   //activeExerciseXML: "",
   activeExercise: "",
+  activeAdminTool: 'xml-editor',
   exerciseState: {"3_05_7.no_problem": {alerts: [1]}}
 });
 
@@ -44,6 +45,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['exerciseState', action.exercise, 'modified'], action.modified);
     case 'UPDATE_PENDING_STATE':
       return state.mergeDeepIn(['pendingState'], action.pendingstate);
+    case 'UPDATE_ACTIVE_ADMIN_TOOL':
+      return state.set('activeAdminTool', action.tool);
 
     default:
       return state

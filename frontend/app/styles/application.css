@@ -1,8 +1,18 @@
 .CodeMirror {
   height: 80vh; }
 
+.options {
+  height: 80vh;
+  width: 100%; }
+
 .exercise-menu {
   border-right: 1px solid #929292; }
+
+.border-top {
+  border-top: 1px solid #929292; }
+
+.border-bottom {
+  border-bottom: 1px solid #929292; }
 
 /*@media (min-width: 960px) {
   @include layout(0.1, 0.33);
@@ -125,8 +135,8 @@
   top: 0;
   left: 0;
   -webkit-backface-visibility: hidden;
-  height: 50px;
-  max-width: 70px; }
+  height: 80px;
+  max-width: 100px; }
 
 .exercise-thumb-badge {
   position: absolute;

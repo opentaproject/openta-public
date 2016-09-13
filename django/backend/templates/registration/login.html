@@ -3,7 +3,10 @@
 
 {% block content %}
 
-{% if form.errors %}
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center">
+
+  {% if form.errors %}
 <p>Your username and password didn't match. Please try again.</p>
 {% endif %}
 
@@ -34,5 +37,7 @@
 
 {# Assumes you setup the password_reset view in your URLconf #}
 {# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
+</div>
+</div>
 
 {% endblock %}

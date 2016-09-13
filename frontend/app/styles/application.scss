@@ -2,8 +2,21 @@
   height: 80vh;
 }
 
+.options {
+  height: 80vh;
+  width: 100%;
+}
+
 .exercise-menu {
   border-right:1px solid #929292
+}
+
+.border-top {
+  border-top: 1px solid #929292
+}
+
+.border-bottom {
+  border-bottom: 1px solid #929292
 }
 
 $exercise: 0.33;

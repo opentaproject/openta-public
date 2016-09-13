@@ -105,19 +105,26 @@ function setExerciseModifiedState(exercise, modified) {//{{{
   }
 }//}}}
 
-function updatePendingState(pendingstate) {
+function updatePendingState(pendingstate) {//{{{
   return {
     type: 'UPDATE_PENDING_STATE',
     pendingstate: pendingstate
   }
-}
+}//}}}
 
-function updatePendingStateIn(path, pending) {
+function updatePendingStateIn(path, pending) {//{{{
   var data = immutable.Map({});
   return {
     type: 'UPDATE_PENDING_STATE',
     pendingstate: data.setIn(path, pending)
   }
+}//}}}
+
+function updateActiveAdminTool(tool) {
+  return {
+    type: 'UPDATE_ACTIVE_ADMIN_TOOL',
+    tool: tool
+  }
 }
 
-export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn}
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool}

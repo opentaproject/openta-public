@@ -22,6 +22,12 @@ urlpatterns = [
         r'^exercise/(?P<exercise>[\w\.-]+)/question/(?P<question>[\w]+)/latest$',
         views.question_last_answer,
     ),
+    url(r'^exercise/(?P<exercise>[\w\.-]+)/editmeta', views.ExerciseMetaUpdateView),
+    url(
+        r'^exercisemeta/(?P<pk>[0-9]+)$',
+        views.ExerciseMetaUpdate.as_view(),
+        name='exercise-meta-update',
+    ),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

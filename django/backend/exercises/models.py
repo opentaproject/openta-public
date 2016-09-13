@@ -17,6 +17,7 @@ from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
 from exercises.util import deep_get, nested_print
 from functools import partial
+from datetime import timedelta
 import json as JSON
 import uuid
 
@@ -226,3 +227,14 @@ class ImageAnswer(models.Model):
 
     def __str__(self):
         return self.user.username + " image for " + self.exercise.name
+
+
+class ExerciseMeta(models.Model):
+    DIFFICULTIES = ((1, 'Easy'), (2, 'Medium'), (3, 'Hard'))
+    exercise = models.OneToOneField(Exercise)
+    deadline_date = models.DateTimeField(default=None, null=True, blank=True)
+    pdf_solution = models.BooleanField(default=False)
+    difficulty = models.IntegerField(choices=DIFFICULTIES, default=2)
+    required = models.BooleanField(default=False)
+    bonus = models.BooleanField(default=False)
+    server_reply_time = models.DurationField(default=None, null=True, blank=True)

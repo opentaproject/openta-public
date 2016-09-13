@@ -59,7 +59,8 @@ class BaseAuthorExercise extends Component {
   onReset: PropTypes.func,
   onXMLChange: PropTypes.func,
   exerciseState: PropTypes.object,
-  pendingState: PropTypes.object
+  pendingState: PropTypes.object,
+  activeAdminTool: PropTypes.string
 };
 
   render() {
@@ -82,13 +83,26 @@ class BaseAuthorExercise extends Component {
         </div>
         <div key="xml" className="xmleditor">
         { loading && <Spinner/> }
-        { !loading && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
+        { !loading && this.props.activeAdminTool === 'xml-editor' && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
+        { !loading && this.props.activeAdminTool === 'options' && <iframe className="options" src={"/exercise/" + key + "/editmeta"} /> }
         </div>
       </div>
     );
     return key ? authorDOM : (<span/>);
   }
+
+  componentDidMount = (props,state,root) => {
+    //if(this.tabref)
+      //this.tabref.getDOMNode().setAttribute('data-uk-tab', ''); 
+  }
 }
+
+/*
+        <ul className="uk-tab xmleditor" ref={(ref) => this.tabref = ref}>
+          <li><a>Test1</a></li>
+          <li><a>Test2</a></li>
+        </ul>
+*/
 
 function handleXMLChange(dispatch, xml, exercise) {
   dispatch(updateExerciseXML(exercise, xml));
@@ -124,7 +138,8 @@ const mapStateToProps = state => {
   {
     exerciseKey: state.get('activeExercise'),
     exerciseState: activeExerciseState,
-    pendingState: state.get('pendingState')
+    pendingState: state.get('pendingState'),
+    activeAdminTool: state.get('activeAdminTool')
   })
 };
 

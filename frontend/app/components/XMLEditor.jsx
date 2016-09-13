@@ -6,7 +6,7 @@ require('codemirror/mode/xml/xml');
 // Make this presentational, pass state via props
 
 export default ({ xmlCode, onChange }) => (
-  <div className="uk-panel uk-panel-box uk-margin-top" style={{height:"80vh"}}>
+  <div className="uk-panel uk-panel-box uk-margin-small-top uk-margin-small-right" style={{height:"80vh"}}>
     <Codemirror value={xmlCode} options={{mode: 'xml', lineWrapping: true, theme: 'paraiso-light', lineNumbers: true}} onChange={onChange}/> 
   </div>
 );
