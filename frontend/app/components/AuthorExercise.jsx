@@ -37,12 +37,8 @@ var XMLParser = new xml2js.Parser({
 
 var throttleParseXML = _.throttle(XMLParser.parseString, 1000);
 
-var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => (
+var Tools = ({savepending, savesuccess, saveerror}) => (
   <div>
-    <div className="uk-button-group"> 
-        { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
-        { showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary uk-margin-right" onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a> }
-    </div>
       { saveerror && !savepending && (<div className="uk-badge uk-badge-danger uk-margin-right">Error while saving, try again or consider manual backup.</div>) }
       { savesuccess && (<div className="uk-badge uk-badge-success">Saved</div>) }
   </div>
@@ -68,23 +64,20 @@ class BaseAuthorExercise extends Component {
     var exerciseState = this.props.exerciseState;
     var pendingState = this.props.pendingState;
     var exercisexml = exerciseState.get('xml','');
-    var onSave = this.props.onSave;
-    var onReset = this.props.onReset;
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
-    var resetPending = exerciseState.get('resetpending');
     var modified = exerciseState.get('modified');
     var loading = pendingState.getIn(['exercises', key, 'loadingXML'],false);
     var authorDOM = (
       <div className="uk-grid admin">
         <div key="exercise" className="exercise-admin">
-          <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(key)} onreset={(event) => onReset(key)}/>
+          <Tools savepending={savePending} savesuccess={!modified && saveError === false} saveerror={saveError} />
           <Exercise/>
         </div>
         <div key="xml" className="xmleditor">
         { loading && <Spinner/> }
         { !loading && this.props.activeAdminTool === 'xml-editor' && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
-        { !loading && this.props.activeAdminTool === 'options' && <iframe className="options" src={"/exercise/" + key + "/editmeta"} /> }
+        { !loading && this.props.activeAdminTool === 'options' && <iframe scrolling="no" className="options" src={"/exercise/" + key + "/editmeta"} /> }
         </div>
       </div>
     );
@@ -96,13 +89,6 @@ class BaseAuthorExercise extends Component {
       //this.tabref.getDOMNode().setAttribute('data-uk-tab', ''); 
   }
 }
-
-/*
-        <ul className="uk-tab xmleditor" ref={(ref) => this.tabref = ref}>
-          <li><a>Test1</a></li>
-          <li><a>Test2</a></li>
-        </ul>
-*/
 
 function handleXMLChange(dispatch, xml, exercise) {
   dispatch(updateExerciseXML(exercise, xml));

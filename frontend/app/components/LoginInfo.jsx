@@ -3,7 +3,8 @@ import { connect } from 'react-redux';
 import {
   fetchExercises, 
   fetchExerciseXML,
-  fetchExercise
+  fetchExercise,
+  saveExercise,
 } from '../fetchers.js';
 
 import {
@@ -12,7 +13,19 @@ import {
 
 import immutable from 'immutable';
 
-const BaseLoginInfo = ({ username, admin, activeExercise, activeAdminTool, onXMLEditorClick, onOptionsClick}) => {
+var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => (
+    <div className="uk-button-group"> 
+        { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
+        { showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary uk-margin-right" onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a> }
+    </div>
+);
+
+const BaseLoginInfo = ({ username, admin, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onSave, onReset}) => {
+    var savePending = exerciseState.get('savepending');
+    var saveError = exerciseState.get('saveerror');
+    var resetPending = exerciseState.get('resetpending');
+    var modified = exerciseState.get('modified');
+    //var loading = pendingState.getIn(['exercises', key, 'loadingXML'],false);
   var admintoolsmenu = [
     {
       id: 'xml-editor',
@@ -25,13 +38,17 @@ const BaseLoginInfo = ({ username, admin, activeExercise, activeAdminTool, onXML
       callback: onOptionsClick
     }
   ];
-  var items = admintoolsmenu.map( item => {
+  var permanentitems = admintoolsmenu.map( item => {
     var cssclass = "uk-button uk-button-primary" + (activeAdminTool === item.id ? " uk-active" : "");
     return ( <a className={cssclass} onClick={item.callback}>{item.name}</a> );
   });
+
+  var savereset = (
+          <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(key)}/>
+  );
   var admintools = (
     <div className="uk-button-group uk-margin-left">
-      {items}
+      {permanentitems}
     </div>
   );
 return (
@@ -39,6 +56,9 @@ return (
   <div className="uk-container uk-container-center">
   <div className="uk-navbar-brand"><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> OpenTA</span></div>
   <div className="uk-navbar-flip">
+  <div className="uk-navbar-content">
+  { admin && activeExercise && savereset}
+  </div>
   <ul className="uk-navbar-nav">
       <li>
       <a href="/logout/?next=/login"><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
@@ -58,16 +78,28 @@ BaseLoginInfo.propTypes = {
   username: PropTypes.string,
   admin: PropTypes.bool,
   activeExercise: PropTypes.string,
+  exerciseState: PropTypes.object,
   activeAdminTool: PropTypes.string,
   onXMLEditorClick: PropTypes.func,
   onOptionsClick: PropTypes.func
 };
 
+function handleSave(dispatch, exercise) {
+  console.log("Save " + exercise);
+  dispatch(saveExercise(exercise));
+}
+function handleReset(dispatch, exercise) {
+  console.log("Reset " + exercise);
+  dispatch(fetchExercise(exercise, true));
+}
+
 const mapStateToProps = state => {
+  var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
   return ({
   username: state.getIn(['login', 'username']),
   admin: state.getIn(['login', 'admin']),
   activeExercise: state.get('activeExercise'),
+  exerciseState: activeExerciseState,
   activeAdminTool: state.get('activeAdminTool')
 });
 }
@@ -75,6 +107,8 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
   onXMLEditorClick: (event) => dispatch(updateActiveAdminTool('xml-editor')),
     onOptionsClick: (event) => dispatch(updateActiveAdminTool('options')),
+    onSave: (exercise) => handleSave(dispatch, exercise),
+    onReset: (exercise) => handleReset(dispatch, exercise),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseLoginInfo)
