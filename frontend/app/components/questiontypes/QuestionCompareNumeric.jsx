@@ -7,6 +7,7 @@ import React, { PropTypes, Component } from 'react'; // React specific import
 
 import { registerQuestionType } from './question_type_dispatch.js' // Register function used at the bottom of this file to let the system know of the question type
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
+import Badge from '../Badge.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 
 export default class QuestionCompareNumeric extends Component {
   static propTypes = {
@@ -48,6 +49,7 @@ export default class QuestionCompareNumeric extends Component {
 
   // System state data
   var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
+  var lastAnswerRendered = this.renderAsciiMath(lastAnswer);
   var correct = state.getIn(['response','correct'], undefined); // Boolean indicating if the grader reported correct answer
 
   // Custom state data
@@ -56,18 +58,21 @@ export default class QuestionCompareNumeric extends Component {
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
-  var response = ""
+  var response = "";
+  var showprevious = false;
   if(this.state.value === lastAnswer && lastAnswer !== '') {
     if(correct)
        response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " is correct!"} type="success" key="input" hasMath={true}/>);
     else
       response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " is incorrect"} type="warning" key="input" hasMath={true}/>);
   } else if(this.state.value !== ''){
-    response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " (previous answer: $" + lastAnswer + "$)"} hasMath={true} key="input"/>);
+    response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" } hasMath={true} key="input"/>);
+    showprevious = true;
   }
   return (
         <div className="uk-container">
-          <label className="uk-form-row">{question.get('text','')}</label>
+          <label className="uk-form-row uk-display-inline-block">{question.get('text','')}</label>
+{ showprevious && (<Badge message={"$" + lastAnswerRendered + "$"} hasMath={true} className="uk-text-small uk-align-right uk-margin-bottom-remove"/>)}
           <div className="uk-form-icon uk-width-1-1">
           { !pending && <i className="uk-icon-pencil"/> }
           { pending && <i className="uk-icon-cog uk-icon-spin"/> }
