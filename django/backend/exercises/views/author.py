@@ -17,13 +17,16 @@ class ExerciseMetaUpdate(UpdateView):
         'required',
         'bonus',
         'server_reply_time',
+        'image',
     ]
     success_url = '/exercisemeta/{id}'  # reverse_lazy('exercise-meta-update')
 
 
 def ExerciseMetaUpdateView(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    meta, created = ExerciseMeta.objects.get_or_create(exercise=dbexercise)
+    meta, created = ExerciseMeta.objects.get_or_create(
+        exercise=dbexercise, defaults={'exercise_key': exercise}
+    )
     print(meta.id)
     result = ExerciseMetaUpdate.as_view()(request, pk=meta.id)
     return result

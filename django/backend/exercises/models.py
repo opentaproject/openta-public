@@ -114,43 +114,6 @@ class ExerciseManager(models.Manager):
                 print('Deleting non existing ' + fullpath + ' from database.')
         self.mend_answers()
 
-    def folder_structure(self, user):
-        folders = {}
-        exercises = self.all()
-        paths = map(lambda x: os.path.dirname(x.path), exercises)
-        unique_paths = filter(lambda x: x != '/', set(paths))
-        for path in list(map(lambda x: x.split('/')[1:], unique_paths)):
-            traverse = folders
-            for folder in path:
-                if not ('folders' in traverse):
-                    traverse['folders'] = {}
-                if folder in traverse['folders']:
-                    traverse = traverse['folders'][folder]['content']
-                else:
-                    traverse['folders'][folder] = {'content': {}}
-        for exercise in exercises:
-            # If this becomes a speed issue this should be done by getting all the answers and then populating the tree
-            allcorrect = True
-            questions = Question.objects.filter(exercise=exercise)
-            print("Exercise: " + str(exercise) + " " + str(questions.count()))
-            for question in questions:
-                try:
-                    answer = Answer.objects.filter(user=user, question=question).latest('date')
-                    print("dbcorrect: " + str(answer.correct))
-                    if not answer.correct:
-                        allcorrect = False
-                except ObjectDoesNotExist:
-                    allcorrect = False
-                print(allcorrect)
-            paths = list(filter(lambda x: x != '', exercise.path.split('/')[1:-1]))
-            root = reduce(lambda a, b: a['folders'].get(b)['content'], paths, folders)
-            if 'exercises' not in root:
-                root['exercises'] = {}
-            root['exercises'].update(
-                {exercise.exercise_key: {'name': exercise.name, 'correct': allcorrect}}
-            )
-        return folders
-
 
 class Exercise(models.Model):
     exercise_key = models.CharField(primary_key=True, max_length=255)
@@ -231,10 +194,12 @@ class ImageAnswer(models.Model):
 
 class ExerciseMeta(models.Model):
     DIFFICULTIES = ((1, 'Easy'), (2, 'Medium'), (3, 'Hard'))
-    exercise = models.OneToOneField(Exercise)
+    exercise = models.OneToOneField(Exercise, related_name='meta')
+    exercise_key = models.CharField(max_length=255, default='')
     deadline_date = models.DateTimeField(default=None, null=True, blank=True)
     pdf_solution = models.BooleanField(default=False)
-    difficulty = models.IntegerField(choices=DIFFICULTIES, default=2)
+    difficulty = models.IntegerField(null=True, blank=True, choices=DIFFICULTIES, default=None)
     required = models.BooleanField(default=False)
+    image = models.BooleanField(default=False)
     bonus = models.BooleanField(default=False)
     server_reply_time = models.DurationField(default=None, null=True, blank=True)

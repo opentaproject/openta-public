@@ -47,7 +47,7 @@ class BaseExercise extends Component {
 
   renderExerciseText = (itemjson, json, exerciseKey) => {
     var children = itemjson.get('$children$', immutable.List([]))
-                    .map(child => this.dispatchElement(child, json, exerciseKey));
+                    .map(child => this.dispatchElement(child, json, exerciseKey)).toSeq();
     return (
       <div className="uk-clearfix">
       <div className="uk-align-medium-right">{children}</div>
@@ -94,7 +94,7 @@ class BaseExercise extends Component {
     //var figure = json.getIn(['exercise', 'figure', '$']);
     //var questions = json.getIn(['exercise', 'question'], immutable.List([]));
     var items = json.getIn(['exercise','$children$'], immutable.List([]))
-              .map( child => this.dispatchElement(child, json, key) );
+              .map( child => this.dispatchElement(child, json, key) ).toSeq();
     var exerciseDOM = (
         <article className="uk-article uk-margin-top" ref="exercise" key={key}>
         <ExerciseImageUpload/>

@@ -7,7 +7,7 @@ export default class Badge extends Component {
   }
 
   static propTypes = {
-    message: PropTypes.string.isRequired,
+    message: PropTypes.string,
     hasMath: PropTypes.bool,
     type: PropTypes.string,
     className: PropTypes.string
@@ -21,7 +21,7 @@ export default class Badge extends Component {
     }
     var typeClass = this.props.type ? typeToClass[this.props.type] : "";
     return (
-      <div className={"uk-badge " + typeClass + " " + this.props.className}>{this.props.message}</div>
+      <div className={"uk-badge " + typeClass + " " + this.props.className}>{this.props.message}{this.props.children}</div>
     );
   }
 

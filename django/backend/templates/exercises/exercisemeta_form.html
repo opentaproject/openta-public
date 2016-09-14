@@ -12,6 +12,11 @@
       <div class="uk-form-controls">{{ form.difficulty | add_class:"uk-form-small" }}</div>
     </div>
     <div class="uk-form-row">
+      {{ form.image.errors }}
+      <label class="uk-form-label" for={{ form.image.id_for_label }}>{{ form.image.label }}</label>
+      <div class="uk-form-controls">{{ form.image }}</div>
+    </div>
+    <div class="uk-form-row">
       {{ form.required.errors }}
       <label class="uk-form-label" for={{ form.required.id_for_label }}>{{ form.required.label }}</label>
       <div class="uk-form-controls">{{ form.required }}</div>

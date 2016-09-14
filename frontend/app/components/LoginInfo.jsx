@@ -41,7 +41,7 @@ const BaseLoginInfo = ({ username, admin, activeExercise, exerciseState, activeA
   ];
   var permanentitems = admintoolsmenu.map( item => {
     var cssclass = "uk-button uk-button-primary" + (activeAdminTool === item.id ? " uk-active" : "");
-    return ( <a className={cssclass} onClick={item.callback}>{item.name}</a> );
+    return ( <a key={item.id} className={cssclass} onClick={item.callback}>{item.name}</a> );
   });
 
   var savereset = (

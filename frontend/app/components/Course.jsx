@@ -6,8 +6,15 @@ import {
   fetchSameFolder,
 } from '../fetchers.js';
 import Spinner from './Spinner.jsx';
+import Badge from './Badge.jsx';
 
 import immutable from 'immutable';
+
+var difficulties = {
+  '1': 'Lätt',
+  '2': 'Medel',
+  '3': 'Svår',
+};
 
 const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick }) => {
   function flatten(arr) {
@@ -17,18 +24,26 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
     var exercises = [], children = [];
     if(folder.exercises) {
       //exerciseState.getIn([exercise, 'correct'], false)
-      exercises = Object.keys(folder.exercises).sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name ).map( exercise => (
-        <li key={exerciseState.getIn([exercise, 'exercise_key'])}>
+      exercises = Object.keys(folder.exercises).sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name ).map( exercise => {
+        var meta = folder.exercises[exercise].meta;
+        return (
+        <li key={exercise}>
           <a className="uk-thumbnail" onClick={(ev) => onExerciseClick(exercise, foldername)}>
           <div className="exercise-thumb-wrap">
             <img className="exercise-thumb-nav" src={"/exercise/" + exercise + "/asset/thumbnail.png"}/>
-            {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success exercise-thumb-badge"><i className="uk-icon uk-icon-check"></i></span> }
+            <div className="exercise-thumb-badge">
+            {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
+            { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
+            { meta.required && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> }
+            { meta.bonus && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> }
+            </div>
             </div>
             <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
             {folder.exercises[exercise].name}
             </div>
           </a>
-        </li>));
+        </li>)
+      });
     }
     if(folder.folders)
       children = Object.keys(folder.folders).sort().map ( childfolder => ({name: childfolder, content: parseFolder( folder.folders[childfolder].content, childfolder)}) );

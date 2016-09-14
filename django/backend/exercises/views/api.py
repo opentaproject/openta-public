@@ -7,7 +7,7 @@ from exercises.models import Exercise, Question, Answer, ImageAnswer
 from exercises.serializers import ExerciseSerializer, AnswerSerializer
 from exercises import parsing
 from exercises.question import question_check
-from exercises.modelhelpers import serialize_exercise_with_question_data
+from exercises.modelhelpers import serialize_exercise_with_question_data, exercise_folder_structure
 from exercises.paths import EXERCISES_PATH
 from exercises.util import nested_print
 from django.http import FileResponse, HttpResponse
@@ -55,7 +55,7 @@ def exercise_tree(request):  # {{{
     """
     Get exercise tree
     """
-    return Response(Exercise.objects.folder_structure(request.user))  # }}}
+    return Response(exercise_folder_structure(Exercise.objects, request.user))  # }}}
 
 
 @api_view(['GET'])
