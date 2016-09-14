@@ -90,3 +90,21 @@ Contains all exercise data, a typical example:
 | ```exercise```  | None           | Root tag  |
 | ```exercisename``` | | The visible name/title of the exercise |
 | ```question``` | ```key``` = unique id (within the exercise), ```type``` = question type (see ...) | Question root tag |
+
+## Question types
+### compareNumeric
+Compares two symbolic expressions numerically by evaluation.
+Example:
+```
+<question type="compareNumeric">
+ <variables>x=3; y=7;</variables>
+ <text>What is the derivative with respect to $x$ of $x^2*y$?</text>
+ <expression>2*x*y</expression>
+</question>
+```
+### Subtags
+| Tag       | Attributes | Description |
+| ---       | ---------- | ----------- |
+| ```text``` | | Question text |
+| ```variables```| | Variables in semicolon separated list of var=value, e.g. "x=1;y=2;" |
+| ```expression```| | Correct expression |
