@@ -72,7 +72,7 @@ def question_check_compare_numeric(question_json, question_xmltree, answer_data,
     if global_xmltree is not None and global_xmltree.text is not None:
         global_variables = parse_variables(global_xmltree.text)
         variables += global_variables
-    correct_answer = question_xmltree.find('expression').text
+    correct_answer = question_xmltree.find('expression').text.split(';')[0]
     result = {}
     # try:
     result = symbolic.compare_numeric(variables, answer_data, correct_answer)
