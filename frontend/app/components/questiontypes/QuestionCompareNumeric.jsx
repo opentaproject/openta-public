@@ -63,7 +63,7 @@ export default class QuestionCompareNumeric extends Component {
     else
       response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " is incorrect"} type="warning" key="input" hasMath={true}/>);
   } else if(this.state.value !== ''){
-    response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$"} hasMath={true} key="input"/>);
+    response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " (previous answer: $" + lastAnswer + "$)"} hasMath={true} key="input"/>);
   }
   return (
         <div className="uk-container">
