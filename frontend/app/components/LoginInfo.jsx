@@ -4,6 +4,7 @@ import {
   fetchExercises, 
   fetchExerciseXML,
   fetchExercise,
+  fetchSameFolder,
   saveExercise,
 } from '../fetchers.js';
 
@@ -84,13 +85,20 @@ BaseLoginInfo.propTypes = {
   onOptionsClick: PropTypes.func
 };
 
-function handleSave(dispatch, exercise) {
-  console.log("Save " + exercise);
-  dispatch(saveExercise(exercise));
+function handleSave(exercise) {
+  return (dispatch, getState) => {
+    console.log("Save " + exercise);
+    dispatch(saveExercise(exercise)).then(
+      res => dispatch(fetchSameFolder(exercise, getState().get('folder') ))
+    );
+    console.log([exercise, getState().get('folder')]);
+  }
 }
-function handleReset(dispatch, exercise) {
-  console.log("Reset " + exercise);
-  dispatch(fetchExercise(exercise, true));
+function handleReset(exercise) {
+  return (dispatch, getState) => {
+    console.log("Reset " + exercise);
+    dispatch(fetchExercise(exercise, true));
+  }
 }
 
 const mapStateToProps = state => {
@@ -100,15 +108,16 @@ const mapStateToProps = state => {
   admin: state.getIn(['login', 'admin']),
   activeExercise: state.get('activeExercise'),
   exerciseState: activeExerciseState,
-  activeAdminTool: state.get('activeAdminTool')
+  activeAdminTool: state.get('activeAdminTool'),
+  folder: state.get('folder', ""),
 });
 }
 
 const mapDispatchToProps = dispatch => ({
   onXMLEditorClick: (event) => dispatch(updateActiveAdminTool('xml-editor')),
     onOptionsClick: (event) => dispatch(updateActiveAdminTool('options')),
-    onSave: (exercise) => handleSave(dispatch, exercise),
-    onReset: (exercise) => handleReset(dispatch, exercise),
+    onSave: (exercise) => dispatch(handleSave(exercise)),
+    onReset: (exercise) => dispatch(handleReset(exercise)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseLoginInfo)

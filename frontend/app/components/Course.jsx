@@ -17,7 +17,7 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
     var exercises = [], children = [];
     if(folder.exercises) {
       //exerciseState.getIn([exercise, 'correct'], false)
-      exercises = Object.keys(folder.exercises).sort().map( exercise => (
+      exercises = Object.keys(folder.exercises).sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name ).map( exercise => (
         <li key={exerciseState.getIn([exercise, 'exercise_key'])}>
           <a className="uk-thumbnail" onClick={(ev) => onExerciseClick(exercise, foldername)}>
           <div className="exercise-thumb-wrap">

@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
   fetchExercises, 
   fetchExerciseXML,
+  fetchExerciseTree,
   fetchExercise
 } from '../fetchers.js';
 
@@ -64,10 +65,17 @@ const mapStateToProps = state => {
   )
 };
 
+function handleBack() {
+  return dispatch => {
+    dispatch(fetchExerciseTree());
+    dispatch(updateActiveExercise(""));
+  }
+}
+
 const mapDispatchToProps = dispatch => {
   return {
     onExerciseClick: (exercise, empty) => dispatch(fetchExercise(exercise, empty)),
-    onBack: () => dispatch(updateActiveExercise(""))
+    onBack: () => dispatch(handleBack())
   };
 };
 
