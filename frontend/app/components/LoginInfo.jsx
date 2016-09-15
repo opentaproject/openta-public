@@ -45,7 +45,7 @@ const BaseLoginInfo = ({ username, admin, activeExercise, exerciseState, activeA
   });
 
   var savereset = (
-          <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(key)}/>
+          <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(activeExercise)}/>
   );
   var admintools = (
     <div className="uk-button-group uk-margin-left">
