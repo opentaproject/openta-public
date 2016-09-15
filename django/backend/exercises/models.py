@@ -22,7 +22,7 @@ import json as JSON
 import uuid
 
 
-class ExerciseManager(models.Manager):
+class ExerciseManager(models.Manager):  # {{{
     def mend_answers(self):
         '''
         Tries to match orphan answers with an exercise and question.
@@ -112,7 +112,7 @@ class ExerciseManager(models.Manager):
             if not is_exercise(exercise.path):
                 exercise.delete()
                 print('Deleting non existing ' + fullpath + ' from database.')
-        self.mend_answers()
+        self.mend_answers()  # }}}
 
 
 class Exercise(models.Model):
@@ -122,10 +122,18 @@ class Exercise(models.Model):
     folder = models.TextField(default="")
     objects = ExerciseManager()
 
+    class Meta:
+        permissions = (
+            ("reload", "Can reload exercises from disk"),
+            ("edit", "Can edit exercises in frontend"),
+            ("create", "Can create exercises in frontend"),
+            ("administer", "Can administer exercise options"),
+        )
+
     def __str__(self):
         return self.name + ': ' + self.path
 
-    def user_is_correct(self, user):
+    def user_is_correct(self, user):  # {{{
         allcorrect = True
         questions = Question.objects.filter(exercise=self)
         for question in questions:
@@ -135,22 +143,23 @@ class Exercise(models.Model):
                     allcorrect = False
             except ObjectDoesNotExist:
                 allcorrect = False
-        return allcorrect
+        return allcorrect  # }}}
 
 
-class Question(models.Model):
+class Question(models.Model):  # {{{
     class Meta:
         unique_together = ('question_key', 'exercise')
+        permissions = (("log", "Answers are logged"),)
 
     question_key = models.CharField(max_length=255)
     exercise = models.ForeignKey(Exercise)
     type = models.CharField(max_length=255, default='none')
 
     def __str__(self):
-        return self.exercise.name + ": " + self.question_key
+        return self.exercise.name + ": " + self.question_key  # }}}
 
 
-class Answer(models.Model):
+class Answer(models.Model):  # {{{
     user = models.ForeignKey(User)
     question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
     question_key = models.CharField(max_length=255, default='')
@@ -167,10 +176,10 @@ class Answer(models.Model):
             + self.answer
             + "} which is "
             + ("correct" if self.correct else "incorrect")
-        )
+        )  # }}}
 
 
-def answer_image_filename(instance, filename):
+def answer_image_filename(instance, filename):  # {{{
     return '/'.join(
         [
             'answerimages',
@@ -178,10 +187,10 @@ def answer_image_filename(instance, filename):
             instance.exercise.exercise_key,
             str(uuid.uuid4()) + os.path.splitext(filename)[1],
         ]
-    )
+    )  # }}}
 
 
-class ImageAnswer(models.Model):
+class ImageAnswer(models.Model):  # {{{
     user = models.ForeignKey(User)
     exercise = models.ForeignKey(Exercise)
     exercise_key = models.CharField(max_length=255, default='')
@@ -189,10 +198,10 @@ class ImageAnswer(models.Model):
     image = models.ImageField(upload_to=answer_image_filename)
 
     def __str__(self):
-        return self.user.username + " image for " + self.exercise.name
+        return self.user.username + " image for " + self.exercise.name  # }}}
 
 
-class ExerciseMeta(models.Model):
+class ExerciseMeta(models.Model):  # {{{
     DIFFICULTIES = ((1, 'Easy'), (2, 'Medium'), (3, 'Hard'))
     exercise = models.OneToOneField(Exercise, related_name='meta')
     exercise_key = models.CharField(max_length=255, default='')
@@ -202,4 +211,4 @@ class ExerciseMeta(models.Model):
     required = models.BooleanField(default=False)
     image = models.BooleanField(default=False)
     bonus = models.BooleanField(default=False)
-    server_reply_time = models.DurationField(default=None, null=True, blank=True)
+    server_reply_time = models.DurationField(default=None, null=True, blank=True)  # }}}

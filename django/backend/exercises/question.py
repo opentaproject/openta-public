@@ -38,15 +38,16 @@ def question_check(user, exercise_key, question_key, answer_data):
         correct = False
         if 'correct' in result:
             correct = result['correct']
-        dbanswer = Answer.objects.create(
-            user=user,
-            question=dbquestion,
-            question_key=dbquestion.question_key,
-            exercise_key=dbexercise.exercise_key,
-            answer=answer_data,
-            grader_response=json.dumps(result),
-            correct=correct,
-        )
+        if user.has_perm('question.log'):
+            dbanswer = Answer.objects.create(
+                user=user,
+                question=dbquestion,
+                question_key=dbquestion.question_key,
+                exercise_key=dbexercise.exercise_key,
+                answer=answer_data,
+                grader_response=json.dumps(result),
+                correct=correct,
+            )
         return result
     else:
         return {'error': 'No grading function for question type ' + dbquestion.type}

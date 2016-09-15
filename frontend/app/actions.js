@@ -121,6 +121,9 @@ function updatePendingStateIn(path, pending) {//{{{
 }//}}}
 
 function updateActiveAdminTool(tool) {
+  /*
+   * Values: xml-editor, options
+   */
   return {
     type: 'UPDATE_ACTIVE_ADMIN_TOOL',
     tool: tool

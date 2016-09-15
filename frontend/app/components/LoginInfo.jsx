@@ -14,6 +14,21 @@ import {
 
 import immutable from 'immutable';
 
+var groupIcons = {
+  'Admin': {
+    icon: "uk-icon-user-md",
+    alt: "Administrator"
+  },
+  'Author': {
+    icon: "uk-icon-pencil",
+    alt: "Author"
+  },
+  'Student': {
+    icon: "uk-icon-graduation-cap",
+    alt: "Student"
+  }
+}
+
 var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => (
     <div className="uk-button-group"> 
         { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
@@ -21,7 +36,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
     </div>
 );
 
-const BaseLoginInfo = ({ username, admin, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onSave, onReset}) => {
+const BaseLoginInfo = ({ username,groups, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onSave, onReset}) => {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
@@ -31,17 +46,23 @@ const BaseLoginInfo = ({ username, admin, activeExercise, exerciseState, activeA
     {
       id: 'xml-editor',
       name: 'XML Editor',
+      reqGroup: 'Author',
       callback: onXMLEditorClick
     },
     {
       id: 'options',
       name: 'Options',
+      reqGroup: 'Admin',
       callback: onOptionsClick
     }
   ];
   var permanentitems = admintoolsmenu.map( item => {
+    if(groups.includes(item.reqGroup)) {
     var cssclass = "uk-button uk-button-primary" + (activeAdminTool === item.id ? " uk-active" : "");
     return ( <a key={item.id} className={cssclass} onClick={item.callback}>{item.name}</a> );
+    }
+    else
+      return (<span/>)
   });
 
   var savereset = (
@@ -52,13 +73,19 @@ const BaseLoginInfo = ({ username, admin, activeExercise, exerciseState, activeA
       {permanentitems}
     </div>
   );
+  var renderGroupIcons = groups.map( group => {
+                                    if(group in groupIcons)
+                                      return (<i className={"uk-icon uk-text-success " + groupIcons[group].icon} title={groupIcons[group].alt}/>)
+                                    else
+                                      return (<span/>)
+  });
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
   <div className="uk-container uk-container-center">
   <div className="uk-navbar-brand"><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> OpenTA</span></div>
   <div className="uk-navbar-flip">
   <div className="uk-navbar-content">
-  { admin && activeExercise && savereset}
+  { author && activeExercise && savereset}
   </div>
   <ul className="uk-navbar-nav">
       <li>
@@ -67,8 +94,8 @@ return (
   </ul>
   </div>
   <div className="uk-navbar-content uk-navbar-center">
-    <i className={"uk-icon uk-text-success " + (admin ? "uk-icon-user-md" : "uk-icon-user")}></i> <span className="uk-text-large uk-text-middle">{username}</span>{ admin ? ( <span className="uk-text-small uk-text-middle"> (admin)</span> ) : "" }
-  { admin && activeExercise && admintools }
+  {renderGroupIcons} <span className="uk-text-large uk-text-middle">{username}</span>{ admin ? ( <span className="uk-text-small uk-text-middle"> (admin)</span> ) : "" }
+  { activeExercise && admintools }
 </div>
   </div>
   </nav>
@@ -78,6 +105,8 @@ return (
 BaseLoginInfo.propTypes = {
   username: PropTypes.string,
   admin: PropTypes.bool,
+  author: PropTypes.bool,
+  groups: PropTypes.object,
   activeExercise: PropTypes.string,
   exerciseState: PropTypes.object,
   activeAdminTool: PropTypes.string,
@@ -105,7 +134,9 @@ const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
   return ({
   username: state.getIn(['login', 'username']),
-  admin: state.getIn(['login', 'admin']),
+  groups: state.getIn(['login', 'groups'], immutable.List([])),
+  admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
+  author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
   activeExercise: state.get('activeExercise'),
   exerciseState: activeExerciseState,
   activeAdminTool: state.get('activeAdminTool'),

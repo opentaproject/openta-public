@@ -58,7 +58,9 @@ class BaseAuthorExercise extends Component {
   onXMLChange: PropTypes.func,
   exerciseState: PropTypes.object,
   pendingState: PropTypes.object,
-  activeAdminTool: PropTypes.string
+  activeAdminTool: PropTypes.string,
+  admin: PropTypes.bool,
+  author: PropTypes.bool,
 };
 
   render() {
@@ -78,8 +80,8 @@ class BaseAuthorExercise extends Component {
         </div>
         <div key="xml" className="xmleditor">
         { loading && <Spinner/> }
-        { !loading && this.props.activeAdminTool === 'xml-editor' && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
-        { !loading && this.props.activeAdminTool === 'options' && <iframe key={key} scrolling="no" className="options" src={"/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> }
+        { !loading && this.props.activeAdminTool === 'xml-editor' && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
+        { !loading && this.props.activeAdminTool === 'options' && this.props.admin && <iframe key={key} scrolling="no" className="options" src={"/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> }
         </div>
       </div>
     );
@@ -134,7 +136,9 @@ const mapStateToProps = state => {
     exerciseKey: state.get('activeExercise'),
     exerciseState: activeExerciseState,
     pendingState: state.get('pendingState'),
-    activeAdminTool: state.get('activeAdminTool')
+    activeAdminTool: state.get('activeAdminTool'),
+    admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
+    author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
   })
 };
 

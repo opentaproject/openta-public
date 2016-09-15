@@ -7,7 +7,13 @@ from django.shortcuts import render
 
 @api_view(['GET'])
 def login_status(request):
-    return Response({'username': request.user.get_username(), 'admin': request.user.is_staff})
+    groups = []
+    dbgroups = request.user.groups.all()
+    for group in dbgroups:
+        groups.append(group.name)
+    return Response(
+        {'username': request.user.get_username(), 'admin': request.user.is_staff, 'groups': groups}
+    )
 
 
 def login_required(view):

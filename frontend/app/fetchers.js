@@ -8,6 +8,7 @@ import {
   updateExerciseState,
   updateExercisesState,
   updateActiveExercise,
+  updateActiveAdminTool,
   updatePendingState,
   updatePendingStateIn,
   setSavePendingState,
@@ -46,9 +47,16 @@ function fetchLoginStatus() {
     })
     .then(json => ({
       username: json.username,
-      admin: json.admin
+      groups: json.groups
     }))
-    .then(data => dispatch(updateLoginStatus(data)));
+    .then(data => {
+      dispatch(updateLoginStatus(data))
+      if(data.groups.indexOf('Author') > -1)
+        dispatch(updateActiveAdminTool('xml-editor'));
+      if(data.groups.indexOf('Admin') > -1)
+        dispatch(updateActiveAdminTool('options'));
+      }
+         );
   };
 }
 

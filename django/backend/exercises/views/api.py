@@ -12,6 +12,7 @@ from exercises.paths import EXERCISES_PATH
 from exercises.util import nested_print
 from django.http import FileResponse, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.decorators import permission_required
 import backend.settings as settings
 import json
 import time
@@ -24,6 +25,7 @@ sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + '/../../../../qu
 import question_types
 
 
+@permission_required('exercises.reload')
 @api_view(['POST', 'GET'])
 def exercises_reload(request):  # {{{
     Exercise.objects.sync_with_disc()
@@ -83,6 +85,7 @@ def exercise_xml(request, exercise):
     return Response({'xml': parsing.exercise_xml(dbexercise.path)})
 
 
+@permission_required('exercises.edit')
 @api_view(['POST'])
 def exercise_save(request, exercise):  # {{{
     result = {}
@@ -106,7 +109,7 @@ def exercise_check(request, exercise, question):  # {{{
     return Response(result)  # }}}
 
 
-def serve_file(path, filename, **kwargs):
+def serve_file(path, filename, **kwargs):  # {{{
     content_type = kwargs['content_type'] if 'content_type' in kwargs else None
     dev_path = kwargs['dev_path'] if 'dev_path' in kwargs else path
 
@@ -120,7 +123,7 @@ def serve_file(path, filename, **kwargs):
         response["Content-Type"] = content_type if content_type else ""
         response["Content-Disposition"] = "attachment; filename={0}".format(filename)
         response["X-Accel-Redirect"] = path
-        return response
+        return response  # }}}
 
 
 @api_view(['GET'])
