@@ -75,7 +75,7 @@ const BaseLoginInfo = ({ username,groups, admin, author, activeExercise, exercis
   );
   var renderGroupIcons = groups.map( group => {
                                     if(group in groupIcons)
-                                      return (<i className={"uk-icon uk-text-success " + groupIcons[group].icon} title={groupIcons[group].alt}/>)
+                                      return (<i className={"uk-icon uk-text-success uk-margin-small-left " + groupIcons[group].icon} title={groupIcons[group].alt}/>)
                                     else
                                       return (<span/>)
   });

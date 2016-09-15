@@ -25,7 +25,7 @@ sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + '/../../../../qu
 import question_types
 
 
-@permission_required('exercises.reload')
+@permission_required('exercises.reload_exercise')
 @api_view(['POST', 'GET'])
 def exercises_reload(request):  # {{{
     Exercise.objects.sync_with_disc()
@@ -85,7 +85,7 @@ def exercise_xml(request, exercise):
     return Response({'xml': parsing.exercise_xml(dbexercise.path)})
 
 
-@permission_required('exercises.edit')
+@permission_required('exercises.edit_exercise')
 @api_view(['POST'])
 def exercise_save(request, exercise):  # {{{
     result = {}

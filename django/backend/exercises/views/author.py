@@ -23,7 +23,7 @@ class ExerciseMetaUpdate(UpdateView):
     success_url = '/exercisemeta/{id}'  # reverse_lazy('exercise-meta-update')
 
 
-@permission_required('exercises.administer')
+@permission_required('exercises.administer_exercise')
 def ExerciseMetaUpdateView(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     meta, created = ExerciseMeta.objects.get_or_create(

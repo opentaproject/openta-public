@@ -38,7 +38,7 @@ def question_check(user, exercise_key, question_key, answer_data):
         correct = False
         if 'correct' in result:
             correct = result['correct']
-        if user.has_perm('question.log'):
+        if user.has_perm('exercises.log_question'):
             dbanswer = Answer.objects.create(
                 user=user,
                 question=dbquestion,

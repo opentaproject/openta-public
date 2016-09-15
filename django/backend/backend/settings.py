@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'exercises.apps.ExercisesConfig',
     'widget_tweaks',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [

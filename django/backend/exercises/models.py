@@ -124,10 +124,10 @@ class Exercise(models.Model):
 
     class Meta:
         permissions = (
-            ("reload", "Can reload exercises from disk"),
-            ("edit", "Can edit exercises in frontend"),
-            ("create", "Can create exercises in frontend"),
-            ("administer", "Can administer exercise options"),
+            ("reload_exercise", "Can reload exercises from disk"),
+            ("edit_exercise", "Can edit exercises in frontend"),
+            ("create_exercise", "Can create exercises in frontend"),
+            ("administer_exercise", "Can administer exercise options"),
         )
 
     def __str__(self):
@@ -149,7 +149,7 @@ class Exercise(models.Model):
 class Question(models.Model):  # {{{
     class Meta:
         unique_together = ('question_key', 'exercise')
-        permissions = (("log", "Answers are logged"),)
+        permissions = (("log_question", "Answers are logged"),)
 
     question_key = models.CharField(max_length=255)
     exercise = models.ForeignKey(Exercise)
