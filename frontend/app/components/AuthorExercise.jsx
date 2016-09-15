@@ -9,6 +9,7 @@ import xml2js from 'xml2js';
 import Spinner from './Spinner.jsx';
 
 import Exercise from './Exercise';
+import {getcookie} from '../cookies.js';
 
 import { 
   updateQuestionResponse, 
@@ -18,7 +19,8 @@ import {
 } from '../actions.js';
 import {
   saveExercise,
-  fetchExercise
+  fetchExercise,
+  fetchSameFolder,
 } from '../fetchers.js';
 
 var XMLParser = new xml2js.Parser({
@@ -77,16 +79,23 @@ class BaseAuthorExercise extends Component {
         <div key="xml" className="xmleditor">
         { loading && <Spinner/> }
         { !loading && this.props.activeAdminTool === 'xml-editor' && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
-        { !loading && this.props.activeAdminTool === 'options' && <iframe scrolling="no" className="options" src={"/exercise/" + key + "/editmeta"} /> }
+        { !loading && this.props.activeAdminTool === 'options' && <iframe key={key} scrolling="no" className="options" src={"/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> }
         </div>
       </div>
     );
     return key ? authorDOM : (<span/>);
   }
 
+  handleIframeLoad = (event, onOptionsSubmit) => {
+    var submitted_cookie = getcookie('submitted', event.target.contentDocument);
+    if(submitted_cookie.length > 0 && submitted_cookie[0] === 'true')
+      onOptionsSubmit()
+  }
+
   componentDidMount = (props,state,root) => {
-    //if(this.tabref)
-      //this.tabref.getDOMNode().setAttribute('data-uk-tab', ''); 
+    if(this.iframeref) {
+      this.iframeref.onload = () => console.dir(this)
+    }
   }
 }
 
@@ -108,13 +117,13 @@ function handleXMLChange(dispatch, xml, exercise) {
   });
 }
 
-function handleSave(dispatch, exercise) {
-  console.log("Save " + exercise);
-  dispatch(saveExercise(exercise));
-}
-function handleReset(dispatch, exercise) {
-  console.log("Reset " + exercise);
-  dispatch(fetchExercise(exercise, true));
+function handleOptionsSubmit() {
+  return (dispatch, getState) => {
+    var folder = getState().get('folder');
+    var exercise = getState().get('activeExercise');
+    dispatch(fetchExercise(exercise, true));
+    dispatch(fetchSameFolder(exercise, folder));
+  }
 }
 
 const mapStateToProps = state => {
@@ -132,8 +141,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onXMLChange: (xml, exercise) => handleXMLChange(dispatch, xml, exercise) ,
-    onSave: (exercise) => handleSave(dispatch, exercise),
-    onReset: (exercise) => handleReset(dispatch, exercise)
+    onOptionsSubmit: () => dispatch(handleOptionsSubmit()),
   }
 }
 

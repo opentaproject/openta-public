@@ -1,7 +1,7 @@
 //This is googles cookie reading function
-function getcookie(a){
+function getcookie(a, root=document){
     var d=[],
-        e=document.cookie.split(";");
+        e=root.cookie.split(";");
     a=RegExp("^\\s*"+a+"=\\s*(.*?)\\s*$");
     for(var b=0;b<e.length;b++){
         var f=e[b].match(a);

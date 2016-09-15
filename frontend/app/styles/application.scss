@@ -3,7 +3,7 @@
 }
 
 .options {
-  height: 80vh;
+  height: 100vh;
   width: 100%;
 }
 
@@ -93,6 +93,13 @@ $exerciselist: 0.1;
 
 .ta-nav {
   background-color: #eeeeee
+}
+.exercise-list-thumb-wrap {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  left: 0;
+  top: 0;
 }
 
 .exercise-thumb-wrap {

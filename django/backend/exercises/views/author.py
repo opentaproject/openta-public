@@ -27,6 +27,12 @@ def ExerciseMetaUpdateView(request, exercise):
     meta, created = ExerciseMeta.objects.get_or_create(
         exercise=dbexercise, defaults={'exercise_key': exercise}
     )
-    print(meta.id)
+    print(request.POST)
     result = ExerciseMetaUpdate.as_view()(request, pk=meta.id)
+    print(result)
+    if request.method == 'POST':
+        result.set_cookie('submitted', 'true')
+    else:
+        result.set_cookie('submitted', 'false')
+
     return result

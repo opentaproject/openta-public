@@ -2,7 +2,7 @@
   height: 80vh; }
 
 .options {
-  height: 80vh;
+  height: 100vh;
   width: 100%; }
 
 .exercise-menu {
@@ -123,6 +123,13 @@
     box-sizing: border-box; } }
 .ta-nav {
   background-color: #eeeeee; }
+
+.exercise-list-thumb-wrap {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  left: 0;
+  top: 0; }
 
 .exercise-thumb-wrap {
   display: inline-block;

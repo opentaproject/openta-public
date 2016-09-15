@@ -10,6 +10,14 @@ import {
 import { updateActiveExercise } from '../actions.js';
 import immutable from 'immutable';
 import Spinner from './Spinner.jsx'
+import Badge from './Badge.jsx';
+
+var difficulties = {
+  '1': 'Lätt',
+  '2': 'Medel',
+  '3': 'Svår',
+  'none': ''
+};
 
 function listClass(item, active) {
   if(item === active)return "uk-active";
@@ -22,22 +30,31 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
     <li className="uk-nav-header" key="header">
       <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
     </li>
-    {exerciselist.map( exercise => ( 
+    {exerciselist.map( exercise => {
+      var meta = exercise.get('meta');
+      if(!meta)meta = immutable.Map({});
+      var key = exercise.get('exercise_key');
+      return ( 
                       <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
                         <a onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
                           <ul>
                             <li>
-                              <div className="exercise-thumb-wrap">
+                              <div className="exercise-list-thumb-wrap">
                               <img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
-                                {exerciseState.getIn([exercise.get('exercise_key'), 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success exercise-thumb-badge"><i className="uk-icon uk-icon-check"></i></span> }
+                              <div className="exercise-thumb-badge">
+                              {exerciseState.getIn([key, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
+                              { meta.get('difficulty', false) && <Badge className="uk-badge-notification">{difficulties[meta.get('difficulty','none')]}</Badge> }
+                              { meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> }
+                              { meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> }
+                              </div>
                               </div>
                             </li>
                             <li className="uk-text-break">{exercise.get('name')}</li>
                           </ul>
                         </a>
                       </li>
-                                   )
-                     ).toArray()}
+                                   );
+                     }).toArray()}
     </ul>
   </div>
 );
