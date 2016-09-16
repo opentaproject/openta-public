@@ -7,7 +7,11 @@ from exercises.models import Exercise, Question, Answer, ImageAnswer
 from exercises.serializers import ExerciseSerializer, AnswerSerializer
 from exercises import parsing
 from exercises.question import question_check
-from exercises.modelhelpers import serialize_exercise_with_question_data, exercise_folder_structure
+from exercises.modelhelpers import (
+    serialize_exercise_with_question_data,
+    exercise_folder_structure,
+    student_attempts_exercises,
+)
 from exercises.paths import EXERCISES_PATH
 from exercises.util import nested_print
 from django.http import FileResponse, HttpResponse
@@ -180,3 +184,9 @@ def answer_image_view(request, image_id):
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
     except ObjectDoesNotExist:
         return Response("invalid answer image id", status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@permission_required('exercises.administer_exercise')
+@api_view(['GET'])
+def get_student_attempts_per_exercise(request):
+    return Response(student_attempts_exercises())

@@ -28,6 +28,7 @@ urlpatterns = [
         views.ExerciseMetaUpdate.as_view(),
         name='exercise-meta-update',
     ),
+    url(r'^statistics/allstudentattempts', views.get_student_attempts_per_exercise),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
