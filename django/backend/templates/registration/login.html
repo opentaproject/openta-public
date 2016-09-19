@@ -6,10 +6,6 @@
 <div id="content" class="uk-vertical-align uk-text-center">
 <div class="uk-vertical-align-middle uk-container-center">
 
-  {% if form.errors %}
-<p>Your username and password didn't match. Please try again.</p>
-{% endif %}
-
 {% if next %}
     {% if user.is_authenticated %}
     <p>Your account doesn't have access to this page. To proceed,
@@ -17,6 +13,10 @@
     {% else %}
     <p>Please login to see this page.</p>
     {% endif %}
+{% endif %}
+
+{% if success_msg %}
+<div class="uk-alert uk-alert-success">{{ success_msg }}</div>
 {% endif %}
 
 <form method="post" class="uk-form" action="{% url 'login' %}">

@@ -10,9 +10,12 @@ from exercises.question import QuestionError
 # Below are imports that are specific to this question type
 import functools
 import operator
-import exercises.symbolic as symbolic
 from exercises.util import compose
 from lxml import etree
+from .compare_numeric import (
+    compare_numeric,
+    to_latex,
+)  # The sympy interface is placed in a separate file "compare_numeric.py" in this folder
 
 
 def parse_variables(variables):  # {{{
@@ -63,8 +66,6 @@ def question_check_compare_numeric(question_json, question_xmltree, answer_data,
             </expression>
         </question>
     '''
-    # variables = parse_variables(question_json['variables']['$'])
-    # if 'global' in question_json and 'variables' in question_json['global']:
     variables = []
     variables_element = question_xmltree.find('variables')
     if variables_element is not None:
@@ -72,19 +73,17 @@ def question_check_compare_numeric(question_json, question_xmltree, answer_data,
     if global_xmltree is not None and global_xmltree.text is not None:
         global_variables = parse_variables(global_xmltree.text)
         variables += global_variables
+
     correct_answer = question_xmltree.find('expression').text.split(';')[0]
+
     result = {}
-    # try:
-    result = symbolic.compare_numeric(variables, answer_data, correct_answer)
-    # except SympifyError as e:
-    #    print(e)
-    # print(answer_data)
-    # print(correct_answer)
+    result = compare_numeric(variables, answer_data, correct_answer)
     if 'correct' in result:
         result['status'] = 'correct' if result['correct'] else 'incorrect'
     elif 'error' in result:
         result['status'] = 'error'
-    latex = {'latex': symbolic.to_latex(answer_data)}
+    # Add the sympy representation in latex form for possible visual checks
+    latex = {'latex': to_latex(answer_data)}
     result.update(latex)
     return result
 
