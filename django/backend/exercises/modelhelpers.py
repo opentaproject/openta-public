@@ -38,6 +38,7 @@ def folder_structure(exercise_data_func_list):
             else:
                 traverse['folders'][folder] = {'content': {}}
     ordered_folders = OrderedDict(sorted(folders.items(), key=lambda t: t[0]))
+    print(ordered_folders)
     for exercise in exercises:
 
         def reduce_data_func(prev, next):
@@ -46,11 +47,11 @@ def folder_structure(exercise_data_func_list):
 
         data = reduce(reduce_data_func, exercise_data_func_list, {})
         paths = list(filter(lambda x: x != '', exercise.path.split('/')[1:-1]))
-        root = reduce(lambda a, b: a['folders'].get(b)['content'], paths, folders)
+        root = reduce(lambda a, b: a['folders'].get(b)['content'], paths, ordered_folders)
         if 'exercises' not in root:
             root['exercises'] = {}
         root['exercises'].update({exercise.exercise_key: data})
-    return folders
+    return ordered_folders
 
 
 def exercise_folder_structure(manager, user):

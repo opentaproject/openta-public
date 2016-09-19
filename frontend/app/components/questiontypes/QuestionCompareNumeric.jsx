@@ -7,7 +7,7 @@ import React, { PropTypes, Component } from 'react'; // React specific import
 
 import { registerQuestionType } from './question_type_dispatch.js' // Register function used at the bottom of this file to let the system know of the question type
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
-import Badge from '../Badge.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
+import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
 
 export default class QuestionCompareNumeric extends Component {
   static propTypes = {
@@ -30,7 +30,10 @@ export default class QuestionCompareNumeric extends Component {
 
   renderAsciiMath = (asciitext) => {
     try {
-      return AMTparseAMtoTeX(asciitext);
+      //Some initial parsing of commonly used patterns
+      var re = /([a-zA-Z]+)([0-9]+)/g;
+      var parsed = asciitext.replace(re, '$1_$2');
+      return AMTparseAMtoTeX(parsed);
     }
     catch(e) {
       return "invalid math";
