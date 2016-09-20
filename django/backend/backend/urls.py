@@ -33,7 +33,7 @@ urlpatterns = [
         CreateView.as_view(
             template_name='register.html',
             form_class=UserCreateFormNoPassword,
-            success_url='/register',
+            success_url='/register_nopw',
         ),
     ),
     url(
@@ -41,7 +41,11 @@ urlpatterns = [
         backendviews.activate,
         name='user-activation',
     ),
-    # url(r'^activateandreset/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$', backendviews.activate, name='user-activation'),
+    url(
+        r'^activateandreset/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$',
+        backendviews.activate_and_reset,
+        name='user-activation-and-reset',
+    ),
     url(r'^loggedin/', backendviews.login_status),
     url(r'^', include('exercises.urls')),
     url(r'^', include('django.contrib.auth.urls')),
