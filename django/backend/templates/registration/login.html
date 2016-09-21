@@ -1,19 +1,11 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
+{% load i18n %}
 
 {% block content %}
 
 <div id="content" class="uk-vertical-align uk-text-center">
 <div class="uk-vertical-align-middle uk-container-center">
-
-{% if next %}
-    {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-    {% else %}
-    <p>Please login to see this page.</p>
-    {% endif %}
-{% endif %}
 
 {% if messages %}
   {% for message in messages %}
@@ -41,6 +33,9 @@
 <input type="hidden" name="next" value="/" />
 </form>
 
+{% if course.registration_by_password %}
+<a href="/register_by_password/" class="uk-button">{% trans "Register" %}</a>
+{% endif %}
 {# Assumes you setup the password_reset view in your URLconf #}
 {# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
 </div>

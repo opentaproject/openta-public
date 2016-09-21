@@ -30,6 +30,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+LOGIN_URL = '/login/'
 
 # Application definition
 
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'exercises.apps.ExercisesConfig',
+    'course.apps.CourseConfig',
     'widget_tweaks',
     'django_extensions',
 ]

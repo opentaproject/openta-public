@@ -15,32 +15,24 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.views.generic.edit import CreateView
-from .forms import UserCreateForm, UserCreateFormNoPassword
 from django.contrib.auth import views as auth_views
 from backend import views as backendviews
+from django.views.generic.edit import CreateView
+from .forms import UserCreateForm, UserCreateFormNoPassword
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(
-        r'^register/$',
-        CreateView.as_view(
-            template_name='register.html', form_class=UserCreateForm, success_url='/register'
-        ),
-    ),
-    url(
-        r'^register_nopw/$',
-        CreateView.as_view(
-            template_name='register.html',
-            form_class=UserCreateFormNoPassword,
-            success_url='/register_nopw',
-        ),
-    ),
-    url(
-        r'^activate/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$',
-        backendviews.activate,
-        name='user-activation',
-    ),
+    url(r'^register/$', backendviews.RegisterUser.as_view()),
+    url(r'^register_nopw/$', backendviews.RegisterUserNoPassword.as_view()),
+    #    url(r'^register/$', CreateView.as_view(
+    #            template_name='register.html',
+    #            form_class=UserCreateForm,
+    #            success_url='/register')),
+    #    url(r'^register_nopw/$', CreateView.as_view(
+    #            template_name='register.html',
+    #            form_class=UserCreateFormNoPassword,
+    #            success_url='/register_nopw')),
+    #    url(r'^activate/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$', backendviews.activate, name='user-activation'),
     url(
         r'^activateandreset/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$',
         backendviews.activate_and_reset,
@@ -48,6 +40,8 @@ urlpatterns = [
     ),
     url(r'^loggedin/', backendviews.login_status),
     url(r'^', include('exercises.urls')),
+    url(r'^login/$', backendviews.login, name='login'),
     url(r'^', include('django.contrib.auth.urls')),
-    url(r'^$', backendviews.login_required(backendviews.main)),
+    url(r'^register_by_password', backendviews.RegisterByPassword.as_view()),
+    url(r'^$', backendviews.main),
 ]

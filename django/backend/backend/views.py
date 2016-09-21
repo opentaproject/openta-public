@@ -6,13 +6,20 @@ from django.template.response import TemplateResponse
 from django.shortcuts import render, redirect, reverse
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from django.contrib.auth.models import User
-from django.contrib.auth.views import login
+from django.contrib.auth import views as auth_views
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
 from django.contrib.auth.forms import SetPasswordForm
 from django.views.generic.edit import FormView
 from django.contrib import messages
 from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import login_required
+from course.models import Course
+from course.serializers import CourseSerializer
+from backend.forms import RegisterWithPasswordForm
+from django.views.generic.edit import CreateView
+from .forms import UserCreateForm, UserCreateFormNoPassword
+from ratelimit.decorators import ratelimit
 
 
 class ActivateAndReset(FormView):
@@ -29,6 +36,18 @@ class ActivateAndReset(FormView):
         return redirect(reverse('login'))
 
 
+class RegisterUser(CreateView):
+    template_name = 'register.html'
+    form_class = UserCreateForm
+    success_url = '/register'
+
+
+class RegisterUserNoPassword(CreateView):
+    template_name = 'register.html'
+    form_class = UserCreateFormNoPassword
+    success_url = '/register_nopw'
+
+
 @api_view(['GET'])
 def login_status(request):
     groups = []
@@ -40,13 +59,16 @@ def login_status(request):
     )
 
 
-def login_required(view):
-    def new_view(request, *args, **kwargs):
-        if not request.user.is_authenticated():
-            return HttpResponseRedirect('/login')
-        return view(request, *args, **kwargs)
-
-    return new_view
+# @api_view(['GET'])
+@ratelimit(key='ip', rate='5/30s')
+def login(request):
+    course = Course.objects.first()
+    course_data = CourseSerializer(course).data
+    extra = {'course': course_data}
+    if not getattr(request, 'limited', False):
+        return auth_views.login(request, extra_context=extra)
+    else:
+        return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
 
 
 @api_view(['GET'])
@@ -63,7 +85,7 @@ def activate(request, username, token):
     messages.add_message(
         request._request, messages.SUCCESS, _('Activation successful, please logi.')
     )
-    return login(request._request, 'registration/login.html')
+    return auth_views.login(request._request, 'registration/login.html')
 
 
 @api_view(['GET', 'POST'])
@@ -80,11 +102,21 @@ def activate_and_reset(request, username, token):
     return ActivateAndReset.as_view()(request, user=user)
 
 
-# return login(request._request, 'registration/login.html', extra_context={'success_msg':'Activation success, please login.'})
-
-# return login(request._request, 'registration/login.html', extra_context={'success_msg':'Activation success, please login.'})
-
-
+@login_required
 def main(request):
     return render(request, "base_main.html")
-    # return HttpResponseRedirect('/static/index.html')
+
+
+class RegisterByPassword(FormView):
+    template_name = 'registration/register_with_password.html'
+    form_class = RegisterWithPasswordForm
+
+    def form_valid(self, form):
+        course = Course.objects.first()
+        if (
+            course.registration_by_password
+            and course.registration_password == form.cleaned_data['password']
+        ):
+            self.request.method = 'GET'
+            return RegisterUser.as_view()(self.request)
+        return redirect('/register_by_password')

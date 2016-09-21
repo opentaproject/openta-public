@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-20 14:54+0000\n"
+"POT-Creation-Date: 2016-09-21 13:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,17 +18,26 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: backend/views.py:25
+#: backend/forms.py:55 course/forms.py:5 course/models.py:7
+msgid "Registration password"
+msgstr "Registreringslösenord"
+
+#: backend/views.py:31
 msgid "Password is now set, please login."
 msgstr ""
 
-#: backend/views.py:58
+#: backend/views.py:77
 msgid "Activation successful, please logi."
 msgstr ""
 
-#: templates/register.html:22 templates/registration/set_password.html:22
+#: templates/register.html:24 templates/registration/login.html:37
+#: templates/registration/set_password.html:22
 msgid "Register"
 msgstr "Registrera"
+
+#: templates/registration/register_with_password.html:23
+msgid "To registration"
+msgstr "Till registrering"
 
 msgid ""
 "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
