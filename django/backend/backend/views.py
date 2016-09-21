@@ -60,7 +60,9 @@ def activate(request, username, token):
         user.save()
     except (BadSignature, SignatureExpired):
         return render(request, "activation_failed.html")
-    messages.add_message(request._request, messages.SUCCESS, 'Activationnn, please login.')
+    messages.add_message(
+        request._request, messages.SUCCESS, _('Activation successful, please logi.')
+    )
     return login(request._request, 'registration/login.html')
 
 
