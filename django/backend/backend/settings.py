@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     'exercises.apps.ExercisesConfig',
     'widget_tweaks',
     'django_extensions',
-    'django.contrib.sites',
 ]
 
 MIDDLEWARE = [
