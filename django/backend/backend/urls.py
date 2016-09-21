@@ -24,15 +24,6 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^register/$', backendviews.RegisterUser.as_view()),
     url(r'^register_nopw/$', backendviews.RegisterUserNoPassword.as_view()),
-    #    url(r'^register/$', CreateView.as_view(
-    #            template_name='register.html',
-    #            form_class=UserCreateForm,
-    #            success_url='/register')),
-    #    url(r'^register_nopw/$', CreateView.as_view(
-    #            template_name='register.html',
-    #            form_class=UserCreateFormNoPassword,
-    #            success_url='/register_nopw')),
-    #    url(r'^activate/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$', backendviews.activate, name='user-activation'),
     url(
         r'^activateandreset/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$',
         backendviews.activate_and_reset,
@@ -42,6 +33,11 @@ urlpatterns = [
     url(r'^', include('exercises.urls')),
     url(r'^login/$', backendviews.login, name='login'),
     url(r'^', include('django.contrib.auth.urls')),
-    url(r'^register_by_password', backendviews.RegisterByPassword.as_view()),
+    url(r'^register_by_password/$', backendviews.RegisterByPassword.as_view()),
+    url(
+        r'^register_by_password/register/(?P<password>[\w]+)$',
+        backendviews.validate_and_show_registration,
+    ),
+    url(r'^batch_add_users$', backendviews.BatchAddUserView.as_view()),
     url(r'^$', backendviews.main),
 ]

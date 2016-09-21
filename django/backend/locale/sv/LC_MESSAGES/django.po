@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-21 13:44+0000\n"
+"POT-Creation-Date: 2016-09-21 14:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,18 +22,30 @@ msgstr ""
 msgid "Registration password"
 msgstr "Registreringslösenord"
 
-#: backend/views.py:31
+#: backend/views.py:32
 msgid "Password is now set, please login."
 msgstr ""
 
-#: backend/views.py:77
+#: backend/views.py:68
+msgid "5 times per 30 seconds"
+msgstr "5 gånger per 30 sekunder"
+
+#: backend/views.py:81
 msgid "Activation successful, please logi."
 msgstr ""
+
+#: templates/rate_limit.html:10
+msgid "You can only access this page "
+msgstr "Du kan bara använda denna sidan "
 
 #: templates/register.html:24 templates/registration/login.html:37
 #: templates/registration/set_password.html:22
 msgid "Register"
 msgstr "Registrera"
+
+#: templates/registration/login.html:31
+msgid "Log in"
+msgstr "Logga in"
 
 #: templates/registration/register_with_password.html:23
 msgid "To registration"

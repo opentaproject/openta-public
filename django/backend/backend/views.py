@@ -1,14 +1,9 @@
-from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.http.response import HttpResponseRedirect
-from django.template.response import TemplateResponse
 from django.shortcuts import render, redirect, reverse
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from django.contrib.auth.models import User
 from django.contrib.auth import views as auth_views
-from django.utils.decorators import method_decorator
-from django.views.decorators.debug import sensitive_post_parameters
 from django.contrib.auth.forms import SetPasswordForm
 from django.views.generic.edit import FormView
 from django.contrib import messages
@@ -16,10 +11,14 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from course.models import Course
 from course.serializers import CourseSerializer
-from backend.forms import RegisterWithPasswordForm
+from backend.forms import RegisterWithPasswordForm, BatchAddUsersForm
 from django.views.generic.edit import CreateView
 from .forms import UserCreateForm, UserCreateFormNoPassword
 from ratelimit.decorators import ratelimit
+from ratelimit.mixins import RatelimitMixin
+import csv
+from io import StringIO
+import chardet
 
 
 class ActivateAndReset(FormView):
@@ -107,16 +106,58 @@ def main(request):
     return render(request, "base_main.html")
 
 
-class RegisterByPassword(FormView):
+class RegisterByPassword(RatelimitMixin, FormView):
     template_name = 'registration/register_with_password.html'
     form_class = RegisterWithPasswordForm
+    ratelimit_key = 'ip'
+    ratelimit_rate = '5/30s'
 
     def form_valid(self, form):
+        if getattr(self.request, 'limited', False):
+            return render(
+                self.request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')}
+            )
         course = Course.objects.first()
         if (
             course.registration_by_password
             and course.registration_password == form.cleaned_data['password']
         ):
-            self.request.method = 'GET'
-            return RegisterUser.as_view()(self.request)
+            return redirect('/register_by_password/register/' + course.registration_password)
         return redirect('/register_by_password')
+
+
+@ratelimit(key='ip', rate='5/30s')
+def validate_and_show_registration(request, password):
+    if getattr(request, 'limited', False):
+        return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
+    course = Course.objects.first()
+    if course.registration_by_password and course.registration_password == password:
+        return RegisterUser.as_view()(request)
+
+
+class BatchAddUserView(FormView):
+    template_name = 'batch_add_users.html'
+    form_class = BatchAddUsersForm
+
+    def form_valid(self, form):
+        print('Valid...')
+        print(form.cleaned_data['batch_file'])
+        raw = form.cleaned_data['batch_file'].read()
+        encoding = chardet.detect(raw)
+        uni = raw.decode('latin-1')  # encoding['encoding'])
+        dialect = csv.Sniffer().sniff(uni)
+        # print(uni)
+        data = list(
+            csv.reader(StringIO(uni), dialect=dialect)
+        )  # delimiter='\t', lineterminator='\n'))
+        labels = data[0]
+        # print(labels)
+        users = []
+        for row in data[1:]:
+            parsed_row = [{label.replace(' ', '_'): value} for label, value in zip(labels, row)]
+            res = {}
+            for item in parsed_row:
+                res = {**res, **item}
+            users.append(res)
+
+        return render(self.request, 'batch_add_users.html', {'form': form, 'users': users})

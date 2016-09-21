@@ -5,7 +5,6 @@ from django.core.mail import send_mail
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from django.urls import reverse
 from django.forms import ModelForm
-from django import forms
 from django.utils.translation import ugettext as _
 
 
@@ -67,3 +66,7 @@ class UserCreateForm(UserCreationForm):
 
 class RegisterWithPasswordForm(forms.Form):
     password = forms.CharField(label=_('Registration password'), widget=forms.PasswordInput())
+
+
+class BatchAddUsersForm(forms.Form):
+    batch_file = forms.FileField()
