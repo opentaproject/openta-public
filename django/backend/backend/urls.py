@@ -29,6 +29,11 @@ urlpatterns = [
         backendviews.activate_and_reset,
         name='user-activation-and-reset',
     ),
+    url(
+        r'^activate/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$',
+        backendviews.activate,
+        name='user-activation',
+    ),
     url(r'^loggedin/', backendviews.login_status),
     url(r'^', include('exercises.urls')),
     url(r'^login/$', backendviews.login, name='login'),

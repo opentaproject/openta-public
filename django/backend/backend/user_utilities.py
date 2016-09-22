@@ -3,13 +3,13 @@ from django.shortcuts import reverse
 from django.core.mail import send_mail
 
 
-def create_activation_link(username):
+def create_activation_link(username, reverse_name='user-activation'):
     token = TimestampSigner().sign(username).split(':', 1)[1]
-    return reverse('user-activation-and-reset', kwargs={'username': username, 'token': token})
+    return reverse(reverse_name, kwargs={'username': username, 'token': token})
 
 
-def send_activation_mail(username, email):
-    activate_url = create_activation_link(username)
+def send_activation_mail(username, email, reverse_name='user-activation'):
+    activate_url = create_activation_link(username, reverse_name)
     send_mail(
         'Account activation',
         activate_url,

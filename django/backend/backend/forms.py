@@ -17,9 +17,11 @@ class UserCreateFormNoPassword(ModelForm):
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        user.is_active = True
+        user.is_active = False
         user.save()
-        send_activation_mail(self.cleaned_data["username"], self.cleaned_data["email"])
+        send_activation_mail(
+            self.cleaned_data["username"], self.cleaned_data["email"], 'user-activation-and-reset'
+        )
         return user
 
 
@@ -30,25 +32,13 @@ class UserCreateForm(UserCreationForm):
         model = User
         fields = ("username", "email", "password1", "password2")
 
-    def create_activation_link(self, username):
-        token = TimestampSigner().sign(username).split(':', 1)[1]
-        print(token)
-        return reverse('user-activation', kwargs={'username': username, 'token': token})
-
     def save(self, commit=True):
         user = super(UserCreateForm, self).save(commit=False)
         user.email = self.cleaned_data["email"]
         user.is_active = False
         if commit:
             user.save()
-        activate_url = self.create_activation_link(self.cleaned_data["username"])
-        send_mail(
-            'Account activation',
-            activate_url,
-            'openta@missopenta.dyndns.org',
-            [self.cleaned_data["email"]],
-            fail_silently=False,
-        )
+        send_activation_mail(self.cleaned_data["username"], self.cleaned_data["email"])
         return user
 
 

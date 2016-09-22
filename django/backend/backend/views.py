@@ -44,11 +44,29 @@ class RegisterUser(CreateView):
     form_class = UserCreateForm
     success_url = '/register'
 
+    def form_valid(self, form):
+        super().form_valid(form)
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            _('Registration complete, check inbox for activation mail (possibly spam folder).'),
+        )
+        return redirect(reverse('login'))
+
 
 class RegisterUserNoPassword(CreateView):
     template_name = 'register.html'
     form_class = UserCreateFormNoPassword
     success_url = '/register_nopw'
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            _('Registration complete, check inbox for activation mail (possibly spam folder).'),
+        )
+        return redirect(reverse('login'))
 
 
 @api_view(['GET'])
@@ -74,7 +92,7 @@ def login(request):
         return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
 
 
-@api_view(['GET'])
+# @api_view(['GET'])
 def activate(request, username, token):
     try:
         key = '%s:%s' % (username, token)
@@ -85,13 +103,11 @@ def activate(request, username, token):
         user.save()
     except (BadSignature, SignatureExpired):
         return render(request, "activation_failed.html")
-    messages.add_message(
-        request._request, messages.SUCCESS, _('Activation successful, please logi.')
-    )
-    return auth_views.login(request._request, 'registration/login.html')
+    messages.add_message(request, messages.SUCCESS, _('Activation successful, please logi.'))
+    return auth_views.login(request, 'registration/login.html')
 
 
-@api_view(['GET', 'POST'])
+# @api_view(['GET', 'POST'])
 def activate_and_reset(request, username, token):
     try:
         key = '%s:%s' % (username, token)
