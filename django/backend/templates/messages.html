@@ -1,0 +1,9 @@
+{% if messages %}
+  {% for message in messages %}
+  {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+    <div class="uk-alert uk-alert-success">{{ message }}</div>
+  {% else %}
+    <div class="uk-alert">{{ message }}</div>
+  {% endif %}
+  {% endfor %}
+{% endif %}

@@ -18,18 +18,39 @@
         {% endif %}
 </label>
 
-        <div class="uk-form-controls"> {{ field }}</div>
+        <div class="uk-form-controls">
+          {{ field }}
+        </div>
     </div>
 {% endfor %}
 <input class="uk-button uk-margin-small-top" type="submit" value="{% trans "Process" %}" />
 </form>
 
+{% include "messages.html" %}
+
 {% if users %}
-  <ul class="uk-list">
+<div class="uk-alert uk-alert-succcess">
+  {% trans "User list processed successfully, you can review below before committing the changes."%}
+</div>
+<form method="post" class="uk-form uk-form-stacked">
+{% csrf_token %}
+<input class="uk-button uk-button-success" type="submit" name="adduser" value="{% trans "Add users" %}" />
+</form>
+{% endif %}
+
+{% if users %}
+  <table class="uk-table">
+  <thead>
+    <tr>
+      <th>{% trans "First"%}</th><th>{% trans "Last" %}</th><th>{% trans "Email" %}</th><th>{% trans "Username" %}</th>
+    </tr>
+  </thead>
+  <tbody>
   {% for user in users %}
-  <li>{{user.First_name}} {{user.Last_name}}</li>
+  <tr><td>{{user.First_name}}</td><td>{{user.Last_name}}</td><td>{{user.E_mail_address}}</td><td>{{user.Username}}</td></tr>
   {% endfor %}
-  </ul>
+  </tbody>
+  </table>
 {% endif %}
 </div>
 </div>

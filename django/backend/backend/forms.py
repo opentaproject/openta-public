@@ -2,10 +2,10 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.mail import send_mail
-from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from django.urls import reverse
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
+from .user_utilities import create_activation_link, send_activation_mail
 
 
 class UserCreateFormNoPassword(ModelForm):
@@ -15,23 +15,11 @@ class UserCreateFormNoPassword(ModelForm):
         model = User
         fields = ("username", "email")
 
-    def create_activation_link(self, username):
-        token = TimestampSigner().sign(username).split(':', 1)[1]
-        print(token)
-        return reverse('user-activation-and-reset', kwargs={'username': username, 'token': token})
-
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_active = True
         user.save()
-        activate_url = self.create_activation_link(self.cleaned_data["username"])
-        send_mail(
-            'Account activation',
-            activate_url,
-            'openta@missopenta.dyndns.org',
-            [self.cleaned_data["email"]],
-            fail_silently=False,
-        )
+        send_activation_mail(self.cleaned_data["username"], self.cleaned_data["email"])
         return user
 
 
@@ -69,4 +57,4 @@ class RegisterWithPasswordForm(forms.Form):
 
 
 class BatchAddUsersForm(forms.Form):
-    batch_file = forms.FileField()
+    batch_file = forms.FileField(label=_("Batch CSV file"), required=False)

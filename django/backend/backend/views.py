@@ -16,6 +16,10 @@ from django.views.generic.edit import CreateView
 from .forms import UserCreateForm, UserCreateFormNoPassword
 from ratelimit.decorators import ratelimit
 from ratelimit.mixins import RatelimitMixin
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin, AccessMixin
+from backend.user_utilities import send_activation_mail
+from smtplib import SMTPException
 import csv
 from io import StringIO
 import chardet
@@ -135,29 +139,68 @@ def validate_and_show_registration(request, password):
         return RegisterUser.as_view()(request)
 
 
-class BatchAddUserView(FormView):
+class BatchAddUserView(PermissionRequiredMixin, FormView):
+    permission_required = "auth.add_user"
     template_name = 'batch_add_users.html'
     form_class = BatchAddUsersForm
 
     def form_valid(self, form):
-        print('Valid...')
-        print(form.cleaned_data['batch_file'])
-        raw = form.cleaned_data['batch_file'].read()
-        encoding = chardet.detect(raw)
-        uni = raw.decode('latin-1')  # encoding['encoding'])
-        dialect = csv.Sniffer().sniff(uni)
-        # print(uni)
-        data = list(
-            csv.reader(StringIO(uni), dialect=dialect)
-        )  # delimiter='\t', lineterminator='\n'))
-        labels = data[0]
-        # print(labels)
-        users = []
-        for row in data[1:]:
-            parsed_row = [{label.replace(' ', '_'): value} for label, value in zip(labels, row)]
-            res = {}
-            for item in parsed_row:
-                res = {**res, **item}
-            users.append(res)
+        if 'batch_file' in form.cleaned_data and form.cleaned_data['batch_file'] is not None:
+            raw = form.cleaned_data['batch_file'].read()
+            encoding = chardet.detect(raw)
+            uni = raw.decode('latin-1')  # encoding['encoding'])
+            dialect = csv.Sniffer().sniff(uni)
+            data = list(csv.reader(StringIO(uni), dialect=dialect))
+            labels = data[0]
+            users = []
+            for row in data[1:]:
+                parsed_row = [
+                    {label.replace(' ', '_').replace('-', '_'): value}
+                    for label, value in zip(labels, row)
+                ]
+                res = {}
+                for item in parsed_row:
+                    res = {**res, **item}
+                users.append(res)
+            self.request.session['users'] = users
+            return render(self.request, 'batch_add_users.html', {'form': form, 'users': users})
+        if 'adduser' in self.request.POST:
+            for user in self.request.session['users']:
+                # regform = UserCreateFormNoPassword({'username':user['Username'], 'email': user['E_mail_address']})
+                # regform.save()
+                dbuser, created = User.objects.get_or_create(
+                    username=user['Username'],
+                    defaults={
+                        'email': user['E_mail_address'],
+                        'first_name': user['First_name'],
+                        'last_name': user['Last_name'],
+                    },
+                )
+                dbuser.is_active = False
+                dbuser.save()
 
-        return render(self.request, 'batch_add_users.html', {'form': form, 'users': users})
+                if created:
+                    messages.add_message(
+                        self.request, messages.SUCCESS, "Added user " + user['Username']
+                    )
+                else:
+                    messages.add_message(
+                        self.request,
+                        messages.WARNING,
+                        "User " + user['Username'] + " already added!",
+                    )
+                try:
+                    send_activation_mail(user['Username'], user['E_mail_address'])
+                    messages.add_message(
+                        self.request,
+                        messages.SUCCESS,
+                        "Activation mail sent for " + user['Username'],
+                    )
+                except SMTPException:
+                    messages.add_message(
+                        self.request,
+                        messages.ERROR,
+                        "Activation mail send error for " + user['Username'],
+                    )
+
+        return render(self.request, 'batch_add_users.html', {'form': form})
