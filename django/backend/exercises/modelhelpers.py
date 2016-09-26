@@ -1,10 +1,14 @@
 from exercises.models import Exercise, ExerciseMeta, Question, Answer
+from exercises.parsing import exercise_xmltree, question_xmltree_get
+from exercises.question import question_check
+from django.contrib.auth.models import User
 from exercises.serializers import ExerciseSerializer, ExerciseMetaSerializer, AnswerSerializer
 import json
 from django.core.exceptions import ObjectDoesNotExist
 import os
 from functools import reduce
 from collections import OrderedDict
+from .util import nested_print
 
 
 def e_name(exercise):
@@ -138,3 +142,23 @@ def student_attempts_exercises():
     #        })
 
     return folders
+
+
+def exercise_test(exercise_key):
+    dbexercise = Exercise.objects.get(exercise_key=exercise_key)
+    dbquestions = Question.objects.filter(exercise=dbexercise)
+    xmltree = exercise_xmltree(dbexercise.path)
+    user = User.objects.get(username='tester')
+    results = []
+    for dbquestion in dbquestions:
+        question_key = dbquestion.question_key
+        question_xml = question_xmltree_get(xmltree, question_key)
+        answer = question_xml.find('expression').text.split(';')[0]
+        result = {}
+        try:
+            result = question_check(user, exercise_key, question_key, answer)
+        except Exception as e:
+            result['exception'] = str(e)
+        result.update({'answer': answer, 'exercise': exercise_key})
+        results.append(result)
+    return results

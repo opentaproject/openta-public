@@ -11,12 +11,14 @@ from exercises.modelhelpers import (
     serialize_exercise_with_question_data,
     exercise_folder_structure,
     student_attempts_exercises,
+    exercise_test,
 )
 from exercises.paths import EXERCISES_PATH
 from exercises.util import nested_print
 from django.http import FileResponse, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import permission_required
+from django.template.response import TemplateResponse
 import backend.settings as settings
 import json
 import time
@@ -190,3 +192,20 @@ def answer_image_view(request, image_id):
 @api_view(['GET'])
 def get_student_attempts_per_exercise(request):
     return Response(student_attempts_exercises())
+
+
+@permission_required('exercises.administer_exercise')
+@api_view(['GET'])
+def exercise_test_view(request, exercise):
+    return Response(exercise_test(exercise))
+
+
+@permission_required('exercises.administer_exercise')
+def exercises_test(request):
+    def format_test(exercise_key):
+        return {'exercise': exercise_key, 'questions': exercise_test(exercise_key)}
+
+    exercises = Exercise.objects.all()
+    results = [format_test(exercise.exercise_key) for exercise in exercises]
+    print(results)
+    return TemplateResponse(request, 'exercises_test.html', {'results': results})
