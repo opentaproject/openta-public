@@ -75,11 +75,16 @@ export default class QuestionCompareNumeric extends Component {
   return (
         <div className="uk-container">
           <label className="uk-form-row uk-display-inline-block">{question.get('text','')}</label>
-{ showprevious && (<Badge message={"$" + lastAnswerRendered + "$"} hasMath={true} className="uk-text-small uk-align-right uk-margin-bottom-remove"/>)}
-          <div className="uk-form-icon uk-width-1-1">
+{ showprevious && (<Badge message={lastAnswer} hasMath={false} className="uk-text-small uk-align-right uk-margin-bottom-remove"/>)}
+          <div className="uk-grid uk-grid-small">
+          <div className="uk-form-icon uk-width-5-6">
           { !pending && <i className="uk-icon-pencil"/> }
           { pending && <i className="uk-icon-cog uk-icon-spin"/> }
-            <input className={"uk-width-1-1 "} type="text" value={this.state.value} onChange={this.handleChange} onKeyUp={(event) => { if(event.keyCode === 13)submit(event.target.value) } }></input>
+            <input className={"uk-width-1-1 "} type="text" value={this.state.value} onChange={this.handleChange} ></input>
+          </div>
+          <div className="uk-width-1-10">
+            <a onClick={(event) => submit(this.state.value)} className="uk-button"><i className="uk-icon uk-icon-send"/></a>
+            </div>
           </div>
         { error && <Alert message={error} type="error" key="err"/> }
         { response }
