@@ -176,7 +176,11 @@ class BatchAddUserView(PermissionRequiredMixin, FormView):
                 ]
                 res = {}
                 for item in parsed_row:
-                    res = {**res, **item}
+                    tmp = {}
+                    tmp.update(res)
+                    tmp.update(item)
+                    res = tmp
+                    # res = {**res, **item}
                 users.append(res)
             self.request.session['users'] = users
             return render(self.request, 'batch_add_users.html', {'form': form, 'users': users})
