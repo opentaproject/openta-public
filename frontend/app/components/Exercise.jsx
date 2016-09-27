@@ -59,7 +59,7 @@ class BaseExercise extends Component {
 
   renderFigure = (itemjson, json, meta, exerciseKey) => {
     return (
-              <img style={{maxHeight: '100pt'}} src={'/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/>
+              <a href={'/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')} data-uk-lightbox data-lightbox-type="image"><img style={{maxHeight: '100pt'}} src={'/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/></a>
     );
   }
 

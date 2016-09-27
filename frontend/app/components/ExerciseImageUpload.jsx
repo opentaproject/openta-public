@@ -7,7 +7,7 @@ import {uploadImage, fetchExerciseRemoteState} from '../fetchers.js';
 const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPending, uploadProgress}) => {
   console.dir(imageAnswers.toJS())
   var renderImageAnswers = imageAnswers.map(
-    imageAnswerId => (<img src={"/imageanswerthumb/" + imageAnswerId}/>) );
+    imageAnswerId => (<a href={"/imageanswer/" + imageAnswerId} data-uk-lightbox data-lightbox-type="image"><img src={"/imageanswerthumb/" + imageAnswerId}/></a>) );
   var progress = ( 
         <div className="uk-progress uk-progress-mini uk-display-inline-block uk-margin-remove" style={{width: "100px"}}>
           <div className="uk-progress-bar" style={{width: (uploadProgress*100) + "%"}}></div>
