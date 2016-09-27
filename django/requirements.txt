@@ -1,3 +1,4 @@
+chardet==2.3.0
 Django==1.10
 django-extensions==1.7.4
 django-ratelimit==1.0.0
