@@ -73,7 +73,7 @@ export default class QuestionCompareNumeric extends Component {
     hasChanged = true;
   }
   return (
-        <div className="uk-container">
+        <div className="">
           <label className="uk-form-row uk-display-inline-block">{question.get('text','')}</label>
 { hasChanged && (<Badge message={"previous: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
