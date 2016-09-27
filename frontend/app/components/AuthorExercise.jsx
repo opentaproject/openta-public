@@ -20,6 +20,7 @@ import {
 import {
   saveExercise,
   fetchExercise,
+  fetchExerciseRemoteState,
   fetchSameFolder,
 } from '../fetchers.js';
 
@@ -124,6 +125,7 @@ function handleOptionsSubmit() {
     var folder = getState().get('folder');
     var exercise = getState().get('activeExercise');
     dispatch(fetchExercise(exercise, true));
+    dispatch(fetchExerciseRemoteState(exercise));
     dispatch(fetchSameFolder(exercise, folder));
   }
 }

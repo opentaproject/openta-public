@@ -6,6 +6,7 @@ import Alert from './Alert.jsx';
 import Question from './Question.jsx';
 import Spinner from './Spinner.jsx';
 import immutable from 'immutable';
+import moment from 'moment';
 import ExerciseImageUpload from './ExerciseImageUpload.jsx';
 
 import { 
@@ -32,7 +33,7 @@ class BaseExercise extends Component {
   pendingState: PropTypes.object
 };
 
-  renderQuestion = (itemjson, json, exerciseKey) => {
+  renderQuestion = (itemjson, json, meta, exerciseKey) => {
     var questions = json.getIn(['exercise', 'question'], immutable.List([]));
     var question = itemjson;
     return (
@@ -45,9 +46,9 @@ class BaseExercise extends Component {
     );
   }
 
-  renderExerciseText = (itemjson, json, exerciseKey) => {
+  renderExerciseText = (itemjson, json, meta, exerciseKey) => {
     var children = itemjson.get('$children$', immutable.List([]))
-                    .map(child => this.dispatchElement(child, json, exerciseKey)).toSeq();
+                    .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
     return (
       <div className="uk-clearfix">
       <div className="uk-align-medium-right">{children}</div>
@@ -56,7 +57,7 @@ class BaseExercise extends Component {
     );
   }
 
-  renderFigure = (itemjson, json, exerciseKey) => {
+  renderFigure = (itemjson, json, meta, exerciseKey) => {
     return (
               <img style={{maxHeight: '100pt'}} src={'/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/>
     );
@@ -67,13 +68,20 @@ class BaseExercise extends Component {
     //);
   }
 
-  renderName = (itemjson, json, exerciseKey) => {
+  renderName = (itemjson, json, meta, exerciseKey) => {
+    var deadline_date = meta.get('deadline_date');
+    var deadline_date_format = moment(deadline_date).format('D MMM');
+    
     return (
-          <h1 className="uk-article-title">{itemjson.get('$')}</h1>
+          <div>
+          <h1 className="uk-article-title">{itemjson.get('$')}
+          { deadline_date && <div className="uk-badge uk-badge-warning">Deadline: {deadline_date_format}</div>}
+          </h1>
+          </div>
     );
   }
 
-  dispatchElement = (element, json, exerciseKey) => {
+  dispatchElement = (element, json, meta, exerciseKey) => {
     var itemDispatch = {
       'exercisename': this.renderName,
       'exercisetext': this.renderExerciseText,
@@ -81,7 +89,7 @@ class BaseExercise extends Component {
       'question': this.renderQuestion
     };
     if(element.get('#name') in itemDispatch)
-      return itemDispatch[element.get('#name')](element, json, exerciseKey);
+      return itemDispatch[element.get('#name')](element, json, meta, exerciseKey);
     else
       return (<span/>);
   }
@@ -91,10 +99,12 @@ class BaseExercise extends Component {
     var state = this.props.exerciseState;
     var pendingState = this.props.pendingState;
     var json = state.get('json', immutable.Map({}));
+    var meta = state.get('meta', immutable.Map({}));
+    if(meta === null)meta = immutable.Map({});
     //var figure = json.getIn(['exercise', 'figure', '$']);
     //var questions = json.getIn(['exercise', 'question'], immutable.List([]));
     var items = json.getIn(['exercise','$children$'], immutable.List([]))
-              .map( child => this.dispatchElement(child, json, key) ).toSeq();
+              .map( child => this.dispatchElement(child, json, meta, key) ).toSeq();
     var exerciseDOM = (
         <article className="uk-article uk-margin-top" ref="exercise" key={key}>
         <ExerciseImageUpload/>

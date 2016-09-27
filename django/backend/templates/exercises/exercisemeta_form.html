@@ -40,10 +40,8 @@
       {{ form.deadline_date.errors }}
       <label class="uk-form-label" for={{ form.deadline_date.id_for_label }}>{{ form.deadline_date.label }}</label>
       <div class="uk-form-controls">
-        <div class="uk-form-icon">
           <i class="uk-icon-calendar"></i>
-        {{ form.deadline_date | set_data:"uk-datepicker:{format:'YYYY-MM-DD'}" | add_class:"uk-form-small uk-form-width-small" }}
-        </div>
+        {{ form.deadline_date | set_data:"uk-datepicker:{format:'YYYY-MM-DD'}" | add_class:"uk-form-small " }}
       </div>
     </div>
     <input class="uk-button uk-margin-small-top" type="submit" value="Save" />

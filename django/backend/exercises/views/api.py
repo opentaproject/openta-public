@@ -202,10 +202,14 @@ def exercise_test_view(request, exercise):
 
 @permission_required('exercises.administer_exercise')
 def exercises_test(request):
-    def format_test(exercise_key):
-        return {'exercise': exercise_key, 'questions': exercise_test(exercise_key)}
+    def format_test(exercise):
+        return {
+            'exercise': exercise.exercise_key,
+            'questions': exercise_test(exercise.exercise_key),
+            'exercise_name': exercise.name,
+        }
 
     exercises = Exercise.objects.all()
-    results = [format_test(exercise.exercise_key) for exercise in exercises]
+    results = [format_test(exercise) for exercise in exercises]
     print(results)
     return TemplateResponse(request, 'exercises_test.html', {'results': results})

@@ -269,6 +269,7 @@ export {
   fetchExerciseTree, 
   fetchExerciseXML,
   fetchExercise,
+  fetchExerciseRemoteState,
   saveExercise,
   uploadImage,
   checkQuestion

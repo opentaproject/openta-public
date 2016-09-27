@@ -11,15 +11,7 @@ from django.views.generic.edit import UpdateView
 
 class ExerciseMetaUpdate(UpdateView):
     model = ExerciseMeta
-    fields = [
-        'deadline_date',
-        'pdf_solution',
-        'difficulty',
-        'required',
-        'bonus',
-        'server_reply_time',
-        'image',
-    ]
+    fields = ['deadline_date', 'pdf_solution', 'difficulty', 'required', 'bonus', 'image']
     success_url = '/exercisemeta/{id}'  # reverse_lazy('exercise-meta-update')
 
 

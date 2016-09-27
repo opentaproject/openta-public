@@ -205,10 +205,15 @@ class ExerciseMeta(models.Model):  # {{{
     DIFFICULTIES = ((1, 'Easy'), (2, 'Medium'), (3, 'Hard'))
     exercise = models.OneToOneField(Exercise, related_name='meta')
     exercise_key = models.CharField(max_length=255, default='')
-    deadline_date = models.DateTimeField(default=None, null=True, blank=True)
+    deadline_date = models.DateField(default=None, null=True, blank=True)
     pdf_solution = models.BooleanField(default=False)
     difficulty = models.IntegerField(null=True, blank=True, choices=DIFFICULTIES, default=None)
     required = models.BooleanField(default=False)
     image = models.BooleanField(default=False)
     bonus = models.BooleanField(default=False)
-    server_reply_time = models.DurationField(default=None, null=True, blank=True)  # }}}
+    server_reply_time = models.DurationField(default=None, null=True, blank=True)
+
+    def __str__(self):
+        return self.exercise.name
+
+    # }}}

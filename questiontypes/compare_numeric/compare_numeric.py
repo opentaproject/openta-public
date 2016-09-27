@@ -82,8 +82,8 @@ def compare_numeric(variables, expression1, expression2):
                 )
     except SympifyError as e:
         # print("SympifyError")
-        # print(e)
-        # print(traceback.format_exc())
+        print(e)
+        print(traceback.format_exc())
         response['error'] = "Failed to evaluate expression"
         # pass
     return response

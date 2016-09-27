@@ -159,6 +159,6 @@ def exercise_test(exercise_key):
             result = question_check(user, exercise_key, question_key, answer)
         except Exception as e:
             result['exception'] = str(e)
-        result.update({'answer': answer, 'exercise': exercise_key})
+        result.update({'answer': answer})
         results.append(result)
     return results

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block content %}
+
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center">
+  Results
+  <div class="uk-grid uk-width-1-2 uk-container-center">
+  {% for result in results %}
+  <div class="uk-panel uk-panel-box uk-width-1-2">
+    <p>{{ result.exercise_name }}</p>
+    <div class="uk-container">
+      {% for question in result.questions %}
+      <div class="uk-alert {{ question.correct|yesno:"uk-alert-success,uk-alert-danger," }}">{{ question.answer }}</div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+  </div>
+</div>
+</div>
+
+{% endblock %}
