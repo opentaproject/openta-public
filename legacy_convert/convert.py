@@ -1,5 +1,9 @@
+"""
+Convert legacy problem.xml to new exercise.xml
+"""
+import sys
+import os
 from lxml import etree
-import sys, os
 
 
 def get_xmltree(path):
@@ -40,9 +44,15 @@ def convert(exercise_path):
     out = etree.Element('exercise')
     out_tree = etree.ElementTree(out)
 
-    newname = add_converted_text(problem, out, "name", "exercisename")
-    newname.text = newname.text.replace('Dynamics ', '')
-    newname.text = newname.text.replace('Statics ', '')
+    nametag = None
+    if problem.find("name") is not None:
+        nametag = "name"
+    if problem.find("name7") is not None:
+        nametag = "name7"
+    if nametag:
+        newname = add_converted_text(problem, out, nametag, "exercisename")
+        newname.text = newname.text.replace('Dynamics ', '')
+        newname.text = newname.text.replace('Statics ', '')
 
     problemtext = problem.xpath("/problem/question/text/text()")
     if problemtext:
@@ -76,7 +86,11 @@ def convert_recursive(path):
                 fullpath = os.path.join(root, filename)
                 newpath = os.path.join(root, 'exercise.xml')
                 with open(newpath, 'w') as f:
-                    f.write(convert(fullpath))
+                    try:
+                        f.write(convert(fullpath))
+                    except Exception as e:
+                        print(e)
+                        print(fullpath)
 
 
 def main(files):

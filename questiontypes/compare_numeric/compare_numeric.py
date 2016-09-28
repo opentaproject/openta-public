@@ -8,7 +8,7 @@ import traceback
 meter, second, kg = sympy.symbols('meter,second,kg')
 uniteval = {meter: 1, second: 1, kg: 1}
 
-_newclash = _clash.update({'pi': sympy.pi})
+_newclash = _clash.update({'pi': sympy.pi, 'ff': sympy.Symbol('ff'), 'FF': sympy.Symbol('FF')})
 
 
 def asciiToSympy(expression):
@@ -18,6 +18,7 @@ def asciiToSympy(expression):
     result = re.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)])", r"\1)*(\2", result)
     for old, new in dict.items():
         result = result.replace(old, new)
+    print([result, expression])
     return result
 
 
