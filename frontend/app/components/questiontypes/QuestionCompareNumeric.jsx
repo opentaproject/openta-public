@@ -62,7 +62,7 @@ export default class QuestionCompareNumeric extends Component {
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
   var response = "";
-  var showprevious = false;
+  var hasChanged = false;
   if(this.state.value === lastAnswer && lastAnswer !== '') {
     if(correct)
        response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " is correct!"} type="success" key="input" hasMath={true}/>);
@@ -70,12 +70,12 @@ export default class QuestionCompareNumeric extends Component {
       response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" + " is incorrect"} type="warning" key="input" hasMath={true}/>);
   } else if(this.state.value !== ''){
     response = (<Alert message={"$" + this.renderAsciiMath(this.state.value) + "$" } hasMath={true} key="input"/>);
-    showprevious = true;
+    hasChanged = true;
   }
   return (
         <div className="uk-container">
           <label className="uk-form-row uk-display-inline-block">{question.get('text','')}</label>
-{ showprevious && (<Badge message={lastAnswer} hasMath={false} className="uk-text-small uk-align-right uk-margin-bottom-remove"/>)}
+{ hasChanged && (<Badge message={"previous: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-form-icon uk-width-5-6">
           { !pending && <i className="uk-icon-pencil"/> }
@@ -83,7 +83,7 @@ export default class QuestionCompareNumeric extends Component {
             <input className={"uk-width-1-1 "} type="text" value={this.state.value} onChange={this.handleChange} ></input>
           </div>
           <div className="uk-width-1-10">
-            <a onClick={(event) => submit(this.state.value)} className="uk-button"><i className="uk-icon uk-icon-send"/></a>
+            <a onClick={(event) => submit(this.state.value)} className={ "uk-button " + (hasChanged ? "uk-button-success" : "")}><i className="uk-icon uk-icon-send"/></a>
             </div>
           </div>
         { error && <Alert message={error} type="error" key="err"/> }
