@@ -1,12 +1,15 @@
 chardet==2.3.0
 Django==1.10
+django-appconf==1.0.2
 django-extensions==1.7.4
+django-imagekit==3.3
 django-ratelimit==1.0.0
 django-widget-tweaks==1.4.1
 djangorestframework==3.4.4
 httpie==0.9.6
 lxml==3.6.4
 mpmath==0.19
+pilkit==1.1.13
 Pillow==3.3.1
 pydotplus==2.0.2
 Pygments==2.1.3

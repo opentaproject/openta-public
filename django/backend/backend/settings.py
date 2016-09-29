@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'course.apps.CourseConfig',
     'widget_tweaks',
     'django_extensions',
+    'imagekit',
 ]
 
 MIDDLEWARE = [

@@ -15,6 +15,8 @@ from exercises.parsing import (
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
 from exercises.util import deep_get, nested_print
 from functools import partial
 from datetime import timedelta
@@ -196,6 +198,9 @@ class ImageAnswer(models.Model):  # {{{
     exercise_key = models.CharField(max_length=255, default='')
     date = models.DateTimeField(default=now)
     image = models.ImageField(upload_to=answer_image_filename)
+    image_thumb = ImageSpecField(
+        source='image', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60}
+    )
 
     def __str__(self):
         return self.user.username + " image for " + self.exercise.name  # }}}

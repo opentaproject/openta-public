@@ -20,11 +20,13 @@ urlpatterns = [
     url(r'^exercise/(?P<exercise>[\w\.-]+)/save$', views.exercise_save),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/imageupload$', views.upload_answer_image),
     url(r'^imageanswer/(?P<image_id>[0-9]+)$', views.answer_image_view),
+    url(r'^imageanswerthumb/(?P<image_id>[0-9]+)$', views.answer_image_thumb_view),
     url(
         r'^exercise/(?P<exercise>[\w\.-]+)/question/(?P<question>[\w]+)/latest$',
         views.question_last_answer,
     ),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/editmeta', views.ExerciseMetaUpdateView),
+    url(r'^exercise/(?P<exercise>[\w\.-]+)/imageanswers', views.image_answers_get),
     url(
         r'^exercisemeta/(?P<pk>[0-9]+)$',
         views.ExerciseMetaUpdate.as_view(),

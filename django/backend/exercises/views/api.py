@@ -188,6 +188,24 @@ def answer_image_view(request, image_id):
         return Response("invalid answer image id", status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
+@api_view(['GET'])
+def answer_image_thumb_view(request, image_id):
+    try:
+        image_answer = ImageAnswer.objects.get(pk=image_id)
+        print(image_answer.image.name)
+        if image_answer.user == request.user or request.user.is_staff:
+            return serve_file(
+                '/CACHE/' + image_answer.image.name,
+                os.path.basename(image_answer.image.name),
+                content_type="image/jpeg",
+                dev_path='media/' + image_answer.image_thumb.url,
+            )
+        else:
+            return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except ObjectDoesNotExist:
+        return Response("invalid answer image id", status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 @permission_required('exercises.administer_exercise')
 @api_view(['GET'])
 def get_student_attempts_per_exercise(request):
@@ -213,3 +231,12 @@ def exercises_test(request):
     results = [format_test(exercise) for exercise in exercises]
     print(results)
     return TemplateResponse(request, 'exercises_test.html', {'results': results})
+
+
+@api_view(['GET'])
+def image_answers_get(request, exercise):
+    image_answers = ImageAnswer.objects.filter(user=request.user, exercise__exercise_key=exercise)
+    print(image_answers)
+    for image_answer in image_answers:
+        pass
+    return Response({})
