@@ -232,10 +232,10 @@ function checkQuestion(exerciseKey, questionKey, answerData) {
 
 function uploadProgress(dispatch, evt, exerciseKey) {
   if(evt.loaded && evt.total && evt.total > 0) {
-    dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], evt.loaded / evt.total));
+    return dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], evt.loaded / evt.total));
   }
   else if(evt.position && evt.totalSize && evt.totalSize > 0) {
-    dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], evt.position / evt.totalSize));
+    return dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], evt.position / evt.totalSize));
   }
 }
 
@@ -256,6 +256,7 @@ function uploadImage(exerciseKey, file) {
         console.dir(xhr.responseText);
         dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageuploadpending'], false));
         dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], 1.0));
+        dispatch(fetchExerciseRemoteState(exerciseKey));
       }
       xhr.send(fd);
       dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageuploadpending'], true));

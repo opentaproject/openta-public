@@ -61,11 +61,6 @@ class BaseExercise extends Component {
     return (
               <img style={{maxHeight: '100pt'}} src={'/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/>
     );
-    //return (
-    //        <div className="uk-align-medium-right">
-    //          <img style={{maxHeight: '100pt'}} src={'/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/>
-    //        </div>
-    //);
   }
 
   renderName = (itemjson, json, meta, exerciseKey) => {
@@ -101,40 +96,14 @@ class BaseExercise extends Component {
     var json = state.get('json', immutable.Map({}));
     var meta = state.get('meta', immutable.Map({}));
     if(meta === null)meta = immutable.Map({});
-    //var figure = json.getIn(['exercise', 'figure', '$']);
-    //var questions = json.getIn(['exercise', 'question'], immutable.List([]));
     var items = json.getIn(['exercise','$children$'], immutable.List([]))
               .map( child => this.dispatchElement(child, json, meta, key) ).toSeq();
     var exerciseDOM = (
         <article className="uk-article uk-margin-top" ref="exercise" key={key}>
-        <ExerciseImageUpload/>
+        { meta.get('image', false) && <ExerciseImageUpload/> }
           {items}
         </article>
     );
-//    var questionsDOMArray = questions.map( question => (
-//          <div>
-//          { questions.filter( q => q.getIn(['@attr','key']) == question.getIn(['@attr','key']) ).count() > 1 && this.props.admin && <Alert message="Duplicate question keys! (If you copied a question please change the key attribute)" type="error"/> } 
-//          <form key={question.getIn(['@attr','key'])} className="uk-form" onSubmit={(event) => event.preventDefault()}>
-//            <Question exerciseKey={key} questionKey={question.getIn(['@attr','key'])}/>
-//          </form>
-//          </div>
-//    ));
-//
-//    var exerciseDOM = (
-//        <article className="uk-article uk-margin-top" ref="exercise" key={key}>
-//          <div className="uk-grid">
-//          <h1 className="uk-article-title">{json.getIn(['exercise','exercisename','$'])}</h1>
-//          </div>
-//          <div className="uk-clearfix">
-//            <div className="uk-align-medium-right">
-//            { figure && <img style={{maxHeight: '100pt'}} src={'/exercise/' + key + '/asset/' + figure} alt=""/> }
-//            </div>
-//            <span dangerouslySetInnerHTML={{__html: json.getIn(['exercise','exercisetext','$'])}} />
-//          </div>
-//          { /* <hr className="uk-article-divider"/> */ }
-//          { questionsDOMArray }
-//        </article>
-//    );
 
     if(pendingState.getIn(['exercises', key, 'loadingJSON'], false)) {
       return (<Spinner/>);
@@ -154,7 +123,6 @@ class BaseExercise extends Component {
 }
 
 const mapStateToProps = state => {
-  //var activeExerciseState = _.get(state.exerciseState, state.activeExercise, {});
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
   return (
   {

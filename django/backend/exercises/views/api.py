@@ -196,9 +196,8 @@ def answer_image_thumb_view(request, image_id):
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
         if image_answer.user == request.user or request.user.is_staff:
-            logger.info(image_answer.image_thumb.url)
             return serve_file(
-                '/CACHE/' + image_answer.image.name,
+                '/' + image_answer.image_thumb.url,
                 os.path.basename(image_answer.image.name),
                 content_type="image/jpeg",
                 dev_path='media/' + image_answer.image_thumb.url,
@@ -239,7 +238,5 @@ def exercises_test(request):
 @api_view(['GET'])
 def image_answers_get(request, exercise):
     image_answers = ImageAnswer.objects.filter(user=request.user, exercise__exercise_key=exercise)
-    print(image_answers)
-    for image_answer in image_answers:
-        pass
-    return Response({})
+    image_answers_id_list = [image_answer.pk for image_answer in image_answers]
+    return Response(image_answers_id_list)

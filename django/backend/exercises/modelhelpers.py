@@ -1,4 +1,4 @@
-from exercises.models import Exercise, ExerciseMeta, Question, Answer
+from exercises.models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer
 from exercises.parsing import exercise_xmltree, question_xmltree_get
 from exercises.question import question_check
 from django.contrib.auth.models import User
@@ -42,7 +42,7 @@ def folder_structure(exercise_data_func_list):
             else:
                 traverse['folders'][folder] = {'content': {}}
     ordered_folders = OrderedDict(sorted(folders.items(), key=lambda t: t[0]))
-    print(ordered_folders)
+    # print(ordered_folders)
     for exercise in exercises:
 
         def reduce_data_func(prev, next):
@@ -76,16 +76,16 @@ def exercise_folder_structure(manager, user):
         # If this becomes a speed issue this should be done by getting all the answers and then populating the tree
         allcorrect = True
         questions = Question.objects.filter(exercise=exercise)
-        print("Exercise: " + str(exercise) + " " + str(questions.count()))
+        # print("Exercise: " + str(exercise) + " " + str(questions.count()))
         for question in questions:
             try:
                 answer = Answer.objects.filter(user=user, question=question).latest('date')
-                print("dbcorrect: " + str(answer.correct))
+                # print("dbcorrect: " + str(answer.correct))
                 if not answer.correct:
                     allcorrect = False
             except ObjectDoesNotExist:
                 allcorrect = False
-            print(allcorrect)
+            # print(allcorrect)
         paths = list(filter(lambda x: x != '', exercise.path.split('/')[1:-1]))
         root = reduce(lambda a, b: a['folders'].get(b)['content'], paths, folders)
         if 'exercises' not in root:
@@ -117,6 +117,9 @@ def serialize_exercise_with_question_data(exercise, user):
     #    data['meta'] = metaser.data
     # except ObjectDoesNotExist:
     #    pass
+    image_answers = ImageAnswer.objects.filter(user=user, exercise=exercise)
+    image_answers_ids = [image_answer.pk for image_answer in image_answers]
+    data['image_answers'] = image_answers_ids
     for question in questions:
         try:
             dbanswer = Answer.objects.filter(user=user, question=question).latest('date')
