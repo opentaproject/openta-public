@@ -154,13 +154,14 @@ LOGGING = {
         'simple': {'format': '%(levelname)s %(message)s'},
     },
     'handlers': {
+        'stderr': {'level': 'DEBUG', 'class': 'logging.StreamHandler', 'formatter': 'middle'},
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': 'logfile',
             'formatter': 'middle',
-        }
+        },
     },
-    'root': {'handlers': ['file'], 'level': 'DEBUG'},
-    'loggers': {'django': {'handlers': ['file'], 'level': 'ERROR', 'propagate': True}},
+    'root': {'handlers': ['file', 'stderr'], 'level': 'DEBUG'},
+    'loggers': {'django': {'handlers': ['file', 'stderr'], 'level': 'ERROR', 'propagate': True}},
 }
