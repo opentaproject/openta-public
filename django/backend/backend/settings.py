@@ -140,3 +140,27 @@ if RUNNING_DEVSERVER:
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 25
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'middle': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(filename)s %(funcName)s [%(message)s]'
+        },
+        'simple': {'format': '%(levelname)s %(message)s'},
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'logfile',
+            'formatter': 'middle',
+        }
+    },
+    'root': {'handlers': ['file'], 'level': 'DEBUG'},
+    'loggers': {'django': {'handlers': ['file'], 'level': 'ERROR', 'propagate': True}},
+}

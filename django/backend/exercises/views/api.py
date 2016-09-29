@@ -19,6 +19,7 @@ from django.http import FileResponse, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import permission_required
 from django.template.response import TemplateResponse
+import logging
 import backend.settings as settings
 import json
 import time
@@ -29,6 +30,8 @@ import os
 
 sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + '/../../../../questiontypes'))
 import question_types
+
+logger = logging.getLogger(__name__)
 
 
 @permission_required('exercises.reload_exercise')
@@ -192,8 +195,8 @@ def answer_image_view(request, image_id):
 def answer_image_thumb_view(request, image_id):
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
-        print(image_answer.image.name)
         if image_answer.user == request.user or request.user.is_staff:
+            logger.info(image_answer.image_thumb.url)
             return serve_file(
                 '/CACHE/' + image_answer.image.name,
                 os.path.basename(image_answer.image.name),
