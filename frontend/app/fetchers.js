@@ -263,6 +263,15 @@ function uploadImage(exerciseKey, file) {
     }
 } 
 
+function deleteImageAnswer(imageAnswerId) {
+  return dispatch => {
+    var fetchconfig = {
+      method: "POST"
+    }
+    return jsonfetch('/imageanswer/' + imageAnswerId + '/delete', fetchconfig)
+  }
+}
+
 export {
   fetchLoginStatus,
   fetchExercises, 
@@ -271,7 +280,9 @@ export {
   fetchExerciseXML,
   fetchExercise,
   fetchExerciseRemoteState,
+  updatePendingStateIn,
   saveExercise,
   uploadImage,
+  deleteImageAnswer,
   checkQuestion
 };

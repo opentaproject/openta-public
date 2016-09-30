@@ -2,12 +2,32 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import immutable from 'immutable';
 import Spinner from './Spinner.jsx';
-import {uploadImage, fetchExerciseRemoteState} from '../fetchers.js';
+import Badge from './Badge.jsx';
+import {
+  uploadImage, 
+  fetchExerciseRemoteState,
+  updatePendingStateIn,
+  deleteImageAnswer
+} from '../fetchers.js';
 
-const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPending, uploadProgress}) => {
+const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPending, uploadProgress, onImageAnswerDelete, imageAnswerDeletePending}) => {
   console.dir(imageAnswers.toJS())
+  console.dir(imageAnswerDeletePending.toJS())
   var renderImageAnswers = imageAnswers.map(
-    imageAnswerId => (<a href={"/imageanswer/" + imageAnswerId} data-uk-lightbox data-lightbox-type="image"><img src={"/imageanswerthumb/" + imageAnswerId}/></a>) );
+    imageAnswerId => (
+      <div className="exercise-thumb-wrap">
+      <a href={"/imageanswer/" + imageAnswerId} data-uk-lightbox data-lightbox-type="image">
+      <img src={"/imageanswerthumb/" + imageAnswerId}/>
+      </a>
+      <div className="exercise-thumb-badge">
+        <a onClick={() => onImageAnswerDelete(imageAnswerId)}><Badge className="uk-badge-notification uk-badge-danger">
+        { !imageAnswerDeletePending.get(imageAnswerId, false) && <i className="uk-icon uk-icon-close"/> }
+        { imageAnswerDeletePending.get(imageAnswerId, false) && <Spinner/> }
+        </Badge></a>
+      </div>
+      </div>
+    )
+  );
   var progress = ( 
         <div className="uk-progress uk-progress-mini uk-display-inline-block uk-margin-remove" style={{width: "100px"}}>
           <div className="uk-progress-bar" style={{width: (uploadProgress*100) + "%"}}></div>
@@ -29,6 +49,18 @@ const handleUpload = (dispatch, event, exerciseKey) => {
   dispatch(uploadImage(exerciseKey, file));
 }
 
+const handleImageAnswerDelete = (imageAnswerId) => 
+  (dispatch, getState) => {
+    var state = getState();
+    var exerciseKey = state.get('activeExercise');
+    dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageanswerdelete', imageAnswerId], true));
+    dispatch(deleteImageAnswer(imageAnswerId))
+      .then( () => 
+          dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageanswerdelete', imageAnswerId], false))
+           )
+      .catch( err => console.dir(err) )
+  }
+
 const mapStateToProps = state => {
   var key = state.get('activeExercise');
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
@@ -37,13 +69,15 @@ const mapStateToProps = state => {
     uploadPending: state.getIn(['pendingState', 'exercises', key, 'imageuploadpending']),
     uploadProgress: state.getIn(['pendingState', 'exercises', key, 'imageupload']),
     exerciseKey: key,
-    imageAnswers: activeExerciseState.get('image_answers')
+    imageAnswers: activeExerciseState.get('image_answers'),
+    imageAnswerDeletePending: state.getIn(['pendingState', 'exercises', key, 'imageanswerdelete'], immutable.Map({})),
   };
 }
 
 const mapDispatchToProps = dispatch => {
   return {
-    onUpload: (event, exerciseKey) => handleUpload(dispatch, event, exerciseKey)
+    onUpload: (event, exerciseKey) => handleUpload(dispatch, event, exerciseKey),
+    onImageAnswerDelete: (imageAnswerId) => dispatch(handleImageAnswerDelete(imageAnswerId))
   };
 }
 

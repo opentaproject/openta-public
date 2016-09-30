@@ -77,10 +77,12 @@ export default class QuestionCompareNumeric extends Component {
           <label className="uk-form-row uk-display-inline-block">{question.get('text','')}</label>
 { hasChanged && (<Badge message={"previous: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
-          <div className="uk-form-icon uk-width-5-6">
+          <div className="uk-width-5-6">
+          <div className="uk-form-icon uk-width-1-1">
           { !pending && <i className="uk-icon-pencil"/> }
           { pending && <i className="uk-icon-cog uk-icon-spin"/> }
             <input className={"uk-width-1-1 "} type="text" value={this.state.value} onChange={this.handleChange} ></input>
+          </div>
           </div>
           <div className="uk-width-1-10">
             <a onClick={(event) => submit(this.state.value)} className={ "uk-button " + (hasChanged ? "uk-button-success" : "")}><i className="uk-icon uk-icon-send"/></a>

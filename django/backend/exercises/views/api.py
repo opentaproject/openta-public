@@ -240,3 +240,19 @@ def image_answers_get(request, exercise):
     image_answers = ImageAnswer.objects.filter(user=request.user, exercise__exercise_key=exercise)
     image_answers_id_list = [image_answer.pk for image_answer in image_answers]
     return Response(image_answers_id_list)
+
+
+@api_view(['POST'])
+def image_answer_delete(request, pk):
+    try:
+        image_answer = ImageAnswer.objects.get(pk=pk)
+    except ObjectDoesNotExist:
+        return Response(
+            {'deleted': 0, 'error': 'Id not found'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    if not request.user == image_answer.user and not request.user.is_staff:
+        return Response({'deleted': 0, 'error': 'Permission denied'})
+    # deleted, deltype = image_answer.delete()
+    deleted = 1
+    time.sleep(3)
+    return Response({'deleted': deleted})
