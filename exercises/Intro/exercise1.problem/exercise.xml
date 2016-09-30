@@ -6,7 +6,7 @@
   </exercisetext>
 <question key="q1" type="compareNumeric">
   <variables>
-    m=3; v=7; h=11; g = 13;
+    m=1; v=7; h=1; g = 1;
   </variables>
   <text>
     What the total mechanical energy of the particle?
@@ -17,7 +17,7 @@
 </question>
   <question key="q2" type="compareNumeric">
   <variables>
-    m=3; v=7; h=11; g = 13;
+    m=1; v=1; h=11; g = 13;
   </variables>
   <text>
     What the total mechanical energy of the particle?

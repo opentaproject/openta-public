@@ -4,6 +4,7 @@ import json
 import re
 from sympy.core.sympify import SympifyError
 import traceback
+import random
 
 meter, second, kg = sympy.symbols('meter,second,kg')
 uniteval = {meter: 1, second: 1, kg: 1}
@@ -50,12 +51,21 @@ def evaluate(variables, expression):
 
 def compare_numeric(variables, expression1, expression2):
     # Do some initial formatting
+    number_of_points = 10
     response = {}
     try:
         sexpression1 = asciiToSympy(expression1)
         sexpression2 = asciiToSympy(expression2)
         # Parse variables into substitution dictionary
         varsubs = parse_variables(variables)
+        neighbours = []
+        random.seed(1)
+        for i in range(0, number_of_points):
+            neighbour = {}
+            for var, value in varsubs.items():
+                neighbour[var] = value + random.random() * value * 0.1
+            neighbours.append(neighbour)
+
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
         sympy1 = sympy.sympify(sexpression1, _clash)
         sympy2 = sympy.sympify(sexpression2, _clash)
@@ -65,8 +75,13 @@ def compare_numeric(variables, expression1, expression2):
         symbolic = sympy.simplify(sympy1 - sympy2)
         response['symbolic_difference'] = str(symbolic)
         if diff.is_constant():
-            value = float(diff)
-            if value < 1e-10:
+            diffs = []
+            for point in neighbours:
+                nvalue1 = sympy1.subs(point).subs(uniteval).evalf()
+                nvalue2 = sympy2.subs(point).subs(uniteval).evalf()
+                ndiff = sympy.Abs(nvalue2 - nvalue1)
+                diffs.append(float(ndiff) < 1e-10)
+            if diffs.count(True) >= number_of_points * 0.8:
                 response['correct'] = True
             else:
                 response['correct'] = False
