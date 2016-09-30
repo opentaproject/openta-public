@@ -84,8 +84,8 @@ export default class QuestionCompareNumeric extends Component {
             <input className={"uk-width-1-1 "} type="text" value={this.state.value} onChange={this.handleChange} ></input>
           </div>
           </div>
-          <div className="uk-width-1-10">
-            <a onClick={(event) => submit(this.state.value)} className={ "uk-button " + (hasChanged ? "uk-button-success" : "")}><i className="uk-icon uk-icon-send"/></a>
+          <div className="uk-width-1-6">
+            <a onClick={(event) => submit(this.state.value)} className={ "uk-width-1-1 uk-button " + (hasChanged ? "uk-button-success" : "")}><i className="uk-icon uk-icon-send"/></a>
             </div>
           </div>
         { error && <Alert message={error} type="error" key="err"/> }

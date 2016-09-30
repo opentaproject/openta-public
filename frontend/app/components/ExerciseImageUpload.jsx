@@ -7,12 +7,11 @@ import {
   uploadImage, 
   fetchExerciseRemoteState,
   updatePendingStateIn,
-  deleteImageAnswer
+  deleteImageAnswer,
+  fetchImageAnswers
 } from '../fetchers.js';
 
 const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPending, uploadProgress, onImageAnswerDelete, imageAnswerDeletePending}) => {
-  console.dir(imageAnswers.toJS())
-  console.dir(imageAnswerDeletePending.toJS())
   var renderImageAnswers = imageAnswers.map(
     imageAnswerId => (
       <div className="exercise-thumb-wrap">
@@ -55,8 +54,10 @@ const handleImageAnswerDelete = (imageAnswerId) =>
     var exerciseKey = state.get('activeExercise');
     dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageanswerdelete', imageAnswerId], true));
     dispatch(deleteImageAnswer(imageAnswerId))
-      .then( () => 
-          dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageanswerdelete', imageAnswerId], false))
+      .then( () => { 
+          dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageanswerdelete', imageAnswerId], false));
+          dispatch(fetchImageAnswers(exerciseKey));
+      }
            )
       .catch( err => console.dir(err) )
   }

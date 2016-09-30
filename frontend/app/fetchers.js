@@ -14,7 +14,8 @@ import {
   setSavePendingState,
   setResetPendingState,
   setSaveError,
-  setExerciseModifiedState
+  setExerciseModifiedState,
+  setImageAnswers,
 } from './actions.js';
 import {logImmutable} from 'immutablehelpers.js'
 import {getcookie} from 'cookies.js'
@@ -272,6 +273,15 @@ function deleteImageAnswer(imageAnswerId) {
   }
 }
 
+function fetchImageAnswers(exerciseKey) {
+  return dispatch => {
+    return jsonfetch('/exercise/' + exerciseKey + '/imageanswers')
+      .then( res => res.json() )
+      .then( json => dispatch(setImageAnswers(exerciseKey, json)) )
+      .catch( err => console.dir(err) )
+  }
+}
+
 export {
   fetchLoginStatus,
   fetchExercises, 
@@ -284,5 +294,6 @@ export {
   saveExercise,
   uploadImage,
   deleteImageAnswer,
+  fetchImageAnswers,
   checkQuestion
 };

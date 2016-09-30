@@ -120,7 +120,7 @@ function updatePendingStateIn(path, pending) {//{{{
   }
 }//}}}
 
-function updateActiveAdminTool(tool) {
+function updateActiveAdminTool(tool) {//{{{
   /*
    * Values: xml-editor, options
    */
@@ -128,6 +128,14 @@ function updateActiveAdminTool(tool) {
     type: 'UPDATE_ACTIVE_ADMIN_TOOL',
     tool: tool
   }
+}//}}}
+
+function setImageAnswers(exercise, imageAnswers) {
+  return {
+    type: 'SET_IMAGE_ANSWERS',
+    exercise: exercise,
+    imageAnswers: imageAnswers
+  }
 }
 
-export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool}
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers}

@@ -252,7 +252,5 @@ def image_answer_delete(request, pk):
         )
     if not request.user == image_answer.user and not request.user.is_staff:
         return Response({'deleted': 0, 'error': 'Permission denied'})
-    # deleted, deltype = image_answer.delete()
-    deleted = 1
-    time.sleep(3)
+    deleted, deltype = image_answer.delete()
     return Response({'deleted': deleted})

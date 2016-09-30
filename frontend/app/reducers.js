@@ -47,7 +47,8 @@ export default (state = defaultState, action) => {
       return state.mergeDeepIn(['pendingState'], action.pendingstate);
     case 'UPDATE_ACTIVE_ADMIN_TOOL':
       return state.set('activeAdminTool', action.tool);
-
+    case 'SET_IMAGE_ANSWERS':
+      return state.setIn(['exerciseState', action.exercise, 'image_answers'], immutable.fromJS(action.imageAnswers));
     default:
       return state
   }
