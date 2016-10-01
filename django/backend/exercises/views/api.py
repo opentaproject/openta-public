@@ -81,13 +81,15 @@ def other_exercises_from_folder(request, exercise):  # {{{
 def exercise_json(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
-        exercisejson = parsing.exercise_json(dbexercise.path)
+        hide_answers = not request.user.has_perm("exercises.access_answers")
+        exercisejson = parsing.exercise_json(dbexercise.path, hide_answers=hide_answers)
         # questions = deep_get(exercisejson, 'exercise', 'question')
         return Response(exercisejson)
     except parsing.ExerciseParseError as e:
         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}
 
 
+@permission_required('exercises.edit_exercises')
 @api_view(['GET'])
 def exercise_xml(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)

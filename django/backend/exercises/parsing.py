@@ -51,12 +51,18 @@ def exercise_key_get_or_create(path):
         return key
 
 
-def exercise_json(path):  # {{{
+def exercise_json(path, hide_answers=False):  # {{{
     xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
     obj = {}
     try:
-        obj = bf.data(fromstring(xml))
+        root = fromstring(xml)
+        if hide_answers:
+            questions = root.findall('./question/expression/..')
+            for question in questions:
+                expression = question.find('expression')
+                question.remove(expression)
+        obj = bf.data(root)
     except ParseError as e:
         raise ExerciseParseError(e)
     questions = deep_get(obj, 'exercise', 'question')
