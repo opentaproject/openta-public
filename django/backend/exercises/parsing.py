@@ -3,7 +3,7 @@ from xml.etree.ElementTree import fromstring, ParseError
 from lxml import etree
 from exercises.paths import EXERCISES_PATH
 from exercises.util import deep_get, nested_print
-from functools import reduce
+from functools import reduce, lru_cache
 import os.path
 import uuid
 
@@ -51,6 +51,7 @@ def exercise_key_get_or_create(path):
         return key
 
 
+@lru_cache(maxsize=128)
 def exercise_json(path, hide_answers=False):  # {{{
     xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
@@ -77,6 +78,7 @@ def exercise_validate_and_json(path):
     return exercise_json(path)
 
 
+@lru_cache(maxsize=128)
 def exercise_xml(path):  # {{{
     xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
@@ -102,6 +104,7 @@ def question_validate_xmltree(question):
     return True
 
 
+@lru_cache(maxsize=128)
 def exercise_xmltree(exercise_path):
     xmlfile = EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise_path)
     parser = etree.XMLParser(remove_blank_text=True)
@@ -146,3 +149,9 @@ def question_json_get(exercise_path, question_key):
         return found[0]
     else:
         return "{}"
+
+
+def invalidate_caches():
+    exercise_json.cache_clear()
+    exercise_xml.cache_clear()
+    exercise_xmltree.cache_clear()

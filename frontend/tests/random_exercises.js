@@ -3,23 +3,24 @@ module.exports = {
     browser
       .url('http://localhost:8000')
       .waitForElementVisible('body', 1000)
-      .setValue('input[id=id_username]', 'teacher')
+      .setValue('input[id=id_username]', 'student')
       .setValue('input[id=id_password]', 'learning')
       .waitForElementVisible('input[type=submit]', 1000)
       .click('input[type=submit]')
       .pause(1000)
-      .assert.containsText('#login', 'teacher')
+      .assert.containsText('#login', 'student')
   },
 
-  'Open exercise': function(browser) {
-    browser
-      .waitForElementVisible('li#d8128074-9fb7-4aeb-b90c-61cd2d21dc7a', 1000)
-      .click('li#d8128074-9fb7-4aeb-b90c-61cd2d21dc7a')
-      .waitForElementVisible('h1.uk-article-title', 1000)
-      .verify.containsText('h1.uk-article-title', '2/126')
+  'Open random exercise': function(browser) {
+    var page = browser.page.main();
+    for(var i = 0; i < 10; i++) {
+      page.selectRandomExercise();
+      page.backToCourse();
+    }
+    browser.end()
   },
 
-  'Try answer': function(browser) {
+  'Try answer': '' + function(browser) {
       browser
       .waitForElementVisible('input[type=text]', 1000)
       .clearValue('input[type=text]')
@@ -32,11 +33,4 @@ module.exports = {
       .assert.containsText('div.uk-alert-success', 'is correct')
   },
 
-  'Back to course view': function(browser) {
-    browser
-    .click('ul.exercise-menu > li.uk-nav-header > a')
-    .waitForElementPresent('ul.uk-thumbnav', 1000)
-    .assert.containsText('#main', 'Dynamics v1 a')
-    .end()
-  }
 }

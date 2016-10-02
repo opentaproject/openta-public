@@ -28,7 +28,7 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
       exercises = Object.keys(folder.exercises).sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name ).map( exercise => {
         var meta = folder.exercises[exercise].meta;
         return (
-        <li key={exercise} id={exercise}>
+        <li key={exercise} id={exercise} className="course-exercise-item">
           <a className="uk-thumbnail" onClick={(ev) => onExerciseClick(exercise, foldername)}>
           <div className="exercise-thumb-wrap">
             <img className="exercise-thumb-nav" src={"/exercise/" + exercise + "/asset/thumbnail.png"}/>

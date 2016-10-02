@@ -104,6 +104,7 @@ def exercise_save(request, exercise):  # {{{
     try:
         result = parsing.exercise_save(dbexercise.path, request.data['xml'])
         Exercise.objects.add_exercise(dbexercise.path)
+        parsing.invalidate_caches()
         return Response(result)
     except parsing.ExerciseParseError as e:
         result = {'success': True, 'error': str(e)}
