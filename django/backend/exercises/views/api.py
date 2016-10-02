@@ -89,7 +89,7 @@ def exercise_json(request, exercise):  # {{{
         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}
 
 
-@permission_required('exercises.edit_exercises')
+@permission_required('exercises.edit_exercise')
 @api_view(['GET'])
 def exercise_xml(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)

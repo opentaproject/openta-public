@@ -121,9 +121,10 @@ function fetchExerciseRemoteState(exercise) {
 }
 
 function fetchExercise(exercise, empty) {
-  return dispatch => {
+  return (dispatch, getState) => {
     dispatch(updateActiveExercise(exercise));
-    dispatch(fetchExerciseXML(exercise));
+    if(getState().getIn(['login','groups'], immutable.List([])).includes('Author'))
+      dispatch(fetchExerciseXML(exercise));
     if(empty) {
       dispatch(setResetPendingState(exercise, true));
       dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingJSON'], true));

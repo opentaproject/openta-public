@@ -3,6 +3,7 @@ from sympy.abc import _clash1, _clash2, _clash
 import json
 import re
 from sympy.core.sympify import SympifyError
+from django.utils.translation import ugettext as _
 import traceback
 import random
 
@@ -12,6 +13,14 @@ uniteval = {meter: 1, second: 1, kg: 1}
 _newclash = _clash.update({'pi': sympy.pi, 'ff': sympy.Symbol('ff'), 'FF': sympy.Symbol('FF')})
 
 
+class CompareNumericUnitError(Exception):
+    def __init__(self, value):
+        self.value = value
+
+    def __str__(self):
+        return str(self.value)
+
+
 def asciiToSympy(expression):
     dict = {'^': '**'}
     result = re.sub(r"([a-zA-Z0-9]) ([a-zA-Z0-9])", r"\1*\2", expression)
@@ -19,7 +28,6 @@ def asciiToSympy(expression):
     result = re.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)])", r"\1)*(\2", result)
     for old, new in dict.items():
         result = result.replace(old, new)
-    print([result, expression])
     return result
 
 
@@ -35,6 +43,23 @@ def parse_variables(variables):
     for var in vars:
         subs[sym[var['name']]] = sympy.sympify(asciiToSympy(var['value']), _clash)
     return subs
+
+
+def check_units(expression, correct, variables):
+    """Check units of expression as compared to correct
+
+    Arguments:
+    expression -- sympy expression
+    correct -- sympy expression
+    variables -- dictionary of variables
+    """
+    evaluated = sympy.simplify(expression.subs(variables))
+    if len(evaluated.as_terms()[0]) > 1:
+        raise CompareNumericUnitError(_("Terms do not seem to have the same unit."))
+    ceval = sympy.simplify(correct.subs(variables))
+    quotient = sympy.simplify(ceval / evaluated)
+    if len(list(quotient.free_symbols)) > 0:
+        raise CompareNumericUnitError("Seems like the expression does not have the correct units.")
 
 
 def evaluate(variables, expression):
@@ -75,6 +100,10 @@ def compare_numeric(variables, expression1, expression2):
         symbolic = sympy.simplify(sympy1 - sympy2)
         response['symbolic_difference'] = str(symbolic)
         if diff.is_constant():
+            try:
+                check_units(sympy1, sympy2, varsubs)
+            except CompareNumericUnitError as e:
+                response['warning'] = str(e)
             diffs = []
             for point in neighbours:
                 nvalue1 = sympy1.subs(point).subs(uniteval).evalf()

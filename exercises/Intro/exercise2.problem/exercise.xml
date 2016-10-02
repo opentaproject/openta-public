@@ -3,7 +3,7 @@
 <figure>figure.png</figure>
 <exercisetext>A particle has mass $m$ and is moving with velocity $v$.</exercisetext>
 <global type="compareNumeric">
-	m=1;v=1;
+	m=1*kg;v=1*meter/second;
 </global>
 
 <question key="q2" type="compareNumeric">

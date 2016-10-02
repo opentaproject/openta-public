@@ -28,6 +28,10 @@ export default class QuestionCompareNumeric extends Component {
     this.setState({value: event.target.value});
   }
 
+  componentWillReceiveProps = (newProps) => {
+    this.setState({ value: newProps.questionState.getIn(['answer'],'') });
+  }
+
   renderAsciiMath = (asciitext) => {
     try {
       //Some initial parsing of commonly used patterns
@@ -58,6 +62,7 @@ export default class QuestionCompareNumeric extends Component {
   // Custom state data
   var latex = state.getIn(['response','latex'], ''); // Custom field containing the latex code obtained from SymPy.
   var error = state.getIn(['response','error']); // Custom field containing error information
+  var warning = state.getIn(['response','warning']); // Custom field containing error information
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
@@ -89,6 +94,7 @@ export default class QuestionCompareNumeric extends Component {
             </div>
           </div>
         { error && <Alert message={error} type="error" key="err"/> }
+        { warning && <Alert message={warning} type="warning" key="warning"/> }
         { response }
         </div>
   );

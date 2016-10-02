@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import {
   fetchExercise,
+  fetchExerciseRemoteState,
   fetchExercises, 
   fetchSameFolder,
 } from '../fetchers.js';
@@ -91,6 +92,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   onExerciseClick: (exercise, folder) => {
     dispatch(fetchExercise(exercise, true));
+    dispatch(fetchExerciseRemoteState(exercise));
     dispatch(fetchSameFolder(exercise, folder));
   }
 });

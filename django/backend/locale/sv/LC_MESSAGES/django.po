@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-21 14:17+0000\n"
+"POT-Creation-Date: 2016-10-02 15:46+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,20 +18,60 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: backend/forms.py:55 course/forms.py:5 course/models.py:7
+#: backend/forms.py:42 course/forms.py:5 course/models.py:7
 msgid "Registration password"
 msgstr "Registreringslösenord"
 
-#: backend/views.py:32
+#: backend/forms.py:45
+msgid "Batch CSV file"
+msgstr ""
+
+#: backend/views.py:35
 msgid "Password is now set, please login."
 msgstr ""
 
-#: backend/views.py:68
+#: backend/views.py:45 backend/views.py:56
+msgid ""
+"Registration complete, check inbox for activation mail (possibly spam "
+"folder)."
+msgstr ""
+
+#: backend/views.py:82 backend/views.py:123 backend/views.py:132
 msgid "5 times per 30 seconds"
 msgstr "5 gånger per 30 sekunder"
 
-#: backend/views.py:81
+#: backend/views.py:95
 msgid "Activation successful, please logi."
+msgstr ""
+
+#: templates/batch_add_users.html:26
+msgid "Process"
+msgstr ""
+
+#: templates/batch_add_users.html:33
+msgid ""
+"User list processed successfully, you can review below before committing the "
+"changes."
+msgstr ""
+
+#: templates/batch_add_users.html:37
+msgid "Add users"
+msgstr ""
+
+#: templates/batch_add_users.html:45
+msgid "First"
+msgstr ""
+
+#: templates/batch_add_users.html:45
+msgid "Last"
+msgstr ""
+
+#: templates/batch_add_users.html:45
+msgid "Email"
+msgstr ""
+
+#: templates/batch_add_users.html:45
+msgid "Username"
 msgstr ""
 
 #: templates/rate_limit.html:10
@@ -39,7 +79,7 @@ msgid "You can only access this page "
 msgstr "Du kan bara använda denna sidan "
 
 #: templates/register.html:24 templates/registration/login.html:37
-#: templates/registration/set_password.html:22
+#: templates/registration/set_password.html:23
 msgid "Register"
 msgstr "Registrera"
 
