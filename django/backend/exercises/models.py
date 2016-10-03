@@ -13,8 +13,10 @@ from exercises.parsing import (
     question_validate_xmltree,
 )
 from django.contrib.auth.models import User
+from django.contrib import messages
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import ugettext as _
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
 from exercises.util import deep_get, nested_print
@@ -41,7 +43,7 @@ class ExerciseManager(models.Manager):  # {{{
             except ObjectDoesNotExist:
                 pass
 
-    def add_exercise(self, path):
+    def add_exercise(self, path, progress=[]):
         result = {}
         json = {}
         if not is_exercise(path):
@@ -55,8 +57,10 @@ class ExerciseManager(models.Manager):  # {{{
             exercise_key=key, defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)}
         )
         if created:
+            progress.append(('info', _("Added exercise ") + path))
             print('Adding ' + path + '/' + name + ' to database.')
         else:
+            progress.append(('info', _("Updated exercise ") + path))
             print('Updated ' + path + '/' + name)
         questions = exercisetree.xpath('/exercise/question[@key and @type]')
         keys = [x.get('key') for x in questions]
@@ -97,7 +101,9 @@ class ExerciseManager(models.Manager):  # {{{
 
     def sync_with_disc(self):
         print("Syncing with disc...")
+        progress = [('success', _('Started syncing exercises...'))]
         exerciselist = []
+        keys = {}
         for root, directories, filenames in os.walk(EXERCISES_PATH):
             for filename in filenames:
                 if filename == 'exercise.xml':
@@ -105,16 +111,51 @@ class ExerciseManager(models.Manager):  # {{{
                     relpath = root[len(EXERCISES_PATH) :]
                     exerciselist.append((name, relpath))
         for name, path in exerciselist:
+            key = exercise_key_get_or_create(path)
+            if key in keys:
+                progress.append(('error', _("Duplicate exercise keys!")))
+                progress.append(
+                    (
+                        'error',
+                        _("Exercise at [")
+                        + path
+                        + _("] has the same key as exercise at [")
+                        + keys[key]
+                        + "]",
+                    )
+                )
+                progress.append(
+                    (
+                        'warning',
+                        _(
+                            "Neither was added. (Perhaps you copied an exercise? Then please remove the key file from the new exercise to generate a new one on reload)"
+                        ),
+                    )
+                )
+                keys.pop(key)
+            else:
+                keys[key] = path
+        for name, path in exerciselist:
             try:
-                self.add_exercise(path)
+                self.add_exercise(path, progress)
+                yield progress
+                progress.clear()
             except (ExerciseParseError, IOError) as e:
                 print("Failed to add " + name + " because " + str(e))
         for exercise in self.all():
             fullpath = exercise.path + '/exercise.xml'
             if not is_exercise(exercise.path):
                 exercise.delete()
+                progress.append(
+                    (
+                        'warning',
+                        _("Deleted " + exercise.path + " since it is not present on disc anymore"),
+                    )
+                )
                 print('Deleting non existing ' + fullpath + ' from database.')
         self.mend_answers()  # }}}
+        progress.append(('success', _("Finished syncing exercises.")))
+        yield progress
 
 
 class Exercise(models.Model):

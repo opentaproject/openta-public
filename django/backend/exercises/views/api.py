@@ -15,10 +15,12 @@ from exercises.modelhelpers import (
 )
 from exercises.paths import EXERCISES_PATH
 from exercises.util import nested_print
-from django.http import FileResponse, HttpResponse
+from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import permission_required
 from django.template.response import TemplateResponse
+from django.template import loader
+from django.contrib import messages
 import logging
 import backend.settings as settings
 import json
@@ -37,8 +39,21 @@ logger = logging.getLogger(__name__)
 @permission_required('exercises.reload_exercise')
 @api_view(['POST', 'GET'])
 def exercises_reload(request):  # {{{
-    Exercise.objects.sync_with_disc()
-    return Response("Reloaded")  # }}}
+    exercises = Exercise.objects.sync_with_disc()
+    base = loader.get_template('base_streaming.html')
+    template = loader.get_template('messages.html')
+
+    def next_exercise():
+        yield base.render()
+        for progress in exercises:
+            # c = RequestContext(request._request)
+            rendered = loader.render_to_string('reload_progress.html', {'progress': progress})
+            yield rendered  # template.render(c)
+
+    return StreamingHttpResponse(next_exercise())
+
+
+# }}}
 
 
 @api_view(['GET'])
