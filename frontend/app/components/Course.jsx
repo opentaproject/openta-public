@@ -34,7 +34,7 @@ const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, on
         var meta = folder.exercises[exercise].meta;
         return (
         <li key={exercise} id={exercise} className="course-exercise-item">
-          <a className={"uk-thumbnail " + (meta.published ? "" : "course-exercise-item-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
+          <a className={"uk-thumbnail " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
           <div className="exercise-thumb-wrap">
             <img className="exercise-thumb-nav" src={"/exercise/" + exercise + "/asset/thumbnail.png"}/>
             <div className="exercise-thumb-badge">

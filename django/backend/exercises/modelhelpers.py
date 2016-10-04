@@ -61,7 +61,7 @@ def folder_structure(exercise_data_func_list):  # {{{
 def exercise_folder_structure(manager, user):  # {{{
     folders = {}
     exercises = []
-    if user.has_perm('exercises.author_exercise'):
+    if user.has_perm('exercises.edit_exercise'):
         exercises = manager.all()
     else:
         exercises = manager.filter(meta__published=True)

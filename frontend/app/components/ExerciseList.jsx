@@ -38,8 +38,8 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
       var key = exercise.get('exercise_key');
       return ( 
                       <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
-                        <a onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
-                          <ul>
+                        <a className={ meta.get('published', false) ? "" : "exercise-unpublished" } onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
+                          <ul >
                             <li>
                               <div className="exercise-list-thumb-wrap">
                               <img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
