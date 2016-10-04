@@ -27,7 +27,7 @@ def e_student_attempt_count(exercise):
     }
 
 
-def folder_structure(exercise_data_func_list):
+def folder_structure(exercise_data_func_list):  # {{{
     folders = {}
     exercises = Exercise.objects.all()
     paths = map(lambda x: os.path.dirname(x.path), exercises)
@@ -55,10 +55,10 @@ def folder_structure(exercise_data_func_list):
         if 'exercises' not in root:
             root['exercises'] = {}
         root['exercises'].update({exercise.exercise_key: data})
-    return ordered_folders
+    return ordered_folders  # }}}
 
 
-def exercise_folder_structure(manager, user):
+def exercise_folder_structure(manager, user):  # {{{
     folders = {}
     exercises = manager.all()
     paths = map(lambda x: os.path.dirname(x.path), exercises)
@@ -101,7 +101,7 @@ def exercise_folder_structure(manager, user):
                 }
             }
         )
-    return folders
+    return folders  # }}}
 
 
 def serialize_exercise_with_question_data(exercise, user):
