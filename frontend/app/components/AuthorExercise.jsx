@@ -111,8 +111,11 @@ function handleXMLChange(dispatch, xml, exercise) {
     }
     else {
       var questions = _.get(result, 'exercise.question', {});
+      var global = _.get(result, 'exercise.global', {});
       if(questions.constructor !== Array)
         _.set(result, 'exercise.question', [questions]);
+      if(global.constructor !== Array)
+        _.set(result, 'exercise.global', [global]);
 
       dispatch(updateExerciseJSON(exercise, result));
       dispatch(setExerciseModifiedState(exercise, true));
