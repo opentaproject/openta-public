@@ -71,6 +71,11 @@ def exercise_json(path, hide_answers=False):  # {{{
         if not isinstance(questions, list):
             questions = [questions]
             obj['exercise']['question'] = questions
+    globals_ = deep_get(obj, 'exercise', 'global')
+    if globals_:
+        if not isinstance(globals_, list):
+            globals_ = [globals_]
+            obj['exercise']['global'] = globals_
     return obj  # }}}
 
 
