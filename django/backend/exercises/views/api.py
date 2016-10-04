@@ -21,6 +21,7 @@ from django.contrib.auth.decorators import permission_required
 from django.template.response import TemplateResponse
 from django.template import loader
 from django.contrib import messages
+from django.db import transaction
 import logging
 import backend.settings as settings
 import json
@@ -38,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 @permission_required('exercises.reload_exercise')
 @api_view(['POST', 'GET'])
-def exercises_reload(request):  # {{{
+def exercises_reload_streaming(request):  # {{{
     exercises = Exercise.objects.sync_with_disc()
     base = loader.get_template('base_streaming.html')
     template = loader.get_template('messages.html')
@@ -51,6 +52,24 @@ def exercises_reload(request):  # {{{
             yield rendered  # template.render(c)
 
     return StreamingHttpResponse(next_exercise())
+
+
+# }}}
+
+
+@permission_required('exercises.reload_exercise')
+@api_view(['POST', 'GET'])
+def exercises_reload(request):  # {{{
+    @transaction.atomic
+    def sync():
+        mess = []
+        exercises = Exercise.objects.sync_with_disc()
+        for progress in exercises:
+            mess = mess + progress
+        return mess
+
+    mess = sync()
+    return render(request._request, "exercises_reload.html", {'progress': mess})
 
 
 # }}}

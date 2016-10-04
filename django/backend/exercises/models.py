@@ -57,7 +57,7 @@ class ExerciseManager(models.Manager):  # {{{
             exercise_key=key, defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)}
         )
         if created:
-            progress.append(('info', _("Added exercise ") + path))
+            progress.append(('success', _("Added exercise ") + path))
             print('Adding ' + path + '/' + name + ' to database.')
         else:
             progress.append(('info', _("Updated exercise ") + path))
@@ -149,10 +149,27 @@ class ExerciseManager(models.Manager):  # {{{
                 progress.append(
                     (
                         'warning',
-                        _("Deleted " + exercise.path + " since it is not present on disc anymore"),
+                        _("Deleted ")
+                        + exercise.path
+                        + _(" since it is not present on disc anymore"),
                     )
                 )
                 print('Deleting non existing ' + fullpath + ' from database.')
+            else:
+                key = exercise_key_get_or_create(exercise.path)
+                if key != exercise.exercise_key:
+                    exercise.delete()
+                    progress.append(
+                        (
+                            'warning',
+                            _("Deleted an entry for ")
+                            + exercise.path
+                            + _(
+                                " since the stored exercise key did not correspond to the exercisekey in the folder."
+                            ),
+                        )
+                    )
+
         self.mend_answers()  # }}}
         progress.append(('success', _("Finished syncing exercises.")))
         yield progress
