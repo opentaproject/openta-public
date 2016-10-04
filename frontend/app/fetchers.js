@@ -72,6 +72,10 @@ function fetchExercises() {
                              }) ))
       .then(json => json.reduce( (a,b) => Object.assign(a,b) ))
       //.then(json => json.map( item => item.exercise_name ))
+      .then(json => {
+         dispatch(updatePendingStateIn( ['course', 'loadingExercises'], false));
+         return json;
+      })
       .then(json => dispatch(updateExercisesState(json)))
       .catch( err => console.log(err) );
   };
@@ -93,6 +97,10 @@ function fetchSameFolder(exercise, folder) {
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
       //.then(json => json.map( item => item.exercise_name ))
+      .then(json => {
+        dispatch(updatePendingStateIn( ['exerciseList'], false));
+        return json;
+      })
       .then(json => dispatch(updateExercises(json, folder)))
       .catch( err => console.log(err) );
   };

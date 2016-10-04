@@ -7,7 +7,7 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import counterApp from './reducers';
 import App from 'components/App';
-import { fetchExercises,fetchExerciseTree, fetchLoginStatus } from './fetchers';
+import { fetchExercises,fetchExerciseTree, fetchLoginStatus, updatePendingStateIn } from './fetchers';
 
 //const store = createStore(counterApp, module.hot && module.hot.data && module.hot.data.counter || { exercises: ['test'] });
 //const store = createStore(counterApp, applyMiddleware(thunk));
@@ -15,6 +15,7 @@ const store = createStore(counterApp, compose(applyMiddleware(thunk), window.dev
 store.dispatch( fetchExercises() );
 store.dispatch( fetchExerciseTree() );
 store.dispatch( fetchLoginStatus() );
+store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
 
 if (module.hot) {
   module.hot.accept('./reducers', () => {
