@@ -111,7 +111,10 @@ export default class QuestionCompareNumeric extends Component {
           </div>
           </div>
           <div className="uk-width-1-6">
-            <a onClick={(event) => submit(this.state.value)} className={ "uk-width-1-1 uk-button " + (hasChanged ? "uk-button-success" : "")}><i className="uk-icon uk-icon-send"/></a>
+            <a onClick={(event) => submit(this.state.value)} className={ "uk-width-1-1 uk-button " + (hasChanged ? "uk-button-success" : "")}>
+              { pending && <i className="uk-icon-cog uk-icon-spin"/> }
+              { !pending && <i className="uk-icon uk-icon-send"/> }
+            </a>
             </div>
           </div>
         { error && <Alert message={error} type="error" key="err"/> }

@@ -135,5 +135,10 @@ def compare_numeric(variables, expression1, expression2):
 
 
 def to_latex(expression):
-    latex = sympy.latex(sympy.sympify(asciiToSympy(expression), _clash))
+    latex = ""
+    try:
+        latex = sympy.latex(sympy.sympify(asciiToSympy(expression), _clash))
+    except SympifyError as e:
+        print(e)
+        latex = "error"
     return latex
