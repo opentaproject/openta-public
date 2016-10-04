@@ -90,8 +90,9 @@ def exercise_list(request):  # {{{
     response = []
     exercises = Exercise.objects.all()
     for exercise in exercises:
-        data = serialize_exercise_with_question_data(exercise, request.user)
-        response.append(data)
+        if exercise.meta.published or request.user.has_perm('exercises.author_exercise'):
+            data = serialize_exercise_with_question_data(exercise, request.user)
+            response.append(data)
     return Response(response)  # }}}
 
 
@@ -106,7 +107,11 @@ def exercise_tree(request):  # {{{
 @api_view(['GET'])
 def other_exercises_from_folder(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    other = Exercise.objects.filter(folder=dbexercise.folder)
+    other = []
+    if request.user.has_perm('exercises.author_exercise'):
+        other = Exercise.objects.filter(folder=dbexercise.folder)
+    else:
+        other = Exercise.objects.filter(folder=dbexercise.folder, meta__published=True)
     serializer = ExerciseSerializer(other, many=True)
     return Response(serializer.data)  # }}}
 

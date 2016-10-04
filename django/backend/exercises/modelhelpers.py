@@ -60,7 +60,11 @@ def folder_structure(exercise_data_func_list):  # {{{
 
 def exercise_folder_structure(manager, user):  # {{{
     folders = {}
-    exercises = manager.all()
+    exercises = []
+    if user.has_perm('exercises.author_exercise'):
+        exercises = manager.all()
+    else:
+        exercises = manager.filter(meta__published=True)
     paths = map(lambda x: os.path.dirname(x.path), exercises)
     unique_paths = filter(lambda x: x != '/', set(paths))
     for path in list(map(lambda x: x.split('/')[1:], unique_paths)):
