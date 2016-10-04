@@ -5,7 +5,11 @@ import {
   fetchExerciseRemoteState,
   fetchExercises, 
   fetchSameFolder,
+  updatePendingStateIn,
 } from '../fetchers.js';
+import {
+  updateExercises,
+} from '../actions.js';
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
 
@@ -18,7 +22,7 @@ var difficulties = {
   '3': 'Svår',
 };
 
-const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick }) => {
+const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, onExerciseClick }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
@@ -68,6 +72,9 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
     return DOM;
     //return exercises.concat( flatten(children) );
   }
+  if(pendingState.getIn(['course', 'loadingExercises'], false)) {
+      return (<Spinner/>);
+  }
   if(exercisetree) {
   var top = parseFolder(exercisetree, "/");
   return (
@@ -79,20 +86,23 @@ const BaseCourse = ({ exercisetree, exerciseState, currentpath, onExerciseClick 
 );
   } 
   else {
-    return (<div></div>);
+      return (<Spinner/>);
   }
 }
 
 const mapStateToProps = state => ({
   exerciseState: state.get('exerciseState'),
+  pendingState: state.get('pendingState'),
   exercisetree: state.get('exerciseTree'),
   currentpath: state.get('currentpath')
 });
 
 const mapDispatchToProps = dispatch => ({
   onExerciseClick: (exercise, folder) => {
-    dispatch(fetchExercise(exercise, true));
-    dispatch(fetchExerciseRemoteState(exercise));
+    dispatch(updatePendingStateIn( ['exerciseList'], true));
+    dispatch(fetchExerciseRemoteState(exercise))
+      .then(dispatch(fetchExercise(exercise, true)));
+    dispatch(updateExercises([], folder));
     dispatch(fetchSameFolder(exercise, folder));
   }
 });

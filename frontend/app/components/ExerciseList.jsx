@@ -31,6 +31,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
     <li className="uk-nav-header" key="header">
       <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
     </li>
+    { pendingState.get('exerciseList', false) && (<Spinner/>) }
     {exerciselist.map( exercise => {
       var meta = exercise.get('meta');
       if(!meta)meta = immutable.Map({});

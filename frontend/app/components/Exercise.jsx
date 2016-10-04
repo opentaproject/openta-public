@@ -7,6 +7,7 @@ import Question from './Question.jsx';
 import Spinner from './Spinner.jsx';
 import immutable from 'immutable';
 import moment from 'moment';
+import DOMPurify from 'dompurify';
 import ExerciseImageUpload from './ExerciseImageUpload.jsx';
 
 import { 
@@ -52,7 +53,7 @@ class BaseExercise extends Component {
     return (
       <div className="uk-clearfix">
       <div className="uk-align-medium-right">{children}</div>
-      <span dangerouslySetInnerHTML={{__html: itemjson.get('$')}} />
+      <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(itemjson.get('$'))}} />
       </div>
     );
   }

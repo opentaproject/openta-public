@@ -29,7 +29,18 @@ export default class QuestionCompareNumeric extends Component {
   }
 
   componentWillReceiveProps = (newProps) => {
-    this.setState({ value: newProps.questionState.getIn(['answer'],'') });
+    //this.setState({ value: newProps.questionState.getIn(['answer'],'') });
+  }
+
+  componentWillMount = () => {
+    var vars = this.parseVariables(this.props.questionData.getIn(['global','$'], ''));
+    if(vars) {
+      vars.map( v => {
+        if(AMsymbols.find( item => item.input === v ) === undefined)
+          newsymbol({input:v,  tag:"mi", output: v, tex: v, ttype:0, val: true});
+      });
+      console.log('Added variables');
+    }
   }
 
   renderAsciiMath = (asciitext) => {
@@ -40,8 +51,18 @@ export default class QuestionCompareNumeric extends Component {
       return AMTparseAMtoTeX(parsed);
     }
     catch(e) {
+      console.dir(e);
       return "invalid math";
     }
+  }
+
+  parseVariables = (variableString) => {
+    var vars = variableString.trim()
+      .split(';')
+      .filter(str => str !== "")
+      .map( str => str.split('=') )
+      .map( entry => entry[0] );
+      return vars;
   }
 
   /* render gets called every time the question is shown on screen */
@@ -51,7 +72,7 @@ export default class QuestionCompareNumeric extends Component {
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
   var pending = this.props.questionPending;
-
+  
   /* Both the questionData and questionState are of type Map from immutable.js. They are nested dictionaries that are accessed via the get and getIn functions. For example question.get('text') retrieves <question> <text> * </text> </question>. Deeper structures can be accessed with getIn, for example question.getIn(['tag1', 'tag2']) would retrieve <question> <tag1> <tag2> * </tag2> </tag1> </question>. */
 
   // System state data
