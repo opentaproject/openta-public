@@ -1001,6 +1001,8 @@ window.AMprocessNode = AMprocessNode;
 window.AMparseMath = AMparseMath;
 window.AMTparseMath = AMparseMath;
 window.AMTparseAMtoTeX = AMTparseAMtoTeX;
+window.AMsymbols = AMsymbols;
+window.newsymbol = newsymbol;
 
 function generic(){
   if (config.translateOnLoad) {
