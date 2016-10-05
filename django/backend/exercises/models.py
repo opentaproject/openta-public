@@ -105,7 +105,7 @@ class ExerciseManager(models.Manager):  # {{{
         progress = [('success', _('Started syncing exercises...'))]
         exerciselist = []
         keys = {}
-        for root, directories, filenames in os.walk(EXERCISES_PATH):
+        for root, directories, filenames in os.walk(EXERCISES_PATH, followlinks=True):
             for filename in filenames:
                 if filename == 'exercise.xml':
                     name = os.path.basename(os.path.normpath(root))
