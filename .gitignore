@@ -3,7 +3,7 @@
 __pycache__/
 !/.gitignore
 untracked/
-exercises/
+/exercises/
 legacy_convert/
 frontend/bin
 frontend/reports
