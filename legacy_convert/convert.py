@@ -56,9 +56,15 @@ def convert(exercise_path):
 
     problemtext = problem.xpath("/problem/question/text/text()")
     if problemtext:
-        exercisetext = etree.SubElement(out, 'exercisetext')
+        exercisetext = etree.SubElement(out, 'text')
         exercisetext.text = problemtext[0].strip()
         add_converted_text(problem, exercisetext, "figure", "figure")
+
+    oldsolution = problem.xpath("/problem/osolution/image/text()")
+    if oldsolution:
+        newsolution = etree.SubElement(out, 'solution')
+        asset = etree.SubElement(newsolution, 'asset', {'name': 'Lösning'})
+        asset.text = oldsolution[0].strip()
 
     questions = problem.xpath("/problem/thecorrectanswer")
 
