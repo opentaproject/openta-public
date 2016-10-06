@@ -10,7 +10,7 @@ class ExerciseMetaSerializer(serializers.ModelSerializer):
         fields = (
             'published',
             'deadline_date',
-            'pdf_solution',
+            'solution',
             'difficulty',
             'required',
             'image',

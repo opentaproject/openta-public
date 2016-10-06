@@ -270,7 +270,7 @@ class ExerciseMeta(models.Model):  # {{{
     exercise = models.OneToOneField(Exercise, related_name='meta')
     exercise_key = models.CharField(max_length=255, default='')
     deadline_date = models.DateField(default=None, null=True, blank=True)
-    pdf_solution = models.BooleanField(default=False)
+    solution = models.BooleanField(default=False)
     difficulty = models.IntegerField(null=True, blank=True, choices=DIFFICULTIES, default=None)
     required = models.BooleanField(default=False)
     image = models.BooleanField(default=False)

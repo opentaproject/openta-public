@@ -47,7 +47,7 @@ class BaseExercise extends Component {
     );
   }
 
-  renderExerciseText = (itemjson, json, meta, exerciseKey) => {
+  renderText = (itemjson, json, meta, exerciseKey) => {
     var children = itemjson.get('$children$', immutable.List([]))
                     .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
     return (
@@ -61,6 +61,26 @@ class BaseExercise extends Component {
   renderFigure = (itemjson, json, meta, exerciseKey) => {
     return (
               <a href={'/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')} data-uk-lightbox data-lightbox-type="image"><img style={{maxHeight: '100pt'}} src={'/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/></a>
+    );
+  }
+
+  renderSolution = (itemjson, json, meta, exerciseKey) => {
+    var children = itemjson.get('$children$', immutable.List([]))
+                    .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
+    return (
+      <div className="uk-margin-bottom uk-text-center">
+      {meta.get('solution', false) && children}
+
+      {!meta.get('solution', false) && this.props.author && <div className="uk-block uk-block-muted uk-padding-remove uk-text-warning">Dold. Visa för studenter genom att klicka i "solution" i inställningarna.</div> }
+      {!meta.get('solution', false) && this.props.author && <div className="uk-block uk-block-muted uk-padding-remove">{children}</div>
+      }
+      </div>
+    );
+  }
+
+  renderAsset = (itemjson, json, meta, exerciseKey) => {
+    return (
+      <a className="uk-button uk-button-primary" href={'/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')}>{itemjson.getIn(['@attr', 'name'])}</a>
     );
   }
 
@@ -80,9 +100,11 @@ class BaseExercise extends Component {
   dispatchElement = (element, json, meta, exerciseKey) => {
     var itemDispatch = {
       'exercisename': this.renderName,
-      'exercisetext': this.renderExerciseText,
+      'text': this.renderText,
       'figure': this.renderFigure,
-      'question': this.renderQuestion
+      'question': this.renderQuestion,
+      'solution': this.renderSolution,
+      'asset': this.renderAsset,
     };
     if(element.get('#name') in itemDispatch)
       return itemDispatch[element.get('#name')](element, json, meta, exerciseKey);
@@ -127,7 +149,8 @@ const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
   return (
   {
-    admin: state.getIn(['login', 'admin']),
+    author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
+    admin: state.getIn(['login', 'groups'],immutable.List([])).includes('Admin'),
     exerciseKey: state.get('activeExercise'),
     exerciseState: activeExerciseState,
     pendingState: state.get('pendingState')
