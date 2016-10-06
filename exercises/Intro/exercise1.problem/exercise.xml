@@ -1,9 +1,9 @@
 <exercise>
   <exercisename>Kinetic energy</exercisename>
 
-  <exercisetext>A particle has mass $m$ and is moving with velocity $v$ at a height $h$ over the earths surface.
+  <text>A particle has mass $m$ and is moving with velocity $v$ at a height $h$ over the earths surface.
     <figure>figure.jpg</figure>
-  </exercisetext>
+  </text>
 <question key="q1" type="compareNumeric">
   <variables>
     m=1; v=7; h=1; g = 1;

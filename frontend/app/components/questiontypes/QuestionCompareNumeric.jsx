@@ -16,6 +16,7 @@ export default class QuestionCompareNumeric extends Component {
     questionState: PropTypes.object, // Current question state together with response data from server
     submitFunction: PropTypes.func, // Call this function to submit an answer to the server. The only parameter is the answer data which is unconstrained: It could be a simple string as below or a dictionary of values if more information needs to be conveyed.
     questionPending: PropTypes.bool, // Indicates when we are waiting for a server response
+    isAuthor: PropTypes.bool, //Indicates if user is an author/content creator.
   }
 
   constructor(props) {
