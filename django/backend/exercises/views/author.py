@@ -12,7 +12,9 @@ from django.views.generic.edit import UpdateView
 class ExerciseMetaUpdate(UpdateView):
     model = ExerciseMeta
     fields = ['deadline_date', 'solution', 'difficulty', 'required', 'bonus', 'image', 'published']
-    success_url = '/exercisemeta/{id}'  # reverse_lazy('exercise-meta-update')
+    success_url = (
+        '/' + settings.SUBPATH + 'exercisemeta/{id}'
+    )  # reverse_lazy('exercise-meta-update')
 
 
 @permission_required('exercises.administer_exercise')
