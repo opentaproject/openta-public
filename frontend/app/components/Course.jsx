@@ -15,6 +15,7 @@ import Badge from './Badge.jsx';
 
 import immutable from 'immutable';
 import moment from 'moment';
+import {SUBPATH} from '../settings.js';
 
 var difficulties = {
   '1': 'Lätt',
@@ -36,7 +37,7 @@ const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, on
         <li key={exercise} id={exercise} className="course-exercise-item">
           <a className={"uk-thumbnail " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
           <div className="exercise-thumb-wrap">
-            <img className="exercise-thumb-nav" src={"/exercise/" + exercise + "/asset/thumbnail.png"}/>
+            <img className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}/>
             <div className="exercise-thumb-badge">
             {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
             { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }

@@ -9,6 +9,7 @@ import immutable from 'immutable';
 import moment from 'moment';
 import DOMPurify from 'dompurify';
 import ExerciseImageUpload from './ExerciseImageUpload.jsx';
+import {SUBPATH} from '../settings.js';
 
 import { 
   updateExerciseXML, 
@@ -60,7 +61,7 @@ class BaseExercise extends Component {
 
   renderFigure = (itemjson, json, meta, exerciseKey) => {
     return (
-              <a href={'/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')} data-uk-lightbox data-lightbox-type="image"><img style={{maxHeight: '100pt'}} src={'/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/></a>
+              <a href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')} data-uk-lightbox data-lightbox-type="image"><img style={{maxHeight: '100pt'}} src={SUBPATH + '/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/></a>
     );
   }
 
@@ -80,7 +81,7 @@ class BaseExercise extends Component {
 
   renderAsset = (itemjson, json, meta, exerciseKey) => {
     return (
-      <a className="uk-button uk-button-primary" href={'/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')}>{itemjson.getIn(['@attr', 'name'])}</a>
+      <a className="uk-button uk-button-primary" href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')}>{itemjson.getIn(['@attr', 'name'])}</a>
     );
   }
 

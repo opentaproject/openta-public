@@ -21,8 +21,11 @@ import {logImmutable} from 'immutablehelpers.js'
 import {getcookie} from 'cookies.js'
 import immutable from 'immutable'
 import _ from 'lodash'
+import {SUBPATH} from 'settings.js'
 
 var CSRF_TOKEN = getcookie('csrftoken')[0]; 
+//var SUBPATH = '/ffm516';
+//
 
 function jsonfetch(url, options = {}) {
   var defaults = {
@@ -33,7 +36,7 @@ function jsonfetch(url, options = {}) {
       credentials: 'same-origin'
   };
   var _opts = immutable.fromJS(defaults).mergeDeep(immutable.fromJS(options));
-  return fetch(url, _opts.toJS());
+  return fetch(SUBPATH + url, _opts.toJS());
 }
 
 function fetchLoginStatus() {

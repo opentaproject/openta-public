@@ -30,7 +30,7 @@
     <div class="uk-form-row">
       <input type="submit" class="uk-button" value="{% trans "Log in" %}" />
     </div>
-<input type="hidden" name="next" value="/" />
+    <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
 {% if course.registration_by_password %}

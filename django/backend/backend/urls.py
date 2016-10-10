@@ -19,8 +19,9 @@ from django.contrib.auth import views as auth_views
 from backend import views as backendviews
 from django.views.generic.edit import CreateView
 from .forms import UserCreateForm, UserCreateFormNoPassword
+from .settings import SUBPATH
 
-urlpatterns = [
+internalurlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^register/$', backendviews.RegisterUser.as_view()),
     url(r'^register_nopw/$', backendviews.RegisterUserNoPassword.as_view()),
@@ -46,3 +47,5 @@ urlpatterns = [
     url(r'^batch_add_users$', backendviews.BatchAddUserView.as_view()),
     url(r'^$', backendviews.main),
 ]
+
+urlpatterns = [url(r'^' + SUBPATH, include(internalurlpatterns))]

@@ -13,6 +13,7 @@ import {
 } from '../actions.js';
 
 import immutable from 'immutable';
+import {SUBPATH} from '../settings.js';
 
 var groupIcons = {
   'Admin': {
@@ -89,7 +90,7 @@ return (
   </div>
   <ul className="uk-navbar-nav">
       <li>
-      <a href="/logout/?next=/login"><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
+      <a href={SUBPATH + "/logout/?next=" + SUBPATH + "/login"}><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
       </li>
   </ul>
   </div>

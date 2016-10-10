@@ -10,6 +10,7 @@ import Spinner from './Spinner.jsx';
 
 import Exercise from './Exercise';
 import {getcookie} from '../cookies.js';
+import {SUBPATH} from '../settings.js';
 
 import { 
   updateQuestionResponse, 
@@ -82,7 +83,7 @@ class BaseAuthorExercise extends Component {
         <div key="xml" className="xmleditor">
         { loading && <Spinner/> }
         { !loading && this.props.activeAdminTool === 'xml-editor' && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
-        { !loading && this.props.activeAdminTool === 'options' && this.props.admin && <iframe key={key} scrolling="no" className="options" src={"/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> }
+        { !loading && this.props.activeAdminTool === 'options' && this.props.admin && <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> }
         </div>
       </div>
     );

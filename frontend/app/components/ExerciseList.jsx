@@ -12,6 +12,7 @@ import immutable from 'immutable';
 import moment from 'moment';
 import Spinner from './Spinner.jsx'
 import Badge from './Badge.jsx';
+import {SUBPATH} from '../settings.js';
 
 var difficulties = {
   '1': 'Lätt',
@@ -42,7 +43,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
                           <ul >
                             <li>
                               <div className="exercise-list-thumb-wrap">
-                              <img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={'/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
+                              <img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={SUBPATH + '/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
                               <div className="exercise-thumb-badge">
                               {exerciseState.getIn([key, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
                               { meta.get('difficulty', false) && <Badge className="uk-badge-notification">{difficulties[meta.get('difficulty','none')]}</Badge> }
