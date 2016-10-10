@@ -24,8 +24,6 @@ import _ from 'lodash'
 import {SUBPATH} from 'settings.js'
 
 var CSRF_TOKEN = getcookie('csrftoken')[0]; 
-//var SUBPATH = '/ffm516';
-//
 
 function jsonfetch(url, options = {}) {
   var defaults = {
@@ -260,7 +258,7 @@ function uploadImage(exerciseKey, file) {
       var fd = new FormData();
       fd.append('file', file);
       var xhr = new XMLHttpRequest();
-      xhr.open("POST", "/exercise/" + exerciseKey + "/imageupload");
+      xhr.open("POST", SUBPATH + "/exercise/" + exerciseKey + "/imageupload");
       xhr.setRequestHeader('X-CSRFToken', CSRF_TOKEN);
       xhr.setRequestHeader('Accept', 'application/json');
       if(xhr.upload) 
