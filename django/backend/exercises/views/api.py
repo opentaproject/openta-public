@@ -181,8 +181,9 @@ def serve_file(path, filename, **kwargs):  # {{{
 def exercise_asset(request, exercise, asset):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     return serve_file(
-        settings.SUBPATH
-        + "/exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset),
+        "/"
+        + settings.SUBPATH
+        + "exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset),
         asset,
         dev_path='{root}/{path}/{asset}'.format(
             root=EXERCISES_PATH, path=dbexercise.path, asset=asset
