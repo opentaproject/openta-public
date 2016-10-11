@@ -34,7 +34,7 @@
 </form>
 
 {% if course.registration_by_password %}
-<a href="/register_by_password/" class="uk-button">{% trans "Register" %}</a>
+<a href="{% url 'register-with-password' %}" class="uk-button">{% trans "Register" %}</a>
 {% endif %}
 {# Assumes you setup the password_reset view in your URLconf #}
 {# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}

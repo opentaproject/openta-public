@@ -23,8 +23,8 @@ from .settings import SUBPATH
 
 internalurlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^register/$', backendviews.RegisterUser.as_view()),
-    url(r'^register_nopw/$', backendviews.RegisterUserNoPassword.as_view()),
+    # url(r'^register/$', backendviews.RegisterUser.as_view(), name='register'),
+    # url(r'^register_nopw/$', backendviews.RegisterUserNoPassword.as_view(), name='register-no-password'),
     url(
         r'^activateandreset/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$',
         backendviews.activate_and_reset,
@@ -39,7 +39,11 @@ internalurlpatterns = [
     url(r'^', include('exercises.urls')),
     url(r'^login/$', backendviews.login, name='login'),
     url(r'^', include('django.contrib.auth.urls')),
-    url(r'^register_by_password/$', backendviews.RegisterByPassword.as_view()),
+    url(
+        r'^register_by_password/$',
+        backendviews.RegisterByPassword.as_view(),
+        name='register-with-password',
+    ),
     url(
         r'^register_by_password/register/(?P<password>[\w]+)$',
         backendviews.validate_and_show_registration,

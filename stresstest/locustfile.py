@@ -1,12 +1,17 @@
 from locust import HttpLocust, TaskSet, task
 from locust import InterruptTaskSet
 import requests
+import random
 from pprint import pprint
 
 requests.packages.urllib3.disable_warnings()  # disable SSL warnings
 
 
 class UserBehavior(TaskSet):
+    def __init__(self, *args, **kwargs):
+        super(UserBehavior, self).__init__(*args, **kwargs)
+        self.exercises = []
+
     def on_start(self):
         """ on_start is called when a Locust start before any task is scheduled """
         self.client.verify = False
@@ -44,10 +49,36 @@ class UserBehavior(TaskSet):
         loggedin = loggedinrequest.json()
         return 'username' in loggedin
 
+    # @task(1)
+    def get_exercises(self):
+        r = self.client.get("/exercises")
+        self.exercises = r.json()
+        if r.status_code > 300:
+            print("/exercises failed")
+
     @task(1)
-    def profile(self):
-        r = self.client.get("/")
-        pprint(r)
+    def exercises_tree(self):
+        r = self.client.get("/exercises/tree")
+        if r.status_code > 300:
+            print("/exercises failed")
+
+    @task(3)
+    def exercise_random_folder(self):
+        # exercises = self.client.get("/exercises").json()
+        self.get_exercises()
+        exercise = random.choice(self.exercises)
+        folder = self.client.get("/exercise/" + exercise['exercise_key'] + "/samefolder")
+        # print(folder.json())
+
+    @task(10)
+    def exercise_load(self):
+        try:
+            exercise = random.choice(self.exercises)
+            json = self.client.get("/exercise/" + exercise['exercise_key'] + "/json")
+            xml = self.client.get("/exercise/" + exercise['exercise_key'] + "/xml")
+            state = self.client.get("/exercise/" + exercise['exercise_key'])
+        except IndexError:
+            pass
 
 
 class WebsiteUser(HttpLocust):

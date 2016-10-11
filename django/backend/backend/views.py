@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from django.contrib.auth.models import User
 from django.contrib.auth import views as auth_views
@@ -27,14 +28,20 @@ import chardet
 
 class ActivateAndReset(FormView):
     template_name = 'registration/set_password.html'
-    user = None
+    success_url = reverse_lazy('login')
 
     def get_form(self):
-        return SetPasswordForm(self.user, **self.get_form_kwargs())
+        user = self.kwargs.get('user', None)
+        print(user)
+        return SetPasswordForm(user, **self.get_form_kwargs())
 
     def form_valid(self, form):
+        super().form_valid(form)
+        form.save()
+        self.kwargs['user'].is_active = True
+        self.kwargs['user'].save()
         messages.add_message(
-            self.request._request, messages.SUCCESS, _('Password is now set, please login.')
+            self.request, messages.SUCCESS, _('Password is now set, please login.')
         )
         return redirect(reverse('login'))
 
@@ -42,7 +49,7 @@ class ActivateAndReset(FormView):
 class RegisterUser(CreateView):
     template_name = 'register.html'
     form_class = UserCreateForm
-    success_url = '/register'
+    success_url = reverse_lazy('login')
 
     def form_valid(self, form):
         super().form_valid(form)
@@ -57,7 +64,7 @@ class RegisterUser(CreateView):
 class RegisterUserNoPassword(CreateView):
     template_name = 'register.html'
     form_class = UserCreateFormNoPassword
-    success_url = '/register_nopw'
+    success_url = reverse_lazy('login')
 
     def form_valid(self, form):
         super().form_valid(form)
@@ -97,13 +104,13 @@ def activate(request, username, token):
     try:
         key = '%s:%s' % (username, token)
         print(key)
-        TimestampSigner().unsign(key, max_age=60 * 60 * 48)  # Valid for 2 days
+        TimestampSigner().unsign(key, max_age=60 * 60 * 24 * 10)  # Valid for 2 days
         user = User.objects.get(username=username)
         user.is_active = True
         user.save()
     except (BadSignature, SignatureExpired):
         return render(request, "activation_failed.html")
-    messages.add_message(request, messages.SUCCESS, _('Activation successful, please logi.'))
+    messages.add_message(request, messages.SUCCESS, _('Activation successful, please login.'))
     return auth_views.login(request, 'registration/login.html')
 
 
@@ -112,12 +119,12 @@ def activate_and_reset(request, username, token):
     try:
         key = '%s:%s' % (username, token)
         print(key)
-        TimestampSigner().unsign(key, max_age=60 * 60 * 48)  # Valid for 2 days
+        TimestampSigner().unsign(key, max_age=60 * 60 * 24 * 10)  # Valid for 2 days
     except (BadSignature, SignatureExpired):
         return render(request, "activation_failed.html")
     user = User.objects.get(username=username)
-    user.is_active = True
-    user.save()
+    # user.is_active = True
+    # user.save()
     return ActivateAndReset.as_view()(request, user=user)
 
 
@@ -142,8 +149,10 @@ class RegisterByPassword(RatelimitMixin, FormView):
             course.registration_by_password
             and course.registration_password == form.cleaned_data['password']
         ):
-            return redirect('/register_by_password/register/' + course.registration_password)
-        return redirect('/register_by_password')
+            return redirect(
+                reverse('register-with-password') + 'register/' + course.registration_password
+            )
+        return redirect(reverse('register-with-password'))
 
 
 @ratelimit(key='ip', rate='5/30s')
@@ -152,7 +161,7 @@ def validate_and_show_registration(request, password):
         return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
     course = Course.objects.first()
     if course.registration_by_password and course.registration_password == password:
-        return RegisterUser.as_view()(request)
+        return RegisterUserNoPassword.as_view()(request)
 
 
 class BatchAddUserView(PermissionRequiredMixin, FormView):

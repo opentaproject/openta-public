@@ -1,0 +1,11 @@
+Välkommen till uppgiftssystemet för {{ course_name }}!
+
+Ditt konto har användarnamn {{ username }} men är inte aktiverat än. Använd länken nedan för att aktivera och välja lösenord.
+{{ activate_url }}
+
+Efter aktivering kommer du automatiskt till inloggning som du senare hittar på adressen
+{{ course_url }}
+
+För frågor eller problem kring registreringen kan du svara på detta mail.
+
+Lycka till!
