@@ -22,9 +22,12 @@ from django.contrib.auth.mixins import PermissionRequiredMixin, AccessMixin
 from django.contrib.auth.models import Group
 from backend.user_utilities import send_activation_mail
 from smtplib import SMTPException
+import logging
 import csv
 from io import StringIO
 import chardet
+
+logger = logging.getLogger(__name__)
 
 
 class ActivateAndReset(FormView):
@@ -45,6 +48,7 @@ class ActivateAndReset(FormView):
             pass
         self.kwargs['user'].is_active = True
         self.kwargs['user'].save()
+        logger.info("Added and activated user " + str(self.kwargs['user']))
         messages.add_message(
             self.request, messages.SUCCESS, _('Password is now set, please login.')
         )
@@ -224,8 +228,14 @@ class BatchAddUserView(PermissionRequiredMixin, FormView):
                         "User " + user['Username'] + " already added!",
                     )
                 try:
-                    send_activation_mail(
+                    activation_url = send_activation_mail(
                         user['Username'], user['E_mail_address'], 'user-activation-and-reset'
+                    )
+                    logger.info(
+                        "Activation mail sent for "
+                        + user['Username']
+                        + ' with activation link '
+                        + activation_url
                     )
                     messages.add_message(
                         self.request,

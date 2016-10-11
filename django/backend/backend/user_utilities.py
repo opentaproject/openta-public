@@ -38,3 +38,4 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
     send_mail(
         'Account activation', rendered_email, sender + '@openta.se', [email], fail_silently=False
     )
+    return activate_url
