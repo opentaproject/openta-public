@@ -19,6 +19,7 @@ from ratelimit.decorators import ratelimit
 from ratelimit.mixins import RatelimitMixin
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin, AccessMixin
+from django.contrib.auth.models import Group
 from backend.user_utilities import send_activation_mail
 from smtplib import SMTPException
 import csv
@@ -32,12 +33,16 @@ class ActivateAndReset(FormView):
 
     def get_form(self):
         user = self.kwargs.get('user', None)
-        print(user)
         return SetPasswordForm(user, **self.get_form_kwargs())
 
     def form_valid(self, form):
         super().form_valid(form)
         form.save()
+        try:
+            group = Group.objects.get(name='Student')
+            group.user_set.add(self.kwargs['user'])
+        except ObjectDoesNotExist:
+            pass
         self.kwargs['user'].is_active = True
         self.kwargs['user'].save()
         messages.add_message(
@@ -219,7 +224,9 @@ class BatchAddUserView(PermissionRequiredMixin, FormView):
                         "User " + user['Username'] + " already added!",
                     )
                 try:
-                    send_activation_mail(user['Username'], user['E_mail_address'])
+                    send_activation_mail(
+                        user['Username'], user['E_mail_address'], 'user-activation-and-reset'
+                    )
                     messages.add_message(
                         self.request,
                         messages.SUCCESS,
