@@ -7,10 +7,18 @@ from django.utils.translation import ugettext as _
 import traceback
 import random
 
-meter, second, kg = sympy.symbols('meter,second,kg')
-uniteval = {meter: 1, second: 1, kg: 1}
+meter, second, kg = sympy.symbols('meter,second,kg', real=True, positive=True)
+ns = {
+    'meter': meter,
+    'second': second,
+    'kg': kg,
+    'pi': sympy.pi,
+    'ff': sympy.Symbol('ff'),
+    'FF': sympy.Symbol('FF'),
+}
+ns.update(_clash)
 
-_newclash = _clash.update({'pi': sympy.pi, 'ff': sympy.Symbol('ff'), 'FF': sympy.Symbol('FF')})
+uniteval = {meter: 1, second: 1, kg: 1}
 
 
 class CompareNumericUnitError(Exception):
@@ -41,7 +49,7 @@ def parse_variables(variables):
     # Create substituion dictionary
     subs = {}
     for var in vars:
-        subs[sym[var['name']]] = sympy.sympify(asciiToSympy(var['value']), _clash)
+        subs[sym[var['name']]] = sympy.sympify(asciiToSympy(var['value']), ns)  # _clash)
     return subs
 
 
@@ -92,8 +100,8 @@ def compare_numeric(variables, expression1, expression2):
             neighbours.append(neighbour)
 
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
-        sympy1 = sympy.sympify(sexpression1, _clash)
-        sympy2 = sympy.sympify(sexpression2, _clash)
+        sympy1 = sympy.sympify(sexpression1, ns)
+        sympy2 = sympy.sympify(sexpression2, ns)
         value1 = sympy1.subs(varsubs).subs(uniteval).evalf()
         value2 = sympy2.subs(varsubs).subs(uniteval).evalf()
         diff = sympy.Abs(value2 - value1)
@@ -137,7 +145,7 @@ def compare_numeric(variables, expression1, expression2):
 def to_latex(expression):
     latex = ""
     try:
-        latex = sympy.latex(sympy.sympify(asciiToSympy(expression), _clash))
+        latex = sympy.latex(sympy.sympify(asciiToSympy(expression), ns))  # _clash))
     except SympifyError as e:
         print(e)
         latex = "error"
