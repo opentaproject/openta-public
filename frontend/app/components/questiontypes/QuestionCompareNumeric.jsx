@@ -7,6 +7,7 @@ import React, { PropTypes, Component } from 'react'; // React specific import
 
 import { registerQuestionType } from './question_type_dispatch.js' // Register function used at the bottom of this file to let the system know of the question type
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
+import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
 import mathjs from 'mathjs';
 
@@ -41,7 +42,6 @@ export default class QuestionCompareNumeric extends Component {
         if(AMsymbols.find( item => item.input === v ) === undefined)
           newsymbol({input:v,  tag:"mi", output: v, tex: v, ttype:0, val: true});
       });
-      console.log('Added variables');
     }
   }
 
@@ -92,7 +92,7 @@ export default class QuestionCompareNumeric extends Component {
   if(varsList) {
     varsList.map( v => {vars[v] = 1;} );
   }
-  var availableVariables = "(i termer av " + varsList.join(", ") + ")";
+  var availableVariables = varsList.length ? "(i termer av " + varsList.join(", ") + ")" : "";
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
   var graderResponse = "";
@@ -104,14 +104,14 @@ export default class QuestionCompareNumeric extends Component {
     else
       graderResponse = (<Alert message={"$" + this.renderAsciiMath(input) + "$" + " is incorrect"} type="warning" key="input" hasMath={true}/>);
   } else if(input !== ''){
-    graderResponse = (<Alert message={"$" + this.renderAsciiMath(input) + "$" } hasMath={true} key="input"/>);
+    graderResponse = (<SafeMathAlert message={this.renderAsciiMath(input)} key="input"/>);
   }
   var mathjsError = false;
   try {
     var mathjsParse = mathjs.eval(input, vars);
   }
   catch(e) {
-    if(e instanceof SyntaxError || e instanceof Error)
+    if(e instanceof SyntaxError)
       mathjsError = (<Alert type="warning" message={ e.toString() }/>);
   }
   return (

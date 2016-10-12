@@ -83,8 +83,8 @@ def question_check_compare_numeric(question_json, question_xmltree, answer_data,
     elif 'error' in result:
         result['status'] = 'error'
     # Add the sympy representation in latex form for possible visual checks
-    latex = {'latex': to_latex(answer_data)}
-    result.update(latex)
+    # latex = { 'latex': '' } #to_latex(answer_data) }
+    # result.update(latex)
     return result
 
 

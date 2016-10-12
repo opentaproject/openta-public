@@ -7,6 +7,13 @@ from django.utils.translation import ugettext as _
 import traceback
 import random
 
+# from .timelimit import time_limit, TimeoutException
+from multiprocessing import Queue, Process, Pool, TimeoutError
+from queue import Empty
+import logging
+
+logger = logging.getLogger(__name__)
+
 meter, second, kg = sympy.symbols('meter,second,kg', real=True, positive=True)
 ns = {
     'meter': meter,
@@ -30,7 +37,13 @@ class CompareNumericUnitError(Exception):
 
 
 def asciiToSympy(expression):
-    dict = {'^': '**'}
+    dict = {
+        '^': '**',
+        #        '_': '',
+        #        '.': '',
+        #        '[': '',
+        #        ']': ''
+    }
     result = re.sub(r"([a-zA-Z0-9]) ([a-zA-Z0-9])", r"\1*\2", expression)
     result = re.sub(r"([0-9])([a-zA-Z])", r"\1*\2*", result)
     result = re.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)])", r"\1)*(\2", result)
@@ -82,7 +95,7 @@ def evaluate(variables, expression):
     return json.dumps(response)
 
 
-def compare_numeric(variables, expression1, expression2):
+def compare_numeric_internal(variables, expression1, expression2):  # {{{
     # Do some initial formatting
     number_of_points = 10
     response = {}
@@ -139,7 +152,76 @@ def compare_numeric(variables, expression1, expression2):
         print(traceback.format_exc())
         response['error'] = "Failed to evaluate expression"
         # pass
-    return response
+    return response  # }}}
+
+
+def compare_numeric_runner(variables, expression1, expression2, q):
+    response = compare_numeric_internal(variables, expression1, expression2)
+    q.put(response)
+
+
+def compare_numeric_runner_pool(variables, expression1, expression2):
+    return compare_numeric_internal(variables, expression1, expression2)
+
+
+def compare_numeric_pool(variables, expression1, expression2):
+    """
+    Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Pool. This can be used instead of the implementation with Process with less code but with less control over termination.
+    """
+    invalid_strings = ['_', '.', '[', ']']
+    for i in invalid_strings:
+        if i in expression1:
+            return {'error': _('Answer contains invalid character ') + i}
+    with Pool(processes=1) as pool:
+        result = pool.apply_async(compare_numeric_runner, (variables, expression1, expression2))
+        try:
+            response = result.get(1)
+            return response
+        except TimeoutError:
+            logger.error(
+                'Sympy timed out with expressions ['
+                + expression1
+                + ', '
+                + expression2
+                + '] and variables '
+                + json.dumps(variables)
+            )
+            pool.terminate()
+            pool.join()
+            return {'error': _('Expression could not be parsed.')}
+
+
+def compare_numeric(variables, expression1, expression2):
+    """
+    Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
+    """
+    invalid_strings = ['_', '.', '[', ']']
+    for i in invalid_strings:
+        if i in expression1:
+            return {'error': _('Answer contains invalid character ') + i}
+    q = Queue()
+    p = Process(target=compare_numeric_runner, args=(variables, expression1, expression2, q))
+    p.start()
+    try:
+        response = q.get(True, 1)
+        p.join(0.1)
+        if p.is_alive():
+            p.terminate()
+            p.join(1)
+        return response
+    except Empty as e:
+        p.terminate()
+        p.join(1)
+        if p.is_alive():
+            logger.error(
+                'Sympy process still alive after termination with expressions ['
+                + expression1
+                + ', '
+                + expression2
+                + '] and variables '
+                + json.dumps(variables)
+            )
+        return {'error': _('Could not parse expression')}
 
 
 def to_latex(expression):

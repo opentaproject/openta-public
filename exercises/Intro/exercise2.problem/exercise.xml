@@ -11,7 +11,7 @@
     What is the kinetic energy of the particle?
   </text>
   <expression>
-    m*v^2/2
+    sqrt(v^2)
   </expression>
 </question>
 </exercise>
