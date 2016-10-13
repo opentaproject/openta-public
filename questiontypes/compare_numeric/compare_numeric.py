@@ -6,24 +6,26 @@ from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
 import random
-
-# from .timelimit import time_limit, TimeoutException
 from multiprocessing import Queue, Process, Pool, TimeoutError
 from queue import Empty
+import time
 import logging
 
 logger = logging.getLogger(__name__)
 
 meter, second, kg = sympy.symbols('meter,second,kg', real=True, positive=True)
-ns = {
-    'meter': meter,
-    'second': second,
-    'kg': kg,
-    'pi': sympy.pi,
-    'ff': sympy.Symbol('ff'),
-    'FF': sympy.Symbol('FF'),
-}
+ns = {}
 ns.update(_clash)
+ns.update(
+    {
+        'meter': meter,
+        'second': second,
+        'kg': kg,
+        'pi': sympy.pi,
+        'ff': sympy.Symbol('ff'),
+        'FF': sympy.Symbol('FF'),
+    }
+)
 
 uniteval = {meter: 1, second: 1, kg: 1}
 
@@ -118,8 +120,8 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
         value1 = sympy1.subs(varsubs).subs(uniteval).evalf()
         value2 = sympy2.subs(varsubs).subs(uniteval).evalf()
         diff = sympy.Abs(value2 - value1)
-        symbolic = sympy.simplify(sympy1 - sympy2)
-        response['symbolic_difference'] = str(symbolic)
+        # symbolic = sympy.simplify(sympy1-sympy2)
+        # response['symbolic_difference'] = str(symbolic)
         if diff.is_constant():
             try:
                 check_units(sympy1, sympy2, varsubs)
@@ -199,17 +201,38 @@ def compare_numeric(variables, expression1, expression2):
     for i in invalid_strings:
         if i in expression1:
             return {'error': _('Answer contains invalid character ') + i}
+    # print(compare_numeric_internal(variables, expression1, expression2))
     q = Queue()
     p = Process(target=compare_numeric_runner, args=(variables, expression1, expression2, q))
     p.start()
     try:
-        response = q.get(True, 1)
-        p.join(0.1)
+        starttime = time.perf_counter()
+        response = q.get(True, 3)
+        timedelta = time.perf_counter() - starttime
+        logger.info(
+            "compare_numeric took "
+            + str(timedelta)
+            + 's ['
+            + expression1
+            + ', '
+            + expression2
+            + '] and variables '
+            + json.dumps(variables)
+        )
+        p.join(1)
         if p.is_alive():
             p.terminate()
             p.join(1)
         return response
     except Empty as e:
+        logger.error(
+            'Sympy timed out with expressions ['
+            + expression1
+            + ', '
+            + expression2
+            + '] and variables '
+            + json.dumps(variables)
+        )
         p.terminate()
         p.join(1)
         if p.is_alive():
