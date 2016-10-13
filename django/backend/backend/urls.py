@@ -19,7 +19,7 @@ from django.contrib.auth import views as auth_views
 from backend import views as backendviews
 from django.views.generic.edit import CreateView
 from .forms import UserCreateForm, UserCreateFormNoPassword
-from .settings import SUBPATH
+from .settings import SUBPATH, DEBUG
 
 internalurlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -53,3 +53,8 @@ internalurlpatterns = [
 ]
 
 urlpatterns = [url(r'^' + SUBPATH, include(internalurlpatterns))]
+
+if DEBUG:
+    import debug_toolbar
+
+    urlpatterns += [url(r'^__debug__/', include(debug_toolbar.urls))]

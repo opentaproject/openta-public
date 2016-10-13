@@ -31,7 +31,7 @@ const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, on
     var exercises = [], children = [];
     if(folder.exercises) {
       //exerciseState.getIn([exercise, 'correct'], false)
-      exercises = Object.keys(folder.exercises).sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name ).map( exercise => {
+      exercises = folder.order/*Object.keys(folder.exercises)/*.sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name )*/.map( exercise => {
         var meta = folder.exercises[exercise].meta;
         return (
         <li key={exercise} id={exercise} className="course-exercise-item">

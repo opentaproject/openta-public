@@ -213,7 +213,7 @@ class Question(models.Model):  # {{{
         permissions = (("log_question", "Answers are logged"),)
 
     question_key = models.CharField(max_length=255)
-    exercise = models.ForeignKey(Exercise)
+    exercise = models.ForeignKey(Exercise, related_name='question')
     type = models.CharField(max_length=255, default='none')
 
     def __str__(self):
@@ -222,7 +222,9 @@ class Question(models.Model):  # {{{
 
 class Answer(models.Model):  # {{{
     user = models.ForeignKey(User)
-    question = models.ForeignKey(Question, on_delete=models.SET_NULL, null=True)
+    question = models.ForeignKey(
+        Question, on_delete=models.SET_NULL, null=True, related_name='answer'
+    )
     question_key = models.CharField(max_length=255, default='')
     exercise_key = models.CharField(max_length=255, default='')
     answer = models.TextField()

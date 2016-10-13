@@ -84,7 +84,7 @@ function fetchExercises() {
 
 function fetchExerciseTree() {
   return dispatch => {
-    return jsonfetch('/exercises/tree')
+    return jsonfetch('/exercises/tree/')
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
       .then(json => dispatch(updateExerciseTree(json)))

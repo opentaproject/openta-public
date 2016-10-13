@@ -5,9 +5,13 @@ from django.contrib.auth.models import User
 from exercises.serializers import ExerciseSerializer, ExerciseMetaSerializer, AnswerSerializer
 import json
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Prefetch
 import os
 from functools import reduce
 from collections import OrderedDict
+
+# import cProfile
+import pprofile
 from .util import nested_print
 
 
@@ -62,9 +66,16 @@ def exercise_folder_structure(manager, user):  # {{{
     folders = {}
     exercises = []
     if user.has_perm('exercises.edit_exercise'):
-        exercises = manager.all()
+        exercises = manager.prefetch_related(
+            Prefetch(
+                'question__answer',
+                queryset=Answer.objects.filter(user=user).order_by('-date'),
+                to_attr="useranswers",
+            ),
+            'meta',
+        )
     else:
-        exercises = manager.filter(meta__published=True)
+        exercises = manager.filter(meta__published=True).select_related('meta')
     paths = map(lambda x: os.path.dirname(x.path), exercises)
     unique_paths = filter(lambda x: x != '/', set(paths))
     for path in list(map(lambda x: x.split('/')[1:], unique_paths)):
@@ -77,23 +88,19 @@ def exercise_folder_structure(manager, user):  # {{{
             else:
                 traverse['folders'][folder] = {'content': {}}
     for exercise in exercises:
-        # If this becomes a speed issue this should be done by getting all the answers and then populating the tree
         allcorrect = True
-        questions = Question.objects.filter(exercise=exercise)
-        # print("Exercise: " + str(exercise) + " " + str(questions.count()))
-        for question in questions:
+        for question in exercise.question.all():  # questions:
             try:
-                answer = Answer.objects.filter(user=user, question=question).latest('date')
-                # print("dbcorrect: " + str(answer.correct))
-                if not answer.correct:
-                    allcorrect = False
+                if question.useranswers:
+                    if not question.useranswers[0].correct:
+                        allcorrect = False
             except ObjectDoesNotExist:
                 allcorrect = False
-            # print(allcorrect)
         paths = list(filter(lambda x: x != '', exercise.path.split('/')[1:-1]))
         root = reduce(lambda a, b: a['folders'].get(b)['content'], paths, folders)
         if 'exercises' not in root:
             root['exercises'] = {}
+            root['order'] = []
         root['exercises'].update(
             {
                 exercise.exercise_key: {
@@ -105,6 +112,16 @@ def exercise_folder_structure(manager, user):  # {{{
                 }
             }
         )
+
+    def add_sort_order(node):
+        if 'exercises' in node:
+            node['order'] = list(node['exercises'].keys())
+            node['order'].sort(key=lambda exercisekey: node['exercises'][exercisekey]['name'])
+        if 'folders' in node:
+            for key, value in node['folders'].items():
+                add_sort_order(value['content'])
+
+    add_sort_order(folders)
     return folders  # }}}
 
 

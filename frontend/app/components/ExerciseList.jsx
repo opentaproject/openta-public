@@ -33,7 +33,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
       <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
     </li>
     { pendingState.get('exerciseList', false) && (<Spinner/>) }
-    {exerciselist.sort((a,b) => a.get('name').localeCompare(b.get('name'))).map( exercise => {
+    {exerciselist/*.sort((a,b) => a.get('name').localeCompare(b.get('name')))*/.map( exercise => {
       var meta = exercise.get('meta');
       if(!meta)meta = immutable.Map({});
       var key = exercise.get('exercise_key');
