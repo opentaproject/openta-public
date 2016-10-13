@@ -91,7 +91,7 @@ def exercise_folder_structure(manager, user):  # {{{
         allcorrect = True
         for question in exercise.question.all():  # questions:
             try:
-                if question.useranswers:
+                if hasattr(question, 'useranswers') and question.useranswers:
                     if not question.useranswers[0].correct:
                         allcorrect = False
             except ObjectDoesNotExist:
