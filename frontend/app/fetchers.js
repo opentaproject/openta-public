@@ -65,14 +65,7 @@ function fetchLoginStatus() {
 function fetchExercises() {
   return dispatch => {
     return jsonfetch('/exercises/')
-      //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
-      .then(json => json.map( exercise =>
-                             ({
-                               [exercise.exercise_key]: { ...exercise }
-                             }) ))
-      .then(json => json.reduce( (a,b) => Object.assign(a,b) ))
-      //.then(json => json.map( item => item.exercise_name ))
       .then(json => {
          dispatch(updatePendingStateIn( ['course', 'loadingExercises'], false));
          return json;

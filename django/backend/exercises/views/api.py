@@ -88,7 +88,7 @@ def exercise_list(request):  # {{{
     """
     List all exercises
     """
-    responselist = []
+    responselist = {}
     # exercises = Exercise.objects.all()
     exercises = Exercise.objects.prefetch_related(
         Prefetch(
@@ -124,7 +124,7 @@ def exercise_list(request):  # {{{
                 except ObjectDoesNotExist:
                     allcorrect = False
             data['correct'] = allcorrect
-            responselist.append(data)
+            responselist[exercise.exercise_key] = data
     return Response(responselist)  # }}}
 
 
@@ -141,9 +141,12 @@ def other_exercises_from_folder(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     other = []
     if request.user.has_perm('exercises.edit_exercise'):
-        other = Exercise.objects.filter(folder=dbexercise.folder)
+        other = Exercise.objects.filter(folder=dbexercise.folder).prefetch_related('meta')
     else:
-        other = Exercise.objects.filter(folder=dbexercise.folder, meta__published=True)
+        other = Exercise.objects.filter(
+            folder=dbexercise.folder, meta__published=True
+        ).prefetch_related('meta')
+
     serializer = ExerciseSerializer(other, many=True)
     return Response(serializer.data)  # }}}
 
