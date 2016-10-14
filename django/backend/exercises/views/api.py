@@ -22,6 +22,7 @@ from django.template.response import TemplateResponse
 from django.template import loader
 from django.contrib import messages
 from django.db import transaction
+from django.db.models import Prefetch
 import logging
 import backend.settings as settings
 import json
@@ -87,13 +88,44 @@ def exercise_list(request):  # {{{
     """
     List all exercises
     """
-    response = []
-    exercises = Exercise.objects.all()
+    responselist = []
+    # exercises = Exercise.objects.all()
+    exercises = Exercise.objects.prefetch_related(
+        Prefetch(
+            'question__answer',
+            queryset=Answer.objects.filter(user=request.user).order_by('-date'),
+            to_attr="useranswers",
+        ),
+        Prefetch(
+            'imageanswer',
+            queryset=ImageAnswer.objects.filter(user=request.user),
+            to_attr="userimageanswers",
+        ),
+        'meta',
+    )
     for exercise in exercises:
         if exercise.meta.published or request.user.has_perm('exercises.edit_exercise'):
-            data = serialize_exercise_with_question_data(exercise, request.user)
-            response.append(data)
-    return Response(response)  # }}}
+            exerciseserializer = ExerciseSerializer(exercise)
+            data = exerciseserializer.data
+            data['question'] = {}
+            data['image_answers'] = [image_answer.pk for image_answer in exercise.userimageanswers]
+            allcorrect = True
+            for question in exercise.question.all():  # questions:
+                try:
+                    if hasattr(question, 'useranswers') and question.useranswers:
+                        if not question.useranswers[0].correct:
+                            allcorrect = False
+                        answerserializer = AnswerSerializer(question.useranswers[0])
+                        response = json.loads(question.useranswers[0].grader_response)
+                        data['question'][question.question_key] = answerserializer.data
+                        data['question'][question.question_key]['response'] = response
+                    else:
+                        allcorrect = False
+                except ObjectDoesNotExist:
+                    allcorrect = False
+            data['correct'] = allcorrect
+            responselist.append(data)
+    return Response(responselist)  # }}}
 
 
 @api_view(['GET'])

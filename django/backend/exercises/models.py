@@ -255,7 +255,7 @@ def answer_image_filename(instance, filename):  # {{{
 
 class ImageAnswer(models.Model):  # {{{
     user = models.ForeignKey(User)
-    exercise = models.ForeignKey(Exercise)
+    exercise = models.ForeignKey(Exercise, related_name="imageanswer")
     exercise_key = models.CharField(max_length=255, default='')
     date = models.DateTimeField(default=now)
     image = models.ImageField(upload_to=answer_image_filename)
