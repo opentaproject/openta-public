@@ -11,6 +11,9 @@ class UserBehavior(TaskSet):
     def __init__(self, *args, **kwargs):
         super(UserBehavior, self).__init__(*args, **kwargs)
         self.exercises = []
+        self.exercisesdict = {}
+        self.loaded_exercises = {}
+        self.csrftoken = ""
 
     def on_start(self):
         """ on_start is called when a Locust start before any task is scheduled """
@@ -23,8 +26,8 @@ class UserBehavior(TaskSet):
                 csrftoken = r.cookies['csrftoken']
                 self.csrftoken = csrftoken
                 self.client.headers['Referer'] = self.client.base_url
-                self.client.headers['X-CSRFToken'] = csrftoken
-                self.client.cookies['csrftoken'] = csrftoken
+                # self.client.headers['X-CSRFToken'] = csrftoken
+                # self.client.cookies['csrftoken'] = csrftoken
                 with self.client.post(
                     '/login/',
                     data={
@@ -34,14 +37,21 @@ class UserBehavior(TaskSet):
                     },
                     catch_response=True,
                 ) as response:
-                    pprint(response)
+                    pass
+                    # print(response.request.cookies)
+                    # pprint(response)
                 print("Sent login info")
                 if self.check_loggedin():
                     print("Login confimed")
+                    self.get_exercises()
                 else:
                     print("Login failed!")
             else:
                 print("No csrf token")
+
+    def get_csrf(self):
+        res = self.client.get('/login/')
+        return res.cookies['csrftoken']
 
     def check_loggedin(self):
         loggedinrequest = self.client.get('/loggedin/')
@@ -52,17 +62,18 @@ class UserBehavior(TaskSet):
     # @task(1)
     def get_exercises(self):
         r = self.client.get("/exercises")
-        self.exercises = r.json()
+        self.exercisesdict = r.json()
+        self.exercises = self.exercisesdict.values()
         if r.status_code > 300:
             print("/exercises failed")
 
-    @task(1)
+    # @task(1)
     def exercises_tree(self):
         r = self.client.get("/exercises/tree")
         if r.status_code > 300:
             print("/exercises failed")
 
-    @task(3)
+    # @task(3)
     def exercise_random_folder(self):
         # exercises = self.client.get("/exercises").json()
         self.get_exercises()
@@ -71,17 +82,47 @@ class UserBehavior(TaskSet):
         # print(folder.json())
 
     @task(10)
+    def check_random_answer(self):
+        try:
+            key = random.choice(self.loaded_exercises.keys())
+            json = self.loaded_exercises[key]
+            question_key = json['exercise']['question'][0]['@attr']['key']
+            token = self.get_csrf()
+            with self.client.post(
+                '/exercise/' + key + '/question/' + question_key + '/check',
+                json={'answerData': '1'},
+                headers={
+                    'X-CSRFToken': token,
+                    #'Accept': 'application/json',
+                    #'X-Requested-With': 'XMLHttpRequest'
+                },
+                catch_response=True,
+            ) as response:
+                if 'correct' not in response.json():
+                    print("Exercise check failed!")
+                # print(response)
+                # pass
+                # print(response.json())
+        except IndexError:
+            pass
+
+    @task(2)
     def exercise_load(self):
         try:
+            self.exercises_tree()
+            self.exercise_random_folder()
             exercise = random.choice(self.exercises)
             json = self.client.get("/exercise/" + exercise['exercise_key'] + "/json")
-            xml = self.client.get("/exercise/" + exercise['exercise_key'] + "/xml")
+            parsedjson = json.json()
+            # print(parsedjson)
+            self.loaded_exercises[exercise['exercise_key']] = parsedjson
+            # xml = self.client.get("/exercise/" + exercise['exercise_key'] + "/xml")
             state = self.client.get("/exercise/" + exercise['exercise_key'])
-        except IndexError:
+        except IndexError, KeyError:
             pass
 
 
 class WebsiteUser(HttpLocust):
     task_set = UserBehavior
-    min_wait = 1000
-    max_wait = 5000
+    min_wait = 3000
+    max_wait = 10000
