@@ -124,7 +124,7 @@ class BaseExercise extends Component {
               .map( child => this.dispatchElement(child, json, meta, key) ).toSeq();
     var exerciseDOM = (
         <article className="uk-article uk-margin-top" ref="exercise" key={key}>
-        { meta.get('image', false) && <ExerciseImageUpload/> }
+        { meta.get('image', false) && <div className="uk-float-right uk-margin-small-right"><ExerciseImageUpload/></div> }
           {items}
         </article>
     );

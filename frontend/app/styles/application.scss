@@ -27,6 +27,16 @@ $exerciselist: 0.1;
 }
 
 @mixin layout($exerciselist, $exercise, $calcadmin, $onecolumn) {
+  .exercise-list-on-canvas {
+    @if $onecolumn {
+      display: none;
+    }
+  }
+  .exercise-list-off-canvas {
+    @if not($onecolumn) {
+      display: none;
+    }
+  }
   .exercise-list {
     width: percentage($exerciselist);
     padding: 0;

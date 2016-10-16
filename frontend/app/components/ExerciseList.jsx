@@ -26,9 +26,48 @@ function listClass(item, active) {
   else return "";
 }
 
+function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta) {
+  var onExerciseClick = (key, loaded) => {
+    UIkit.offcanvas.hide();
+    onClickFunc(key, loaded);
+  }; 
+return (
+      <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
+        <a className={ meta.get('published', false) ? "" : "exercise-unpublished" } onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
+          <ul >
+            <li>
+              <div className="exercise-list-thumb-wrap">
+              <img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={SUBPATH + '/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
+              <div className="exercise-thumb-badge">
+              {exerciseState.getIn([exercise.get('exercise_key'), 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
+              { meta.get('difficulty', false) && <Badge className="uk-badge-notification">{difficulties[meta.get('difficulty','none')]}</Badge> }
+              { meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> }
+              { meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> }
+              { meta.get('deadline_date',false) && <Badge className="uk-badge-notification uk-badge-warning uk-text-small"><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" title="Bonus"/>{moment(meta.get('deadline_date')).format('D MMM')}</Badge> }
+              </div>
+              </div>
+            </li>
+            <li className="uk-text-break">{exercise.get('name')}</li>
+          </ul>
+        </a>
+      </li>
+);
+}
+
 const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onBack, pendingState }) => (
-  <div className="uk-text-center" id="exercises-menu">
-    <ul className="uk-nav uk-nav-side uk-list-space exercise-menu">
+  <div className="uk-text-center " id="exercises-menu">
+    <div id="offcanvas-exercise-list" className="uk-offcanvas">
+      <div className="uk-offcanvas-bar">
+        <ul className="uk-nav uk-nav-offcanvas">
+          <li className="uk-nav-header" key="header">
+            <a onClick={(ev) => { UIkit.offcanvas.hide(); onBack() } }><i className="uk-icon uk-icon-arrow-left uk-margin-small-right"></i><span className="uk-text-small">{folder.split('.')[0]}</span></a> 
+          </li>
+          { exerciselist.map( exercise => generateItem(onExerciseClick, exercise, activeExercise, exerciseState, exercise.get('meta') || immutable.Map({}))) }
+        </ul>
+      </div>
+    </div>
+    { /*<a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas" data-uk-offcanvas/> */ }
+    <ul className="uk-nav uk-nav-side uk-list-space exercise-menu exercise-list-on-canvas">
     <li className="uk-nav-header" key="header">
       <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
     </li>
@@ -37,28 +76,8 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
       var meta = exercise.get('meta');
       if(!meta)meta = immutable.Map({});
       var key = exercise.get('exercise_key');
-      return ( 
-                      <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
-                        <a className={ meta.get('published', false) ? "" : "exercise-unpublished" } onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
-                          <ul >
-                            <li>
-                              <div className="exercise-list-thumb-wrap">
-                              <img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={SUBPATH + '/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
-                              <div className="exercise-thumb-badge">
-                              {exerciseState.getIn([key, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
-                              { meta.get('difficulty', false) && <Badge className="uk-badge-notification">{difficulties[meta.get('difficulty','none')]}</Badge> }
-                              { meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> }
-                              { meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> }
-                              { meta.get('deadline_date',false) && <Badge className="uk-badge-notification uk-badge-warning uk-text-small"><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" title="Bonus"/>{moment(meta.get('deadline_date')).format('D MMM')}</Badge> }
-                              </div>
-                              </div>
-                            </li>
-                            <li className="uk-text-break">{exercise.get('name')}</li>
-                          </ul>
-                        </a>
-                      </li>
-                                   );
-                     }).toArray()}
+      return generateItem(onExerciseClick, exercise, activeExercise, exerciseState, meta);
+      }).toArray()}
     </ul>
   </div>
 );

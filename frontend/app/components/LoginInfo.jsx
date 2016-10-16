@@ -83,7 +83,11 @@ const BaseLoginInfo = ({ username,groups, admin, author, activeExercise, exercis
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
   <div className="uk-container uk-container-center">
-  <div className="uk-navbar-brand"><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> OpenTA</span></div>
+  { activeExercise &&
+  <div className="uk-navbar-content">
+    <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas" data-uk-offcanvas/>
+  </div> }
+  <div className="uk-navbar-brand exercise-list-on-canvas"><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> OpenTA</span></div>
   <div className="uk-navbar-flip">
   <div className="uk-navbar-content">
   { author && activeExercise && savereset}
