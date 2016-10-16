@@ -84,7 +84,9 @@ def check_units(expression, correct, variables):
     ceval = sympy.simplify(correct.subs(variables))
     quotient = sympy.simplify(ceval / evaluated)
     if len(list(quotient.free_symbols)) > 0:
-        raise CompareNumericUnitError("Seems like the expression does not have the correct units.")
+        raise CompareNumericUnitError(
+            _("Seems like the expression does not have the correct units.")
+        )
 
 
 def evaluate(variables, expression):
@@ -153,16 +155,16 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
             # for sym in diff.free_symbols:
             #    print(sym)
             #    print(type(sym))
-            response['error'] = "Failed to evaluate expression"
+            response['error'] = _("Failed to evaluate expression")
             if len(unrecognised) > 0:
                 response['error'] = (
-                    response['error'] + ': ' + unrecognised + ' are not valid variables.'
+                    response['error'] + ': ' + unrecognised + _(' are not valid variables.')
                 )
     except SympifyError as e:
         # print("SympifyError")
         print(e)
         print(traceback.format_exc())
-        response['error'] = "Failed to evaluate expression"
+        response['error'] = _("Failed to evaluate expression")
         # pass
     return response  # }}}
 

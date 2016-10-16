@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-02 15:46+0200\n"
+"POT-Creation-Date: 2016-10-16 16:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,23 +26,107 @@ msgstr "Registreringslösenord"
 msgid "Batch CSV file"
 msgstr ""
 
-#: backend/views.py:35
+#: backend/views.py:51
 msgid "Password is now set, please login."
-msgstr ""
+msgstr "Lösenord sparat, logga in nedan."
 
-#: backend/views.py:45 backend/views.py:56
+#: backend/views.py:61 backend/views.py:72
 msgid ""
 "Registration complete, check inbox for activation mail (possibly spam "
 "folder)."
 msgstr ""
+"Registrering klar, ett aktiveringsmail har skickats till din mail (möjligen "
+"i spam mapp)."
 
-#: backend/views.py:82 backend/views.py:123 backend/views.py:132
+#: backend/views.py:98 backend/views.py:139 backend/views.py:148
 msgid "5 times per 30 seconds"
 msgstr "5 gånger per 30 sekunder"
 
-#: backend/views.py:95
-msgid "Activation successful, please logi."
+#: backend/views.py:111
+msgid "Activation successful, please login."
+msgstr "Aktivering lyckades, logga in nedan."
+
+#: exercises/models.py:47
+msgid "Added exercise "
 msgstr ""
+
+#: exercises/models.py:50
+msgid "Updated exercise "
+msgstr ""
+
+#: exercises/models.py:75
+msgid "Started syncing exercises..."
+msgstr ""
+
+#: exercises/models.py:87
+msgid "Duplicate exercise keys!"
+msgstr ""
+
+#: exercises/models.py:88
+msgid "Exercise at ["
+msgstr ""
+
+#: exercises/models.py:88
+msgid "] has the same key as exercise at ["
+msgstr ""
+
+#: exercises/models.py:89
+msgid ""
+"Neither was added. (Perhaps you copied an exercise? Then please remove the "
+"key file from the new exercise to generate a new one on reload)"
+msgstr ""
+
+#: exercises/models.py:104
+msgid "Deleted "
+msgstr ""
+
+#: exercises/models.py:104
+msgid " since it is not present on disc anymore"
+msgstr ""
+
+#: exercises/models.py:110
+msgid "Deleted an entry for "
+msgstr ""
+
+#: exercises/models.py:110
+msgid ""
+" since the stored exercise key did not correspond to the exercisekey in the "
+"folder."
+msgstr ""
+
+#: exercises/models.py:113
+msgid "Finished syncing exercises."
+msgstr ""
+
+#: questiontypes/compare_numeric/compare_numeric.py:78
+msgid "Terms do not seem to have the same unit."
+msgstr "Termerna i uttrycket verkar inte ha samma enhet."
+
+#: questiontypes/compare_numeric/compare_numeric.py:82
+msgid "Seems like the expression does not have the correct units."
+msgstr "Uttrycket verkar inte ha rätt enhet."
+
+#: questiontypes/compare_numeric/compare_numeric.py:149
+#: questiontypes/compare_numeric/compare_numeric.py:156
+msgid "Failed to evaluate expression"
+msgstr "Kunde inte evaluera uttrycket."
+
+#: questiontypes/compare_numeric/compare_numeric.py:151
+msgid " are not valid variables."
+msgstr " är inte tillåtna variabler."
+
+#: questiontypes/compare_numeric/compare_numeric.py:174
+#: questiontypes/compare_numeric/compare_numeric.py:193
+msgid "Answer contains invalid character "
+msgstr "Uttrycket innehåller felaktiga tecken "
+
+#: questiontypes/compare_numeric/compare_numeric.py:184
+msgid "Expression could not be parsed."
+msgstr "Uttrycket kunde inte tolkas."
+
+#: questiontypes/compare_numeric/compare_numeric.py:214
+msgid "Could not parse expression"
+msgstr "Uttrycket kunde inte tolkas."
 
 #: templates/batch_add_users.html:26
 msgid "Process"
@@ -79,7 +163,7 @@ msgid "You can only access this page "
 msgstr "Du kan bara använda denna sidan "
 
 #: templates/register.html:24 templates/registration/login.html:37
-#: templates/registration/set_password.html:23
+#: templates/registration/set_password.html:25
 msgid "Register"
 msgstr "Registrera"
 

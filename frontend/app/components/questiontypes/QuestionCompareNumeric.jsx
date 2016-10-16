@@ -100,9 +100,9 @@ export default class QuestionCompareNumeric extends Component {
   var hasChanged = input !== lastAnswer;
   if(input === lastAnswer && lastAnswer !== '') {
     if(correct)
-       graderResponse = (<Alert message={"$" + this.renderAsciiMath(input) + "$" + " is correct!"} type="success" key="input" hasMath={true}/>);
+       graderResponse = (<Alert message={"$" + this.renderAsciiMath(input) + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
     else
-      graderResponse = (<Alert message={"$" + this.renderAsciiMath(input) + "$" + " is incorrect"} type="warning" key="input" hasMath={true}/>);
+      graderResponse = (<Alert message={"$" + this.renderAsciiMath(input) + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert message={this.renderAsciiMath(input)} key="input"/>);
   }
