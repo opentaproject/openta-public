@@ -108,8 +108,9 @@ def check_units_new(expression, correct, variables):
     checks = [[1, 1, 1], [perturb(2), 1, 1], [1, perturb(2), 1], [1, 1, perturb(2)]]
     results = []
     for check in checks:
-        vale = lexpr(*nvalues, *check)
-        valc = lcorrect(*nvalues, *check)
+        args = nvalues + check
+        vale = lexpr(*args)
+        valc = lcorrect(*args)
         results.append(vale / valc)
     for res in results:
         if abs(res - results[0]) > 10e-5:
