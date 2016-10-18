@@ -10,25 +10,52 @@ The following will assume the repository is cloned into a folder ```openta/```.
 
 Requires: 
 * [Python 3](https://www.python.org)
+* libjpeg
+* libgraphivz
+* graphviz
+
+In an apt-based linux distribution the required dependencies can be installed with
+```
+apt get install libjpeg-dev libgraphviz-dev graphviz pkg-config
+```
+
+### Steps
 
 Enter the backend subfolder with ```cd django```.
 Create a python 3 environment in a subdirectory ```env``` (name not important) with
 ```
 virtualenv env
 ```
+or
+```
+pyvenv env
+```
+depending on your installation. You might need to add an argument ```-p python3``` with the path to your python3 binary.
+
 Enter the environment with
 ```
 source env/bin/activate
 ```
 
-Install all dependencies with
+Install all dependencies with (on some systems you might need ```pkg-config``` installed for the python build scripts to find some of the library dependencies)
 ```
 pip install -r requirements.txt
 ```
 
+Choose a version of the django settings file located in
+```
+django/backend/backend/
+```
+For local development the ```settings_dev.py``` would be suitable.
+Copy the choosen file to ```settings.py```, for example
+```
+cd backend/backend/
+cp settings_dev.py settings.py
+```
+
 Start development server with
 ```
-cd backend
+cd ..
 python manage.py runserver
 ```
 
@@ -50,6 +77,13 @@ Install all dependencies (specified in package.json) with
 cd frontend
 npm install
 ```
+
+Make a local copy of the settings file (for local development no changes are needed) with
+```
+cd frontend/app/
+cp settings_example.js settings.js
+```
+
 Build frontend and copy the bundle to the django server (as specified in brunch-config.js)
 ```
 brunch build
@@ -78,7 +112,7 @@ Contains all exercise data, a typical example:
   <figure>...</figure>
   <exercisetext>...</exercisetext>
   
-  <question key=... type=...>
+  <question key=... type=...>
     ....
   </question>
 </exercise>
