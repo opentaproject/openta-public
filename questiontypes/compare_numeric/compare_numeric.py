@@ -89,6 +89,39 @@ def check_units(expression, correct, variables):
         )
 
 
+def check_units_new(expression, correct, variables):
+    nvarsubs = {}
+    nvalues = []
+
+    def perturb(value):
+        return value + value * random.random() * 0.1
+
+    for var, value in variables.items():
+        nvarsubs[var] = var * value
+        nvalues.append(1 + random.random() * 0.1)
+    nexpression = expression.subs(nvarsubs)
+    ncorrect = correct.subs(nvarsubs)
+    allvars = tuple(variables.keys()) + (kg, meter, second)
+    lexpr = sympy.lambdify(allvars, nexpression, "numpy")
+    lcorrect = sympy.lambdify(allvars, ncorrect, "numpy")
+
+    checks = [[1, 1, 1], [perturb(2), 1, 1], [1, perturb(2), 1], [1, 1, perturb(2)]]
+    results = []
+    for check in checks:
+        vale = lexpr(*nvalues, *check)
+        valc = lcorrect(*nvalues, *check)
+        results.append(vale / valc)
+    for res in results:
+        if abs(res - results[0]) > 10e-5:
+            raise CompareNumericUnitError(
+                _("Seems like the expression does not have the correct units.")
+            )
+    # print(lexpr(*nvalues, 1,1,1))
+    # for i in range(0, 3):
+    #    for var,value in variables:
+    # check_dependence(expression, kg)
+
+
 def evaluate(variables, expression):
     subs = parse_variables(variables)
     # Parse expression and evaluate with specified values
@@ -136,7 +169,14 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
         # response['symbolic_difference'] = str(symbolic)
         if diff.is_constant():
             try:
-                check_units(sympy1, sympy2, varsubs)
+                # pass
+                # start = time.perf_counter()
+                check_units_new(sympy1, sympy2, varsubs)
+                # new = time.perf_counter()
+                # check_units(sympy1, sympy2, varsubs)
+                # old = time.perf_counter()
+                # print("Old: " + str(old-new) + " New: " + str(new-start))
+                # print("Stats")
             except CompareNumericUnitError as e:
                 response['warning'] = str(e)
             diffs = []
