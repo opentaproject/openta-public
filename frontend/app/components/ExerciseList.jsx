@@ -80,7 +80,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
       if(!meta)meta = immutable.Map({});
       var key = exercise.get('exercise_key');
       return generateItem(onExerciseClick, exercise, activeExercise, exerciseState, meta);
-      }).toArray()}
+      })}
     </ul>
   </div>
 );
@@ -99,7 +99,7 @@ const mapStateToProps = state => {
   var exerciseState = state.getIn(['exerciseState'], immutable.Map({}));
   return (
   {
-    exerciselist: state.get('exercises', immutable.List([])).sort(),
+    exerciselist: state.get('exercises', immutable.List([])),
     folder: state.get('folder', ""),
     activeExercise: state.get('activeExercise') ,
     exerciseState: exerciseState,

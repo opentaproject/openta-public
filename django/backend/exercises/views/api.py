@@ -148,7 +148,8 @@ def other_exercises_from_folder(request, exercise):  # {{{
         ).prefetch_related('meta')
 
     serializer = ExerciseSerializer(other, many=True)
-    return Response(serializer.data)  # }}}
+    inorder = sorted(serializer.data, key=lambda item: item['meta']['sort_key'])
+    return Response(inorder)  # }}}
 
 
 @api_view(['GET'])

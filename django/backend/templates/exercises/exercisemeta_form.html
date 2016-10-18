@@ -12,6 +12,14 @@
       <div class="uk-form-controls">{{ form.difficulty | add_class:"uk-form-small" }}</div>
     </div>
     <div class="uk-form-row">
+      {{ form.deadline_date.errors }}
+      <label class="uk-form-label" for={{ form.deadline_date.id_for_label }}>{{ form.deadline_date.label }}</label>
+      <div class="uk-form-controls">
+          <i class="uk-icon-calendar"></i>
+        {{ form.deadline_date | set_data:"uk-datepicker:{format:'YYYY-MM-DD'}" | add_class:"uk-form-small " }}
+      </div>
+    </div>
+    <div class="uk-form-row">
       {{ form.published.errors }}
       <label class="uk-form-label" for={{ form.published.id_for_label }}>{{ form.published.label }}</label>
       <div class="uk-form-controls">{{ form.published }}</div>
@@ -42,12 +50,9 @@
       <div class="uk-form-controls">{{ form.server_reply_time | add_class:"uk-form-small"}}</div>
     </div>
     <div class="uk-form-row">
-      {{ form.deadline_date.errors }}
-      <label class="uk-form-label" for={{ form.deadline_date.id_for_label }}>{{ form.deadline_date.label }}</label>
-      <div class="uk-form-controls">
-          <i class="uk-icon-calendar"></i>
-        {{ form.deadline_date | set_data:"uk-datepicker:{format:'YYYY-MM-DD'}" | add_class:"uk-form-small " }}
-      </div>
+      {{ form.sort_key.errors }}
+      <label class="uk-form-label" for={{ form.sort_key.id_for_label }}>{{ form.sort_key.label }}</label>
+      <div class="uk-form-controls">{{ form.sort_key }}</div>
     </div>
     <input class="uk-button uk-margin-small-top" type="submit" value="Save" />
 </form>

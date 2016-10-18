@@ -16,6 +16,7 @@ class ExerciseMetaSerializer(serializers.ModelSerializer):
             'image',
             'bonus',
             'server_reply_time',
+            'sort_key',
         )
 
 

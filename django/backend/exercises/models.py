@@ -56,7 +56,9 @@ class ExerciseManager(models.Manager):  # {{{
         dbexercise, created = self.update_or_create(
             exercise_key=key, defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)}
         )
-        dbmeta, created_meta = ExerciseMeta.objects.get_or_create(exercise=dbexercise)
+        dbmeta, created_meta = ExerciseMeta.objects.update_or_create(
+            exercise=dbexercise, defaults={'sort_key': os.path.basename(path)}
+        )
         if created:
             progress.append(('success', _("Added exercise ") + path))
             print('Adding ' + path + '/' + name + ' to database.')
@@ -279,6 +281,7 @@ class ExerciseMeta(models.Model):  # {{{
     bonus = models.BooleanField(default=False)
     server_reply_time = models.DurationField(default=None, null=True, blank=True)
     published = models.BooleanField(default=False)
+    sort_key = models.CharField(max_length=255, default='', verbose_name='Sort order key')
 
     def __str__(self):
         return self.exercise.name

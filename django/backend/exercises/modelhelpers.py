@@ -116,7 +116,9 @@ def exercise_folder_structure(manager, user):  # {{{
     def add_sort_order(node):
         if 'exercises' in node:
             node['order'] = list(node['exercises'].keys())
-            node['order'].sort(key=lambda exercisekey: node['exercises'][exercisekey]['name'])
+            node['order'].sort(
+                key=lambda exercisekey: node['exercises'][exercisekey]['meta']['sort_key']
+            )
         if 'folders' in node:
             for key, value in node['folders'].items():
                 add_sort_order(value['content'])
