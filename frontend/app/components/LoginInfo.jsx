@@ -37,7 +37,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
     </div>
 );
 
-const BaseLoginInfo = ({ username,groups, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onSave, onReset}) => {
+const BaseLoginInfo = ({ username, groups, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onSave, onReset}) => {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
@@ -63,7 +63,7 @@ const BaseLoginInfo = ({ username,groups, admin, author, activeExercise, exercis
     return ( <a key={item.id} className={cssclass} onClick={item.callback}>{item.name}</a> );
     }
     else
-      return (<span/>)
+      return (<span key={item.id}/>)
   });
 
   var savereset = (
@@ -76,9 +76,9 @@ const BaseLoginInfo = ({ username,groups, admin, author, activeExercise, exercis
   );
   var renderGroupIcons = groups.map( group => {
                                     if(group in groupIcons)
-                                      return (<i className={"uk-icon uk-text-success uk-margin-small-left " + groupIcons[group].icon} title={groupIcons[group].alt}/>)
+                                      return (<i key={group} className={"uk-icon uk-text-success uk-margin-small-left " + groupIcons[group].icon} title={groupIcons[group].alt}/>)
                                     else
-                                      return (<span/>)
+                                      return (<span key={group}/>)
   });
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
@@ -93,7 +93,7 @@ return (
   { author && activeExercise && savereset}
   </div>
   <ul className="uk-navbar-nav">
-      <li>
+      <li >
       <a href={SUBPATH + "/logout/?next=" + SUBPATH + "/login"}><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
       </li>
   </ul>

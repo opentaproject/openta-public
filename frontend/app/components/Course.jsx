@@ -23,6 +23,30 @@ var difficulties = {
   '3': 'Svår',
 };
 
+function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername) {
+  var deadlineClass = "uk-badge-primary";
+  if( meta.bonus )
+    deadlineClass = "uk-badge-warning";
+return (
+  <li key={exercise} id={exercise} className="course-exercise-item">
+    <a className={"uk-thumbnail " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
+    <div className="exercise-thumb-wrap">
+      <img className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}/>
+      <div className="exercise-thumb-badge">
+      {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
+      { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
+      { /*meta.required && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */ }
+      { /*meta.bonus && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
+      { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass}><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" title="Bonus"/>{moment(meta.deadline_date).format('D MMM')}</Badge> }
+      </div>
+      </div>
+      <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
+      {folder.exercises[exercise].name}
+      </div>
+    </a>
+  </li>);
+}
+
 const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, onExerciseClick }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
@@ -33,24 +57,7 @@ const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, on
       //exerciseState.getIn([exercise, 'correct'], false)
       exercises = folder.order/*Object.keys(folder.exercises)/*.sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name )*/.map( exercise => {
         var meta = folder.exercises[exercise].meta;
-        return (
-        <li key={exercise} id={exercise} className="course-exercise-item">
-          <a className={"uk-thumbnail " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
-          <div className="exercise-thumb-wrap">
-            <img className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}/>
-            <div className="exercise-thumb-badge">
-            {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
-            { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
-            { meta.required && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> }
-            { meta.bonus && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> }
-            { meta.deadline_date && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" title="Bonus"/>{moment(meta.deadline_date).format('D MMM')}</Badge> }
-            </div>
-            </div>
-            <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
-            {folder.exercises[exercise].name}
-            </div>
-          </a>
-        </li>)
+        return generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername);
       });
     }
     if(folder.folders)

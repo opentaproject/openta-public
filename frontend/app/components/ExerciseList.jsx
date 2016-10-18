@@ -31,6 +31,9 @@ function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta
     UIkit.offcanvas.hide();
     onClickFunc(key, loaded);
   }; 
+  var deadlineClass = "uk-badge-primary";
+  if( meta.get('bonus', false) )
+    deadlineClass = "uk-badge-warning";
 return (
       <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
         <a className={ meta.get('published', false) ? "" : "exercise-unpublished" } onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
@@ -41,9 +44,9 @@ return (
               <div className="exercise-thumb-badge">
               {exerciseState.getIn([exercise.get('exercise_key'), 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
               { meta.get('difficulty', false) && <Badge className="uk-badge-notification">{difficulties[meta.get('difficulty','none')]}</Badge> }
-              { meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> }
-              { meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> }
-              { meta.get('deadline_date',false) && <Badge className="uk-badge-notification uk-badge-warning uk-text-small"><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" title="Bonus"/>{moment(meta.get('deadline_date')).format('D MMM')}</Badge> }
+              { /*meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */}
+              { /*meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
+              { meta.get('deadline_date',false) && <Badge className={"uk-badge-notification uk-text-small " + deadlineClass}><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" title="Bonus"/>{moment(meta.get('deadline_date')).format('D MMM')}</Badge> }
               </div>
               </div>
             </li>

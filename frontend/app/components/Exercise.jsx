@@ -39,10 +39,10 @@ class BaseExercise extends Component {
     var questions = json.getIn(['exercise', 'question'], immutable.List([]));
     var question = itemjson;
     return (
-          <div>
+          <div key={"q" + question.getIn(['@attr', 'key'])}>
           { questions.filter( q => q.getIn(['@attr','key']) == question.getIn(['@attr','key']) ).count() > 1 && this.props.admin && <Alert message="Duplicate question keys! (If you copied a question please change the key attribute)" type="error"/> } 
           <form key={question.getIn(['@attr','key'])} className="uk-form" onSubmit={(event) => event.preventDefault()}>
-            <Question exerciseKey={exerciseKey} questionKey={question.getIn(['@attr','key'])}/>
+          {<Question exerciseKey={exerciseKey} questionKey={question.getIn(['@attr','key'])}/>}
           </form>
           </div>
     );
@@ -52,7 +52,7 @@ class BaseExercise extends Component {
     var children = itemjson.get('$children$', immutable.List([]))
                     .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
     return (
-      <div className="uk-clearfix">
+      <div className="uk-clearfix" key={"text"}>
       <div className="uk-align-medium-right">{children}</div>
       <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(itemjson.get('$'))}} />
       </div>
@@ -61,7 +61,7 @@ class BaseExercise extends Component {
 
   renderFigure = (itemjson, json, meta, exerciseKey) => {
     return (
-              <a href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')} data-uk-lightbox data-lightbox-type="image"><img style={{maxHeight: '100pt'}} src={SUBPATH + '/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/></a>
+              <a key={"figure"+itemjson.get('$')} href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')} data-uk-lightbox data-lightbox-type="image"><img style={{maxHeight: '100pt'}} src={SUBPATH + '/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/></a>
     );
   }
 
@@ -69,19 +69,19 @@ class BaseExercise extends Component {
     var children = itemjson.get('$children$', immutable.List([]))
                     .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
     return (
-      <div className="uk-margin-bottom uk-text-center">
-      {meta.get('solution', false) && children}
+      <div className="uk-margin-bottom uk-text-center" key={"solution"}>
+      {/*meta.get('solution', false) && children*/}
 
       {!meta.get('solution', false) && this.props.author && <div className="uk-block uk-block-muted uk-padding-remove uk-text-warning">Dold. Visa för studenter genom att klicka i "solution" i inställningarna.</div> }
-      {!meta.get('solution', false) && this.props.author && <div className="uk-block uk-block-muted uk-padding-remove">{children}</div>
-      }
+      {/*!meta.get('solution', false) && this.props.author && <div className="uk-block uk-block-muted uk-padding-remove">{children}</div>
+      */}
       </div>
     );
   }
 
   renderAsset = (itemjson, json, meta, exerciseKey) => {
     return (
-      <a className="uk-button uk-button-primary" href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')}>{itemjson.getIn(['@attr', 'name'])}</a>
+      <a key={"asset" + itemjson.get('$')} className="uk-button uk-button-primary" href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')}>{itemjson.getIn(['@attr', 'name'])}</a>
     );
   }
 
@@ -90,7 +90,7 @@ class BaseExercise extends Component {
     var deadline_date_format = moment(deadline_date).format('D MMM');
     
     return (
-          <div>
+          <div key="name">
           <h1 className="uk-article-title">{itemjson.get('$')}
           { deadline_date && <div className="uk-badge uk-badge-warning">Deadline: {deadline_date_format}</div>}
           </h1>
@@ -104,13 +104,13 @@ class BaseExercise extends Component {
       'text': this.renderText,
       'figure': this.renderFigure,
       'question': this.renderQuestion,
-      'solution': this.renderSolution,
-      'asset': this.renderAsset,
+      //'solution': this.renderSolution,
+      //'asset': this.renderAsset,
     };
     if(element.get('#name') in itemDispatch)
       return itemDispatch[element.get('#name')](element, json, meta, exerciseKey);
     else
-      return (<span/>);
+      return null;
   }
 
   render() {

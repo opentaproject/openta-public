@@ -95,7 +95,7 @@ export default class QuestionCompareNumeric extends Component {
   var availableVariables = varsList.length ? "(i termer av " + varsList.join(", ") + ")" : "";
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
-  var graderResponse = "";
+  var graderResponse = null;
   var input = this.state.value.trim();
   var hasChanged = input !== lastAnswer;
   if(input === lastAnswer && lastAnswer !== '') {
@@ -106,7 +106,7 @@ export default class QuestionCompareNumeric extends Component {
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert message={this.renderAsciiMath(input)} key="input"/>);
   }
-  var mathjsError = false;
+  var mathjsError = null;
   try {
     var mathjsParse = mathjs.eval(input, vars);
   }
@@ -116,7 +116,7 @@ export default class QuestionCompareNumeric extends Component {
   }
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block">{question.get('text','')} <span className="uk-text-small uk-text-primary">{availableVariables}</span></label>
+          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span></label>
 { hasChanged && (<Badge message={"previous: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">
@@ -133,7 +133,7 @@ export default class QuestionCompareNumeric extends Component {
             </a>
             </div>
           </div>
-        { error && !hasChanged && <Alert message={error} type="error" key="err"/> }
+          { error && !hasChanged && <Alert message={error} type="error" key="err"/> }
         { warning && !hasChanged && <Alert message={warning} type="warning" key="warning"/> }
         { graderResponse }
         { mathjsError }
@@ -142,9 +142,5 @@ export default class QuestionCompareNumeric extends Component {
 }
 }
 
-/*
-        { !correct && lastAnswer !== '' && <Alert message={"$" + latex + "$" + " is incorrect"} type="warning" key="incorrect"/> }
-        { correct && <Alert message={"$" + latex + "$" + " is correct!"} type="success" key="correct"/> }
-*/
 //Register the question component with the system
 registerQuestionType('compareNumeric', QuestionCompareNumeric);

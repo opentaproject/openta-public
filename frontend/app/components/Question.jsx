@@ -30,6 +30,7 @@ class BaseQuestion extends Component {
       });
       if(globals)question = question.set('global', globals);
       var questionDOM = React.createElement(questionDispatch[questionType], { 
+        key: questionKey,
         questionData: question, 
         questionState: questionState, 
         questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.getIn(['@attr','key']), 'waiting'], false),
@@ -39,7 +40,7 @@ class BaseQuestion extends Component {
       }); 
       var alerts = [];
       if(question.getIn(['@attr','key'], undefined) == undefined && this.props.admin) {
-       alerts.push( (<Alert message="No question key, please add an attribute key=..." type="error"/>));
+       alerts.push( (<Alert key={"alertkey"} message="No question key, please add an attribute key=..." type="error"/>));
       }
       var topDOM = React.createElement('div', {
         className: "uk-panel uk-panel-box uk-margin-bottom",

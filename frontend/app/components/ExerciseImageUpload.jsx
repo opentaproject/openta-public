@@ -15,7 +15,7 @@ import {SUBPATH} from '../settings.js';
 const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPending, uploadProgress, onImageAnswerDelete, imageAnswerDeletePending}) => {
   var renderImageAnswers = imageAnswers.map(
     imageAnswerId => (
-      <div className="exercise-thumb-wrap">
+      <div className="exercise-thumb-wrap" key={imageAnswerId}>
       <a href={SUBPATH + "/imageanswer/" + imageAnswerId} data-uk-lightbox data-lightbox-type="image">
       <img src={SUBPATH + "/imageanswerthumb/" + imageAnswerId}/>
       </a>
