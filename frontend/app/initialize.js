@@ -30,6 +30,13 @@ if (module.hot) {
 }
 
 const load = () => {
+  if(window.history && history.pushState) {
+    history.pushState({}, "", "/");
+    history.pushState({}, "", "/");
+  }
+  window.onpopstate = function(event) {
+    history.pushState({}, "", "/");
+  }
   ReactDOM.render(
     <Provider store={store}>
       <App />
