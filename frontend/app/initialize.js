@@ -8,6 +8,7 @@ import thunk from 'redux-thunk';
 import counterApp from './reducers';
 import App from 'components/App';
 import { fetchExercises,fetchExerciseTree, fetchLoginStatus, updatePendingStateIn } from './fetchers';
+import { SUBPATH } from './settings.js';
 
 //const store = createStore(counterApp, module.hot && module.hot.data && module.hot.data.counter || { exercises: ['test'] });
 //const store = createStore(counterApp, applyMiddleware(thunk));
@@ -31,11 +32,11 @@ if (module.hot) {
 
 const load = () => {
   if(window.history && history.pushState) {
-    history.pushState({}, "", "/");
-    history.pushState({}, "", "/");
+    history.pushState({}, "", SUBPATH);
+    history.pushState({}, "", SUBPATH);
   }
   window.onpopstate = function(event) {
-    history.pushState({}, "", "/");
+    history.pushState({}, "", SUBPATH);
   }
   ReactDOM.render(
     <Provider store={store}>
