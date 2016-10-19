@@ -27,7 +27,7 @@ class BaseApp extends React.Component {
               <div className="exercise-list">
               { this.props.activeExercise !== "" ? <ExerciseList /> : "" }
               </div>
-              { this.props.activeExercise === "" ? (<span/>) : ((this.props.author || this.props.admin) ? <AuthorExercise /> : <div className="exercise"><Exercise/></div>) }
+              { this.props.activeExercise === "" ? (<span/>) : ((this.props.author || this.props.admin) ? <AuthorExercise /> : <div className="exercise uk-padding-remove"><Exercise/></div>) }
             </div>
           </div>
         </div>
