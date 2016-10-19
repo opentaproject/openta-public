@@ -30,7 +30,7 @@ exports.config = {
       ]
     },
     afterBrunch: [
-	'mkdir ../django/backend/static/',
+	    'mkdir -p ../django/backend/static/',
       'cp -r public/* ../django/backend/static/'
     ]
   }
