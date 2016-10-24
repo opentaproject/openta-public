@@ -215,6 +215,8 @@ def serve_file(path, filename, **kwargs):  # {{{
 
 @api_view(['GET'])
 def exercise_asset(request, exercise, asset):  # {{{
+    if not asset.lower().endswith(('.png', '.pdf', '.jpg', '.jpeg', '.svg')):
+        return Response({}, status.HTTP_403_FORBIDDEN)
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     return serve_file(
         "/"
