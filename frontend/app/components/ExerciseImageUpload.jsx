@@ -20,8 +20,8 @@ const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPen
       <img src={SUBPATH + "/imageanswerthumb/" + imageAnswerId}/>
       </a>
       <div className="exercise-thumb-badge">
-        <a onClick={() => onImageAnswerDelete(imageAnswerId)}><Badge className="uk-badge-notification uk-badge-danger">
-        { !imageAnswerDeletePending.get(imageAnswerId, false) && <i className="uk-icon uk-icon-close"/> }
+        <a onClick={() => onImageAnswerDelete(imageAnswerId)}><Badge className="uk-badge-notification">
+        { !imageAnswerDeletePending.get(imageAnswerId, false) && <i className="uk-icon uk-icon-trash"/> }
         { imageAnswerDeletePending.get(imageAnswerId, false) && <Spinner/> }
         </Badge></a>
       </div>
