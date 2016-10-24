@@ -15,6 +15,7 @@ from exercises.modelhelpers import (
 )
 from exercises.paths import EXERCISES_PATH
 from exercises.util import nested_print
+from django.utils.translation import ugettext as _
 from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import permission_required
@@ -192,6 +193,10 @@ def exercise_save(request, exercise):  # {{{
 @api_view(['POST'])
 def exercise_check(request, exercise, question):  # {{{
     answer_data = request.data['answerData']
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
+    if not dbexercise.meta.published and not request.user.has_perm('exercises.edit_exercise'):
+        return Response({'error': _('Exercise not activated.')}, status.HTTP_403_FORBIDDEN)
+
     result = question_check(request.user, exercise, question, answer_data)
     return Response(result)  # }}}
 
@@ -217,7 +222,12 @@ def serve_file(path, filename, **kwargs):  # {{{
 def exercise_asset(request, exercise, asset):  # {{{
     if not asset.lower().endswith(('.png', '.pdf', '.jpg', '.jpeg', '.svg')):
         return Response({}, status.HTTP_403_FORBIDDEN)
+
     dbexercise = Exercise.objects.get(exercise_key=exercise)
+    if asset.lower().endswith('.pdf'):
+        if not dbexercise.meta.solution and not request.user.has_perm('exercises.edit_exercise'):
+            return Response({}, status.HTTP_403_FORBIDDEN)
+
     return serve_file(
         "/"
         + settings.SUBPATH
