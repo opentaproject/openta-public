@@ -24,6 +24,7 @@ from django.template import loader
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Prefetch
+from ratelimit.decorators import ratelimit
 import logging
 import backend.settings as settings
 import json
@@ -190,12 +191,16 @@ def exercise_save(request, exercise):  # {{{
         return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}
 
 
+@ratelimit(key='user', rate='5/1m')
 @api_view(['POST'])
 def exercise_check(request, exercise, question):  # {{{
     answer_data = request.data['answerData']
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     if not dbexercise.meta.published and not request.user.has_perm('exercises.edit_exercise'):
         return Response({'error': _('Exercise not activated.')}, status.HTTP_403_FORBIDDEN)
+
+    if getattr(request, 'limited', False):
+        return Response({'error': _('You are limited to ') + "5" + _(" tries per minute.")})
 
     result = question_check(request.user, exercise, question, answer_data)
     return Response(result)  # }}}

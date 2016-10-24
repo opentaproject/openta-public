@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-24 17:36+0200\n"
+"POT-Creation-Date: 2016-10-24 18:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -106,9 +106,17 @@ msgstr ""
 msgid "Finished syncing exercises."
 msgstr ""
 
-#: exercises/views/api.py:174
+#: exercises/views/api.py:176
 msgid "Exercise not activated."
 msgstr "Uppgiften är inte aktiverad."
+
+#: exercises/views/api.py:179
+msgid "You are limited to "
+msgstr "Max "
+
+#: exercises/views/api.py:179
+msgid " tries per minute."
+msgstr " försök per minut."
 
 #: questiontypes/compare_numeric/compare_numeric.py:78
 msgid "Terms do not seem to have the same unit."
