@@ -70,11 +70,10 @@ class BaseExercise extends Component {
                     .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
     return (
       <div className="uk-margin-bottom uk-text-center" key={"solution"}>
-      {/*meta.get('solution', false) && children*/}
+      { meta.get('solution', false) && children }
 
       {!meta.get('solution', false) && this.props.author && <div className="uk-block uk-block-muted uk-padding-remove uk-text-warning">Dold. Visa för studenter genom att klicka i "solution" i inställningarna.</div> }
-      {/*!meta.get('solution', false) && this.props.author && <div className="uk-block uk-block-muted uk-padding-remove">{children}</div>
-      */}
+      {!meta.get('solution', false) && this.props.author && <div className="uk-block uk-block-muted uk-padding-remove">{children}</div>}
       </div>
     );
   }
@@ -104,8 +103,8 @@ class BaseExercise extends Component {
       'text': this.renderText,
       'figure': this.renderFigure,
       'question': this.renderQuestion,
-      //'solution': this.renderSolution,
-      //'asset': this.renderAsset,
+      'solution': this.renderSolution,
+      'asset': this.renderAsset,
     };
     if(element.get('#name') in itemDispatch)
       return itemDispatch[element.get('#name')](element, json, meta, exerciseKey);
