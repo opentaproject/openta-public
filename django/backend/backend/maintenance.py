@@ -1,0 +1,29 @@
+import os
+from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse
+from backend.settings import BASE_DIR
+from django.contrib.auth import logout
+from django.contrib import messages
+from django.utils.translation import ugettext as _
+
+
+def MaintenanceMiddleware(get_response):
+    lock_path = os.path.join(BASE_DIR, "maintenance.lock")
+
+    def middleware(request):
+        if (
+            os.path.isfile(lock_path)
+            and request.user.is_authenticated
+            and not request.user.is_staff
+        ):
+            with open(lock_path, 'r') as f:
+                message = f.read()
+                messages.add_message(request, messages.WARNING, _('Site is down for maintenance.'))
+                messages.add_message(request, messages.INFO, message)
+                logout(request)
+                return redirect(reverse('login'))
+                # return render(request, 'maintenance.html', { 'message': message })
+        response = get_response(request)
+        return response
+
+    return middleware
