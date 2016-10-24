@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-16 16:18+0200\n"
+"POT-Creation-Date: 2016-10-24 17:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,6 +25,14 @@ msgstr "Registreringslösenord"
 #: backend/forms.py:45
 msgid "Batch CSV file"
 msgstr ""
+
+#: backend/maintenance.py:15 templates/maintenance.html:10
+msgid "Site is down for maintenance."
+msgstr "Sidan är stängd för underhåll."
+
+#: backend/user_utilities.py:55
+msgid " account activation"
+msgstr " kontoaktivering"
 
 #: backend/views.py:51
 msgid "Password is now set, please login."
@@ -98,33 +106,38 @@ msgstr ""
 msgid "Finished syncing exercises."
 msgstr ""
 
+#: exercises/views/api.py:174
+msgid "Exercise not activated."
+msgstr "Uppgiften är inte aktiverad."
+
 #: questiontypes/compare_numeric/compare_numeric.py:78
 msgid "Terms do not seem to have the same unit."
 msgstr "Termerna i uttrycket verkar inte ha samma enhet."
 
 #: questiontypes/compare_numeric/compare_numeric.py:82
+#: questiontypes/compare_numeric/compare_numeric.py:112
 msgid "Seems like the expression does not have the correct units."
 msgstr "Uttrycket verkar inte ha rätt enhet."
 
-#: questiontypes/compare_numeric/compare_numeric.py:149
-#: questiontypes/compare_numeric/compare_numeric.py:156
+#: questiontypes/compare_numeric/compare_numeric.py:193
+#: questiontypes/compare_numeric/compare_numeric.py:200
 msgid "Failed to evaluate expression"
 msgstr "Kunde inte evaluera uttrycket."
 
-#: questiontypes/compare_numeric/compare_numeric.py:151
+#: questiontypes/compare_numeric/compare_numeric.py:195
 msgid " are not valid variables."
 msgstr " är inte tillåtna variabler."
 
-#: questiontypes/compare_numeric/compare_numeric.py:174
-#: questiontypes/compare_numeric/compare_numeric.py:193
+#: questiontypes/compare_numeric/compare_numeric.py:218
+#: questiontypes/compare_numeric/compare_numeric.py:237
 msgid "Answer contains invalid character "
 msgstr "Uttrycket innehåller felaktiga tecken "
 
-#: questiontypes/compare_numeric/compare_numeric.py:184
+#: questiontypes/compare_numeric/compare_numeric.py:228
 msgid "Expression could not be parsed."
 msgstr "Uttrycket kunde inte tolkas."
 
-#: questiontypes/compare_numeric/compare_numeric.py:214
+#: questiontypes/compare_numeric/compare_numeric.py:258
 msgid "Could not parse expression"
 msgstr "Uttrycket kunde inte tolkas."
 
