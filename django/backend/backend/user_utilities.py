@@ -7,6 +7,7 @@ from course.models import Course
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.translation import ugettext as _
+from backend.settings import RUNNING_DEVSERVER
 import requests
 import logging
 
@@ -43,6 +44,10 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
     rendered_email = template.render(context)
     # send_mail('Account activation', rendered_email, sender + '@openta.se', [email], fail_silently=False)
     mailgun_key = None
+    if RUNNING_DEVSERVER:
+        print(rendered_email)
+        return activate_url
+
     with open('mailgun_key', 'r') as f:
         mailgun_key = f.readline().strip()
     if not mailgun_key:
