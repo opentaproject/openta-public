@@ -48,7 +48,9 @@ def asciiToSympy(expression):
         #        '[': '',
         #        ']': ''
     }
-    result = re.sub(r"([a-zA-Z0-9]) ([a-zA-Z0-9])", r"\1*\2", expression)
+    result = re.sub(
+        r"(?<=[\w)])\s+(?=[(\w])", r" * ", expression
+    )  # re.sub(r"([a-zA-Z0-9]) ([a-zA-Z0-9])", r"\1*\2", expression)
     result = re.sub(r"([0-9])([a-zA-Z])", r"\1*\2*", result)
     result = re.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)])", r"\1)*(\2", result)
     for old, new in dict.items():
@@ -111,7 +113,10 @@ def check_units_new(expression, correct, variables):
         args = nvalues + check
         vale = lexpr(*args)
         valc = lcorrect(*args)
-        results.append(vale / valc)
+        if valc != 0:
+            results.append(vale / valc)
+        else:
+            results.append(vale)
     for res in results:
         if abs(res - results[0]) > 10e-5:
             raise CompareNumericUnitError(
@@ -180,6 +185,8 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
                 # print("Stats")
             except CompareNumericUnitError as e:
                 response['warning'] = str(e)
+            except ZeroDivisionError as e:
+                response['zerodivision'] = True
             diffs = []
             for point in neighbours:
                 nvalue1 = numfunc1(*point)  # sympy1.subs(point).subs(uniteval).evalf()
@@ -203,8 +210,9 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
                 )
     except SympifyError as e:
         # print("SympifyError")
-        print(e)
-        print(traceback.format_exc())
+        # print(e)
+        # print(traceback.format_exc())
+        logger.error([str(e), expression1, expression2])
         response['error'] = _("Failed to evaluate expression")
         # pass
     return response  # }}}

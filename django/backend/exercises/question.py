@@ -2,6 +2,9 @@ from exercises.models import Exercise, Question, Answer
 from exercises.parsing import question_json_get, question_xmltree_get, exercise_xmltree
 from exercises.util import nested_print
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 question_check_dispatch = {}
 
@@ -35,6 +38,8 @@ def question_check(user, exercise_key, question_key, answer_data):
             )
         except QuestionError as e:
             return {'error': "XML error: " + str(e)}
+        if 'zerodivision' in result:
+            logger.error(['zerodivision', dbexercise.name, question_key])
         correct = False
         if 'correct' in result:
             correct = result['correct']
