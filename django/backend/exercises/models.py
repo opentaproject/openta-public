@@ -24,6 +24,9 @@ from functools import partial
 from datetime import timedelta
 import json as JSON
 import uuid
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class ExerciseManager(models.Manager):  # {{{
@@ -56,7 +59,7 @@ class ExerciseManager(models.Manager):  # {{{
         dbexercise, created = self.update_or_create(
             exercise_key=key, defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)}
         )
-        dbmeta, created_meta = ExerciseMeta.objects.update_or_create(
+        dbmeta, created_meta = ExerciseMeta.objects.get_or_create(
             exercise=dbexercise, defaults={'sort_key': os.path.basename(path)}
         )
         if created:
@@ -103,7 +106,7 @@ class ExerciseManager(models.Manager):  # {{{
                 question.delete()
 
     def sync_with_disc(self):
-        print("Syncing with disc...")
+        logger.info("Starting sync with disc of exercises.")
         progress = [('success', _('Started syncing exercises...'))]
         exerciselist = []
         keys = {}
