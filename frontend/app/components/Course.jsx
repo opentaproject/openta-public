@@ -38,6 +38,7 @@ return (
       { /*meta.required && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */ }
       { /*meta.bonus && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
       { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass}><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" title="Bonus"/>{moment(meta.deadline_date).format('D MMM')}</Badge> }
+      { meta.solution && <Badge className={"uk-badge-notification"}>pdf</Badge> }
       </div>
       </div>
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
