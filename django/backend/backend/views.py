@@ -30,7 +30,7 @@ import chardet
 logger = logging.getLogger(__name__)
 
 
-class ActivateAndReset(FormView):
+class ActivateAndReset(FormView):  # {{{
     template_name = 'registration/set_password.html'
     success_url = reverse_lazy('login')
 
@@ -52,10 +52,10 @@ class ActivateAndReset(FormView):
         messages.add_message(
             self.request, messages.SUCCESS, _('Password is now set, please login.')
         )
-        return redirect(reverse('login'))
+        return redirect(reverse('login'))  # }}}
 
 
-class RegisterUser(CreateView):
+class RegisterUser(CreateView):  # {{{
     template_name = 'register.html'
     form_class = UserCreateForm
     success_url = reverse_lazy('login')
@@ -67,10 +67,10 @@ class RegisterUser(CreateView):
             messages.SUCCESS,
             _('Registration complete, check inbox for activation mail (possibly spam folder).'),
         )
-        return redirect(reverse('login'))
+        return redirect(reverse('login'))  # }}}
 
 
-class RegisterUserNoPassword(CreateView):
+class RegisterUserNoPassword(CreateView):  # {{{
     template_name = 'register.html'
     form_class = UserCreateFormNoPassword
     success_url = reverse_lazy('login')
@@ -82,34 +82,45 @@ class RegisterUserNoPassword(CreateView):
             messages.SUCCESS,
             _('Registration complete, check inbox for activation mail (possibly spam folder).'),
         )
-        return redirect(reverse('login'))
+        return redirect(reverse('login'))  # }}}
 
 
 @api_view(['GET'])
-def login_status(request):
+def login_status(request):  # {{{
     groups = []
     dbgroups = request.user.groups.all()
     for group in dbgroups:
         groups.append(group.name)
-    return Response(
-        {'username': request.user.get_username(), 'admin': request.user.is_staff, 'groups': groups}
-    )
+    response = {
+        'username': request.user.get_username(),
+        'admin': request.user.is_staff,
+        'groups': groups,
+    }
+    try:
+        course = Course.objects.first()
+        response.update({'course': course.course_name})
+    except ObjectDoesNotExist:
+        response.update({'course': 'OpenTA'})
+        logger.error('No course found')
+    return Response(response)  # }}}
 
 
 # @api_view(['GET'])
 @ratelimit(key='ip', rate='5/30s')
-def login(request):
+def login(request):  # {{{
     course = Course.objects.first()
     course_data = CourseSerializer(course).data
     extra = {'course': course_data}
     if not getattr(request, 'limited', False):
         return auth_views.login(request, extra_context=extra)
     else:
-        return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
+        return render(
+            request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')}
+        )  # }}}
 
 
 # @api_view(['GET'])
-def activate(request, username, token):
+def activate(request, username, token):  # {{{
     try:
         key = '%s:%s' % (username, token)
         print(key)
@@ -120,11 +131,11 @@ def activate(request, username, token):
     except (BadSignature, SignatureExpired):
         return render(request, "activation_failed.html")
     messages.add_message(request, messages.SUCCESS, _('Activation successful, please login.'))
-    return auth_views.login(request, 'registration/login.html')
+    return auth_views.login(request, 'registration/login.html')  # }}}
 
 
 # @api_view(['GET', 'POST'])
-def activate_and_reset(request, username, token):
+def activate_and_reset(request, username, token):  # {{{
     try:
         key = '%s:%s' % (username, token)
         print(key)
@@ -132,9 +143,12 @@ def activate_and_reset(request, username, token):
     except (BadSignature, SignatureExpired):
         return render(request, "activation_failed.html")
     user = User.objects.get(username=username)
+    if user.is_active:
+        messages.add_message(request, messages.WARNING, _("User is already activated"))
+        return render(request, "activation_failed.html")
     # user.is_active = True
     # user.save()
-    return ActivateAndReset.as_view()(request, user=user)
+    return ActivateAndReset.as_view()(request, user=user)  # }}}
 
 
 @login_required
@@ -142,7 +156,7 @@ def main(request):
     return render(request, "base_main.html")
 
 
-class RegisterByPassword(RatelimitMixin, FormView):
+class RegisterByPassword(RatelimitMixin, FormView):  # {{{
     template_name = 'registration/register_with_password.html'
     form_class = RegisterWithPasswordForm
     ratelimit_key = 'ip'
@@ -161,19 +175,19 @@ class RegisterByPassword(RatelimitMixin, FormView):
             return redirect(
                 reverse('register-with-password') + 'register/' + course.registration_password
             )
-        return redirect(reverse('register-with-password'))
+        return redirect(reverse('register-with-password'))  # }}}
 
 
 @ratelimit(key='ip', rate='5/30s')
-def validate_and_show_registration(request, password):
+def validate_and_show_registration(request, password):  # {{{
     if getattr(request, 'limited', False):
         return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
     course = Course.objects.first()
     if course.registration_by_password and course.registration_password == password:
-        return RegisterUserNoPassword.as_view()(request)
+        return RegisterUserNoPassword.as_view()(request)  # }}}
 
 
-class BatchAddUserView(PermissionRequiredMixin, FormView):
+class BatchAddUserView(PermissionRequiredMixin, FormView):  # {{{
     permission_required = "auth.add_user"
     template_name = 'batch_add_users.html'
     form_class = BatchAddUsersForm
@@ -249,4 +263,19 @@ class BatchAddUserView(PermissionRequiredMixin, FormView):
                         "Activation mail send error for " + user['Username'],
                     )
 
-        return render(self.request, 'batch_add_users.html', {'form': form})
+        return render(self.request, 'batch_add_users.html', {'form': form})  # }}}
+
+
+# @ratelimit(key='ip', rate='1/1m')
+def password_reset_done(request):
+    messages.add_message(
+        request,
+        messages.INFO,
+        _("Password reset link sent to your email (check your spam folder as well)."),
+    )
+    return redirect(reverse('login'))
+
+
+def password_reset_complete(request):
+    messages.add_message(request, messages.INFO, _("Password reset successful, please login."))
+    return redirect(reverse('login'))

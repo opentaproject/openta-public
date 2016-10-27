@@ -22,7 +22,7 @@ from .forms import UserCreateForm, UserCreateFormNoPassword
 from .settings import SUBPATH, DEBUG
 
 internalurlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    url(r'^administration/', admin.site.urls),
     # url(r'^register/$', backendviews.RegisterUser.as_view(), name='register'),
     # url(r'^register_nopw/$', backendviews.RegisterUserNoPassword.as_view(), name='register-no-password'),
     url(
@@ -37,6 +37,8 @@ internalurlpatterns = [
     ),
     url(r'^loggedin/', backendviews.login_status),
     url(r'^', include('exercises.urls')),
+    url(r'^password_reset/done/$', backendviews.password_reset_done, name='password-reset-done'),
+    url(r'^reset/done/', backendviews.password_reset_complete, name='password-reset-complete'),
     url(r'^login/$', backendviews.login, name='login'),
     url(r'^', include('django.contrib.auth.urls')),
     url(

@@ -19,7 +19,7 @@
 
 <form method="post" class="uk-form" action="{% url 'login' %}">
 {% csrf_token %}
-    <legend><i class="uk-icon uk-icon-medium uk-icon-circle-o"></i><span class="uk-text-small uk-text-middle"> OpenTA</span></legend>
+<legend><i class="uk-icon uk-icon-medium uk-icon-circle-o uk-text-success"></i><span class="uk-text-small uk-text-middle"> {{ course.course_name }} </span></legend>
     <div class="uk-form-row">
       {% render_field form.username placeholder=form.username.label %}
     </div>
@@ -33,8 +33,10 @@
     <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
+<a class="uk-button uk-button-mini" href="{% url 'password_reset' %}">{% trans "Lost password?" %}</a>
+
 {% if course.registration_by_password %}
-<a href="{% url 'register-with-password' %}" class="uk-button">{% trans "Register" %}</a>
+<a href="{% url 'register-with-password' %}" class="uk-button uk-button-mini">{% trans "Register" %}</a>
 {% endif %}
 {# Assumes you setup the password_reset view in your URLconf #}
 {# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}

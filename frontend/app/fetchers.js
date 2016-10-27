@@ -49,7 +49,8 @@ function fetchLoginStatus() {
     })
     .then(json => ({
       username: json.username,
-      groups: json.groups
+      groups: json.groups,
+      course: json.course
     }))
     .then(data => {
       dispatch(updateLoginStatus(data))

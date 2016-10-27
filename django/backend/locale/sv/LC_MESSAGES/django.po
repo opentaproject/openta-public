@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-24 18:16+0200\n"
+"POT-Creation-Date: 2016-10-27 13:26+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -38,7 +38,7 @@ msgstr " kontoaktivering"
 msgid "Password is now set, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
-#: backend/views.py:61 backend/views.py:72
+#: backend/views.py:61 backend/views.py:71
 msgid ""
 "Registration complete, check inbox for activation mail (possibly spam "
 "folder)."
@@ -46,63 +46,78 @@ msgstr ""
 "Registrering klar, ett aktiveringsmail har skickats till din mail (möjligen "
 "i spam mapp)."
 
-#: backend/views.py:98 backend/views.py:139 backend/views.py:148
+#: backend/views.py:104 backend/views.py:148 backend/views.py:157
 msgid "5 times per 30 seconds"
 msgstr "5 gånger per 30 sekunder"
 
-#: backend/views.py:111
+#: backend/views.py:117
 msgid "Activation successful, please login."
 msgstr "Aktivering lyckades, logga in nedan."
 
-#: exercises/models.py:47
+#: backend/views.py:130
+msgid "User is already activated"
+msgstr "Användaren är redan aktiverad."
+
+#: backend/views.py:215
+msgid ""
+"Password reset link sent to your email (check your spam folder as well)."
+msgstr ""
+"En länk för lösenordsåterställning har skickats till din email (titta även "
+"bland spam)."
+
+#: backend/views.py:219
+msgid "Password reset successful, please login."
+msgstr "Lösenord sparat, logga in nedan."
+
+#: exercises/models.py:49
 msgid "Added exercise "
 msgstr ""
 
-#: exercises/models.py:50
+#: exercises/models.py:52
 msgid "Updated exercise "
 msgstr ""
 
-#: exercises/models.py:75
+#: exercises/models.py:77
 msgid "Started syncing exercises..."
 msgstr ""
 
-#: exercises/models.py:87
+#: exercises/models.py:89
 msgid "Duplicate exercise keys!"
 msgstr ""
 
-#: exercises/models.py:88
+#: exercises/models.py:90
 msgid "Exercise at ["
 msgstr ""
 
-#: exercises/models.py:88
+#: exercises/models.py:90
 msgid "] has the same key as exercise at ["
 msgstr ""
 
-#: exercises/models.py:89
+#: exercises/models.py:91
 msgid ""
 "Neither was added. (Perhaps you copied an exercise? Then please remove the "
 "key file from the new exercise to generate a new one on reload)"
 msgstr ""
 
-#: exercises/models.py:104
+#: exercises/models.py:106
 msgid "Deleted "
 msgstr ""
 
-#: exercises/models.py:104
+#: exercises/models.py:106
 msgid " since it is not present on disc anymore"
 msgstr ""
 
-#: exercises/models.py:110
+#: exercises/models.py:112
 msgid "Deleted an entry for "
 msgstr ""
 
-#: exercises/models.py:110
+#: exercises/models.py:112
 msgid ""
 " since the stored exercise key did not correspond to the exercisekey in the "
 "folder."
 msgstr ""
 
-#: exercises/models.py:113
+#: exercises/models.py:115
 msgid "Finished syncing exercises."
 msgstr ""
 
@@ -123,31 +138,35 @@ msgid "Terms do not seem to have the same unit."
 msgstr "Termerna i uttrycket verkar inte ha samma enhet."
 
 #: questiontypes/compare_numeric/compare_numeric.py:82
-#: questiontypes/compare_numeric/compare_numeric.py:112
+#: questiontypes/compare_numeric/compare_numeric.py:115
 msgid "Seems like the expression does not have the correct units."
 msgstr "Uttrycket verkar inte ha rätt enhet."
 
-#: questiontypes/compare_numeric/compare_numeric.py:193
-#: questiontypes/compare_numeric/compare_numeric.py:200
+#: questiontypes/compare_numeric/compare_numeric.py:198
+#: questiontypes/compare_numeric/compare_numeric.py:206
 msgid "Failed to evaluate expression"
 msgstr "Kunde inte evaluera uttrycket."
 
-#: questiontypes/compare_numeric/compare_numeric.py:195
+#: questiontypes/compare_numeric/compare_numeric.py:200
 msgid " are not valid variables."
 msgstr " är inte tillåtna variabler."
 
-#: questiontypes/compare_numeric/compare_numeric.py:218
-#: questiontypes/compare_numeric/compare_numeric.py:237
+#: questiontypes/compare_numeric/compare_numeric.py:224
+#: questiontypes/compare_numeric/compare_numeric.py:243
 msgid "Answer contains invalid character "
 msgstr "Uttrycket innehåller felaktiga tecken "
 
-#: questiontypes/compare_numeric/compare_numeric.py:228
+#: questiontypes/compare_numeric/compare_numeric.py:234
 msgid "Expression could not be parsed."
 msgstr "Uttrycket kunde inte tolkas."
 
-#: questiontypes/compare_numeric/compare_numeric.py:258
+#: questiontypes/compare_numeric/compare_numeric.py:264
 msgid "Could not parse expression"
 msgstr "Uttrycket kunde inte tolkas."
+
+#: templates/activation_failed.html:10
+msgid "Activation failed."
+msgstr "Aktivering misslyckades."
 
 #: templates/batch_add_users.html:26
 msgid "Process"
@@ -183,7 +202,7 @@ msgstr ""
 msgid "You can only access this page "
 msgstr "Du kan bara använda denna sidan "
 
-#: templates/register.html:24 templates/registration/login.html:37
+#: templates/register.html:24 templates/registration/login.html:39
 #: templates/registration/set_password.html:25
 msgid "Register"
 msgstr "Registrera"
@@ -191,6 +210,22 @@ msgstr "Registrera"
 #: templates/registration/login.html:31
 msgid "Log in"
 msgstr "Logga in"
+
+#: templates/registration/login.html:36
+msgid "Lost password?"
+msgstr "Glömt lösenord?"
+
+#: templates/registration/password_reset_confirm.html:23
+msgid "Set password"
+msgstr "Spara"
+
+#: templates/registration/password_reset_confirm.html:26
+msgid "This reset link is no longer valid."
+msgstr "Återställningslänken är inte längre aktiv."
+
+#: templates/registration/password_reset_form.html:22
+msgid "Send reset link"
+msgstr "Skicka återställningslänk"
 
 #: templates/registration/register_with_password.html:23
 msgid "To registration"

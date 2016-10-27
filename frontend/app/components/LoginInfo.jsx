@@ -37,7 +37,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
     </div>
 );
 
-const BaseLoginInfo = ({ username, groups, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onSave, onReset}) => {
+const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onSave, onReset}) => {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
@@ -87,7 +87,7 @@ return (
   <div className="uk-navbar-content">
     <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas" data-uk-offcanvas/>
   </div> }
-  <div className="uk-navbar-brand exercise-list-on-canvas"><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> OpenTA</span></div>
+  <div className="uk-navbar-brand exercise-list-on-canvas"><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> {course}</span></div>
   <div className="uk-navbar-flip">
   <div className="uk-navbar-content">
   { author && activeExercise && savereset}
@@ -112,6 +112,7 @@ BaseLoginInfo.propTypes = {
   admin: PropTypes.bool,
   author: PropTypes.bool,
   groups: PropTypes.object,
+  course: PropTypes.string,
   activeExercise: PropTypes.string,
   exerciseState: PropTypes.object,
   activeAdminTool: PropTypes.string,
@@ -140,6 +141,7 @@ const mapStateToProps = state => {
   return ({
   username: state.getIn(['login', 'username']),
   groups: state.getIn(['login', 'groups'], immutable.List([])),
+  course: state.getIn(['login', 'course'], 'OpenTA'),
   admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
   author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
   activeExercise: state.get('activeExercise'),
