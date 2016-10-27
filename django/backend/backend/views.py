@@ -276,6 +276,19 @@ def password_reset_done(request):
     return redirect(reverse('login'))
 
 
+@ratelimit(key='ip', rate='3/1m')
+def password_reset(request):
+    if getattr(request, 'limited', False):
+        return render(request, 'rate_limit.html', context={'rate': "3 " + _('times per minute.')})
+    from_email = "openta@openta.se"
+    try:
+        course = Course.objects.first()
+        from_email = course.course_name.lower() + "@openta.se"
+    except ObjectDoesNotExist:
+        pass
+    return auth_views.password_reset(request, from_email=from_email)
+
+
 def password_reset_complete(request):
     messages.add_message(request, messages.INFO, _("Password reset successful, please login."))
     return redirect(reverse('login'))

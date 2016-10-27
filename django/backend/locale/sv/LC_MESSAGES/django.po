@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-27 13:26+0200\n"
+"POT-Creation-Date: 2016-10-27 16:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -65,7 +65,11 @@ msgstr ""
 "En länk för lösenordsåterställning har skickats till din email (titta även "
 "bland spam)."
 
-#: backend/views.py:219
+#: backend/views.py:221
+msgid "times per minute."
+msgstr " gånger per minut."
+
+#: backend/views.py:231
 msgid "Password reset successful, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
@@ -145,7 +149,7 @@ msgstr "Uttrycket verkar inte ha rätt enhet."
 #: questiontypes/compare_numeric/compare_numeric.py:198
 #: questiontypes/compare_numeric/compare_numeric.py:206
 msgid "Failed to evaluate expression"
-msgstr "Kunde inte evaluera uttrycket."
+msgstr "Kunde inte evaluera uttrycket"
 
 #: questiontypes/compare_numeric/compare_numeric.py:200
 msgid " are not valid variables."
