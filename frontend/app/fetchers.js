@@ -210,6 +210,7 @@ function saveExercise(exercise) {
 
 function checkQuestion(exerciseKey, questionKey, answerData) {
   return dispatch => {
+    if(answerData === "")return;
     var payload = {
       answerData: answerData
     }
@@ -227,10 +228,17 @@ function checkQuestion(exerciseKey, questionKey, answerData) {
       dispatch(updatePendingStateIn( ['exercises', exerciseKey, 'questions', questionKey, 'waiting'], false));
       return res;
     })
-    .catch( err => console.log("checkQuestion error!") )
     .then(res => res.json())
     .then(json => { dispatch(updateQuestionResponse(exerciseKey, questionKey, json)); return json})
+    .then( json => {
+      dispatch(updateExerciseState(exerciseKey, { question: { [questionKey]: { answer: answerData } } }));
+      if(json.hasOwnProperty('error')) {
+        throw "Error occured in question check";
+      }
+      return json;
+    })
     .then( json => dispatch(fetchExerciseRemoteState(exerciseKey)))
+    .catch( err => console.log(err) )
     //.then(json => console.dir(json))
   }
 }

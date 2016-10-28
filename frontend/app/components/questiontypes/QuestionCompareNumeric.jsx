@@ -80,7 +80,7 @@ export default class QuestionCompareNumeric extends Component {
   // System state data
   var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
   var lastAnswerRendered = this.renderAsciiMath(lastAnswer);
-  var correct = state.getIn(['response','correct'], undefined); // Boolean indicating if the grader reported correct answer
+  var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
 
   // Custom state data
   var latex = state.getIn(['response','latex'], ''); // Custom field containing the latex code obtained from SymPy.
@@ -98,7 +98,8 @@ export default class QuestionCompareNumeric extends Component {
   var graderResponse = null;
   var input = this.state.value.trim();
   var hasChanged = input !== lastAnswer;
-  if(input === lastAnswer && lastAnswer !== '') {
+  var nonEmpty = input !== "";
+  if(input === lastAnswer && lastAnswer !== '' && !error) {
     if(correct)
        graderResponse = (<Alert message={"$" + this.renderAsciiMath(input) + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
     else
@@ -127,7 +128,7 @@ export default class QuestionCompareNumeric extends Component {
           </div>
           </div>
           <div className="uk-width-1-6">
-            <a onClick={(event) => submit(input)} className={ "uk-width-1-1 uk-button uk-padding-remove " + (hasChanged && !mathjsError ? "uk-button-success" : "")}>
+            <a onClick={(event) => submit(input)} className={ "uk-width-1-1 uk-button uk-padding-remove " + (nonEmpty && hasChanged && !mathjsError ? "uk-button-success" : "")}>
               { pending && <i className="uk-icon-cog uk-icon-spin"/> }
               { !pending && <i className="uk-icon uk-icon-send"/> }
             </a>

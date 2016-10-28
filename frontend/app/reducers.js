@@ -20,9 +20,9 @@ export default (state = defaultState, action) => {
     case 'UPDATE_EXERCISE_JSON':
       return state.setIn(['exerciseState',action.exercise, 'json'], immutable.fromJS(action.json));
     case 'UPDATE_EXERCISE_STATE':
-      return state.mergeDeepIn(['exerciseState', action.exercise], action.state);
+      return state.mergeDeepIn(['exerciseState', action.exercise], immutable.fromJS(action.state));
     case 'UPDATE_EXERCISES_STATE':
-      return state.mergeDeepIn(['exerciseState'], action.state);
+      return state.mergeDeepIn(['exerciseState'], immutable.fromJS(action.state));
     case 'UPDATE_EXERCISES':
       return state.merge({
         'exercises': immutable.fromJS(action.exercises),
@@ -44,7 +44,7 @@ export default (state = defaultState, action) => {
     case 'SET_EXERCISE_MODIFIED':
       return state.setIn(['exerciseState', action.exercise, 'modified'], action.modified);
     case 'UPDATE_PENDING_STATE':
-      return state.mergeDeepIn(['pendingState'], action.pendingstate);
+      return state.mergeDeepIn(['pendingState'], immutable.fromJS(action.pendingstate));
     case 'UPDATE_ACTIVE_ADMIN_TOOL':
       return state.set('activeAdminTool', action.tool);
     case 'SET_IMAGE_ANSWERS':
