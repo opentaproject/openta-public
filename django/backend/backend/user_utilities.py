@@ -63,5 +63,5 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
                 "text": rendered_email,
             },
         )
-        logger.info("Sent activation mail to email " + email + ", response: " + r.body)
+        logger.info("Sent activation mail to email " + email + ", response: " + r.text)
     return activate_url
