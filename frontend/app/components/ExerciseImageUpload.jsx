@@ -41,6 +41,9 @@ const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPen
         </a>
         <input type="file" accept="image/*" onChange={(e) => onUpload(e, exerciseKey)}/>
         </div>
+        <button data-uk-tooltip="{pos:'bottom-left'}" title="Denna uppgift kräver även bild på lösning. (Om du har en mobil enhet med kamera kan du välja att ta bilderna direkt.) Du kan ladda upp flera bilder samt ta bort de du laddat upp. Kontrollera att bilden är läsbar efter du laddat upp genom att klicka på den/dem." className="uk-button uk-button-small">
+          <i className="uk-icon uk-icon-question-circle-o"/>
+        </button>
     </div>);
 };
 

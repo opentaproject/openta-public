@@ -4,11 +4,9 @@ import {logImmutable} from 'immutablehelpers.js';
 var defaultState = immutable.fromJS({ 
   exercises: [], 
   folder: "",
-  //activeExerciseJSON: {}, 
-  //activeExerciseXML: "",
   activeExercise: "",
   activeAdminTool: 'xml-editor',
-  exerciseState: {"3_05_7.no_problem": {alerts: [1]}}
+  exerciseState: {}//{"3_05_7.no_problem": {alerts: [1]}}
 });
 
 export default (state = defaultState, action) => {

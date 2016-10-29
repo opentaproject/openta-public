@@ -9,6 +9,7 @@ import { registerQuestionType } from './question_type_dispatch.js' // Register f
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
+import HelpCompareNumeric from './HelpCompareNumeric.jsx';
 import mathjs from 'mathjs';
 
 export default class QuestionCompareNumeric extends Component {
@@ -117,7 +118,7 @@ export default class QuestionCompareNumeric extends Component {
   }
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span></label>
+          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span><HelpCompareNumeric/></label>
 { hasChanged && (<Badge message={"previous: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">

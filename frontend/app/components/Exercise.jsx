@@ -91,7 +91,11 @@ class BaseExercise extends Component {
     return (
           <div key="name">
           <h1 className="uk-article-title">{itemjson.get('$')}
-          { deadline_date && <div className="uk-badge uk-badge-warning">Deadline: {deadline_date_format}</div>}
+          { deadline_date && <div className="uk-badge uk-badge-danger">
+            <a data-uk-tooltip title="Du kan fortfarande kontrollera svar efter deadline men de kommer inte räknas mot obligatorisk/bonus.">
+            Deadline: {deadline_date_format}
+            <i className="uk-icon uk-icon-small uk-icon-question-circle-o uk-margin-small-left"/></a>
+            </div>}
           </h1>
           </div>
     );
