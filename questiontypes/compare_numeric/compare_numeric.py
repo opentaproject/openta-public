@@ -227,7 +227,7 @@ def compare_numeric_runner_pool(variables, expression1, expression2):
     return compare_numeric_internal(variables, expression1, expression2)
 
 
-def compare_numeric_pool(variables, expression1, expression2):
+def compare_numeric_pool(variables, expression1, expression2):  # {{{
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Pool. This can be used instead of the implementation with Process with less code but with less control over termination.
     """
@@ -251,7 +251,7 @@ def compare_numeric_pool(variables, expression1, expression2):
             )
             pool.terminate()
             pool.join()
-            return {'error': _('Expression could not be parsed.')}
+            return {'error': _('Expression could not be parsed.')}  # }}}
 
 
 def compare_numeric(variables, expression1, expression2):
@@ -268,7 +268,7 @@ def compare_numeric(variables, expression1, expression2):
     p.start()
     try:
         starttime = time.perf_counter()
-        response = q.get(True, 3)
+        response = q.get(True, 6)
         timedelta = time.perf_counter() - starttime
         logger.info(
             "compare_numeric took "
