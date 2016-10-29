@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from django.shortcuts import render, redirect
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.forms import SetPasswordForm
