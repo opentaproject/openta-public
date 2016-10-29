@@ -97,10 +97,10 @@ def login_status(request):  # {{{
         'admin': request.user.is_staff,
         'groups': groups,
     }
-    try:
-        course = Course.objects.first()
+    course = Course.objects.first()
+    if course is not None:
         response.update({'course': course.course_name})
-    except ObjectDoesNotExist:
+    else:
         response.update({'course': 'OpenTA'})
         logger.error('No course found')
     return Response(response)  # }}}
