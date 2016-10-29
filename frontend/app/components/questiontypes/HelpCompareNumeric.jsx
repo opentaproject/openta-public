@@ -21,5 +21,3 @@ I svarsfältet kan man använda de vanliga algebraiska operatorerna *, /, +, - o
     this.id = uniqueId('help');
   } 
 }
-
-export default HelpCompareNumeric;
