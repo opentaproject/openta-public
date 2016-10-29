@@ -51,7 +51,10 @@ class UserBehavior(TaskSet):
 
     def get_csrf(self):
         res = self.client.get('/login/')
-        return res.cookies['csrftoken']
+        if 'csrftoken' in res.cookies:
+            return res.cookies['csrftoken']
+        else:
+            ''
 
     def check_loggedin(self):
         loggedinrequest = self.client.get('/loggedin/')
@@ -102,7 +105,7 @@ class UserBehavior(TaskSet):
                     print("Exercise check failed!")
                 # print(response)
                 # pass
-                # print(response.json())
+                print(response.json())
         except IndexError:
             pass
 
