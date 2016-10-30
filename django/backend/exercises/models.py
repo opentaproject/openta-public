@@ -236,6 +236,7 @@ class Answer(models.Model):  # {{{
     grader_response = models.TextField(default='')
     correct = models.BooleanField()
     date = models.DateTimeField(default=now)
+    user_agent = models.TextField(default='')
 
     def __str__(self):
         return (

@@ -21,7 +21,7 @@ def register_question_type(question_type, grading_function):
     question_check_dispatch[question_type] = grading_function
 
 
-def question_check(user, exercise_key, question_key, answer_data):
+def question_check(user, user_agent, exercise_key, question_key, answer_data):
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
     question_json = question_json_get(dbexercise.path, question_key)
@@ -52,6 +52,7 @@ def question_check(user, exercise_key, question_key, answer_data):
                 answer=answer_data,
                 grader_response=json.dumps(result),
                 correct=correct,
+                user_agent=user_agent,
             )
         return result
     else:

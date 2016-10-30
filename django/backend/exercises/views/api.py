@@ -202,7 +202,8 @@ def exercise_check(request, exercise, question):  # {{{
     if getattr(request, 'limited', False):
         return Response({'error': _('You are limited to ') + "5" + _(" tries per minute.")})
 
-    result = question_check(request.user, exercise, question, answer_data)
+    agent = request.META.get('HTTP_USER_AGENT', 'unknown')
+    result = question_check(request.user, agent, exercise, question, answer_data)
     return Response(result)  # }}}
 
 

@@ -182,7 +182,7 @@ def exercise_test(exercise_key):
         answer = question_xml.find('expression').text.split(';')[0]
         result = {}
         try:
-            result = question_check(user, exercise_key, question_key, answer)
+            result = question_check(user, "tester", exercise_key, question_key, answer)
         except Exception as e:
             result['exception'] = str(e)
         result.update({'answer': answer})
