@@ -33,8 +33,9 @@ const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPen
           <div className="uk-progress-bar" style={{width: (uploadProgress*100) + "%"}}></div>
         </div>);
         return (
-    <div className="uk-button-group uk-align-medium-right"> 
+          <div>
         { renderImageAnswers }
+    <div className="uk-button-group uk-align-medium-right"> 
         <div className="uk-form-file">
         <a type="file" className={"uk-button uk-button-small"}>{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-camera"></i>)}
         { uploadPending && progress }
@@ -44,7 +45,8 @@ const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPen
         <button data-uk-tooltip="{pos:'bottom-left'}" title="Denna uppgift kräver även bild på lösning. (Om du har en mobil enhet med kamera kan du välja att ta bilderna direkt.) Du kan ladda upp flera bilder samt ta bort de du laddat upp. Kontrollera att bilden är läsbar efter du laddat upp genom att klicka på den/dem." className="uk-button uk-button-small">
           <i className="uk-icon uk-icon-question-circle-o"/>
         </button>
-    </div>);
+    </div>
+        </div>);
 };
 
 const handleUpload = (dispatch, event, exerciseKey) => {
