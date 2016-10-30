@@ -54,17 +54,18 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
         'activate_url': 'https://openta.se' + activate_url,
     }
     sender = "openta"
-    try:
-        course = Course.objects.first()
+    subject = "OpenTA"
+    course = Course.objects.first()
+    if course is not None:
         sender = course.course_name.lower()
+        subject = course.course_long_name
         pcontext.update(
             {
                 'course_name': course.course_name,
+                'course_long_name': course.course_long_name,
                 'course_url': 'https://openta.se/' + course.course_name.lower(),
             }
         )
-    except ObjectDoesNotExist:
-        pass
     context = Context(pcontext)
     rendered_email = template.render(context)
     # send_mail('Account activation', rendered_email, sender + '@openta.se', [email], fail_silently=False)
@@ -84,7 +85,7 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
             data={
                 "from": sender + " <" + sender + "@openta.se>",
                 "to": [email],
-                "subject": sender + _(" account activation"),
+                "subject": subject + _(" account activation"),
                 "text": rendered_email,
             },
         )

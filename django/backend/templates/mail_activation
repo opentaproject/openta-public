@@ -1,4 +1,4 @@
-Välkommen till uppgiftssystemet för {{ course_name }}!
+Välkommen till uppgiftssystemet för {{course_name}}!
 
 Ditt konto har användarnamn {{ username }} men är inte aktiverat än. Använd länken nedan för att aktivera och välja lösenord.
 {{ activate_url }}
@@ -6,6 +6,12 @@ Ditt konto har användarnamn {{ username }} men är inte aktiverat än. Använd 
 Efter aktivering kommer du automatiskt till inloggning som du senare hittar på adressen
 {{ course_url }}
 
-För frågor eller problem kring registreringen kan du svara på detta mail.
+Om det uppstår frågor eller problem kan du svara på detta mail.
 
 Lycka till!
+
+Mvh
+OpenTA teamet
+Hampus Linander & Stellan Östlund
+
+Ps. Systemet är under aktiv utveckling, om du har synpunkter eller förslag på förbättringar får du gärna höra av dig.
