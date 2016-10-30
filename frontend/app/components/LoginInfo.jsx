@@ -9,7 +9,8 @@ import {
 } from '../fetchers.js';
 
 import {
-  updateActiveAdminTool
+  updateActiveAdminTool,
+  updateActiveExercise,
 } from '../actions.js';
 
 import immutable from 'immutable';
@@ -37,7 +38,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
     </div>
 );
 
-const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onSave, onReset}) => {
+const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onSave, onReset, onHome}) => {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
@@ -87,7 +88,9 @@ return (
   <div className="uk-navbar-content">
     <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas" data-uk-offcanvas/>
   </div> }
-  <div className="uk-navbar-brand exercise-list-on-canvas"><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> {course}</span></div>
+  <ul className="uk-navbar-nav exercise-list-on-canvas"><li>
+  <a className="uk-navbar-brand" onClick={onHome}><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> {course}</span></a>
+  </li></ul>
   <div className="uk-navbar-flip">
   <div className="uk-navbar-content">
   { author && activeExercise && savereset}
@@ -117,7 +120,8 @@ BaseLoginInfo.propTypes = {
   exerciseState: PropTypes.object,
   activeAdminTool: PropTypes.string,
   onXMLEditorClick: PropTypes.func,
-  onOptionsClick: PropTypes.func
+  onOptionsClick: PropTypes.func,
+  onHome: PropTypes.func,
 };
 
 function handleSave(exercise) {
@@ -156,6 +160,7 @@ const mapDispatchToProps = dispatch => ({
     onOptionsClick: (event) => dispatch(updateActiveAdminTool('options')),
     onSave: (exercise) => dispatch(handleSave(exercise)),
     onReset: (exercise) => dispatch(handleReset(exercise)),
+    onHome: () => dispatch(updateActiveExercise("")),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseLoginInfo)
