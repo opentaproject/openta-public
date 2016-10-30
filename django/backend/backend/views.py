@@ -32,6 +32,10 @@ logger = logging.getLogger(__name__)
 
 
 class ActivateAndReset(FormView):  # {{{
+    """
+    View for user activation and password reset. Adds user to group Student.
+    """
+
     template_name = 'registration/set_password.html'
     success_url = reverse_lazy('login')
 
@@ -57,6 +61,10 @@ class ActivateAndReset(FormView):  # {{{
 
 
 class RegisterUser(CreateView):  # {{{
+    """
+    View for registering user where password is supplied at registration
+    """
+
     template_name = 'register.html'
     form_class = UserCreateForm
     success_url = reverse_lazy('login')
@@ -72,6 +80,10 @@ class RegisterUser(CreateView):  # {{{
 
 
 class RegisterUserNoPassword(CreateView):  # {{{
+    """
+    View for user registration where password is given at activation time.
+    """
+
     template_name = 'register.html'
     form_class = UserCreateFormNoPassword
     success_url = reverse_lazy('login')
@@ -88,6 +100,16 @@ class RegisterUserNoPassword(CreateView):  # {{{
 
 @api_view(['GET'])
 def login_status(request):  # {{{
+    """
+    Get login information for current user.
+
+    Returns:
+        JSON {
+            username: (string)
+            admin: (bool)
+            groups: [string]
+            }
+    """
     groups = []
     dbgroups = request.user.groups.all()
     for group in dbgroups:
@@ -109,6 +131,12 @@ def login_status(request):  # {{{
 # @api_view(['GET'])
 @ratelimit(key='ip', rate='5/30s')
 def login(request):  # {{{
+    """
+    Login view
+
+    Returns:
+        Login view unless rate limited in which case rate_limit.html
+    """
     course = Course.objects.first()
     course_data = CourseSerializer(course).data
     extra = {'course': course_data}
@@ -122,6 +150,12 @@ def login(request):  # {{{
 
 # @api_view(['GET'])
 def activate(request, username, token):  # {{{
+    """
+    User activation where the password was supplied at registration time.
+
+    Returns:
+        Login view if successful, otherwise activation_failed.html.
+    """
     try:
         key = '%s:%s' % (username, token)
         print(key)
@@ -137,6 +171,12 @@ def activate(request, username, token):  # {{{
 
 # @api_view(['GET', 'POST'])
 def activate_and_reset(request, username, token):  # {{{
+    """
+    User activation with a form for choosing a password.
+
+    Returns:
+        Password form if successful, otherwise activation_failed.html.
+    """
     try:
         key = '%s:%s' % (username, token)
         print(key)
@@ -154,6 +194,12 @@ def activate_and_reset(request, username, token):  # {{{
 
 @login_required
 def main(request):
+    """
+    The main frontend view.
+
+    Returns:
+        The frontend app in base_main.html if authorized, otherwise login screen.
+    """
     return render(request, "base_main.html")
 
 
@@ -181,6 +227,9 @@ class RegisterByPassword(RatelimitMixin, FormView):  # {{{
 
 @ratelimit(key='ip', rate='5/30s')
 def validate_and_show_registration(request, password):  # {{{
+    """
+    Register user with password view that handles the form submission of the register with password form.
+    """
     if getattr(request, 'limited', False):
         return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
     course = Course.objects.first()
@@ -189,6 +238,16 @@ def validate_and_show_registration(request, password):  # {{{
 
 
 class BatchAddUserView(PermissionRequiredMixin, FormView):  # {{{
+    """
+    Add many users with a CSV file with format:
+        "First name" "Last name" "E-mail address" "Username"
+        "..." "..." "..." "..."
+        ...
+
+    Returns:
+        A view with 3 steps: a CSV file upload that then gets parsed and shown before a confirmation of add is asked and then finally adds users.
+    """
+
     permission_required = "auth.add_user"
     template_name = 'batch_add_users.html'
     form_class = BatchAddUsersForm
@@ -269,6 +328,9 @@ class BatchAddUserView(PermissionRequiredMixin, FormView):  # {{{
 
 # @ratelimit(key='ip', rate='1/1m')
 def password_reset_done(request):
+    """
+    Wrapper view that adds a success message to the login screen indicating that a password reset mail was sent.
+    """
     messages.add_message(
         request,
         messages.INFO,
@@ -279,6 +341,9 @@ def password_reset_done(request):
 
 @ratelimit(key='ip', rate='3/1m')
 def password_reset(request):
+    """
+    Password reset view asking for an email.
+    """
     if getattr(request, 'limited', False):
         return render(request, 'rate_limit.html', context={'rate': "3 " + _('times per minute.')})
     from_email = "openta@openta.se"
@@ -291,5 +356,8 @@ def password_reset(request):
 
 
 def password_reset_complete(request):
+    """
+    Wrapper view that adds a success message to the login screen after password was reset.
+    """
     messages.add_message(request, messages.INFO, _("Password reset successful, please login."))
     return redirect(reverse('login'))

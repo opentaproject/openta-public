@@ -9,6 +9,10 @@ from .user_utilities import create_activation_link, send_activation_mail
 
 
 class UserCreateFormNoPassword(ModelForm):
+    """
+    Form used for user registration where the password is set after the activation mail is sent.
+    """
+
     email = forms.EmailField(required=True)
 
     class Meta:
@@ -26,6 +30,10 @@ class UserCreateFormNoPassword(ModelForm):
 
 
 class UserCreateForm(UserCreationForm):
+    """
+    Form used for user registration where a password is supplied at registration time.
+    """
+
     email = forms.EmailField(required=True)
 
     class Meta:
@@ -43,8 +51,16 @@ class UserCreateForm(UserCreationForm):
 
 
 class RegisterWithPasswordForm(forms.Form):
+    """
+    Form for supplying the password to enter user registration.
+    """
+
     password = forms.CharField(label=_('Registration password'), widget=forms.PasswordInput())
 
 
 class BatchAddUsersForm(forms.Form):
+    """
+    Form to upload CSV file for batch user registration.
+    """
+
     batch_file = forms.FileField(label=_("Batch CSV file"), required=False)

@@ -15,11 +15,36 @@ logger = logging.getLogger(__name__)
 
 
 def create_activation_link(username, reverse_name='user-activation'):
+    """
+    Create an activation link for a user.
+
+    Args:
+        username:
+        reverse_name: Which url to append the activation token to.
+            - user-activation (default)
+            - user-activation-and-reset (set password at activation)
+
+    Returns:
+        The activation url.
+    """
     token = TimestampSigner().sign(username).split(':', 1)[1]
     return reverse(reverse_name, kwargs={'username': username, 'token': token})
 
 
 def send_activation_mail(username, email, reverse_name='user-activation'):
+    """
+    Sends an activation email after user registration. Tries to get a mailgun api key from file mailgun_key, otherwise prints activation mail to console if in dev server.
+
+    Args:
+        username:
+        email:
+        reverse_name: Which url to append the activation token to.
+            - user-activation (default)
+            - user-activation-and-reset (set password at activation)
+
+    Returns:
+        Activation url.
+    """
     activate_url = create_activation_link(username, reverse_name)
     template = get_template('mail_activation')
     pcontext = {

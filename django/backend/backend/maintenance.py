@@ -8,6 +8,9 @@ from django.utils.translation import ugettext as _
 
 
 def MaintenanceMiddleware(get_response):
+    """
+    Disable access to site if a file named maintenance.lock is present in the root directory by redirecting to the login page. Shows any text in the file as a maintenance message.
+    """
     lock_path = os.path.join(BASE_DIR, "maintenance.lock")
 
     def middleware(request):
