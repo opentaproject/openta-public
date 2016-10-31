@@ -50,7 +50,11 @@ export default class QuestionCompareNumeric extends Component {
     try {
       //Some initial parsing of commonly used patterns
       var re = /([a-zA-Z]+)([0-9]+)/g;
+      var re2 = /([a-zA-Z0-9)])\s+([(a-zA-Z0-9])/g;
+      var re3 = /([a-zA-Z0-9]+)\s+([a-zA-Z0-9]+)/g;
       var parsed = asciitext.replace(re, '$1_$2');
+      parsed = parsed.replace(re2,'$1 * $2');
+      parsed = parsed.replace(re3,'$1 * $2');
       return AMTparseAMtoTeX(parsed);
     }
     catch(e) {
