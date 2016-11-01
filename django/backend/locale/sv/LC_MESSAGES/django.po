@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-10-27 16:49+0200\n"
+"POT-Creation-Date: 2016-11-01 20:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,27 +18,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: backend/forms.py:42 course/forms.py:5 course/models.py:7
+#: backend/forms.py:51 course/forms.py:5 course/models.py:8
 msgid "Registration password"
 msgstr "Registreringslösenord"
 
-#: backend/forms.py:45
+#: backend/forms.py:57
 msgid "Batch CSV file"
 msgstr ""
 
-#: backend/maintenance.py:15 templates/maintenance.html:10
+#: backend/maintenance.py:18 templates/maintenance.html:10
 msgid "Site is down for maintenance."
 msgstr "Sidan är stängd för underhåll."
 
-#: backend/user_utilities.py:55
+#: backend/user_utilities.py:81
 msgid " account activation"
 msgstr " kontoaktivering"
 
-#: backend/views.py:51
+#: backend/views.py:55
 msgid "Password is now set, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
-#: backend/views.py:61 backend/views.py:71
+#: backend/views.py:68 backend/views.py:81
 msgid ""
 "Registration complete, check inbox for activation mail (possibly spam "
 "folder)."
@@ -46,30 +46,30 @@ msgstr ""
 "Registrering klar, ett aktiveringsmail kommer inom några minuter skickas "
 "till din mail (möjligen i spam mapp)."
 
-#: backend/views.py:104 backend/views.py:148 backend/views.py:157
+#: backend/views.py:130 backend/views.py:192 backend/views.py:204
 msgid "5 times per 30 seconds"
 msgstr "5 gånger per 30 sekunder"
 
-#: backend/views.py:117
+#: backend/views.py:149
 msgid "Activation successful, please login."
 msgstr "Aktivering lyckades, logga in nedan."
 
-#: backend/views.py:130
+#: backend/views.py:168
 msgid "User is already activated"
 msgstr "Användaren är redan aktiverad."
 
-#: backend/views.py:215
+#: backend/views.py:274
 msgid ""
 "Password reset link sent to your email (check your spam folder as well)."
 msgstr ""
 "En länk för lösenordsåterställning kommer inom några minuter skickas till "
 "din email (titta även bland spam)."
 
-#: backend/views.py:221
+#: backend/views.py:283
 msgid "times per minute."
 msgstr " gånger per minut."
 
-#: backend/views.py:231
+#: backend/views.py:296
 msgid "Password reset successful, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
@@ -146,25 +146,34 @@ msgstr "Termerna i uttrycket verkar inte ha samma enhet."
 msgid "Seems like the expression does not have the correct units."
 msgstr "Uttrycket verkar inte ha rätt enhet."
 
-#: questiontypes/compare_numeric/compare_numeric.py:198
-#: questiontypes/compare_numeric/compare_numeric.py:206
+#: questiontypes/compare_numeric/compare_numeric.py:200
 msgid "Failed to evaluate expression"
 msgstr "Kunde inte evaluera uttrycket"
 
-#: questiontypes/compare_numeric/compare_numeric.py:200
+#: questiontypes/compare_numeric/compare_numeric.py:202
 msgid " are not valid variables."
 msgstr " är inte tillåtna variabler."
 
-#: questiontypes/compare_numeric/compare_numeric.py:224
-#: questiontypes/compare_numeric/compare_numeric.py:243
+#: questiontypes/compare_numeric/compare_numeric.py:208
+#, fuzzy
+#| msgid "Failed to evaluate expression"
+msgid "Failed to evaluate expression."
+msgstr "Kunde inte evaluera uttrycket"
+
+#: questiontypes/compare_numeric/compare_numeric.py:212
+msgid "Unknown error, check your expression."
+msgstr "Okänt fel, kontrollera ditt uttryck."
+
+#: questiontypes/compare_numeric/compare_numeric.py:229
+#: questiontypes/compare_numeric/compare_numeric.py:248
 msgid "Answer contains invalid character "
 msgstr "Uttrycket innehåller felaktiga tecken "
 
-#: questiontypes/compare_numeric/compare_numeric.py:234
+#: questiontypes/compare_numeric/compare_numeric.py:239
 msgid "Expression could not be parsed."
 msgstr "Uttrycket kunde inte tolkas."
 
-#: questiontypes/compare_numeric/compare_numeric.py:264
+#: questiontypes/compare_numeric/compare_numeric.py:269
 msgid "Could not parse expression"
 msgstr "Uttrycket kunde inte tolkas."
 

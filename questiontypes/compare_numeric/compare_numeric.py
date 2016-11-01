@@ -168,8 +168,10 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
 
         numfunc1 = sympy.lambdify(tvars, sympy1, 'numpy')
         numfunc2 = sympy.lambdify(tvars, sympy2, 'numpy')
-        value1 = numfunc1(*nvars.values())  # sympy1.subs(varsubs).subs(uniteval).evalf()
-        value2 = numfunc2(*nvars.values())  # sympy2.subs(varsubs).subs(uniteval).evalf()
+        # value1 = numfunc1(*nvars.values())#sympy1.subs(varsubs).subs(uniteval).evalf()
+        # value2 = numfunc2(*nvars.values())#sympy2.subs(varsubs).subs(uniteval).evalf()
+        value1 = sympy1.subs(varsubs).subs(uniteval).evalf()
+        value2 = sympy2.subs(varsubs).subs(uniteval).evalf()
         diff = sympy.Abs(value2 - value1)
         # symbolic = sympy.simplify(sympy1-sympy2)
         # response['symbolic_difference'] = str(symbolic)
@@ -213,8 +215,11 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
         # print(e)
         # print(traceback.format_exc())
         logger.error([str(e), expression1, expression2])
-        response['error'] = _("Failed to evaluate expression")
+        response['error'] = _("Failed to evaluate expression.")
         # pass
+    except Exception as e:
+        logger.error([str(e), expression1, expression2])
+        response['error'] = _("Unknown error, check your expression.")
     return response  # }}}
 
 
