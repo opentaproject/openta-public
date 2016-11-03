@@ -45,6 +45,15 @@ class ExerciseManager(models.Manager):  # {{{
                 print("Found question for orphan answer")
             except ObjectDoesNotExist:
                 pass
+        imageanswers = ImageAnswer.objects.filter(exercise__isnull=True)
+        for imageanswer in imageanswers:
+            try:
+                exercise = Exercise.objects.get(exercise_key=imageanswer.exercise_key)
+                imageanswer.exercise = exercise
+                imageanswer.save()
+                print("Found exercise for orphan imageanswer")
+            except ObjectDoesNotExist:
+                pass
 
     def add_exercise(self, path, progress=[]):
         result = {}
@@ -261,7 +270,9 @@ def answer_image_filename(instance, filename):  # {{{
 
 class ImageAnswer(models.Model):  # {{{
     user = models.ForeignKey(User)
-    exercise = models.ForeignKey(Exercise, related_name="imageanswer")
+    exercise = models.ForeignKey(
+        Exercise, on_delete=models.SET_NULL, null=True, related_name="imageanswer"
+    )
     exercise_key = models.CharField(max_length=255, default='')
     date = models.DateTimeField(default=now)
     image = models.ImageField(upload_to=answer_image_filename)
