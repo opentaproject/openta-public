@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.db.models import Prefetch
 import datetime
+from django.utils import timezone
+import pytz
 
 from .models import Exercise
 from .models import Question
@@ -57,11 +59,14 @@ class ExerciseAdmin(admin.ModelAdmin):
         userdata = users.prefetch_related(
             Prefetch(
                 'answer_set',
-                queryset=Answer.objects.filter(
+                queryset=Answer.objects.filter(question__exercise=exercise)
+                .filter(
                     date__lt=datetime.datetime.combine(
-                        exercise.meta.deadline_date, datetime.time(8, 0, 0)
+                        exercise.meta.deadline_date, datetime.time(8, 0, 0, tzinfo=pytz.UTC)
                     )
-                ).order_by('-date'),
+                )
+                .order_by('-date'),
+                to_attr='answers',
             )
         )
         return render(request, 'examine/passed_exercises.html', {'users': userdata})
