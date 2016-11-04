@@ -226,12 +226,12 @@ def serve_file(path, filename, **kwargs):  # {{{
 
 @api_view(['GET'])
 def exercise_asset(request, exercise, asset):  # {{{
-    if not asset.lower().endswith(('.png', '.pdf', '.jpg', '.jpeg', '.svg')):
+    if not asset.lower().endswith(('.png', '.pdf', '.jpg', '.jpeg', '.svg', '.tiff')):
         return Response({}, status.HTTP_403_FORBIDDEN)
 
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     if asset.lower().endswith('.pdf'):
-        if not dbexercise.meta.solution and not request.user.has_perm('exercises.edit_exercise'):
+        if not dbexercise.meta.solution and not request.user.has_perm('exercises.view_solution'):
             return Response({}, status.HTTP_403_FORBIDDEN)
 
     return serve_file(

@@ -72,8 +72,8 @@ class BaseExercise extends Component {
       <div className="uk-margin-bottom uk-text-center" key={"solution"}>
       { meta.get('solution', false) && children }
 
-      {!meta.get('solution', false) && this.props.author && <div className="uk-block uk-block-muted uk-padding-remove uk-text-warning">Dold. Visa för studenter genom att klicka i "solution" i inställningarna.</div> }
-      {!meta.get('solution', false) && this.props.author && <div className="uk-block uk-block-muted uk-padding-remove">{children}</div>}
+      {!meta.get('solution', false) && this.props.view && <div className="uk-block uk-block-muted uk-padding-remove uk-text-warning">Dold för studenter. {this.props.author && <span>Visa för studenter genom att klicka i "solution" i inställningarna.</span>}</div> }
+      {!meta.get('solution', false) && this.props.view && <div className="uk-block uk-block-muted uk-padding-remove">{children}</div>}
       </div>
     );
   }
@@ -155,6 +155,7 @@ const mapStateToProps = state => {
   {
     author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
     admin: state.getIn(['login', 'groups'],immutable.List([])).includes('Admin'),
+    view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
     exerciseKey: state.get('activeExercise'),
     exerciseState: activeExerciseState,
     pendingState: state.get('pendingState')

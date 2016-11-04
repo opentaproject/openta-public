@@ -203,6 +203,7 @@ class Exercise(models.Model):
             ("edit_exercise", "Can edit exercises in frontend"),
             ("create_exercise", "Can create exercises in frontend"),
             ("administer_exercise", "Can administer exercise options"),
+            ("view_solution", "Can view exercise solution (even if not published)"),
         )
 
     def __str__(self):
