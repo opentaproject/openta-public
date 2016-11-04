@@ -117,7 +117,7 @@ export default class QuestionCompareNumeric extends Component {
     var mathjsParse = mathjs.eval(input, vars);
   }
   catch(e) {
-    if(e instanceof SyntaxError)
+    if(e instanceof Error)
       mathjsError = (<Alert type="warning" message={ e.toString() }/>);
   }
   return (
