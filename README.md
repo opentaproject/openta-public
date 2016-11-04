@@ -16,10 +16,11 @@ Requires:
 * libxml2
 * libxslt1
 * python-dev
+* libzmq-dev
 
 In an apt-based linux distribution the required dependencies can be installed with
 ```
-apt get install libjpeg-dev libgraphviz-dev graphviz pkg-config libxml2-dev libxslt1-dev python-dev
+apt get install libjpeg-dev libgraphviz-dev graphviz pkg-config libxml2-dev libxslt1-dev python-dev libzmq3-dev
 ```
 
 ### Steps
