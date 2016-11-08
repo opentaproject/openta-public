@@ -23,10 +23,14 @@ var difficulties = {
   '3': 'Svår',
 };
 
-function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername) {
+function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics) {
   var deadlineClass = "uk-badge-primary";
   if( meta.bonus )
     deadlineClass = "uk-badge-warning";
+  if(showStatistics) {
+    var percent = exerciseState.getIn([exercise, 'percent'], 0);
+    if(percent === null)percent = 0;
+  }
 return (
   <li key={exercise} id={exercise} className="course-exercise-item">
     <a className={"uk-thumbnail " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
@@ -44,11 +48,16 @@ return (
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
       {folder.exercises[exercise].name}
       </div>
+      { showStatistics &&
+        <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-success">
+          <div className="uk-progress-bar" style={{'width': (percent*100) + '%'}}></div>
+        </div>
+      }
     </a>
   </li>);
 }
 
-const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, onExerciseClick }) => {
+const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
@@ -58,7 +67,7 @@ const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, on
       //exerciseState.getIn([exercise, 'correct'], false)
       exercises = folder.order/*Object.keys(folder.exercises)/*.sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name )*/.map( exercise => {
         var meta = folder.exercises[exercise].meta;
-        return generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername);
+        return generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics);
       });
     }
     if(folder.folders)
@@ -103,7 +112,8 @@ const mapStateToProps = state => ({
   exerciseState: state.get('exerciseState'),
   pendingState: state.get('pendingState'),
   exercisetree: state.get('exerciseTree'),
-  currentpath: state.get('currentpath')
+  currentpath: state.get('currentpath'),
+  showStatistics: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
 });
 
 const mapDispatchToProps = dispatch => ({

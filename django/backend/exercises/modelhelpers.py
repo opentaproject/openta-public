@@ -5,7 +5,7 @@ from django.contrib.auth.models import User
 from exercises.serializers import ExerciseSerializer, ExerciseMetaSerializer, AnswerSerializer
 import json
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Count, Case, When, Avg
 import os
 from functools import reduce
 from collections import OrderedDict
@@ -13,6 +13,9 @@ from collections import OrderedDict
 # import cProfile
 import pprofile
 from .util import nested_print
+import datetime
+from django.utils import timezone
+import pytz
 
 
 def e_name(exercise):
@@ -29,6 +32,70 @@ def e_student_attempt_count(exercise):
             question__exercise=exercise, user__groups__name="Student"
         ).count()
     }
+
+
+def e_student_mean_attempt_count(exercise):
+    users = User.objects.filter(groups__name='Student')
+    attempts = users.filter(answer__question__exercise=exercise).annotate(
+        attempts=Count('answer')
+    )  # .values_list('username', 'attempts')
+    mean_attempts = attempts.aggregate(Avg('attempts'))
+    return {
+        'mean_attempts': mean_attempts['attempts__avg'],
+        #'attempts': attempts.values_list('username', 'attempts')
+    }
+
+
+def e_student_percent_complete(exercise):
+    users = User.objects.filter(groups__name='Student')
+    n_students = users.count()
+    # userdata = users.prefetch_related(
+    #        Prefetch(
+    #            'answer_set',
+    #            queryset = Answer.objects.filter(question__exercise=exercise).filter(correct=True).filter(date__lt=datetime.datetime.combine(exercise.meta.deadline_date, datetime.time(8,0,0, tzinfo=pytz.UTC))).order_by('-date'),
+    #            to_attr = 'answers'
+    #            ))
+    questions = Question.objects.filter(exercise=exercise)
+    correct = []
+    for question in questions:
+        if exercise.meta.deadline_date:
+            correct.append(
+                set(
+                    users.filter(
+                        answer__correct=True,
+                        answer__question=question,
+                        answer__date__lt=datetime.datetime.combine(
+                            exercise.meta.deadline_date, datetime.time(8, 0, 0, tzinfo=pytz.UTC)
+                        ),
+                    )
+                    .values_list('username', flat=True)
+                    .distinct()
+                )
+            )
+        else:
+            correct.append(
+                set(
+                    users.filter(answer__correct=True, answer__question=question)
+                    .values_list('username', flat=True)
+                    .distinct()
+                )
+            )
+    allcorrect = set.intersection(*map(set, correct))
+    return {'percent': len(allcorrect) / n_students, 'deadline': exercise.meta.deadline_date}
+
+
+def exercise_list_data(exercise_data_func_list):
+    exercises = Exercise.objects.all()
+    result = {}
+    for exercise in exercises:
+
+        def reduce_data_func(prev, next):
+            prev.update(next(exercise))
+            return prev
+
+        data = reduce(reduce_data_func, exercise_data_func_list, {})
+        result[exercise.exercise_key] = data
+    return result
 
 
 def folder_structure(exercise_data_func_list):  # {{{
@@ -127,7 +194,7 @@ def exercise_folder_structure(manager, user):  # {{{
     return folders  # }}}
 
 
-def serialize_exercise_with_question_data(exercise, user):
+def serialize_exercise_with_question_data(exercise, user):  # {{{
     questions = Question.objects.filter(exercise=exercise)
     correct = exercise.user_is_correct(user)
     serializer = ExerciseSerializer(exercise)
@@ -152,22 +219,21 @@ def serialize_exercise_with_question_data(exercise, user):
             data['question'][question.question_key]['response'] = response
         except ObjectDoesNotExist:
             pass
-    return data
+    return data  # }}}
 
 
-def student_attempts_exercises():
+def student_attempts_exercises():  # {{{
     exercises = Exercise.objects.all()
     allattempts = []
     folders = folder_structure([e_name, e_path, e_student_attempt_count])
-    # for exercise in exercises:
-    #    attempts = Answer.objects.filter(question__exercise=exercise, user__groups__name = 'Student')
-    #    #ser = AnswerSerializer(attempts, many=True)
-    #    allattempts.append({
-    #        'exercise': exercise.name,
-    #        'attempts': attempts.count()
-    #        })
+    return folders  # }}}
 
-    return folders
+
+def student_statistics_exercises():  # {{{
+    data = exercise_list_data(
+        [e_name, e_path, e_student_percent_complete, e_student_mean_attempt_count]
+    )
+    return data  # }}}
 
 
 def exercise_test(exercise_key):

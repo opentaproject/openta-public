@@ -26,6 +26,13 @@ function updateExerciseTree(exercisetree) {//{{{
   };
 }//}}}
 
+function updateExerciseStatistics(stats) {//{{{
+  return {
+    type: 'UPDATE_EXERCISE_STATISTICS',
+    stats: stats
+  };
+}//}}}
+
 function updateExerciseState(exercise, state) {//{{{
   return {
     type: 'UPDATE_EXERCISE_STATE',
@@ -138,4 +145,4 @@ function setImageAnswers(exercise, imageAnswers) {
   }
 }
 
-export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers}
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics}

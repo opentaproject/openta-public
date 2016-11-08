@@ -11,6 +11,7 @@ import {
   updateActiveAdminTool,
   updatePendingState,
   updatePendingStateIn,
+  updateExerciseStatistics,
   setSavePendingState,
   setResetPendingState,
   setSaveError,
@@ -25,7 +26,7 @@ import {SUBPATH} from 'settings.js'
 
 var CSRF_TOKEN = getcookie('csrftoken')[0]; 
 
-function jsonfetch(url, options = {}) {
+function jsonfetch(url, options = {}) {//{{{
   var defaults = {
       headers: { 
         'X-CSRFToken': CSRF_TOKEN,
@@ -35,9 +36,9 @@ function jsonfetch(url, options = {}) {
   };
   var _opts = immutable.fromJS(defaults).mergeDeep(immutable.fromJS(options));
   return fetch(SUBPATH + url, _opts.toJS());
-}
+}//}}}
 
-function fetchLoginStatus() {
+function fetchLoginStatus() {//{{{
   return dispatch => {
     return jsonfetch('/loggedin')
     .then(response => response.json() )
@@ -56,14 +57,16 @@ function fetchLoginStatus() {
       dispatch(updateLoginStatus(data))
       if(data.groups.indexOf('Author') > -1)
         dispatch(updateActiveAdminTool('xml-editor'));
-      if(data.groups.indexOf('Admin') > -1)
+      if(data.groups.indexOf('Admin') > -1) 
         dispatch(updateActiveAdminTool('options'));
+      if(data.groups.indexOf('View') > -1) 
+        dispatch(fetchExerciseStatistics());
       }
          );
   };
-}
+}//}}}
 
-function fetchExercises() {
+function fetchExercises() {//{{{
   return dispatch => {
     return jsonfetch('/exercises/')
       .then(response => response.json())
@@ -74,9 +77,9 @@ function fetchExercises() {
       .then(json => dispatch(updateExercisesState(json)))
       .catch( err => console.log(err) );
   };
-}
+}//}}}
 
-function fetchExerciseTree() {
+function fetchExerciseTree() {//{{{
   return dispatch => {
     return jsonfetch('/exercises/tree/')
       //.then(response => {console.dir(response); return response;})
@@ -84,9 +87,9 @@ function fetchExerciseTree() {
       .then(json => dispatch(updateExerciseTree(json)))
       .catch( err => console.log(err) );
   };
-}
+}//}}}
 
-function fetchSameFolder(exercise, folder) {
+function fetchSameFolder(exercise, folder) {//{{{
   return dispatch => {
     return jsonfetch('/exercise/' + exercise + '/samefolder')
       //.then(response => {console.dir(response); return response;})
@@ -99,9 +102,9 @@ function fetchSameFolder(exercise, folder) {
       .then(json => dispatch(updateExercises(json, folder)))
       .catch( err => console.log(err) );
   };
-}
+}//}}}
 
-function fetchExerciseXML(exercise) {
+function fetchExerciseXML(exercise) {//{{{
   return dispatch => {
     dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingXML'], true));
     return jsonfetch('/exercise/' + exercise + '/xml')
@@ -113,17 +116,17 @@ function fetchExerciseXML(exercise) {
       .then( json => json.xml )
       .then( xml => dispatch(updateExerciseXML(exercise, xml)));
   }
-}
+}//}}}
 
-function fetchExerciseRemoteState(exercise) {
+function fetchExerciseRemoteState(exercise) {//{{{
   return dispatch => {
     return jsonfetch('/exercise/' + exercise)
       .then(response => response.json() )
       .then(json => dispatch(updateExerciseState(exercise, json)));
   }
-}
+}//}}}
 
-function fetchExercise(exercise, empty) {
+function fetchExercise(exercise, empty) {//{{{
   return (dispatch, getState) => {
     dispatch(updateActiveExercise(exercise));
     if(getState().getIn(['login','groups'], immutable.List([])).includes('Author'))
@@ -159,9 +162,9 @@ function fetchExercise(exercise, empty) {
       return;
     }
   };
-}
+}//}}}
 
-function saveExercise(exercise) {
+function saveExercise(exercise) {//{{{
   return (dispatch, getState) => {
     var state = getState();
     var xml = state.getIn(['exerciseState', exercise, 'xml']);
@@ -206,9 +209,9 @@ function saveExercise(exercise) {
         console.log('Error while saving:' + err);
     });
   }
-}
+}//}}}
 
-function checkQuestion(exerciseKey, questionKey, answerData) {
+function checkQuestion(exerciseKey, questionKey, answerData) {//{{{
   return dispatch => {
     if(answerData === "")return;
     var payload = {
@@ -241,20 +244,20 @@ function checkQuestion(exerciseKey, questionKey, answerData) {
     .catch( err => console.log(err) )
     //.then(json => console.dir(json))
   }
-}
+}//}}}
 
-function uploadProgress(dispatch, evt, exerciseKey) {
+function uploadProgress(dispatch, evt, exerciseKey) {//{{{
   if(evt.loaded && evt.total && evt.total > 0) {
     return dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], evt.loaded / evt.total));
   }
   else if(evt.position && evt.totalSize && evt.totalSize > 0) {
     return dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], evt.position / evt.totalSize));
   }
-}
+}//}}}
 
 var throttleUploadProgress = _.throttle(uploadProgress, 300);
 
-function uploadImage(exerciseKey, file) {
+function uploadImage(exerciseKey, file) {//{{{
   return dispatch => {
       if (!file || !file.type.match(/image.*/)) return;
       var fd = new FormData();
@@ -274,25 +277,35 @@ function uploadImage(exerciseKey, file) {
       xhr.send(fd);
       dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageuploadpending'], true));
     }
-} 
+} //}}}
 
-function deleteImageAnswer(imageAnswerId) {
+function deleteImageAnswer(imageAnswerId) {//{{{
   return dispatch => {
     var fetchconfig = {
       method: "POST"
     }
     return jsonfetch('/imageanswer/' + imageAnswerId + '/delete', fetchconfig)
   }
-}
+}//}}}
 
-function fetchImageAnswers(exerciseKey) {
+function fetchImageAnswers(exerciseKey) {//{{{
   return dispatch => {
     return jsonfetch('/exercise/' + exerciseKey + '/imageanswers')
       .then( res => res.json() )
       .then( json => dispatch(setImageAnswers(exerciseKey, json)) )
       .catch( err => console.dir(err) )
   }
-}
+}//}}}
+
+function fetchExerciseStatistics() {//{{{
+  return dispatch => {
+    return jsonfetch('/statistics/statsperexercise')
+      //.then(response => {console.dir(response); return response;})
+      .then(response => response.json())
+      .then(json => dispatch(updateExerciseStatistics(json)))
+      .catch( err => console.log(err) );
+  };
+}//}}}
 
 export {
   fetchLoginStatus,
@@ -307,5 +320,6 @@ export {
   uploadImage,
   deleteImageAnswer,
   fetchImageAnswers,
-  checkQuestion
+  checkQuestion,
+  fetchExerciseStatistics,
 };

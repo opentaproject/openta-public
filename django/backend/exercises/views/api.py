@@ -12,6 +12,7 @@ from exercises.modelhelpers import (
     exercise_folder_structure,
     student_attempts_exercises,
     exercise_test,
+    student_statistics_exercises,
 )
 from exercises.paths import EXERCISES_PATH
 from exercises.util import nested_print
@@ -257,7 +258,7 @@ def question_last_answer(request, exercise, question):  # {{{
 
 @api_view(['POST'])
 @parser_classes((MultiPartParser,))
-def upload_answer_image(request, exercise):
+def upload_answer_image(request, exercise):  # {{{
     print(request.FILES['file'])
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     if request.FILES['file'].size > 10e6:
@@ -268,11 +269,11 @@ def upload_answer_image(request, exercise):
     )
     image_answer.save()
     # nested_print(request.data)
-    return Response({})
+    return Response({})  # }}}
 
 
 @api_view(['GET'])
-def answer_image_view(request, image_id):
+def answer_image_view(request, image_id):  # {{{
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
         print(image_answer.image.name)
@@ -287,10 +288,11 @@ def answer_image_view(request, image_id):
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
     except ObjectDoesNotExist:
         return Response("invalid answer image id", status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # }}}
 
 
 @api_view(['GET'])
-def answer_image_thumb_view(request, image_id):
+def answer_image_thumb_view(request, image_id):  # {{{
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
         if image_answer.user == request.user or request.user.is_staff:
@@ -304,12 +306,19 @@ def answer_image_thumb_view(request, image_id):
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
     except ObjectDoesNotExist:
         return Response("invalid answer image id", status.HTTP_500_INTERNAL_SERVER_ERROR)
+        # }}}
 
 
 @permission_required('exercises.administer_exercise')
 @api_view(['GET'])
 def get_student_attempts_per_exercise(request):
     return Response(student_attempts_exercises())
+
+
+@permission_required('exercises.view_statistics')
+@api_view(['GET'])
+def get_statistics_per_exercise(request):
+    return Response(student_statistics_exercises())
 
 
 @permission_required('exercises.administer_exercise')

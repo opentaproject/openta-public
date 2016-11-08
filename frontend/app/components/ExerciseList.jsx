@@ -26,7 +26,7 @@ function listClass(item, active) {
   else return "";
 }
 
-function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta) {
+function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta, showStatistics) {
   var onExerciseClick = (key, loaded) => {
     UIkit.offcanvas.hide();
     onClickFunc(key, loaded);
@@ -34,6 +34,10 @@ function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta
   var deadlineClass = "uk-badge-primary";
   if( meta.get('bonus', false) )
     deadlineClass = "uk-badge-warning";
+  if(showStatistics) {
+    var percent = exerciseState.getIn([exercise.get('exercise_key'), 'percent'], 0);
+    if(percent === null)percent = 0;
+  }
 return (
       <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
         <a className={ meta.get('published', false) ? "" : "exercise-unpublished" } onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
@@ -52,13 +56,20 @@ return (
               </div>
             </li>
             <li className="uk-text-break">{exercise.get('name')}</li>
+            { showStatistics &&
+              <li>
+              <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-success">
+                <div className="uk-progress-bar" style={{'width': (percent*100) + '%'}}></div>
+              </div>
+              </li>
+            }
           </ul>
         </a>
       </li>
 );
 }
 
-const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onBack, pendingState }) => (
+const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onBack, pendingState, showStatistics }) => (
   <div className="uk-text-center " id="exercises-menu">
     <div id="offcanvas-exercise-list" className="uk-offcanvas">
       <div className="uk-offcanvas-bar">
@@ -66,7 +77,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
           <li className="uk-nav-header" key="header">
             <a onClick={(ev) => { UIkit.offcanvas.hide(); onBack() } }><i className="uk-icon uk-icon-arrow-left uk-margin-small-right"></i><span className="uk-text-small">{folder.split('.')[0]}</span></a> 
           </li>
-          { exerciselist.map( exercise => generateItem(onExerciseClick, exercise, activeExercise, exerciseState, exercise.get('meta') || immutable.Map({}))) }
+          { exerciselist.map( exercise => generateItem(onExerciseClick, exercise, activeExercise, exerciseState, exercise.get('meta') || immutable.Map({}), showStatistics)) }
         </ul>
       </div>
     </div>
@@ -80,7 +91,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
       var meta = exercise.get('meta');
       if(!meta)meta = immutable.Map({});
       var key = exercise.get('exercise_key');
-      return generateItem(onExerciseClick, exercise, activeExercise, exerciseState, meta);
+      return generateItem(onExerciseClick, exercise, activeExercise, exerciseState, meta, showStatistics);
       })}
     </ul>
   </div>
@@ -104,7 +115,8 @@ const mapStateToProps = state => {
     folder: state.get('folder', ""),
     activeExercise: state.get('activeExercise') ,
     exerciseState: exerciseState,
-    pendingState: state.get('pendingState')
+    pendingState: state.get('pendingState'),
+    showStatistics: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
   }
   )
 };
