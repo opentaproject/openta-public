@@ -37,12 +37,12 @@ const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPen
         { renderImageAnswers }
     <div className="uk-button-group uk-align-medium-right"> 
         <div className="uk-form-file">
-        <a type="file" className={"uk-button uk-button-small"}>{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-camera"></i>)}
+        <a type="file" className={"uk-button"}>{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-camera"></i>)}
         { uploadPending && progress }
         </a>
         <input type="file" accept="image/*" onChange={(e) => onUpload(e, exerciseKey)}/>
         </div>
-        <button data-uk-tooltip="{pos:'bottom-left'}" title="Denna uppgift kräver även bild på lösning. (Om du har en mobil enhet med kamera kan du välja att ta bilderna direkt.) Du kan ladda upp flera bilder samt ta bort de du laddat upp. Kontrollera att bilden är läsbar efter du laddat upp genom att klicka på den/dem." className="uk-button uk-button-small">
+        <button data-uk-tooltip="{pos:'bottom-left'}" title="Denna uppgift kräver även bild på lösning. (Om du har en mobil enhet med kamera kan du välja att ta bilderna direkt.) Du kan ladda upp flera bilder samt ta bort de du laddat upp. Kontrollera att bilden är läsbar efter du laddat upp genom att klicka på den/dem." className="uk-button">
           <i className="uk-icon uk-icon-question-circle-o"/>
         </button>
     </div>

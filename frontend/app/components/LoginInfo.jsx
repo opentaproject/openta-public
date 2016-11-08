@@ -85,24 +85,29 @@ return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
   <div className="uk-container uk-container-center">
   { activeExercise &&
-  <div className="uk-navbar-content">
-    <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas" data-uk-offcanvas/>
+  <div className="uk-navbar-content uk-padding-remove">
+    <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas uk-padding-remove" data-uk-offcanvas/>
   </div> }
   <ul className="uk-navbar-nav exercise-list-on-canvas"><li>
   <a className="uk-navbar-brand" onClick={onHome}><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> {course}</span></a>
   </li></ul>
   <div className="uk-navbar-flip">
+  { author && activeExercise && 
   <div className="uk-navbar-content">
-  { author && activeExercise && savereset}
+    savereset
   </div>
+  }
   <ul className="uk-navbar-nav">
       <li >
-      <a href={SUBPATH + "/logout/?next=" + SUBPATH + "/login"}><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
+        <a className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}><span className="uk-text-primary">Problem?</span></a>
+      </li> 
+      <li >
+      <a title="Logga ut" href={SUBPATH + "/logout/?next=" + SUBPATH + "/login"}><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
       </li>
   </ul>
   </div>
-  <div className="uk-navbar-content uk-navbar-center">
-  {renderGroupIcons} <span className="uk-text-large uk-text-middle">{username}</span>{ admin ? ( <span className="uk-text-small uk-text-middle"> (admin)</span> ) : "" }
+  <div className="uk-navbar-content uk-margin-remove">
+  {renderGroupIcons} <span className="uk-text-middle">{username}</span>{ admin ? ( <span className="uk-text-small uk-text-middle"> (admin)</span> ) : "" }
   { activeExercise && admintools }
 </div>
   </div>
