@@ -94,7 +94,7 @@ return (
   <div className="uk-navbar-flip">
   { author && activeExercise && 
   <div className="uk-navbar-content">
-    savereset
+  {savereset}
   </div>
   }
   <ul className="uk-navbar-nav">
