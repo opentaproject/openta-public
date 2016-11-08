@@ -125,7 +125,7 @@ export default class QuestionCompareNumeric extends Component {
   return (
         <div className="">
           <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span><HelpCompareNumeric/></label>
-{ hasChanged && (<Badge message={"previous: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
+{ hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">
           <div className="uk-form-icon uk-width-1-1">
