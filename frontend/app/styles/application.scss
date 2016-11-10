@@ -39,12 +39,14 @@ $exerciselist: 0.1;
   }
   .exercise-list {
     width: percentage($exerciselist);
+    max-width: 200px;
     padding: 0;
     box-sizing: border-box;
   }
 
   .exercise {
     width: percentage($exercise);
+    max-width: 800px;
     box-sizing: border-box;
   }
 
@@ -89,16 +91,16 @@ $exerciselist: 0.1;
   @include layout(0.1, 0.33);
 }*/
 @media (max-width:480px) {
-  @include layout(1,1, false, true);
+  @include layout(0,1, false, true);
 }
 @media (min-width: 480px) and (max-width:768px) {
   @include layout(0.2, 0.8, false, false);
 }
 @media (min-width: 768px) and (max-width:960px) {
-  @include layout(0.2, 0.45, false, false);
+  @include layout(0.2, 0.8, false, false);
 }
 @media (min-width: 960px) {
-  @include layout(0.1, 0.33, true, false);
+  @include layout(0.2, 0.8, true, false);
 }
 
 .ta-nav {

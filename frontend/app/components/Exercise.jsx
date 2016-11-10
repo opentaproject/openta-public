@@ -126,7 +126,7 @@ class BaseExercise extends Component {
     var items = json.getIn(['exercise','$children$'], immutable.List([]))
               .map( child => this.dispatchElement(child, json, meta, key) ).toSeq();
     var exerciseDOM = (
-        <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-left" ref="exercise" key={key}>
+        <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
         { meta.get('image', false) && <div className="uk-float-right uk-margin-small-right"><ExerciseImageUpload/></div> }
           {items}
         </article>

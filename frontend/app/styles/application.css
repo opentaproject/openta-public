@@ -22,16 +22,18 @@
     display: none; }
 
   .exercise-list {
-    width: 100%;
+    width: 0%;
+    max-width: 200px;
     padding: 0;
     box-sizing: border-box; }
 
   .exercise {
     width: 100%;
+    max-width: 800px;
     box-sizing: border-box; }
 
   .exercise-spacing {
-    width: -50%;
+    width: 0%;
     padding: 0;
     box-sizing: border-box; }
 
@@ -52,11 +54,13 @@
 
   .exercise-list {
     width: 20%;
+    max-width: 200px;
     padding: 0;
     box-sizing: border-box; }
 
   .exercise {
     width: 80%;
+    max-width: 800px;
     box-sizing: border-box; }
 
   .exercise-spacing {
@@ -81,15 +85,17 @@
 
   .exercise-list {
     width: 20%;
+    max-width: 200px;
     padding: 0;
     box-sizing: border-box; }
 
   .exercise {
-    width: 45%;
+    width: 80%;
+    max-width: 800px;
     box-sizing: border-box; }
 
   .exercise-spacing {
-    width: 17.5%;
+    width: -0.01%;
     padding: 0;
     box-sizing: border-box; }
 
@@ -109,29 +115,31 @@
     display: none; }
 
   .exercise-list {
-    width: 10%;
+    width: 20%;
+    max-width: 200px;
     padding: 0;
     box-sizing: border-box; }
 
   .exercise {
-    width: 33%;
+    width: 80%;
+    max-width: 800px;
     box-sizing: border-box; }
 
   .exercise-spacing {
-    width: 28.49%;
+    width: -0.01%;
     padding: 0;
     box-sizing: border-box; }
 
   .admin {
-    width: 90%;
+    width: 80%;
     box-sizing: border-box; }
 
   .exercise-admin {
-    width: 36.66%;
+    width: 100%;
     box-sizing: border-box; }
 
   .xmleditor {
-    width: 63.33%;
+    width: 0%;
     box-sizing: border-box; } }
 .ta-nav {
   background-color: #eeeeee; }
