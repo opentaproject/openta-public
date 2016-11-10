@@ -10,6 +10,7 @@ class Course(models.Model):
         _('Registration password'), max_length=255, null=True, default=None, blank=True
     )
     registration_by_password = models.BooleanField(default=False, blank=True)
+    deadline_time = models.TimeField(null=True, default=None, blank=True)
 
     def __str__(self):
         return self.course_name + ' - ' + self.course_long_name

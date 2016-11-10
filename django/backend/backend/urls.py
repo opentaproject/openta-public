@@ -57,6 +57,8 @@ internalurlpatterns = [
 
 urlpatterns = [url(r'^' + SUBPATH, include(internalurlpatterns))]
 
+admin.site.site_header = 'OpenTA Admin'
+
 # if DEBUG:
 #    import debug_toolbar
 #    urlpatterns += [
