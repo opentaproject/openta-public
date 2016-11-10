@@ -135,11 +135,13 @@
     box-sizing: border-box; }
 
   .exercise-admin {
-    width: 100%;
+    /*width: round(percentage($exercise / (1-$exerciselist)));*/
+    width: 50%;
     box-sizing: border-box; }
 
   .xmleditor {
-    width: 0%;
+    /*width: round(percentage(1 - $exercise / (1-$exerciselist)));*/
+    width: 50%;
     box-sizing: border-box; } }
 .ta-nav {
   background-color: #eeeeee; }

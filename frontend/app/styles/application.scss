@@ -68,7 +68,8 @@ $exerciselist: 0.1;
 
   .exercise-admin {
     @if $calcadmin {
-      width: round(percentage($exercise / (1-$exerciselist)));
+      /*width: round(percentage($exercise / (1-$exerciselist)));*/
+      width: 50%;
     }
     @else {
       width: 100%;
@@ -78,7 +79,8 @@ $exerciselist: 0.1;
 
   .xmleditor {
     @if $calcadmin {
-      width: round(percentage(1 - $exercise / (1-$exerciselist)));
+      /*width: round(percentage(1 - $exercise / (1-$exerciselist)));*/
+      width:50%;
     }
     @else {
       width:100%;
