@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block content %}
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center">
+
+{% include "messages.html" %}
+  {{ questions }}
+  <table class="uk-table">
+    <thead>
+      <tr>
+        <th>{% trans "Username"%}</th>
+        {% for key, exercise in exercises.items %}
+        {% for qkey, question in exercise.questions.items %}
+          <th>{{exercise.name}}:{{qkey}}</th>
+        {% endfor %}
+          <th>Image answers</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>{{user.id}}</td>
+        {% for key, exercise in user.exercises.items %}
+          {% for key, answer in exercise.questions.items %}
+            <td>{{answer}}</td>
+          {% endfor %}
+          <td>
+            {% for pk in exercise.imageanswers %}
+            <a href="/{{SUBPATH}}imageanswer/{{pk}}" data-uk-lightbox data-lightbox-type="image"><img src="/{{SUBPATH}}imageanswerthumb/{{pk}}"/></a>
+            {% endfor %}
+          </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+{% endblock %}
