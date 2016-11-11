@@ -64,3 +64,8 @@ class BatchAddUsersForm(forms.Form):
     """
 
     batch_file = forms.FileField(label=_("Batch CSV file"), required=False)
+
+
+class EmailUsersForm(forms.Form):
+    subject = (forms.CharField(max_length=100),)
+    message = forms.CharField(widget=forms.Textarea)
