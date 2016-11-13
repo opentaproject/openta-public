@@ -35,7 +35,7 @@ def e_student_attempt_count(exercise):
 
 
 def e_student_mean_attempt_count(exercise):
-    users = User.objects.filter(groups__name='Student')
+    users = User.objects.filter(groups__name='Student', is_active=True)
     attempts = users.filter(answer__question__exercise=exercise).annotate(
         attempts=Count('answer')
     )  # .values_list('username', 'attempts')
@@ -47,7 +47,7 @@ def e_student_mean_attempt_count(exercise):
 
 
 def e_student_percent_complete(exercise):
-    users = User.objects.filter(groups__name='Student')
+    users = User.objects.filter(groups__name='Student', is_active=True)
     n_students = users.count()
     # userdata = users.prefetch_related(
     #        Prefetch(
