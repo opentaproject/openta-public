@@ -24,6 +24,7 @@ from .models import ExerciseMeta
 from course.models import Course
 from backend import forms as backendforms
 from backend import views as backendviews
+import exercises.modelhelpers as modelhelpers
 
 
 class ImageAnswerAdmin(admin.ModelAdmin):
@@ -48,11 +49,33 @@ class GetSamplePassedForm(forms.Form):
 
 class ExerciseAdmin(admin.ModelAdmin):
     # readonly_fields = ('id',)
-    list_display = ['name', 'path', 'get_thumbnail', 'get_required', 'get_bonus', 'get_deadline']
+    list_display = [
+        'name',
+        'path',
+        'get_percent_complete',
+        'get_attempts',
+        'get_thumbnail',
+        'get_required',
+        'get_bonus',
+        'get_deadline',
+    ]
     list_filter = ['meta__required', 'meta__bonus', 'meta__published']
     search_fields = ['name', 'path']
     actions = ['get_passed', 'get_sample_passed', 'get_not_passed']
     ordering = ['meta__deadline_date']
+
+    def get_percent_complete(self, exercise):
+        data = modelhelpers.e_student_percent_complete(exercise)
+        return "{:.0f}%".format(data['percent'] * 100)
+
+    get_percent_complete.short_description = 'Students progress'
+
+    def get_attempts(self, exercise):
+        data = modelhelpers.e_student_mean_attempt_count(exercise)
+        mean_attempts = data['mean_attempts'] if data['mean_attempts'] is not None else 0
+        return "{:.0f}".format(mean_attempts)
+
+    get_attempts.short_description = 'Mean attempts'
 
     def get_required(self, exercise):
         return exercise.meta.required
