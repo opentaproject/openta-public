@@ -67,5 +67,5 @@ class BatchAddUsersForm(forms.Form):
 
 
 class EmailUsersForm(forms.Form):
-    subject = (forms.CharField(max_length=100),)
+    subject = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size': 60}))
     message = forms.CharField(widget=forms.Textarea)

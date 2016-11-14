@@ -13,15 +13,22 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from course.models import Course
 from course.serializers import CourseSerializer
-from backend.forms import RegisterWithPasswordForm, BatchAddUsersForm
+from backend.forms import (
+    RegisterWithPasswordForm,
+    BatchAddUsersForm,
+    UserCreateForm,
+    UserCreateFormNoPassword,
+    EmailUsersForm,
+)
 from django.views.generic.edit import CreateView
-from .forms import UserCreateForm, UserCreateFormNoPassword
 from ratelimit.decorators import ratelimit
 from ratelimit.mixins import RatelimitMixin
 from django.contrib.auth.decorators import permission_required
 from django.contrib.auth.mixins import PermissionRequiredMixin, AccessMixin
 from django.contrib.auth.models import Group
+from django.template.response import TemplateResponse
 from backend.user_utilities import send_activation_mail
+from django.core.mail import EmailMessage
 from smtplib import SMTPException
 import logging
 import csv
@@ -361,3 +368,31 @@ def password_reset_complete(request):
     """
     messages.add_message(request, messages.INFO, _("Password reset successful, please login."))
     return redirect(reverse('login'))
+
+
+def email_users(request, context):
+    if request.POST.get('post-send-emails'):
+        form = EmailUsersForm(request.POST)
+        if form.is_valid():
+            users = User.objects.filter(pk__in=request.session['email_users'])
+            addresses = users.values_list('email', flat=True)
+            email = EmailMessage(
+                subject=form.cleaned_data['subject'],
+                body=form.cleaned_data['message'],
+                from_email=Course.objects.course_name().lower() + "@openta.se",
+                to=addresses,
+            )
+            email.send()
+            messages.info(request, "Emailed " + str(users.count()) + " students")
+    else:
+        # form = EmailUsersForm(initial={'subject': context['subject']})
+        form = EmailUsersForm()
+        users = User.objects.filter(pk__in=request.session['email_users'])
+        context.update(
+            {
+                'form': form,
+                'users': users,
+                'show_users': request.user.has_perm('exercises.show_student_id'),
+            }
+        )
+        return TemplateResponse(request, 'email_users.html', context)

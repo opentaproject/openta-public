@@ -205,6 +205,7 @@ class Exercise(models.Model):
             ("administer_exercise", "Can administer exercise options"),
             ("view_solution", "Can view exercise solution (even if not published)"),
             ("view_statistics", "Can view student progress statistics"),
+            ("view_student_id", "Can view student identity"),
         )
 
     def __str__(self):

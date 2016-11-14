@@ -6,9 +6,14 @@ from django.shortcuts import render
 from django.db.models import Prefetch, Max, F
 from django.contrib import messages
 from django.template.response import TemplateResponse
+from django import forms
+from django.utils.translation import ugettext as _
+from django.core.mail import EmailMessage
+
 import datetime
 from django.utils import timezone
 import pytz
+import random
 
 from .models import Exercise
 from .models import Question
@@ -18,109 +23,208 @@ from .models import ImageAnswer
 from .models import ExerciseMeta
 from course.models import Course
 from backend import forms as backendforms
+from backend import views as backendviews
+
 
 class ImageAnswerAdmin(admin.ModelAdmin):
     readonly_fields = ('id',)
-    list_display = ['__str__','_image_thumb',]
-    search_fields = ['user__username', 'exercise__name',]
+    list_display = ['__str__', '_image_thumb']
+    search_fields = ['user__username', 'exercise__name']
 
     def _image_thumb(self, image_answer):
-        return format_html('<a href="/{}imageanswer/{}"><img src="/{}imageanswerthumb/{}"/></a>',SUBPATH, image_answer.pk, SUBPATH, image_answer.pk)
+        return format_html(
+            '<a href="/{}imageanswer/{}"><img src="/{}imageanswerthumb/{}"/></a>',
+            SUBPATH,
+            image_answer.pk,
+            SUBPATH,
+            image_answer.pk,
+        )
+
+
+class GetSamplePassedForm(forms.Form):
+    number_of_samples = forms.IntegerField(label='How many samples?')
+    seed = forms.IntegerField(label='Random seed (optional, default value based on exercise id)')
+
 
 class ExerciseAdmin(admin.ModelAdmin):
-    #readonly_fields = ('id',)
-    list_display = ['name','path','get_required','get_bonus','get_deadline']
-    list_filter = ['meta__required', 'meta__bonus', 'meta__published',]
-    search_fields = ['name', 'path',]
-    actions = ['get_passed', 'get_not_passed']
+    # readonly_fields = ('id',)
+    list_display = ['name', 'path', 'get_thumbnail', 'get_required', 'get_bonus', 'get_deadline']
+    list_filter = ['meta__required', 'meta__bonus', 'meta__published']
+    search_fields = ['name', 'path']
+    actions = ['get_passed', 'get_sample_passed', 'get_not_passed']
+    ordering = ['meta__deadline_date']
 
     def get_required(self, exercise):
         return exercise.meta.required
+
     get_required.short_description = 'Obligatory'
 
     def get_bonus(self, exercise):
         return exercise.meta.bonus
+
     get_bonus.short_description = 'Bonus'
 
     def get_deadline(self, exercise):
         return exercise.meta.deadline_date
+
     get_deadline.short_description = 'Deadline'
     get_deadline.admin_order_field = 'meta__deadline_date'
 
-    def get_not_passed(self, request, queryset):
-        if request.method == 'POST':
+    def get_thumbnail(self, exercise):
+        return format_html(
+            '<img src="/{}exercise/{}/asset/thumbnail.png"/></a>', SUBPATH, exercise.exercise_key
+        )
 
+    get_thumbnail.short_description = 'Figure'
+
+    def get_sample_passed(self, request, queryset):
+        if request.POST.get('post-number-samples'):
+            form = GetSamplePassedForm(request.POST)
+            if form.is_valid():
+                return self.get_passed(
+                    request,
+                    queryset,
+                    samples=form.cleaned_data['number_of_samples'],
+                    seed=form.cleaned_data['seed'],
+                )
         else:
-            dbusers = User.objects.filter(groups__name='Student')
-            deadline_time = datetime.time(8,0,0, tzinfo=pytz.timezone('Europe/Stockholm'))
+            seed = 0
+            for val in queryset.values_list('pk', flat=True):
+                seed = seed + (hash(val) % 100)
+            form = GetSamplePassedForm(initial={'number_of_samples': 5, 'seed': seed})
+            context = dict(
+                self.admin_site.each_context(request),
+                action='get_sample_passed',
+                queryset=queryset,
+                action_checkbox_name=admin.helpers.ACTION_CHECKBOX_NAME,
+                form=form,
+                submit_text="Get samples",
+                hidden={'post-number-samples': 'yes'},
+            )
+            return TemplateResponse(request, 'generic_form.html', context)
+
+    def get_not_passed(self, request, queryset):
+        self.message_user(request, "Get not passed")
+        if request.POST.get('post-email-users'):
+            self.message_user(request, "Post email users")
+            context = dict(
+                self.admin_site.each_context(request),
+                action='get_not_passed',
+                queryset=queryset,
+                action_checkbox_name=admin.helpers.ACTION_CHECKBOX_NAME,
+            )
+            return backendviews.email_users(request, context)
+        else:
+            dbusers = User.objects.filter(groups__name='Student', is_active=True)
+            deadline_time = datetime.time(8, 0, 0, tzinfo=pytz.timezone('Europe/Stockholm'))
             course = Course.objects.first()
             if course is not None and course.deadline_time is not None:
                 deadline_time = course.deadline_time
-            #exercises = queryset.prefetch_related('question')
-            questions = Question.objects.filter(exercise__in=queryset).select_related('exercise', 'exercise__meta')
+            # exercises = queryset.prefetch_related('question')
+            questions = Question.objects.filter(exercise__in=queryset).select_related(
+                'exercise', 'exercise__meta'
+            )
             users = []
             for question in questions:
                 messages.info(request, question)
-                users.append(set(
+                users.append(
+                    set(
                         User.objects.exclude(
-                            imageanswer__exercise = question.exercise,
-                            answer__question = question, 
-                            answer__correct = True, 
-                            answer__date__lt=datetime.datetime.combine(question.exercise.meta.deadline_date, deadline_time))
-                        .values_list('username', flat=True).distinct()
-                        ))
-            not_passed = set.union(*map(set, users))
-            dbnot_passed = dbusers.exclude(username="student").filter(username__in=not_passed, email__isnull=False)
-            #self.message_user(request, " " + ", ".join(not_passed_email))
-            form = backendforms.EmailUsersForm()
-            context = dict(
-                    users=dbnot_passed,
-                    anonymous=False,
-                    form=form
+                            imageanswer__exercise=question.exercise,
+                            answer__question=question,
+                            answer__correct=True,
+                            answer__date__lt=datetime.datetime.combine(
+                                question.exercise.meta.deadline_date, deadline_time
+                            ),
+                        )
+                        .values_list('username', flat=True)
+                        .distinct()
                     )
-            return TemplateResponse(request, 'email_users.html', context)
+                )
+            not_passed = set.union(*map(set, users))
+            dbnot_passed = dbusers.exclude(username="student").filter(
+                username__in=not_passed, email__isnull=False
+            )
+            # self.message_user(request, " " + ", ".join(not_passed_email))
+            # opts = self.model._meta
+            # app_label = opts.app_label
+            context = dict(
+                self.admin_site.each_context(request),
+                # title="Test",
+                # site_header="OpenTA Admin",
+                queryset=queryset,
+                action_checkbox_name=admin.helpers.ACTION_CHECKBOX_NAME,
+                exercises=queryset,
+                users=dbnot_passed,
+                show_users=request.user.has_perm('exercises.show_student_id'),
+                anonymous=False,
+                #       opts=opts,
+            )
+            request.session['email_users'] = list(dbnot_passed.values_list('pk', flat=True))
+            return TemplateResponse(request, 'examine/not_passed_exercises.html', context)
 
-
-    def get_passed(self, request, queryset):
+    def get_passed(self, request, queryset, samples=None, seed=None):
         users = User.objects.filter(groups__name='Student')
-        deadline_time = datetime.time(8,0,0, tzinfo=pytz.timezone('Europe/Stockholm'))
+        deadline_time = datetime.time(8, 0, 0, tzinfo=pytz.timezone('Europe/Stockholm'))
         course = Course.objects.first()
         if course is not None and course.deadline_time is not None:
             deadline_time = course.deadline_time
         exercises = queryset.prefetch_related('question')
-        questions = Question.objects.filter(exercise__in=queryset).select_related('exercise', 'exercise__meta')
+        questions = Question.objects.filter(exercise__in=queryset).select_related(
+            'exercise', 'exercise__meta'
+        )
         users = []
         for question in questions:
-            messages.info(request, question)
-            users.append(set(
+            users.append(
+                set(
                     User.objects.filter(
-                        imageanswer__exercise = question.exercise,
-                        answer__question = question, 
-                        answer__correct = True, 
-                        answer__date__lt=datetime.datetime.combine(question.exercise.meta.deadline_date, deadline_time))
-                    .values_list('username', flat=True).distinct()
-                    ))
+                        imageanswer__exercise=question.exercise,
+                        answer__question=question,
+                        answer__correct=True,
+                        answer__date__lt=datetime.datetime.combine(
+                            question.exercise.meta.deadline_date, deadline_time
+                        ),
+                    )
+                    .values_list('username', flat=True)
+                    .distinct()
+                )
+            )
         passed = set.intersection(*map(set, users))
+        if request.POST.get('samples') is not None:
+            samples = int(request.POST.get('samples'))
+        if request.POST.get('seed') is not None:
+            seed = int(request.POST.get('seed'))
+        if samples is not None:
+            if seed is not None:
+                random.seed(seed)
+                request.session['seed'] = seed
+            passed = random.sample(passed, samples)
         passed_users = User.objects.filter(username__in=passed)
         template_data = []
         for user in passed_users:
-            template_user = {
-                    'id': user.pk,
-                    'exercises' : {}
-                    }
+            template_user = {'id': user.pk, 'username': user.username, 'exercises': {}}
             for exercise in exercises:
                 imageanswers = ImageAnswer.objects.filter(user=user, exercise=exercise)
                 template_user['exercises'][exercise.exercise_key] = {
-                        'questions': {},
-                        'imageanswers': list(imageanswers.values_list('pk', flat=True))
-                        }
+                    'questions': {},
+                    'imageanswers': list(imageanswers.values_list('pk', flat=True)),
+                }
 
                 for question in exercise.question.all():
-                    answer = Answer.objects.filter(user=user, question=question, correct=True, date__lt=datetime.datetime.combine(exercise.meta.deadline_date, deadline_time)).latest('date')
-                    template_user['exercises'][exercise.exercise_key]['questions'][question.question_key] = answer.answer
+                    answer = Answer.objects.filter(
+                        user=user,
+                        question=question,
+                        correct=True,
+                        date__lt=datetime.datetime.combine(
+                            exercise.meta.deadline_date, deadline_time
+                        ),
+                    ).latest('date')
+                    template_user['exercises'][exercise.exercise_key]['questions'][
+                        question.question_key
+                    ] = answer.answer
             template_data.append(template_user)
 
-        #for question in questions:
+        # for question in questions:
         #    passed_data = passed_data.prefetch_related(
         #            Prefetch(
         #                'answer_set',
@@ -129,14 +233,52 @@ class ExerciseAdmin(admin.ModelAdmin):
         #                ))
         structure = {}
         for exercise in exercises:
-            structure[exercise.exercise_key] = {
-                    'name': exercise.name,
-                    'questions': {}
-                    }
+            structure[exercise.exercise_key] = {'name': exercise.name, 'questions': {}}
             for question in exercise.question.all():
                 structure[exercise.exercise_key]['questions'][question.question_key] = {}
+        email_form = backendforms.EmailUsersForm(
+            initial={'subject': Course.objects.course_name() + ": " + _('Random control')}
+        )
+        if request.POST.get('email_students'):
+            email_form = backendforms.EmailUsersForm(request.POST)
+            for user in request.POST.getlist('selected_users'):
+                dbuser = User.objects.get(pk=user)
+                if email_form.is_valid():
+                    email = EmailMessage(
+                        subject=email_form.cleaned_data['subject'],
+                        body=email_form.cleaned_data['message'],
+                        from_email=Course.objects.course_name().lower() + "@openta.se",
+                        to=[dbuser.email],
+                    )
+                    email.send()
+                    if request.user.has_perm('exercises.view_student_id'):
+                        userinfo = dbuser.username
+                    else:
+                        userinfo = user
+                    messages.info(request, "Emailed user " + userinfo)
 
-        return render(request, 'examine/passed_exercises.html', {'users': template_data, 'n_questions': questions.count(), 'exercises': structure, 'SUBPATH': SUBPATH})
+        hidden = {'email_students': 'yes'}
+        if samples is not None:
+            hidden.update({'samples': samples})
+        if seed is not None:
+            hidden.update({'seed': seed})
+        context = dict(self.admin_site.each_context(request))
+        context.update(
+            {
+                'users': template_data,
+                'n_questions': questions.count(),
+                'exercises': structure,
+                'SUBPATH': SUBPATH,
+                'show_users': request.user.has_perm('exercises.view_student_id'),
+                'form': email_form,
+                'submit_text': 'Send email',
+                'action': 'get_passed',
+                'hidden': hidden,
+                'queryset': queryset,
+                'action_checkbox_name': admin.helpers.ACTION_CHECKBOX_NAME,
+            }
+        )
+        return render(request, 'examine/passed_exercises.html', context)
 
 
 admin.site.register(Exercise, ExerciseAdmin)

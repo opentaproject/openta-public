@@ -1,19 +1,5 @@
-{% extends "admin/base_site.html" %}
-{% load widget_tweaks %}
 {% load i18n l10n admin_urls static %}
 
-{% block content %}
-<div id="content" class="uk-vertical-align uk-text-center">
-  <div class="uk-vertical-align-middle uk-container-center">
-    <h2>Email users:</h2>
-      {% if show_users %}
-      {% for user in users %}
-        <span class="uk-badge"> {{user.username}} </span>
-      {% endfor %}
-      {% else %}
-        {{ users.count }} students
-      {% endif %}
-      <h2>Email: </h2>
     <form method="post" class="uk-form uk-form-stacked">
       {% csrf_token %}
       {% for field in form %}
@@ -34,10 +20,8 @@
       {% if action %}
       <input type="hidden" name="action" value="{{action}}" />
       {% endif %}
-      <input type="hidden" name="post-send-emails" value="yes" />
-      <input type="hidden" name="post-email-users" value="yes" />
-      <input class="uk-button uk-margin-small-top" type="submit" value="{% trans "Send batch email" %}" />
+      {% for key, item in hidden.items %}
+      <input type="hidden" name="{{ key }}" value="{{item}}" />
+      {% endfor %}
+      <input class="uk-button uk-margin-small-top" type="submit" value="{{ submit_text }}" />
     </form>
-  </div>
-</div>
-{% endblock %}

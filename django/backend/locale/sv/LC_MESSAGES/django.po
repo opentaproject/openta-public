@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-01 20:46+0100\n"
+"POT-Creation-Date: 2016-11-14 21:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: backend/forms.py:51 course/forms.py:5 course/models.py:8
+#: backend/forms.py:51 course/forms.py:5 course/models.py:16
 msgid "Registration password"
 msgstr "Registreringslösenord"
 
@@ -34,11 +34,11 @@ msgstr "Sidan är stängd för underhåll."
 msgid " account activation"
 msgstr " kontoaktivering"
 
-#: backend/views.py:55
+#: backend/views.py:56
 msgid "Password is now set, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
-#: backend/views.py:68 backend/views.py:81
+#: backend/views.py:69 backend/views.py:82
 msgid ""
 "Registration complete, check inbox for activation mail (possibly spam "
 "folder)."
@@ -46,82 +46,86 @@ msgstr ""
 "Registrering klar, ett aktiveringsmail kommer inom några minuter skickas "
 "till din mail (möjligen i spam mapp)."
 
-#: backend/views.py:130 backend/views.py:192 backend/views.py:204
+#: backend/views.py:131 backend/views.py:193 backend/views.py:205
 msgid "5 times per 30 seconds"
 msgstr "5 gånger per 30 sekunder"
 
-#: backend/views.py:149
+#: backend/views.py:150
 msgid "Activation successful, please login."
 msgstr "Aktivering lyckades, logga in nedan."
 
-#: backend/views.py:168
+#: backend/views.py:169
 msgid "User is already activated"
 msgstr "Användaren är redan aktiverad."
 
-#: backend/views.py:274
+#: backend/views.py:275
 msgid ""
 "Password reset link sent to your email (check your spam folder as well)."
 msgstr ""
 "En länk för lösenordsåterställning kommer inom några minuter skickas till "
 "din email (titta även bland spam)."
 
-#: backend/views.py:283
+#: backend/views.py:284
 msgid "times per minute."
 msgstr " gånger per minut."
 
-#: backend/views.py:296
+#: backend/views.py:297
 msgid "Password reset successful, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
-#: exercises/models.py:49
+#: exercises/admin.py:195
+msgid "Random control"
+msgstr "Slumpmässig kontroll"
+
+#: exercises/models.py:58
 msgid "Added exercise "
 msgstr ""
 
-#: exercises/models.py:52
+#: exercises/models.py:61
 msgid "Updated exercise "
 msgstr ""
 
-#: exercises/models.py:77
+#: exercises/models.py:86
 msgid "Started syncing exercises..."
 msgstr ""
 
-#: exercises/models.py:89
+#: exercises/models.py:98
 msgid "Duplicate exercise keys!"
 msgstr ""
 
-#: exercises/models.py:90
+#: exercises/models.py:99
 msgid "Exercise at ["
 msgstr ""
 
-#: exercises/models.py:90
+#: exercises/models.py:99
 msgid "] has the same key as exercise at ["
 msgstr ""
 
-#: exercises/models.py:91
+#: exercises/models.py:100
 msgid ""
 "Neither was added. (Perhaps you copied an exercise? Then please remove the "
 "key file from the new exercise to generate a new one on reload)"
 msgstr ""
 
-#: exercises/models.py:106
+#: exercises/models.py:115
 msgid "Deleted "
 msgstr ""
 
-#: exercises/models.py:106
+#: exercises/models.py:115
 msgid " since it is not present on disc anymore"
 msgstr ""
 
-#: exercises/models.py:112
+#: exercises/models.py:121
 msgid "Deleted an entry for "
 msgstr ""
 
-#: exercises/models.py:112
+#: exercises/models.py:121
 msgid ""
 " since the stored exercise key did not correspond to the exercisekey in the "
 "folder."
 msgstr ""
 
-#: exercises/models.py:115
+#: exercises/models.py:124
 msgid "Finished syncing exercises."
 msgstr ""
 
@@ -207,8 +211,16 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: templates/batch_add_users.html:45
+#: templates/batch_add_users.html:45 templates/examine/passed_exercises.html:32
 msgid "Username"
+msgstr ""
+
+#: templates/email_users.html:39
+msgid "Send batch email"
+msgstr ""
+
+#: templates/examine/not_passed_exercises.html:36
+msgid "Send email to users"
 msgstr ""
 
 #: templates/rate_limit.html:10
