@@ -9,6 +9,7 @@ from django.template.response import TemplateResponse
 from django import forms
 from django.utils.translation import ugettext as _
 from django.core.mail import EmailMessage
+from django.contrib.admin import DateFieldListFilter
 
 import datetime
 from django.utils import timezone
@@ -59,8 +60,14 @@ class ExerciseAdmin(admin.ModelAdmin):
         'get_bonus',
         'get_deadline',
     ]
-    list_filter = ['meta__required', 'meta__bonus', 'meta__published']
-    search_fields = ['name', 'path']
+    list_filter = [
+        'meta__required',
+        'meta__bonus',
+        'meta__published',
+        ('meta__deadline_date', DateFieldListFilter),
+    ]
+    list_per_page = 10
+    search_fields = ['name', 'path', 'meta__deadline_date']
     actions = ['get_passed', 'get_sample_passed', 'get_not_passed']
     ordering = ['meta__deadline_date']
 
