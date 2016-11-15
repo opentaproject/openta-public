@@ -17,14 +17,18 @@
         </dd>
         <dt>Not passed:</dt>
         <dd>{{ users.count }}</dd>
-        {% if show_users %}
         <dt>Students:</dt>
         <dd>
           {% for user in users %}
-          <a href="{% url 'admin:exercises_answer_changelist' %}?user__id={{user.id}}&question__exercise__exercise_key__in={{exercises_list | urlencode}}">{{ user.username }}</a>
+          <a href="{% url 'admin:exercises_answer_changelist' %}?user__id={{user.id}}&question__exercise__exercise_key__in={{exercises_list | urlencode}}">
+            {% if show_users %}
+              {{ user.username }}
+            {% else %}
+              {{ user.id }}
+            {% endif %}
+          </a>
           {% endfor %}
         </dd>
-        {% endif %}
     </dl>
     <form method="post" class="uk-form uk-form-stacked">
       {% csrf_token %}

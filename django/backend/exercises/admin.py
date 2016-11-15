@@ -315,17 +315,29 @@ class ExerciseAdmin(admin.ModelAdmin):
 
 class AnswerAdmin(admin.ModelAdmin):
     # readonly_fields = ('id',)
-    list_display = [
-        'get_username',
-        'get_answer',
-        'correct',
-        'get_exercise_name',
-        'get_question',
-        'date',
-    ]
     list_filter = ['question__exercise', 'user__id']
     search_fields = ['user__username', 'question__exercise__name']
     list_per_page = 20
+
+    def get_list_display(self, request):
+        if request.user.has_perm('exercises.view_student_id'):
+            return [
+                'get_username',
+                'get_answer',
+                'correct',
+                'get_exercise_name',
+                'get_question',
+                'date',
+            ]
+        else:
+            return [
+                'get_userid',
+                'get_answer',
+                'correct',
+                'get_exercise_name',
+                'get_question',
+                'date',
+            ]
 
     def get_question(self, answer):
         return answer.question.question_key
@@ -342,6 +354,11 @@ class AnswerAdmin(admin.ModelAdmin):
         return answer.user.username
 
     get_username.short_description = 'User'
+
+    def get_userid(self, answer):
+        return answer.user.id
+
+    get_userid.short_description = 'User id'
 
     def get_exercise_name(self, answer):
         return answer.question.exercise.name
