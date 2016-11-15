@@ -175,6 +175,7 @@ class ExerciseAdmin(admin.ModelAdmin):
             dbnot_passed = dbusers.exclude(username="student").filter(
                 username__in=not_passed, email__isnull=False
             )
+            exercises_list = ",".join(queryset.values_list('exercise_key', flat=True))
             # self.message_user(request, " " + ", ".join(not_passed_email))
             # opts = self.model._meta
             # app_label = opts.app_label
@@ -185,6 +186,7 @@ class ExerciseAdmin(admin.ModelAdmin):
                 queryset=queryset,
                 action_checkbox_name=admin.helpers.ACTION_CHECKBOX_NAME,
                 exercises=queryset,
+                exercises_list=exercises_list,
                 users=dbnot_passed,
                 show_users=request.user.has_perm('exercises.show_student_id'),
                 anonymous=False,
@@ -311,9 +313,45 @@ class ExerciseAdmin(admin.ModelAdmin):
         return render(request, 'examine/passed_exercises.html', context)
 
 
+class AnswerAdmin(admin.ModelAdmin):
+    # readonly_fields = ('id',)
+    list_display = [
+        'get_username',
+        'get_answer',
+        'correct',
+        'get_exercise_name',
+        'get_question',
+        'date',
+    ]
+    list_filter = ['question__exercise', 'user__id']
+    search_fields = ['user__username', 'question__exercise__name']
+    list_per_page = 20
+
+    def get_question(self, answer):
+        return answer.question.question_key
+
+    get_question.short_description = 'Question'
+
+    def get_answer(self, answer):
+        if answer.correct:
+            return format_html('<span style="color: green">{}</span>', answer.answer)
+        else:
+            return format_html('<span style="color: red">{}</span>', answer.answer)
+
+    def get_username(self, answer):
+        return answer.user.username
+
+    get_username.short_description = 'User'
+
+    def get_exercise_name(self, answer):
+        return answer.question.exercise.name
+
+    get_exercise_name.short_description = 'Exercise'
+
+
 admin.site.register(Exercise, ExerciseAdmin)
 admin.site.register(Question)
-admin.site.register(Answer)
+admin.site.register(Answer, AnswerAdmin)
 admin.site.register(ImageAnswer, ImageAnswerAdmin)
 admin.site.register(ExerciseMeta)
 

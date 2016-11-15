@@ -21,7 +21,7 @@
         <dt>Students:</dt>
         <dd>
           {% for user in users %}
-          {{ user.username }}
+          <a href="{% url 'admin:exercises_answer_changelist' %}?user__id={{user.id}}&question__exercise__exercise_key__in={{exercises_list | urlencode}}">{{ user.username }}</a>
           {% endfor %}
         </dd>
         {% endif %}
