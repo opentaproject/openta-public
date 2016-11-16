@@ -17,9 +17,23 @@
         </dd>
         <dt>Not passed:</dt>
         <dd>{{ users.count }}</dd>
+        <dt>Passed but no solution uploaded:</dt>
+        <dd>{{ users_passed_no_image.count }}</dd>
         <dt>Students:</dt>
         <dd>
           {% for user in users %}
+          <a href="{% url 'admin:exercises_answer_changelist' %}?user__id={{user.id}}&question__exercise__exercise_key__in={{exercises_list | urlencode}}">
+            {% if show_users %}
+              {{ user.username }}
+            {% else %}
+              {{ user.id }}
+            {% endif %}
+          </a>
+          {% endfor %}
+        </dd>
+        <dt>Passed but no image of solution:</dt>
+        <dd>
+          {% for user in users_passed_no_image %}
           <a href="{% url 'admin:exercises_answer_changelist' %}?user__id={{user.id}}&question__exercise__exercise_key__in={{exercises_list | urlencode}}">
             {% if show_users %}
               {{ user.username }}

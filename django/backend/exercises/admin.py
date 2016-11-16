@@ -29,13 +29,43 @@ import exercises.modelhelpers as modelhelpers
 
 
 class ImageAnswerAdmin(admin.ModelAdmin):
+    list_filter = ['exercise', 'user__id']
+    search_fields = ['user__id', 'user__username', 'exercise__name']
+    list_per_page = 20
+
     readonly_fields = ('id',)
-    list_display = ['__str__', '_image_thumb']
-    search_fields = ['user__username', 'exercise__name']
+    # list_display = ['__str__','_image_thumb',]
+    # search_fields = ['user__username', 'exercise__name',]
+    # list_per_page = 10
+    class Media:
+        css = {'screen': ('css/uikit.min.css',)}
+        js = ('js/jquery.js', 'js/uikit.js', 'js/components/lightbox.js')
+
+    def get_list_display(self, request):
+        if request.user.has_perm('exercises.view_student_id'):
+            return ['get_username', 'get_exercise_name', 'date', '_image_thumb']
+        else:
+            return ['get_userid', 'get_exercise_name', 'date', '_image_thumb']
+
+    def get_username(self, answer):
+        return answer.user.username
+
+    get_username.short_description = 'User'
+
+    def get_userid(self, answer):
+        return answer.user.id
+
+    get_userid.short_description = 'User id'
+
+    def get_exercise_name(self, answer):
+        return answer.exercise.name
+
+    get_exercise_name.short_description = 'Exercise'
 
     def _image_thumb(self, image_answer):
+        # return format_html('<a href="/{}imageanswer/{}"><img src="/{}imageanswerthumb/{}"/></a>',SUBPATH, image_answer.pk, SUBPATH, image_answer.pk)
         return format_html(
-            '<a href="/{}imageanswer/{}"><img src="/{}imageanswerthumb/{}"/></a>',
+            '<a href="/{}imageanswer/{}" data-uk-lightbox data-lightbox-type="image"><img src="/{}imageanswerthumb/{}"/></a>',
             SUBPATH,
             image_answer.pk,
             SUBPATH,
@@ -175,6 +205,16 @@ class ExerciseAdmin(admin.ModelAdmin):
             dbnot_passed = dbusers.exclude(username="student").filter(
                 username__in=not_passed, email__isnull=False
             )
+            dbpassed_no_image = dbnot_passed.all()
+            for question in questions:
+                dbpassed_no_image = dbpassed_no_image.filter(
+                    answer__question=question,
+                    answer__correct=True,
+                    answer__date__lt=datetime.datetime.combine(
+                        question.exercise.meta.deadline_date, deadline_time
+                    ),
+                )
+
             exercises_list = ",".join(queryset.values_list('exercise_key', flat=True))
             # self.message_user(request, " " + ", ".join(not_passed_email))
             # opts = self.model._meta
@@ -188,6 +228,7 @@ class ExerciseAdmin(admin.ModelAdmin):
                 exercises=queryset,
                 exercises_list=exercises_list,
                 users=dbnot_passed,
+                users_passed_no_image=dbpassed_no_image,
                 show_users=request.user.has_perm('exercises.show_student_id'),
                 anonymous=False,
                 #       opts=opts,
