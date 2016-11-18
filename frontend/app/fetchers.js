@@ -231,7 +231,16 @@ function checkQuestion(exerciseKey, questionKey, answerData) {//{{{
       dispatch(updatePendingStateIn( ['exercises', exerciseKey, 'questions', questionKey, 'waiting'], false));
       return res;
     })
-    .then(res => res.json())
+    .then(res => {
+      if(res.status >= 400) {
+        return {
+          error: 'Du är inte inloggad, tryck på logga ut eller ladda om sidan.'
+        }
+      }
+      else {
+          return res.json()
+      }
+    })
     .then(json => { dispatch(updateQuestionResponse(exerciseKey, questionKey, json)); return json})
     .then( json => {
       dispatch(updateExerciseState(exerciseKey, { question: { [questionKey]: { answer: answerData } } }));
