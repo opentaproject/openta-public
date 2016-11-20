@@ -1,6 +1,5 @@
 import sympy
-
-# import numpy
+import numpy
 from sympy.abc import _clash1, _clash2, _clash
 import json
 import re
@@ -193,7 +192,7 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
             for point in neighbours:
                 nvalue1 = numfunc1(*point)  # sympy1.subs(point).subs(uniteval).evalf()
                 nvalue2 = numfunc2(*point)  # sympy2.subs(point).subs(uniteval).evalf()
-                ndiff = sympy.Abs(nvalue2 - nvalue1)
+                ndiff = numpy.fabs(nvalue2 - nvalue1)
                 diffs.append(float(ndiff) < 1e-10)
             if diffs.count(True) >= number_of_points * 0.8:
                 response['correct'] = True
