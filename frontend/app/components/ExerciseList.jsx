@@ -32,8 +32,11 @@ function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta
     onClickFunc(key, loaded);
   }; 
   var deadlineClass = "uk-badge-primary";
-  if( meta.get('bonus', false) )
+  var legend = 'Obligatorisk';
+  if( meta.get('bonus', false) ) {
     deadlineClass = "uk-badge-warning";
+    legend = 'Bonus';
+  }
   if(showStatistics) {
     var percent = exerciseState.getIn([exercise.get('exercise_key'), 'percent'], 0);
     if(percent === null)percent = 0;
@@ -51,7 +54,7 @@ return (
               { /*meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */}
               { /*meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
               { meta.get('solution', false) && <Badge className={"uk-badge-notification"}>pdf</Badge> }
-              { meta.get('deadline_date',false) && <Badge className={"uk-badge-notification uk-text-small " + deadlineClass}><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" title="Bonus"/>{moment(meta.get('deadline_date')).format('D MMM')}</Badge> }
+              { meta.get('deadline_date',false) && <Badge className={"uk-badge-notification uk-text-small " + deadlineClass} title={legend}><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right"/>{moment(meta.get('deadline_date')).format('D MMM')}</Badge> }
               </div>
               </div>
             </li>

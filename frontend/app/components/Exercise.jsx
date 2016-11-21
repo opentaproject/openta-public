@@ -87,6 +87,8 @@ class BaseExercise extends Component {
   renderName = (itemjson, json, meta, exerciseKey) => {
     var deadline_date = meta.get('deadline_date');
     var deadline_date_format = moment(deadline_date).format('D MMM');
+    var obligatorisk = meta.get('required', false);
+    var bonus = meta.get('bonus', false);
     
     return (
           <div key="name">
@@ -96,6 +98,8 @@ class BaseExercise extends Component {
             Deadline: {deadline_date_format}
             <i className="uk-icon uk-icon-small uk-icon-question-circle-o uk-margin-small-left"/></a>
             </div>}
+          { deadline_date && obligatorisk && <div className="uk-badge uk-margin-small-left">Obligatorisk</div>}
+          { deadline_date && bonus && <div className="uk-badge uk-badge-warning uk-margin-small-left">Bonus</div>}
           </h1>
           </div>
     );

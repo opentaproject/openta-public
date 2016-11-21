@@ -25,8 +25,11 @@ var difficulties = {
 
 function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics) {
   var deadlineClass = "uk-badge-primary";
-  if( meta.bonus )
+  var legend = 'Obligatorisk';
+  if( meta.bonus ) {
     deadlineClass = "uk-badge-warning";
+    legend = 'Bonus';
+  }
   if(showStatistics) {
     var percent = exerciseState.getIn([exercise, 'percent'], 0);
     if(percent === null)percent = 0;
@@ -41,7 +44,7 @@ return (
       { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
       { /*meta.required && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */ }
       { /*meta.bonus && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
-      { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass}><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" title="Bonus"/>{moment(meta.deadline_date).format('D MMM')}</Badge> }
+      { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" />{moment(meta.deadline_date).format('D MMM')}</Badge> }
       { meta.solution && <Badge className={"uk-badge-notification"}>pdf</Badge> }
       </div>
       </div>
