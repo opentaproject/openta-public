@@ -5,20 +5,43 @@
 {% block extrastyle %}{{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static "css/uikit.min.css" %}" />
 {% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{% url 'admin:exercises_exercise_changelist' %}">{% trans 'Exercises' %}</a>
+        {% block crumbs %}
+            {% if title %} &rsaquo; {{ title }}{% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}
 {% block content %}
 <div id="content" class="uk-vertical-align uk-text-center">
   <div class="uk-vertical-align-middle uk-container-center">
-    <dl class="uk-text-left uk-description-list-line">
-        <dt>Exercises:</dt>
-        <dd>
+        <table class="uk-table uk-text-left">
+          <thead>
+            <tr>
+              <th>Exercise</th>
+              <th>Deadline</th>
+              <th>Last accepted answer</th>
+            </tr>
           {% for exercise in exercises %}
-          {{ exercise.name }}
+          <tr>
+            <td>
+              <div class="uk-thumbnail">
+                <img src="/{{SUBPATH}}exercise/{{exercise.key}}/asset/thumbnail.png"/>
+                <div class="uk-thumbnail-caption">{{exercise.name}}</div>
+              </div>
+            </td>
+            <td>{{ exercise.deadline }}</td>
+            <td>{{ exercise.last_answer }}</td>
+          </tr>
           {% endfor %}
-        </dd>
+        </table>
+    <dl class="uk-text-left uk-description-list-line">
         <dt>Not passed:</dt>
-        <dd>{{ users.count }}</dd>
-        <dt>Passed but no solution uploaded:</dt>
-        <dd>{{ users_passed_no_image.count }}</dd>
+        <dd class="uk-text-danger">{{ users.count }}</dd>
+        <dt>Passed but no solution image uploaded:</dt>
+        <dd class="uk-text-warning">{{ users_passed_no_image.count }}</dd>
         <dt>Students:</dt>
         <dd>
           {% for user in users %}

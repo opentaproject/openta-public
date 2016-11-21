@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from backend.settings import SUBPATH
 from django.contrib.auth.models import User
 from django.shortcuts import render
-from django.db.models import Prefetch, Max, F
+from django.db.models import Prefetch, Max, F, Count, Sum, Value
 from django.contrib import messages
 from django.template.response import TemplateResponse
 from django import forms
@@ -85,6 +85,7 @@ class ExerciseAdmin(admin.ModelAdmin):
         'path',
         'get_percent_complete',
         'get_attempts',
+        'get_questions',
         'get_thumbnail',
         'get_required',
         'get_bonus',
@@ -101,18 +102,32 @@ class ExerciseAdmin(admin.ModelAdmin):
     actions = ['get_passed', 'get_sample_passed', 'get_not_passed']
     ordering = ['meta__deadline_date']
 
+    def get_queryset(self, request):
+        qs = super(ExerciseAdmin, self).get_queryset(request)
+        n_users = User.objects.filter(groups__name='Student', is_active=True).count()
+        # return qs.annotate(attempts=Count('question__answer')/Value(n_users)/Count('question'))
+        return qs.annotate(attempts=Count('question__answer'))
+
     def get_percent_complete(self, exercise):
         data = modelhelpers.e_student_percent_complete(exercise)
         return "{:.0f}%".format(data['percent'] * 100)
 
     get_percent_complete.short_description = 'Students progress'
 
+    def get_attempts_db(self, exercise):
+        return exercise.attempts
+
     def get_attempts(self, exercise):
         data = modelhelpers.e_student_mean_attempt_count(exercise)
         mean_attempts = data['mean_attempts'] if data['mean_attempts'] is not None else 0
         return "{:.0f}".format(mean_attempts)
 
-    get_attempts.short_description = 'Mean attempts'
+    get_attempts.short_description = 'Mean attempts (per question)'
+
+    def get_questions(self, exercise):
+        return exercise.question.count()
+
+    get_questions.short_description = 'Questions'
 
     def get_required(self, exercise):
         return exercise.meta.required
@@ -164,9 +179,9 @@ class ExerciseAdmin(admin.ModelAdmin):
             return TemplateResponse(request, 'generic_form.html', context)
 
     def get_not_passed(self, request, queryset):
-        self.message_user(request, "Get not passed")
+        # self.message_user(request, "Get not passed")
         if request.POST.get('post-email-users'):
-            self.message_user(request, "Post email users")
+            # self.message_user(request, "Post email users")
             context = dict(
                 self.admin_site.each_context(request),
                 action='get_not_passed',
@@ -186,7 +201,7 @@ class ExerciseAdmin(admin.ModelAdmin):
             )
             users = []
             for question in questions:
-                messages.info(request, question)
+                # messages.info(request, question)
                 users.append(
                     set(
                         User.objects.exclude(
@@ -215,22 +230,46 @@ class ExerciseAdmin(admin.ModelAdmin):
                     ),
                 )
 
+            exercises_render = []
+            for exercise in queryset:
+                deadline = datetime.datetime.combine(exercise.meta.deadline_date, deadline_time)
+                answer = (
+                    Answer.objects.filter(
+                        correct=True, question__exercise=exercise, date__lt=deadline
+                    )
+                    .order_by('-date')
+                    .first()
+                )
+                if answer is not None:
+                    last_answer = answer.date
+                else:
+                    last_answer = None
+                exercises_render.append(
+                    {
+                        'name': exercise.name,
+                        'last_answer': last_answer,
+                        'deadline': deadline,
+                        'key': exercise.exercise_key,
+                    }
+                )
+
             exercises_list = ",".join(queryset.values_list('exercise_key', flat=True))
             # self.message_user(request, " " + ", ".join(not_passed_email))
             # opts = self.model._meta
             # app_label = opts.app_label
             context = dict(
                 self.admin_site.each_context(request),
+                SUBPATH=SUBPATH,
                 # title="Test",
                 # site_header="OpenTA Admin",
                 queryset=queryset,
                 action_checkbox_name=admin.helpers.ACTION_CHECKBOX_NAME,
-                exercises=queryset,
+                exercises=exercises_render,
                 exercises_list=exercises_list,
+                last_answer=last_answer,
                 users=dbnot_passed,
                 users_passed_no_image=dbpassed_no_image,
                 show_users=request.user.has_perm('exercises.show_student_id'),
-                anonymous=False,
                 #       opts=opts,
             )
             request.session['email_users'] = list(dbnot_passed.values_list('pk', flat=True))
@@ -271,6 +310,11 @@ class ExerciseAdmin(admin.ModelAdmin):
             if seed is not None:
                 random.seed(seed)
                 request.session['seed'] = seed
+            if samples > len(passed):
+                samples = len(passed)
+                messages.info(
+                    request, _('Number of samples larger than population, showing all users.')
+                )
             passed = random.sample(passed, samples)
         passed_users = User.objects.filter(username__in=passed)
         template_data = []

@@ -19,6 +19,7 @@ export default class QuestionCompareNumeric extends Component {
     submitFunction: PropTypes.func, // Call this function to submit an answer to the server. The only parameter is the answer data which is unconstrained: It could be a simple string as below or a dictionary of values if more information needs to be conveyed.
     questionPending: PropTypes.bool, // Indicates when we are waiting for a server response
     isAuthor: PropTypes.bool, //Indicates if user is an author/content creator.
+    canViewSolution: PropTypes.bool, //Indicates if user is allowed to see solution.
   }
 
   constructor(props) {
@@ -26,6 +27,8 @@ export default class QuestionCompareNumeric extends Component {
     this.state = {
       value: this.props.questionState.getIn(['answer'], '')
     };
+    if(this.props.canViewSolution)
+      this.state.value = this.props.questionData.getIn(['expression','$'], '').replace(/;/g,'');
   }
 
   handleChange = (event) => {

@@ -1,4 +1,5 @@
 from exercises.models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer
+from course.models import Course
 from exercises.parsing import exercise_xmltree, question_xmltree_get
 from exercises.question import question_check
 from django.contrib.auth.models import User
@@ -39,9 +40,14 @@ def e_student_mean_attempt_count(exercise):
     attempts = users.filter(answer__question__exercise=exercise).annotate(
         attempts=Count('answer')
     )  # .values_list('username', 'attempts')
+    n_questions = Question.objects.filter(exercise=exercise).count()
     mean_attempts = attempts.aggregate(Avg('attempts'))
+    if mean_attempts['attempts__avg'] is not None:
+        avg = mean_attempts['attempts__avg'] / n_questions
+    else:
+        avg = 0
     return {
-        'mean_attempts': mean_attempts['attempts__avg'],
+        'mean_attempts': avg,
         #'attempts': attempts.values_list('username', 'attempts')
     }
 
@@ -55,6 +61,10 @@ def e_student_percent_complete(exercise):
     #            queryset = Answer.objects.filter(question__exercise=exercise).filter(correct=True).filter(date__lt=datetime.datetime.combine(exercise.meta.deadline_date, datetime.time(8,0,0, tzinfo=pytz.UTC))).order_by('-date'),
     #            to_attr = 'answers'
     #            ))
+    deadline_time = datetime.time(23, 59, 59, tzinfo=pytz.timezone('Europe/Stockholm'))
+    course = Course.objects.first()
+    if course is not None and course.deadline_time is not None:
+        deadline_time = course.deadline_time
     questions = Question.objects.filter(exercise=exercise)
     correct = []
     for question in questions:
@@ -65,7 +75,7 @@ def e_student_percent_complete(exercise):
                         answer__correct=True,
                         answer__question=question,
                         answer__date__lt=datetime.datetime.combine(
-                            exercise.meta.deadline_date, datetime.time(8, 0, 0, tzinfo=pytz.UTC)
+                            exercise.meta.deadline_date, deadline_time
                         ),
                     )
                     .values_list('username', flat=True)

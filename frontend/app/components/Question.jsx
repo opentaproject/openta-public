@@ -35,6 +35,7 @@ class BaseQuestion extends Component {
         questionState: questionState, 
         questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.getIn(['@attr','key']), 'waiting'], false),
         isAuthor: this.props.author, 
+        canViewSolution: this.props.view,
         submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data),
           ref: (ref) => this.questionref = ref
       }); 
@@ -71,6 +72,7 @@ const mapStateToProps = state => {
   {
     admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
     author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
+    view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
     exerciseState: activeExerciseState,
     pendingState: state.get('pendingState')
   })

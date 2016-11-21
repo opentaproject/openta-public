@@ -159,7 +159,7 @@ def other_exercises_from_folder(request, exercise):  # {{{
 def exercise_json(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
-        hide_answers = not request.user.has_perm("exercises.access_answers")
+        hide_answers = not request.user.has_perm("exercises.view_solution")
         exercisejson = parsing.exercise_json(dbexercise.path, hide_answers=hide_answers)
         # questions = deep_get(exercisejson, 'exercise', 'question')
         return Response(exercisejson)
