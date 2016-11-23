@@ -5,6 +5,7 @@ import Alert from './Alert.jsx';
 import _ from 'lodash';
 import immutable from 'immutable';
 import XMLEditor from './XMLEditor.jsx';
+import Statistics from './Statistics.jsx';
 import xml2js from 'xml2js';
 import Spinner from './Spinner.jsx';
 
@@ -83,7 +84,12 @@ class BaseAuthorExercise extends Component {
         <div key="xml" className="xmleditor">
         { loading && <Spinner/> }
         { !loading && this.props.activeAdminTool === 'xml-editor' && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
-        { !loading && this.props.activeAdminTool === 'options' && this.props.admin && <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> }
+        { !loading && this.props.activeAdminTool === 'options' && this.props.admin && 
+          <div className="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-top">
+            <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> 
+            </div>
+        }
+        { !loading && this.props.activeAdminTool === 'statistics' && this.props.view && <Statistics/> }
         </div>
       </div>
     );
@@ -145,6 +151,7 @@ const mapStateToProps = state => {
     activeAdminTool: state.get('activeAdminTool'),
     admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
     author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
+    view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
   })
 };
 

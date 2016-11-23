@@ -38,7 +38,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
     </div>
 );
 
-const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onSave, onReset, onHome}) => {
+const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onStatisticsClick, onSave, onReset, onHome}) => {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
@@ -56,6 +56,12 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise
       name: 'Options',
       reqGroup: 'Admin',
       callback: onOptionsClick
+    },
+    {
+      id: 'statistics',
+      name: 'Statistics',
+      reqGroup: 'View',
+      callback: onStatisticsClick
     }
   ];
   var permanentitems = admintoolsmenu.map( item => {
@@ -126,6 +132,7 @@ BaseLoginInfo.propTypes = {
   activeAdminTool: PropTypes.string,
   onXMLEditorClick: PropTypes.func,
   onOptionsClick: PropTypes.func,
+  onStatisticsClick: PropTypes.func,
   onHome: PropTypes.func,
 };
 
@@ -163,6 +170,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => ({
   onXMLEditorClick: (event) => dispatch(updateActiveAdminTool('xml-editor')),
     onOptionsClick: (event) => dispatch(updateActiveAdminTool('options')),
+    onStatisticsClick: (event) => dispatch(updateActiveAdminTool('statistics')),
     onSave: (exercise) => dispatch(handleSave(exercise)),
     onReset: (exercise) => dispatch(handleReset(exercise)),
     onHome: () => dispatch(updateActiveExercise("")),

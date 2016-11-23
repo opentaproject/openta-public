@@ -38,7 +38,7 @@ function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta
     legend = 'Bonus';
   }
   if(showStatistics) {
-    var percent = exerciseState.getIn([exercise.get('exercise_key'), 'percent'], 0);
+    var percent = exerciseState.getIn([exercise.get('exercise_key'), 'percent_complete'], 0);
     if(percent === null)percent = 0;
   }
 return (

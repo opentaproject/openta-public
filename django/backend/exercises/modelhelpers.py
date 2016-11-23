@@ -66,10 +66,18 @@ def e_student_percent_complete(exercise):
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
     questions = Question.objects.filter(exercise=exercise)
-    correct = []
+    complete = []
+    correct_answer = []
     for question in questions:
+        correct_answer.append(
+            set(
+                users.filter(answer__correct=True, answer__question=question)
+                .values_list('username', flat=True)
+                .distinct()
+            )
+        )
         if exercise.meta.deadline_date:
-            correct.append(
+            complete.append(
                 set(
                     users.filter(
                         answer__correct=True,
@@ -77,21 +85,31 @@ def e_student_percent_complete(exercise):
                         answer__date__lt=datetime.datetime.combine(
                             exercise.meta.deadline_date, deadline_time
                         ),
+                        imageanswer__exercise=question.exercise,
                     )
                     .values_list('username', flat=True)
                     .distinct()
                 )
             )
         else:
-            correct.append(
+            complete.append(
                 set(
                     users.filter(answer__correct=True, answer__question=question)
                     .values_list('username', flat=True)
                     .distinct()
                 )
             )
-    allcorrect = set.intersection(*map(set, correct))
-    return {'percent': len(allcorrect) / n_students, 'deadline': exercise.meta.deadline_date}
+    allcomplete = set.intersection(*map(set, complete))
+    allcorrect_answer = set.intersection(*map(set, correct_answer))
+
+    return {
+        'percent_complete': len(allcomplete) / n_students,
+        'percent_correct': len(allcorrect_answer) / n_students,
+        'ncomplete': len(allcomplete),
+        'ncorrect': len(allcorrect_answer),
+        'nstudents': n_students,
+        'deadline': exercise.meta.deadline_date,
+    }
 
 
 def exercise_list_data(exercise_data_func_list):

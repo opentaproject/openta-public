@@ -31,8 +31,10 @@ function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, fo
     legend = 'Bonus';
   }
   if(showStatistics) {
-    var percent = exerciseState.getIn([exercise, 'percent'], 0);
-    if(percent === null)percent = 0;
+    var percent_complete = exerciseState.getIn([exercise, 'percent_complete'], 0);
+    var percent_correct = exerciseState.getIn([exercise, 'percent_correct'], 0);
+    if(percent_complete === null)percent_complete = 0;
+    if(percent_correct === null)percent_correct = 0;
   }
 return (
   <li key={exercise} id={exercise} className="course-exercise-item">
@@ -52,8 +54,13 @@ return (
       {folder.exercises[exercise].name}
       </div>
       { showStatistics &&
-        <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-success">
-          <div className="uk-progress-bar" style={{'width': (percent*100) + '%'}}></div>
+        <div className="uk-progress uk-margin-remove uk-progress-mini uk-progress-success">
+          <div className="uk-progress-bar" style={{'width': (percent_complete*100) + '%'}}></div>
+        </div>
+      }
+      { showStatistics &&
+        <div className="uk-progress uk-margin-remove uk-progress-mini">
+          <div className="uk-progress-bar" style={{'width': (percent_correct*100) + '%'}}></div>
         </div>
       }
     </a>
