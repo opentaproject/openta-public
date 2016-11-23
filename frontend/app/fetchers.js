@@ -59,8 +59,10 @@ function fetchLoginStatus() {//{{{
         dispatch(updateActiveAdminTool('xml-editor'));
       if(data.groups.indexOf('Admin') > -1) 
         dispatch(updateActiveAdminTool('options'));
-      if(data.groups.indexOf('View') > -1) 
+      if(data.groups.indexOf('View') > -1) {
+        dispatch(updateActiveAdminTool('statistics'));
         dispatch(fetchExerciseStatistics());
+      }
       }
          );
   };

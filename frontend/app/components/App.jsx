@@ -12,6 +12,7 @@ class BaseApp extends React.Component {
   static propTypes = {
     admin: PropTypes.bool,
     author: PropTypes.bool,
+    view: PropTypes.bool,
     activeExercise: PropTypes.string
   };
   render() {
@@ -29,7 +30,7 @@ class BaseApp extends React.Component {
                 <ExerciseList />               
               </div>
               }
-              { this.props.activeExercise === "" ? (<span/>) : ((this.props.author || this.props.admin) ? <AuthorExercise /> : <div className="exercise uk-padding-remove"><Exercise/></div>) }
+              { this.props.activeExercise === "" ? (<span/>) : ((this.props.author || this.props.admin || this.props.view) ? <AuthorExercise /> : <div className="exercise uk-padding-remove"><Exercise/></div>) }
             </div>
           </div>
         </div>
@@ -41,6 +42,7 @@ class BaseApp extends React.Component {
 const mapStateToProps = state => ({
   admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
   author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
+  view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
   activeExercise: state.get('activeExercise')
 });
 

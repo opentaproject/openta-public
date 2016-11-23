@@ -64,6 +64,7 @@ class BaseAuthorExercise extends Component {
   activeAdminTool: PropTypes.string,
   admin: PropTypes.bool,
   author: PropTypes.bool,
+  view: PropTypes.bool,
 };
 
   render() {
@@ -74,7 +75,7 @@ class BaseAuthorExercise extends Component {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var modified = exerciseState.get('modified');
-    var loading = pendingState.getIn(['exercises', key, 'loadingXML'],false);
+    var loadingXML = pendingState.getIn(['exercises', key, 'loadingXML'],false);
     var authorDOM = (
       <div className="uk-grid admin">
         <div key="exercise" className="exercise-admin">
@@ -82,14 +83,14 @@ class BaseAuthorExercise extends Component {
           <Exercise/>
         </div>
         <div key="xml" className="xmleditor">
-        { loading && <Spinner/> }
-        { !loading && this.props.activeAdminTool === 'xml-editor' && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
-        { !loading && this.props.activeAdminTool === 'options' && this.props.admin && 
+        { loadingXML && this.props.activeAdminTool === 'xml-editor' && <Spinner/> }
+        { !loadingXML && this.props.activeAdminTool === 'xml-editor' && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
+        { this.props.activeAdminTool === 'options' && this.props.admin && 
           <div className="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-top">
             <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> 
             </div>
         }
-        { !loading && this.props.activeAdminTool === 'statistics' && this.props.view && <Statistics/> }
+        { this.props.activeAdminTool === 'statistics' && this.props.view && <Statistics/> }
         </div>
       </div>
     );

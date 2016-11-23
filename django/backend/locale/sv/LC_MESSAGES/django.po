@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-14 21:09+0100\n"
+"POT-Creation-Date: 2016-11-23 22:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,7 +73,11 @@ msgstr " gånger per minut."
 msgid "Password reset successful, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
-#: exercises/admin.py:195
+#: exercises/admin.py:249
+msgid "Number of samples larger than population, showing all users."
+msgstr ""
+
+#: exercises/admin.py:286
 msgid "Random control"
 msgstr "Slumpmässig kontroll"
 
@@ -141,46 +145,6 @@ msgstr "Max "
 msgid " tries per minute."
 msgstr " försök per minut."
 
-#: questiontypes/compare_numeric/compare_numeric.py:78
-msgid "Terms do not seem to have the same unit."
-msgstr "Termerna i uttrycket verkar inte ha samma enhet."
-
-#: questiontypes/compare_numeric/compare_numeric.py:82
-#: questiontypes/compare_numeric/compare_numeric.py:115
-msgid "Seems like the expression does not have the correct units."
-msgstr "Uttrycket verkar inte ha rätt enhet."
-
-#: questiontypes/compare_numeric/compare_numeric.py:200
-msgid "Failed to evaluate expression"
-msgstr "Kunde inte evaluera uttrycket"
-
-#: questiontypes/compare_numeric/compare_numeric.py:202
-msgid " are not valid variables."
-msgstr " är inte tillåtna variabler."
-
-#: questiontypes/compare_numeric/compare_numeric.py:208
-#, fuzzy
-#| msgid "Failed to evaluate expression"
-msgid "Failed to evaluate expression."
-msgstr "Kunde inte evaluera uttrycket"
-
-#: questiontypes/compare_numeric/compare_numeric.py:212
-msgid "Unknown error, check your expression."
-msgstr "Okänt fel, kontrollera ditt uttryck."
-
-#: questiontypes/compare_numeric/compare_numeric.py:229
-#: questiontypes/compare_numeric/compare_numeric.py:248
-msgid "Answer contains invalid character "
-msgstr "Uttrycket innehåller felaktiga tecken "
-
-#: questiontypes/compare_numeric/compare_numeric.py:239
-msgid "Expression could not be parsed."
-msgstr "Uttrycket kunde inte tolkas."
-
-#: questiontypes/compare_numeric/compare_numeric.py:269
-msgid "Could not parse expression"
-msgstr "Uttrycket kunde inte tolkas."
-
 #: templates/activation_failed.html:10
 msgid "Activation failed."
 msgstr "Aktivering misslyckades."
@@ -211,7 +175,7 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: templates/batch_add_users.html:45 templates/examine/passed_exercises.html:32
+#: templates/batch_add_users.html:45 templates/examine/passed_exercises.html:52
 msgid "Username"
 msgstr ""
 
@@ -219,7 +183,17 @@ msgstr ""
 msgid "Send batch email"
 msgstr ""
 
-#: templates/examine/not_passed_exercises.html:36
+#: templates/examine/not_passed_exercises.html:10
+#: templates/examine/passed_exercises.html:24
+msgid "Home"
+msgstr ""
+
+#: templates/examine/not_passed_exercises.html:11
+#: templates/examine/passed_exercises.html:25
+msgid "Exercises"
+msgstr ""
+
+#: templates/examine/not_passed_exercises.html:77
 msgid "Send email to users"
 msgstr ""
 
@@ -255,6 +229,33 @@ msgstr "Skicka återställningslänk"
 #: templates/registration/register_with_password.html:23
 msgid "To registration"
 msgstr "Till registrering"
+
+msgid "Terms do not seem to have the same unit."
+msgstr "Termerna i uttrycket verkar inte ha samma enhet."
+
+msgid "Seems like the expression does not have the correct units."
+msgstr "Uttrycket verkar inte ha rätt enhet."
+
+msgid "Failed to evaluate expression"
+msgstr "Kunde inte evaluera uttrycket"
+
+msgid " are not valid variables."
+msgstr " är inte tillåtna variabler."
+
+msgid "Failed to evaluate expression."
+msgstr "Kunde inte evaluera uttrycket"
+
+msgid "Unknown error, check your expression."
+msgstr "Okänt fel, kontrollera ditt uttryck."
+
+msgid "Answer contains invalid character "
+msgstr "Uttrycket innehåller felaktiga tecken "
+
+msgid "Expression could not be parsed."
+msgstr "Uttrycket kunde inte tolkas."
+
+msgid "Could not parse expression"
+msgstr "Uttrycket kunde inte tolkas."
 
 msgid ""
 "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."
