@@ -30,6 +30,8 @@ ns.update(
 
 uniteval = {meter: 1, second: 1, kg: 1}
 
+lambdifymodules = ["numpy", {'cot': lambda x: 1.0 / numpy.tan(x)}]
+
 
 class CompareNumericUnitError(Exception):
     def __init__(self, value):
@@ -103,8 +105,8 @@ def check_units_new(expression, correct, variables):
     nexpression = expression.subs(nvarsubs)
     ncorrect = correct.subs(nvarsubs)
     allvars = tuple(variables.keys()) + (kg, meter, second)
-    lexpr = sympy.lambdify(allvars, nexpression, "numpy")
-    lcorrect = sympy.lambdify(allvars, ncorrect, "numpy")
+    lexpr = sympy.lambdify(allvars, nexpression, modules=lambdifymodules)
+    lcorrect = sympy.lambdify(allvars, ncorrect, modules=lambdifymodules)
 
     checks = [[1, 1, 1], [perturb(2), 1, 1], [1, perturb(2), 1], [1, 1, perturb(2)]]
     results = []
@@ -165,8 +167,8 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
         sympy2 = sympy.sympify(sexpression2, ns)
         tvars = tuple(varsubs.keys())
 
-        numfunc1 = sympy.lambdify(tvars, sympy1, 'numpy')
-        numfunc2 = sympy.lambdify(tvars, sympy2, 'numpy')
+        numfunc1 = sympy.lambdify(tvars, sympy1, modules=lambdifymodules)
+        numfunc2 = sympy.lambdify(tvars, sympy2, modules=lambdifymodules)
         # value1 = numfunc1(*nvars.values())#sympy1.subs(varsubs).subs(uniteval).evalf()
         # value2 = numfunc2(*nvars.values())#sympy2.subs(varsubs).subs(uniteval).evalf()
         value1 = sympy1.subs(varsubs).subs(uniteval).evalf()
@@ -219,6 +221,9 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
     except Exception as e:
         logger.error([str(e), expression1, expression2])
         response['error'] = _("Unknown error, check your expression.")
+        # print("SympifyError")
+        # print(e)
+        # print(traceback.format_exc())
     return response  # }}}
 
 
