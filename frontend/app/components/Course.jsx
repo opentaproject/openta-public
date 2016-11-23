@@ -53,13 +53,13 @@ return (
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
       {folder.exercises[exercise].name}
       </div>
-      { showStatistics &&
+      { showStatistics && meta.deadline_date &&
         <div className="uk-progress uk-margin-remove uk-progress-mini uk-progress-success">
           <div className="uk-progress-bar" style={{'width': (percent_complete*100) + '%'}}></div>
         </div>
       }
       { showStatistics &&
-        <div className="uk-progress uk-margin-remove uk-progress-mini">
+        <div className="uk-progress uk-margin-remove uk-progress-small">
           <div className="uk-progress-bar" style={{'width': (percent_correct*100) + '%'}}></div>
         </div>
       }
