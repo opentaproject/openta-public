@@ -52,8 +52,15 @@ def e_student_mean_attempt_count(exercise):
     }
 
 
+def e_student_tried(exercise):
+    users = User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
+    ntried = users.filter(answer__question__exercise=exercise).distinct().count()
+    n_students = users.count()
+    return {'ntried': ntried, 'percent_tried': ntried / n_students}
+
+
 def e_student_percent_complete(exercise):
-    users = User.objects.filter(groups__name='Student', is_active=True)
+    users = User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
     n_students = users.count()
     # userdata = users.prefetch_related(
     #        Prefetch(
@@ -259,7 +266,7 @@ def student_attempts_exercises():  # {{{
 
 def student_statistics_exercises():  # {{{
     data = exercise_list_data(
-        [e_name, e_path, e_student_percent_complete, e_student_mean_attempt_count]
+        [e_name, e_path, e_student_tried, e_student_percent_complete, e_student_mean_attempt_count]
     )
     return data  # }}}
 

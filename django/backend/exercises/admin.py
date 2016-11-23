@@ -110,7 +110,7 @@ class ExerciseAdmin(admin.ModelAdmin):
 
     def get_percent_complete(self, exercise):
         data = modelhelpers.e_student_percent_complete(exercise)
-        return "{:.0f}%".format(data['percent'] * 100)
+        return "{:.0f}%".format(data['percent_complete'] * 100)
 
     get_percent_complete.short_description = 'Students progress'
 
@@ -202,20 +202,24 @@ class ExerciseAdmin(admin.ModelAdmin):
             users = []
             for question in questions:
                 # messages.info(request, question)
-                users.append(
-                    set(
-                        User.objects.exclude(
-                            imageanswer__exercise=question.exercise,
-                            answer__question=question,
-                            answer__correct=True,
-                            answer__date__lt=datetime.datetime.combine(
-                                question.exercise.meta.deadline_date, deadline_time
-                            ),
-                        )
-                        .values_list('username', flat=True)
-                        .distinct()
+                passed = (
+                    User.objects.filter(
+                        imageanswer__exercise=question.exercise,
+                        answer__question=question,
+                        answer__correct=True,
+                        answer__date__lt=datetime.datetime.combine(
+                            question.exercise.meta.deadline_date, deadline_time
+                        ),
                     )
+                    .values_list('username', flat=True)
+                    .distinct()
                 )
+                notpassed = (
+                    User.objects.exclude(username__in=passed)
+                    .values_list('username', flat=True)
+                    .distinct()
+                )
+                users.append(set(notpassed))
             not_passed = set.union(*map(set, users))
             dbnot_passed = dbusers.exclude(username="student").filter(
                 username__in=not_passed, email__isnull=False

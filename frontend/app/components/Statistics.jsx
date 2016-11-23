@@ -5,6 +5,8 @@ import immutable from 'immutable';
 const BaseStatistics = ({ exerciseState }) => {
   var percent_complete = (exerciseState.get('percent_complete', 0)*100).toFixed(1) + '%';
   var percent_correct = (exerciseState.get('percent_correct', 0)*100).toFixed(1) + '%';
+  var percent_tried = (exerciseState.get('percent_tried', 0)*100).toFixed(1) + '%';
+  var ntried = exerciseState.get('ntried', 0);
   var ncomplete = exerciseState.get('ncomplete', 0);
   var ncorrect = exerciseState.get('ncorrect', 0);
   var nstudents  = exerciseState.get('nstudents', 0);
@@ -16,6 +18,15 @@ const BaseStatistics = ({ exerciseState }) => {
     <article className="uk-article">
       <h1 className="uk-article-title">Statistics</h1>
       <dl className="uk-description-list-line">
+        <dt>
+          <span className="uk-text-bold uk-text-large">{ntried}/{nstudents}</span>
+          <span> tried this exercise.</span>
+        </dt>
+        <dd>
+          <div className="uk-progress uk-progress-warning">
+          <div className="uk-progress-bar" style={{'width': percent_tried}}><span className="uk-text-bold">{percent_tried}</span></div>
+          </div>
+        </dd>
         <dt>
           <span className="uk-text-bold uk-text-large">{ncorrect}/{nstudents}</span>
           <span> answered correctly.</span>
