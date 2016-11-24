@@ -33,8 +33,10 @@ function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, fo
   if(showStatistics) {
     var percent_complete = exerciseState.getIn([exercise, 'percent_complete'], 0);
     var percent_correct = exerciseState.getIn([exercise, 'percent_correct'], 0);
+    var percent_tried = exerciseState.getIn([exercise, 'percent_tried'], 0);
     if(percent_complete === null)percent_complete = 0;
     if(percent_correct === null)percent_correct = 0;
+    if(percent_tried === null)percent_tried = 0;
   }
 return (
   <li key={exercise} id={exercise} className="course-exercise-item">
@@ -53,14 +55,19 @@ return (
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
       {folder.exercises[exercise].name}
       </div>
-      { showStatistics && meta.deadline_date &&
-        <div className="uk-progress uk-margin-remove uk-progress-mini uk-progress-success">
-          <div className="uk-progress-bar" style={{'width': (percent_complete*100) + '%'}}></div>
+      { showStatistics &&
+        <div className="uk-progress uk-margin-remove uk-progress-mini uk-progress-warning">
+          <div className="uk-progress-bar" style={{'width': (percent_tried*100) + '%'}}></div>
         </div>
       }
       { showStatistics &&
-        <div className="uk-progress uk-margin-remove uk-progress-small">
+        <div className="uk-progress uk-margin-remove uk-progress-mini">
           <div className="uk-progress-bar" style={{'width': (percent_correct*100) + '%'}}></div>
+        </div>
+      }
+      { showStatistics && meta.deadline_date &&
+        <div className="uk-progress uk-margin-remove uk-progress-mini uk-progress-success">
+          <div className="uk-progress-bar" style={{'width': (percent_complete*100) + '%'}}></div>
         </div>
       }
     </a>
