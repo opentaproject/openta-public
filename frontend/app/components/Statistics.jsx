@@ -10,7 +10,8 @@ const BaseStatistics = ({ exerciseState }) => {
   var ncomplete = exerciseState.get('ncomplete', 0);
   var ncorrect = exerciseState.get('ncorrect', 0);
   var nstudents  = exerciseState.get('nstudents', 0);
-  var nattempts  = exerciseState.get('mean_attempts', 0).toFixed(1);
+  var nattempts_mean  = exerciseState.get('attempts_mean', 0).toFixed(1);
+  var nattempts_median  = exerciseState.get('attempts_median', 0).toFixed(1);
   var deadline  = exerciseState.get('deadline', null);
 
   return (
@@ -50,7 +51,7 @@ const BaseStatistics = ({ exerciseState }) => {
         </dd>
         }
           
-        <dt><span className="uk-text-large"><span className="uk-text-bold">{ nattempts }</span> attempts per question (mean)</span></dt>
+        <dt><span className="uk-text-large"><span className="uk-text-bold">{ nattempts_median }</span> attempts per question (median)</span></dt>
         <dd>
         </dd>
       </dl>

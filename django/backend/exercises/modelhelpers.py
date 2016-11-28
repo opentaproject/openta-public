@@ -35,7 +35,7 @@ def e_student_attempt_count(exercise):
     }
 
 
-def e_student_mean_attempt_count(exercise):
+def e_student_attempts_mean(exercise):
     users = User.objects.filter(groups__name='Student', is_active=True)
     attempts = users.filter(answer__question__exercise=exercise).annotate(
         attempts=Count('answer')
@@ -47,7 +47,29 @@ def e_student_mean_attempt_count(exercise):
     else:
         avg = 0
     return {
-        'mean_attempts': avg,
+        'attempts_mean': avg,
+        #'attempts': attempts.values_list('username', 'attempts')
+    }
+
+
+def e_student_attempts_median(exercise):
+    users = User.objects.filter(groups__name='Student', is_active=True)
+    attempts = users.filter(answer__question__exercise=exercise).annotate(
+        attempts=Count('answer')
+    )  # .values_list('username', 'attempts')
+    n_questions = Question.objects.filter(exercise=exercise).count()
+    count = attempts.count()
+    median = 0
+    if count == 0:
+        return {'attempts_median': median}
+    values = attempts.order_by('attempts').values_list('attempts', flat=True)
+    if count % 2 == 1:
+        median = values[int(round(count / 2))]
+    else:
+        median = sum(values[count / 2 - 1 : count / 2 + 1]) / 2.0
+    # mean_attempts = attempts.aggregate(Avg('attempts'))
+    return {
+        'attempts_median': median / n_questions,
         #'attempts': attempts.values_list('username', 'attempts')
     }
 
@@ -219,7 +241,12 @@ def exercise_folder_structure(manager, user):  # {{{
         if 'exercises' in node:
             node['order'] = list(node['exercises'].keys())
             node['order'].sort(
-                key=lambda exercisekey: node['exercises'][exercisekey]['meta']['sort_key']
+                key=lambda exercisekey: "".join(
+                    [
+                        func(node['exercises'][exercisekey]['meta'][key])
+                        for (key, func) in [('published', lambda x: str(not x)), ('sort_key', str)]
+                    ]
+                )
             )
         if 'folders' in node:
             for key, value in node['folders'].items():
@@ -266,7 +293,14 @@ def student_attempts_exercises():  # {{{
 
 def student_statistics_exercises():  # {{{
     data = exercise_list_data(
-        [e_name, e_path, e_student_tried, e_student_percent_complete, e_student_mean_attempt_count]
+        [
+            e_name,
+            e_path,
+            e_student_tried,
+            e_student_percent_complete,
+            e_student_attempts_mean,
+            e_student_attempts_median,
+        ]
     )
     return data  # }}}
 

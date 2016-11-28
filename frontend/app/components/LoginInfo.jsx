@@ -15,6 +15,7 @@ import {
 
 import immutable from 'immutable';
 import {SUBPATH} from '../settings.js';
+import Spinner from './Spinner.jsx';
 
 var groupIcons = {
   'Admin': {
@@ -31,6 +32,13 @@ var groupIcons = {
   }
 }
 
+var pendingPaths = [
+  {
+    path: ['exercises_statistics'],
+    name: ''
+  },
+];
+
 var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => (
     <div className="uk-button-group"> 
         { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
@@ -38,7 +46,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
     </div>
 );
 
-const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onStatisticsClick, onSave, onReset, onHome}) => {
+const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onStatisticsClick, onSave, onReset, onHome, pendingState}) => {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
@@ -87,6 +95,9 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise
                                     else
                                       return (<span key={group}/>)
   });
+  var renderPending = pendingPaths.map( item => {
+    return (pendingState.getIn(item.path, false) && (<span key={item.path}>{item.name}<Spinner icon="uk-icon-bar-chart" size="" className="uk-margin-small-left"/></span>))
+  }) 
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
   <div className="uk-container uk-container-center">
@@ -114,6 +125,7 @@ return (
   </div>
   <div className="uk-navbar-content uk-margin-remove">
   {renderGroupIcons} <span className="uk-text-middle">{username}</span>{ admin ? ( <span className="uk-text-small uk-text-middle"> (admin)</span> ) : "" }
+  { renderPending }
   { activeExercise && admintools }
 </div>
   </div>
@@ -134,6 +146,7 @@ BaseLoginInfo.propTypes = {
   onOptionsClick: PropTypes.func,
   onStatisticsClick: PropTypes.func,
   onHome: PropTypes.func,
+  pendingState: PropTypes.object,
 };
 
 function handleSave(exercise) {
@@ -164,6 +177,7 @@ const mapStateToProps = state => {
   exerciseState: activeExerciseState,
   activeAdminTool: state.get('activeAdminTool'),
   folder: state.get('folder', ""),
+  pendingState: state.get('pendingState'),
 });
 }
 

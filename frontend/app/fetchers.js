@@ -310,10 +310,12 @@ function fetchImageAnswers(exerciseKey) {//{{{
 
 function fetchExerciseStatistics() {//{{{
   return dispatch => {
+    dispatch(updatePendingStateIn( ['exercises_statistics'], true));
     return jsonfetch('/statistics/statsperexercise')
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
       .then(json => dispatch(updateExerciseStatistics(json)))
+      .then( () => dispatch(updatePendingStateIn( ['exercises_statistics'], false)))
       .catch( err => console.log(err) );
   };
 }//}}}

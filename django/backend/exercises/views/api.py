@@ -151,7 +151,15 @@ def other_exercises_from_folder(request, exercise):  # {{{
         ).prefetch_related('meta')
 
     serializer = ExerciseSerializer(other, many=True)
-    inorder = sorted(serializer.data, key=lambda item: item['meta']['sort_key'])
+    inorder = sorted(
+        serializer.data,
+        key=lambda item: "".join(
+            [
+                func(item['meta'][key])
+                for (key, func) in [('published', lambda x: str(not x)), ('sort_key', str)]
+            ]
+        ),
+    )
     return Response(inorder)  # }}}
 
 
