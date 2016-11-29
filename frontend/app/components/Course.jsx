@@ -38,18 +38,21 @@ function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, fo
     if(percent_correct === null)percent_correct = 0;
     if(percent_tried === null)percent_tried = 0;
   }
+  var imageUploaded = exerciseState.getIn([exercise, 'image_answers'], immutable.List([])).size > 0;
+  var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
 return (
   <li key={exercise} id={exercise} className="course-exercise-item">
     <a className={"uk-thumbnail " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
     <div className="exercise-thumb-wrap">
       <img className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}/>
       <div className="exercise-thumb-badge">
-      {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
       { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
       { /*meta.required && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */ }
       { /*meta.bonus && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
       { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right" />{moment(meta.deadline_date).format('D MMM')}</Badge> }
-      { meta.solution && <Badge className={"uk-badge-notification"}>pdf</Badge> }
+      { meta.image && <span className={"uk-badge uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></span> }
+      { meta.solution && <Badge className={"uk-badge-notification"}>lösning</Badge> }
+      {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
       </div>
       </div>
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>

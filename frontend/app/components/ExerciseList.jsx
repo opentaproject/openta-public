@@ -41,6 +41,8 @@ function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta
     var percent = exerciseState.getIn([exercise.get('exercise_key'), 'percent_complete'], 0);
     if(percent === null)percent = 0;
   }
+  var imageUploaded = exerciseState.getIn([exercise.get('exercise_key'), 'image_answers'], immutable.List([])).size > 0;
+  var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
 return (
       <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
         <a className={ meta.get('published', false) ? "" : "exercise-unpublished" } onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
@@ -49,12 +51,13 @@ return (
               <div className="exercise-list-thumb-wrap">
               <img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={SUBPATH + '/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
               <div className="exercise-thumb-badge">
-              {exerciseState.getIn([exercise.get('exercise_key'), 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
               { meta.get('difficulty', false) && <Badge className="uk-badge-notification">{difficulties[meta.get('difficulty','none')]}</Badge> }
               { /*meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */}
               { /*meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
-              { meta.get('solution', false) && <Badge className={"uk-badge-notification"}>pdf</Badge> }
+              { meta.get('solution', false) && <Badge className={"uk-badge-notification"}>lösning</Badge> }
               { meta.get('deadline_date',false) && <Badge className={"uk-badge-notification uk-text-small " + deadlineClass} title={legend}><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right"/>{moment(meta.get('deadline_date')).format('D MMM')}</Badge> }
+              { meta.get('image', false) && <Badge className={"uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></Badge> }
+              {exerciseState.getIn([exercise.get('exercise_key'), 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
               </div>
               </div>
             </li>
