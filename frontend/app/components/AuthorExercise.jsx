@@ -10,6 +10,7 @@ import xml2js from 'xml2js';
 import Spinner from './Spinner.jsx';
 
 import Exercise from './Exercise';
+import { menuPositionAt } from './Menu.jsx';
 import {getcookie} from '../cookies.js';
 import {SUBPATH} from '../settings.js';
 
@@ -62,6 +63,7 @@ class BaseAuthorExercise extends Component {
   exerciseState: PropTypes.object,
   pendingState: PropTypes.object,
   activeAdminTool: PropTypes.string,
+  atMenu: PropTypes.func,
   admin: PropTypes.bool,
   author: PropTypes.bool,
   view: PropTypes.bool,
@@ -83,14 +85,14 @@ class BaseAuthorExercise extends Component {
           <Exercise/>
         </div>
         <div key="xml" className="xmleditor">
-        { loadingXML && this.props.activeAdminTool === 'xml-editor' && <Spinner/> }
-        { !loadingXML && this.props.activeAdminTool === 'xml-editor' && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
-        { this.props.activeAdminTool === 'options' && this.props.admin && 
+        { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }
+        { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
+        { this.props.atMenu(['activeExercise','options']) && this.props.admin && 
           <div className="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-top">
             <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> 
             </div>
         }
-        { this.props.activeAdminTool === 'statistics' && this.props.view && <Statistics/> }
+        { this.props.atMenu(['activeExercise','statistics']) && this.props.view && <Statistics/> }
         </div>
       </div>
     );
@@ -153,6 +155,7 @@ const mapStateToProps = state => {
     admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
     author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
     view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
+    atMenu: (path) => menuPositionAt( state.get('menuPath'), path ),
   })
 };
 

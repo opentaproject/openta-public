@@ -6,6 +6,8 @@ var defaultState = immutable.fromJS({
   folder: "",
   activeExercise: "",
   activeAdminTool: 'xml-editor',
+  menuPath: [],
+  menuLeafDefaults: {},
   exerciseState: {}//{"3_05_7.no_problem": {alerts: [1]}}
 });
 
@@ -49,6 +51,12 @@ export default (state = defaultState, action) => {
       return state.setIn(['exerciseState', action.exercise, 'image_answers'], immutable.fromJS(action.imageAnswers));
     case 'UPDATE_EXERCISE_STATISTICS':
       return state.mergeDeepIn(['exerciseState'], immutable.fromJS(action.stats));
+    case 'UPDATE_STUDENT_RESULTS':
+      return state.setIn(['studentResults'], action.results);
+    case 'UPDATE_MENU_PATH':
+      return state.setIn(['menuPath'], action.path);
+    case 'UPDATE_MENU_LEAF_DEFAULTS':
+      return state.setIn(['menuLeafDefaults'].concat(action.path), action.value)
     default:
       return state
   }

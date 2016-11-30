@@ -326,6 +326,29 @@ def exercise_test(exercise_key):
 
 
 def get_passed_exercises_with_data(exercise_queryset, user):
+    """
+    Generate data containing which exercises from the queryset that user have passed and uploaded image for before the deadline.
+
+    Args:
+        user: Django User instance
+        exercise_queryset: The exercises to be tested
+
+    Returns:
+        List
+        [
+            {
+                'exercise_name':
+                'answers': [ 
+                    {
+                        'answer':
+                        'date':
+                    }
+                    ]
+                'deadline':
+            }
+        ]
+
+    """
     deadline_time = Course.objects.deadline_time()
     questions = Question.objects.filter(exercise__in=exercise_queryset)
     passed_questions_pk_list = questions.filter(
@@ -334,8 +357,14 @@ def get_passed_exercises_with_data(exercise_queryset, user):
             Q(answer__date__date=F('exercise__meta__deadline_date'))
             & Q(answer__date__hour__lte=deadline_time.hour)
         ),
+        Q(exercise__imageanswer__date__date__lt=F('exercise__meta__deadline_date'))
+        | (
+            Q(exercise__imageanswer__date__date=F('exercise__meta__deadline_date'))
+            & Q(exercise__imageanswer__date__hour__lte=deadline_time.hour)
+        ),
         answer__user=user,
         answer__correct=True,
+        exercise__imageanswer__user=user,
     ).values_list('pk', flat=True)
 
     failed_questions = questions.exclude(pk__in=passed_questions_pk_list)

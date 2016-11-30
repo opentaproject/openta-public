@@ -12,6 +12,9 @@ import {
   updatePendingState,
   updatePendingStateIn,
   updateExerciseStatistics,
+  updateStudentResults,
+  updateMenuPath,
+  updateMenuPathArray,
   setSavePendingState,
   setResetPendingState,
   setSaveError,
@@ -131,6 +134,7 @@ function fetchExerciseRemoteState(exercise) {//{{{
 function fetchExercise(exercise, empty) {//{{{
   return (dispatch, getState) => {
     dispatch(updateActiveExercise(exercise));
+    dispatch(updateMenuPathArray(['activeExercise']));
     if(getState().getIn(['login','groups'], immutable.List([])).includes('Author'))
       dispatch(fetchExerciseXML(exercise));
     if(empty) {
@@ -320,6 +324,17 @@ function fetchExerciseStatistics() {//{{{
   };
 }//}}}
 
+function fetchStudentResults() {
+  return dispatch => {
+    dispatch(updatePendingStateIn( ['studentResults'], true));
+    return jsonfetch('/statistics/results')
+      .then(response => response.json())
+      .then(json => dispatch(updateStudentResults(json)))
+      .then( () => dispatch(updatePendingStateIn( ['studentResults'], false)))
+      .catch( err => console.log(err) );
+  }
+}
+
 export {
   fetchLoginStatus,
   fetchExercises, 
@@ -335,4 +350,5 @@ export {
   fetchImageAnswers,
   checkQuestion,
   fetchExerciseStatistics,
+  fetchStudentResults,
 };

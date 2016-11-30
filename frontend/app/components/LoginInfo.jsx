@@ -11,11 +11,13 @@ import {
 import {
   updateActiveAdminTool,
   updateActiveExercise,
+  updateMenuPathArray,
 } from '../actions.js';
 
 import immutable from 'immutable';
 import {SUBPATH} from '../settings.js';
 import Spinner from './Spinner.jsx';
+import Menu from './Menu.jsx';
 
 var groupIcons = {
   'Admin': {
@@ -52,42 +54,9 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise
     var resetPending = exerciseState.get('resetpending');
     var modified = exerciseState.get('modified');
     //var loading = pendingState.getIn(['exercises', key, 'loadingXML'],false);
-  var admintoolsmenu = [
-    {
-      id: 'xml-editor',
-      name: 'XML Editor',
-      reqGroup: 'Author',
-      callback: onXMLEditorClick
-    },
-    {
-      id: 'options',
-      name: 'Options',
-      reqGroup: 'Admin',
-      callback: onOptionsClick
-    },
-    {
-      id: 'statistics',
-      name: 'Statistics',
-      reqGroup: 'View',
-      callback: onStatisticsClick
-    }
-  ];
-  var permanentitems = admintoolsmenu.map( item => {
-    if(groups.includes(item.reqGroup)) {
-    var cssclass = "uk-button uk-button-primary" + (activeAdminTool === item.id ? " uk-active" : "");
-    return ( <a key={item.id} className={cssclass} onClick={item.callback}>{item.name}</a> );
-    }
-    else
-      return (<span key={item.id}/>)
-  });
 
   var savereset = (
           <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(activeExercise)}/>
-  );
-  var admintools = (
-    <div className="uk-button-group uk-margin-left">
-      {permanentitems}
-    </div>
   );
   var renderGroupIcons = groups.map( group => {
                                     if(group in groupIcons)
@@ -126,7 +95,7 @@ return (
   <div className="uk-navbar-content uk-margin-remove">
   {renderGroupIcons} <span className="uk-text-middle">{username}</span>{ admin ? ( <span className="uk-text-small uk-text-middle"> (admin)</span> ) : "" }
   { renderPending }
-  { activeExercise && admintools }
+  <Menu/>
 </div>
   </div>
   </nav>
@@ -187,7 +156,7 @@ const mapDispatchToProps = dispatch => ({
     onStatisticsClick: (event) => dispatch(updateActiveAdminTool('statistics')),
     onSave: (exercise) => dispatch(handleSave(exercise)),
     onReset: (exercise) => dispatch(handleReset(exercise)),
-    onHome: () => dispatch(updateActiveExercise("")),
+    onHome: () => dispatch(updateMenuPathArray([])),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseLoginInfo)

@@ -145,4 +145,33 @@ function setImageAnswers(exercise, imageAnswers) {
   }
 }
 
-export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics}
+function updateStudentResults(json) {
+  return {
+    type: 'UPDATE_STUDENT_RESULTS',
+    results: json
+  }
+}
+
+function updateMenuPath(path) {
+  return {
+    type: 'UPDATE_MENU_PATH',
+    path: path
+  }
+}
+
+function updateMenuPathArray(path) {
+  return {
+    type: 'UPDATE_MENU_PATH',
+    path: immutable.List(path)
+  }
+}
+
+function updateMenuLeafDefaults(path, value) {
+  return {
+    type: 'UPDATE_MENU_LEAF_DEFAULTS',
+    path: path,
+    value: value
+  }
+}
+
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults}
