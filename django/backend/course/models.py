@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password, check_password
 from django.utils.translation import ugettext as _
+import datetime
+from django.utils import timezone
 
 
 class CourseManager(models.Manager):
@@ -10,6 +12,13 @@ class CourseManager(models.Manager):
             return course.course_name
         else:
             return "OpenTA"
+
+    def deadline_time(self):
+        course = self.first()
+        if course is not None:
+            return course.deadline_time
+        else:
+            return datetime.time(23, 59, 0, tzinfo=pytz.timezone('Europe/Stockholm'))
 
 
 class Course(models.Model):

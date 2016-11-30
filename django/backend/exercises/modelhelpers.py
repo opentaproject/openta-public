@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from exercises.serializers import ExerciseSerializer, ExerciseMetaSerializer, AnswerSerializer
 import json
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Prefetch, Count, Case, When, Avg
+from django.db.models import Prefetch, Count, Case, When, Avg, Q, F
 import os
 from functools import reduce
 from collections import OrderedDict
@@ -323,3 +323,54 @@ def exercise_test(exercise_key):
         result.update({'answer': answer})
         results.append(result)
     return results
+
+
+def get_passed_exercises_with_data(exercise_queryset, user):
+    deadline_time = Course.objects.deadline_time()
+    questions = Question.objects.filter(exercise__in=exercise_queryset)
+    passed_questions_pk_list = questions.filter(
+        Q(answer__date__date__lt=F('exercise__meta__deadline_date'))
+        | (
+            Q(answer__date__date=F('exercise__meta__deadline_date'))
+            & Q(answer__date__hour__lte=deadline_time.hour)
+        ),
+        answer__user=user,
+        answer__correct=True,
+    ).values_list('pk', flat=True)
+
+    failed_questions = questions.exclude(pk__in=passed_questions_pk_list)
+    failed_exercises_pk_list = failed_questions.values_list('exercise__pk', flat=True)
+    passed_exercises = (
+        exercise_queryset.exclude(pk__in=failed_exercises_pk_list)
+        .prefetch_related(
+            Prefetch(
+                'question__answer',
+                queryset=Answer.objects.filter(
+                    Q(date__date__lt=F('question__exercise__meta__deadline_date'))
+                    | (
+                        Q(date__date=F('question__exercise__meta__deadline_date'))
+                        & Q(date__hour__lte=deadline_time.hour)
+                    ),
+                    correct=True,
+                    user=user,
+                ).order_by('-date'),
+            )
+        )
+        .select_related('meta')
+    )
+    passed_rendered = []
+    for passed in passed_exercises:
+        question_data = {}
+        for q in passed.question.all():
+            question_data[q.question_key] = {
+                'answer': q.answer.first().answer,
+                'date': q.answer.first().date,
+            }
+            passed_rendered.append(
+                {
+                    'exercise_name': passed.name,
+                    'answers': question_data,
+                    'deadline': passed.meta.deadline_date,
+                }
+            )
+    return passed_rendered

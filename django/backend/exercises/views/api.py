@@ -319,18 +319,6 @@ def answer_image_thumb_view(request, image_id):  # {{{
 
 @permission_required('exercises.administer_exercise')
 @api_view(['GET'])
-def get_student_attempts_per_exercise(request):
-    return Response(student_attempts_exercises())
-
-
-@permission_required('exercises.view_statistics')
-@api_view(['GET'])
-def get_statistics_per_exercise(request):
-    return Response(student_statistics_exercises())
-
-
-@permission_required('exercises.administer_exercise')
-@api_view(['GET'])
 def exercise_test_view(request, exercise):
     return Response(exercise_test(exercise))
 

@@ -35,6 +35,7 @@ urlpatterns = [
     ),
     url(r'^statistics/allstudentattempts', views.get_student_attempts_per_exercise),
     url(r'^statistics/statsperexercise', views.get_statistics_per_exercise),
+    url(r'^statistics/results', views.get_results),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
