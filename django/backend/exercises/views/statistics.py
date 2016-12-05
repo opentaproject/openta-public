@@ -13,6 +13,7 @@ from exercises.models import Exercise, Question, Answer, ImageAnswer
 from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
+from django.views.decorators.cache import cache_page
 
 
 @permission_required('exercises.administer_exercise')
@@ -29,6 +30,7 @@ def get_statistics_per_exercise(request):
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
+@cache_page(15 * 60)
 def get_results(request):
     required = Exercise.objects.filter(meta__required=True).select_related('meta')
     required_questions = Question.objects.filter(exercise__in=required)
@@ -39,10 +41,12 @@ def get_results(request):
     for student in students:
         print(student.username)
         passed_required_rendered = get_passed_exercises_with_data(required, student)
-        passed_bonus_rendered = get_passed_exercises_with_data(required, student)
+        passed_bonus_rendered = get_passed_exercises_with_data(bonus, student)
         results.append(
             {
                 'username': student.username,
+                'first_name': student.first_name,
+                'last_name': student.last_name,
                 #'failed': failed_exercises,
                 #'passed': set(passed_questions.values_list('exercise__name', 'answers',))
                 'n_passed_required': len(passed_required_rendered),

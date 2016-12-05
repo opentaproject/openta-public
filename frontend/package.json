@@ -14,7 +14,9 @@
     "test:watch": "npm test -- --watch"
   },
   "jest": {
-    "modulePaths": ["app/"]
+    "modulePaths": [
+      "app/"
+    ]
   },
   "dependencies": {
     "after-brunch": "0.0.5",

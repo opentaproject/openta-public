@@ -387,6 +387,8 @@ def get_passed_exercises_with_data(exercise_queryset, user):
         )
         .select_related('meta')
     )
+    # .order_by('pk')\
+    # .distinct()
     passed_rendered = []
     for passed in passed_exercises:
         question_data = {}
@@ -395,11 +397,11 @@ def get_passed_exercises_with_data(exercise_queryset, user):
                 'answer': q.answer.first().answer,
                 'date': q.answer.first().date,
             }
-            passed_rendered.append(
-                {
-                    'exercise_name': passed.name,
-                    'answers': question_data,
-                    'deadline': passed.meta.deadline_date,
-                }
-            )
+        passed_rendered.append(
+            {
+                'exercise_name': passed.name,
+                'answers': question_data,
+                'deadline': passed.meta.deadline_date,
+            }
+        )
     return passed_rendered

@@ -9,6 +9,7 @@ import counterApp from './reducers';
 import App from 'components/App';
 import { fetchExercises,fetchExerciseTree, fetchLoginStatus, updatePendingStateIn } from './fetchers';
 import { updateActiveExercise } from './actions.js';
+import { navigateMenuArray } from './menu.js';
 import { SUBPATH } from './settings.js';
 
 //const store = createStore(counterApp, module.hot && module.hot.data && module.hot.data.counter || { exercises: ['test'] });
@@ -41,7 +42,8 @@ const load = () => {
     store.dispatch( (dispatch, getState) => {
         var state = getState();
         if(state.activeExercise !== "") {
-          dispatch(updateActiveExercise(""));
+          //dispatch(updateActiveExercise(""));
+          dispatch(navigateMenuArray([]));
         }
       }
                   );

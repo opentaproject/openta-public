@@ -10,7 +10,8 @@ var defaultState = immutable.fromJS({
   menuLeafDefaults: {
     leafDefault: 'exercises'
   },
-  exerciseState: {}//{"3_05_7.no_problem": {alerts: [1]}}
+  exerciseState: {},
+  studentResults: [],
 });
 
 export default (state = defaultState, action) => {

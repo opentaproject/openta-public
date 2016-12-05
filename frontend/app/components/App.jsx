@@ -6,6 +6,7 @@ import Exercise from './Exercise';
 import AuthorExercise from './AuthorExercise';
 import LoginInfo from './LoginInfo';
 import Course from './Course';
+import Results from './Results';
 import immutable from 'immutable';
 import { menuPositionAt, menuPositionUnder } from '../menu.js';
 
@@ -26,6 +27,7 @@ class BaseApp extends React.Component {
             <div className="uk-container-center uk-flex uk-flex-center uk-width-1-1">
               { /*this.props.activeExercise === "" && <div className="uk-width-medium-1-6"/>*/ }
               { menuPositionAt(this.props.menuPath, ['exercises']) && <div className="uk-width-medium-2-3 uk-margin-small-left"><Course/></div> }  
+              { menuPositionAt(this.props.menuPath, ['results']) && <div className="uk-width-medium-2-3 uk-margin-small-left"><Results/></div> }  
               { /*(this.props.admin || this.props.author) ? <span/> : <div className="exercise-spacing"></div> */ }
               { menuPositionUnder(this.props.menuPath, ['activeExercise']) &&
               <div className="exercise-list">

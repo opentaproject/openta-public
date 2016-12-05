@@ -97,7 +97,7 @@ return (
   <div className="uk-navbar-content uk-margin-remove">
   {renderGroupIcons} <span className="uk-text-middle">{username}</span>{ admin ? ( <span className="uk-text-small uk-text-middle"> (admin)</span> ) : "" }
   { renderPending }
-  <Menu/>
+  { admin && <Menu/>}
 </div>
   </div>
   </nav>
