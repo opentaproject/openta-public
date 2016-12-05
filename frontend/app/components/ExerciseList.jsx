@@ -11,6 +11,7 @@ import {
   updateActiveExercise,
   updateMenuPathArray,
 } from '../actions.js';
+import { navigateMenuArray } from '../menu.js';
 import immutable from 'immutable';
 import moment from 'moment';
 import Spinner from './Spinner.jsx'
@@ -134,7 +135,8 @@ function handleBack() {
   return dispatch => {
     dispatch(fetchExerciseTree());
     dispatch(updateActiveExercise(""));
-    dispatch(updateMenuPathArray([]));
+    //dispatch(updateMenuPathArray([]));
+    dispatch(navigateMenuArray([]));
   }
 }
 

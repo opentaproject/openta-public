@@ -10,6 +10,9 @@ import {
 import {
   updateExercises,
 } from '../actions.js';
+import {
+  navigateMenuArray
+} from '../menu.js';
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
 
@@ -138,6 +141,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   onExerciseClick: (exercise, folder) => {
+    dispatch(navigateMenuArray(['activeExercise']));
     dispatch(updatePendingStateIn( ['exerciseList'], true));
     dispatch(fetchExerciseRemoteState(exercise))
       .then(dispatch(fetchExercise(exercise, true)));

@@ -12,56 +12,9 @@ import Badge from './Badge.jsx';
 import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
+import { traverse, navigateMenuArray } from '../menu.js';
 
-var menuTree = immutable.fromJS({
-  menuItems: {
-    exercises: {
-      name: 'Exercises',
-      key: 'exercises',
-      reqGroup: [],
-    },
-    results: {
-      name: 'Results',
-      key: 'results',
-      reqGroup: [],
-    },
-    activeExercise: {
-      invisible: true,
-      name: 'Exercise',
-      key: 'activeExercise',
-      reqGroup: [],
-      menuItems: {
-        xmlEditor: {
-          name: 'XML Editor',
-          key: 'xmlEditor',
-          reqGroup: 'Author'
-        },
-        options: {
-          name: 'Options',
-          key: 'options',
-          reqGroup: 'Admin'
-        },
-        statistics: {
-          name: 'Statistics',
-          key: 'statistics',
-          reqGroup: 'View'
-        }
-      }
-    }
-  }
-});
-
-function traverse(menuPath) {
-  var fullPath = immutable.List([])
-  if(menuPath.size > 0) {
-    fullPath = menuPath.pop().reduce(
-    (acc, next) => acc.push(next).push('menuItems'), immutable.List([])
-  ).push(menuPath.last()).insert(0, 'menuItems');
-  }
-  return menuTree.getIn(fullPath)
-}
-
-const BaseMenu = ({menuPath, menuClick, leafDefaults}) => {
+const BaseMenu = ({menuPath, menuClick}) => {
   var currentItem = traverse(menuPath);
   var leaf = !currentItem.has('menuItems');
   var subItems = currentItem.get('menuItems', traverse(menuPath.butLast()).get('menuItems'))
@@ -78,7 +31,7 @@ const BaseMenu = ({menuPath, menuClick, leafDefaults}) => {
   var breadcrumbs = nonLeafBreadcrumbs.map( item => (<li key={item.name}><a onClick={e => menuClick(item.path)}>{item.name}</a></li>) )
   var subMenu = subItems.filter( item => !item.get('invisible', false)).map( (item, key) => {
     var cssclass = "uk-button uk-button-primary" + (menuPath.last() === key ? " uk-active" : "");
-    return ( <a key={item.get('name')} className={cssclass} onClick={e => menuClick((leaf ? menuPath.butLast() : menuPath).push(item.get('key')), leafDefaults.get(key))}>{item.get('name')}</a> )
+    return ( <a key={item.get('name')} className={cssclass} onClick={e => menuClick((leaf ? menuPath.butLast() : menuPath).push(item.get('key')))}>{item.get('name')}</a> )
   }).toArray();
   return (
     <span>
@@ -93,31 +46,13 @@ const BaseMenu = ({menuPath, menuClick, leafDefaults}) => {
 };
 
 const mapStateToProps = state => {
-  //console.dir(['menuLeafDefaults'].concat(state.get('menuPath').toArray()))
   return ({
   menuPath: state.get('menuPath'),
-  leafDefaults: state.getIn(['menuLeafDefaults'].concat(state.get('menuPath').toArray()), immutable.Map({}))
 });
 }
 
 const mapDispatchToProps = dispatch => ({
-  menuClick: (path, defaultLeaf) => {
-    console.dir(traverse(path).toJS())
-    if(!traverse(path).has('menuItems'))
-      dispatch(updateMenuLeafDefaults(path.butLast().toJS(), path.last()))
-    if(defaultLeaf)
-      dispatch(updateMenuPath(path.push(defaultLeaf)))
-    else
-      dispatch(updateMenuPath(path))
-  }
+  menuClick: (path) => dispatch(navigateMenuArray(path.toJS())),
 });
 
-function menuPositionUnder(menuPath, pathArray) {
-  return menuPath.take(pathArray.length).equals(immutable.List(pathArray));
-}
-function menuPositionAt(menuPath, pathArray) {
-  return menuPath.equals(immutable.List(pathArray));
-}
-
 export default connect(mapStateToProps, mapDispatchToProps)(BaseMenu)
-export { menuPositionUnder, menuPositionAt }

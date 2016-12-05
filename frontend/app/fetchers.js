@@ -15,6 +15,7 @@ import {
   updateStudentResults,
   updateMenuPath,
   updateMenuPathArray,
+  updateMenuLeafDefaults,
   setSavePendingState,
   setResetPendingState,
   setSaveError,
@@ -59,11 +60,14 @@ function fetchLoginStatus() {//{{{
     .then(data => {
       dispatch(updateLoginStatus(data))
       if(data.groups.indexOf('Author') > -1)
-        dispatch(updateActiveAdminTool('xml-editor'));
+        dispatch(updateMenuLeafDefaults(['activeExercise'], 'xmleditor'));
+        //dispatch(updateActiveAdminTool('xml-editor'));
       if(data.groups.indexOf('Admin') > -1) 
-        dispatch(updateActiveAdminTool('options'));
+        dispatch(updateMenuLeafDefaults(['activeExercise'], 'options'));
+        //dispatch(updateActiveAdminTool('options'));
       if(data.groups.indexOf('View') > -1) {
-        dispatch(updateActiveAdminTool('statistics'));
+        dispatch(updateMenuLeafDefaults(['activeExercise'], 'statistics'));
+        //dispatch(updateActiveAdminTool('statistics'));
         dispatch(fetchExerciseStatistics());
       }
       }
@@ -134,7 +138,6 @@ function fetchExerciseRemoteState(exercise) {//{{{
 function fetchExercise(exercise, empty) {//{{{
   return (dispatch, getState) => {
     dispatch(updateActiveExercise(exercise));
-    dispatch(updateMenuPathArray(['activeExercise']));
     if(getState().getIn(['login','groups'], immutable.List([])).includes('Author'))
       dispatch(fetchExerciseXML(exercise));
     if(empty) {

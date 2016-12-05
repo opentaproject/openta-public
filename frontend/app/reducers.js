@@ -6,8 +6,10 @@ var defaultState = immutable.fromJS({
   folder: "",
   activeExercise: "",
   activeAdminTool: 'xml-editor',
-  menuPath: [],
-  menuLeafDefaults: {},
+  menuPath: ['exercises'],
+  menuLeafDefaults: {
+    leafDefault: 'exercises'
+  },
   exerciseState: {}//{"3_05_7.no_problem": {alerts: [1]}}
 });
 

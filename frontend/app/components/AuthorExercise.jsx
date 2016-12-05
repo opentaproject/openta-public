@@ -10,7 +10,7 @@ import xml2js from 'xml2js';
 import Spinner from './Spinner.jsx';
 
 import Exercise from './Exercise';
-import { menuPositionAt } from './Menu.jsx';
+import { menuPositionAt } from '../menu.js';
 import {getcookie} from '../cookies.js';
 import {SUBPATH} from '../settings.js';
 

@@ -11,8 +11,10 @@ import {
 import {
   updateActiveAdminTool,
   updateActiveExercise,
-  updateMenuPathArray,
 } from '../actions.js';
+import {
+  navigateMenuArray
+} from '../menu.js';
 
 import immutable from 'immutable';
 import {SUBPATH} from '../settings.js';
@@ -156,7 +158,7 @@ const mapDispatchToProps = dispatch => ({
     onStatisticsClick: (event) => dispatch(updateActiveAdminTool('statistics')),
     onSave: (exercise) => dispatch(handleSave(exercise)),
     onReset: (exercise) => dispatch(handleReset(exercise)),
-    onHome: () => dispatch(updateMenuPathArray([])),
+    onHome: () => dispatch(navigateMenuArray([])),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseLoginInfo)

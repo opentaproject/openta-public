@@ -167,9 +167,10 @@ function updateMenuPathArray(path) {
 }
 
 function updateMenuLeafDefaults(path, value) {
+  var fullPath = path.concat(['leafDefault']);
   return {
     type: 'UPDATE_MENU_LEAF_DEFAULTS',
-    path: path,
+    path: fullPath,
     value: value
   }
 }
