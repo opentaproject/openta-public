@@ -1,6 +1,7 @@
 from exercises.models import Exercise, Question, Answer
 from exercises.parsing import question_json_get, question_xmltree_get, exercise_xmltree
 from exercises.util import nested_print
+from lxml import etree
 import json
 import logging
 
@@ -29,7 +30,7 @@ def question_check(user, user_agent, exercise_key, question_key, answer_data):
     question_xmltree = question_xmltree_get(xmltree, question_key)
     global_xmltree = (
         xmltree.xpath(
-            '/exercise/global[@type="{type}"]|/exercise/global[not(@type)]'.format(
+            '/exercise/global[@type="{type}"] | /exercise/global[not(@type)]'.format(
                 type=dbquestion.type
             )
         )

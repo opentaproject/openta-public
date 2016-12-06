@@ -26,7 +26,7 @@ class BaseQuestion extends Component {
     var questionState = exerciseState.getIn(['question', questionKey], immutable.Map({}))
     if(questionType && questionType in questionDispatch) {
       var globals = json.getIn(['exercise','global'], immutable.List([])).find( q => {
-        return q.getIn(['@attr','type']) === questionType;
+        return q.getIn(['@attr','type']) === questionType || (!q.hasIn(['@attr', 'type']));
       });
       if(globals)question = question.set('global', globals);
       var questionDOM = React.createElement(questionDispatch[questionType], { 
