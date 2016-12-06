@@ -52,7 +52,7 @@ const BaseResults = ({ userResults, pendingResults }) => {
     <div>
     { pendingResults && <span>Collecting results...<Spinner/></span> }
     { !pendingResults && <span></span> } 
-    <div className="uk-width-1-2 uk-container-center">
+    <div className="uk-container-center">
     <Plot data={plotData} layout={layout} config={{}}/>
     </div>
     <table className="uk-table">

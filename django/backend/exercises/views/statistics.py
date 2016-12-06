@@ -30,7 +30,7 @@ def get_statistics_per_exercise(request):
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
-@cache_page(15 * 60)
+@cache_page(2 * 60 * 60)
 def get_results(request):
     required = Exercise.objects.filter(meta__required=True).select_related('meta')
     required_questions = Question.objects.filter(exercise__in=required)

@@ -28,7 +28,18 @@ const BaseMenu = ({menuPath, menuClick}) => {
                                       } ])
                                    )
   var nonLeafBreadcrumbs = breadcrumbsData.filter( item => traverse(item.path).has('menuItems') );                                
-  var breadcrumbs = nonLeafBreadcrumbs.map( item => (<li key={item.name}><a onClick={e => menuClick(item.path)}>{item.name}</a></li>) )
+  var breadcrumbs = nonLeafBreadcrumbs.map( item => {
+    var liClass = "";
+    var content = (<a className="uk-padding-remove" onClick={e => menuClick(item.path)}>{item.name}</a>);
+    if(item.path.equals(menuPath) || (leaf && item.path.equals(menuPath.butLast()))) {
+      content = (<span>{item.name}</span>);
+      liClass = "uk-active";
+    } 
+    return (
+    <li key={item.name} className={liClass}>
+      {content}
+    </li>);
+  })
   var subMenu = subItems.filter( item => !item.get('invisible', false)).map( (item, key) => {
     var cssclass = "uk-button uk-button-primary" + (menuPath.last() === key ? " uk-active" : "");
     return ( <a key={item.get('name')} className={cssclass} onClick={e => menuClick((leaf ? menuPath.butLast() : menuPath).push(item.get('key')))}>{item.get('name')}</a> )

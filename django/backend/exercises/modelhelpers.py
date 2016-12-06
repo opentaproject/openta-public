@@ -35,7 +35,7 @@ def e_student_attempt_count(exercise):
     }
 
 
-def e_student_attempts_mean(exercise):
+def e_student_attempts_mean(exercise):  # {{{
     users = User.objects.filter(groups__name='Student', is_active=True)
     attempts = users.filter(answer__question__exercise=exercise).annotate(
         attempts=Count('answer')
@@ -49,10 +49,10 @@ def e_student_attempts_mean(exercise):
     return {
         'attempts_mean': avg,
         #'attempts': attempts.values_list('username', 'attempts')
-    }
+    }  # }}}
 
 
-def e_student_attempts_median(exercise):
+def e_student_attempts_median(exercise):  # {{{
     users = User.objects.filter(groups__name='Student', is_active=True)
     attempts = users.filter(answer__question__exercise=exercise).annotate(
         attempts=Count('answer')
@@ -71,17 +71,17 @@ def e_student_attempts_median(exercise):
     return {
         'attempts_median': median / n_questions,
         #'attempts': attempts.values_list('username', 'attempts')
-    }
+    }  # }}}
 
 
-def e_student_tried(exercise):
+def e_student_tried(exercise):  # {{{
     users = User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
     ntried = users.filter(answer__question__exercise=exercise).distinct().count()
     n_students = users.count()
-    return {'ntried': ntried, 'percent_tried': ntried / n_students}
+    return {'ntried': ntried, 'percent_tried': ntried / n_students}  # }}}
 
 
-def e_student_percent_complete(exercise):
+def e_student_percent_complete(exercise):  # {{{
     users = User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
     n_students = users.count()
     # userdata = users.prefetch_related(
@@ -138,10 +138,10 @@ def e_student_percent_complete(exercise):
         'ncorrect': len(allcorrect_answer),
         'nstudents': n_students,
         'deadline': exercise.meta.deadline_date,
-    }
+    }  # }}}
 
 
-def exercise_list_data(exercise_data_func_list):
+def exercise_list_data(exercise_data_func_list):  # {{{
     exercises = Exercise.objects.all()
     result = {}
     for exercise in exercises:
@@ -152,7 +152,7 @@ def exercise_list_data(exercise_data_func_list):
 
         data = reduce(reduce_data_func, exercise_data_func_list, {})
         result[exercise.exercise_key] = data
-    return result
+    return result  # }}}
 
 
 def folder_structure(exercise_data_func_list):  # {{{
@@ -305,7 +305,7 @@ def student_statistics_exercises():  # {{{
     return data  # }}}
 
 
-def exercise_test(exercise_key):
+def exercise_test(exercise_key):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     dbquestions = Question.objects.filter(exercise=dbexercise)
     xmltree = exercise_xmltree(dbexercise.path)
@@ -322,10 +322,10 @@ def exercise_test(exercise_key):
             result['exception'] = str(e)
         result.update({'answer': answer})
         results.append(result)
-    return results
+    return results  # }}}
 
 
-def get_passed_exercises_with_data(exercise_queryset, user):
+def get_passed_exercises_with_data(exercise_queryset, user):  # {{{
     """
     Generate data containing which exercises from the queryset that user have passed and uploaded image for before the deadline.
 
@@ -404,4 +404,4 @@ def get_passed_exercises_with_data(exercise_queryset, user):
                 'deadline': passed.meta.deadline_date,
             }
         )
-    return passed_rendered
+    return passed_rendered  # }}}

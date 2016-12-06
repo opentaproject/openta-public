@@ -79,6 +79,21 @@ def exercises_reload(request):  # {{{
 # }}}
 
 
+@permission_required('exercises.reload_exercise')
+@api_view(['POST', 'GET'])
+def exercises_reload_json(request):  # {{{
+    @transaction.atomic
+    def sync():
+        mess = []
+        exercises = Exercise.objects.sync_with_disc()
+        for progress in exercises:
+            mess = mess + progress
+        return mess
+
+    mess = sync()
+    return Response(mess)
+
+
 @api_view(['GET'])
 def exercise(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)

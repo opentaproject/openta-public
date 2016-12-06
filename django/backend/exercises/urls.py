@@ -5,6 +5,7 @@ from exercises import views
 urlpatterns = [
     url(r'^exercises/$', views.exercise_list),
     url(r'^exercises/reload/$', views.exercises_reload),
+    url(r'^exercises/reload/json$', views.exercises_reload_json),
     url(r'^exercises/tree/$', views.exercise_tree),
     url(r'^exercises/test/$', views.exercises_test),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/samefolder$', views.other_exercises_from_folder),

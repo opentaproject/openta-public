@@ -7,6 +7,7 @@ import {
   updateExerciseJSON,
   updateExerciseState,
   updateExercisesState,
+  updateExercisesReloadMessages,
   updateActiveExercise,
   updateActiveAdminTool,
   updatePendingState,
@@ -338,6 +339,17 @@ function fetchStudentResults() {
   }
 }
 
+function reloadExercises() {
+  return dispatch => {
+    dispatch(updatePendingStateIn( ['exercisesReload'], true));
+    return jsonfetch('/exercises/reload/json')
+      .then(response => response.json())
+      .then(json => dispatch(updateExercisesReloadMessages(json)))
+      .then( () => dispatch(updatePendingStateIn( ['exercisesReload'], false)))
+      .catch( err => console.log(err) );
+  }
+}
+
 export {
   fetchLoginStatus,
   fetchExercises, 
@@ -354,4 +366,5 @@ export {
   checkQuestion,
   fetchExerciseStatistics,
   fetchStudentResults,
+  reloadExercises,
 };
