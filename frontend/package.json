@@ -27,6 +27,7 @@
     "lodash": "^4.15.0",
     "mathjs": "^3.5.3",
     "moment": "^2.15.1",
+    "plotly.js": "^1.20.5",
     "react": "~0.14.7",
     "react-codemirror": "^0.2.6",
     "react-dom": "~0.14.7",

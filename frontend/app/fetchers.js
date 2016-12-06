@@ -346,6 +346,8 @@ function reloadExercises() {
       .then(response => response.json())
       .then(json => dispatch(updateExercisesReloadMessages(json)))
       .then( () => dispatch(updatePendingStateIn( ['exercisesReload'], false)))
+      .then( () => dispatch( fetchExercises() ))
+      .then( () => dispatch( fetchExerciseTree() )) 
       .catch( err => console.log(err) );
   }
 }
