@@ -35,8 +35,8 @@ import random
 import sys
 import os
 
-sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + '/../../../../questiontypes'))
-import question_types
+# sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + '/../../../../questiontypes'))
+# import question_types
 
 logger = logging.getLogger(__name__)
 

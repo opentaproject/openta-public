@@ -1,0 +1,94 @@
+import immutable from 'immutable';
+import { 
+  updateMenuLeafDefaults,
+  updateMenuPath,
+} from './actions.js';
+import {
+  fetchStudentResults,
+  reloadExercises,
+} from './fetchers.js';
+
+var menuTree = immutable.fromJS({
+  menuItems: {
+    exercises: {
+      name: 'Exercises',
+      key: 'exercises',
+      reqGroup: [],
+      menuItems: {
+        reload: {
+          name: 'Reload exercises',
+          key: 'reload',
+          onLoad: reloadExercises(),
+          reqGroup: 'Author',
+        },
+      },
+    },
+    results: {
+      name: 'Results',
+      key: 'results',
+      onLoad: fetchStudentResults(),
+      reqGroup: [],
+    },
+    activeExercise: {
+      invisible: true,
+      name: 'Exercise',
+      key: 'activeExercise',
+      reqGroup: [],
+      rememberChoice: true,
+      menuItems: {
+        xmlEditor: {
+          name: 'XML Editor',
+          key: 'xmlEditor',
+          reqGroup: 'Author'
+        },
+        options: {
+          name: 'Options',
+          key: 'options',
+          reqGroup: 'Admin'
+        },
+        statistics: {
+          name: 'Statistics',
+          key: 'statistics',
+          reqGroup: 'View'
+        }
+      }
+    }
+  }
+});
+
+function traverse(menuPath) {
+  var fullPath = immutable.List([])
+  if(menuPath.size > 0) {
+    fullPath = menuPath.pop().reduce(
+    (acc, next) => acc.push(next).push('menuItems'), immutable.List([])
+  ).push(menuPath.last()).insert(0, 'menuItems');
+  }
+  return menuTree.getIn(fullPath)
+}
+
+function navigateMenuArray(pathArray) {
+  return (dispatch, getState) => {
+    var path = immutable.fromJS(pathArray);
+    var menuItem = traverse(path);
+    var state = getState();
+    var defaultLeaf = state.getIn(['menuLeafDefaults'].concat(pathArray).concat(['leafDefault']), undefined)
+    if(menuItem.has('onLoad'))
+      dispatch(menuItem.get('onLoad'))
+    if(!menuItem.has('menuItems'))
+      dispatch(updateMenuLeafDefaults(path.butLast().toJS(), path.last()))
+    if(defaultLeaf && menuItem.get('rememberChoice')) {
+      dispatch(updateMenuPath(path.push(defaultLeaf)))
+    }
+    else
+      dispatch(updateMenuPath(path))
+  }
+}
+
+function menuPositionUnder(menuPath, pathArray) {
+  return menuPath.take(pathArray.length).equals(immutable.List(pathArray));
+}
+function menuPositionAt(menuPath, pathArray) {
+  return menuPath.equals(immutable.List(pathArray));
+}
+
+export { traverse, navigateMenuArray, menuPositionUnder, menuPositionAt }
