@@ -28,8 +28,14 @@ def question_check(user, user_agent, exercise_key, question_key, answer_data):
     xmltree = exercise_xmltree(dbexercise.path)
     question_xmltree = question_xmltree_get(xmltree, question_key)
     global_xmltree = (
-        xmltree.xpath('/exercise/global[@type="{type}"]'.format(type=dbquestion.type)) or [None]
+        xmltree.xpath(
+            '/exercise/global[@type="{type}"]|/exercise/global[not(@type)]'.format(
+                type=dbquestion.type
+            )
+        )
+        or [None]
     )[0]
+
     if dbquestion.type in question_check_dispatch:
         result = {}
         try:
