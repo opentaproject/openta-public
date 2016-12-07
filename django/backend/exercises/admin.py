@@ -118,11 +118,11 @@ class ExerciseAdmin(admin.ModelAdmin):
         return exercise.attempts
 
     def get_attempts(self, exercise):
-        data = modelhelpers.e_student_mean_attempt_count(exercise)
-        mean_attempts = data['mean_attempts'] if data['mean_attempts'] is not None else 0
-        return "{:.0f}".format(mean_attempts)
+        data = modelhelpers.e_student_attempts_median(exercise)
+        median_attempts = data['attempts_median'] if data['attempts_median'] is not None else 0
+        return "{:.0f}".format(median_attempts)
 
-    get_attempts.short_description = 'Mean attempts (per question)'
+    get_attempts.short_description = 'Median attempts (per question)'
 
     def get_questions(self, exercise):
         return exercise.question.count()
