@@ -20,6 +20,7 @@ import immutable from 'immutable';
 import {SUBPATH} from '../settings.js';
 import Spinner from './Spinner.jsx';
 import Menu from './Menu.jsx';
+import { menuPositionAt, menuPositionUnder } from '../menu.js';
 
 var groupIcons = {
   'Admin': {
@@ -50,7 +51,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
     </div>
 );
 
-const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onStatisticsClick, onSave, onReset, onHome, pendingState}) => {
+const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onStatisticsClick, onSave, onReset, onHome, pendingState, menuPath}) => {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
@@ -72,7 +73,7 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
   <div className="uk-container uk-container-center">
-  { activeExercise &&
+  { activeExercise && menuPositionUnder(menuPath, ['activeExercise']) &&
   <div className="uk-navbar-content uk-padding-remove">
     <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas uk-padding-remove" data-uk-offcanvas/>
   </div> }
@@ -118,6 +119,7 @@ BaseLoginInfo.propTypes = {
   onStatisticsClick: PropTypes.func,
   onHome: PropTypes.func,
   pendingState: PropTypes.object,
+  menuPath: PropTypes.object,
 };
 
 function handleSave(exercise) {
@@ -149,6 +151,7 @@ const mapStateToProps = state => {
   activeAdminTool: state.get('activeAdminTool'),
   folder: state.get('folder', ""),
   pendingState: state.get('pendingState'),
+  menuPath: state.get('menuPath'),
 });
 }
 
