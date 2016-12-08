@@ -11,7 +11,7 @@ import {
   updateActiveExercise,
   updateMenuPathArray,
 } from '../actions.js';
-import { navigateMenuArray } from '../menu.js';
+import { navigateMenuArray, navigateAgain } from '../menu.js';
 import immutable from 'immutable';
 import moment from 'moment';
 import Spinner from './Spinner.jsx'
@@ -142,7 +142,10 @@ function handleBack() {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onExerciseClick: (exercise, empty) => dispatch(fetchExercise(exercise, empty)),
+    onExerciseClick: (exercise, empty) =>  {
+      dispatch(fetchExercise(exercise, empty))
+      dispatch(navigateAgain());
+    },
     onBack: () => dispatch(handleBack())
   };
 };

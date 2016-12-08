@@ -69,7 +69,7 @@ function fetchLoginStatus() {//{{{
       if(data.groups.indexOf('View') > -1) {
         dispatch(updateMenuLeafDefaults(['activeExercise'], 'statistics'));
         //dispatch(updateActiveAdminTool('statistics'));
-        dispatch(fetchExerciseStatistics());
+        dispatch(fetchAllExerciseStatistics());
       }
       }
          );
@@ -316,7 +316,7 @@ function fetchImageAnswers(exerciseKey) {//{{{
   }
 }//}}}
 
-function fetchExerciseStatistics() {//{{{
+function fetchAllExerciseStatistics() {//{{{
   return dispatch => {
     dispatch(updatePendingStateIn( ['exercises_statistics'], true));
     return jsonfetch('/statistics/statsperexercise')
@@ -335,6 +335,22 @@ function fetchStudentResults() {
       .then(response => response.json())
       .then(json => dispatch(updateStudentResults(json)))
       .then( () => dispatch(updatePendingStateIn( ['studentResults'], false)))
+      .catch( err => console.log(err) );
+  }
+}
+
+function fetchExerciseStatistics() {
+  return (dispatch, getState) => {
+    var state = getState();
+    var exercise = state.get('activeExercise');
+    dispatch(updatePendingStateIn( ['exercise', exercise, 'statistics'], true));
+    return jsonfetch('/statistics/exercise/'+exercise+'/activity')
+      .then(response => response.json())
+      .then(json => ({
+        activity: json
+      }))
+      .then(json => {console.dir(json); return dispatch(updateExerciseState(exercise, json))})
+      .then( () => dispatch(updatePendingStateIn( ['exercise', exercise, 'statistics'], false)))
       .catch( err => console.log(err) );
   }
 }
@@ -366,6 +382,7 @@ export {
   deleteImageAnswer,
   fetchImageAnswers,
   checkQuestion,
+  fetchAllExerciseStatistics,
   fetchExerciseStatistics,
   fetchStudentResults,
   reloadExercises,

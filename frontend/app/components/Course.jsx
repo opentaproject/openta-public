@@ -141,10 +141,10 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   onExerciseClick: (exercise, folder) => {
-    dispatch(navigateMenuArray(['activeExercise']));
     dispatch(updatePendingStateIn( ['exerciseList'], true));
     dispatch(fetchExerciseRemoteState(exercise))
-      .then(dispatch(fetchExercise(exercise, true)));
+      .then(dispatch(fetchExercise(exercise, true)))
+      .then(dispatch(navigateMenuArray(['activeExercise'])));
     dispatch(updateExercises([], folder));
     dispatch(fetchSameFolder(exercise, folder));
   }

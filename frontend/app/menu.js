@@ -5,6 +5,7 @@ import {
 } from './actions.js';
 import {
   fetchStudentResults,
+  fetchExerciseStatistics,
   reloadExercises,
 } from './fetchers.js';
 
@@ -49,7 +50,8 @@ var menuTree = immutable.fromJS({
         statistics: {
           name: 'Statistics',
           key: 'statistics',
-          reqGroup: 'View'
+          reqGroup: 'View',
+          onLoad: fetchExerciseStatistics(),
         }
       }
     }
@@ -77,10 +79,18 @@ function navigateMenuArray(pathArray) {
     if(!menuItem.has('menuItems'))
       dispatch(updateMenuLeafDefaults(path.butLast().toJS(), path.last()))
     if(defaultLeaf && menuItem.get('rememberChoice')) {
-      dispatch(updateMenuPath(path.push(defaultLeaf)))
+      dispatch(navigateMenuArray(path.push(defaultLeaf)))
+      //dispatch(updateMenuPath(path.push(defaultLeaf)))
     }
     else
       dispatch(updateMenuPath(path))
+  }
+}
+
+function navigateAgain() {
+  return (dispatch, getState) => {
+    var state = getState();
+    return dispatch(navigateMenuArray(state.get('menuPath').toArray()));
   }
 }
 
@@ -91,4 +101,4 @@ function menuPositionAt(menuPath, pathArray) {
   return menuPath.equals(immutable.List(pathArray));
 }
 
-export { traverse, navigateMenuArray, menuPositionUnder, menuPositionAt }
+export { traverse, navigateMenuArray, navigateAgain, menuPositionUnder, menuPositionAt }

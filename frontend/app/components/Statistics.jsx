@@ -1,8 +1,11 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import immutable from 'immutable';
+import Plot from './Plot.jsx';
+import Spinner from './Spinner.jsx';
+import moment from 'moment';
 
-const BaseStatistics = ({ exerciseState }) => {
+const BaseStatistics = ({ exerciseState, pendingState }) => {
   var percent_complete = (exerciseState.get('percent_complete', 0)*100).toFixed(1) + '%';
   var percent_correct = (exerciseState.get('percent_correct', 0)*100).toFixed(1) + '%';
   var percent_tried = (exerciseState.get('percent_tried', 0)*100).toFixed(1) + '%';
@@ -13,6 +16,47 @@ const BaseStatistics = ({ exerciseState }) => {
   var nattempts_mean  = exerciseState.get('attempts_mean', 0).toFixed(1);
   var nattempts_median  = exerciseState.get('attempts_median', 0).toFixed(1);
   var deadline  = exerciseState.get('deadline', null);
+
+  var formatDate = date => moment(date).format('YYYY-MM-DD HH:mm:ss');
+  var formatTimestamp = date => moment(date, 'X').format('YYYY-MM-DD HH:mm:ss');
+
+  //var activityHistogram = exerciseState.getIn(['activity', 'answers'], immutable.List([])).map(formatDate).toArray();
+  //console.dir(activityHistogram)
+  var y = exerciseState.getIn(['activity', 'answers_histogram'], immutable.List([])).toArray();
+  var x = exerciseState.getIn(['activity', 'bins'], immutable.List([])).butLast().map(formatTimestamp).toArray();
+
+  var plotData = [ {
+    y: y,
+    x: x,
+    type: "bar",
+  },];
+  var shapes = []
+  if(deadline) {
+    var deadlinePlotly = moment(deadline).format('YYYY-MM-DD HH:mm:ss');
+    shapes.push(
+    {
+      type: 'line',
+      yref: 'paper',
+      'x0': deadlinePlotly,
+      'y0': 0,
+      'x1': deadlinePlotly,
+      'y1': 1,
+      'opacity': 0.5,
+      'line': {
+        'color': 'rgb(255,0,0)',
+        'dash': 'dashdot',
+        'width': 1
+      },
+    });
+  }
+  
+  var layout = {
+  title: "Activity", 
+  xaxis: {
+  }, 
+  yaxis: {title: "Tries/2h"},
+  shapes: shapes,
+  };
 
   return (
     <div className="uk-panel uk-panel-box uk-margin-top">
@@ -54,6 +98,11 @@ const BaseStatistics = ({ exerciseState }) => {
         <dt><span className="uk-text-large"><span className="uk-text-bold">{ nattempts_median }</span> attempts per question (median)</span></dt>
         <dd>
         </dd>
+        <dt></dt>
+        <dd>
+         { !pendingState.getIn(['statistics']) && <Plot key="statistics-plot" data={plotData} layout={layout} config={{}}/> }
+         { pendingState.getIn(['statistics']) && <Spinner/> }
+        </dd> 
       </dl>
     </article>
     </div>
@@ -62,8 +111,10 @@ const BaseStatistics = ({ exerciseState }) => {
 
 const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
+  var pendingState = state.getIn(['pendingState','exercise',state.get('activeExercise')], immutable.Map({}));
   return {
   exerciseState: activeExerciseState,
+  pendingState: pendingState,
 };
 }
 
@@ -71,5 +122,3 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseStatistics);
-
-
