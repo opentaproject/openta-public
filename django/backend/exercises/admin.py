@@ -20,6 +20,7 @@ from .models import Exercise
 from .models import Question
 from .models import Answer
 from .models import ImageAnswer
+from .models import AuditExercise
 
 from .models import ExerciseMeta
 from course.models import Course
@@ -455,10 +456,19 @@ class AnswerAdmin(admin.ModelAdmin):
     get_exercise_name.short_description = 'Exercise'
 
 
+class AuditExerciseAdmin(admin.ModelAdmin):
+    list_display = ['exercise', 'student', 'auditor', 'date', 'message', 'sent']
+    list_per_page = 20
+    search_fields = ['student', 'auditor', 'exercise']
+    ordering = ['date']
+    readonly_fields = ('id',)
+
+
 admin.site.register(Exercise, ExerciseAdmin)
 admin.site.register(Question)
 admin.site.register(Answer, AnswerAdmin)
 admin.site.register(ImageAnswer, ImageAnswerAdmin)
 admin.site.register(ExerciseMeta)
+admin.site.register(AuditExercise, AuditExerciseAdmin)
 
 # Register your models here.

@@ -38,6 +38,9 @@ urlpatterns = [
     url(r'^statistics/statsperexercise', views.get_statistics_per_exercise),
     url(r'^statistics/results', views.get_results),
     url(r'^statistics/exercise/(?P<exercise>[\w\.-]+)/activity', views.get_activity_exercise),
+    url(r'^audit/unsent/$', views.get_current_unsent_audits),
+    url(r'^audit/new/exercise/(?P<exercise>[\w\.-]+)$', views.get_new_audit),
+    url(r'^audit/data/(?P<audit>[0-9]+)/$', views.get_audit_data),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

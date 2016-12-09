@@ -305,3 +305,12 @@ class ExerciseMeta(models.Model):  # {{{
         return self.exercise.name
 
     # }}}
+
+
+class AuditExercise(models.Model):
+    student = models.ForeignKey(User, related_name='audits')
+    auditor = models.ForeignKey(User, related_name='studentaudits')
+    exercise = models.ForeignKey(Exercise)
+    message = models.TextField(default="", blank=True)
+    date = models.DateTimeField(default=now)
+    sent = models.BooleanField(default=False)

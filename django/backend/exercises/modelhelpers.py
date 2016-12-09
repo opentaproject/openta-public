@@ -405,3 +405,32 @@ def get_passed_exercises_with_data(exercise_queryset, user):  # {{{
             }
         )
     return passed_rendered  # }}}
+
+
+def get_passed_students(exercise):
+    students = User.objects.filter(groups__name='Student')
+    deadline_time = datetime.time(8, 0, 0, tzinfo=pytz.timezone('Europe/Stockholm'))
+    course = Course.objects.first()
+    if course is not None and course.deadline_time is not None:
+        deadline_time = course.deadline_time
+    questions = Question.objects.filter(exercise=exercise).select_related(
+        'exercise', 'exercise__meta'
+    )
+    users = []
+    for question in questions:
+        users.append(
+            set(
+                students.filter(
+                    imageanswer__exercise=question.exercise,
+                    answer__question=question,
+                    answer__correct=True,
+                    answer__date__lt=datetime.datetime.combine(
+                        question.exercise.meta.deadline_date, deadline_time
+                    ),
+                )
+                .values_list('pk', flat=True)
+                .distinct()
+            )
+        )
+    passed = set.intersection(*map(set, users))
+    return students.filter(pk__in=passed)
