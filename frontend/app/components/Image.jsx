@@ -1,0 +1,104 @@
+import React, { PropTypes, Component } from 'react';
+import {fabric} from 'fabric';
+
+export default class Image extends Component {
+  constructor() {
+    super();
+    this.state = {
+      angle: 0,
+      scale: 1
+    };
+  }
+
+  static propTypes = {
+    src: PropTypes.string,
+  }
+
+  resize = () => {
+    if(this.container && this.canvas) {
+      this.canvas.setWidth(this.container.clientWidth);
+      this.canvas.calcOffset();
+    }
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener('resize', this.resize);
+  }
+
+  componentDidMount() {
+    window.addEventListener('resize', this.resize);
+    var space = window.innerHeight - this.canvasref.offsetTop
+    this.canvasref.width  = this.container.clientWidth;
+    this.canvasref.height = space * 0.7;
+    this.canvas = new fabric.Canvas('imagecanvas');
+    fabric.Image.fromURL(this.props.src, oImg => {
+      oImg.scaleToWidth(this.canvas.getWidth());
+      var tmpScale = oImg.getScaleX();
+      oImg.scaleToHeight(this.canvas.getHeight());
+      if(tmpScale < oImg.getScaleX())
+        oImg.scaleToWidth(this.canvas.getWidth());
+      this.canvas.add(oImg);
+    });
+  }
+
+  componentDidUpdate(prevProps) {
+    if(this.props.src && this.props.src !== prevProps.src) {
+      this.canvas.clear();
+      fabric.Image.fromURL(this.props.src, oImg => {
+        oImg.scaleToWidth(this.canvas.getWidth());
+        var tmpScale = oImg.getScaleX();
+        oImg.scaleToHeight(this.canvas.getHeight());
+        if(tmpScale < oImg.getScaleX())
+          oImg.scaleToWidth(this.canvas.getWidth());
+        this.state.scale = 1;
+        this.state.angle = 0;
+        this.canvas.add(oImg);
+        this.canvas.centerObject(oImg);
+      });
+    } else {
+      if(this.canvas.item(0))
+        var image = this.canvas.item(0);
+        var center = new fabric.Point(this.canvas.getWidth() / 2, this.canvas.getHeight() /2);
+        image.setAngle(this.state.angle);
+        this.canvas.zoomToPoint(center, this.state.scale);
+        this.canvas.renderAll();
+    }
+  }
+
+  onRotateLeft = () => {
+    this.setState({
+      angle: this.state.angle - 90
+    });
+  }
+  onRotateRight = () => {
+    this.setState({
+      angle: this.state.angle + 90
+    });
+  }
+  onZoomIn = () => {
+    this.setState({
+      scale: this.state.scale*1.2
+    });
+  }
+  onZoomOut = () => {
+    this.setState({
+      scale: this.state.scale*0.8
+    });
+  }
+
+  render() {
+    return (
+      <div className="uk-width-1-1" ref={ (node) => this.container = node }>
+      { this.props.src &&
+      <div className="uk-button-group">
+        <button class="uk-button" onClick={this.onRotateLeft}><i className="uk-icon uk-icon-rotate-left"/></button>
+        <button class="uk-button" onClick={this.onRotateRight}><i className="uk-icon uk-icon-rotate-right"/></button>
+        <button class="uk-button" onClick={this.onZoomOut}><i className="uk-icon uk-icon-search-minus"/></button>
+        <button class="uk-button" onClick={this.onZoomIn}><i className="uk-icon uk-icon-search-plus"/></button>
+      </div>
+      }
+      <canvas id="imagecanvas" ref={ (node) => this.canvasref = node }></canvas> 
+      </div>
+    )
+  }
+}

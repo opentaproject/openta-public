@@ -8,6 +8,7 @@ import XMLEditor from './XMLEditor.jsx';
 import Statistics from './Statistics.jsx';
 import xml2js from 'xml2js';
 import Spinner from './Spinner.jsx';
+import Audit from './Audit.jsx';
 
 import Exercise from './Exercise';
 import { menuPositionAt } from '../menu.js';
@@ -93,6 +94,7 @@ class BaseAuthorExercise extends Component {
             </div>
         }
         { this.props.atMenu(['activeExercise','statistics']) && this.props.view && <Statistics/> }
+        { this.props.atMenu(['activeExercise','audit']) && this.props.admin && <Audit/> }
         </div>
       </div>
     );

@@ -61,6 +61,12 @@ export default (state = defaultState, action) => {
       return state.setIn(['menuLeafDefaults'].concat(action.path), action.value);
     case 'UPDATE_EXERCISES_RELOAD_MESSAGES':
       return state.setIn(['exercisesReloadMessages'], immutable.fromJS(action.messages));
+    case 'UPDATE_AUDITS':
+      return state.setIn(['audit', 'audits'], immutable.fromJS(action.audits));
+    case 'SET_AUDIT_DATA':
+      return state.setIn(['audit', 'auditdata', action.audit], immutable.fromJS(action.data));
+    case 'SET_ACTIVE_AUDIT':
+      return state.setIn(['audit', 'activeAudit'], action.audit);
     default:
       return state
   }

@@ -17,11 +17,13 @@ import {
   updateMenuPath,
   updateMenuPathArray,
   updateMenuLeafDefaults,
+  updateAudits,
   setSavePendingState,
   setResetPendingState,
   setSaveError,
   setExerciseModifiedState,
   setImageAnswers,
+  setAuditData,
 } from './actions.js';
 import {logImmutable} from 'immutablehelpers.js'
 import {getcookie} from 'cookies.js'
@@ -368,6 +370,30 @@ function reloadExercises() {
   }
 }
 
+function fetchUnsentAudits() {
+  return dispatch => {
+    dispatch(updatePendingStateIn( ['audit', 'audits'], true));
+    return jsonfetch('/audit/unsent/')
+      .then(response => response.json())
+      .then(json => json.reduce( (map, obj) => { map[obj.pk] = obj; return map; }, {})) 
+      .then(json => dispatch(updateAudits(json)))
+      .then( () => dispatch(updatePendingStateIn( ['audit', 'audits'], false)))
+      .catch( err => console.log(err) );
+  }
+}
+
+function fetchAuditData(pk) {
+  return dispatch => {
+    dispatch(updatePendingStateIn( ['audit', 'audits', pk, 'data'], true));
+    return jsonfetch('/audit/data/' + pk + '/')
+      .then(response => response.json())
+      .then(json => dispatch(setAuditData(pk, json)))
+      .then( () => dispatch(updatePendingStateIn( ['audit', 'audits', pk, 'data'], false)))
+      .catch( err => console.log(err) );
+  }
+}
+  
+
 export {
   fetchLoginStatus,
   fetchExercises, 
@@ -386,4 +412,6 @@ export {
   fetchExerciseStatistics,
   fetchStudentResults,
   reloadExercises,
+  fetchUnsentAudits,
+  fetchAuditData,
 };

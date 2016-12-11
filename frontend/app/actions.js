@@ -182,4 +182,26 @@ function updateExercisesReloadMessages(json) {
   }
 }
 
-export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages}
+function updateAudits(json) {
+  return {
+    type: 'UPDATE_AUDITS',
+    audits: json
+  }
+}
+
+function setAuditData(pk, data) {
+  return {
+    type: 'SET_AUDIT_DATA',
+    audit: pk,
+    data: data
+  }
+}
+
+function setActiveAudit(pk) {
+  return {
+    type: 'SET_ACTIVE_AUDIT',
+    audit: pk
+  }
+}
+
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, setAuditData, setActiveAudit}

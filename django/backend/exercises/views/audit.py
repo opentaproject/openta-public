@@ -25,7 +25,7 @@ from random import choice
 @api_view(['GET'])
 def get_current_unsent_audits(request):
     audits = AuditExercise.objects.filter(auditor=request.user, sent=False)
-    saudits = AuditsExerciseSerializer(audits, many=True)
+    saudits = AuditExerciseSerializer(audits, many=True)
     return Response(saudits.data)
 
 
@@ -68,5 +68,6 @@ def get_audit_data(request, audit):
             correct=True,
             date__lt=datetime.datetime.combine(dbaudit.exercise.meta.deadline_date, deadline_time),
         ).latest('date')
-        answers[question.key] = answer.answer
+        answers[question.question_key] = answer.answer
+    # question_list = questions.value_list(
     return Response({'image_answers': image_answers, 'answers': answers})
