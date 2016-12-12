@@ -35,6 +35,39 @@ def e_student_attempt_count(exercise):
     }
 
 
+def e_student_activity(exercise):
+    t1h = datetime.datetime.now() - datetime.timedelta(hours=1)
+    t24h = datetime.datetime.now() - datetime.timedelta(hours=24)
+    t1w = datetime.datetime.now() - datetime.timedelta(days=7)
+
+    return {
+        'activity': {
+            '1h': Answer.objects.filter(
+                date__gt=t1h, question__exercise=exercise, user__groups__name="Student"
+            ).count(),
+            '24h': Answer.objects.filter(
+                date__gt=t24h, question__exercise=exercise, user__groups__name="Student"
+            ).count(),
+            '1w': Answer.objects.filter(
+                date__gt=t1w, question__exercise=exercise, user__groups__name="Student"
+            ).count(),
+        }
+    }
+
+
+def p_student_activity(data):
+    max_1h = max(data.values(), key=lambda exercise: exercise['activity']['1h'])
+    max_24h = max(data.values(), key=lambda exercise: exercise['activity']['24h'])
+    max_1w = max(data.values(), key=lambda exercise: exercise['activity']['1w'])
+    # for item in data.:
+    #    print(item)
+    return {
+        'max_1h': max_1h['activity']['1h'],
+        'max_24h': max_24h['activity']['24h'],
+        'max_1w': max_1w['activity']['1w'],
+    }
+
+
 def e_student_attempts_mean(exercise):  # {{{
     users = User.objects.filter(groups__name='Student', is_active=True)
     attempts = users.filter(answer__question__exercise=exercise).annotate(
@@ -152,6 +185,15 @@ def exercise_list_data(exercise_data_func_list):  # {{{
 
         data = reduce(reduce_data_func, exercise_data_func_list, {})
         result[exercise.exercise_key] = data
+    return result  # }}}
+
+
+def post_process_list(data, data_func_list):  # {{{
+    def reduce_data_func(prev, next):
+        prev.update(next(data))
+        return prev
+
+    result = reduce(reduce_data_func, data_func_list, {})
     return result  # }}}
 
 
@@ -300,9 +342,12 @@ def student_statistics_exercises():  # {{{
             e_student_percent_complete,
             e_student_attempts_mean,
             e_student_attempts_median,
+            e_student_activity,
         ]
     )
-    return data  # }}}
+    aggregates = post_process_list(data, [p_student_activity])
+    return {'exercises': data, 'aggregates': aggregates}
+    # }}}
 
 
 def exercise_test(exercise_key):  # {{{

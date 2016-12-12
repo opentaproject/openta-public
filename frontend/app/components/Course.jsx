@@ -26,7 +26,7 @@ var difficulties = {
   '3': 'Svår',
 };
 
-function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics) {
+function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics, statistics) {
   var deadlineClass = "uk-badge-primary";
   var legend = 'Obligatorisk';
   if( meta.bonus ) {
@@ -37,6 +37,10 @@ function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, fo
     var percent_complete = exerciseState.getIn([exercise, 'percent_complete'], 0);
     var percent_correct = exerciseState.getIn([exercise, 'percent_correct'], 0);
     var percent_tried = exerciseState.getIn([exercise, 'percent_tried'], 0);
+    var maxActivity = statistics.getIn(['aggregates', 'max_24h'], 0);
+    var activity = 0;
+    if(maxActivity > 0)
+      activity = 100*exerciseState.getIn([exercise, 'activity', '24h']) / maxActivity;
     if(percent_complete === null)percent_complete = 0;
     if(percent_correct === null)percent_correct = 0;
     if(percent_tried === null)percent_tried = 0;
@@ -61,26 +65,29 @@ return (
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
       {folder.exercises[exercise].name}
       </div>
-      { showStatistics &&
-        <div className="uk-progress uk-margin-remove uk-progress-mini uk-progress-warning">
-          <div className="uk-progress-bar" style={{'width': (percent_tried*100) + '%'}}></div>
-        </div>
-      }
-      { showStatistics &&
-        <div className="uk-progress uk-margin-remove uk-progress-mini">
-          <div className="uk-progress-bar" style={{'width': (percent_correct*100) + '%'}}></div>
+      { showStatistics && !meta.deadline_date &&
+        <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-warning">
+          <div className="uk-progress-bar" style={{'width': (percent_correct*100) + '%', 'backgroundColor': '#00a8e6'}}></div>
+          <div className="uk-progress-bar" style={{'width': ((percent_tried-percent_correct)*100) + '%'}}></div>
         </div>
       }
       { showStatistics && meta.deadline_date &&
-        <div className="uk-progress uk-margin-remove uk-progress-mini uk-progress-success">
+        <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-success">
           <div className="uk-progress-bar" style={{'width': (percent_complete*100) + '%'}}></div>
+          <div className="uk-progress-bar" style={{'width': ((percent_correct-percent_complete)*100) + '%', 'backgroundColor': '#00a8e6'}}></div>
+          <div className="uk-progress-bar" style={{'width': ((percent_tried-percent_correct)*100) + '%', 'backgroundColor': '#faa732'}}></div>
         </div>
+      }
+      { activity > 0 &&
+      <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-danger">
+        <div className="uk-progress-bar uk-text-small" style={{'width': activity + '%'}}>{exerciseState.getIn([exercise,'activity','24h'])}</div>
+      </div>
       }
     </a>
   </li>);
 }
 
-const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics }) => {
+const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics, statistics }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
@@ -90,7 +97,7 @@ const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, on
       //exerciseState.getIn([exercise, 'correct'], false)
       exercises = folder.order/*Object.keys(folder.exercises)/*.sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name )*/.map( exercise => {
         var meta = folder.exercises[exercise].meta;
-        return generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics);
+        return generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics, statistics);
       });
     }
     if(folder.folders)
@@ -137,6 +144,7 @@ const mapStateToProps = state => ({
   exercisetree: state.get('exerciseTree'),
   currentpath: state.get('currentpath'),
   showStatistics: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
+  statistics: state.get('statistics', immutable.Map({})),
 });
 
 const mapDispatchToProps = dispatch => ({

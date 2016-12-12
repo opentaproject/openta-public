@@ -33,6 +33,13 @@ function updateExerciseStatistics(stats) {//{{{
   };
 }//}}}
 
+function updateAggregateStatistics(aggregates) {//{{{
+  return {
+    type: 'UPDATE_AGGREGATE_STATISTICS',
+    aggregates: aggregates
+  };
+}//}}}
+
 function updateExerciseState(exercise, state) {//{{{
   return {
     type: 'UPDATE_EXERCISE_STATE',
@@ -204,4 +211,4 @@ function setActiveAudit(pk) {
   }
 }
 
-export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, setAuditData, setActiveAudit}
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, setAuditData, setActiveAudit, updateAggregateStatistics}

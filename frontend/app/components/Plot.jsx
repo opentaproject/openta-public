@@ -18,12 +18,10 @@ export default class Plot extends Component {
   componentDidMount() {
     let {data, layout, config} = this.props;
     plotly.newPlot(this.container, data, layout, config);
-    console.log("plot mounted");
     //this.attachListeners();
   }
 
   componentDidUpdate(prevProps) {
-    console.log("plot updated");
     if (prevProps.data !== this.props.data || prevProps.layout !== this.props.layout) {
       plotly.newPlot(this.container, this.props.data, this.props.layout);
       //this.attachListeners();

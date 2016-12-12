@@ -13,6 +13,7 @@ import {
   updatePendingState,
   updatePendingStateIn,
   updateExerciseStatistics,
+  updateAggregateStatistics,
   updateStudentResults,
   updateMenuPath,
   updateMenuPathArray,
@@ -324,7 +325,10 @@ function fetchAllExerciseStatistics() {//{{{
     return jsonfetch('/statistics/statsperexercise')
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
-      .then(json => dispatch(updateExerciseStatistics(json)))
+      .then(json =>  { 
+        dispatch(updateExerciseStatistics(json.exercises))
+        dispatch(updateAggregateStatistics(json.aggregates))
+      })
       .then( () => dispatch(updatePendingStateIn( ['exercises_statistics'], false)))
       .catch( err => console.log(err) );
   };

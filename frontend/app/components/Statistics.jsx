@@ -5,7 +5,7 @@ import Plot from './Plot.jsx';
 import Spinner from './Spinner.jsx';
 import moment from 'moment';
 
-const BaseStatistics = ({ exerciseState, pendingState }) => {
+const BaseStatistics = ({ exerciseState, pendingState, statistics }) => {
   var percent_complete = (exerciseState.get('percent_complete', 0)*100).toFixed(1) + '%';
   var percent_correct = (exerciseState.get('percent_correct', 0)*100).toFixed(1) + '%';
   var percent_tried = (exerciseState.get('percent_tried', 0)*100).toFixed(1) + '%';
@@ -41,11 +41,11 @@ const BaseStatistics = ({ exerciseState, pendingState }) => {
       'y0': 0,
       'x1': deadlinePlotly,
       'y1': 1,
-      'opacity': 0.5,
+      'opacity': 0.6,
       'line': {
         'color': 'rgb(255,0,0)',
         'dash': 'dashdot',
-        'width': 1
+        'width': 1.5
       },
     });
   }
@@ -115,6 +115,7 @@ const mapStateToProps = state => {
   return {
   exerciseState: activeExerciseState,
   pendingState: pendingState,
+  statistics: state.get('statistics'),
 };
 }
 
