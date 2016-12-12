@@ -66,21 +66,25 @@ return (
       {folder.exercises[exercise].name}
       </div>
       { showStatistics && !meta.deadline_date &&
-        <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-warning">
+        <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-warning" title="blue: correct, orange: tried">
           <div className="uk-progress-bar" style={{'width': (percent_correct*100) + '%', 'backgroundColor': '#00a8e6'}}></div>
           <div className="uk-progress-bar" style={{'width': ((percent_tried-percent_correct)*100) + '%'}}></div>
         </div>
       }
       { showStatistics && meta.deadline_date &&
-        <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-success">
+        <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-success" title="green: complete, blue: correct, orange: tried">
           <div className="uk-progress-bar" style={{'width': (percent_complete*100) + '%'}}></div>
           <div className="uk-progress-bar" style={{'width': ((percent_correct-percent_complete)*100) + '%', 'backgroundColor': '#00a8e6'}}></div>
           <div className="uk-progress-bar" style={{'width': ((percent_tried-percent_correct)*100) + '%', 'backgroundColor': '#faa732'}}></div>
         </div>
       }
       { activity >= 0 &&
-      <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-danger">
-        <div className="uk-progress-bar uk-text-small" style={{'width': activity + '%', 'backgroundColor': '#e62ef1'}}>{exerciseState.getIn([exercise,'activity',activityRange])}</div>
+      <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-danger" title="Tries/Question">
+        <div className="uk-progress-bar uk-text-small" style={{'width': activity + '%', 'backgroundColor': '#e62ef1'}}>
+        { activity >= 10 && <span>{exerciseState.getIn([exercise,'activity',activityRange])}</span>}
+        { activity < 10 && activity > 0 && <span style={{position: 'relative', left: '200%'}} className="uk-text-danger uk-text-small">{exerciseState.getIn([exercise,'activity',activityRange])}</span>}
+        { activity == 0 && <span className="uk-text-primary uk-text-small">0</span>}
+        </div>
       </div>
       }
     </a>

@@ -46,7 +46,7 @@ const BaseResults = ({ userResults, pendingResults }) => {
     tickmode: "linear",
     dtick: 1
   }, 
-  yaxis: {title: "Passed exercises"}
+  yaxis: {title: "Number of students"}
 };
   return (
     <div>

@@ -39,18 +39,34 @@ def e_student_activity(exercise):
     t1h = datetime.datetime.now() - datetime.timedelta(hours=1)
     t24h = datetime.datetime.now() - datetime.timedelta(hours=24)
     t1w = datetime.datetime.now() - datetime.timedelta(days=7)
+    n_questions = exercise.question.all().count()
 
     return {
         'activity': {
-            '1h': Answer.objects.filter(
-                date__gt=t1h, question__exercise=exercise, user__groups__name="Student"
-            ).count(),
-            '24h': Answer.objects.filter(
-                date__gt=t24h, question__exercise=exercise, user__groups__name="Student"
-            ).count(),
-            '1w': Answer.objects.filter(
-                date__gt=t1w, question__exercise=exercise, user__groups__name="Student"
-            ).count(),
+            '1h': round(
+                Answer.objects.filter(
+                    date__gt=t1h, question__exercise=exercise, user__groups__name="Student"
+                ).count()
+                / n_questions
+            ),
+            '24h': round(
+                Answer.objects.filter(
+                    date__gt=t24h, question__exercise=exercise, user__groups__name="Student"
+                ).count()
+                / n_questions
+            ),
+            '1w': round(
+                Answer.objects.filter(
+                    date__gt=t1w, question__exercise=exercise, user__groups__name="Student"
+                ).count()
+                / n_questions
+            ),
+            'all': round(
+                Answer.objects.filter(
+                    question__exercise=exercise, user__groups__name="Student"
+                ).count()
+                / n_questions
+            ),
         }
     }
 
@@ -59,12 +75,14 @@ def p_student_activity(data):
     max_1h = max(data.values(), key=lambda exercise: exercise['activity']['1h'])
     max_24h = max(data.values(), key=lambda exercise: exercise['activity']['24h'])
     max_1w = max(data.values(), key=lambda exercise: exercise['activity']['1w'])
+    max_all = max(data.values(), key=lambda exercise: exercise['activity']['all'])
     # for item in data.:
     #    print(item)
     return {
         'max_1h': max_1h['activity']['1h'],
         'max_24h': max_24h['activity']['24h'],
         'max_1w': max_1w['activity']['1w'],
+        'max_all': max_all['activity']['all'],
     }
 
 

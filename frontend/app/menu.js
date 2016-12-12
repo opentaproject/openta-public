@@ -47,6 +47,12 @@ var menuTree = immutable.fromJS({
               onLoad: setActivityRange('1w'),
               reqGroup: 'View',
             },
+            all: {
+              name: 'all',
+              key: 'all',
+              onLoad: setActivityRange('all'),
+              reqGroup: 'View',
+            },
           },
         },
       },
