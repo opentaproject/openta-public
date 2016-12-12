@@ -355,7 +355,7 @@ function fetchExerciseStatistics() {
       .then(json => ({
         activity: json
       }))
-      .then(json => {console.dir(json); return dispatch(updateExerciseState(exercise, json))})
+      .then(json => {return dispatch(updateExerciseState(exercise, json))})
       .then( () => dispatch(updatePendingStateIn( ['exercise', exercise, 'statistics'], false)))
       .catch( err => console.log(err) );
   }

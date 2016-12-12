@@ -71,7 +71,7 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise
     return (pendingState.getIn(item.path, false) && (<span key={item.path}>{item.name}<Spinner icon="uk-icon-bar-chart" size="" className="uk-margin-small-left"/></span>))
   }) 
 return (
-  <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
+  <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom" data-uk-sticky="{media: 640}">
   <div className="uk-container uk-container-center">
   { activeExercise && menuPositionUnder(menuPath, ['activeExercise']) &&
   <div className="uk-navbar-content uk-padding-remove">

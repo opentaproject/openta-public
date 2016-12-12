@@ -21,13 +21,13 @@ class BaseApp extends React.Component {
   };
   render() {
     return (
-      <div>
-        <LoginInfo/>
-        <div id="content" className="">
+      <div className="uk-grid">
+        <div className="uk-width-1-1"><LoginInfo/></div>
+        <div id="content" className="uk-width-1-1">
           <div id="main" className="uk-grid">
             <div className="uk-container-center uk-flex uk-flex-center uk-width-1-1">
               { /*this.props.activeExercise === "" && <div className="uk-width-medium-1-6"/>*/ }
-              { (menuPositionAt(this.props.menuPath, ['exercises']) || 
+              { (menuPositionUnder(this.props.menuPath, ['exercises']) || 
                 menuPositionAt(this.props.menuPath, [])) &&
                 <div className="uk-width-medium-2-3 uk-margin-small-left"><Course/></div> }  
               { menuPositionAt(this.props.menuPath, ['results']) && <div className="uk-width-medium-2-3 uk-margin-small-left"><Results/></div> }  

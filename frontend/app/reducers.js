@@ -8,7 +8,13 @@ var defaultState = immutable.fromJS({
   activeAdminTool: 'xml-editor',
   menuPath: [],
   menuLeafDefaults: {
+    exercises: {
+      activity: {
+        leafDefault: 'day',
+      }
+    }
   },
+  activityRange: '24h',
   exerciseState: {},
   studentResults: [],
 });
@@ -69,6 +75,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['audit', 'auditdata', action.audit], immutable.fromJS(action.data));
     case 'SET_ACTIVE_AUDIT':
       return state.setIn(['audit', 'activeAudit'], action.audit);
+    case 'SET_ACTIVITY_RANGE':
+      return state.setIn(['activityRange'], action.range);
     default:
       return state
   }

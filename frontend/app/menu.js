@@ -2,6 +2,7 @@ import immutable from 'immutable';
 import { 
   updateMenuLeafDefaults,
   updateMenuPath,
+  setActivityRange,
 } from './actions.js';
 import {
   fetchStudentResults,
@@ -22,6 +23,31 @@ var menuTree = immutable.fromJS({
           key: 'reload',
           onLoad: reloadExercises(),
           reqGroup: 'Author',
+        },
+        activity: {
+          name: 'Activity',
+          key: 'activity',
+          rememberChoice: true,
+          menuItems: {
+            hour: {
+              name: 'hour',
+              key: 'hour',
+              onLoad: setActivityRange('1h'),
+              reqGroup: 'View',
+            },
+            day: {
+              name: 'day',
+              key: 'day',
+              onLoad: setActivityRange('24h'),
+              reqGroup: 'View',
+            },
+            week: {
+              name: 'week',
+              key: 'week',
+              onLoad: setActivityRange('1w'),
+              reqGroup: 'View',
+            },
+          },
         },
       },
     },
@@ -81,8 +107,12 @@ function navigateMenuArray(pathArray) {
     var menuItem = traverse(path);
     var state = getState();
     var defaultLeaf = state.getIn(['menuLeafDefaults'].concat(pathArray).concat(['leafDefault']), undefined)
-    if(menuItem.has('onLoad'))
-      dispatch(menuItem.get('onLoad'))
+    if(menuItem.has('onLoad')){
+      if(immutable.Iterable.isIterable(menuItem.get('onLoad')))
+        dispatch(menuItem.get('onLoad').toJS())
+      else
+        dispatch(menuItem.get('onLoad'))
+    }
     if(!menuItem.has('menuItems'))
       dispatch(updateMenuLeafDefaults(path.butLast().toJS(), path.last()))
     if(defaultLeaf && menuItem.get('rememberChoice')) {
