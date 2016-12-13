@@ -21,7 +21,7 @@ def students_results():
     if result is not None:
         return result
     result = calculate_students_results()
-    cache.set('exercises.aggregation.results', 1 * 60 * 60)
+    cache.set('exercises.aggregation.results', result, 1 * 60 * 60)
     return result
 
 
