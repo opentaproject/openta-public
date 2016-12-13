@@ -38,7 +38,11 @@ def get_results(request):
     required = Exercise.objects.filter(meta__required=True).select_related('meta')
     required_questions = Question.objects.filter(exercise__in=required)
     bonus = Exercise.objects.filter(meta__bonus=True).select_related('meta')
-    students = User.objects.filter(groups__name='Student').order_by('first_name')
+    students = (
+        User.objects.filter(groups__name='Student')
+        .exclude(username='student')
+        .order_by('first_name')
+    )
     deadline_time = Course.objects.deadline_time()
     results = []
     for student in students:
@@ -56,6 +60,7 @@ def get_results(request):
                 'passed_required': passed_required_rendered,
                 'n_passed_bonus': len(passed_bonus_rendered),
                 'passed_bonus': passed_bonus_rendered,
+                'n_passed_total': len(passed_required_rendered) + len(passed_bonus_rendered),
             }
         )
     return Response(results)

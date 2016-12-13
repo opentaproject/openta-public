@@ -8,6 +8,9 @@ var defaultState = immutable.fromJS({
   activeAdminTool: 'xml-editor',
   menuPath: [],
   menuLeafDefaults: {
+    results: {
+      leafDefault: 'list'
+    },
     exercises: {
       activity: {
         leafDefault: 'day',
@@ -16,7 +19,10 @@ var defaultState = immutable.fromJS({
   },
   activityRange: '24h',
   exerciseState: {},
-  studentResults: [],
+  results: {
+    studentResultsFilter: '',
+    studentResults: [],
+  }
 });
 
 export default (state = defaultState, action) => {
@@ -62,7 +68,7 @@ export default (state = defaultState, action) => {
     case 'UPDATE_AGGREGATE_STATISTICS':
       return state.mergeDeepIn(['statistics', 'aggregates'], immutable.fromJS(action.aggregates));
     case 'UPDATE_STUDENT_RESULTS':
-      return state.setIn(['studentResults'], action.results);
+      return state.setIn(['results', 'studentResults'], immutable.fromJS(action.results));
     case 'UPDATE_MENU_PATH':
       return state.setIn(['menuPath'], action.path);
     case 'UPDATE_MENU_LEAF_DEFAULTS':
@@ -77,6 +83,12 @@ export default (state = defaultState, action) => {
       return state.setIn(['audit', 'activeAudit'], action.audit);
     case 'SET_ACTIVITY_RANGE':
       return state.setIn(['activityRange'], action.range);
+    case 'SET_TABLE_SORT_FIELD':
+      return state.setIn(['tables', action.tableId, 'sortField'], action.field);
+    case 'SET_TABLE_SORT_REVERSE':
+      return state.setIn(['tables', action.tableId, 'sortReverse'], action.reverse);
+    case 'SET_RESULTS_FILTER':
+      return state.setIn(['results', 'studentResultsFilter'], action.filter);
     default:
       return state
   }

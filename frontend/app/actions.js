@@ -218,4 +218,25 @@ function setActivityRange(range) {
   }
 }
 
-export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, setAuditData, setActiveAudit, updateAggregateStatistics, setActivityRange}
+function setTableSortField(tableId, field) {
+  return {
+    type: 'SET_TABLE_SORT_FIELD',
+    tableId: tableId,
+    field: field
+  }
+}
+function setTableSortReverse(tableId, reverse) {
+  return {
+    type: 'SET_TABLE_SORT_REVERSE',
+    tableId: tableId,
+    reverse: reverse
+  }
+}
+function setResultsFilter(filter) {
+  return {
+    type: 'SET_RESULTS_FILTER',
+    filter: filter
+  }
+}
+
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, setAuditData, setActiveAudit, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter}

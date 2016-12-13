@@ -3,41 +3,33 @@ import { connect } from 'react-redux';
 import {
 } from '../fetchers.js';
 import {
+  setResultsFilter
 } from '../actions.js';
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
 import Plot from './Plot.jsx';
+import Table from './Table.jsx';
 
 import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
+import { menuPositionAt, menuPositionUnder } from '../menu.js';
 
-const BaseResults = ({ userResults, pendingResults }) => {
-  var rows = userResults.map( item => (
-    <tr>
-      <td>{item.username}</td>
-      <td>{item.first_name} {item.last_name}</td>
-      <td>{item.n_passed_required}</td>
-      <td>{item.n_passed_bonus}</td>
-    </tr>
-  ));
-  var requiredHistogram = userResults.map( item => item.n_passed_required );
-  var bonusHistogram = userResults.map( item => item.n_passed_bonus );
+const BaseResults = ({menuPath, userResults, pendingResults, onFilterChange, filter}) => {
+  var requiredHistogram = userResults.map( item => item.get('n_passed_required') );
+  var bonusHistogram = userResults.map( item => item.get('n_passed_bonus') );
   var plotData = [ {
-    x: requiredHistogram,
-    //opacity: 0.5,
+    x: requiredHistogram.toJS(),
     name: 'Obligatory',
     type: 'histogram',
   },
   {
-    x: bonusHistogram,
-    //opacity: 0.5,
+    x: bonusHistogram.toJS(),
     name: 'Bonus',
     type: 'histogram',
   }
   ];
   var layout = {
-  //bargap: 0.05, 
   bargroupgap: 0.2, 
   barmode: "group", 
   title: "Students result overview", 
@@ -48,36 +40,66 @@ const BaseResults = ({ userResults, pendingResults }) => {
   }, 
   yaxis: {title: "Number of students"}
 };
+  var tableFields = [
+    {
+      name: 'Username',
+      index: 'username',
+      type: 'string',
+    },
+    {
+      name: 'First',
+      index: 'first_name',
+      type: 'string',
+    },
+    {
+      name: 'Last',
+      index: 'last_name',
+      type: 'string',
+    },
+    {
+      name: 'Obligatory',
+      index: 'n_passed_required'
+    },
+    {
+      name: 'Bonus',
+      index: 'n_passed_bonus'
+    },
+    {
+      name: 'Total',
+      index: 'n_passed_total'
+    },
+  ];
+  var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).indexOf(filter) >= 0)
   return (
-    <div>
-    { pendingResults && <span>Collecting results...<Spinner/></span> }
-    { !pendingResults && <span></span> } 
+    <div className="uk-margin-top">
+    <h1>Results { pendingResults && <Spinner size="uk-icon"/> }</h1>
     <div className="uk-container-center">
-    <Plot data={plotData} layout={layout} config={{}}/>
+    { menuPositionUnder(menuPath, ['results', 'histogram']) && !pendingResults && <Plot key={"resultsPlot"} data={plotData} layout={layout} config={{}}/>}
     </div>
-    <table className="uk-table">
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Name</th>
-          <th>Obligatory</th>
-          <th>Bonus</th>
-        </tr>
-      </thead>
-      <tbody>
-        { rows }
-      </tbody>
-    </table>
+    { menuPositionUnder(menuPath, ['results', 'list']) &&
+    <form className="uk-form">
+      <div className="uk-form-row">
+        <input type="text" placeholder="Filter on name and username" className="uk-width-1-1" onChange={onFilterChange} value={filter}/>        
+      </div>
+    </form>
+    }
+    { menuPositionUnder(menuPath, ['results', 'list']) &&
+      <Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'username'}/>
+    }
+
     </div>
   );
 }
 
 const mapStateToProps = state => ({
-  userResults: state.get('studentResults'),
+  menuPath: state.getIn(['menuPath']),
+  userResults: state.getIn(['results', 'studentResults']),
+  filter: state.getIn(['results', 'studentResultsFilter']),
   pendingResults: state.getIn(['pendingState', 'studentResults'], false),
 });
 
 const mapDispatchToProps = dispatch => ({
+  onFilterChange: (e) => dispatch(setResultsFilter(e.target.value))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseResults)

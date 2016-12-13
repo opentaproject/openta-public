@@ -62,6 +62,17 @@ var menuTree = immutable.fromJS({
       key: 'results',
       onLoad: fetchStudentResults(),
       reqGroup: [],
+      rememberChoice: true,
+      menuItems: {
+        list: {
+          name: 'List',
+          key: 'list',
+        },
+        histogram: {
+          name: 'Histogram',
+          key: 'histogram'
+        }
+      }
     },
     activeExercise: {
       invisible: true,
