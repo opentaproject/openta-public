@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, parser_classes
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
+from django.http import FileResponse, HttpResponse
 from exercises.modelhelpers import (
     serialize_exercise_with_question_data,
     exercise_folder_structure,
@@ -10,12 +11,15 @@ from exercises.modelhelpers import (
     get_passed_exercises_with_data,
 )
 from exercises.models import Exercise, Question, Answer, ImageAnswer
+from exercises.aggregation import students_results
 from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
 from django.views.decorators.cache import cache_page
+import xlsxwriter
 from datetime import datetime
 import numpy
+import io
 
 
 @permission_required('exercises.administer_exercise')
@@ -33,37 +37,39 @@ def get_statistics_per_exercise(request):
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
-@cache_page(2 * 60 * 60)
 def get_results(request):
-    required = Exercise.objects.filter(meta__required=True).select_related('meta')
-    required_questions = Question.objects.filter(exercise__in=required)
-    bonus = Exercise.objects.filter(meta__bonus=True).select_related('meta')
-    students = (
-        User.objects.filter(groups__name='Student')
-        .exclude(username='student')
-        .order_by('first_name')
-    )
-    deadline_time = Course.objects.deadline_time()
-    results = []
-    for student in students:
-        print(student.username)
-        passed_required_rendered = get_passed_exercises_with_data(required, student)
-        passed_bonus_rendered = get_passed_exercises_with_data(bonus, student)
-        results.append(
-            {
-                'username': student.username,
-                'first_name': student.first_name,
-                'last_name': student.last_name,
-                #'failed': failed_exercises,
-                #'passed': set(passed_questions.values_list('exercise__name', 'answers',))
-                'n_passed_required': len(passed_required_rendered),
-                'passed_required': passed_required_rendered,
-                'n_passed_bonus': len(passed_bonus_rendered),
-                'passed_bonus': passed_bonus_rendered,
-                'n_passed_total': len(passed_required_rendered) + len(passed_bonus_rendered),
-            }
-        )
+    results = students_results()
     return Response(results)
+
+
+@permission_required('exercises.view_statistics')
+@api_view(['GET'])
+def get_results_excel(request):
+    results = students_results()
+    output = io.BytesIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+    worksheet.write(0, 0, 'Username')
+    worksheet.write(0, 1, 'First')
+    worksheet.write(0, 2, 'Last')
+    worksheet.write(0, 3, 'Obligatory')
+    worksheet.write(0, 4, 'Bonus')
+    worksheet.write(0, 5, 'Total')
+    for index, student in enumerate(results):
+        worksheet.write(index + 1, 0, student['username'])
+        worksheet.write(index + 1, 1, student['first_name'])
+        worksheet.write(index + 1, 2, student['last_name'])
+        worksheet.write(index + 1, 3, student['n_passed_required'])
+        worksheet.write(index + 1, 4, student['n_passed_bonus'])
+        worksheet.write(index + 1, 5, student['n_passed_total'])
+    workbook.close()
+    output.seek(0)
+    response = HttpResponse(
+        output.read(),
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    )
+    response['Content-Disposition'] = 'attachment; filename=results.xlsx'
+    return response
 
 
 @permission_required('exercises.view_statistics')

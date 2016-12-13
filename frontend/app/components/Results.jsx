@@ -69,10 +69,14 @@ const BaseResults = ({menuPath, userResults, pendingResults, onFilterChange, fil
       index: 'n_passed_total'
     },
   ];
-  var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).indexOf(filter) >= 0)
+  var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
   return (
     <div className="uk-margin-top">
-    <h1>Results { pendingResults && <Spinner size="uk-icon"/> }</h1>
+    <h1>
+      Results 
+      { pendingResults && <Spinner size="uk-icon"/> }
+      { !pendingResults && <a href="/statistics/results/excel"><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a> }
+    </h1>
     <div className="uk-container-center">
     { menuPositionUnder(menuPath, ['results', 'histogram']) && !pendingResults && <Plot key={"resultsPlot"} data={plotData} layout={layout} config={{}}/>}
     </div>
