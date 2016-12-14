@@ -18,8 +18,8 @@ const BaseReloadExercises = ({ messages, pendingReload }) => {
     warning: 'uk-text-warning',
     success: 'uk-text-success',
   };
-  var rows = messages.map( item => (
-    <li className={classDispatch[item.first()]} key={item.last()}> {item.last()}</li>
+  var rows = messages.map( (item, index) => (
+    <li className={classDispatch[item.first()]} key={index}> {item.last()}</li>
   ));
   //var rows = messages.map( item => console.dir(item) );
   return (

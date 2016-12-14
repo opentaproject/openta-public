@@ -113,9 +113,13 @@ const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, on
         {exercises}
       </ul>
         <dl className="uk-description-list-line">
-      { children.map( child => [
-          (<dt className="uk-text-large" key={"dt"+child.name}><i className="uk-icon uk-icon-folder-open"></i> {child.name.split('.')[0]} </dt>),
-          (<dd key={"dd"+child.name}> {child.content} </dd>)]
+      { children.map( child => {
+        var folderPrename = child.name.split('.')[0].split(':');
+        var folderName = folderPrename[folderPrename.length - 1]
+        return [
+          (<dt className="uk-text-large" key={"dt"+child.name}><i className="uk-icon uk-icon-folder-open"></i> {folderName} </dt>),
+          (<dd key={"dd"+child.name}> {child.content} </dd>)];
+      }
       )
       }
         </dl>

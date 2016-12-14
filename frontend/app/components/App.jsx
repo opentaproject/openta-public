@@ -27,7 +27,9 @@ class BaseApp extends React.Component {
           <div id="main" className="uk-grid">
             <div className="uk-container-center uk-flex uk-flex-center uk-width-1-1">
               { /*this.props.activeExercise === "" && <div className="uk-width-medium-1-6"/>*/ }
-              { (menuPositionUnder(this.props.menuPath, ['exercises']) || 
+              { (
+                menuPositionUnder(this.props.menuPath, ['exercises', 'activity']) || 
+                menuPositionAt(this.props.menuPath, ['exercises']) || 
                 menuPositionAt(this.props.menuPath, [])) &&
                 <div className="uk-width-medium-2-3 uk-margin-small-left"><Course/></div> }  
               { menuPositionUnder(this.props.menuPath, ['results']) && <div className="uk-width-medium-2-3 uk-margin-small-left"><Results/></div> }  

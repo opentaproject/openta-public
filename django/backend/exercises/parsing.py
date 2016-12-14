@@ -4,6 +4,7 @@ from lxml import etree
 from exercises.paths import EXERCISES_PATH
 from exercises.util import deep_get, nested_print
 from functools import reduce, lru_cache
+from PIL import Image
 import os.path
 import uuid
 
@@ -154,6 +155,32 @@ def question_json_get(exercise_path, question_key):
         return found[0]
     else:
         return "{}"
+
+
+def exercise_check_thumbnail(xmltree, path):
+    messages = []
+    thumbnail_path = EXERCISES_PATH + '/{path}/thumbnail.png'.format(path=path)
+    if not os.path.isfile(thumbnail_path):
+        figure = xmltree.xpath('/exercise//figure')
+        try:
+            figurepath = figure[0].text
+        except IndexError:
+            messages.append('warning', "No figure for exercise")
+            return messages
+        size = (100, 100)
+        try:
+            image = Image.open(EXERCISES_PATH + '/{path}/'.format(path=path) + figurepath)
+        except IOError:
+            messages.append(('error', 'Could not open figure'))
+            return messages
+        image.thumbnail(size, Image.ANTIALIAS)
+        background = Image.new('RGBA', size, (255, 255, 255, 0))
+        background.paste(
+            image, (round((size[0] - image.size[0]) / 2), round((size[1] - image.size[1]) / 2))
+        )
+        background.save(thumbnail_path)
+        messages.append(('success', 'Created thumbnail'))
+    return messages
 
 
 def invalidate_caches():

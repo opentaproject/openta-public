@@ -79,6 +79,8 @@ def get_activity_exercise(request, exercise):
     # correct_answers = Answer.objects.filter(question__exercise__pk=exercise, correct=True)
 
     answer_list = answers.values_list('date', flat=True)
+    if not answer_list:
+        return Response({'answers_histogram': [], 'bins': []})
     # correct_answer_list = correct_answers.values_list('date', flat=True)
     dformat = '%Y-%m-%dT%H:%M:%S.%fZ'
     epoch = datetime(1970, 1, 1)

@@ -11,6 +11,7 @@ from exercises.parsing import (
     ExerciseNotFound,
     exercise_xmltree,
     question_validate_xmltree,
+    exercise_check_thumbnail,
 )
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -55,14 +56,13 @@ class ExerciseManager(models.Manager):  # {{{
             except ObjectDoesNotExist:
                 pass
 
-    def add_exercise(self, path, progress=[]):
+    def add_exercise(self, path):
+        progress = []
         result = {}
         json = {}
         if not is_exercise(path):
             raise ExerciseNotFound(path)
         exercisetree = exercise_xmltree(path)
-        # except ExerciseParseError as e:
-        #    result['error'] = str(e)
         name = (exercisetree.xpath('/exercise/exercisename/text()') or ['No name'])[0]
         key = exercise_key_get_or_create(path)
         dbexercise, created = self.update_or_create(
@@ -113,6 +113,8 @@ class ExerciseManager(models.Manager):  # {{{
             exists = reduce(lambda a, b: a or b, bool_list, False)
             if not exists:
                 question.delete()
+        progress.extend(exercise_check_thumbnail(exercisetree, path))
+        return progress
 
     def sync_with_disc(self):
         logger.info("Starting sync with disc of exercises.")
@@ -152,7 +154,8 @@ class ExerciseManager(models.Manager):  # {{{
                 keys[key] = path
         for name, path in exerciselist:
             try:
-                self.add_exercise(path, progress)
+                msgs = self.add_exercise(path)
+                progress.extend(msgs)
                 yield progress
                 progress.clear()
             except (ExerciseParseError, IOError) as e:
