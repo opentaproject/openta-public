@@ -71,6 +71,10 @@ var menuTree = immutable.fromJS({
         histogram: {
           name: 'Histogram',
           key: 'histogram'
+        },
+        histogram2d: {
+          name: 'Histogram 2d',
+          key: 'histogram2d'
         }
       }
     },

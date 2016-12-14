@@ -12,7 +12,6 @@ from exercises.modelhelpers import (
     exercise_folder_structure,
     student_attempts_exercises,
     exercise_test,
-    student_statistics_exercises,
 )
 from exercises.paths import EXERCISES_PATH
 from exercises.util import nested_print

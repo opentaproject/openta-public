@@ -40,6 +40,8 @@ def e_student_activity(exercise):
     t24h = datetime.datetime.now() - datetime.timedelta(hours=24)
     t1w = datetime.datetime.now() - datetime.timedelta(days=7)
     n_questions = exercise.question.all().count()
+    if n_questions == 0:
+        return {'activity': {'1h': 0, '24h': 0, '1w': 0, 'all': 0}}
 
     return {
         'activity': {
@@ -179,8 +181,8 @@ def e_student_percent_complete(exercise):  # {{{
                     .distinct()
                 )
             )
-    allcomplete = set.intersection(*map(set, complete))
-    allcorrect_answer = set.intersection(*map(set, correct_answer))
+    allcomplete = set.intersection(*map(set, complete)) if complete else []
+    allcorrect_answer = set.intersection(*map(set, correct_answer)) if correct_answer else []
 
     return {
         'percent_complete': len(allcomplete) / n_students,
@@ -349,23 +351,6 @@ def student_attempts_exercises():  # {{{
     allattempts = []
     folders = folder_structure([e_name, e_path, e_student_attempt_count])
     return folders  # }}}
-
-
-def student_statistics_exercises():  # {{{
-    data = exercise_list_data(
-        [
-            e_name,
-            e_path,
-            e_student_tried,
-            e_student_percent_complete,
-            e_student_attempts_mean,
-            e_student_attempts_median,
-            e_student_activity,
-        ]
-    )
-    aggregates = post_process_list(data, [p_student_activity])
-    return {'exercises': data, 'aggregates': aggregates}
-    # }}}
 
 
 def exercise_test(exercise_key):  # {{{

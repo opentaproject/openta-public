@@ -7,11 +7,10 @@ from exercises.modelhelpers import (
     exercise_folder_structure,
     student_attempts_exercises,
     exercise_test,
-    student_statistics_exercises,
     get_passed_exercises_with_data,
 )
 from exercises.models import Exercise, Question, Answer, ImageAnswer
-from exercises.aggregation import students_results
+from exercises.aggregation import student_statistics_exercises, students_results
 from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q

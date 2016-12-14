@@ -3,7 +3,6 @@ from exercises.modelhelpers import (
     exercise_folder_structure,
     student_attempts_exercises,
     exercise_test,
-    student_statistics_exercises,
     get_passed_exercises_with_data,
 )
 from exercises.models import Exercise, Question, Answer, ImageAnswer
@@ -14,14 +13,35 @@ from datetime import datetime
 import numpy
 from django.db import connection
 from django.core.cache import cache
+from exercises.modelhelpers import (
+    exercise_list_data,
+    e_name,
+    e_path,
+    e_student_tried,
+    e_student_percent_complete,
+    e_student_attempts_mean,
+    e_student_attempts_median,
+    e_student_activity,
+    post_process_list,
+    p_student_activity,
+)
 
 
-def students_results():
+def students_results(cache_seconds=1 * 60 * 60):
     result = cache.get('exercises.aggregation.results')
     if result is not None:
         return result
     result = calculate_students_results()
-    cache.set('exercises.aggregation.results', result, 1 * 60 * 60)
+    cache.set('exercises.aggregation.results', result, cache_seconds)
+    return result
+
+
+def student_statistics_exercises(cache_seconds=1 * 60 * 60):
+    result = cache.get('exercises.aggregation.statistics')
+    if result is not None:
+        return result
+    result = calculate_student_statistics_exercises()
+    cache.set('exercises.aggregation.statistics', result, cache_seconds)
     return result
 
 
@@ -60,3 +80,20 @@ def calculate_students_results():  # {{{
             }
         )
     return results  # }}}
+
+
+def calculate_student_statistics_exercises():  # {{{
+    data = exercise_list_data(
+        [
+            e_name,
+            e_path,
+            e_student_tried,
+            e_student_percent_complete,
+            e_student_attempts_mean,
+            e_student_attempts_median,
+            e_student_activity,
+        ]
+    )
+    aggregates = post_process_list(data, [p_student_activity])
+    return {'exercises': data, 'aggregates': aggregates}
+    # }}}
