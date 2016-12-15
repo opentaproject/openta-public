@@ -251,11 +251,12 @@ def serve_file(path, filename, **kwargs):  # {{{
 def exercise_asset(request, exercise, asset):  # {{{
     if not asset.lower().endswith(('.png', '.pdf', '.jpg', '.jpeg', '.svg', '.tiff')):
         return Response({}, status.HTTP_403_FORBIDDEN)
-
+    content_type = ''
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     if asset.lower().endswith('.pdf'):
         if not dbexercise.meta.solution and not request.user.has_perm('exercises.view_solution'):
             return Response({}, status.HTTP_403_FORBIDDEN)
+        content_type = 'application/pdf'
 
     return serve_file(
         "/"
@@ -265,6 +266,7 @@ def exercise_asset(request, exercise, asset):  # {{{
         dev_path='{root}/{path}/{asset}'.format(
             root=EXERCISES_PATH, path=dbexercise.path, asset=asset
         ),
+        content_type=content_type,
     )
     # }}}
 

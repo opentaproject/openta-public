@@ -126,7 +126,7 @@ function generateHistPlot(userResults) {
   }
 }
 
-const BaseResults = ({menuPath, userResults, pendingResults, onFilterChange, filter}) => {
+const BaseResults = ({menuPath, userResults, pendingResults, onFilterChange, filter, requiredFilter, bonusFilter}) => {
   var { data: hist2dData, layout: hist2dLayout } = generateHist2dPlot(userResults);
   var { data: histData, layout: histLayout } = generateHistPlot(userResults);
 
@@ -160,6 +160,16 @@ const BaseResults = ({menuPath, userResults, pendingResults, onFilterChange, fil
     },
   ];
   var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
+    .map( user => (immutable.Map({
+      'username': user.get('username'),
+      'first_name': user.get('first_name'),
+      'last_name': user.get('last_name'),
+      'n_passed_required': user.getIn(['required', requiredFilter]),
+      'n_passed_bonus': user.getIn(['bonus', bonusFilter]),
+      'n_passed_total': user.getIn(['total']),
+    })));
+
+
   return (
     <div className="uk-margin-top">
     <h1>
@@ -202,6 +212,8 @@ const mapStateToProps = state => ({
   menuPath: state.getIn(['menuPath']),
   userResults: state.getIn(['results', 'studentResults']),
   filter: state.getIn(['results', 'studentResultsFilter']),
+  requiredFilter: state.getIn(['results', 'requiredFilter'], 'n_correct'),
+  bonusFilter: state.getIn(['results', 'bonusFilter'], 'n_correct'),
   pendingResults: state.getIn(['pendingState', 'studentResults'], false),
 });
 

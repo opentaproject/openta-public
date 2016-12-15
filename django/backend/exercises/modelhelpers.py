@@ -373,7 +373,28 @@ def exercise_test(exercise_key):  # {{{
     return results  # }}}
 
 
-def get_passed_exercises_with_data(exercise_queryset, user):  # {{{
+def get_passed_exercises(exercise_queryset, user):
+    questions = Question.objects.filter(exercise__in=exercise_queryset)
+    passed_questions_pk_list = questions.filter(
+        answer__user=user, answer__correct=True
+    ).values_list('pk', flat=True)
+
+    failed_questions = questions.exclude(pk__in=passed_questions_pk_list)
+    failed_exercises_pk_list = failed_questions.values_list('exercise__pk', flat=True)
+    passed_exercises = exercise_queryset.exclude(pk__in=failed_exercises_pk_list).select_related(
+        'meta'
+    )
+    passed_rendered = []
+    for passed in passed_exercises:
+        passed_rendered.append(
+            {'exercise_name': passed.name, 'deadline': passed.meta.deadline_date}
+        )
+    return passed_rendered  # }}}
+
+
+def get_passed_exercises_with_image_data(
+    exercise_queryset, user, deadline=True, image_deadline=True
+):  # {{{
     """
     Generate data containing which exercises from the queryset that user have passed and uploaded image for before the deadline.
 
@@ -397,58 +418,69 @@ def get_passed_exercises_with_data(exercise_queryset, user):  # {{{
         ]
 
     """
+    extra_question_filters = []
+    extra_answer_filters = []
     deadline_time = Course.objects.deadline_time()
+    if deadline:
+        extra_question_filters.append(
+            Q(answer__date__date__lt=F('exercise__meta__deadline_date'))
+            | (
+                Q(answer__date__date=F('exercise__meta__deadline_date'))
+                & Q(answer__date__hour__lte=deadline_time.hour)
+            )
+        )
+        extra_answer_filters.append(
+            Q(date__date__lt=F('question__exercise__meta__deadline_date'))
+            | (
+                Q(date__date=F('question__exercise__meta__deadline_date'))
+                & Q(date__hour__lte=deadline_time.hour)
+            )
+        )
+    if image_deadline:
+        extra_question_filters.append(
+            Q(exercise__imageanswer__date__date__lt=F('exercise__meta__deadline_date'))
+            | (
+                Q(exercise__imageanswer__date__date=F('exercise__meta__deadline_date'))
+                & Q(exercise__imageanswer__date__hour__lte=deadline_time.hour)
+            )
+        )
+
     questions = Question.objects.filter(exercise__in=exercise_queryset)
     passed_questions_pk_list = questions.filter(
-        Q(answer__date__date__lt=F('exercise__meta__deadline_date'))
-        | (
-            Q(answer__date__date=F('exercise__meta__deadline_date'))
-            & Q(answer__date__hour__lte=deadline_time.hour)
-        ),
-        Q(exercise__imageanswer__date__date__lt=F('exercise__meta__deadline_date'))
-        | (
-            Q(exercise__imageanswer__date__date=F('exercise__meta__deadline_date'))
-            & Q(exercise__imageanswer__date__hour__lte=deadline_time.hour)
-        ),
         answer__user=user,
         answer__correct=True,
         exercise__imageanswer__user=user,
+        *extra_question_filters
     ).values_list('pk', flat=True)
 
     failed_questions = questions.exclude(pk__in=passed_questions_pk_list)
     failed_exercises_pk_list = failed_questions.values_list('exercise__pk', flat=True)
-    passed_exercises = (
-        exercise_queryset.exclude(pk__in=failed_exercises_pk_list)
-        .prefetch_related(
-            Prefetch(
-                'question__answer',
-                queryset=Answer.objects.filter(
-                    Q(date__date__lt=F('question__exercise__meta__deadline_date'))
-                    | (
-                        Q(date__date=F('question__exercise__meta__deadline_date'))
-                        & Q(date__hour__lte=deadline_time.hour)
-                    ),
-                    correct=True,
-                    user=user,
-                ).order_by('-date'),
-            )
-        )
-        .select_related('meta')
+    passed_exercises = exercise_queryset.exclude(pk__in=failed_exercises_pk_list).select_related(
+        'meta'
     )
+    # .prefetch_related(
+    #             Prefetch(
+    #                 'question__answer',
+    #                 queryset=Answer.objects.filter(
+    #                     correct=True,
+    #                     user=user,
+    #                     *extra_answer_filters
+    #                     ).order_by('-date'),
+    #                 )).select_related('meta')
     # .order_by('pk')\
     # .distinct()
     passed_rendered = []
     for passed in passed_exercises:
-        question_data = {}
-        for q in passed.question.all():
-            question_data[q.question_key] = {
-                'answer': q.answer.first().answer,
-                'date': q.answer.first().date,
-            }
+        # question_data = {}
+        # for q in passed.question.all():
+        #    question_data[q.question_key] = {
+        #            'answer': q.answer.first().answer,
+        #            'date': q.answer.first().date
+        #            }
         passed_rendered.append(
             {
                 'exercise_name': passed.name,
-                'answers': question_data,
+                #'answers': question_data,
                 'deadline': passed.meta.deadline_date,
             }
         )

@@ -3,7 +3,8 @@ from exercises.modelhelpers import (
     exercise_folder_structure,
     student_attempts_exercises,
     exercise_test,
-    get_passed_exercises_with_data,
+    get_passed_exercises_with_image_data,
+    get_passed_exercises,
 )
 from exercises.models import Exercise, Question, Answer, ImageAnswer
 from course.models import Course
@@ -59,8 +60,25 @@ def calculate_students_results():  # {{{
     for student in students:
         print(student.username)
         # n1 = len(connection.queries)
-        passed_required_rendered = get_passed_exercises_with_data(required, student)
-        passed_bonus_rendered = get_passed_exercises_with_data(bonus, student)
+        passed_required = get_passed_exercises_with_image_data(
+            required, student, deadline=False, image_deadline=False
+        )
+        passed_required_d = get_passed_exercises_with_image_data(
+            required, student, deadline=True, image_deadline=False
+        )
+        passed_required_d_id = get_passed_exercises_with_image_data(
+            required, student, deadline=True, image_deadline=True
+        )
+        passed_bonus = get_passed_exercises_with_image_data(
+            bonus, student, deadline=False, image_deadline=False
+        )
+        passed_bonus_d = get_passed_exercises_with_image_data(
+            bonus, student, deadline=True, image_deadline=False
+        )
+        passed_bonus_d_id = get_passed_exercises_with_image_data(
+            bonus, student, deadline=True, image_deadline=True
+        )
+        total = get_passed_exercises(Exercise.objects.filter(meta__published=True), student)
         # n2 = len(connection.queries)
         # print('N_queries: ' + str(n2-n1))
         # for query in connection.queries[-(n2-n1):]:
@@ -72,11 +90,17 @@ def calculate_students_results():  # {{{
                 'last_name': student.last_name,
                 #'failed': failed_exercises,
                 #'passed': set(passed_questions.values_list('exercise__name', 'answers',))
-                'n_passed_required': len(passed_required_rendered),
-                'passed_required': passed_required_rendered,
-                'n_passed_bonus': len(passed_bonus_rendered),
-                'passed_bonus': passed_bonus_rendered,
-                'n_passed_total': len(passed_required_rendered) + len(passed_bonus_rendered),
+                'required': {
+                    'n_correct': len(passed_required),
+                    'n_deadline': len(passed_required_d),
+                    'n_image_deadline': len(passed_required_d_id),
+                },
+                'bonus': {
+                    'n_correct': len(passed_bonus),
+                    'n_deadline': len(passed_bonus_d),
+                    'n_image_deadline': len(passed_bonus_d_id),
+                },
+                'total': len(total),
             }
         )
     return results  # }}}

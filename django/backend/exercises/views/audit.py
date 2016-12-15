@@ -6,7 +6,6 @@ from exercises.modelhelpers import (
     exercise_folder_structure,
     student_attempts_exercises,
     exercise_test,
-    get_passed_exercises_with_data,
     get_passed_students,
 )
 from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise

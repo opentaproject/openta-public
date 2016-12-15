@@ -7,7 +7,6 @@ from exercises.modelhelpers import (
     exercise_folder_structure,
     student_attempts_exercises,
     exercise_test,
-    get_passed_exercises_with_data,
 )
 from exercises.models import Exercise, Question, Answer, ImageAnswer
 from exercises.aggregation import student_statistics_exercises, students_results

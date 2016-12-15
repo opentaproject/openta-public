@@ -93,6 +93,7 @@ export default class QuestionCompareNumeric extends Component {
   // Custom state data
   var latex = state.getIn(['response','latex'], ''); // Custom field containing the latex code obtained from SymPy.
   var error = state.getIn(['response','error']); // Custom field containing error information
+  var author_error = state.getIn(['response','author_error']); // Custom field containing error information
   var warning = state.getIn(['response','warning']); // Custom field containing error information
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   if(state.getIn(['response','detail']))
@@ -147,6 +148,7 @@ export default class QuestionCompareNumeric extends Component {
             </div>
           </div>
           { error && !hasChanged && <Alert message={error} type="error" key="err"/> }
+          { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }
         { warning && !hasChanged && <Alert message={warning} type="warning" key="warning"/> }
         { graderResponse }
         { mathjsError }
