@@ -43,6 +43,8 @@ def get_results(request):
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
 def get_results_excel(request):
+    required_key = request.GET.get('required_key', 'n_image_deadline')
+    bonus_key = request.GET.get('bonus_key', 'n_image_deadline')
     results = students_results()
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -57,9 +59,9 @@ def get_results_excel(request):
         worksheet.write(index + 1, 0, student['username'])
         worksheet.write(index + 1, 1, student['first_name'])
         worksheet.write(index + 1, 2, student['last_name'])
-        worksheet.write(index + 1, 3, student['n_passed_required'])
-        worksheet.write(index + 1, 4, student['n_passed_bonus'])
-        worksheet.write(index + 1, 5, student['n_passed_total'])
+        worksheet.write(index + 1, 3, student['required'][required_key])
+        worksheet.write(index + 1, 4, student['bonus'][bonus_key])
+        worksheet.write(index + 1, 5, student['total'])
     workbook.close()
     output.seek(0)
     response = HttpResponse(

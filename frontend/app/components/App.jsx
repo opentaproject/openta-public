@@ -32,7 +32,7 @@ class BaseApp extends React.Component {
                 menuPositionAt(this.props.menuPath, ['exercises']) || 
                 menuPositionAt(this.props.menuPath, [])) &&
                 <div className="uk-width-medium-2-3 uk-margin-small-left"><Course/></div> }  
-              { menuPositionUnder(this.props.menuPath, ['results']) && <div className="uk-width-medium-2-3 uk-margin-small-left"><Results/></div> }  
+              { menuPositionUnder(this.props.menuPath, ['results']) && <div className="uk-margin-small-left"><Results/></div> }  
               { menuPositionAt(this.props.menuPath, ['exercises', 'reload']) && <div className="uk-width-medium-2-3 uk-margin-small-left"><ReloadExercises/></div> }  
               { /*(this.props.admin || this.props.author) ? <span/> : <div className="exercise-spacing"></div> */ }
               { menuPositionUnder(this.props.menuPath, ['activeExercise']) &&

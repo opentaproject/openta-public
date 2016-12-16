@@ -20,8 +20,12 @@ var defaultState = immutable.fromJS({
   activityRange: '24h',
   exerciseState: {},
   results: {
-    studentResultsFilter: '',
     studentResults: [],
+    filters: {
+      text: '',
+      requiredKey: 'n_correct',
+      bonusKey: 'n_correct',
+    }
   }
 });
 
@@ -88,7 +92,7 @@ export default (state = defaultState, action) => {
     case 'SET_TABLE_SORT_REVERSE':
       return state.setIn(['tables', action.tableId, 'sortReverse'], action.reverse);
     case 'SET_RESULTS_FILTER':
-      return state.setIn(['results', 'studentResultsFilter'], action.filter);
+      return state.mergeDeepIn(['results', 'filters'], action.filter);
     default:
       return state
   }

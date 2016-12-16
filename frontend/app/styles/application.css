@@ -180,3 +180,11 @@
 
 .exercise-unpublished {
   background-color: #f8c57a; }
+
+.results-table {
+  max-width: 800px;
+  box-sizing: border-box; }
+
+.results-filters {
+  max-width: 200px;
+  box-sizing: border-box; }

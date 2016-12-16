@@ -126,9 +126,26 @@ function generateHistPlot(userResults) {
   }
 }
 
-const BaseResults = ({menuPath, userResults, pendingResults, onFilterChange, filter, requiredFilter, bonusFilter}) => {
-  var { data: hist2dData, layout: hist2dLayout } = generateHist2dPlot(userResults);
-  var { data: histData, layout: histLayout } = generateHistPlot(userResults);
+const BaseResults = ({menuPath, 
+                     userResults, 
+                     pendingResults, 
+                     onFilterChange, 
+                     onRequiredDeadline,
+                     onBonusDeadline,
+                     filter, 
+                     requiredFilter, 
+                     bonusFilter}) => {
+  var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
+    .map( user => (immutable.Map({
+      'username': user.get('username'),
+      'first_name': user.get('first_name'),
+      'last_name': user.get('last_name'),
+      'n_passed_required': user.getIn(['required', requiredFilter]),
+      'n_passed_bonus': user.getIn(['bonus', bonusFilter]),
+      'n_passed_total': user.getIn(['total']),
+    })));
+  var { data: hist2dData, layout: hist2dLayout } = generateHist2dPlot(renderResults);
+  var { data: histData, layout: histLayout } = generateHistPlot(renderResults);
 
   var tableFields = [
     {
@@ -159,51 +176,86 @@ const BaseResults = ({menuPath, userResults, pendingResults, onFilterChange, fil
       index: 'n_passed_total'
     },
   ];
-  var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
-    .map( user => (immutable.Map({
-      'username': user.get('username'),
-      'first_name': user.get('first_name'),
-      'last_name': user.get('last_name'),
-      'n_passed_required': user.getIn(['required', requiredFilter]),
-      'n_passed_bonus': user.getIn(['bonus', bonusFilter]),
-      'n_passed_total': user.getIn(['total']),
-    })));
-
+  var excelParameters = "required_key=" + requiredFilter + "&" + "bonus_key=" + bonusFilter;
 
   return (
     <div className="uk-margin-top">
+    <div className="uk-grid">
+      <div className="results-filters uk-width-3-10">
+        <div className="uk-panel uk-panel-box uk-margin-top">
+          <form className="uk-form uk-form-stacked">
+            <div className="uk-form-row">
+              <span className="uk-form-label">Text search</span>
+              <input type="text" placeholder="Filter on name and username" className="uk-width-1-1" onChange={onFilterChange} value={filter}/>        
+            </div>
+
+            <span className="uk-form-label uk-margin-top">Obligatory deadline</span>
+            <div className="uk-form-row uk-margin-small-top">
+              <label>
+              <input type="radio" name="required" className="uk-width-1-1 uk-margin-small-right" onChange={() => onRequiredDeadline('n_correct')} checked={requiredFilter === 'n_correct'}/>        
+              No deadline
+              </label>
+            </div>
+            <div className="uk-form-row uk-margin-small-top">
+              <label>
+              <input type="radio" name="required" className="uk-width-1-1 uk-margin-small-right" onChange={() => onRequiredDeadline('n_deadline')} checked={requiredFilter === 'n_deadline'}/>        
+              Answer
+              </label>
+            </div>
+            <div className="uk-form-row uk-margin-small-top">
+              <label>
+              <input type="radio" name="required" className="uk-width-1-1 uk-margin-small-right" onChange={() => onRequiredDeadline('n_image_deadline')} checked={requiredFilter === 'n_image_deadline'}/>        
+              Answer & Image
+              </label>
+            </div>
+
+            <span className="uk-form-label uk-margin-top">Bonus deadline</span>
+            <div className="uk-form-row uk-margin-small-top">
+              <label>
+              <input type="radio" name="bonus" className="uk-width-1-1 uk-margin-small-right" onChange={() => onBonusDeadline('n_correct')} checked={bonusFilter === 'n_correct'}/>        
+              No deadline
+              </label>
+            </div>
+            <div className="uk-form-row uk-margin-small-top">
+              <label>
+              <input type="radio" name="bonus" className="uk-width-1-1 uk-margin-small-right" onChange={() => onBonusDeadline('n_deadline')} checked={bonusFilter === 'n_deadline'}/>        
+              Answer
+              </label>
+            </div>
+            <div className="uk-form-row uk-margin-small-top">
+              <label>
+              <input type="radio" name="bonus" className="uk-width-1-1 uk-margin-small-right" onChange={() => onBonusDeadline('n_image_deadline')} checked={bonusFilter === 'n_image_deadline'}/>        
+              Answer & Image
+              </label>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div className="results-table uk-width-7-10">
     <h1>
       Results 
       { pendingResults && <Spinner size="uk-icon"/> }
-      { !pendingResults && <a href="/statistics/results/excel"><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a> }
+      { !pendingResults && <a href={"/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a> }
     </h1>
     <div className="uk-container-center">
     { menuPositionUnder(menuPath, ['results', 'histogram']) && !pendingResults && 
       <article className="uk-article">
-      <h1 className="uk-article-title">Histogram</h1>
       <p className="uk-article-meta">Number of students that have passed specific number of obligatory and bonus exercises.</p>
-      <Plot key={"resultsPlot"} data={histData} layout={histLayout} config={{}}/>
+      <Plot key={"resultsPlot"} data={histData} layout={histLayout} config={{}} key={"histplot"}/>
       </article>
     }
     { menuPositionUnder(menuPath, ['results', 'histogram2d']) && !pendingResults && 
       <article className="uk-article">
-      <h1 className="uk-article-title">2d histogram</h1>
       <p className="uk-article-meta">Area proportional to number of students, hover with pointer for values.</p>
-      <Plot key={"resultsPlot2d"} data={hist2dData} layout={hist2dLayout} config={{}}/>
+      <Plot key={"resultsPlot2d"} data={hist2dData} layout={hist2dLayout} config={{}} key={"hist2dplot"}/>
       </article>
     }
     </div>
     { menuPositionUnder(menuPath, ['results', 'list']) &&
-    <form className="uk-form">
-      <div className="uk-form-row">
-        <input type="text" placeholder="Filter on name and username" className="uk-width-1-1" onChange={onFilterChange} value={filter}/>        
-      </div>
-    </form>
+        <Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'username'}/>
     }
-    { menuPositionUnder(menuPath, ['results', 'list']) &&
-      <Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'username'}/>
-    }
-
+    </div>
+    </div>
     </div>
   );
 }
@@ -211,14 +263,16 @@ const BaseResults = ({menuPath, userResults, pendingResults, onFilterChange, fil
 const mapStateToProps = state => ({
   menuPath: state.getIn(['menuPath']),
   userResults: state.getIn(['results', 'studentResults']),
-  filter: state.getIn(['results', 'studentResultsFilter']),
-  requiredFilter: state.getIn(['results', 'requiredFilter'], 'n_correct'),
-  bonusFilter: state.getIn(['results', 'bonusFilter'], 'n_correct'),
+  filter: state.getIn(['results', 'filters', 'text']),
+  requiredFilter: state.getIn(['results', 'filters', 'requiredKey'], 'n_correct'),
+  bonusFilter: state.getIn(['results', 'filters', 'bonusKey'], 'n_correct'),
   pendingResults: state.getIn(['pendingState', 'studentResults'], false),
 });
 
 const mapDispatchToProps = dispatch => ({
-  onFilterChange: (e) => dispatch(setResultsFilter(e.target.value))
+  onFilterChange: (e) => dispatch(setResultsFilter({'text': e.target.value})),
+  onRequiredDeadline: (value) => dispatch(setResultsFilter({ 'requiredKey': value})),
+  onBonusDeadline: (value) => dispatch(setResultsFilter({ 'bonusKey': value}))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseResults)
