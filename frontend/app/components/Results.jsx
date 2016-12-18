@@ -1,14 +1,17 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import {
+fetchStudentDetailResults
 } from '../fetchers.js';
 import {
+  setSelectedStudentResults,
   setResultsFilter
 } from '../actions.js';
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
 import Plot from './Plot.jsx';
 import Table from './Table.jsx';
+import StudentResults from './StudentResults.jsx';
 
 import immutable from 'immutable';
 import moment from 'moment';
@@ -16,7 +19,7 @@ import {SUBPATH} from '../settings.js';
 import { menuPositionAt, menuPositionUnder } from '../menu.js';
 
 
-function generateHist2dPlot(userResults) {
+function generateHist2dPlot(userResults) {//{{{
   var requiredHistogram = userResults.map( item => item.get('n_passed_required') );
   var bonusHistogram = userResults.map( item => item.get('n_passed_bonus') );
   var maxReq = Math.max(...requiredHistogram.toJS(),0)+1;
@@ -71,9 +74,9 @@ function generateHist2dPlot(userResults) {
     data: plotHist2dData,
     layout: plotHist2dLayout
   }
-}
+}//}}}
 
-function generateHistPlot(userResults) {
+function generateHistPlot(userResults) {//{{{
   var requiredHistogram = userResults.map( item => item.get('n_passed_required') );
   var bonusHistogram = userResults.map( item => item.get('n_passed_bonus') );
   var plotData2d = [{
@@ -124,63 +127,9 @@ function generateHistPlot(userResults) {
     data: plotData,
     layout: layout
   }
-}
+}//}}}
 
-const BaseResults = ({menuPath, 
-                     userResults, 
-                     pendingResults, 
-                     onFilterChange, 
-                     onRequiredDeadline,
-                     onBonusDeadline,
-                     filter, 
-                     requiredFilter, 
-                     bonusFilter}) => {
-  var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
-    .map( user => (immutable.Map({
-      'username': user.get('username'),
-      'first_name': user.get('first_name'),
-      'last_name': user.get('last_name'),
-      'n_passed_required': user.getIn(['required', requiredFilter]),
-      'n_passed_bonus': user.getIn(['bonus', bonusFilter]),
-      'n_passed_total': user.getIn(['total']),
-    })));
-  var { data: hist2dData, layout: hist2dLayout } = generateHist2dPlot(renderResults);
-  var { data: histData, layout: histLayout } = generateHistPlot(renderResults);
-
-  var tableFields = [
-    {
-      name: 'Username',
-      index: 'username',
-      type: 'string',
-    },
-    {
-      name: 'First',
-      index: 'first_name',
-      type: 'string',
-    },
-    {
-      name: 'Last',
-      index: 'last_name',
-      type: 'string',
-    },
-    {
-      name: 'Obligatory',
-      index: 'n_passed_required'
-    },
-    {
-      name: 'Bonus',
-      index: 'n_passed_bonus'
-    },
-    {
-      name: 'Total',
-      index: 'n_passed_total'
-    },
-  ];
-  var excelParameters = "required_key=" + requiredFilter + "&" + "bonus_key=" + bonusFilter;
-
-  return (
-    <div className="uk-margin-top">
-    <div className="uk-grid">
+const renderFilter = ({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) => (//{{{
       <div className="results-filters uk-width-3-10">
         <div className="uk-panel uk-panel-box uk-margin-top">
           <form className="uk-form uk-form-stacked">
@@ -231,38 +180,114 @@ const BaseResults = ({menuPath,
           </form>
         </div>
       </div>
-      <div className="results-table uk-width-7-10">
-    <h1>
-      Results 
-      { pendingResults && <Spinner size="uk-icon"/> }
-      { !pendingResults && <a href={"/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a> }
-    </h1>
-    <div className="uk-container-center">
-    { menuPositionUnder(menuPath, ['results', 'histogram']) && !pendingResults && 
-      <article className="uk-article">
-      <p className="uk-article-meta">Number of students that have passed specific number of obligatory and bonus exercises.</p>
-      <Plot key={"resultsPlot"} data={histData} layout={histLayout} config={{}} key={"histplot"}/>
-      </article>
-    }
-    { menuPositionUnder(menuPath, ['results', 'histogram2d']) && !pendingResults && 
-      <article className="uk-article">
-      <p className="uk-article-meta">Area proportional to number of students, hover with pointer for values.</p>
-      <Plot key={"resultsPlot2d"} data={hist2dData} layout={hist2dLayout} config={{}} key={"hist2dplot"}/>
-      </article>
-    }
-    </div>
-    { menuPositionUnder(menuPath, ['results', 'list']) &&
-        <Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'username'}/>
-    }
-    </div>
+)//}}}
+
+const BaseResults = ({menuPath, 
+                     userResults, 
+                     pendingResults, 
+                     onFilterChange, 
+                     onRequiredDeadline,
+                     onBonusDeadline,
+                     filter, 
+                     requiredFilter, 
+                     bonusFilter,
+                     onUserClick,
+                     selectedUser,
+                     }) => {
+  var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
+    .map( user => (immutable.Map({
+      'username': user.get('username'),
+      'pk': user.get('pk'),
+      'first_name': user.get('first_name'),
+      'last_name': user.get('last_name'),
+      'n_passed_required': user.getIn(['required', requiredFilter]),
+      'n_passed_bonus': user.getIn(['bonus', bonusFilter]),
+      'n_passed_total': user.getIn(['total']),
+    })));
+  var { data: hist2dData, layout: hist2dLayout } = generateHist2dPlot(renderResults);
+  var { data: histData, layout: histLayout } = generateHistPlot(renderResults);
+
+  var tableFields = [//{{{
+    {
+      name: 'Username',
+      index: 'username',
+      type: 'string',
+    },
+    {
+      name: 'First',
+      index: 'first_name',
+      type: 'string',
+    },
+    {
+      name: 'Last',
+      index: 'last_name',
+      type: 'string',
+    },
+    {
+      name: 'Obligatory',
+      index: 'n_passed_required'
+    },
+    {
+      name: 'Bonus',
+      index: 'n_passed_bonus'
+    },
+    {
+      name: 'Total',
+      index: 'n_passed_total'
+    },
+  ];//}}}
+  var excelParameters = "required_key=" + requiredFilter + "&" + "bonus_key=" + bonusFilter;
+  //var filters = {
+
+  return (
+    <div className="uk-margin-top uk-width-1-1">
+    <div className="uk-grid uk-width-1-1">
+      { renderFilter({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
+      <div className="results-table uk-width-4-10 uk-overflow-container">
+        <h1>
+          Results 
+          { pendingResults && <Spinner size="uk-icon"/> }
+          { !pendingResults && <a href={"/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a> }
+        </h1>
+        <div className="uk-container-center">
+        { menuPositionUnder(menuPath, ['results', 'histogram']) && !pendingResults && 
+          <article className="uk-article">
+          <p className="uk-article-meta">Number of students that have passed specific number of obligatory and bonus exercises.</p>
+          <Plot key={"resultsPlot"} data={histData} layout={histLayout} config={{}} key={"histplot"}/>
+          </article>
+        }
+        { menuPositionUnder(menuPath, ['results', 'histogram2d']) && !pendingResults && 
+          <article className="uk-article">
+          <p className="uk-article-meta">Area proportional to number of students, hover with pointer for values.</p>
+          <Plot key={"resultsPlot2d"} data={hist2dData} layout={hist2dLayout} config={{}} key={"hist2dplot"}/>
+          </article>
+        }
+        </div>
+        { menuPositionUnder(menuPath, ['results', 'list']) &&
+            <Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} onItem={(id) => onUserClick(id)}/>
+        }
+      </div>
+      { selectedUser && 
+        <div className="uk-width-3-10">
+        <StudentResults/> 
+        </div>
+      }
     </div>
     </div>
   );
 }
 
+function handleUserClick(userPk, deadline, imageDeadline) {
+  return dispatch => {
+    dispatch(fetchStudentDetailResults(userPk))
+    dispatch(setSelectedStudentResults(userPk))
+  }
+}
+
 const mapStateToProps = state => ({
   menuPath: state.getIn(['menuPath']),
   userResults: state.getIn(['results', 'studentResults']),
+  selectedUser: state.getIn(['results', 'selectedUser']),
   filter: state.getIn(['results', 'filters', 'text']),
   requiredFilter: state.getIn(['results', 'filters', 'requiredKey'], 'n_correct'),
   bonusFilter: state.getIn(['results', 'filters', 'bonusKey'], 'n_correct'),
@@ -272,7 +297,8 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   onFilterChange: (e) => dispatch(setResultsFilter({'text': e.target.value})),
   onRequiredDeadline: (value) => dispatch(setResultsFilter({ 'requiredKey': value})),
-  onBonusDeadline: (value) => dispatch(setResultsFilter({ 'bonusKey': value}))
+  onBonusDeadline: (value) => dispatch(setResultsFilter({ 'bonusKey': value})),
+  onUserClick: (userPk, deadline, imageDeadline) => dispatch(handleUserClick(userPk, deadline, imageDeadline))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseResults)

@@ -15,6 +15,7 @@ import {
   updateExerciseStatistics,
   updateAggregateStatistics,
   updateStudentResults,
+  updateStudentDetailResults,
   updateMenuPath,
   updateMenuPathArray,
   updateMenuLeafDefaults,
@@ -345,6 +346,17 @@ function fetchStudentResults() {
   }
 }
 
+function fetchStudentDetailResults(userPk) {
+  return dispatch => {
+    dispatch(updatePendingStateIn( ['detailedResults', userPk], true));
+    return jsonfetch('/results/user/' + userPk + '/')
+      .then(response => response.json())
+      .then(json => dispatch(updateStudentDetailResults(userPk, json)))
+      .then( () => dispatch(updatePendingStateIn( ['detailedResults', userPk], false)))
+      .catch( err => console.log(err) );
+  }
+}
+
 function fetchExerciseStatistics() {
   return (dispatch, getState) => {
     var state = getState();
@@ -415,6 +427,7 @@ export {
   fetchAllExerciseStatistics,
   fetchExerciseStatistics,
   fetchStudentResults,
+  fetchStudentDetailResults,
   reloadExercises,
   fetchUnsentAudits,
   fetchAuditData,

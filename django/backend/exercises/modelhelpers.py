@@ -387,7 +387,11 @@ def get_passed_exercises(exercise_queryset, user):
     passed_rendered = []
     for passed in passed_exercises:
         passed_rendered.append(
-            {'exercise_name': passed.name, 'deadline': passed.meta.deadline_date}
+            {
+                'exercise_name': passed.name,
+                'exercise_key': passed.exercise_key,
+                'deadline': passed.meta.deadline_date,
+            }
         )
     return passed_rendered  # }}}
 
@@ -480,6 +484,7 @@ def get_passed_exercises_with_image_data(
         passed_rendered.append(
             {
                 'exercise_name': passed.name,
+                'exercise_key': passed.exercise_key,
                 #'answers': question_data,
                 'deadline': passed.meta.deadline_date,
             }

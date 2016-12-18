@@ -86,6 +86,7 @@ def calculate_students_results():  # {{{
         results.append(
             {
                 'username': student.username,
+                'pk': student.pk,
                 'first_name': student.first_name,
                 'last_name': student.last_name,
                 #'failed': failed_exercises,

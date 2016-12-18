@@ -2,6 +2,7 @@ from rest_framework import serializers
 from exercises.models import Exercise, ExerciseMeta
 from exercises.models import Question
 from exercises.models import Answer
+from exercises.models import ImageAnswer
 from exercises.models import AuditExercise
 
 
@@ -39,6 +40,12 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Answer
         fields = ('user', 'question', 'answer', 'grader_response', 'correct', 'date')
+
+
+class ImageAnswerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageAnswer
+        fields = ('user', 'exercise', 'pk', 'date')
 
 
 class AuditExerciseSerializer(serializers.ModelSerializer):

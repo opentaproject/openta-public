@@ -93,6 +93,10 @@ export default (state = defaultState, action) => {
       return state.setIn(['tables', action.tableId, 'sortReverse'], action.reverse);
     case 'SET_RESULTS_FILTER':
       return state.mergeDeepIn(['results', 'filters'], action.filter);
+    case 'UPDATE_STUDENT_DETAIL_RESULTS':
+      return state.setIn(['results', 'detailResults', action.user], immutable.fromJS(action.results));
+    case 'SET_SELECTED_STUDENT_RESULTS':
+      return state.setIn(['results', 'selectedUser'], action.user);
     default:
       return state
   }
