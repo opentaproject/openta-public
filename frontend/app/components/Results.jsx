@@ -5,7 +5,8 @@ fetchStudentDetailResults
 } from '../fetchers.js';
 import {
   setSelectedStudentResults,
-  setResultsFilter
+  setResultsFilter,
+  setDetailResultsFilter,
 } from '../actions.js';
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
@@ -132,6 +133,7 @@ function generateHistPlot(userResults) {//{{{
 const renderFilter = ({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) => (//{{{
       <div className="results-filters uk-width-3-10">
         <div className="uk-panel uk-panel-box uk-margin-top">
+          <h3 className="uk-panel-title">Filters</h3>
           <form className="uk-form uk-form-stacked">
             <div className="uk-form-row">
               <span className="uk-form-label">Text search</span>
@@ -193,6 +195,7 @@ const BaseResults = ({menuPath,
                      bonusFilter,
                      onUserClick,
                      selectedUser,
+                     activeDetailExercise,
                      }) => {
   var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
     .map( user => (immutable.Map({
@@ -242,8 +245,8 @@ const BaseResults = ({menuPath,
   return (
     <div className="uk-margin-top uk-width-1-1">
     <div className="uk-grid uk-width-1-1">
-      { renderFilter({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
-      <div className="results-table uk-width-4-10 uk-overflow-container">
+      { !activeDetailExercise && renderFilter({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
+      <div className="results-table "> {/*uk-width-4-10 uk-overflow-container*/}
         <h1>
           Results 
           { pendingResults && <Spinner size="uk-icon"/> }
@@ -263,12 +266,12 @@ const BaseResults = ({menuPath,
           </article>
         }
         </div>
-        { menuPositionUnder(menuPath, ['results', 'list']) &&
+        { menuPositionUnder(menuPath, ['results', 'list']) && !activeDetailExercise &&
             <Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} onItem={(id) => onUserClick(id)}/>
         }
       </div>
       { selectedUser && 
-        <div className="uk-width-3-10">
+        <div>
         <StudentResults/> 
         </div>
       }
@@ -292,12 +295,36 @@ const mapStateToProps = state => ({
   requiredFilter: state.getIn(['results', 'filters', 'requiredKey'], 'n_correct'),
   bonusFilter: state.getIn(['results', 'filters', 'bonusKey'], 'n_correct'),
   pendingResults: state.getIn(['pendingState', 'studentResults'], false),
+  activeDetailExercise: state.getIn(['results', 'detailResultExercise'], false),
 });
+
+const handleRequiredDeadline = (value) => (dispatch) => {
+    dispatch(setResultsFilter({ 'requiredKey': value}))
+    switch(value) {
+      case 'n_correct':
+        return dispatch(setDetailResultsFilter({ 'requiredKeys': ['correct', 'image'] }));
+      case 'n_deadline':
+        return dispatch(setDetailResultsFilter({ 'requiredKeys': ['correct_deadline', 'image'] }));
+      case 'n_image_deadline':
+        return dispatch(setDetailResultsFilter({ 'requiredKeys': ['correct_deadline', 'image_deadline'] }));
+    }
+  }
+const handleBonusDeadline = (value) => (dispatch) => {
+    dispatch(setResultsFilter({ 'bonusKey': value}))
+    switch(value) {
+      case 'n_correct':
+        return dispatch(setDetailResultsFilter({ 'bonusKeys': ['correct', 'image'] }));
+      case 'n_deadline':
+        return dispatch(setDetailResultsFilter({ 'bonusKeys': ['correct_deadline', 'image'] }));
+      case 'n_image_deadline':
+        return dispatch(setDetailResultsFilter({ 'bonusKeys': ['correct_deadline', 'image_deadline'] }));
+    }
+  }
 
 const mapDispatchToProps = dispatch => ({
   onFilterChange: (e) => dispatch(setResultsFilter({'text': e.target.value})),
-  onRequiredDeadline: (value) => dispatch(setResultsFilter({ 'requiredKey': value})),
-  onBonusDeadline: (value) => dispatch(setResultsFilter({ 'bonusKey': value})),
+  onRequiredDeadline: (value) => dispatch(handleRequiredDeadline(value)), //dispatch(setResultsFilter({ 'requiredKey': value})),
+  onBonusDeadline: (value) => dispatch(handleBonusDeadline(value)),//dispatch(setResultsFilter({ 'bonusKey': value})),
   onUserClick: (userPk, deadline, imageDeadline) => dispatch(handleUserClick(userPk, deadline, imageDeadline))
 });
 

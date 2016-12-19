@@ -1,5 +1,5 @@
 import immutable from 'immutable';
-import {logImmutable} from 'immutablehelpers.js';
+import {logImmutable, mergeNotLists} from 'immutablehelpers.js';
 
 var defaultState = immutable.fromJS({ 
   exercises: [], 
@@ -23,8 +23,12 @@ var defaultState = immutable.fromJS({
     studentResults: [],
     filters: {
       text: '',
-      requiredKey: 'n_correct',
-      bonusKey: 'n_correct',
+      requiredKey: 'n_image_deadline',
+      bonusKey: 'n_image_deadline',
+    },
+    detailResultsFilters: {
+      requiredKeys: ['correct_deadline', 'image_deadline'], 
+      bonusKeys: ['correct_deadline','image_deadline']
     }
   }
 });
@@ -93,10 +97,14 @@ export default (state = defaultState, action) => {
       return state.setIn(['tables', action.tableId, 'sortReverse'], action.reverse);
     case 'SET_RESULTS_FILTER':
       return state.mergeDeepIn(['results', 'filters'], action.filter);
+    case 'SET_DETAIL_RESULTS_FILTER':
+      return state.mergeIn(['results', 'detailResultsFilters'], action.filter);
     case 'UPDATE_STUDENT_DETAIL_RESULTS':
       return state.setIn(['results', 'detailResults', action.user], immutable.fromJS(action.results));
     case 'SET_SELECTED_STUDENT_RESULTS':
       return state.setIn(['results', 'selectedUser'], action.user);
+    case 'SET_DETAIL_RESULT_EXERCISE':
+      return state.setIn(['results', 'detailResultExercise'], action.exercise);
     default:
       return state
   }

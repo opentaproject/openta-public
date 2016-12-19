@@ -238,6 +238,12 @@ function setResultsFilter(filter) {
     filter: filter
   }
 }
+function setDetailResultsFilter(filter) {
+  return {
+    type: 'SET_DETAIL_RESULTS_FILTER',
+    filter: filter
+  }
+}
 function updateStudentDetailResults(userPk, json) {
   return {
     type: 'UPDATE_STUDENT_DETAIL_RESULTS',
@@ -251,5 +257,11 @@ function setSelectedStudentResults(userPk) {
     user: userPk
   }
 }
+function setDetailResultExercise(exercise) {
+  return {
+    type: 'SET_DETAIL_RESULT_EXERCISE',
+    exercise: exercise
+  }
+}
 
-export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, setAuditData, setActiveAudit, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults}
+export { updateLoginStatus, updateExercises, updateExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, setAuditData, setActiveAudit, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise}
