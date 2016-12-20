@@ -92,8 +92,9 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
         <div className="uk-panel uk-panel-box">
         <h3 className="uk-panel-title">{userResults.get('first_name') + ' ' + userResults.get('last_name')}</h3>
         <div className="uk-grid" style={{maxWidth: '700px'}}>
+        <div className="uk-width-1-1 uk-flex"> 
           { userResults.getIn(['exercises', activeExercise, 'questions']).toList().map( (q, key) => (
-        <div key={key}>
+        <div className="uk-display-inline-block uk-margin-right" key={key}>
           <table className="uk-table uk-table-condensed">
             <thead>
               <tr>
@@ -112,6 +113,7 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
           </table>
         </div>
           ))}
+        </div>
         <div className="uk-width-1-1">
         <ImageCollection srcs={userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse().map( ia => "/"+SUBPATH+"imageanswer/"+ia.get('pk')).toJS()} badges={userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse().map( ia => moment(ia.get('date')).format('YYYY-MM-DD HH:mm')).toJS()}/>
         </div>
