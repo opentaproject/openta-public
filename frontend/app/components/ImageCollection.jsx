@@ -30,7 +30,8 @@ export default class ImageCollection extends Component {
   render() {
     if(this.props.srcs.length > 0)
       return (
-        <div className="uk-width-1-1">
+        <div className="uk-width-1-1 uk-margin-top">
+        <span className="uk-text-large">Solution image: </span>
         <div className="uk-button-group">
           <button className="uk-button" type="button" onClick={this.onPrev}><i className="uk-icon uk-icon-chevron-left"/></button>
           <button className="uk-button" type="button" disabled>{this.state.activeImage+1}/{this.props.srcs.length}</button>

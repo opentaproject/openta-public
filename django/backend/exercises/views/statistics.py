@@ -14,6 +14,7 @@ from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
 from django.views.decorators.cache import cache_page
+from .results import get_user_results
 import xlsxwriter
 from datetime import datetime
 import numpy
@@ -45,6 +46,12 @@ def get_results(request):
 def get_results_excel(request):
     required_key = request.GET.get('required_key', 'n_image_deadline')
     bonus_key = request.GET.get('bonus_key', 'n_image_deadline')
+    key_text = {
+        'n_image_deadline': 'Both answer and image of solution needs to be submitted before deadline.',
+        'n_deadline': 'The answer needs to be submitted before deadline. (Image is ok after deadline)',
+        'n_correct': 'The answer needs to be correct and image provided. (No deadline enforced)',
+    }
+
     results = students_results()
     output = io.BytesIO()
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
@@ -52,9 +59,9 @@ def get_results_excel(request):
     worksheet.write(0, 0, 'Username')
     worksheet.write(0, 1, 'First')
     worksheet.write(0, 2, 'Last')
-    worksheet.write(0, 3, 'Obligatory')
-    worksheet.write(0, 4, 'Bonus')
-    worksheet.write(0, 5, 'Total')
+    worksheet.write(0, 3, 'Obligatory (' + key_text[required_key] + ')')
+    worksheet.write(0, 4, 'Bonus (' + key_text[bonus_key] + ')')
+    worksheet.write(0, 5, 'Total (Correct exercises)')
     for index, student in enumerate(results):
         worksheet.write(index + 1, 0, student['username'])
         worksheet.write(index + 1, 1, student['first_name'])

@@ -245,7 +245,7 @@ const BaseResults = ({menuPath,
   return (
     <div className="uk-margin-top uk-width-1-1">
     <div className="uk-flex uk-flex-center uk-flex-wrap uk-width-1-1">
-      <div className="uk-width-1-1">
+      <div className="uk-width-1-1 uk-text-center">
         <h1>
           Results 
           { pendingResults && <Spinner size="uk-icon"/> }

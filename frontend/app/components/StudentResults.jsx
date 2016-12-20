@@ -89,13 +89,13 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
         <div style={{maxWidth: '400px'}}>
           <Exercise/>
         </div>
-        <div className="uk-grid">
+        <div className="uk-grid" style={{maxWidth: '700px'}}>
           { userResults.getIn(['exercises', activeExercise, 'questions']).toList().map( (q, key) => (
         <div key={key}>
           <table className="uk-table uk-table-condensed">
             <thead>
               <tr>
-                <th><MathSpan message={exerciseState.getIn([activeExercise, 'json', 'exercise', 'question', key, 'text', '$'], '')}/></th>
+                <th style={{maxWidth: '300px'}}><MathSpan message={exerciseState.getIn([activeExercise, 'json', 'exercise', 'question', key, 'text', '$'], '')}/></th>
               </tr>
             </thead>
             <tbody>
