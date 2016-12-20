@@ -92,7 +92,7 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
         <div className="uk-panel uk-panel-box">
         <h3 className="uk-panel-title">{userResults.get('first_name') + ' ' + userResults.get('last_name')}</h3>
         <div className="uk-grid" style={{maxWidth: '700px'}}>
-        <div className="uk-width-1-1 uk-flex"> 
+        <div className="uk-width-1-1 uk-flex uk-flex-wrap"> 
           { userResults.getIn(['exercises', activeExercise, 'questions']).toList().map( (q, key) => (
         <div className="uk-display-inline-block uk-margin-right" key={key}>
           <table className="uk-table uk-table-condensed">
