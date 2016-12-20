@@ -131,7 +131,7 @@ function generateHistPlot(userResults) {//{{{
 }//}}}
 
 const renderFilter = ({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) => (//{{{
-      <div className="results-filters uk-width-3-10">
+      <div className="results-filters uk-margin-right">
         <div className="uk-panel uk-panel-box uk-margin-top">
           <h3 className="uk-panel-title">Filters</h3>
           <form className="uk-form uk-form-stacked">
@@ -244,14 +244,16 @@ const BaseResults = ({menuPath,
 
   return (
     <div className="uk-margin-top uk-width-1-1">
-    <div className="uk-grid uk-width-1-1">
-      { !activeDetailExercise && renderFilter({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
-      <div className="results-table "> {/*uk-width-4-10 uk-overflow-container*/}
+    <div className="uk-flex uk-flex-center uk-flex-wrap uk-width-1-1">
+      <div className="uk-width-1-1">
         <h1>
           Results 
           { pendingResults && <Spinner size="uk-icon"/> }
           { !pendingResults && <a href={"/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a> }
         </h1>
+      </div>
+      { !activeDetailExercise && renderFilter({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
+      <div className="results-table "> {/*uk-width-4-10 uk-overflow-container*/}
         <div className="uk-container-center">
         { menuPositionUnder(menuPath, ['results', 'histogram']) && !pendingResults && 
           <article className="uk-article">
@@ -267,14 +269,19 @@ const BaseResults = ({menuPath,
         }
         </div>
         { menuPositionUnder(menuPath, ['results', 'list']) && !activeDetailExercise &&
-            <Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} onItem={(id) => onUserClick(id)}/>
+            <Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} activeItem={selectedUser} onItem={(id) => onUserClick(id)}/>
         }
       </div>
-      { selectedUser && 
+        { menuPositionUnder(menuPath, ['results', 'list']) && selectedUser && activeDetailExercise &&
         <div>
         <StudentResults/> 
         </div>
-      }
+        }
+        { menuPositionUnder(menuPath, ['results', 'list']) && selectedUser && !activeDetailExercise &&
+        <div className="uk-margin-left">
+        <StudentResults/> 
+        </div>
+        }
     </div>
     </div>
   );

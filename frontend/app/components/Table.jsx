@@ -14,7 +14,7 @@ import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 
-const BaseTable = ({ data, fields, keyIndex, onSort, sortField, sortReverse, onItem }) => {
+const BaseTable = ({ data, fields, keyIndex, onSort, sortField, sortReverse, onItem, activeItem }) => {
   var sorted = data;
   if(sortField && !sortReverse)
     sorted = data.sortBy( item => item.get(sortField) )
@@ -23,13 +23,13 @@ const BaseTable = ({ data, fields, keyIndex, onSort, sortField, sortReverse, onI
 
   const renderFields = (item, fields) => fields.map( field => 
                                                     (
-                                                      <td key={field.index} className={field.index === sortField ? 'uk-text-bold uk-text-primary' : ''}>
+                                                      <td key={field.index} className={(field.index === sortField ? 'uk-text-bold uk-text-primary' : '') }>
                                                         {item.get(field.index)}
                                                       </td>
                                                     )
                                                    );
   var rows = sorted.map( item => (
-    <tr key={item.get(keyIndex)} onClick={() => onItem(item.get(keyIndex))}>
+    <tr key={item.get(keyIndex)} onClick={() => onItem(item.get(keyIndex))} className={(item.get(keyIndex) === activeItem ? 'uk-active uk-text-primary' : '')}>
       {renderFields(item, fields)}
     </tr>
   ));

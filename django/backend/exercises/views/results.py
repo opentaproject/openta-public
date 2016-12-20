@@ -81,6 +81,8 @@ def get_user_results(request, userpk):
                 and n_image_before_deadline > 0
             )
             exercises_render[exercise.exercise_key]['image'] = len(exercise.imageanswers) > 0
+            imageanswers = ImageAnswerSerializer(exercise.imageanswers, many=True)
+            exercises_render[exercise.exercise_key]['imageanswers'] = imageanswers.data
 
         n_correct = 0
         n_tries = 0

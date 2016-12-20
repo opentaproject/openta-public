@@ -29,7 +29,10 @@ export default class Image extends Component {
     window.addEventListener('resize', this.resize);
     var space = window.innerHeight - this.canvasref.offsetTop
     this.canvasref.width  = this.container.clientWidth;
-    this.canvasref.height = space * 0.7;
+    if(this.props.viewportHeight)
+      this.canvasref.height = space * 0.7;
+    else
+      this.canvasref.height = this.container.clientWidth;
     this.canvas = new fabric.Canvas('imagecanvas');
     fabric.Image.fromURL(this.props.src, oImg => {
       oImg.scaleToWidth(this.canvas.getWidth());
@@ -56,12 +59,13 @@ export default class Image extends Component {
         this.canvas.centerObject(oImg);
       });
     } else {
-      if(this.canvas.item(0))
+      if(this.canvas.item(0)) {
         var image = this.canvas.item(0);
         var center = new fabric.Point(this.canvas.getWidth() / 2, this.canvas.getHeight() /2);
         image.setAngle(this.state.angle);
         this.canvas.zoomToPoint(center, this.state.scale);
         this.canvas.renderAll();
+      }
     }
   }
 
@@ -91,10 +95,10 @@ export default class Image extends Component {
       <div className="uk-width-1-1" ref={ (node) => this.container = node }>
       { this.props.src &&
       <div className="uk-button-group">
-        <button class="uk-button" onClick={this.onRotateLeft}><i className="uk-icon uk-icon-rotate-left"/></button>
-        <button class="uk-button" onClick={this.onRotateRight}><i className="uk-icon uk-icon-rotate-right"/></button>
-        <button class="uk-button" onClick={this.onZoomOut}><i className="uk-icon uk-icon-search-minus"/></button>
-        <button class="uk-button" onClick={this.onZoomIn}><i className="uk-icon uk-icon-search-plus"/></button>
+        <button className="uk-button uk-button-small" onClick={this.onRotateLeft}><i className="uk-icon uk-icon-rotate-left"/></button>
+        <button className="uk-button uk-button-small" onClick={this.onRotateRight}><i className="uk-icon uk-icon-rotate-right"/></button>
+        <button className="uk-button uk-button-small" onClick={this.onZoomOut}><i className="uk-icon uk-icon-search-minus"/></button>
+        <button className="uk-button uk-button-small" onClick={this.onZoomIn}><i className="uk-icon uk-icon-search-plus"/></button>
       </div>
       }
       <canvas id="imagecanvas" ref={ (node) => this.canvasref = node }></canvas> 

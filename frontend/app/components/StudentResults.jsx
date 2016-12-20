@@ -10,9 +10,12 @@ import {
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
 import Exercise from './Exercise.jsx';
+import MathSpan from './MathSpan.jsx';
+import ImageCollection from './ImageCollection.jsx';
 
 import immutable from 'immutable';
 import moment from 'moment';
+import {SUBPATH} from '../settings.js';
 
 const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClick, activeExercise, onBack, exerciseState}) => {
   var required = userResults.get('exercises', immutable.Map({})).filter( item => item.getIn(['meta', 'required'])).toList().sortBy(item => item.getIn(['meta','deadline_date']));
@@ -22,7 +25,7 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
   var n_bonus = bonus.filter( e =>
     filter.get('bonusKeys').map(key => e.get(key, false)).reduce( (a,b) => a && b)).size;
   return (
-    <div className="uk-panel uk-panel-box">
+    <div className="uk-panel uk-panel-box" id="studentresults" style={ activeExercise ? {} : {width: '500px'}}>
       <article className="uk-article">
       <h1 className="uk-article-title">
       { !pendingResults && userResults.get('first_name') + " " + userResults.get('last_name')}
@@ -81,23 +84,24 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
       { !pendingResults && activeExercise &&
         <div className="uk-grid">
         <div className="uk-width-1-1">
-          <button onClick={() => onBack()}>Back</button>
+          <button className="uk-button uk-button-primary" onClick={() => onBack()}>Back to list</button>
         </div>
-        <div style={{maxWidth: '300px'}}>
+        <div style={{maxWidth: '400px'}}>
           <Exercise/>
         </div>
-          { userResults.getIn(['exercises', activeExercise, 'questions']).map( (q, key) => (
-        <div>
+        <div className="uk-grid">
+          { userResults.getIn(['exercises', activeExercise, 'questions']).toList().map( (q, key) => (
+        <div key={key}>
           <table className="uk-table uk-table-condensed">
             <thead>
               <tr>
-                <th>{exerciseState.getIn([activeExercise, 'json', 'exercise', 'question', key, 'text', '$'], '')}  </th>
+                <th><MathSpan message={exerciseState.getIn([activeExercise, 'json', 'exercise', 'question', key, 'text', '$'], '')}/></th>
               </tr>
             </thead>
             <tbody>
                   {q.get('answers').map( a => (
-                    <tr>
-                      <td className={a.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'}>
+                    <tr key={a.get('date')}>
+                      <td className={a.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'} title={moment(a.get('date')).format('YYYY-MM-DD HH:mm')} data-uk-tooltip>
                         {a.get('answer')}
                       </td>
                     </tr>
@@ -106,6 +110,10 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
           </table>
         </div>
           ))}
+        <div className="uk-width-1-1">
+        <ImageCollection srcs={userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse().map( ia => "/"+SUBPATH+"imageanswer/"+ia.get('pk')).toJS()} badges={userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse().map( ia => moment(ia.get('date')).format('YYYY-MM-DD HH:mm')).toJS()}/>
+        </div>
+        </div>
         </div>
       }
       </article>
