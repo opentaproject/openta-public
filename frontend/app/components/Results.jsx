@@ -269,7 +269,7 @@ const BaseResults = ({menuPath,
         }
         </div>
         { menuPositionUnder(menuPath, ['results', 'list']) && !activeDetailExercise &&
-            <Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} activeItem={selectedUser} onItem={(id) => onUserClick(id)}/>
+            <div className="uk-scrollable-box" style={{height:'70vh'}}><Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} activeItem={selectedUser} onItem={(id) => onUserClick(id)}/></div>
         }
       </div>
         { menuPositionUnder(menuPath, ['results', 'list']) && selectedUser && activeDetailExercise &&
