@@ -25,10 +25,10 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
   var n_bonus = bonus.filter( e =>
     filter.get('bonusKeys').map(key => e.get(key, false)).reduce( (a,b) => a && b)).size;
   return (
-    <div className="uk-panel uk-panel-box" id="studentresults" style={ activeExercise ? {} : {width: '500px'}}>
+    <div className="uk-panel uk-panel-box" id="studentresults" style={ activeExercise ? {} : {}}>
       <article className="uk-article">
       <h1 className="uk-article-title">
-      { !pendingResults && userResults.get('first_name') + " " + userResults.get('last_name')}
+      { !pendingResults && !activeExercise && userResults.get('first_name') + " " + userResults.get('last_name')}
       { pendingResults && <Spinner/> }
       </h1>
       { !pendingResults && !activeExercise &&
@@ -89,6 +89,8 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
         <div style={{maxWidth: '400px'}}>
           <Exercise/>
         </div>
+        <div className="uk-panel uk-panel-box">
+        <h3 className="uk-panel-title">{userResults.get('first_name') + ' ' + userResults.get('last_name')}</h3>
         <div className="uk-grid" style={{maxWidth: '700px'}}>
           { userResults.getIn(['exercises', activeExercise, 'questions']).toList().map( (q, key) => (
         <div key={key}>
@@ -112,6 +114,7 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
           ))}
         <div className="uk-width-1-1">
         <ImageCollection srcs={userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse().map( ia => "/"+SUBPATH+"imageanswer/"+ia.get('pk')).toJS()} badges={userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse().map( ia => moment(ia.get('date')).format('YYYY-MM-DD HH:mm')).toJS()}/>
+        </div>
         </div>
         </div>
         </div>

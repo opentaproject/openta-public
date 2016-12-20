@@ -131,7 +131,7 @@ function generateHistPlot(userResults) {//{{{
 }//}}}
 
 const renderFilter = ({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) => (//{{{
-      <div className="results-filters uk-margin-right">
+      <div className="results-filters uk-margin-right  uk-margin-bottom">
         <div className="uk-panel uk-panel-box uk-margin-top">
           <h3 className="uk-panel-title">Filters</h3>
           <form className="uk-form uk-form-stacked">
@@ -269,7 +269,7 @@ const BaseResults = ({menuPath,
         }
         </div>
         { menuPositionUnder(menuPath, ['results', 'list']) && !activeDetailExercise &&
-            <div className="uk-scrollable-box" style={{height:'70vh'}}><Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} activeItem={selectedUser} onItem={(id) => onUserClick(id)}/></div>
+            <div className="uk-scrollable-box uk-margin-bottom" style={{height:'70vh'}}><Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} activeItem={selectedUser} onItem={(id) => onUserClick(id)}/></div>
         }
       </div>
         { menuPositionUnder(menuPath, ['results', 'list']) && selectedUser && activeDetailExercise &&
