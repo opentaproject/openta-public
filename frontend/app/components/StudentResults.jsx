@@ -45,7 +45,7 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
         </thead>
         <tbody>
           { required.map( e => (
-            <tr key={e.get('exercise_key')} onClick={() => onExerciseClick(e.get('exercise_key'))}>
+            <tr key={e.get('exercise_key')} onClick={() => onExerciseClick(e.get('exercise_key'))} className="pointer">
               <td>{e.get('name')}</td>
               <td>{(e.get('tries', 0) / e.get('questions').size).toFixed(1)}</td>
               <td>
@@ -71,7 +71,7 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
         </thead>
         <tbody>
           { bonus.map( e => (
-            <tr key={e.get('exercise_key')} onClick={() => onExerciseClick(e.get('exercise_key'))}>
+            <tr key={e.get('exercise_key')} onClick={() => onExerciseClick(e.get('exercise_key'))} className="pointer">
               <td>{e.get('name')}</td>
               <td>{(e.get('tries', 0) / e.get('questions').size).toFixed(1)}</td>
               <td>

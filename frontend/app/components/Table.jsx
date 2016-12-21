@@ -29,7 +29,7 @@ const BaseTable = ({ data, fields, keyIndex, onSort, sortField, sortReverse, onI
                                                     )
                                                    );
   var rows = sorted.map( item => (
-    <tr key={item.get(keyIndex)} onClick={() => onItem(item.get(keyIndex))} className={(item.get(keyIndex) === activeItem ? 'uk-active uk-text-primary' : '')}>
+    <tr key={item.get(keyIndex)} onClick={() => onItem(item.get(keyIndex))} className={'pointer ' + (item.get(keyIndex) === activeItem ? 'uk-active uk-text-primary' : '')}>
       {renderFields(item, fields)}
     </tr>
   ));
