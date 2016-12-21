@@ -49,7 +49,10 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
               <td>{e.get('name')}</td>
               <td>{(e.get('tries', 0) / e.get('questions').size).toFixed(1)}</td>
               <td>
-                {filter.get('requiredKeys').map(key => e.get(key, false)).reduce( (a,b) => a && b) ? <i className="uk-icon uk-icon-check uk-text-success"/> : <i className="uk-icon uk-icon-close uk-text-danger"/> }
+                      <i className={'uk-margin-small-right uk-icon ' + (e.get('correct', false) ? 'uk-icon-check uk-text-success' : 'uk-icon-close uk-text-danger')}/>
+                      <i className={'uk-margin-small-right uk-icon uk-icon-picture-o ' + (e.get('imageanswers', immutable.List([])).size > 0 ? 'uk-text-success' : 'uk-text-danger')}/>
+                      <i className={'uk-margin-small-right uk-icon uk-icon-clock-o ' + (e.get('image_deadline', false) && e.get('correct_deadline',false) ? 'uk-text-success' : 'uk-text-danger')}/> 
+                { /* filter.get('requiredKeys').map(key => e.get(key, false)).reduce( (a,b) => a && b) ? <i className="uk-icon uk-icon-check uk-text-success"/> : <i className="uk-icon uk-icon-close uk-text-danger"/> */ }
               </td>
             </tr>
           ))}
@@ -72,7 +75,10 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
               <td>{e.get('name')}</td>
               <td>{(e.get('tries', 0) / e.get('questions').size).toFixed(1)}</td>
               <td>
-                {filter.get('bonusKeys', []).map(key => e.get(key, false)).reduce( (a,b) => a && b) ? <i className="uk-icon uk-icon-check uk-text-success"/> : <i className="uk-icon uk-icon-close uk-text-danger"/> }
+                      <i className={'uk-margin-small-right uk-icon ' + (e.get('correct', false) ? 'uk-icon-check uk-text-success' : 'uk-icon-close uk-text-danger')}/>
+                      <i className={'uk-margin-small-right uk-icon uk-icon-picture-o ' + (e.get('imageanswers', immutable.List([])).size > 0 ? 'uk-text-success' : 'uk-text-danger')}/>
+                      <i className={'uk-margin-small-right uk-icon uk-icon-clock-o ' + (e.get('image_deadline', false) && e.get('correct_deadline',false) ? 'uk-text-success' : 'uk-text-danger')}/> 
+                {/*filter.get('bonusKeys', []).map(key => e.get(key, false)).reduce( (a,b) => a && b) ? <i className="uk-icon uk-icon-check uk-text-success"/> : <i className="uk-icon uk-icon-close uk-text-danger"/>*/ }
               </td>
             </tr>
           ))}
@@ -90,7 +96,11 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
           <Exercise/>
         </div>
         <div className="uk-panel uk-panel-box">
-        <h3 className="uk-panel-title">{userResults.get('first_name') + ' ' + userResults.get('last_name')}</h3>
+        <h3 className="uk-panel-title">{userResults.get('first_name') + ' ' + userResults.get('last_name')}
+                      <i className={'uk-margin-small-right uk-margin-small-left uk-icon ' + (userResults.getIn(['exercises', activeExercise, 'correct'], false) ? 'uk-icon-check uk-text-success' : 'uk-icon-close uk-text-danger')}/>
+                      <i className={'uk-margin-small-right uk-icon uk-icon-picture-o ' + (userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).size > 0 ? 'uk-text-success' : 'uk-text-danger')}/>
+                      <i className={'uk-margin-small-right uk-icon uk-icon-clock-o ' + (userResults.getIn(['exercises', activeExercise,'image_deadline'], false) && userResults.getIn(['exercises', activeExercise,'correct_deadline'], false) ? 'uk-text-success' : 'uk-text-danger')}/> 
+        </h3>
         <div className="uk-grid" style={{maxWidth: '700px'}}>
         <div className="uk-width-1-1 uk-flex uk-flex-wrap"> 
           { userResults.getIn(['exercises', activeExercise, 'questions']).toList().map( (q, key) => (

@@ -59,16 +59,29 @@ def get_results_excel(request):
     worksheet.write(0, 0, 'Username')
     worksheet.write(0, 1, 'First')
     worksheet.write(0, 2, 'Last')
-    worksheet.write(0, 3, 'Obligatory (' + key_text[required_key] + ')')
-    worksheet.write(0, 4, 'Bonus (' + key_text[bonus_key] + ')')
-    worksheet.write(0, 5, 'Total (Correct exercises)')
+    worksheet.write(0, 3, 'Obligatory (before deadline)')
+    worksheet.write(0, 4, 'Obligatory (total)')
+    worksheet.write(0, 5, 'Bonus (before deadline)')
+    worksheet.write(0, 6, 'Bonus (total)')
+    worksheet.write(0, 7, 'After deadline')
+    worksheet.write(0, 8, 'Total (Correct exercises)')
     for index, student in enumerate(results):
         worksheet.write(index + 1, 0, student['username'])
         worksheet.write(index + 1, 1, student['first_name'])
         worksheet.write(index + 1, 2, student['last_name'])
-        worksheet.write(index + 1, 3, student['required'][required_key])
-        worksheet.write(index + 1, 4, student['bonus'][bonus_key])
-        worksheet.write(index + 1, 5, student['total'])
+        worksheet.write(index + 1, 3, student['required']['n_image_deadline'])
+        worksheet.write(index + 1, 4, student['required']['n_correct'])
+        worksheet.write(index + 1, 5, student['bonus']['n_image_deadline'])
+        worksheet.write(index + 1, 6, student['bonus']['n_correct'])
+        worksheet.write(
+            index + 1,
+            7,
+            student['required']['n_correct']
+            - student['required']['n_image_deadline']
+            + student['bonus']['n_correct']
+            - student['bonus']['n_image_deadline'],
+        )
+        worksheet.write(index + 1, 8, student['total'])
     workbook.close()
     output.seek(0)
     response = HttpResponse(

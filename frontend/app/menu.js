@@ -3,6 +3,7 @@ import {
   updateMenuLeafDefaults,
   updateMenuPath,
   setActivityRange,
+  setDetailResultExercise,
 } from './actions.js';
 import {
   fetchStudentResults,
@@ -67,6 +68,7 @@ var menuTree = immutable.fromJS({
         list: {
           name: 'List',
           key: 'list',
+          onLoad: setDetailResultExercise(false),
         },
         histogram: {
           name: 'Histogram',

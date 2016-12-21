@@ -205,6 +205,8 @@ const BaseResults = ({menuPath,
       'last_name': user.get('last_name'),
       'n_passed_required': user.getIn(['required', requiredFilter]),
       'n_passed_bonus': user.getIn(['bonus', bonusFilter]),
+      'n_after_deadline': user.getIn(['required', 'n_correct'])-user.getIn(['required', 'n_image_deadline'])+
+                          user.getIn(['bonus', 'n_correct'])-user.getIn(['bonus', 'n_image_deadline']),
       'n_passed_total': user.getIn(['total']),
     })));
   var { data: hist2dData, layout: hist2dLayout } = generateHist2dPlot(renderResults);
@@ -235,6 +237,10 @@ const BaseResults = ({menuPath,
       index: 'n_passed_bonus'
     },
     {
+      name: 'After deadline',
+      index: 'n_after_deadline'
+    },
+    {
       name: 'Total',
       index: 'n_passed_total'
     },
@@ -243,8 +249,8 @@ const BaseResults = ({menuPath,
   //var filters = {
 
   return (
-    <div className="uk-margin-top uk-width-1-1">
-    <div className="uk-flex uk-flex-center uk-flex-wrap uk-width-1-1">
+    <div className="uk-margin-left uk-margin-top uk-width-1-1">
+    <div className="uk-flex uk-flex-wrap uk-width-1-1">
       <div className="uk-width-1-1 uk-text-center">
         <h1>
           Results 

@@ -158,3 +158,15 @@ $exerciselist: 0.1;
   max-width: 200px;
   box-sizing: border-box;
 }
+
+.no-style-table table, caption, tbody, tfoot, thead, tr, th, td {
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    background: transparent;
+} 
