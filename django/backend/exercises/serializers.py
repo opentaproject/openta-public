@@ -52,3 +52,8 @@ class AuditExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuditExercise
         fields = ('pk', 'student', 'auditor', 'exercise', 'date', 'message', 'sent')
+
+    def update(self, instance, validated_data):
+        instance.message = validated_data.get('message', instance.message)
+        instance.save()
+        return instance

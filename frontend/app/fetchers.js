@@ -391,24 +391,30 @@ function fetchUnsentAudits() {
     dispatch(updatePendingStateIn( ['audit', 'audits'], true));
     return jsonfetch('/audit/unsent/')
       .then(response => response.json())
-      .then(json => json.reduce( (map, obj) => { map[obj.pk] = obj; return map; }, {})) 
-      .then(json => dispatch(updateAudits(json)))
+      .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({}))) 
+      .then(immutableMap => {
+        dispatch(updateAudits(immutableMap))
+      })
       .then( () => dispatch(updatePendingStateIn( ['audit', 'audits'], false)))
       .catch( err => console.log(err) );
   }
 }
 
-function fetchAuditData(pk) {
-  return dispatch => {
-    dispatch(updatePendingStateIn( ['audit', 'audits', pk, 'data'], true));
-    return jsonfetch('/audit/data/' + pk + '/')
-      .then(response => response.json())
-      .then(json => dispatch(setAuditData(pk, json)))
-      .then( () => dispatch(updatePendingStateIn( ['audit', 'audits', pk, 'data'], false)))
-      .catch( err => console.log(err) );
-  }
+function saveAudit(auditPk, auditData) {
+    var payload = {
+      'audit': auditData
+    };
+    var postData = JSON.stringify(payload);
+    var fetchconfig = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: postData
+    }
+    return jsonfetch('/audit/update/' + auditPk + '/', fetchconfig)
+      .then( res => res.json() )
+      .then( json => console.dir(json))
+      .catch(err => console.dir(err))
 }
-  
 
 export {
   fetchLoginStatus,
@@ -430,5 +436,5 @@ export {
   fetchStudentDetailResults,
   reloadExercises,
   fetchUnsentAudits,
-  fetchAuditData,
+  saveAudit,
 };

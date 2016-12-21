@@ -1,6 +1,12 @@
 import immutable from 'immutable';
 import {logImmutable, mergeNotLists} from 'immutablehelpers.js';
 
+/*
+ *
+ * Please remember that the immutable maps makes the proper distinction between integer and string keys whereas javascript dictionaries implicitly converts everything to strings!
+ *
+ */
+
 var defaultState = immutable.fromJS({ 
   exercises: [], 
   folder: "",
@@ -84,9 +90,9 @@ export default (state = defaultState, action) => {
     case 'UPDATE_EXERCISES_RELOAD_MESSAGES':
       return state.setIn(['exercisesReloadMessages'], immutable.fromJS(action.messages));
     case 'UPDATE_AUDITS':
-      return state.setIn(['audit', 'audits'], immutable.fromJS(action.audits));
-    case 'SET_AUDIT_DATA':
-      return state.setIn(['audit', 'auditdata', action.audit], immutable.fromJS(action.data));
+      return state.setIn(['audit', 'audits'], action.audits);
+    case 'UPDATE_AUDIT':
+      return state.mergeIn(['audit', 'audits', action.audit], immutable.fromJS(action.data));
     case 'SET_ACTIVE_AUDIT':
       return state.setIn(['audit', 'activeAudit'], action.audit);
     case 'SET_ACTIVITY_RANGE':

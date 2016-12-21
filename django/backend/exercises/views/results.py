@@ -103,6 +103,7 @@ def get_user_results(request, userpk):
             'first_name': user.first_name,
             'last_name': user.last_name,
             'username': user.username,
+            'pk': user.pk,
             'exercises': exercises_render,
         }
     )
