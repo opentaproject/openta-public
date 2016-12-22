@@ -63,8 +63,9 @@ def get_results_excel(request):
     worksheet.write(0, 4, 'Obligatory (total)')
     worksheet.write(0, 5, 'Bonus (before deadline)')
     worksheet.write(0, 6, 'Bonus (total)')
-    worksheet.write(0, 7, 'After deadline')
-    worksheet.write(0, 8, 'Total (Correct exercises)')
+    worksheet.write(0, 7, 'Optional')
+    worksheet.write(0, 8, 'After deadline')
+    worksheet.write(0, 9, 'Total (Correct exercises)')
     for index, student in enumerate(results):
         worksheet.write(index + 1, 0, student['username'])
         worksheet.write(index + 1, 1, student['first_name'])
@@ -73,15 +74,16 @@ def get_results_excel(request):
         worksheet.write(index + 1, 4, student['required']['n_correct'])
         worksheet.write(index + 1, 5, student['bonus']['n_image_deadline'])
         worksheet.write(index + 1, 6, student['bonus']['n_correct'])
+        worksheet.write(index + 1, 7, student['optional'])
         worksheet.write(
             index + 1,
-            7,
+            8,
             student['required']['n_correct']
             - student['required']['n_image_deadline']
             + student['bonus']['n_correct']
             - student['bonus']['n_image_deadline'],
         )
-        worksheet.write(index + 1, 8, student['total'])
+        worksheet.write(index + 1, 9, student['total'])
     workbook.close()
     output.seek(0)
     response = HttpResponse(

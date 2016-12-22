@@ -29,7 +29,7 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
     <div className="uk-panel uk-panel-box" id="studentresults" style={ activeExercise ? {} : {}}>
       <article className="uk-article">
       <h1 className="uk-article-title">
-      { !pendingResults && !activeExercise && userResults.get('first_name') + " " + userResults.get('last_name')}
+      { !pendingResults && !activeExercise && userResults.get('username')/*userResults.get('first_name') + " " + userResults.get('last_name')*/}
       { pendingResults && <Spinner/> }
       </h1>
       { !pendingResults && !activeExercise &&
@@ -96,7 +96,7 @@ const BaseStudentResults = ({userResults, pendingResults, filter, onExerciseClic
         <div style={{maxWidth: '400px'}}>
           <Exercise/>
         </div>
-          <StudentAuditExercise/>
+          <StudentAuditExercise anonymous={true}/>
         </div>
       }
       </article>

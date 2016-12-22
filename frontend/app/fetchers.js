@@ -401,6 +401,7 @@ function fetchUnsentAudits() {
 }
 
 function saveAudit(auditPk, auditData) {
+  return dispatch => {
     var payload = {
       'audit': auditData
     };
@@ -414,6 +415,7 @@ function saveAudit(auditPk, auditData) {
       .then( res => res.json() )
       .then( json => console.dir(json))
       .catch(err => console.dir(err))
+  }
 }
 
 export {

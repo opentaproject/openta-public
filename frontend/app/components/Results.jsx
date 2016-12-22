@@ -205,9 +205,10 @@ const BaseResults = ({menuPath,
       'last_name': user.get('last_name'),
       'n_passed_required': user.getIn(['required', requiredFilter]),
       'n_passed_bonus': user.getIn(['bonus', bonusFilter]),
-      'n_after_deadline': user.getIn(['required', 'n_correct'])-user.getIn(['required', 'n_image_deadline'])+
-                          user.getIn(['bonus', 'n_correct'])-user.getIn(['bonus', 'n_image_deadline']),
-      'n_passed_total': user.getIn(['total']),
+      'n_after_deadline': '(' + (user.getIn(['required', 'n_correct'])-user.getIn(['required', 'n_image_deadline'])+
+                          user.getIn(['bonus', 'n_correct'])-user.getIn(['bonus', 'n_image_deadline'])) + ')',
+      'n_passed_optional': user.getIn(['optional']),
+      'n_passed_total': user.getIn(['optional']) + user.getIn(['required', requiredFilter]) + user.getIn(['bonus', bonusFilter])/*user.getIn(['total'])*/,
     })));
   var { data: hist2dData, layout: hist2dLayout } = generateHist2dPlot(renderResults);
   var { data: histData, layout: histLayout } = generateHistPlot(renderResults);
@@ -218,7 +219,7 @@ const BaseResults = ({menuPath,
       index: 'username',
       type: 'string',
     },
-    {
+/*  {
       name: 'First',
       index: 'first_name',
       type: 'string',
@@ -227,7 +228,7 @@ const BaseResults = ({menuPath,
       name: 'Last',
       index: 'last_name',
       type: 'string',
-    },
+    },*/
     {
       name: 'Obligatory',
       index: 'n_passed_required'
@@ -237,7 +238,11 @@ const BaseResults = ({menuPath,
       index: 'n_passed_bonus'
     },
     {
-      name: 'After deadline',
+      name: 'Optional',
+      index: 'n_passed_optional'
+    },
+    {
+      name: 'Late',
       index: 'n_after_deadline'
     },
     {

@@ -79,6 +79,10 @@ def calculate_students_results():  # {{{
             bonus, student, deadline=True, image_deadline=True
         )
         total = get_passed_exercises(Exercise.objects.filter(meta__published=True), student)
+        optional = get_passed_exercises(
+            Exercise.objects.filter(meta__published=True, meta__required=False, meta__bonus=False),
+            student,
+        )
         # n2 = len(connection.queries)
         # print('N_queries: ' + str(n2-n1))
         # for query in connection.queries[-(n2-n1):]:
@@ -101,6 +105,7 @@ def calculate_students_results():  # {{{
                     'n_deadline': len(passed_bonus_d),
                     'n_image_deadline': len(passed_bonus_d_id),
                 },
+                'optional': len(optional),
                 'total': len(total),
             }
         )
