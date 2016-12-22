@@ -35,7 +35,8 @@ var defaultState = immutable.fromJS({
     detailResultsFilters: {
       requiredKeys: ['correct_deadline', 'image_deadline'], 
       bonusKeys: ['correct_deadline','image_deadline']
-    }
+    },
+    detailResultsView: 'graded',
   }
 });
 
@@ -111,6 +112,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['results', 'selectedUser'], action.user);
     case 'SET_DETAIL_RESULT_EXERCISE':
       return state.setIn(['results', 'detailResultExercise'], action.exercise);
+    case 'SET_DETAIL_RESULTS_VIEW':
+      return state.setIn(['results', 'detailResultsView'], action.view);
     default:
       return state
   }

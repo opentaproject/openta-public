@@ -258,12 +258,15 @@ const BaseResults = ({menuPath,
     <div className="uk-flex uk-flex-wrap uk-width-1-1">
       <div className="uk-width-1-1 uk-text-center">
         <h1>
-          Results 
           { pendingResults && <Spinner size="uk-icon"/> }
-          { !pendingResults && <a href={"/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a> }
         </h1>
       </div>
-      { !activeDetailExercise && renderFilter({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
+      { menuPositionUnder(menuPath, ['results', 'download']) && !pendingResults && 
+      <div className="uk-width-1-1 uk-text-center">
+        <h1><a href={"/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a></h1> 
+      </div>
+      }
+      { !activeDetailExercise && !menuPositionUnder(menuPath, ['results', 'download']) && renderFilter({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
       <div className="results-table "> {/*uk-width-4-10 uk-overflow-container*/}
         <div className="uk-container-center">
         { menuPositionUnder(menuPath, ['results', 'histogram']) && !pendingResults && 
