@@ -30,7 +30,18 @@ const BaseStudentResults = ({userResults,
                             onChangeView}) => {
   var required = userResults.get('exercises', immutable.Map({})).filter( item => item.getIn(['meta', 'required'])).toList().sortBy(item => item.getIn(['meta','deadline_date']));
   var bonus = userResults.get('exercises', immutable.Map({})).filter( item => item.getIn(['meta', 'bonus'])).toList().sortBy(item => item.getIn(['meta','deadline_date']));
-  var optional = userResults.get('exercises', immutable.Map({})).filter( item => (!item.getIn(['meta', 'required']))&&(!item.getIn(['meta', 'bonus']))).toList().sortBy( item => item.get('folder') + item.getIn(['meta', 'sort_key'])); 
+  //var optional = userResults.get('exercises', immutable.Map({})).filter( item => (!item.getIn(['meta', 'required']))&&(!item.getIn(['meta', 'bonus']))).toList().sortBy( item => item.get('folder') + item.getIn(['meta', 'sort_key'])); 
+  var optional = userResults.get('exercises', immutable.Map({})).filter( item => {
+    switch(detailResultsView) {
+      case 'graded':
+        return item.getIn(['meta', 'required']) || item.getIn(['meta','bonus']);
+      case 'optional':
+        return !(item.getIn(['meta', 'required']) || item.getIn(['meta','bonus']));
+      case 'all':
+        return true
+    }
+  })
+                            .toList().sortBy( item => item.get('folder') + item.getIn(['meta', 'sort_key'])); 
   var optionalByFolder = optional.groupBy(item => item.get('folder'))
                                  .toOrderedMap()
                                  .sortBy( (v, k) => k);
@@ -85,12 +96,13 @@ const BaseStudentResults = ({userResults,
 
       { !pendingResults && !activeExercise &&
       <div className="uk-button-group uk-margin-left">
+        <a onClick={() => onChangeView('all')} className={detailResultsView==="all" ? 'uk-button uk-button-primary' : 'uk-button'}>All</a>
         <a onClick={() => onChangeView('graded')} className={detailResultsView==="graded" ? 'uk-button uk-button-primary' : 'uk-button'}>Graded</a>
         <a onClick={() => onChangeView('optional')} className={detailResultsView==="optional" ? 'uk-button uk-button-primary' : 'uk-button'}>Optional</a>
       </div>
       }
       </div>
-      { !pendingResults && !activeExercise && detailResultsView === 'graded' &&
+      { !pendingResults && !activeExercise && detailResultsView === 'old' &&
       <div className="uk-grid">
       <div>
           { renderExercises(required, "Obligatory " + n_required +'/'+ required.size, 'Obligatory') }
@@ -101,29 +113,47 @@ const BaseStudentResults = ({userResults,
       </div>
       }
       
-      { !pendingResults && !activeExercise && detailResultsView === 'optional' &&
+      { !pendingResults && !activeExercise &&
         <div>
         { optionalByFolderSorted.map( (folder, key) => (
-        <ul key={key} className="uk-thumbnav uk-flex uk-margin-small" style={{maxWidth: '500px'}}>
+        <ul key={key} className="uk-thumbnav uk-flex uk-margin" style={{maxWidth: '500px'}}>
         {folder.map( item => (
             <li key={item.get('exercise_key')} className="uk-margin-remove">
-              <a className="uk-thumbnail" style={{
+              <a className="uk-thumbnail uk-margin-small-top" style={{
                 borderColor: item.get('correct') ? '#00dd00' : (item.get('tries') > 0 ? '#ff0000' : '#929292'),
                 borderWidth: item.get('tries') > 0 ? '2px' : '1px',
               }}
                  onClick={() => onExerciseClick(item.get('exercise_key'))}
               >
-                <img style={{height:'30px'}} className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + item.get('exercise_key') + "/asset/thumbnail.png"}/>
-                <div className="uk-thumbnail-caption uk-text-small">{item.get('name')}</div>
-                <div className="uk-progress uk-margin-remove uk-progress-mini uk-progress-danger" title="Tries/Question">
-                  <div className="uk-progress-bar uk-text-small" style={{'width': (100 * safeActivity(item) / maxOptionalActivity) + '%', 'backgroundColor': '#e62ef1'}}>
+                <div className="exercise-thumb-wrap">
+                  <div className="uk-flex">
+                  <img style={{height:'30px'}} className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + item.get('exercise_key') + "/asset/thumbnail.png"}/>
+                  { item.getIn(['meta','deadline_date'], false) && 
+                    <div className="uk-flex uk-flex-column">
+                      <div style={{lineHeight: '0'}}>
+                          <i className={'uk-icon uk-icon-picture-o ' + (item.get('imageanswers', immutable.List([])).size > 0 ? 'uk-text-success' : 'uk-text-danger')}/>
+                      </div>
+                      <div style={{lineHeight: '0'}}>
+                          <i className={'uk-icon uk-icon-clock-o ' + (item.get('image_deadline', false) && item.get('correct_deadline',false) ? 'uk-text-success' : 'uk-text-danger')}/> 
+                      </div>
+                    </div>
+                  }
+                    </div>
+                  <div style={{position:'absolute', left: '-10px', top: '-10px'}}>
+                    { item.getIn(['meta','bonus']) && <Badge className="uk-badge-warning"><i className="uk-icon uk-icon-calendar"/></Badge> }
+                    { item.getIn(['meta','required']) && <Badge className=""><i className="uk-icon uk-icon-calendar"/></Badge> }
+                  </div>
+                  <div className="uk-thumbnail-caption uk-text-small">{item.get('name')}</div>
+                  <div className="uk-progress uk-margin-remove uk-progress-mini uk-progress-danger" title="Tries/Question">
+                    <div className="uk-progress-bar uk-text-small" style={{'width': (100 * safeActivity(item) / maxOptionalActivity) + '%', 'backgroundColor': '#e62ef1'}}>
+                    </div>
                   </div>
                 </div>
               </a>
             </li>
          ))}
         </ul>
-        )).toList().interpose( (<hr className="uk-margin-small"/>)) }
+        )).toList() }
         </div>
       }
       { !pendingResults && activeExercise &&
