@@ -7,7 +7,7 @@ export default class MathSpan extends Component {
   }
 
   static propTypes = {
-    message: PropTypes.string.isRequired,
+    message: PropTypes.string,
   }
 
   componentDidUpdate(props,state,root) {
@@ -26,6 +26,6 @@ export default class MathSpan extends Component {
   }
 
   render() {
-         return (<span>{this.props.message}</span>)
+         return (<span>{this.props.message}{this.props.children}</span>)
   }
 }

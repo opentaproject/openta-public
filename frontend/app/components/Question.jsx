@@ -31,6 +31,7 @@ class BaseQuestion extends Component {
       if(globals)question = question.set('global', globals);
       var questionDOM = React.createElement(questionDispatch[questionType], { 
         key: questionKey,
+        exerciseKey: exerciseKey,
         questionData: question, 
         questionState: questionState, 
         questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.getIn(['@attr','key']), 'waiting'], false),
