@@ -85,21 +85,22 @@ class BaseExercise extends Component {
   }
 
   renderName = (itemjson, json, meta, exerciseKey) => {
-    var deadline_date = meta.get('deadline_date');
-    var deadline_date_format = moment(deadline_date).format('D MMM');
+    var deadlineDate = meta.get('deadline_date');
+    var deadlineTime = meta.get('deadline_time');
+    var deadlineDateFormat = moment(deadlineDate + ' ' + deadlineTime).format('D MMM HH:mm');
     var obligatorisk = meta.get('required', false);
     var bonus = meta.get('bonus', false);
     
     return (
           <div key="name">
           <h1 className="uk-article-title">{itemjson.get('$')}
-          { deadline_date && <div className="uk-badge uk-badge-danger">
+          { deadlineDate && <div className="uk-badge uk-badge-danger">
             <a data-uk-tooltip title="Du kan fortfarande kontrollera svar efter deadline men de kommer inte räknas mot obligatorisk/bonus.">
-            Deadline: {deadline_date_format}
+            Deadline: {deadlineDateFormat}
             <i className="uk-icon uk-icon-small uk-icon-question-circle-o uk-margin-small-left"/></a>
             </div>}
-          { deadline_date && obligatorisk && <div className="uk-badge uk-margin-small-left">Obligatorisk</div>}
-          { deadline_date && bonus && <div className="uk-badge uk-badge-warning uk-margin-small-left">Bonus</div>}
+          { deadlineDate && obligatorisk && <div className="uk-badge uk-margin-small-left">Obligatorisk</div>}
+          { deadlineDate && bonus && <div className="uk-badge uk-badge-warning uk-margin-small-left">Bonus</div>}
           </h1>
           </div>
     );

@@ -57,8 +57,8 @@ export default (state = defaultState, action) => {
         'exercises': immutable.fromJS(action.exercises),
         'folder': action.folder
       });
-    case 'UPDATE_EXERCISE_TREE':
-      return state.set('exerciseTree', action.exercisetree);
+    case 'SET_EXERCISE_TREE':
+      return state.set('exerciseTree', immutable.fromJS(action.exercisetree));
     case 'UPDATE_QUESTION_RESPONSE':
       return state.setIn(['exerciseState', action.exercise, 'question', action.question, 'response'], immutable.fromJS(action.response));
       //return state.mergeDeep(action.data);
@@ -114,6 +114,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['results', 'detailResultExercise'], action.exercise);
     case 'SET_DETAIL_RESULTS_VIEW':
       return state.setIn(['results', 'detailResultsView'], action.view);
+    case 'UPDATE_EXERCISE_TREE':
+      return state.mergeDeepIn(['exerciseTree'], action.tree);
     default:
       return state
   }

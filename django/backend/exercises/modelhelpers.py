@@ -9,7 +9,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Prefetch, Count, Case, When, Avg, Q, F
 import os
 from functools import reduce
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 
 # import cProfile
 import pprofile
@@ -17,6 +17,7 @@ from .util import nested_print
 import datetime
 from django.utils import timezone
 import pytz
+import pprint
 
 
 def e_name(exercise):
@@ -249,7 +250,10 @@ def folder_structure(exercise_data_func_list):  # {{{
 
 
 def exercise_folder_structure(manager, user):  # {{{
-    folders = {}
+    def recursive_dict():
+        return defaultdict(recursive_dict)
+
+    folders = recursive_dict()
     exercises = []
     if user.has_perm('exercises.edit_exercise'):
         exercises = manager.prefetch_related(
@@ -265,14 +269,14 @@ def exercise_folder_structure(manager, user):  # {{{
     paths = map(lambda x: os.path.dirname(x.path), exercises)
     unique_paths = filter(lambda x: x != '/', set(paths))
     for path in list(map(lambda x: x.split('/')[1:], unique_paths)):
-        traverse = folders
-        for folder in path:
-            if not ('folders' in traverse):
-                traverse['folders'] = {}
-            if folder in traverse['folders']:
-                traverse = traverse['folders'][folder]['content']
-            else:
-                traverse['folders'][folder] = {'content': {}}
+        root = folders
+        fullpath = []
+        for item in path:
+            fullpath.append(item)
+            root = root['folders'][item]['content']
+            if 'path' not in root:
+                root['path'] = list(fullpath)
+
     for exercise in exercises:
         allcorrect = True
         for question in exercise.question.all():  # questions:
@@ -284,6 +288,7 @@ def exercise_folder_structure(manager, user):  # {{{
                 allcorrect = False
         paths = list(filter(lambda x: x != '', exercise.path.split('/')[1:-1]))
         root = reduce(lambda a, b: a['folders'].get(b)['content'], paths, folders)
+
         if 'exercises' not in root:
             root['exercises'] = {}
             root['order'] = []

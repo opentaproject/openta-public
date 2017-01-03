@@ -9,6 +9,7 @@ import {
 } from '../fetchers.js';
 import {
   updateExercises,
+  updateExerciseTree,
 } from '../actions.js';
 import {
   navigateMenuArray
@@ -63,7 +64,7 @@ return (
       </div>
       </div>
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
-      {folder.exercises[exercise].name}
+      {folder.getIn(['exercises',exercise, 'name'])}
       </div>
       { showStatistics && !meta.deadline_date &&
         <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-warning" title="blue: correct, orange: tried">
@@ -91,38 +92,58 @@ return (
   </li>);
 }
 
-const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics, statistics, activityRange }) => {
+const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics, statistics, activityRange, onFolderClick }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
-  function parseFolder( folder, foldername ) {
+  function parseFolder( folder, foldername, level=0 ) {
     var exercises = [], children = [];
-    if(folder.exercises) {
+    if(folder.has('exercises')) {
       //exerciseState.getIn([exercise, 'correct'], false)
-      exercises = folder.order/*Object.keys(folder.exercises)/*.sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name )*/.map( exercise => {
-        var meta = folder.exercises[exercise].meta;
+      exercises = folder.get('order')/*Object.keys(folder.exercises)/*.sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name )*/.map( exercise => {
+        var meta = folder.getIn(['exercises', exercise, 'meta'])//folder.exercises[exercise].meta;
         return generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics, statistics, activityRange);
       });
     }
-    if(folder.folders)
-      children = Object.keys(folder.folders).sort().map ( childfolder => ({name: childfolder, content: parseFolder( folder.folders[childfolder].content, childfolder)}) );
-
+    if(folder.has('folders'))
+      children = folder.get('folders', immutable.Map({})).keySeq().sort().map ( childfolder => 
+                                                          ({
+                                                            name: childfolder, 
+                                                            content: parseFolder( folder.getIn(['folders', childfolder, 'content']), childfolder, level + 1), 
+                                                            path: folder.getIn(['folders', childfolder, 'content', 'path']),
+                                                            folded: folder.getIn(['folders', childfolder, 'folded'], true)
+                                                          }) );
+    var levelClass = "";
+    switch(level) {
+      case 1:
+        levelClass = "uk-block-muted"; break;
+      case 0:
+        levelClass = "uk-block-muted"; break;
+    }
     var DOM = (
-      <div>
+      <div className={"uk-block uk-padding-remove " + levelClass}>
+      <div className="uk-container">
       <ul className="uk-thumbnav uk-flex uk-flex-bottom ">
         {exercises}
       </ul>
-        <dl className="uk-description-list-line">
+        <dl className="uk-description-list-horizontal">
       { children.map( child => {
         var folderPrename = child.name.split('.')[0].split(':');
         var folderName = folderPrename[folderPrename.length - 1]
-        return [
-          (<dt className="uk-text-large" key={"dt"+child.name}><i className="uk-icon uk-icon-folder-open"></i> {folderName} </dt>),
-          (<dd key={"dd"+child.name}> {child.content} </dd>)];
+        var rendered = [
+          (<dt className="uk-text-large uk-margin-right" style={{float:'none'}} key={"dt"+child.name}>
+            <a onClick={ () => onFolderClick(child.path, child.folded) }>
+              <i className="uk-icon uk-icon-folder-open"></i> {folderName} 
+            </a>
+            </dt>)];
+        if(!child.folded) 
+          rendered.push((<dd className="uk-margin-left" key={"dd"+child.name}> {child.content} </dd>));
+        return rendered;
       }
       )
       }
         </dl>
+        </div>
       </div>
     );
     return DOM;
@@ -164,6 +185,11 @@ const mapDispatchToProps = dispatch => ({
       .then(dispatch(navigateMenuArray(['activeExercise'])));
     dispatch(updateExercises([], folder));
     dispatch(fetchSameFolder(exercise, folder));
+  },
+  onFolderClick: (path, folded) => {
+    var fullPath = immutable.List(path).interpose(immutable.List(['content', 'folders'])).unshift('folders').push('folded').flatten(0);
+    var updated = immutable.Map({}).setIn(fullPath, !folded)
+    dispatch(updateExerciseTree(updated))
   }
 });
 

@@ -90,7 +90,7 @@ def exercises_reload_json(request):  # {{{
         return mess
 
     mess = sync()
-    return Response(mess)
+    return Response(mess)  # }}}
 
 
 @api_view(['GET'])

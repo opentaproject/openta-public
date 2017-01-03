@@ -2,7 +2,7 @@ import {
   updateQuestionResponse, 
   updateLoginStatus,
   updateExercises,
-  updateExerciseTree,
+  setExerciseTree,
   updateExerciseXML,
   updateExerciseJSON,
   updateExerciseState,
@@ -98,7 +98,7 @@ function fetchExerciseTree() {//{{{
     return jsonfetch('/exercises/tree/')
       //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
-      .then(json => dispatch(updateExerciseTree(json)))
+      .then(json => dispatch(setExerciseTree(json)))
       .catch( err => console.log(err) );
   };
 }//}}}

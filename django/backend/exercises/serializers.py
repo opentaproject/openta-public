@@ -4,14 +4,18 @@ from exercises.models import Question
 from exercises.models import Answer
 from exercises.models import ImageAnswer
 from exercises.models import AuditExercise
+from course.models import Course
 
 
 class ExerciseMetaSerializer(serializers.ModelSerializer):
+    deadline_time = serializers.SerializerMethodField()
+
     class Meta:
         model = ExerciseMeta
         fields = (
             'published',
             'deadline_date',
+            'deadline_time',
             'solution',
             'difficulty',
             'required',
@@ -20,6 +24,9 @@ class ExerciseMetaSerializer(serializers.ModelSerializer):
             'server_reply_time',
             'sort_key',
         )
+
+    def get_deadline_time(self, obj):
+        return Course.objects.deadline_time()
 
 
 class ExerciseSerializer(serializers.ModelSerializer):
