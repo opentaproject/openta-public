@@ -9,7 +9,7 @@ import {
 } from '../fetchers.js';
 import {
   updateExercises,
-  updateExerciseTree,
+  updateExerciseTreeUI,
 } from '../actions.js';
 import {
   navigateMenuArray
@@ -27,7 +27,8 @@ var difficulties = {
   '3': 'Svår',
 };
 
-function generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics, statistics, activityRange) {
+function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, folder, foldername, showStatistics, statistics, activityRange) {
+  var meta = metaImmutable.toJS();
   var deadlineClass = "uk-badge-primary";
   var legend = 'Obligatorisk';
   if( meta.bonus ) {
@@ -92,7 +93,7 @@ return (
   </li>);
 }
 
-const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics, statistics, activityRange, onFolderClick }) => {
+const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics, statistics, activityRange, onFolderClick }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
@@ -111,7 +112,7 @@ const BaseCourse = ({ exercisetree, exerciseState, pendingState, currentpath, on
                                                             name: childfolder, 
                                                             content: parseFolder( folder.getIn(['folders', childfolder, 'content']), childfolder, level + 1), 
                                                             path: folder.getIn(['folders', childfolder, 'content', 'path']),
-                                                            folded: folder.getIn(['folders', childfolder, 'folded'], true)
+                                                            folded: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$folded$'), true)
                                                           }) );
     var levelClass = "";
     switch(level) {
@@ -171,6 +172,7 @@ const mapStateToProps = state => ({
   exerciseState: state.get('exerciseState'),
   pendingState: state.get('pendingState'),
   exercisetree: state.get('exerciseTree'),
+  exerciseTreeUI: state.get('exerciseTreeUI'),
   currentpath: state.get('currentpath'),
   showStatistics: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
   statistics: state.get('statistics', immutable.Map({})),
@@ -187,9 +189,10 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchSameFolder(exercise, folder));
   },
   onFolderClick: (path, folded) => {
-    var fullPath = immutable.List(path).interpose(immutable.List(['content', 'folders'])).unshift('folders').push('folded').flatten(0);
+    //var fullPath = immutable.List(path).interpose(immutable.List(['content', 'folders'])).unshift('folders').push('folded').flatten(0);
+    var fullPath = immutable.List(path).push('$folded$');
     var updated = immutable.Map({}).setIn(fullPath, !folded)
-    dispatch(updateExerciseTree(updated))
+    dispatch(updateExerciseTreeUI(updated))
   }
 });
 

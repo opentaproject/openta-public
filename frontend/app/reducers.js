@@ -25,6 +25,7 @@ var defaultState = immutable.fromJS({
   },
   activityRange: '24h',
   exerciseState: {},
+  exerciseTreeUI: {},
   results: {
     studentResults: [],
     filters: {
@@ -114,8 +115,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['results', 'detailResultExercise'], action.exercise);
     case 'SET_DETAIL_RESULTS_VIEW':
       return state.setIn(['results', 'detailResultsView'], action.view);
-    case 'UPDATE_EXERCISE_TREE':
-      return state.mergeDeepIn(['exerciseTree'], action.tree);
+    case 'UPDATE_EXERCISE_TREE_UI':
+      return state.mergeDeepIn(['exerciseTreeUI'], action.tree);
     default:
       return state
   }
