@@ -97,7 +97,28 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
-  function parseFolder( folder, foldername, level=0 ) {
+  function countFinished(folder, name, type) {
+    /*function traverseCount(folder, type) {
+      if(folder.has('exercises')) {
+        folder.get('exercises').filter( e => e.getIn(['meta', type]))
+                               .map( e => e.getIn([')
+      }
+    }*/
+    if(folder.has('exercises')) {
+        var results = folder.get('exercises').filter( e => e.getIn(['meta', type]))
+                               .map( (e, key) => exerciseState.getIn([key, 'correct'], false) );
+        return {
+          total: results.size,
+          correct: results.filter( x => x).size
+        }
+      } 
+      else
+        return {
+          total: 0,
+          correct: 0
+        };
+  }
+  function parseFolder( folder, foldername, level=0 ) {//{{{
     var exercises = [], children = [];
     if(folder.has('exercises')) {
       //exerciseState.getIn([exercise, 'correct'], false)
@@ -110,6 +131,7 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
       children = folder.get('folders', immutable.Map({})).keySeq().sort().map ( childfolder => 
                                                           ({
                                                             name: childfolder, 
+                                                            folder: folder.getIn(['folders', childfolder, 'content']), 
                                                             content: parseFolder( folder.getIn(['folders', childfolder, 'content']), childfolder, level + 1), 
                                                             path: folder.getIn(['folders', childfolder, 'content', 'path']),
                                                             folded: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$folded$'), true)
@@ -131,10 +153,29 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
       { children.map( child => {
         var folderPrename = child.name.split('.')[0].split(':');
         var folderName = folderPrename[folderPrename.length - 1]
+        var folderClass = child.folded ? 'uk-icon-folder' : 'uk-icon-folder-open';
+        var summaryReq = countFinished(child.folder, child.name, 'required');
+        if(summaryReq.total > 0) 
+          var percentReq = 100 * summaryReq.correct / summaryReq.total;
+        var summaryBonus = countFinished(child.folder, child.name, 'bonus');
+        if(summaryBonus.total > 0)
+          var percentBonus = 100 * summaryBonus.correct / summaryBonus.total;
         var rendered = [
           (<dt className="uk-text-large uk-margin-right" style={{float:'none'}} key={"dt"+child.name}>
             <a onClick={ () => onFolderClick(child.path, child.folded) }>
-              <i className="uk-icon uk-icon-folder-open"></i> {folderName} 
+                <i className={"uk-icon " + folderClass}></i> {folderName}
+                  <div className="uk-grid">
+                  { summaryReq.total > 0 &&
+                  <div className="uk-width-1-1 uk-progress uk-margin-remove uk-progress-mini uk-progress-success">
+                    <div className="uk-progress-bar" style={{'width': percentReq + '%'}}></div>
+                  </div>
+                  }
+                  { summaryBonus.total > 0 &&
+                  <div className="uk-width-1-1 uk-progress uk-margin-remove uk-progress-mini uk-progress-warning">
+                    <div className="uk-progress-bar" style={{'width': percentBonus + '%'}}></div>
+                  </div>
+                  }
+                  </div>
             </a>
             </dt>)];
         if(!child.folded) 
@@ -149,7 +190,7 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
     );
     return DOM;
     //return exercises.concat( flatten(children) );
-  }
+  }//}}}
   if(pendingState.getIn(['course', 'loadingExercises'], false)) {
       return (<Spinner/>);
   }
