@@ -127,7 +127,7 @@ export default class QuestionMultipleChoice extends Component {
   return (
         <div className="">
           <label className="uk-form-row uk-display-inline-block uk-margin-bottom">{question.getIn(['text','$'],'')} </label>
-          { question.has('hint') && !correct && state.get('answer') !== '' && this.renderContentInPanel(question.get('hint'), (<div className="uk-badge">Hint</div>)) }
+          { question.has('hint') && !correct && state.get('answer', '') !== '' && this.renderContentInPanel(question.get('hint'), (<div className="uk-badge">Hint</div>)) }
           <div className="uk-grid uk-grid-small">
               {choices}
           </div>
