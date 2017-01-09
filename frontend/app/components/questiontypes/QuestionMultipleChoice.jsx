@@ -98,11 +98,13 @@ export default class QuestionMultipleChoice extends Component {
   // System state data
   var lastAnswer = parseInt(state.getIn(['answer'], '')); // Last saved answer in database, same format as passed to the submitFunction
   var correct = state.getIn(['response','correct'])/*, false) || state.getIn(['correct'], false);*/ // Boolean indicating if the grader reported correct answer
-  var choices = question.get('choice').map( (item, key) => {
+  var choicesElements = question.get('choice',immutable.List([]));
+  if( !immutable.List.isList(choicesElements) )choicesElements = immutable.List([choicesElements]);
+  var choices = choicesElements.map( (item, key) => {
     var style = {}
     var divClass = key === this.state.choice ? 'uk-panel-box-primary' : '';
     if(correct && key === lastAnswer)style = {backgroundColor: '#f2fae3'}
-    if(!correct && key === lastAnswer)style = {backgroundColor: '#fffceb'}
+    if(!correct && key === lastAnswer)style = {backgroundColor: '#fff1f0'}
     var children = item.get('$children$', immutable.List([]))
               .map( child => this.dispatchElement(child) ).toSeq();
     return (
@@ -125,7 +127,7 @@ export default class QuestionMultipleChoice extends Component {
   return (
         <div className="">
           <label className="uk-form-row uk-display-inline-block uk-margin-bottom">{question.getIn(['text','$'],'')} </label>
-          { question.has('hint') && !correct && this.renderContentInPanel(question.get('hint'), (<div className="uk-badge">Hint</div>)) }
+          { question.has('hint') && !correct && state.get('answer') !== '' && this.renderContentInPanel(question.get('hint'), (<div className="uk-badge">Hint</div>)) }
           <div className="uk-grid uk-grid-small">
               {choices}
           </div>
