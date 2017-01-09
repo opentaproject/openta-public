@@ -165,7 +165,7 @@ def exercise_check_thumbnail(xmltree, path):
         try:
             figurepath = figure[0].text
         except IndexError:
-            messages.append('warning', "No figure for exercise")
+            messages.append(('warning', "No figure for exercise"))
             return messages
         size = (100, 100)
         try:
