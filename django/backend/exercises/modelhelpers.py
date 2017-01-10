@@ -37,9 +37,9 @@ def e_student_attempt_count(exercise):
 
 
 def e_student_activity(exercise):
-    t1h = datetime.datetime.now() - datetime.timedelta(hours=1)
-    t24h = datetime.datetime.now() - datetime.timedelta(hours=24)
-    t1w = datetime.datetime.now() - datetime.timedelta(days=7)
+    t1h = timezone.now() - datetime.timedelta(hours=1)
+    t24h = timezone.now() - datetime.timedelta(hours=24)
+    t1w = timezone.now() - datetime.timedelta(days=7)
     n_questions = exercise.question.all().count()
     if n_questions == 0:
         return {'activity': {'1h': 0, '24h': 0, '1w': 0, 'all': 0}}
@@ -144,6 +144,7 @@ def e_student_percent_complete(exercise):  # {{{
     #            queryset = Answer.objects.filter(question__exercise=exercise).filter(correct=True).filter(date__lt=datetime.datetime.combine(exercise.meta.deadline_date, datetime.time(8,0,0, tzinfo=pytz.UTC))).order_by('-date'),
     #            to_attr = 'answers'
     #            ))
+    tz = pytz.timezone('Europe/Stockholm')
     deadline_time = datetime.time(23, 59, 59, tzinfo=pytz.timezone('Europe/Stockholm'))
     course = Course.objects.first()
     if course is not None and course.deadline_time is not None:
@@ -165,8 +166,8 @@ def e_student_percent_complete(exercise):  # {{{
                     users.filter(
                         answer__correct=True,
                         answer__question=question,
-                        answer__date__lt=datetime.datetime.combine(
-                            exercise.meta.deadline_date, deadline_time
+                        answer__date__lt=tz.localize(
+                            datetime.datetime.combine(exercise.meta.deadline_date, deadline_time)
                         ),
                         imageanswer__exercise=question.exercise,
                     )
