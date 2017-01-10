@@ -12,6 +12,7 @@ Requires:
 * [Python 3](https://www.python.org)
 * libjpeg
 * libgraphivz
+* libcairo2
 * graphviz
 * libxml2
 * libxslt1
@@ -20,7 +21,7 @@ Requires:
 
 In an apt-based linux distribution the required dependencies can be installed with
 ```
-apt get install libjpeg-dev libgraphviz-dev graphviz pkg-config libxml2-dev libxslt1-dev python-dev libzmq3-dev
+apt get install libjpeg-dev libgraphviz-dev graphviz pkg-config libxml2-dev libxslt1-dev python-dev libzmq3-dev libcairo2 libcairo2-dev
 ```
 
 ### Steps
