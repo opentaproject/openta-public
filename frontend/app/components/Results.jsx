@@ -215,10 +215,14 @@ const BaseResults = ({menuPath,
 
   var tableFields = [//{{{
     {
+      name: 'Student id',
+      index: 'pk'
+    },
+    /*{
       name: 'Username',
       index: 'username',
       type: 'string',
-    },
+    },*/
 /*  {
       name: 'First',
       index: 'first_name',

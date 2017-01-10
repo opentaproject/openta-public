@@ -93,7 +93,7 @@ return (
   </li>);
 }
 
-const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics, statistics, activityRange, onFolderClick }) => {
+const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics, statistics, activityRange, onFolderClick, student }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
@@ -134,7 +134,7 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
                                                             folder: folder.getIn(['folders', childfolder, 'content']), 
                                                             content: parseFolder( folder.getIn(['folders', childfolder, 'content']), childfolder, level + 1), 
                                                             path: folder.getIn(['folders', childfolder, 'content', 'path']),
-                                                            folded: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$folded$'), true)
+                                                            folded: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$folded$'), false)
                                                           }) );
     var levelClass = "";
     switch(level) {
@@ -164,6 +164,7 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
           (<dt className="uk-text-large uk-margin-right" style={{float:'none'}} key={"dt"+child.name}>
             <a onClick={ () => onFolderClick(child.path, child.folded) }>
                 <i className={"uk-icon " + folderClass}></i> {folderName}
+                  { student &&
                   <div className="uk-grid">
                   { summaryReq.total > 0 &&
                   <div className="uk-width-1-1 uk-progress uk-margin-remove uk-progress-mini uk-progress-success">
@@ -176,6 +177,7 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
                   </div>
                   }
                   </div>
+                  }
             </a>
             </dt>)];
         if(!child.folded) 
@@ -218,6 +220,7 @@ const mapStateToProps = state => ({
   showStatistics: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
   statistics: state.get('statistics', immutable.Map({})),
   activityRange: state.get('activityRange', '1h'),
+  student: state.getIn(['login', 'groups'], immutable.List([])).includes('Student')
 });
 
 const mapDispatchToProps = dispatch => ({

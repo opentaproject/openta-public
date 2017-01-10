@@ -365,16 +365,19 @@ def exercise_test(exercise_key):  # {{{
     user = User.objects.get(username='tester')
     results = []
     for dbquestion in dbquestions:
-        question_key = dbquestion.question_key
-        question_xml = question_xmltree_get(xmltree, question_key)
-        answer = question_xml.find('expression').text.split(';')[0]
-        result = {}
-        try:
-            result = question_check(user, "tester", exercise_key, question_key, answer)
-        except Exception as e:
-            result['exception'] = str(e)
-        result.update({'answer': answer})
-        results.append(result)
+        if dbquestion.type == 'compareNumeric':
+            question_key = dbquestion.question_key
+            question_xml = question_xmltree_get(xmltree, question_key)
+            answer_element = question_xml.find('expression')
+            if answer_element is not None:
+                answer = answer_element.text.split(';')[0]
+                result = {}
+                try:
+                    result = question_check(user, "tester", exercise_key, question_key, answer)
+                except Exception as e:
+                    result['exception'] = str(e)
+                result.update({'answer': answer})
+                results.append(result)
     return results  # }}}
 
 

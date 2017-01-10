@@ -19,11 +19,11 @@ var defaultState = immutable.fromJS({
     },
     exercises: {
       activity: {
-        leafDefault: 'day',
+        leafDefault: 'all',
       }
     }
   },
-  activityRange: '24h',
+  activityRange: 'all',
   exerciseState: {},
   exerciseTreeUI: {},
   results: {
