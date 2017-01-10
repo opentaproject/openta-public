@@ -35,7 +35,7 @@ def get_user_results(request, userpk):
                 Prefetch(
                     'answer',
                     queryset=Answer.objects.filter(user=user).order_by('-date'),
-                    to_attr='all',
+                    to_attr='allanswers',
                 ),
             ),
             to_attr='questions',
@@ -89,12 +89,12 @@ def get_user_results(request, userpk):
         for question in exercise.questions:
             if question.correct:
                 n_correct += 1
-            answers = AnswerSerializer(question.all, many=True)
+            answers = AnswerSerializer(question.allanswers, many=True)
             exercises_render[exercise.exercise_key]['questions'][question.question_key] = {}
             exercises_render[exercise.exercise_key]['questions'][question.question_key][
                 'answers'
             ] = answers.data
-            n_tries += len(question.all)
+            n_tries += len(question.allanswers)
         exercises_render[exercise.exercise_key]['correct'] = n_correct == len(exercise.questions)
         exercises_render[exercise.exercise_key]['tries'] = n_tries
 
