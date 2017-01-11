@@ -119,7 +119,7 @@ function handleXMLChange(dispatch, xml, exercise) {
   XMLParser.reset();
   throttleParseXML(xml, (err, result) => {
     if(err || result === null) {
-      console.dir(err);
+      //console.dir(err);
     }
     else {
       var questions = _.get(result, 'exercise.question', {});

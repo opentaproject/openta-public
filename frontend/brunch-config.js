@@ -4,7 +4,7 @@ exports.config = {
      awaitWriteFinish: true,
      usePolling: true
    },
-  npm: { styles: { codemirror: ['lib/codemirror.css', 'theme/paraiso-light.css'] } },
+  npm: { styles: { codemirror: ['lib/codemirror.css', 'theme/paraiso-light.css', 'addon/fold/foldgutter.css', '/addon/hint/show-hint.css'] } },
   files: {
     //javascripts: { joinTo: {
     //  //'app.js': ['app/**/*', '../questiontypes/**/*'],
