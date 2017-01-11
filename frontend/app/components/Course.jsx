@@ -82,7 +82,7 @@ return (
       }
       { activity >= 0 &&
       <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-danger" title="Tries/Question">
-        <div className="uk-progress-bar uk-text-small" style={{'width': activity + '%', 'backgroundColor': '#e62ef1'}}>
+        <div className="uk-progress-bar uk-text-small" style={{'width': activity + '%', 'backgroundColor': '#de96e2'}}>
         { activity >= 10 && <span className="uk-text-small">{exerciseState.getIn([exercise,'activity',activityRange])}</span>}
         { activity < 10 && activity > 0 && <span style={{position: 'relative', left: '200%'}} className="uk-text-danger uk-text-small">{exerciseState.getIn([exercise,'activity',activityRange])}</span>}
         { activity == 0 && <span className="uk-text-primary uk-text-small">0</span>}
@@ -145,8 +145,8 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
     }
     var DOM = (
       <div className={"uk-block uk-padding-remove " + levelClass}>
-      <div className="uk-container">
-      <ul className="uk-thumbnav uk-flex uk-flex-bottom ">
+      <div className="uk-container uk-margin-small-left uk-margin-small-right uk-padding-remove">
+      <ul className="uk-thumbnav uk-flex uk-flex-bottom uk-padding-remove">
         {exercises}
       </ul>
         <dl className="uk-description-list-horizontal">
@@ -164,15 +164,15 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
           (<dt className="uk-text-large uk-margin-right" style={{float:'none'}} key={"dt"+child.name}>
             <a onClick={ () => onFolderClick(child.path, child.folded) }>
                 <i className={"uk-icon " + folderClass}></i> {folderName}
-                  { student &&
+                  { student && false &&
                   <div className="uk-grid">
                   { summaryReq.total > 0 &&
-                  <div className="uk-width-1-1 uk-progress uk-margin-remove uk-progress-mini uk-progress-success">
+                  <div className="uk-width-1-1 uk-progress uk-margin-remove uk-padding-remove uk-progress-mini uk-progress-success">
                     <div className="uk-progress-bar" style={{'width': percentReq + '%'}}></div>
                   </div>
                   }
                   { summaryBonus.total > 0 &&
-                  <div className="uk-width-1-1 uk-progress uk-margin-remove uk-progress-mini uk-progress-warning">
+                  <div className="uk-width-1-1 uk-progress uk-margin-remove uk-padding-remove uk-progress-mini uk-progress-warning">
                     <div className="uk-progress-bar" style={{'width': percentBonus + '%'}}></div>
                   </div>
                   }

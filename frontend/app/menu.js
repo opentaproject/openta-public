@@ -107,12 +107,12 @@ var menuTree = immutable.fromJS({
           reqGroup: 'View',
           onLoad: fetchExerciseStatistics(),
         },
-        audit: {
+        /*audit: {
           name: 'Audit',
           key: 'audit',
           reqGroup: 'Admin',
           onLoad: fetchUnsentAudits(),
-        }
+        }*/
       }
     }
   }
