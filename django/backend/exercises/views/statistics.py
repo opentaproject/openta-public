@@ -111,7 +111,7 @@ def get_activity_exercise(request, exercise):
     # answer_ts_list = [time.timestamp() for time in answer_list]
     answer_ts_array = to_timestamp(answer_list)
     # correct_answer_ts_array = to_timestamp(correct_answer_list)
-    nbins = int((numpy.max(answer_ts_array) - numpy.min(answer_ts_array)) / (2 * 60 * 60))
+    nbins = int((numpy.max(answer_ts_array) - numpy.min(answer_ts_array)) / (2 * 60 * 60)) + 1
     bins = []
     histogram = []
     if nbins > 0:
