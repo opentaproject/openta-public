@@ -267,7 +267,7 @@ const BaseResults = ({menuPath,
       </div>
       { menuPositionUnder(menuPath, ['results', 'download']) && !pendingResults && 
       <div className="uk-width-1-1 uk-text-center">
-        <h1><a href={"/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a></h1> 
+        <h1><a href={SUBPATH + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a></h1> 
       </div>
       }
       { !activeDetailExercise && !menuPositionUnder(menuPath, ['results', 'download']) && renderFilter({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
