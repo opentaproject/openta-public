@@ -207,7 +207,7 @@ def exercise_save(request, exercise):  # {{{
         parsing.invalidate_caches()
         return Response(result)
     except parsing.ExerciseParseError as e:
-        result = {'success': True, 'error': str(e)}
+        result = {'success': True, 'warning': str(e)}
         return Response(result)
     except IOError as e:
         result = {'success': False, 'error': str(e)}

@@ -124,11 +124,9 @@ BaseLoginInfo.propTypes = {
 
 function handleSave(exercise) {
   return (dispatch, getState) => {
-    console.log("Save " + exercise);
     dispatch(saveExercise(exercise)).then(
       res => dispatch(fetchSameFolder(exercise, getState().get('folder') ))
     );
-    console.log([exercise, getState().get('folder')]);
   }
 }
 function handleReset(exercise) {
