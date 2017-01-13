@@ -134,7 +134,7 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
                                                             folder: folder.getIn(['folders', childfolder, 'content']), 
                                                             content: parseFolder( folder.getIn(['folders', childfolder, 'content']), childfolder, level + 1), 
                                                             path: folder.getIn(['folders', childfolder, 'content', 'path']),
-                                                            folded: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$folded$'), false)
+                                                            folded: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$folded$'), true)
                                                           }) );
     var levelClass = "";
     switch(level) {
