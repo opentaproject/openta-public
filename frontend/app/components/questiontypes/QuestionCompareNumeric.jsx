@@ -47,6 +47,7 @@ export default class QuestionCompareNumeric extends Component {
           newsymbol({input:v,  tag:"mi", output: v, tex: v, ttype:0, val: true});
       });
     }
+    mathjs.import({ln: mathjs.log});
   }
 
   renderAsciiMath = (asciitext) => {
