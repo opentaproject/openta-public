@@ -12,6 +12,64 @@ import Badge from '../Badge.jsx'; // Another component useful for showing badges
 import HelpCompareNumeric from './HelpCompareNumeric.jsx';
 import mathjs from 'mathjs';
 
+//Returns a new string where the character at pos in str is replaced with newstring
+function replaceAt(str, pos, newString) {
+  return str.slice(0,pos) + newString + str.slice(pos+1);
+}
+
+//An alpha character followed by a number should be rendered in subscript
+const insertImplicitSubscript = (asciitext) => {
+  var re, implicitsubscripts = [/([a-zA-Z]+)([0-9]+)/g ] ;
+  var nasciitext = asciitext;
+  for(re of implicitsubscripts){
+    nasciitext = nasciitext.replace(re,'$1_{$2} ');
+  };
+  return nasciitext;
+}
+
+// Finds unmatched delimiters and inserts metainformation for the MathJS rendering as custom functions
+function fixDelimiters(str) {//{{{
+  var starts = ['(', '['];
+  var ends = [')', ']'];
+  var stack = [];
+  var i = 0;
+  // Traverse the string one char at a time
+  while(i < str.length) {
+    // Loop through all delimiters
+    for(var j = 0; j < starts.length; j++) {
+      // Push on stack if open
+      if(str[i] == starts[j])stack.push({delim: j, pos: i});
+      // Is the char a closing delimiter?
+      if(str[i] == ends[j]) {
+        // Compare ending delimiter with the last opened on the stack
+        if(stack.length > 0) {
+          var {delim, pos} = stack.pop();
+          if(delim != j) {
+            str = replaceAt(str, pos, ' fail("' + starts[delim] + '") ')
+            i = i + 10;
+            str = replaceAt(str, i, ' fail("' + ends[j] + '") ')
+            i = i + 10;
+          }
+        } 
+        // If there was nothing on the stack then there is no corresponding open delimiter
+        else {
+          str = replaceAt(str, i, ' fail("' + ends[j] + '") ')
+          i = i + 10;
+        }
+      }
+    }
+    i++;
+  }
+  // If there are any remaining items in the stack this means there are unmatched opened delimiters. Fix them in reverse so that the position of subsequent items is still valid after the string update
+  for(let open of stack.reverse()) {
+    if(starts[open.delim] === '(')
+      str = str + ' unclosed() ' + ends[open.delim];
+    else
+      str = str + ends[open.delim] + ' smalltext("] fattas") ';
+  }
+  return str;
+}//}}}
+
 export default class QuestionCompareNumeric extends Component {
   static propTypes = {
     questionData: PropTypes.object, // Data from exercise XML file, i.e. whats inside the <question> tag
@@ -25,8 +83,10 @@ export default class QuestionCompareNumeric extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: this.props.questionState.getIn(['answer'], '')
+      value: this.props.questionState.getIn(['answer'], ''),
     };
+    this.lastParsable = '';
+    this.vars = [];
     if(this.props.canViewSolution)
       this.state.value = this.props.questionData.getIn(['expression','$'], '').replace(/;/g,'');
   }
@@ -41,17 +101,47 @@ export default class QuestionCompareNumeric extends Component {
 
   componentWillMount = () => {
     var vars = this.parseVariables(this.props.questionData.getIn(['global','$'], ''));
-    if(vars) {
-      vars.map( v => {
-        if(AMsymbols.find( item => item.input === v ) === undefined)
-          newsymbol({input:v,  tag:"mi", output: v, tex: v, ttype:0, val: true});
+    this.vars = vars.slice();
+  }
+
+  customLatex = (node, options) => {
+    if(node.type === 'FunctionNode') {
+      // Will print in red
+      if(node.name === 'fail') {
+        return '\\color{red}{' + node.args[0].value + '}';
+      }
+      // Will print in small red text
+      else if(node.name === 'smalltext') {
+        return '\\color{red}{\\text{\\small ' + node.args[0].value + '}}';
+      }
+      // Will not generate any output but is later used to find unmatched parenthesis
+      else if(node.name === 'unclosed') {
+        return '';
+      }
+    }
+    // Render green if allowed variable otherwise red
+    else if(node.type === 'SymbolNode') {
+      if(this.vars.indexOf(node.name) !== -1)
+        return '\\color{green}{' + node._toTex(options) + '}';
+      else
+        return '\\color{red}{' + node._toTex(options) + '}';
+    }
+    // Special handling for unmatched parenthesis, otherwise render normally
+    else if(node.type === 'ParenthesisNode') {
+      var isUnclosed = false;
+      node.traverse( (node, path, parent) => {
+        if(node.type === 'FunctionNode' && node.name === 'unclosed')isUnclosed = true;
       });
+      if(isUnclosed) {
+        return '\\color{red}{(} ' + node.content.toTex(options) + '';
+      }
+      else 
+        return node._toTex(options);
     }
     mathjs.import({ln: mathjs.log});
   }
 
   renderAsciiMath = (asciitext) => {
-    try {
       //Some initial parsing of commonly used patterns
       var re = /([a-zA-Z]+)([0-9]+)/g;
       var re2 = /([a-zA-Z0-9)])\s+([(a-zA-Z0-9])/g;
@@ -59,12 +149,21 @@ export default class QuestionCompareNumeric extends Component {
       var parsed = asciitext.replace(re, '$1_$2');
       parsed = parsed.replace(re2,'$1 * $2');
       parsed = parsed.replace(re3,'$1 * $2');
-      return AMTparseAMtoTeX(parsed);
-    }
-    catch(e) {
-      console.dir(e);
-      return "invalid math";
-    }
+      parsed = insertImplicitSubscript(parsed);
+      parsed = fixDelimiters(parsed);
+      try {
+        var mParsed = mathjs.parse(parsed).toTex({
+          parenthesis: 'keep', // The keep options keeps parenthesis from input expression, seems to work best.
+          handler: this.customLatex, // Custom latex node handler
+        });
+        if(mParsed !== 'undefined') {
+          this.lastParsable = mParsed.replace(/\\\\end{bmatrix}/g,'end{bmatrix}'); // MathJS outputs an extra \\ which KaTeX interprets as a new line
+        }
+        return this.lastParsable;
+      }
+      catch(e) {
+        return this.lastParsable;
+      }
   }
 
   parseVariables = (variableString) => {
@@ -88,7 +187,6 @@ export default class QuestionCompareNumeric extends Component {
 
   // System state data
   var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
-  var lastAnswerRendered = this.renderAsciiMath(lastAnswer);
   var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
 
   // Custom state data
