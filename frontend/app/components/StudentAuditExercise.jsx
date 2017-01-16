@@ -19,7 +19,7 @@ const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, a
     <div className="uk-panel uk-panel-box">
         <h3 className="uk-panel-title">
         { !anonymous && userResults.get('first_name') + ' ' + userResults.get('last_name')}
-        { anonymous && userResults.get('pk')}
+        { anonymous && userResults.get('username')}
         <i className={'uk-margin-small-right uk-margin-small-left uk-icon ' + (userResults.getIn(['exercises', activeExercise, 'correct'], false) ? 'uk-icon-check uk-text-success' : 'uk-icon-close uk-text-danger')}/>
         <i className={'uk-margin-small-right uk-icon uk-icon-picture-o ' + (userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).size > 0 ? 'uk-text-success' : 'uk-text-danger')}/>
         <i className={'uk-margin-small-right uk-icon uk-icon-clock-o ' + (userResults.getIn(['exercises', activeExercise,'image_deadline'], false) && userResults.getIn(['exercises', activeExercise,'correct_deadline'], false) ? 'uk-text-success' : 'uk-text-danger')}/> 

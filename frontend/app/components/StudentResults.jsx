@@ -89,7 +89,7 @@ const BaseStudentResults = ({userResults,
       
       { !pendingResults && !activeExercise && 
         <h1 className="uk-article-title">
-        {userResults.get('pk')/*userResults.get('first_name') + " " + userResults.get('last_name')*/}
+        {userResults.get('username')/*userResults.get('first_name') + " " + userResults.get('last_name')*/}
         </h1>
       }
       { pendingResults && <Spinner/> }
