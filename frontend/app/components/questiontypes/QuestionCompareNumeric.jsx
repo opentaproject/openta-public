@@ -11,6 +11,7 @@ import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful fo
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
 import HelpCompareNumeric from './HelpCompareNumeric.jsx';
 import mathjs from 'mathjs';
+import immutable from 'immutable';
 
 //Returns a new string where the character at pos in str is replaced with newstring
 function replaceAt(str, pos, newString) {
@@ -22,7 +23,7 @@ const insertImplicitSubscript = (asciitext) => {
   var re, implicitsubscripts = [/([a-zA-Z]+)([0-9]+)/g ] ;
   var nasciitext = asciitext;
   for(re of implicitsubscripts){
-    nasciitext = nasciitext.replace(re,'$1_{$2} ');
+    nasciitext = nasciitext.replace(re,'$1_$2');
   };
   return nasciitext;
 }
@@ -65,7 +66,7 @@ function fixDelimiters(str) {//{{{
     if(starts[open.delim] === '(')
       str = str + ' unclosed() ' + ends[open.delim];
     else
-      str = str + ends[open.delim] + ' smalltext("] fattas") ';
+      str = str + ends[open.delim] /*+ ' smalltext("] fattas") '*/;
   }
   return str;
 }//}}}
@@ -86,7 +87,8 @@ export default class QuestionCompareNumeric extends Component {
       value: this.props.questionState.getIn(['answer'], ''),
     };
     this.lastParsable = '';
-    this.vars = [];
+    this.varsList = [];
+    this.blacklist = [];
     if(this.props.canViewSolution)
       this.state.value = this.props.questionData.getIn(['expression','$'], '').replace(/;/g,'');
   }
@@ -100,8 +102,8 @@ export default class QuestionCompareNumeric extends Component {
   }
 
   componentWillMount = () => {
-    var vars = this.parseVariables(this.props.questionData.getIn(['global','$'], ''));
-    this.vars = vars.slice();
+    //var vars = this.parseVariables(this.props.questionData.getIn(['global','$'], ''));
+    //this.vars = vars.slice();
   }
 
   customLatex = (node, options) => {
@@ -118,12 +120,20 @@ export default class QuestionCompareNumeric extends Component {
       else if(node.name === 'unclosed') {
         return '';
       }
+      else if(node.name === 'empty') {
+        return '';
+      }
+      else if(this.blacklist.indexOf(node.name) !== -1) {
+        return '\\color{orange}{' + node._toTex(options) + '}';
+      }
     }
     // Render green if allowed variable otherwise red
     else if(node.type === 'SymbolNode') {
-      if(this.vars.indexOf(node.name) !== -1)
+      if(this.blacklist.indexOf(node.name) !== -1) 
+        return '\\color{orange}{' + node._toTex(options) + '}';
+      if(this.varsList.indexOf(node.name) !== -1)
         return '\\color{green}{' + node._toTex(options) + '}';
-      else
+      else 
         return '\\color{red}{' + node._toTex(options) + '}';
     }
     // Special handling for unmatched parenthesis, otherwise render normally
@@ -147,17 +157,18 @@ export default class QuestionCompareNumeric extends Component {
       var re2 = /([a-zA-Z0-9)])\s+([(a-zA-Z0-9])/g;
       var re3 = /([a-zA-Z0-9]+)\s+([a-zA-Z0-9]+)/g;
       var parsed = asciitext.replace(re, '$1_$2');
-      parsed = parsed.replace(re2,'$1 * $2');
+      var parsed = parsed.replace(re2,'$1 * $2');
       parsed = parsed.replace(re3,'$1 * $2');
-      parsed = insertImplicitSubscript(parsed);
+      //parsed = insertImplicitSubscript(parsed);
       parsed = fixDelimiters(parsed);
+      parsed = parsed + ' empty()';
       try {
         var mParsed = mathjs.parse(parsed).toTex({
           parenthesis: 'keep', // The keep options keeps parenthesis from input expression, seems to work best.
           handler: this.customLatex, // Custom latex node handler
         });
         if(mParsed !== 'undefined') {
-          this.lastParsable = mParsed.replace(/\\\\end{bmatrix}/g,'end{bmatrix}'); // MathJS outputs an extra \\ which KaTeX interprets as a new line
+          this.lastParsable = insertImplicitSubscript(mParsed.replace(/\\\\end{bmatrix}/g,'end{bmatrix}')); // MathJS outputs an extra \\ which KaTeX interprets as a new line
         }
         return this.lastParsable;
       }
@@ -171,7 +182,7 @@ export default class QuestionCompareNumeric extends Component {
       .split(';')
       .filter(str => str !== "")
       .map( str => str.split('=') )
-      .map( entry => entry[0].trim() );
+      .map( entry => insertImplicitSubscript(entry[0].trim()) );
       return vars;
   }
 
@@ -197,12 +208,17 @@ export default class QuestionCompareNumeric extends Component {
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   if(state.getIn(['response','detail']))
     error = "Du är inte inloggad, tryck på logga ut eller ladda om sidan.";
-  var varsList = this.parseVariables(this.props.questionData.getIn(['global','$'], ''));
-  var vars = {}
-  if(varsList) {
-    varsList.map( v => {vars[v] = 1;} );
+  var blacklistObject =  this.props.questionData.getIn(['global','blacklist','token']);
+  if( blacklistObject ){
+    if(!immutable.List.isList(blacklistObject))blacklistObject = immutable.List([blacklistObject]);
+    this.blacklist = blacklistObject.map( item => insertImplicitSubscript(item.get('$','').trim()) ).toJS();
   }
-  var availableVariables = varsList.length ? "(i termer av " + varsList.join(", ") + ")" : "";
+  this.varsList = this.parseVariables(this.props.questionData.getIn(['global','$'], ''));
+  var mathjsEvalVars = {}
+  if(this.varsList) {
+    this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
+  }
+  var availableVariables = this.varsList.length ? "(i termer av " + this.varsList.join(", ") + ")" : "";
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
   var graderResponse = null;
@@ -219,7 +235,7 @@ export default class QuestionCompareNumeric extends Component {
   }
   var mathjsError = null;
   try {
-    var mathjsParse = mathjs.eval(input, vars);
+    var mathjsParse = mathjs.eval(input, mathjsEvalVars);
   }
   catch(e) {
     if(e instanceof Error && !(e instanceof TypeError))
@@ -250,7 +266,7 @@ export default class QuestionCompareNumeric extends Component {
           { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }
         { warning && !hasChanged && <Alert message={warning} type="warning" key="warning"/> }
         { graderResponse }
-        { mathjsError }
+        { /*mathjsError*/ }
         </div>
   );
 }
