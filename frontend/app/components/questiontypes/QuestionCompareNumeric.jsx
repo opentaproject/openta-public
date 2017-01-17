@@ -123,7 +123,6 @@ export default class QuestionCompareNumeric extends Component {
 
   updateCursor = throttle( (pos) => {
     this.setState({cursor: pos});
-    console.log('updated cursor: ' + pos);
   }, 1000);
 
   handleSelect = (event) => {
@@ -195,7 +194,6 @@ export default class QuestionCompareNumeric extends Component {
       var cursorPos = this.state.cursor;
       while(cursorPos > 0 && cursorPos >= asciitext.length)cursorPos--;
       while(!cursorComplete) {
-        console.log(cursorPos)
         if(cursorPos <= 0) 
           cursorComplete = true;
         else if(!asciitext[cursorPos-1].match(/[a-zA-Z0-9\)\]]/g))
@@ -220,7 +218,6 @@ export default class QuestionCompareNumeric extends Component {
         return {out: this.lastParsable, warnings: delimitersFixed.warnings}
       }
       catch(e) {
-        console.log(e.toString())
         return {out: this.lastParsable, warnings: delimitersFixed.warnings}
       }
   }
@@ -239,8 +236,11 @@ export default class QuestionCompareNumeric extends Component {
   parseVariables = () => {
     this.varsList = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
     // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
-    this.varProps = enforceList(this.props.questionData.getIn(['global', 'var'], List([])))
-    .map( item => ({
+    var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
+    for(let v of varPropsList)
+      if(v.has('token') && this.varsList.indexOf(v.get('token')) == -1)
+        this.varsList.push(v.get('token'));
+    this.varProps = varPropsList.map( item => ({
       //The token is the key, the other items that are not the token or the special $children$ are added as a map.
       [item.getIn(['token', '$'], '')]: item.filterNot( (val, key) => key === 'token' || key === '$children$').map( val => val.get('$') )
     }) )
@@ -318,10 +318,8 @@ export default class QuestionCompareNumeric extends Component {
 { hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">
-          <div className="uk-form-icon uk-width-1-1">
-          { !pending && <i className="uk-icon-pencil"/> }
-          { pending && <i className="uk-icon-cog uk-icon-spin"/> }
-            <input className={"uk-width-1-1 "} type="text" value={this.state.value} onSelect={this.handleSelect} onChange={this.handleChange} ></input>
+          <div className="uk-width-1-1">
+            <textarea className={"uk-width-1-1 "} value={this.state.value} onSelect={this.handleSelect} onChange={this.handleChange} ></textarea>
           </div>
           </div>
           <div className="uk-width-1-6">
