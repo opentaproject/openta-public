@@ -11,7 +11,9 @@ import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful fo
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
 import HelpCompareNumeric from './HelpCompareNumeric.jsx';
 import mathjs from 'mathjs';
-import immutable from 'immutable';
+import immutable, { List } from 'immutable';
+import { enforceList } from '../../immutablehelpers.js';
+import { throttle } from 'lodash'
 
 //Returns a new string where the character at pos in str is replaced with newstring
 function replaceAt(str, pos, newString) {
@@ -20,12 +22,29 @@ function replaceAt(str, pos, newString) {
 
 //An alpha character followed by a number should be rendered in subscript
 const insertImplicitSubscript = (asciitext) => {
-  var re, implicitsubscripts = [/([a-zA-Z]+)([0-9]+)/g ] ;
-  var nasciitext = asciitext;
-  for(re of implicitsubscripts){
-    nasciitext = nasciitext.replace(re,'$1_$2');
-  };
-  return nasciitext;
+  var re = /([a-zA-Z]+)([0-9]+)/g;
+  return asciitext.replace(re,'$1_$2');
+}
+
+var insertImplicitMultiply = (asciitext) => {
+  //
+  // first token[space]token ; then [space]integers[paren] ; then [blanks][numbers][token] ; then )[space*](
+  // The reason for the complexity is that mathjs is even more lenient with implicit multiplies; 3x is treated as 3*x
+  // That is a nuisance which makes the parsing more difficult to comply with
+  //
+  var re, implicitmultiplies = [
+    /([0-9]+)\s+([0-9]+)/g,    // [int] [int] => [int]*[int]
+    /(\w+)\s+(\w+)/g,    // [token] [token] => [token]*[token]
+    /(\s+[0-9]+)([(])/g, 	// [space][integers]( => [integer] * ( 
+    /(\W+[0-9]+)([A-Za-z]+)/g, // [nonword][integers][token] => [nonword][integers] * token
+    /(\w+)\s+([(])/g,           // [token][space]( => [token] * (
+    /([)])\s*(\w+)/g, 	    // )[space][token] => ) * [token]
+    /([)])\s*([(])/g ];         // )[space*]( => ) * (
+    var nasciitext = ' '+asciitext + ' ';
+    for(re of implicitmultiplies){
+      nasciitext = nasciitext.replace(re, '$1 * $2').replace(re,'$1 * $2');
+    };
+    return nasciitext;
 }
 
 // Finds unmatched delimiters and inserts metainformation for the MathJS rendering as custom functions
@@ -34,6 +53,7 @@ function fixDelimiters(str) {//{{{
   var ends = [')', ']'];
   var stack = [];
   var i = 0;
+  var warnings = [];
   // Traverse the string one char at a time
   while(i < str.length) {
     // Loop through all delimiters
@@ -65,10 +85,12 @@ function fixDelimiters(str) {//{{{
   for(let open of stack.reverse()) {
     if(starts[open.delim] === '(')
       str = str + ' unclosed() ' + ends[open.delim];
-    else
+    else {
       str = str + ends[open.delim] /*+ ' smalltext("] fattas") '*/;
+      warnings.push("\"]\" fattas")
+    }
   }
-  return str;
+  return {out: str, warnings: warnings};
 }//}}}
 
 export default class QuestionCompareNumeric extends Component {
@@ -85,8 +107,10 @@ export default class QuestionCompareNumeric extends Component {
     super(props);
     this.state = {
       value: this.props.questionState.getIn(['answer'], ''),
+      cursor: 0,
     };
     this.lastParsable = '';
+    this.varProps = {};
     this.varsList = [];
     this.blacklist = [];
     if(this.props.canViewSolution)
@@ -97,13 +121,21 @@ export default class QuestionCompareNumeric extends Component {
     this.setState({value: event.target.value});
   }
 
+  updateCursor = throttle( (pos) => {
+    this.setState({cursor: pos});
+    console.log('updated cursor: ' + pos);
+  }, 1000);
+
+  handleSelect = (event) => {
+      this.updateCursor(event.target.selectionStart);
+  }
+
   componentWillReceiveProps = (newProps) => {
     //this.setState({ value: newProps.questionState.getIn(['answer'],'') });
   }
 
   componentWillMount = () => {
-    //var vars = this.parseVariables(this.props.questionData.getIn(['global','$'], ''));
-    //this.vars = vars.slice();
+    mathjs.import({ln: mathjs.log});
   }
 
   customLatex = (node, options) => {
@@ -129,12 +161,14 @@ export default class QuestionCompareNumeric extends Component {
     }
     // Render green if allowed variable otherwise red
     else if(node.type === 'SymbolNode') {
+      const origVar = node.name.replace(/\_/g, '');
+      const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : node._toTex(options);
       if(this.blacklist.indexOf(node.name) !== -1) 
-        return '\\color{orange}{' + node._toTex(options) + '}';
+        return '\\color{orange}{' + texSymbol + '}';
       if(this.varsList.indexOf(node.name) !== -1)
-        return '\\color{green}{' + node._toTex(options) + '}';
+        return '\\color{green}{' + texSymbol + '}';
       else 
-        return '\\color{red}{' + node._toTex(options) + '}';
+        return '\\color{red}{' + texSymbol + '}';
     }
     // Special handling for unmatched parenthesis, otherwise render normally
     else if(node.type === 'ParenthesisNode') {
@@ -148,19 +182,32 @@ export default class QuestionCompareNumeric extends Component {
       else 
         return node._toTex(options);
     }
-    mathjs.import({ln: mathjs.log});
+    else if(node.type === 'OperatorNode') {
+      if(node.fn === 'bitNot') {
+        return '\\underline{' + node.args[0].toTex(options) + '}';
+      }
+    }
   }
 
   renderAsciiMath = (asciitext) => {
-      //Some initial parsing of commonly used patterns
-      var re = /([a-zA-Z]+)([0-9]+)/g;
-      var re2 = /([a-zA-Z0-9)])\s+([(a-zA-Z0-9])/g;
-      var re3 = /([a-zA-Z0-9]+)\s+([a-zA-Z0-9]+)/g;
-      var parsed = asciitext.replace(re, '$1_$2');
-      var parsed = parsed.replace(re2,'$1 * $2');
-      parsed = parsed.replace(re3,'$1 * $2');
-      //parsed = insertImplicitSubscript(parsed);
-      parsed = fixDelimiters(parsed);
+      
+      var cursorComplete = false;
+      var cursorPos = this.state.cursor;
+      while(cursorPos > 0 && cursorPos >= asciitext.length)cursorPos--;
+      while(!cursorComplete) {
+        console.log(cursorPos)
+        if(cursorPos <= 0) 
+          cursorComplete = true;
+        else if(!asciitext[cursorPos-1].match(/[a-zA-Z0-9\)\]]/g))
+          cursorComplete = true;
+        else
+          cursorPos--;
+      }
+      //asciitext = asciitext.substr(0, cursorPos) + " ~" + asciitext.substr(cursorPos);
+      var parsed = insertImplicitMultiply(asciitext);
+      parsed = insertImplicitSubscript(parsed);
+      var delimitersFixed = fixDelimiters(parsed);
+      parsed = delimitersFixed.out;
       parsed = parsed + ' empty()';
       try {
         var mParsed = mathjs.parse(parsed).toTex({
@@ -168,22 +215,44 @@ export default class QuestionCompareNumeric extends Component {
           handler: this.customLatex, // Custom latex node handler
         });
         if(mParsed !== 'undefined') {
-          this.lastParsable = insertImplicitSubscript(mParsed.replace(/\\\\end{bmatrix}/g,'end{bmatrix}')); // MathJS outputs an extra \\ which KaTeX interprets as a new line
+          this.lastParsable = mParsed.replace(/\\\\end{bmatrix}/g,'end{bmatrix}'); // MathJS outputs an extra \\ which KaTeX interprets as a new line
         }
-        return this.lastParsable;
+        return {out: this.lastParsable, warnings: delimitersFixed.warnings}
       }
       catch(e) {
-        return this.lastParsable;
+        console.log(e.toString())
+        return {out: this.lastParsable, warnings: delimitersFixed.warnings}
       }
   }
 
-  parseVariables = (variableString) => {
+  //Parse the shorthand semicolor separated variable string
+  parseVariableString = (variableString) => {
     var vars = variableString.trim()
       .split(';')
       .filter(str => str !== "")
       .map( str => str.split('=') )
       .map( entry => insertImplicitSubscript(entry[0].trim()) );
       return vars;
+  }
+
+  //Parse variables and their optional properties
+  parseVariables = () => {
+    this.varsList = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
+    // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
+    this.varProps = enforceList(this.props.questionData.getIn(['global', 'var'], List([])))
+    .map( item => ({
+      //The token is the key, the other items that are not the token or the special $children$ are added as a map.
+      [item.getIn(['token', '$'], '')]: item.filterNot( (val, key) => key === 'token' || key === '$children$').map( val => val.get('$') )
+    }) )
+    .reduce( (prev, next) => prev.merge(next), immutable.Map({}));
+  }
+
+  parseBlacklist = () => {
+    var blacklistObject =  this.props.questionData.getIn(['global','blacklist','token']);
+    if( blacklistObject ){
+      var blacklistList = enforceList(blacklistObject);
+      this.blacklist = blacklistObject.map( item => insertImplicitSubscript(item.get('$','').trim()) ).toJS();
+    }
   }
 
   /* render gets called every time the question is shown on screen */
@@ -208,40 +277,40 @@ export default class QuestionCompareNumeric extends Component {
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   if(state.getIn(['response','detail']))
     error = "Du är inte inloggad, tryck på logga ut eller ladda om sidan.";
-  var blacklistObject =  this.props.questionData.getIn(['global','blacklist','token']);
-  if( blacklistObject ){
-    if(!immutable.List.isList(blacklistObject))blacklistObject = immutable.List([blacklistObject]);
-    this.blacklist = blacklistObject.map( item => insertImplicitSubscript(item.get('$','').trim()) ).toJS();
-  }
-  this.varsList = this.parseVariables(this.props.questionData.getIn(['global','$'], ''));
+
+  this.parseBlacklist();
+  this.parseVariables();
+
   var mathjsEvalVars = {}
   if(this.varsList) {
     this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
   }
-  var availableVariables = this.varsList.length ? "(i termer av " + this.varsList.join(", ") + ")" : "";
+  var availableVariables = this.varsList.length ? "(i termer av " + this.varsList.map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
   var graderResponse = null;
   var input = this.state.value.trim();
   var hasChanged = input !== lastAnswer;
   var nonEmpty = input !== "";
+  var renderedResult = this.renderAsciiMath(this.state.value);
+  var renderedMath = renderedResult.out;
   if(input === lastAnswer && lastAnswer !== '' && !error) {
     if(correct)
-       graderResponse = (<Alert message={"$" + this.renderAsciiMath(input) + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
+       graderResponse = (<Alert message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
     else
-      graderResponse = (<Alert message={"$" + this.renderAsciiMath(input) + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
+      graderResponse = (<Alert message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
   } else if(input !== ''){
-    graderResponse = (<SafeMathAlert message={this.renderAsciiMath(input)} key="input"/>);
+    graderResponse = (<SafeMathAlert message={ renderedMath } key="input"/>);
   }
-  var mathjsError = null;
+  var mathjsError = false;
   try {
-    var mathjsParse = mathjs.eval(input, mathjsEvalVars);
+    var mathjsParse = mathjs.eval(insertImplicitSubscript(input), mathjsEvalVars);
   }
   catch(e) {
     if(e instanceof Error && !(e instanceof TypeError))
-      mathjsError = (<Alert type="warning" message={ e.toString() }/>);
+      mathjsError = e.toString();//(<Alert type="warning" message={ e.toString() }/>);
     if(e instanceof TypeError)
-      mathjsError = (<Alert type="warning" message="Expression unfinished"/>);
+      mathjsError = e.toString();//(<Alert type="warning" message="Expression unfinished"/>);
   }
   return (
         <div className="">
@@ -252,7 +321,7 @@ export default class QuestionCompareNumeric extends Component {
           <div className="uk-form-icon uk-width-1-1">
           { !pending && <i className="uk-icon-pencil"/> }
           { pending && <i className="uk-icon-cog uk-icon-spin"/> }
-            <input className={"uk-width-1-1 "} type="text" value={this.state.value} onChange={this.handleChange} ></input>
+            <input className={"uk-width-1-1 "} type="text" value={this.state.value} onSelect={this.handleSelect} onChange={this.handleChange} ></input>
           </div>
           </div>
           <div className="uk-width-1-6">
@@ -267,6 +336,7 @@ export default class QuestionCompareNumeric extends Component {
         { warning && !hasChanged && <Alert message={warning} type="warning" key="warning"/> }
         { graderResponse }
         { /*mathjsError*/ }
+        { renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning"/>}
         </div>
   );
 }

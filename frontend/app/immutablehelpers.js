@@ -13,4 +13,12 @@ function mergeNotLists(a, b) {
   return b
 }
 
-export { logImmutable, mergeNotLists }
+//Returns an immutable list if the object is not an immutable List or javascript Array
+function enforceList(a) {
+  if( !isList(a) && !Array.isArray(a) )
+    return List([a]);
+  else
+    return a;
+}
+
+export { logImmutable, mergeNotLists, enforceList }
