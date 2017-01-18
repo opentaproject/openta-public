@@ -20,6 +20,15 @@ function replaceAt(str, pos, newString) {
   return str.slice(0,pos) + newString + str.slice(pos+1);
 }
 
+//Parse Bra,Ket,BraKet and KetBra expressions for QM.
+var braketify = (sstr) => { 
+  var snew = sstr.replace(/\<([^<|]+)\|([^|>]+)\>/g, 'Braket($1, $2)');
+  var snew = snew.replace(/\<([^<|]+)\|([^|]+)\|([^|>]+)\>/g, 'Braket($1, $2,$3)');
+  var snew = snew.replace(/\|([^>]+)\>([\S^\<]+)\<([^|]+)\|/g,'KetBra($1,$2,$3)'); 
+  var snew = snew.replace(/\|([^>]+)\>\S*<([^|]+)\|/g,'KetBra($1,$2)');
+  return snew;
+}
+
 //An alpha character followed by a number should be rendered in subscript
 const insertImplicitSubscript = (asciitext) => {
   var re = /([a-zA-Z]+)([0-9]+)/g;
@@ -154,8 +163,33 @@ export default class QuestionCompareNumeric extends Component {
       else if(node.name === 'empty') {
         return '';
       }
+      else if(node.name === 'cursor') {
+        return '\\color{purple}';
+      }
       else if(this.blacklist.indexOf(node.name) !== -1) {
         return '\\color{orange}{' + node._toTex(options) + '}';
+      }
+      else if( node.name === 'Braket'  ){
+        var tex0 = node.args[0].toTex(options);
+        var tex1 = node.args[1].toTex(options);
+        if( node.args.length == 2 ){
+          return "\\langle  \\,"+ tex0 +"  \\,|  \\," + tex1 + "  \\,\\rangle"
+        }
+        else {
+          var tex2 = node.args[2].toTex(options);
+          return "\\langle \\, "+ tex0 +" \\ |  \\," + tex1 + " \\,| \\," + tex2 + " \\, \\rangle"
+        }
+      }
+      else if( node.name === 'KetBra'  ){
+        var tex0 = node.args[0].toTex(options);
+        var tex1 = node.args[1].toTex(options);
+        if( node.args.length == 2 ){
+          return '|\\,' + tex0 +" \\, \\rangle \\langle \\," + tex1 + " \\,|"
+        }
+        else {
+          var tex2 = node.args[2].toTex(options);
+          return '|\\,' + tex0 +" \\, \\rangle \\, " + tex1 + "\\, \\langle \\," + tex2 + " \\,|"
+        }
       }
     }
     // Render green if allowed variable otherwise red
@@ -201,9 +235,10 @@ export default class QuestionCompareNumeric extends Component {
         else
           cursorPos--;
       }
-      //asciitext = asciitext.substr(0, cursorPos) + " ~" + asciitext.substr(cursorPos);
+      //asciitext = asciitext.substr(0, cursorPos) + " ~ " + asciitext.substr(cursorPos);
       var parsed = insertImplicitMultiply(asciitext);
       parsed = insertImplicitSubscript(parsed);
+      parsed = braketify(parsed);
       var delimitersFixed = fixDelimiters(parsed);
       parsed = delimitersFixed.out;
       parsed = parsed + ' empty()';
