@@ -247,7 +247,7 @@ export default class QuestionCompareNumeric extends Component {
           parenthesis: 'keep', // The keep options keeps parenthesis from input expression, seems to work best.
           handler: this.customLatex, // Custom latex node handler
         });
-        if(mParsed !== 'undefined') {
+        if(typeof mParsed === 'string' && mParsed !== 'undefined') {
           this.lastParsable = mParsed.replace(/\\\\end{bmatrix}/g,'end{bmatrix}'); // MathJS outputs an extra \\ which KaTeX interprets as a new line
         }
         return {out: this.lastParsable, warnings: delimitersFixed.warnings}
@@ -272,9 +272,11 @@ export default class QuestionCompareNumeric extends Component {
     this.varsList = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
     // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
     var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
-    for(let v of varPropsList)
-      if(v.has('token') && this.varsList.indexOf(v.get('token')) == -1)
-        this.varsList.push(v.get('token'));
+    for(let v of varPropsList) {
+      if(v.has('token') && this.varsList.indexOf(v.getIn(['token','$'])) == -1) {
+        this.varsList.push(insertImplicitSubscript(v.getIn(['token','$'])));
+      }
+    }
     this.varProps = varPropsList.map( item => ({
       //The token is the key, the other items that are not the token or the special $children$ are added as a map.
       [item.getIn(['token', '$'], '')]: item.filterNot( (val, key) => key === 'token' || key === '$children$').map( val => val.get('$') )
@@ -317,10 +319,11 @@ export default class QuestionCompareNumeric extends Component {
   this.parseVariables();
 
   var mathjsEvalVars = {}
+  var availableVariables = "";
   if(this.varsList) {
     this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
+    availableVariables = this.varsList.length ? "(i termer av " + this.varsList.filter(v => typeof v === 'string').map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
   }
-  var availableVariables = this.varsList.length ? "(i termer av " + this.varsList.map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
   var graderResponse = null;
