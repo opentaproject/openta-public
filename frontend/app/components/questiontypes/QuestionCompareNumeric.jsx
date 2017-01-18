@@ -235,7 +235,7 @@ export default class QuestionCompareNumeric extends Component {
         else
           cursorPos--;
       }
-      //asciitext = asciitext.substr(0, cursorPos) + " ~ " + asciitext.substr(cursorPos);
+      asciitext = asciitext.substr(0, cursorPos) + " ~" + asciitext.substr(cursorPos);
       var parsed = insertImplicitMultiply(asciitext);
       parsed = insertImplicitSubscript(parsed);
       parsed = braketify(parsed);
