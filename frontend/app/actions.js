@@ -144,137 +144,152 @@ function updateActiveAdminTool(tool) {//{{{
   }
 }//}}}
 
-function setImageAnswers(exercise, imageAnswers) {
+function setImageAnswers(exercise, imageAnswers) {//{{{
   return {
     type: 'SET_IMAGE_ANSWERS',
     exercise: exercise,
     imageAnswers: imageAnswers
   }
-}
+}//}}}
 
-function updateStudentResults(json) {
+function updateStudentResults(json) {//{{{
   return {
     type: 'UPDATE_STUDENT_RESULTS',
     results: json
   }
-}
+}//}}}
 
-function updateMenuPath(path) {
+function updateMenuPath(path) {//{{{
   return {
     type: 'UPDATE_MENU_PATH',
     path: path
   }
-}
+}//}}}
 
-function updateMenuPathArray(path) {
+function updateMenuPathArray(path) {//{{{
   return {
     type: 'UPDATE_MENU_PATH',
     path: immutable.List(path)
   }
-}
+}//}}}
 
-function updateMenuLeafDefaults(path, value) {
+function updateMenuLeafDefaults(path, value) {//{{{
   var fullPath = path.concat(['leafDefault']);
   return {
     type: 'UPDATE_MENU_LEAF_DEFAULTS',
     path: fullPath,
     value: value
   }
-}
+}//}}}
 
-function updateExercisesReloadMessages(json) {
+function updateExercisesReloadMessages(json) {//{{{
   return {
     type:  'UPDATE_EXERCISES_RELOAD_MESSAGES',
     messages: json
   }
-}
+}//}}}
 
-function updateAudits(json) {
+function updateAudits(json) {//{{{
   return {
     type: 'UPDATE_AUDITS',
     audits: json
   }
-}
+}//}}}
 
-function updateAudit(pk, data) {
+function updateAudit(pk, data) {//{{{
   return {
     type: 'UPDATE_AUDIT',
     audit: pk,
     data: data
   }
-}
+}//}}}
 
-function setActiveAudit(pk) {
+function setActiveAudit(pk) {//{{{
   return {
     type: 'SET_ACTIVE_AUDIT',
     audit: pk
   }
-}
+}//}}}
 
-function setActivityRange(range) {
+function setActivityRange(range) {//{{{
   return {
     type: 'SET_ACTIVITY_RANGE',
     range: range
   }
-}
+}//}}}
 
-function setTableSortField(tableId, field) {
+function setTableSortField(tableId, field) {//{{{
   return {
     type: 'SET_TABLE_SORT_FIELD',
     tableId: tableId,
     field: field
   }
-}
-function setTableSortReverse(tableId, reverse) {
+}//}}}
+
+function setTableSortReverse(tableId, reverse) {//{{{
   return {
     type: 'SET_TABLE_SORT_REVERSE',
     tableId: tableId,
     reverse: reverse
   }
-}
-function setResultsFilter(filter) {
+}//}}}
+
+function setResultsFilter(filter) {//{{{
   return {
     type: 'SET_RESULTS_FILTER',
     filter: filter
   }
-}
-function setDetailResultsFilter(filter) {
+}//}}}
+
+function setDetailResultsFilter(filter) {//{{{
   return {
     type: 'SET_DETAIL_RESULTS_FILTER',
     filter: filter
   }
-}
-function updateStudentDetailResults(userPk, json) {
+}//}}}
+
+function updateStudentDetailResults(userPk, json) {//{{{
   return {
     type: 'UPDATE_STUDENT_DETAIL_RESULTS',
     user: userPk,
     results: json
   }
-}
-function setSelectedStudentResults(userPk) {
+}//}}}
+
+function setSelectedStudentResults(userPk) {//{{{
   return {
     type: 'SET_SELECTED_STUDENT_RESULTS',
     user: userPk
   }
-}
-function setDetailResultExercise(exercise) {
+}//}}}
+
+function setDetailResultExercise(exercise) {//{{{
   return {
     type: 'SET_DETAIL_RESULT_EXERCISE',
     exercise: exercise
   }
-}
-function setDetailResultsView(view) {
+}//}}}
+
+function setDetailResultsView(view) {//{{{
   return {
     type: 'SET_DETAIL_RESULTS_VIEW',
     view: view
   }
-}
+}//}}}
 
-function updateExerciseTreeUI(tree) {
+function updateExerciseTreeUI(tree) {//{{{
   return {
     type: 'UPDATE_EXERCISE_TREE_UI',
     tree: tree
   }
-}
+}//}}}
 
-export { updateLoginStatus, updateExercises, setExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, updateAudit, setActiveAudit, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise, setDetailResultsView, updateExerciseTreeUI}
+function setExerciseRecentResults(exercise, data) {//{{{
+  return {
+    type: 'SET_EXERCISE_RECENT_RESULTS',
+    exercise: exercise,
+    data: data
+  }
+}//}}}
+
+export { updateLoginStatus, updateExercises, setExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, updateAudit, setActiveAudit, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise, setDetailResultsView, updateExerciseTreeUI, setExerciseRecentResults}

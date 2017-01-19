@@ -85,6 +85,8 @@ export default (state = defaultState, action) => {
       return state.mergeDeepIn(['statistics', 'aggregates'], immutable.fromJS(action.aggregates));
     case 'UPDATE_STUDENT_RESULTS':
       return state.setIn(['results', 'studentResults'], immutable.fromJS(action.results));
+    case 'SET_EXERCISE_RECENT_RESULTS':
+      return state.setIn(['results', 'exercises', action.exercise, 'recent'], immutable.fromJS(action.data));
     case 'UPDATE_MENU_PATH':
       return state.setIn(['menuPath'], action.path);
     case 'UPDATE_MENU_LEAF_DEFAULTS':

@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, parser_classes
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
+from rest_framework import status
 from exercises.models import Exercise, Question, Answer, ImageAnswer
 from exercises.modelhelpers import get_passed_exercises_with_image_data, get_passed_exercises
 from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
@@ -10,6 +11,38 @@ from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
 import datetime
 import pytz
+
+
+@permission_required('exercises.view_statistics')
+@api_view(['GET'])
+def get_recent_results(request, exercise):
+    """
+    Retrieve list of recent answers from users.
+
+    Args:
+        request:
+        exercise: Exercise key
+
+    Returns:
+        Error: Empty object
+        Success: JSON of structure
+            {
+                question_key: [ answers ]
+                ...
+            }
+    """
+    try:
+        dbexercise = Exercise.objects.get(pk=exercise)
+    except Exercise.DoesNotExist:
+        return Response({}, status=status.HTTP_404_NOT_FOUND)
+    questions = Question.objects.filter(exercise=dbexercise)
+    results = {}
+    for question in questions:
+        answers = Answer.objects.filter(question=question).order_by('-date')[:100]
+        sanswers = AnswerSerializer(answers, many=True)
+        AnswerSerializer
+        results[question.question_key] = sanswers.data
+    return Response(results)
 
 
 @api_view(['GET'])

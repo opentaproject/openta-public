@@ -6,6 +6,7 @@ import _ from 'lodash';
 import immutable from 'immutable';
 import XMLEditor from './XMLEditor.jsx';
 import Statistics from './Statistics.jsx';
+import ExerciseRecentResults from './ExerciseRecentResults.jsx';
 import xml2js from 'xml2js';
 import Spinner from './Spinner.jsx';
 import Audit from './Audit.jsx';
@@ -95,6 +96,7 @@ class BaseAuthorExercise extends Component {
         }
         { this.props.atMenu(['activeExercise','statistics']) && this.props.view && <Statistics/> }
         { this.props.atMenu(['activeExercise','audit']) && this.props.admin && <Audit/> }
+        { this.props.atMenu(['activeExercise','recent']) && this.props.view && <ExerciseRecentResults/> }
         </div>
       </div>
     );

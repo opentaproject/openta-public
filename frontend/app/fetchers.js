@@ -26,6 +26,7 @@ import {
   setExerciseModifiedState,
   setImageAnswers,
   setAuditData,
+  setExerciseRecentResults,
 } from './actions.js';
 import {logImmutable} from 'immutablehelpers.js'
 import {getcookie} from 'cookies.js'
@@ -418,6 +419,19 @@ function saveAudit(auditPk, auditData) {
   }
 }
 
+function fetchExerciseRecentResults() {
+  return (dispatch, getState) => {
+    var state = getState();
+    var exercise = state.get('activeExercise');
+    dispatch(updatePendingStateIn( ['results', 'exercises', exercise, 'recent'], true));
+    return jsonfetch('/exercise/' + exercise + '/recentresults')
+      .then(response => response.json())
+      .then( json => dispatch(setExerciseRecentResults(exercise, json)))
+      .then( () => dispatch(updatePendingStateIn( ['results', 'exercises', exercise, 'recent'], false)))
+      .catch( err => console.log(err) );
+  }
+}
+
 export {
   fetchLoginStatus,
   fetchExercises, 
@@ -439,4 +453,5 @@ export {
   reloadExercises,
   fetchUnsentAudits,
   saveAudit,
+  fetchExerciseRecentResults,
 };
