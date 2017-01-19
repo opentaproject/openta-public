@@ -230,7 +230,7 @@ export default class QuestionCompareNumeric extends Component {
       while(!cursorComplete) {
         if(cursorPos <= 0) 
           cursorComplete = true;
-        else if(!asciitext[cursorPos-1].match(/[a-zA-Z0-9\)\]]/g))
+        else if(!asciitext[cursorPos-1].match(/[a-zA-Z0-9\)\] ]/g))
           cursorComplete = true;
         else
           cursorPos--;
