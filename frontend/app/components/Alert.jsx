@@ -9,7 +9,8 @@ export default class Alert extends Component {
   static propTypes = {
     message: PropTypes.string.isRequired,
     hasMath: PropTypes.bool,
-    type: PropTypes.string
+    type: PropTypes.string,
+    className: PropTypes.string,
   }
 
   render() {
@@ -20,7 +21,7 @@ export default class Alert extends Component {
     }
     var typeClass = this.props.type ? typeToClass[this.props.type] : "";
     return (
-      <div className={"uk-alert " + typeClass} ref="alert">{this.props.message}</div>
+      <div className={"uk-alert uk-margin-small-top uk-margin-small-bottom " + typeClass + " " + this.props.className} ref="alert">{this.props.message}</div>
     );
   }
 

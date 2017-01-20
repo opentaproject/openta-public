@@ -8,7 +8,8 @@ export default class SafeMathAlert extends Component {
 
   static propTypes = {
     message: PropTypes.string.isRequired,
-    type: PropTypes.string
+    type: PropTypes.string,
+    className: PropTypes.string,
   }
 
   render() {
@@ -23,11 +24,11 @@ export default class SafeMathAlert extends Component {
         __html: katex.renderToString(this.props.message)
       };
       return (
-         <div className={"uk-alert uk-overflow-container " + typeClass} ref="alert" dangerouslySetInnerHTML={rendered}></div>
+         <div className={"uk-alert uk-overflow-container " + typeClass + " " + this.props.className} ref="alert" dangerouslySetInnerHTML={rendered}></div>
       );
     }
     catch(e) {
-      return (<div className={"uk-alert " + typeClass} ref="alert"/>);
+      return (<div className={"uk-alert " + typeClass + " " + this.props.className} ref="alert"/>);
     }
   }
 }
