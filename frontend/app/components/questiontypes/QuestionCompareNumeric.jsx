@@ -55,13 +55,13 @@ var insertImplicitMultiply = (asciitext) => {//{{{
   //
   var re, implicitmultiplies = [
     /([0-9]+)\s+([0-9]+)/g,    // [int] [int] => [int]*[int]
-    /(\w+)\s+(\w+)/g,    // [token] [token] => [token]*[token]
+    /([\w~]+)\s+([\w~]+)/g,    // [token] [token] => [token]*[token]
     /([0-9]+)\s+([0-9]+)/g,    // [int] [int] => [int]*[int]
-    /(\w+)\s+(\w+)/g,    // [token] [token] => [token]*[token]
+    /([\w~]+)\s+([\w~]+)/g,    // [token] [token] => [token]*[token]
     /(\s+[0-9]+)([(])/g, 	// [space][integers]( => [integer] * ( 
     /(\W+[0-9]+)([A-Za-z]+)/g, // [nonword][integers][token] => [nonword][integers] * token
     /(\w+)\s+([(])/g,           // [token][space]( => [token] * (
-    /([)])\s*(\w+)/g, 	    // )[space][token] => ) * [token]
+    /([)])\s*([\w~]+)/g, 	    // )[space][token] => ) * [token]
     /([)])\s*([(])/g ];         // )[space*]( => ) * (
     var nasciitext = ' '+asciitext + ' ';
     for(re of implicitmultiplies){
