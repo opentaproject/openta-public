@@ -262,14 +262,14 @@ export default class QuestionCompareNumeric extends Component {
             if(node.type === 'FunctionNode' && node.name === 'unclosed')isUnclosed = true;
           });
           if(isUnclosed)
-            return '\\color{red}{\\left(\\Large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right.}';
+            return '\\color{red}{\\left(\\large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right.}';
             //return '\\Large{\\color{red}{\\left(\\color{black}{' + node.args[0].content.toTex(options) + '}\\right.}}';
           else
-            return '\\left(\\Large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right)';
+            return '\\left(\\large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right)';
             //return '\\Large{\\color{orange}{\\left(\\mathbf{' + node.args[0].content.toTex(options) + '}\\right)}}';
         }
         //return '\\Large{\\color{black}{' + node.args[0].toTex(options) + '}}';
-        return '\\Large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].toTex(options) + '}}}}';
+        return '\\large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].toTex(options) + '}}}}';
       }
     }
   }
