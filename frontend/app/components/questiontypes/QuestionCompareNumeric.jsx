@@ -173,7 +173,7 @@ export default class QuestionCompareNumeric extends Component {
 
   updateCursor = throttle( (pos) => {
     this.setState({cursor: pos});
-  }, 1000);
+  }, 500);
 
   handleSelect = (event) => {
       this.updateCursor(event.target.selectionStart);
@@ -262,11 +262,14 @@ export default class QuestionCompareNumeric extends Component {
             if(node.type === 'FunctionNode' && node.name === 'unclosed')isUnclosed = true;
           });
           if(isUnclosed)
-            return '\\color{red}{\\left(\\color{black}{' + node.args[0].content.toTex(options) + '}\\right.}';
+            return '\\color{red}{\\left(\\Large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right.}';
+            //return '\\Large{\\color{red}{\\left(\\color{black}{' + node.args[0].content.toTex(options) + '}\\right.}}';
           else
-            return '\\large{\\color{blue}{\\left(\\color{black}{' + node.args[0].content.toTex(options) + '}\\right)}}';
+            return '\\left(\\Large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right)';
+            //return '\\Large{\\color{orange}{\\left(\\mathbf{' + node.args[0].content.toTex(options) + '}\\right)}}';
         }
-        return '\\large{\\color{black}{' + node.args[0].toTex(options) + '}}';
+        //return '\\Large{\\color{black}{' + node.args[0].toTex(options) + '}}';
+        return '\\Large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].toTex(options) + '}}}}';
       }
     }
   }
@@ -376,11 +379,11 @@ export default class QuestionCompareNumeric extends Component {
   var renderedMath = renderedResult.out;
   if(input === lastAnswer && lastAnswer !== '' && !error) {
     if(correct)
-       graderResponse = (<Alert message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
+       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
     else
-      graderResponse = (<Alert message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
+      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
   } else if(input !== ''){
-    graderResponse = (<SafeMathAlert message={ renderedMath } key="input"/>);
+    graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
   }
   var mathjsError = false;
   try {
@@ -412,7 +415,7 @@ export default class QuestionCompareNumeric extends Component {
           { error && !hasChanged && <Alert message={error} type="error" key="err"/> }
           { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }
         { warning && !hasChanged && <Alert message={warning} type="warning" key="warning"/> }
-        { graderResponse }
+        <span className="uk-text-large">{ graderResponse }</span>
         { /*mathjsError*/ }
         { renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning"/>}
         </div>
