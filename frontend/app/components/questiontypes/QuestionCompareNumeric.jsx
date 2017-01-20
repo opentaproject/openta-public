@@ -20,6 +20,17 @@ function replaceAt(str, pos, newString) {
   return str.slice(0,pos) + newString + str.slice(pos+1);
 }
 
+function insertAfter(str, pos, newString) {
+  if(pos + 1 < str.length-1)
+    return str.slice(0,pos+1) + newString + str.slice(pos+1);
+  else
+    return str + newString;
+}
+
+function insertBefore(str, pos, newString) {
+  return str.slice(0,pos) + newString + str.slice(pos);
+}
+
 //Parse Bra,Ket,BraKet and KetBra expressions for QM.
 var braketify = (sstr) => { 
   var snew = sstr.replace(/\<([^<|]+)\|([^|>]+)\>/g, 'Braket($1, $2)');
@@ -35,13 +46,16 @@ const insertImplicitSubscript = (asciitext) => {
   return asciitext.replace(re,'$1_$2');
 }
 
-var insertImplicitMultiply = (asciitext) => {
+//Uses a number of regexp rules to insert implicit multiplication.
+var insertImplicitMultiply = (asciitext) => {//{{{
   //
   // first token[space]token ; then [space]integers[paren] ; then [blanks][numbers][token] ; then )[space*](
   // The reason for the complexity is that mathjs is even more lenient with implicit multiplies; 3x is treated as 3*x
   // That is a nuisance which makes the parsing more difficult to comply with
   //
   var re, implicitmultiplies = [
+    /([0-9]+)\s+([0-9]+)/g,    // [int] [int] => [int]*[int]
+    /(\w+)\s+(\w+)/g,    // [token] [token] => [token]*[token]
     /([0-9]+)\s+([0-9]+)/g,    // [int] [int] => [int]*[int]
     /(\w+)\s+(\w+)/g,    // [token] [token] => [token]*[token]
     /(\s+[0-9]+)([(])/g, 	// [space][integers]( => [integer] * ( 
@@ -51,10 +65,10 @@ var insertImplicitMultiply = (asciitext) => {
     /([)])\s*([(])/g ];         // )[space*]( => ) * (
     var nasciitext = ' '+asciitext + ' ';
     for(re of implicitmultiplies){
-      nasciitext = nasciitext.replace(re, '$1 * $2').replace(re,'$1 * $2');
+      nasciitext = nasciitext.replace(re, '$1 * $2');
     };
     return nasciitext;
-}
+}//}}}
 
 // Finds unmatched delimiters and inserts metainformation for the MathJS rendering as custom functions
 function fixDelimiters(str) {//{{{
@@ -100,6 +114,33 @@ function fixDelimiters(str) {//{{{
     }
   }
   return {out: str, warnings: warnings};
+}//}}}
+
+// Insert the special "~" (bitNot) operator to handle cursor positioning.
+// Strategy: Find the opening parenthesis on the same level, if this is not a function call then return the string with the ~ inserted before.
+// Example: 1 + ( a + [cursor here]b) => 1 + ~( a + b )
+// If its a function call then place the bitNot before the function.
+// Example: 1 + sin( a + [cursor here]b) => 1 + ~sin( a + b)
+const insertCursor = (str, pos) => {//{{{
+  var left = pos;
+  var done = false;
+  var depth = 0;
+  if(left === 0)return str;
+  while(!done && left > 0) {
+    left--;
+    if(left === 0 && depth > 0)
+      return str
+    if(str[left] === ')')depth++;
+    if(str[left] === '(' ) {
+      if(depth === 0) {
+        while(left > 0 && str[left-1].match(/[a-zA-Z0-9]/g))
+          left--;
+        return insertBefore(str, left, ' ~');
+      }
+      depth--;
+    }
+  }
+  return str;
 }//}}}
 
 export default class QuestionCompareNumeric extends Component {
@@ -163,9 +204,6 @@ export default class QuestionCompareNumeric extends Component {
       else if(node.name === 'empty') {
         return '';
       }
-      else if(node.name === 'cursor') {
-        return '\\color{purple}';
-      }
       else if(this.blacklist.indexOf(node.name) !== -1) {
         return '\\color{orange}{' + node._toTex(options) + '}';
       }
@@ -215,28 +253,32 @@ export default class QuestionCompareNumeric extends Component {
       else 
         return node._toTex(options);
     }
+    // Cursor handling by hooking into the bitwise not operator that has a very high precedence.
     else if(node.type === 'OperatorNode') {
       if(node.fn === 'bitNot') {
-        return '\\underline{' + node.args[0].toTex(options) + '}';
+        if(node.args[0].type === 'ParenthesisNode') {
+          var isUnclosed = false;
+          node.args[0].traverse( (node, path, parent) => {
+            if(node.type === 'FunctionNode' && node.name === 'unclosed')isUnclosed = true;
+          });
+          if(isUnclosed)
+            return '\\color{red}{\\left(\\color{black}{' + node.args[0].content.toTex(options) + '}\\right.}';
+          else
+            return '\\large{\\color{blue}{\\left(\\color{black}{' + node.args[0].content.toTex(options) + '}\\right)}}';
+        }
+        return '\\large{\\color{black}{' + node.args[0].toTex(options) + '}}';
       }
     }
   }
+
 
   renderAsciiMath = (asciitext) => {
       
       var cursorComplete = false;
       var cursorPos = this.state.cursor;
-      while(cursorPos > 0 && cursorPos >= asciitext.length)cursorPos--;
-      while(!cursorComplete) {
-        if(cursorPos <= 0) 
-          cursorComplete = true;
-        else if(!asciitext[cursorPos-1].match(/[a-zA-Z0-9\)\] ]/g))
-          cursorComplete = true;
-        else
-          cursorPos--;
-      }
-      asciitext = asciitext.substr(0, cursorPos) + " ~" + asciitext.substr(cursorPos);
-      var parsed = insertImplicitMultiply(asciitext);
+      if(cursorPos > asciitext.length)cursorPos = asciitext.length;
+      var parsed = insertCursor(asciitext, cursorPos);
+      parsed = insertImplicitMultiply(parsed);
       parsed = insertImplicitSubscript(parsed);
       parsed = braketify(parsed);
       var delimitersFixed = fixDelimiters(parsed);
