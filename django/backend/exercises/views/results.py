@@ -27,7 +27,15 @@ def get_recent_results(request, exercise):
         Error: Empty object
         Success: JSON of structure
             {
-                question_key: [ answers ]
+                question_key: {
+                    user_pk: {
+                        answers: [ answers ]
+                        n_answers: Total number of answers
+                        pk: User id
+                        username: Username
+                    }
+                    ...
+                }
                 ...
             }
     """
@@ -37,11 +45,40 @@ def get_recent_results(request, exercise):
         return Response({}, status=status.HTTP_404_NOT_FOUND)
     questions = Question.objects.filter(exercise=dbexercise)
     results = {}
+
+    def take_latest_unique_users(users, n):
+        ret = []
+        seen = set()
+        for user in users:
+            if user not in seen:
+                seen.add(user)
+                ret.append(user)
+            if len(ret) >= n:
+                return ret
+
     for question in questions:
-        answers = Answer.objects.filter(question=question).order_by('-date')[:100]
-        sanswers = AnswerSerializer(answers, many=True)
-        AnswerSerializer
-        results[question.question_key] = sanswers.data
+        users = (
+            Answer.objects.filter(question=question)
+            .order_by('-date')
+            .values_list('user__pk', flat=True)[:100]
+        )
+        latest_users = take_latest_unique_users(users, 5)
+        results[question.question_key] = []
+        print(latest_users)
+        for user in latest_users:
+            dbuser = User.objects.get(pk=user)
+            answers = Answer.objects.filter(user__pk=user, question=question).order_by('-date')
+            n_answers = answers.count()
+            sanswers = AnswerSerializer(answers[:5], many=True)
+            results[question.question_key].append(
+                dict(pk=user, username=dbuser.username, answers=sanswers.data, n_answers=n_answers)
+            )
+
+        # for answer in answers:
+        #    print(answer)
+        # sanswers = AnswerSerializer(answers, many=True)
+        # AnswerSerializer
+        # results[question.question_key] = {}#sanswers.data
     return Response(results)
 
 

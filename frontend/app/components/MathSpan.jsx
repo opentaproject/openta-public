@@ -26,6 +26,6 @@ export default class MathSpan extends Component {
   }
 
   render() {
-         return (<span>{this.props.message}{this.props.children}</span>)
+         return (<span className={this.props.className}>{this.props.message}{this.props.children}</span>)
   }
 }

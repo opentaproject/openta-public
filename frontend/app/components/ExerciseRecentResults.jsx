@@ -11,6 +11,17 @@ import MathSpan from './MathSpan.jsx';
 import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
+import mathjs from 'mathjs';
+
+
+function renderExpression(expression) {
+  try {
+    return '$' + mathjs.parse(expression).toTex() + '$';
+  }
+  catch(e) {
+    return expression;
+  }
+}
 
 const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers, pending}) => {
   var questions = recentAnswers.keys();
@@ -23,24 +34,34 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
           <table className="uk-table uk-table-condensed">
             <thead>
               <tr>
-              { recentAnswers.map( (answers, question) => (
+              { recentAnswers.map( (users, question) => (
                 <th key={question} style={{maxWidth: '300px'}}><MathSpan message={exerciseState.getIn([activeExercise, 'json', 'exercise', 'question', question, 'text', '$'], '')}/></th>
               )).toList()}
               </tr>
             </thead>
             <tbody>
               <tr>
-                { recentAnswers.map( (answers, question) => (
+                { recentAnswers.map( (users, question) => (
                   <td key={question}>
-                    <ul className="uk-list">
+                    { users.map( data => (
+                    <div className="uk-panel uk-panel-box uk-margin-small-top" key={data.get('pk')}>
+                    <h3 className="uk-panel-title">{data.get('username')}</h3>
+                    <ul className="uk-list uk-list-line">
                       {
-                        answers.map( answer => (
-                          <li className={answer.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'} key={answer.get('question')+':'+answer.get('user')+':'+answer.get('date')} title={moment(answer.get('date')).format('YYYY-MM-DD HH:mm')} data-uk-tooltip>
-                            { answer.get('answer') }
+                        data.get('answers').map( answer => (
+                          <li className={answer.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'} key={answer.get('question')+':'+answer.get('user')+':'+answer.get('date')} title={moment(answer.get('date')).locale('de').fromNow()/*.format('YYYY-MM-DD HH:mm')*/ + ': ' + answer.get('answer')} data-uk-tooltip>
+                            <div className="uk-text-truncate" style={{maxWidth: "200px"}}>
+                              <MathSpan className="uk-text-small">
+                                { renderExpression(answer.get('answer')) }
+                              </MathSpan>
+                            </div>
                           </li>
                         ))
                       }
+                      { data.get('n_answers') > data.get('answers').size && <li className="uk-width-1-1 uk-text-center" key="last"><i className="uk-icon uk-icon-ellipsis-v"/></li> }
                     </ul>
+                    </div>
+                    )).toList()}
                   </td>
                 )).toList()}
               </tr>
