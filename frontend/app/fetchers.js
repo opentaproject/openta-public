@@ -283,17 +283,18 @@ var throttleUploadProgress = _.throttle(uploadProgress, 300);
 
 function uploadImage(exerciseKey, file) {//{{{
   return dispatch => {
-      if (!file || !file.type.match(/image.*/)) return;
+      //|| !file.type.match(/image.*/)
+      if (!file ) return;
       var fd = new FormData();
       fd.append('file', file);
       var xhr = new XMLHttpRequest();
       xhr.open("POST", SUBPATH + "/exercise/" + exerciseKey + "/imageupload");
       xhr.setRequestHeader('X-CSRFToken', CSRF_TOKEN);
       xhr.setRequestHeader('Accept', 'application/json');
-      if(xhr.upload) 
+      if(xhr.upload && xhr.upload.onprogress) 
         xhr.upload.onprogress = (evt) => throttleUploadProgress(dispatch, evt, exerciseKey);//console.log(evt.loaded / evt.total);
       xhr.onload = () => {
-        console.dir(xhr.responseText);
+        //console.dir(xhr.responseText);
         dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageuploadpending'], false));
         dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], 1.0));
         dispatch(fetchExerciseRemoteState(exerciseKey));

@@ -25,6 +25,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Prefetch
 from ratelimit.decorators import ratelimit
+from PIL import Image
 import logging
 import backend.settings as settings
 import json
@@ -283,10 +284,16 @@ def question_last_answer(request, exercise, question):  # {{{
 @api_view(['POST'])
 @parser_classes((MultiPartParser,))
 def upload_answer_image(request, exercise):  # {{{
-    print(request.FILES['file'])
+    # print(request.FILES['file'])
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     if request.FILES['file'].size > 10e6:
         return Response("Image larger than 10mb", status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    try:
+        trial_image = Image.open(request.FILES['file'])
+        trial_image.verify()
+    except Exception as e:
+        return Response("Invalid image", status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     image_answer = ImageAnswer(
         user=request.user, exercise=dbexercise, exercise_key=exercise, image=request.FILES['file']
