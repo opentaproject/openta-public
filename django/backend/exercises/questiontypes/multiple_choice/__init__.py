@@ -9,6 +9,7 @@ from exercises.question import QuestionError
 
 # Below are imports that are specific to this question type
 from lxml import etree
+import json
 
 # The function below is the core of the server interface and the only mandatory component.
 def question_check_multiple_choice(question_json, question_xmltree, answer_data, global_xmltree):
@@ -39,13 +40,23 @@ def question_check_multiple_choice(question_json, question_xmltree, answer_data,
     '''
     choices = []
     choices_element = question_xmltree.xpath('//choice')
-    correct_answer = question_xmltree.find('correct').text
-
+    # correct_answer = question_xmltree.find('correct').text
+    correct_items = question_xmltree.xpath('//choice[correct]')
+    # answers = json.loads(answer_data)
+    print(answer_data)
+    print(correct_items)
+    results = {}
+    for question, val in answer_data.items():
+        for item in correct_items:
+            if item.get('key') == question and val:
+                results[question] = 1
+            else:
+                print('nope')
     result = {}
-    if int(correct_answer) - 1 == int(answer_data):
-        result['correct'] = True
-    else:
-        result['correct'] = False
+    # if int(correct_answer) - 1 == int(answer_data):
+    #    result['correct'] = True
+    # else:
+    result['correct'] = False
     return result
 
 

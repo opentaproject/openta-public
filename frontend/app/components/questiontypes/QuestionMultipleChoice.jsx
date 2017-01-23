@@ -28,13 +28,13 @@ export default class QuestionMultipleChoice extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      choice: undefined
+      choices: immutable.Map({})
     }
   }
 
   changeChoice = (choice) => {
-    this.setState({choice: choice});
-    this.props.submitFunction(choice);
+    this.setState(({choices}) => ({choices: choices.update(choice, v => !v)}));
+    //this.props.submitFunction(choice);
   }
 
   renderText = (itemjson) => {
@@ -102,9 +102,9 @@ export default class QuestionMultipleChoice extends Component {
   if( !immutable.List.isList(choicesElements) )choicesElements = immutable.List([choicesElements]);
   var choices = choicesElements.map( (item, key) => {
     var style = {}
-    var divClass = key === this.state.choice ? 'uk-panel-box-primary' : '';
-    if(correct && key === lastAnswer)style = {backgroundColor: '#f2fae3'}
-    if(!correct && key === lastAnswer)style = {backgroundColor: '#fff1f0'}
+    var divClass = this.state.choices.get(key) ? 'uk-panel-box-primary' : '';
+    //if(correct && key === lastAnswer)style = {backgroundColor: '#f2fae3'}
+    //if(!correct && key === lastAnswer)style = {backgroundColor: '#fff1f0'}
     var children = item.get('$children$', immutable.List([]))
               .map( child => this.dispatchElement(child) ).toSeq();
     return (
@@ -127,6 +127,10 @@ export default class QuestionMultipleChoice extends Component {
   return (
         <div className="">
           <label className="uk-form-row uk-display-inline-block uk-margin-bottom">{question.getIn(['text','$'],'')} </label>
+            <a onClick={(event) => submit(this.state.choices)} className={ "uk-width-1-1 uk-button uk-padding-remove uk-button-success"}>
+              { pending && <i className="uk-icon-cog uk-icon-spin"/> }
+              { !pending && <i className="uk-icon uk-icon-send"/> }
+            </a>
           { question.has('hint') && !correct && state.get('answer', '') !== '' && this.renderContentInPanel(question.get('hint'), (<div className="uk-badge">Hint</div>)) }
           <div className="uk-grid uk-grid-small">
               {choices}
