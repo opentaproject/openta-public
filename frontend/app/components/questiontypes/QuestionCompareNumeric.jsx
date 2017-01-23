@@ -233,6 +233,16 @@ export default class QuestionCompareNumeric extends Component {
           return '|\\,' + tex0 +" \\, \\rangle \\, " + tex1 + "\\, \\langle \\," + tex2 + " \\,|"
         }
       }
+      else {
+        var isUnclosed = false;
+        node.traverse( (node, path, parent) => {
+          if(node.type === 'FunctionNode' && node.name === 'unclosed')isUnclosed = true;
+        });
+        if(isUnclosed)
+          return '\\color{orange}{' + node._toTex(options) + '}';
+        else
+          return node._toTex(options);
+      }
     }
     // Render green if allowed variable otherwise red
     else if(node.type === 'SymbolNode') {
@@ -266,11 +276,11 @@ export default class QuestionCompareNumeric extends Component {
             if(node.type === 'FunctionNode' && node.name === 'unclosed')isUnclosed = true;
           });
           if(isUnclosed)
-            return '\\color{red}{\\left(\\large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right.}';
+            return '\\color{red}{\\left(\\large{\\color{#0f0}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right.}';
           else
-            return '\\left(\\large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right)';
+            return '\\left(\\large{\\color{#0f0}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right)';
         }
-        return '\\large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].toTex(options) + '}}}}';
+        return '\\large{\\color{#0f0}{\\underline{\\color{#2d7091}{' + node.args[0].toTex(options) + '}}}}';
       }
     }
   }
