@@ -444,7 +444,7 @@ export default class QuestionCompareNumeric extends Component {
             <a onClick={() => this.setMathSize('large')}>A</a>
           </div>
         </div>
-        { renderedResult.error && <span className="uk-text-danger">Kontrollera syntax. (Visar senaste fungerande ovan)</span>}
+        { renderedResult.error && <span className="uk-text-danger">Kontrollera syntax. (Visar senaste fungerande ovan.)</span>}
         { /*mathjsError*/ }
         { renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning"/>}
         </div>
