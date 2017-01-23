@@ -185,7 +185,6 @@ export default class QuestionCompareNumeric extends Component {
   }
 
   componentWillReceiveProps = (newProps) => {
-    //this.setState({ value: newProps.questionState.getIn(['answer'],'') });
   }
 
   componentWillMount = () => {
@@ -268,12 +267,9 @@ export default class QuestionCompareNumeric extends Component {
           });
           if(isUnclosed)
             return '\\color{red}{\\left(\\large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right.}';
-            //return '\\Large{\\color{red}{\\left(\\color{black}{' + node.args[0].content.toTex(options) + '}\\right.}}';
           else
             return '\\left(\\large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right)';
-            //return '\\Large{\\color{orange}{\\left(\\mathbf{' + node.args[0].content.toTex(options) + '}\\right)}}';
         }
-        //return '\\Large{\\color{black}{' + node.args[0].toTex(options) + '}}';
         return '\\large{\\color{orange}{\\underline{\\color{#2d7091}{' + node.args[0].toTex(options) + '}}}}';
       }
     }
