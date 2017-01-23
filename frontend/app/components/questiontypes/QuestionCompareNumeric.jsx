@@ -157,7 +157,7 @@ export default class QuestionCompareNumeric extends Component {
     super(props);
     this.state = {
       value: this.props.questionState.getIn(['answer'], ''),
-      mathSize: 'large',
+      mathSize: 'medium',
       cursor: 0,
     };
     this.lastParsable = '';
