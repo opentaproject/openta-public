@@ -298,7 +298,7 @@ export default class QuestionCompareNumeric extends Component {
         return {out: this.lastParsable, warnings: delimitersFixed.warnings}
       }
       catch(e) {
-        return {out: this.lastParsable, warnings: delimitersFixed.warnings}
+        return {out: this.lastParsable, warnings: delimitersFixed.warnings, error: "MathJS parse/toTex error"}
       }
   }
 
@@ -416,6 +416,7 @@ export default class QuestionCompareNumeric extends Component {
           { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }
         { warning && !hasChanged && <Alert message={warning} type="warning" key="warning"/> }
         <span className="uk-text-large">{ graderResponse }</span>
+        { renderedResult.error && <span className="uk-text-danger">Kontrollera syntax. (Visar senaste fungerande ovan)</span>}
         { /*mathjsError*/ }
         { renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning"/>}
         </div>
