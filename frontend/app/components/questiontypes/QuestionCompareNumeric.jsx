@@ -157,6 +157,7 @@ export default class QuestionCompareNumeric extends Component {
     super(props);
     this.state = {
       value: this.props.questionState.getIn(['answer'], ''),
+      mathSize: 'large',
       cursor: 0,
     };
     this.lastParsable = '';
@@ -177,6 +178,10 @@ export default class QuestionCompareNumeric extends Component {
 
   handleSelect = (event) => {
       this.updateCursor(event.target.selectionStart);
+  }
+
+  setMathSize = (sizeStr) => {
+    this.setState({mathSize: sizeStr});
   }
 
   componentWillReceiveProps = (newProps) => {
@@ -395,6 +400,16 @@ export default class QuestionCompareNumeric extends Component {
     if(e instanceof TypeError)
       mathjsError = e.toString();//(<Alert type="warning" message="Expression unfinished"/>);
   }
+  var mathSizeClass = 'large';
+  var sizeActive = 'uk-text-bold';
+  switch(this.state.mathSize) {
+    case 'small':
+      mathSizeClass = 'uk-text-small'; break;
+    case 'medium':
+      mathSizeClass = ''; break;
+    case 'large':
+      mathSizeClass = 'uk-text-large'; break;
+  }
   return (
         <div className="">
           <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span><HelpCompareNumeric/></label>
@@ -415,7 +430,20 @@ export default class QuestionCompareNumeric extends Component {
           { error && !hasChanged && <Alert message={error} type="error" key="err"/> }
           { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }
         { warning && !hasChanged && <Alert message={warning} type="warning" key="warning"/> }
-        <span className="uk-text-large">{ graderResponse }</span>
+        <div className="uk-flex">
+        <span className={"uk-width-1-1 " + mathSizeClass}>{ graderResponse }</span>
+        </div>
+        <div className="uk-float-right uk-flex">
+          <div className={"uk-text-small uk-margin-small-left " + (this.state.mathSize === 'small' ? sizeActive : '')}>
+            <a onClick={() => this.setMathSize('small')}>A</a>
+          </div>
+          <div className={"uk-margin-small-left " + (this.state.mathSize === 'medium' ? sizeActive : '')}>
+            <a onClick={() => this.setMathSize('medium')}>A</a>
+          </div>
+          <div className={"uk-text-large uk-margin-small-left " + (this.state.mathSize === 'large' ? sizeActive : '')}>
+            <a onClick={() => this.setMathSize('large')}>A</a>
+          </div>
+        </div>
         { renderedResult.error && <span className="uk-text-danger">Kontrollera syntax. (Visar senaste fungerande ovan)</span>}
         { /*mathjsError*/ }
         { renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning"/>}

@@ -45,7 +45,7 @@ class BaseQuestion extends Component {
        alerts.push( (<Alert key={"alertkey"} message="No question key, please add an attribute key=..." type="error"/>));
       }
       var topDOM = React.createElement('div', {
-        className: "uk-panel uk-panel-box uk-margin-bottom",
+        className: "uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-bottom",
         key: questionKey
       }, [ 
         alerts,
