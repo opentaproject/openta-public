@@ -22,9 +22,32 @@ import {
   checkQuestion
 } from '../fetchers.js';
 
+var unstableKey = 0;
+const nextUnstableKey = () => unstableKey++;
+
 class BaseExercise extends Component {
   constructor() {
     super();
+    this.itemDispatch = {
+      'exercisename': this.renderName,
+      'text': this.renderText,
+      'figure': this.renderFigure,
+      'question': this.renderQuestion,
+      'solution': this.renderSolution,
+      'asset': this.renderAsset,
+      'p': this.renderHTMLElement(),
+      'i': this.renderHTMLElement(),
+      'b': this.renderHTMLElement(),
+      'strong': this.renderHTMLElement(),
+      'em': this.renderHTMLElement(),
+      'h3': this.renderHTMLElement(),
+      'h2': this.renderHTMLElement(),
+      'h1': this.renderHTMLElement(),
+      'ul': this.renderHTMLElement("uk-list"),
+      'li': this.renderHTMLElement(),
+      'right': this.renderRight,
+      '__text__': this.renderBareText,
+    };
   } 
 
   static propTypes = {
@@ -52,16 +75,18 @@ class BaseExercise extends Component {
     var children = itemjson.get('$children$', immutable.List([]))
                     .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
     return (
-      <div className="uk-clearfix" key={"text"}>
-      <div className="uk-align-medium-right">{children}</div>
-      <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(itemjson.get('$'))}} />
+      <div className="uk-clearfix" key={"text" + nextUnstableKey()}>
+        {children} 
       </div>
     );
   }
 
   renderFigure = (itemjson, json, meta, exerciseKey) => {
     return (
-              <a key={"figure"+itemjson.get('$')} href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')} data-uk-lightbox data-lightbox-type="image"><img style={{maxHeight: '100pt'}} src={SUBPATH + '/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$')} alt=""/></a>
+              <a className="uk-thumbnail uk-thumbnail-small" key={"figure"+itemjson.get('$')} href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$').trim()} data-uk-lightbox data-lightbox-type="image">
+                <img src={SUBPATH + '/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$','').trim()} alt=""/>
+                { itemjson.has('caption') && <div className="uk-thumbnail-caption">{itemjson.getIn(['caption', '$'])}</div> }
+              </a>
     );
   }
 
@@ -108,17 +133,30 @@ class BaseExercise extends Component {
     );
   }
 
+  renderHTMLElement = (className="") => (itemjson, json, meta, exerciseKey) => {
+    var children = itemjson.get('$children$', immutable.List([]))
+    .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toList();
+    var itemDOM = React.createElement(itemjson.get('#name'), {
+      className: className + " " + itemjson.getIn(['@attr', 'class']),
+      style: itemjson.getIn(['@attr', 'style']),
+      key: nextUnstableKey(),
+    }, children);
+    return itemDOM;
+  }
+
+  renderBareText = (itemjson, json, meta, exerciseKey) => (<span key={nextUnstableKey()}>{DOMPurify.sanitize(itemjson.get('$'))}</span>)
+
+  renderRight = (itemjson, json, meta, exerciseKey) => (
+    <div className="uk-align-medium-right" key={nextUnstableKey()}>
+      {
+        itemjson.get('$children$', immutable.List([]))
+          .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toList()
+      }
+    </div>)
+
   dispatchElement = (element, json, meta, exerciseKey) => {
-    var itemDispatch = {
-      'exercisename': this.renderName,
-      'text': this.renderText,
-      'figure': this.renderFigure,
-      'question': this.renderQuestion,
-      'solution': this.renderSolution,
-      'asset': this.renderAsset,
-    };
-    if(element.get('#name') in itemDispatch)
-      return itemDispatch[element.get('#name')](element, json, meta, exerciseKey);
+    if(element.get('#name') in this.itemDispatch)
+      return this.itemDispatch[element.get('#name')](element, json, meta, exerciseKey);
     else
       return null;
   }

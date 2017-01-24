@@ -132,14 +132,26 @@ class XMLData(object):
     def data(self, root):
         'Convert etree.Element into a dictionary'
         value = self.dict()
-        children = [node for node in root if isinstance(node.tag, basestring)]
+        children = []
+        # children = [node for node in root if isinstance(node.tag, basestring)]
+        if root.text and len(root.text.strip()) > 0 and root.tag != '__text__':
+            text_element = Element('__text__')
+            text_element.text = root.text
+            children.append(text_element)
+        for node in root:
+            if isinstance(node.tag, basestring):
+                children.append(node)
+            if node.tail and len(node.tail.strip()) > 0:
+                text_element = Element('__text__')
+                text_element.text = node.tail
+                children.append(text_element)
         if root.attrib.items():
             value['@attr'] = {}
         for attr, attrval in root.attrib.items():
             attr = attr if self.attr_prefix is None else self.attr_prefix + attr
             value['@attr'][attr] = self._fromstring(attrval)
         if root.text and self.text_content is not None:
-            text = root.text.strip()
+            text = root.text  # .strip()
             if text:
                 if self.simple_text and len(children) == len(root.attrib) == 0:
                     value = self._fromstring(text)
@@ -152,11 +164,12 @@ class XMLData(object):
             child_list_item = self.data(child)[child.tag]
             child_list_item['#name'] = child.tag
             value['$children$'].append(child_list_item)
-            if count[child.tag] == 1:
-                value.update(self.data(child))
-            else:
-                result = value.setdefault(child.tag, self.list())
-                result += self.data(child).values()
+            if child.tag != '__text__':
+                if count[child.tag] == 1:
+                    value.update(self.data(child))
+                else:
+                    result = value.setdefault(child.tag, self.list())
+                    result += self.data(child).values()
         return self.dict([(root.tag, value)])
 
 

@@ -38,6 +38,7 @@ var XMLParser = new xml2js.Parser({
   //mergeAttrs: true,
   explicitChildren: true,
   preserveChildrenOrder: true,
+  charsAsChildren: true,
   childkey: '$children$',
   strict: true
   //attrNameProcessors: [ (name) => '@' + name ]
