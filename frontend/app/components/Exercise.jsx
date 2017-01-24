@@ -189,7 +189,10 @@ class BaseExercise extends Component {
     //MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
     if(node !== null)
       renderMathInElement(node, {
-        delimiters: [{left: "$", right: "$", display: false}]
+        delimiters: [
+          {left: "$", right: "$", display: false},
+          {left: "\\[", right: "\\]", display: true}
+        ]
       });
   }
 }

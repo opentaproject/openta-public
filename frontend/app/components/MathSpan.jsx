@@ -8,20 +8,25 @@ export default class MathSpan extends Component {
 
   static propTypes = {
     message: PropTypes.string,
+    display: PropTypes.bool,
+  }
+
+  static defaultProps = {
+    display: false,
   }
 
   componentDidUpdate(props,state,root) {
     var node = ReactDOM.findDOMNode(this);
     if(node !== null)
       renderMathInElement(node, {
-        delimiters: [{left: "$", right: "$", display: false}]
+        delimiters: [{left: "$", right: "$", display: this.props.display}]
       });
   }
   componentDidMount(props,state,root) {
     var node = ReactDOM.findDOMNode(this);
     if(node !== null)
       renderMathInElement(node, {
-        delimiters: [{left: "$", right: "$", display: false}]
+        delimiters: [{left: "$", right: "$", display: this.props.display}]
       });
   }
 

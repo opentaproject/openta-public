@@ -55,6 +55,7 @@ def get_recent_results(request, exercise):
                 ret.append(user)
             if len(ret) >= n:
                 return ret
+        return ret
 
     for question in questions:
         users = (
@@ -64,7 +65,6 @@ def get_recent_results(request, exercise):
         )
         latest_users = take_latest_unique_users(users, 5)
         results[question.question_key] = []
-        print(latest_users)
         for user in latest_users:
             dbuser = User.objects.get(pk=user)
             answers = Answer.objects.filter(user__pk=user, question=question).order_by('-date')
