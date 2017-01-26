@@ -402,6 +402,22 @@ function fetchUnsentAudits() {
   }
 }
 
+function fetchCurrentAuditsExercise() {
+  return (dispatch, getState) => {
+    var state = getState();
+    var exercise = state.get('activeExercise');
+    dispatch(updatePendingStateIn( ['audit', 'audits'], true));
+    return jsonfetch('/audit/get/exercise/' + exercise)
+      .then(response => response.json())
+      .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({}))) 
+      .then(immutableMap => {
+        dispatch(updateAudits(immutableMap))
+      })
+      .then( () => dispatch(updatePendingStateIn( ['audit', 'audits'], false)))
+      .catch( err => console.log(err) );
+  }
+}
+
 function saveAudit(auditPk, auditData) {
   return dispatch => {
     var payload = {
@@ -417,6 +433,16 @@ function saveAudit(auditPk, auditData) {
       .then( res => res.json() )
       .then( json => console.dir(json))
       .catch(err => console.dir(err))
+  }
+}
+
+function fetchNewAudit(exercise) {
+  return dispatch => {
+    dispatch(updatePendingStateIn( ['audit', 'newAudit'], true));
+    return jsonfetch('/audit/new/exercise/' + exercise)
+      .then( () => dispatch(fetchCurrentAuditsExercise()) )
+      .then( () => dispatch(updatePendingStateIn( ['audit', 'audits'], false)))
+      .catch( err => console.log(err) );
   }
 }
 
@@ -453,6 +479,8 @@ export {
   fetchStudentDetailResults,
   reloadExercises,
   fetchUnsentAudits,
+  fetchCurrentAuditsExercise,
   saveAudit,
+  fetchNewAudit,
   fetchExerciseRecentResults,
 };

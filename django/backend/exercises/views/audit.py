@@ -31,6 +31,14 @@ def get_current_unsent_audits(request):
 
 
 @permission_required('exercises.administer_exercise')
+@api_view(['GET'])
+def get_current_audits_exercise(request, exercise):
+    audits = AuditExercise.objects.filter(auditor=request.user, exercise__pk=exercise)
+    saudits = AuditExerciseSerializer(audits, many=True)
+    return Response(saudits.data)
+
+
+@permission_required('exercises.administer_exercise')
 @api_view(['POST', 'GET'])
 def get_new_audit(request, exercise):
     dbexercise = Exercise.objects.get(pk=exercise)

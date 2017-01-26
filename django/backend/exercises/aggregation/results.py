@@ -28,18 +28,18 @@ from exercises.modelhelpers import (
 )
 
 
-def students_results(cache_seconds=1 * 60 * 60):
+def students_results(cache_seconds=1 * 60 * 60, force=False):
     result = cache.get('exercises.aggregation.results')
-    if result is not None:
+    if result is not None and not force:
         return result
     result = calculate_students_results()
     cache.set('exercises.aggregation.results', result, cache_seconds)
     return result
 
 
-def student_statistics_exercises(cache_seconds=1 * 60 * 60):
+def student_statistics_exercises(cache_seconds=1 * 60 * 60, force=False):
     result = cache.get('exercises.aggregation.statistics')
-    if result is not None:
+    if result is not None and not force:
         return result
     result = calculate_student_statistics_exercises()
     cache.set('exercises.aggregation.statistics', result, cache_seconds)

@@ -10,6 +10,7 @@ import {
   fetchExerciseStatistics,
   reloadExercises,
   fetchUnsentAudits,
+  fetchCurrentAuditsExercise,
   fetchExerciseRecentResults,
 } from './fetchers.js';
 
@@ -114,12 +115,12 @@ var menuTree = immutable.fromJS({
           reqGroup: 'View',
           onLoad: fetchExerciseRecentResults(),
         },
-        /*audit: {
+        audit: {
           name: 'Audit',
           key: 'audit',
           reqGroup: 'Admin',
-          onLoad: fetchUnsentAudits(),
-        }*/
+          onLoad: fetchCurrentAuditsExercise(),
+        }
       }
     }
   }

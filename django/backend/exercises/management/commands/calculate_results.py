@@ -10,8 +10,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info('Started calculating results and statistics')
-        student_statistics_exercises()
-        students_results()
+        student_statistics_exercises(force=True)
+        students_results(force=True)
         logger.info('Finished calculating results and statistics')
 
         # raise CommandError('Poll "%s" does not exist' % poll_id)

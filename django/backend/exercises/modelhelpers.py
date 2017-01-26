@@ -503,7 +503,8 @@ def get_passed_exercises_with_image_data(
 
 def get_passed_students(exercise):
     students = User.objects.filter(groups__name='Student')
-    deadline_time = datetime.time(8, 0, 0, tzinfo=pytz.timezone('Europe/Stockholm'))
+    tz = pytz.timezone('Europe/Stockholm')
+    deadline_time = datetime.time(8, 0, 0, tzinfo=tz)
     course = Course.objects.first()
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
@@ -518,8 +519,10 @@ def get_passed_students(exercise):
                     imageanswer__exercise=question.exercise,
                     answer__question=question,
                     answer__correct=True,
-                    answer__date__lt=datetime.datetime.combine(
-                        question.exercise.meta.deadline_date, deadline_time
+                    answer__date__lt=tz.localize(
+                        datetime.datetime.combine(
+                            question.exercise.meta.deadline_date, deadline_time
+                        )
                     ),
                 )
                 .values_list('pk', flat=True)

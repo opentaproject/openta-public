@@ -39,6 +39,22 @@ def parse_variables(variables):  # {{{
         raise QuestionError("Cannot parse variables")
 
 
+def parse_xml_variables(node):
+    '''
+    Parses variables defined through the XML syntax <var>...</var>
+    '''
+    variables = node.xpath('./var')
+    res = []
+    if variables is None:
+        return res
+    for var in variables:
+        token = var.find('token')
+        value = var.find('val')
+        if token is not None:
+            res.append({'name': token.text, 'value': value if value is not None else '1'})
+    return res
+
+
 # The function below is the core of the server interface and the only mandatory component.
 def question_check_compare_numeric(question_json, question_xmltree, answer_data, global_xmltree):
     '''Checks a symbolic answer by numeric evaluation.
@@ -67,13 +83,20 @@ def question_check_compare_numeric(question_json, question_xmltree, answer_data,
         </question>
     '''
     variables = []
+
+    variables += parse_xml_variables(question_xmltree)
+    if global_xmltree is not None:
+        variables += parse_xml_variables(global_xmltree)
+
     variables_element = question_xmltree.find('variables')
     if variables_element is not None:
-        variables = parse_variables(variables_element.text)
+        variables += parse_variables(variables_element.text)
     if global_xmltree is not None and global_xmltree.text is not None:
         global_variables = parse_variables(global_xmltree.text)
         variables += global_variables
 
+    unique_vars = {var['name']: var for var in variables}
+    variables = list(unique_vars.values())
     correct_answer = question_xmltree.find('expression').text.split(';')[0]
 
     result = {}

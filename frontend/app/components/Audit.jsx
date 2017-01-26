@@ -9,6 +9,7 @@ import _ from 'lodash';
 
 import { 
   fetchStudentDetailResults,
+  fetchNewAudit,
   saveAudit,
 } from '../fetchers.js';
 import { 
@@ -18,15 +19,16 @@ import {
   setDetailResultExercise,
 } from '../actions.js';
 
-const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChange, pendingResults, onSaveAudit, onMessageChange}) => {
+const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChange, pendingResults, onSaveAudit, onMessageChange, onAddAudit}) => {
   var auditsList = audits.filter( (audit) => audit.get('exercise') === activeExercise )
                          .toList()
                          .sort( (a, b) => a.get('date') > b.get('date') );
-
+  var nAudits = auditsList.size;
   var auditsRender =  auditsList.map( (audit, key) => {
     var activeClass = activeAudit === audit.get('pk') ? 'uk-active uk-button-primary' : '';
+    var sentClass = audit.get('sent') ? ' uk-button-success' : '';
     return (
-      <a key={audit.get('pk')} onClick={() => onAuditChange(audit.get('pk'), audit.get('student'), activeExercise)} className={"uk-button uk-button-mini " + activeClass}>{key+1}</a>
+      <a key={audit.get('pk')} onClick={() => onAuditChange(audit.get('pk'), audit.get('student'), activeExercise)} className={"uk-button uk-button-mini " + activeClass + sentClass}>{key+1}</a>
     );
   });
   var current = auditsList.findEntry( item => item.get('pk') === activeAudit, null, [0])[0];
@@ -35,19 +37,20 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
   var prev = current - 1 >= 0 ? current - 1 : current;
   var showPrev = current -1 >= 0;
   return (
-    <div className="uk-flex uk-flex-wrap">
+    <div className="uk-flex uk-flex-wrap uk-margin-top">
       <div className="uk-width-1-1">
         <div className="uk-panel uk-panel-box">
           <div className="uk-panel uk-panel-box uk-panel-box-primary">
             <div className="uk-button-group uk-display-inline-block">
+              <button className="uk-button" type="button" onClick={ () => onAddAudit(activeExercise) }>Add audit</button>
               <button className="uk-button" type="button" onClick={() => showPrev ? onAuditChange(auditsList.getIn([prev, 'pk']), auditsList.getIn([prev,'student']), activeExercise) : 0}><i className="uk-icon uk-icon-chevron-left"/></button>
-              <button className="uk-button" type="button" disabled>{current+1} / {auditsList.size} </button>
+              <button className="uk-button" type="button" disabled>{nAudits > 0 ? (current+1) : 0} / {auditsList.size} </button>
               <button className="uk-button" type="button" onClick={() => showNext ? onAuditChange(auditsList.getIn([next, 'pk']), auditsList.getIn([next,'student']), activeExercise) : 0}><i className="uk-icon uk-icon-chevron-right"/></button>
             </div>
-            <div className="uk-button-group uk-margin-left">
+            <div className="uk-grid uk-margin-left uk-margin-small-top">
              {auditsRender}
             </div>
-            { activeAudit &&
+            { activeAudit && audits.getIn([activeAudit, 'exercise']) == activeExercise &&
             <form className="uk-form">
               <div className="uk-form-row">
                 <textarea className="uk-width-1-1" onChange={e => onMessageChange(e, activeAudit)} value={audits.getIn([activeAudit, 'message'],'')}></textarea>
@@ -105,6 +108,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(setSelectedStudentResults(studentPk));
   },
   onSaveAudit: (auditPk) => dispatch(handleAuditSave(auditPk)),
+  onAddAudit: (exercise) => dispatch(fetchNewAudit(exercise)),
   onMessageChange: (e, pk) =>  {
     dispatch(updateAudit(pk, {'message': e.target.value}))
     throttleSave(dispatch, pk);

@@ -328,12 +328,14 @@ export default class QuestionCompareNumeric extends Component {
     this.varsList = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
     // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
     var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
-    for(let v of varPropsList) {
+    var localVars = enforceList(this.props.questionData.get('var', List([])));
+    var allVars = localVars.concat(varPropsList);
+    for(let v of allVars) {
       if(v.has('token') && this.varsList.indexOf(v.getIn(['token','$'])) == -1) {
         this.varsList.push(insertImplicitSubscript(v.getIn(['token','$'])));
       }
     }
-    this.varProps = varPropsList.map( item => ({
+    this.varProps = allVars.map( item => ({
       //The token is the key, the other items that are not the token or the special $children$ are added as a map.
       [item.getIn(['token', '$'], '')]: item.filterNot( (val, key) => key === 'token' || key === '$children$' || key === '$').map( val => val.get('$') )
     }) )
