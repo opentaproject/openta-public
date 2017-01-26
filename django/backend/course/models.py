@@ -30,6 +30,7 @@ class Course(models.Model):
     )
     registration_by_password = models.BooleanField(default=False, blank=True)
     deadline_time = models.TimeField(null=True, default=None, blank=True)
+    url = models.CharField(max_length=255, blank=True, null=True, default=None)
     objects = CourseManager()
 
     def __str__(self):
