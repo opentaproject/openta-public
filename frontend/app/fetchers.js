@@ -390,14 +390,14 @@ function reloadExercises() {
 
 function fetchUnsentAudits() {
   return dispatch => {
-    dispatch(updatePendingStateIn( ['audit', 'audits'], true));
+    dispatch(updatePendingStateIn( ['audit', 'fetchUnsertAudits'], true));
     return jsonfetch('/audit/unsent/')
       .then(response => response.json())
       .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({}))) 
       .then(immutableMap => {
         dispatch(updateAudits(immutableMap))
       })
-      .then( () => dispatch(updatePendingStateIn( ['audit', 'audits'], false)))
+      .then( () => dispatch(updatePendingStateIn( ['audit', 'fetchUnsentAudits'], false)))
       .catch( err => console.log(err) );
   }
 }
@@ -406,15 +406,35 @@ function fetchCurrentAuditsExercise() {
   return (dispatch, getState) => {
     var state = getState();
     var exercise = state.get('activeExercise');
-    dispatch(updatePendingStateIn( ['audit', 'audits'], true));
+    dispatch(updatePendingStateIn( ['audit', 'fetchAudits'], true));
     return jsonfetch('/audit/get/exercise/' + exercise)
       .then(response => response.json())
       .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({}))) 
-      .then(immutableMap => {
-        dispatch(updateAudits(immutableMap))
-      })
-      .then( () => dispatch(updatePendingStateIn( ['audit', 'audits'], false)))
+      .then(immutableMap => dispatch(updateAudits(immutableMap)))
+      .then( () => dispatch(updatePendingStateIn( ['audit', 'fetchAudits'], false)))
       .catch( err => console.log(err) );
+  }
+}
+
+function sendAudit(auditPk) {
+  return dispatch => {
+    var fetchconfig = {
+      method: "POST",
+    }
+    return jsonfetch('/audit/send/' + auditPk + '/', fetchconfig)
+      .then( res => res.json() )
+      .catch(err => console.dir(err))
+  }
+}
+
+function deleteAudit(auditPk) {
+  return dispatch => {
+    var fetchconfig = {
+      method: "POST",
+    }
+    return jsonfetch('/audit/delete/' + auditPk + '/', fetchconfig)
+      .then( res => res.json() )
+      .catch(err => console.dir(err))
   }
 }
 
@@ -431,8 +451,6 @@ function saveAudit(auditPk, auditData) {
     }
     return jsonfetch('/audit/update/' + auditPk + '/', fetchconfig)
       .then( res => res.json() )
-      .then( json => console.dir(json))
-      .catch(err => console.dir(err))
   }
 }
 
@@ -481,6 +499,8 @@ export {
   fetchUnsentAudits,
   fetchCurrentAuditsExercise,
   saveAudit,
+  sendAudit,
+  deleteAudit,
   fetchNewAudit,
   fetchExerciseRecentResults,
 };

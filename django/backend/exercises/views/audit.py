@@ -14,9 +14,12 @@ from exercises.serializers import AuditExerciseSerializer, ImageAnswerSerializer
 from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
+from django.core.mail import EmailMessage
 import datetime
 from django.utils import timezone
 from django.utils.six import BytesIO
+from django.template.loader import get_template
+from django.template import Context
 from rest_framework.parsers import JSONParser
 import pytz
 from random import choice
@@ -59,6 +62,22 @@ def get_new_audit(request, exercise):
 
 @permission_required('exercises.administer_exercise')
 @api_view(['POST'])
+def delete_audit(request, pk):
+    try:
+        audit = AuditExercise.objects.get(pk=pk)
+    except ObjectDoesNotExist:
+        return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if audit.auditor is not request.user and not request.user.is_superuser:
+        return Response(
+            {'error': 'You are not the auditor of this audit and you are not a superuser.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+    n_deleted = audit.delete()
+    return Response({'success': 'Deleted ' + str(n_deleted) + 'objects.'})
+
+
+@permission_required('exercises.administer_exercise')
+@api_view(['POST'])
 def update_audit(request, pk):
     try:
         audit = AuditExercise.objects.get(pk=pk)
@@ -72,3 +91,33 @@ def update_audit(request, pk):
         )
     saudit.save()
     return Response({})
+
+
+@permission_required('exercises.administer_exercise')
+@api_view(['POST'])
+def send_audit(request, pk):
+    try:
+        audit = AuditExercise.objects.get(pk=pk)
+    except ObjectDoesNotExist:
+        return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    course = Course.objects.first()
+    template = get_template('audit/random_subject.tx')
+    data = {'course': course, 'exercise': audit.exercise}
+    context = Context(data)
+    subject = template.render(context).strip()
+    email = EmailMessage(
+        subject=subject,
+        body=audit.message,
+        from_email=Course.objects.course_name().lower() + "@openta.se",
+        to=[audit.student.email],
+        reply_to=[request.user.email],
+    )
+    try:
+        n_sent = email.send()
+    except Exception as e:
+        return Response({error: str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    audit.sent = True
+    audit.save()
+    return Response({'success': "Email backend reported " + str(n_sent) + " email sent."})

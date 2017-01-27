@@ -22,7 +22,6 @@
     display: none; }
 
   .exercise-list {
-    width: 0%;
     max-width: 200px;
     padding: 0;
     box-sizing: border-box; }
@@ -49,11 +48,10 @@
     width: 100%;
     box-sizing: border-box; } }
 @media (min-width: 480px) and (max-width: 768px) {
-  .exercise-list-off-canvas {
+  .exercise-list-off-canvas-old {
     display: none; }
 
   .exercise-list {
-    width: 20%;
     max-width: 200px;
     padding: 0;
     box-sizing: border-box; }
@@ -69,7 +67,7 @@
     box-sizing: border-box; }
 
   .admin {
-    width: 80%;
+    width: 100%;
     box-sizing: border-box; }
 
   .exercise-admin {
@@ -80,11 +78,10 @@
     width: 100%;
     box-sizing: border-box; } }
 @media (min-width: 768px) and (max-width: 960px) {
-  .exercise-list-off-canvas {
+  .exercise-list-off-canvas-old {
     display: none; }
 
   .exercise-list {
-    width: 20%;
     max-width: 200px;
     padding: 0;
     box-sizing: border-box; }
@@ -100,7 +97,7 @@
     box-sizing: border-box; }
 
   .admin {
-    width: 80%;
+    width: 100%;
     box-sizing: border-box; }
 
   .exercise-admin {
@@ -111,11 +108,10 @@
     width: 100%;
     box-sizing: border-box; } }
 @media (min-width: 960px) {
-  .exercise-list-off-canvas {
+  .exercise-list-off-canvas-old {
     display: none; }
 
   .exercise-list {
-    width: 20%;
     max-width: 200px;
     padding: 0;
     box-sizing: border-box; }
@@ -131,7 +127,7 @@
     box-sizing: border-box; }
 
   .admin {
-    width: 80%;
+    width: 100%;
     box-sizing: border-box; }
 
   .exercise-admin {

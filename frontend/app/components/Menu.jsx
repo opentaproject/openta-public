@@ -41,7 +41,7 @@ const BaseMenu = ({menuPath, menuClick}) => {
     </li>);
   })
   var subMenu = subItems.filter( item => !item.get('invisible', false)).map( (item, key) => {
-    var cssclass = "uk-button uk-button-primary" + (menuPath.last() === key ? " uk-active" : "");
+    var cssclass = "uk-button uk-button-small uk-button-primary" + (menuPath.last() === key ? " uk-active" : "");
     return ( <a key={item.get('name')} className={cssclass} onClick={e => menuClick((leaf ? menuPath.butLast() : menuPath).push(item.get('key')))}>{item.get('name')}</a> )
   }).toArray();
   return (

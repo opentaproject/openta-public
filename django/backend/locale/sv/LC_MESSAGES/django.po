@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-23 22:29+0100\n"
+"POT-Creation-Date: 2017-01-26 20:25+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: backend/forms.py:51 course/forms.py:5 course/models.py:16
+#: backend/forms.py:51 course/forms.py:5 course/models.py:26
 msgid "Registration password"
 msgstr "Registreringslösenord"
 
@@ -81,73 +81,126 @@ msgstr ""
 msgid "Random control"
 msgstr "Slumpmässig kontroll"
 
-#: exercises/models.py:58
+#: exercises/models.py:57
 msgid "Added exercise "
 msgstr ""
 
-#: exercises/models.py:61
+#: exercises/models.py:60
 msgid "Updated exercise "
 msgstr ""
 
-#: exercises/models.py:86
+#: exercises/models.py:87
 msgid "Started syncing exercises..."
 msgstr ""
 
-#: exercises/models.py:98
+#: exercises/models.py:99
 msgid "Duplicate exercise keys!"
 msgstr ""
 
-#: exercises/models.py:99
+#: exercises/models.py:100
 msgid "Exercise at ["
 msgstr ""
 
-#: exercises/models.py:99
+#: exercises/models.py:100
 msgid "] has the same key as exercise at ["
 msgstr ""
 
-#: exercises/models.py:100
+#: exercises/models.py:101
 msgid ""
 "Neither was added. (Perhaps you copied an exercise? Then please remove the "
 "key file from the new exercise to generate a new one on reload)"
 msgstr ""
 
-#: exercises/models.py:115
+#: exercises/models.py:117
 msgid "Deleted "
 msgstr ""
 
-#: exercises/models.py:115
+#: exercises/models.py:117
 msgid " since it is not present on disc anymore"
 msgstr ""
 
-#: exercises/models.py:121
+#: exercises/models.py:123
 msgid "Deleted an entry for "
 msgstr ""
 
-#: exercises/models.py:121
+#: exercises/models.py:123
 msgid ""
 " since the stored exercise key did not correspond to the exercisekey in the "
 "folder."
 msgstr ""
 
-#: exercises/models.py:124
+#: exercises/models.py:126
 msgid "Finished syncing exercises."
 msgstr ""
 
-#: exercises/views/api.py:176
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:80
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:80
+msgid "Terms do not seem to have the same unit."
+msgstr "Termerna i uttrycket verkar inte ha samma enhet."
+
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:84
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:117
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:84
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:117
+msgid "Seems like the expression does not have the correct units."
+msgstr "Uttrycket verkar inte ha rätt enhet."
+
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:202
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:202
+msgid "Failed to evaluate expression"
+msgstr "Kunde inte evaluera uttrycket"
+
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:204
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:204
+msgid " are not valid variables."
+msgstr " är inte tillåtna variabler."
+
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:210
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:210
+msgid "Failed to evaluate expression."
+msgstr "Kunde inte evaluera uttrycket"
+
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:214
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:214
+msgid "Unknown error, check your expression."
+msgstr "Okänt fel, kontrollera ditt uttryck."
+
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:234
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:253
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:234
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:253
+msgid "Answer contains invalid character "
+msgstr "Uttrycket innehåller felaktiga tecken "
+
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:244
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:244
+msgid "Expression could not be parsed."
+msgstr "Uttrycket kunde inte tolkas."
+
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:274
+#: exercises/questiontypes/multiple_choice/compare_numeric.py:274
+msgid "Could not parse expression"
+msgstr "Uttrycket kunde inte tolkas."
+
+#: exercises/views/api.py:190
 msgid "Exercise not activated."
 msgstr "Uppgiften är inte aktiverad."
 
-#: exercises/views/api.py:179
+#: exercises/views/api.py:193
 msgid "You are limited to "
 msgstr "Max "
 
-#: exercises/views/api.py:179
+#: exercises/views/api.py:193
 msgid " tries per minute."
 msgstr " försök per minut."
 
 #: templates/activation_failed.html:10
 msgid "Activation failed."
 msgstr "Aktivering misslyckades."
+
+#: templates/audit/random_subject.txt:2
+msgid "Random audit - Exercise "
+msgstr "Slumpmässig kontroll - Uppgift "
 
 #: templates/batch_add_users.html:26
 msgid "Process"
@@ -229,33 +282,6 @@ msgstr "Skicka återställningslänk"
 #: templates/registration/register_with_password.html:23
 msgid "To registration"
 msgstr "Till registrering"
-
-msgid "Terms do not seem to have the same unit."
-msgstr "Termerna i uttrycket verkar inte ha samma enhet."
-
-msgid "Seems like the expression does not have the correct units."
-msgstr "Uttrycket verkar inte ha rätt enhet."
-
-msgid "Failed to evaluate expression"
-msgstr "Kunde inte evaluera uttrycket"
-
-msgid " are not valid variables."
-msgstr " är inte tillåtna variabler."
-
-msgid "Failed to evaluate expression."
-msgstr "Kunde inte evaluera uttrycket"
-
-msgid "Unknown error, check your expression."
-msgstr "Okänt fel, kontrollera ditt uttryck."
-
-msgid "Answer contains invalid character "
-msgstr "Uttrycket innehåller felaktiga tecken "
-
-msgid "Expression could not be parsed."
-msgstr "Uttrycket kunde inte tolkas."
-
-msgid "Could not parse expression"
-msgstr "Uttrycket kunde inte tolkas."
 
 msgid ""
 "Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."

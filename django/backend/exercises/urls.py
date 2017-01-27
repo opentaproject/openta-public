@@ -43,6 +43,8 @@ urlpatterns = [
     url(r'^audit/new/exercise/(?P<exercise>[\w\.-]+)$', views.get_new_audit),
     url(r'^audit/get/exercise/(?P<exercise>[\w\.-]+)$', views.get_current_audits_exercise),
     url(r'^audit/update/(?P<pk>[0-9]+)/$', views.update_audit),
+    url(r'^audit/send/(?P<pk>[0-9]+)/$', views.send_audit),
+    url(r'^audit/delete/(?P<pk>[0-9]+)/$', views.delete_audit),
     url(r'^results/user/(?P<userpk>[0-9]+)/$', views.get_user_results),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/recentresults', views.get_recent_results),
 ]

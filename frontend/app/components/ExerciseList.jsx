@@ -79,7 +79,7 @@ return (
 );
 }
 
-const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onBack, pendingState, showStatistics }) => (
+const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onBack, pendingState, showStatistics, showOnCanvas}) => (
   <div className="uk-text-center " id="exercises-menu">
     <div id="offcanvas-exercise-list" className="uk-offcanvas">
       <div className="uk-offcanvas-bar">
@@ -92,6 +92,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
       </div>
     </div>
     { /*<a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas" data-uk-offcanvas/> */ }
+    { showOnCanvas &&
     <ul className="uk-nav uk-nav-side uk-list-space exercise-menu exercise-list-on-canvas">
     <li className="uk-nav-header" key="header">
       <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
@@ -104,6 +105,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
       return generateItem(onExerciseClick, exercise, activeExercise, exerciseState, meta, showStatistics);
       })}
     </ul>
+    }
   </div>
 );
 
@@ -115,6 +117,7 @@ BaseExercises.propTypes = {
   pendingState: PropTypes.object,
   onExerciseClick: PropTypes.func.isRequired,
   onBack: PropTypes.func,
+  showOnCanvas: PropTypes.bool,
 };
 
 const mapStateToProps = state => {

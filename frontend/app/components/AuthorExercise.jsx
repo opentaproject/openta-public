@@ -83,10 +83,12 @@ class BaseAuthorExercise extends Component {
     var loadingXML = pendingState.getIn(['exercises', key, 'loadingXML'],false);
     var authorDOM = (
       <div className="uk-grid admin">
+        { !this.props.atMenu(['activeExercise', 'audit']) &&
         <div key="exercise" className="exercise-admin">
           <Tools savepending={savePending} savesuccess={!modified && saveError === false} saveerror={saveError} />
           <Exercise/>
         </div>
+        }
         <div key="xml" className="xmleditor">
         { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }
         { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
@@ -96,9 +98,9 @@ class BaseAuthorExercise extends Component {
             </div>
         }
         { this.props.atMenu(['activeExercise','statistics']) && this.props.view && <Statistics/> }
-        { this.props.atMenu(['activeExercise','audit']) && this.props.admin && <Audit/> }
         { this.props.atMenu(['activeExercise','recent']) && this.props.view && <ExerciseRecentResults/> }
         </div>
+        { this.props.atMenu(['activeExercise','audit']) && this.props.admin && <Audit/> }
       </div>
     );
     return key ? authorDOM : (<span/>);

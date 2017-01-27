@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import immutable from 'immutable';
 import Spinner from './Spinner.jsx';
+import Exercise from './Exercise.jsx';
 import StudentAuditExercise from './StudentAuditExercise.jsx';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
@@ -9,17 +10,21 @@ import _ from 'lodash';
 
 import { 
   fetchStudentDetailResults,
+  fetchCurrentAuditsExercise,
   fetchNewAudit,
   saveAudit,
+  deleteAudit,
+  sendAudit,
 } from '../fetchers.js';
 import { 
   setActiveAudit,
   updateAudit,
+  updatePendingStateIn,
   setSelectedStudentResults,
   setDetailResultExercise,
 } from '../actions.js';
 
-const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChange, pendingResults, onSaveAudit, onMessageChange, onAddAudit}) => {
+const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChange, pendingResults, onSendAudit, pendingSave, onMessageChange, onAddAudit, onDeleteAudit, pendingDelete}) => {
   var auditsList = audits.filter( (audit) => audit.get('exercise') === activeExercise )
                          .toList()
                          .sort( (a, b) => a.get('date') > b.get('date') );
@@ -36,11 +41,10 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
   var showNext = current + 1 < auditsList.size;
   var prev = current - 1 >= 0 ? current - 1 : current;
   var showPrev = current -1 >= 0;
-  return (
-    <div className="uk-flex uk-flex-wrap uk-margin-top">
-      <div className="uk-width-1-1">
-        <div className="uk-panel uk-panel-box">
-          <div className="uk-panel uk-panel-box uk-panel-box-primary">
+  var auditList = //{{{
+    (
+          <div className="uk-panel uk-panel-box uk-panel-box-primary" style={{padding: '5px'}}>
+            <div className="uk-flex uk-flex-wrap">
             <div className="uk-button-group uk-display-inline-block">
               <button className="uk-button" type="button" onClick={ () => onAddAudit(activeExercise) }>Add audit</button>
               <button className="uk-button" type="button" onClick={() => showPrev ? onAuditChange(auditsList.getIn([prev, 'pk']), auditsList.getIn([prev,'student']), activeExercise) : 0}><i className="uk-icon uk-icon-chevron-left"/></button>
@@ -50,24 +54,47 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
             <div className="uk-grid uk-margin-left uk-margin-small-top">
              {auditsRender}
             </div>
-            { activeAudit && audits.getIn([activeAudit, 'exercise']) == activeExercise &&
+            </div>
+          </div>);//}}}
+  var sendClass = audits.getIn([activeAudit, 'sent']) ? 'uk-button-success' : 'uk-button-primary';
+  var sendName = audits.getIn([activeAudit, 'sent']) ? 'Resend' : 'Send';
+  var auditMessage = activeAudit && audits.getIn([activeAudit, 'exercise']) == activeExercise && //{{{
+          (<div className="uk-panel uk-panel-box uk-panel-box-primary">
             <form className="uk-form">
               <div className="uk-form-row">
                 <textarea className="uk-width-1-1" onChange={e => onMessageChange(e, activeAudit)} value={audits.getIn([activeAudit, 'message'],'')}></textarea>
               </div>
               <div className="uk-form-row">
-                <a className="uk-button uk-button-success" onClick={() => onSaveAudit(activeAudit)}>Save</a>
+                <a className={"uk-button " + sendClass} onClick={() => onSendAudit(activeAudit)}>{sendName} 
+                { pendingSave && <Spinner size="uk-icon-small"/> }
+                </a>
+                <a className="uk-button uk-button-danger uk-float-right" onClick={() => onDeleteAudit(activeAudit)}>Delete
+                { pendingDelete && <Spinner size="uk-icon-small"/> }
+                </a>
               </div>
             </form>
-            }
-          </div>
-          <div className="uk-width-1-1 uk-margin-top">
-          { !pendingResults && activeAudit && <StudentAuditExercise anonymous={true}/> }
-          { pendingResults && <Spinner/> }
+            </div>
+            );//}}}
+  return (
+      <div className="uk-width-1-1 uk-margin-top">
+        <div className="uk-panel uk-panel-box">
+          <div className="uk-flex uk-flex-column">
+            <div className="uk-width-1-1">{auditList}</div>
+            <div className="uk-flex">
+              <div className="uk-width-2-10">
+                <Exercise/>
+              </div>
+              <div className="uk-width-6-10 uk-margin-top">
+                { !pendingResults && activeAudit && <StudentAuditExercise anonymous={true}/> }
+                { pendingResults && <Spinner/> }
+              </div>
+              <div className="uk-width-2-10 uk-margin-top uk-margin-small-left">
+                { auditMessage }
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
   );
 }
 
@@ -75,11 +102,35 @@ const handleAuditSave = (auditPk) => (dispatch, getState) => {
   var state = getState();
   if(state.hasIn(['audit', 'audits', auditPk])) {
     var auditData = state.getIn(['audit', 'audits', auditPk]).toJS();
-    dispatch(saveAudit(auditPk, auditData));
+    return dispatch(saveAudit(auditPk, auditData));
   } else {
     console.log('No audit with that pk populated');
   }
+}
 
+const handleAuditSend = (auditPk) => dispatch => {
+   dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'send'], true))
+   dispatch(handleAuditSave(auditPk))
+    .then(() => dispatch(sendAudit(auditPk)))
+    .then( res => dispatch(updateAudit(auditPk, { sent: 'success' in res })))
+    .then(() => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'send'], false)))
+    .catch( err => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'send'], false)));
+}
+
+const handleDeleteAudit = (auditPk) => dispatch => {
+   dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'delete'], true))
+   dispatch(deleteAudit(auditPk))
+    .then(json => {
+      if('success' in json)
+        return json;
+      else
+        throw "Delete failed";
+    })
+    .then( () => console.log('Before fetch audits') )
+    .then( () => dispatch(fetchCurrentAuditsExercise()) )
+    .then( () => console.log('After fetch audits') )
+    .then(() => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'delete'], false)))
+    .catch( err => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'delete'], false)));
 }
 
 const throttleSave = _.throttle( (dispatch, auditPk) => {
@@ -97,6 +148,8 @@ const mapStateToProps = state => {
     activeAudit: activeAudit,
     activeExercise: activeExercise,
     pendingResults: state.getIn(['pendingState', 'detailedResults', state.getIn(['results', 'selectedUser'])], false),
+    pendingSave: state.getIn(['pendingState', 'audit', 'audits', activeAudit, 'send'], false),
+    pendingDelete: state.getIn(['pendingState', 'audit', 'audits', activeAudit, 'delete'], false),
   }
 };
 
@@ -107,8 +160,9 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchStudentDetailResults(studentPk));
     dispatch(setSelectedStudentResults(studentPk));
   },
-  onSaveAudit: (auditPk) => dispatch(handleAuditSave(auditPk)),
+  onSendAudit: (auditPk) => dispatch(handleAuditSend(auditPk)),
   onAddAudit: (exercise) => dispatch(fetchNewAudit(exercise)),
+  onDeleteAudit: (auditPk) => dispatch(handleDeleteAudit(auditPk)),
   onMessageChange: (e, pk) =>  {
     dispatch(updateAudit(pk, {'message': e.target.value}))
     throttleSave(dispatch, pk);

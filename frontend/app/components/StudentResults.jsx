@@ -161,10 +161,12 @@ const BaseStudentResults = ({userResults,
         <div className="uk-width-1-1">
           <button className="uk-button uk-button-primary" onClick={() => onBack()}>Back to list</button>
         </div>
-        <div style={{maxWidth: '400px'}}>
+        <div className="uk-width-1-4">
           <Exercise/>
         </div>
+        <div className="uk-width-3-4">
           <StudentAuditExercise anonymous={true}/>
+        </div>
         </div>
       }
       </article>

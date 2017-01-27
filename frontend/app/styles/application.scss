@@ -32,13 +32,13 @@ $exerciselist: 0.1;
       display: none;
     }
   }
-  .exercise-list-off-canvas {
+  .exercise-list-off-canvas-old {
     @if not($onecolumn) {
       display: none;
     }
   }
   .exercise-list {
-    width: percentage($exerciselist);
+    //width: percentage($exerciselist);
     max-width: 200px;
     padding: 0;
     box-sizing: border-box;
@@ -58,7 +58,7 @@ $exerciselist: 0.1;
 
   .admin {
     @if not($onecolumn) {
-     width: percentage(1 - $exerciselist);
+     width: percentage(1);//percentage(1 - $exerciselist);
   }
   @else {
     width: 100%;
