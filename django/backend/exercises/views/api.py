@@ -244,7 +244,7 @@ def serve_file(path, filename, **kwargs):  # {{{
         response = HttpResponse()
         response["Content-Type"] = content_type if content_type else ""
         response["Content-Disposition"] = "inline; filename={0}".format(filename)
-        response["X-Accel-Redirect"] = path
+        response["X-Accel-Redirect"] = path.encode('utf-8')
         return response  # }}}
 
 
