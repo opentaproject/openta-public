@@ -24,7 +24,7 @@ import {
   setDetailResultExercise,
 } from '../actions.js';
 
-const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChange, pendingResults, onSendAudit, pendingSave, onMessageChange, onAddAudit, onDeleteAudit, pendingDelete}) => {
+const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChange, pendingResults, onSendAudit, pendingSave, onMessageChange, onOldMessageClick, onAddAudit, onDeleteAudit, pendingDelete}) => {
   var auditsList = audits.filter( (audit) => audit.get('exercise') === activeExercise )
                          .toList()
                          .sort( (a, b) => a.get('date') > b.get('date') );
@@ -62,7 +62,7 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
           (<div className="uk-panel uk-panel-box uk-panel-box-primary">
             <form className="uk-form">
               <div className="uk-form-row">
-                <textarea className="uk-width-1-1" onChange={e => onMessageChange(e, activeAudit)} value={audits.getIn([activeAudit, 'message'],'')}></textarea>
+                <textarea className="uk-width-1-1" rows="5" onChange={e => onMessageChange(e, activeAudit)} value={audits.getIn([activeAudit, 'message'],'')}></textarea>
               </div>
               <div className="uk-form-row">
                 <a className={"uk-button " + sendClass} onClick={() => onSendAudit(activeAudit)}>{sendName} 
@@ -75,6 +75,22 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
             </form>
             </div>
             );//}}}
+  var previousMessages = activeAudit && 
+    (
+      <div className="uk-panel uk-panel-box uk-margin-small-top">
+      <h3 className="uk-panel-title">Other messages</h3>
+      <table className="uk-table uk-table-hover">
+      <tbody>
+      { auditsList.filter( audit => audit.get('sent') && audit.get('message','').length > 0)
+      .map( audit => (
+        <tr key={audit.get('pk')} onClick={() => onOldMessageClick(activeAudit, audit.get('message'))}>
+          <td>{ audit.get('message') }</td>
+        </tr>
+      )) }
+      </tbody>
+      </table>
+      </div>
+    );
   return (
       <div className="uk-width-1-1 uk-margin-top">
         <div className="uk-panel uk-panel-box">
@@ -90,12 +106,20 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
               </div>
               <div className="uk-width-2-10 uk-margin-top uk-margin-small-left">
                 { auditMessage }
+                <div className="uk-text-small">
+                  { previousMessages }
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
   );
+}
+
+const handleOldMessageClick = (auditPk, msg) => (dispatch) => {
+    console.log("Updated message");
+    return dispatch(updateAudit(auditPk, { message: msg }));
 }
 
 const handleAuditSave = (auditPk) => (dispatch, getState) => {
@@ -167,6 +191,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(updateAudit(pk, {'message': e.target.value}))
     throttleSave(dispatch, pk);
   },
+  onOldMessageClick: (audit, msg) => dispatch(handleOldMessageClick(audit, msg)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseAudit);

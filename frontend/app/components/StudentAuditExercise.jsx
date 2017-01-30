@@ -58,7 +58,7 @@ const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, a
         <i className={'uk-margin-small-right uk-icon uk-icon-clock-o ' + (userResults.getIn(['exercises', activeExercise,'image_deadline'], false) && userResults.getIn(['exercises', activeExercise,'correct_deadline'], false) ? 'uk-text-success' : 'uk-text-danger')}/> 
         </h3>
         <div className="uk-flex">
-          <div className="uk-width-2-3">
+          <div className="uk-width-2-3 uk-margin-small-right">
             <ImageCollection srcs={userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse().map( ia => SUBPATH + "/imageanswer/"+ia.get('pk')).toJS()} badges={userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse().map( ia => moment(ia.get('date')).format('YYYY-MM-DD HH:mm')).toJS()}/>
           </div>
           <div className="uk-panel uk-panel-box uk-width-1-3 uk-flex uk-flex-wrap uk-overflow-container uk-margin-small-left" style={{maxHeight: '80vh'}}> 
