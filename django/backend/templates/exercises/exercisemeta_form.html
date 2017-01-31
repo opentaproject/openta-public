@@ -6,8 +6,8 @@
 <form method="post" class="uk-form uk-form-stacked">
     {% csrf_token %}
     {{ form.non_field_errors }}
-    <div class="uk-flex uk-flex-right uk-flex-row-reverse uk-flex-space-around">
-      <div>
+    <div class="uk-flex">
+      <div class="uk-margin-right">
         <div class="uk-form-row">
           {{ form.difficulty.errors }}
           <label class="uk-form-label" for={{ form.difficulty.id_for_label }}>{{ form.difficulty.label }}</label>
@@ -60,7 +60,7 @@
         </div>
       </div>
     </div>
-    <div class="uk-width-1-1 uk-text-center">
+    <div class="uk-width-1-1">
     <input class="uk-button uk-margin-small-top uk-button-success uk-text-contrast" type="submit" value="Save" />
     </div>
 </form>

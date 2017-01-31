@@ -335,7 +335,7 @@ export default class QuestionCompareNumeric extends Component {
     }
     this.varProps = varPropsList.map( item => ({
       //The token is the key, the other items that are not the token or the special $children$ are added as a map.
-      [item.getIn(['token', '$'], '')]: item.filterNot( (val, key) => key === 'token' || key === '$children$').map( val => val.get('$') )
+      [item.getIn(['token', '$'], '')]: item.filterNot( (val, key) => key === 'token' || key === '$children$' || key === '$').map( val => val.get('$') )
     }) )
     .reduce( (prev, next) => prev.merge(next), immutable.Map({}));
   }
@@ -344,7 +344,7 @@ export default class QuestionCompareNumeric extends Component {
     var blacklistObject =  this.props.questionData.getIn(['global','blacklist','token']);
     if( blacklistObject ){
       var blacklistList = enforceList(blacklistObject);
-      this.blacklist = blacklistObject.map( item => insertImplicitSubscript(item.get('$','').trim()) ).toJS();
+      this.blacklist = blacklistList.map( item => insertImplicitSubscript(item.get('$','').trim()) ).toJS();
     }
   }
 
