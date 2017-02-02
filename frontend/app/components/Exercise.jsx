@@ -71,8 +71,26 @@ class BaseExercise extends Component {
     );
   }
 
-  renderText = (itemjson, json, meta, exerciseKey) => {
+
+  renderLegacyText = (itemjson, json, meta, exerciseKey) => {
     var children = itemjson.get('$children$', immutable.List([]))
+                    .filter(item => item.get('#name') === 'figure')
+                    .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
+    return (
+      <div className="uk-clearfix" key={"text"}>
+      <div className="uk-align-medium-right">{children}</div>
+      <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(itemjson.get('$'))}} />
+      </div>
+    );
+  }
+
+  renderText = (itemjson, json, meta, exerciseKey) => {
+    var childrenList = itemjson.get('$children$', immutable.List([]));
+
+    if(childrenList.filter( item => item.get('#name','') === 'figure').size == 1 &&
+        childrenList.size == 2)
+      return this.renderLegacyText(itemjson, json, meta, exerciseKey);
+    var children =  childrenList 
                     .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
     return (
       <div className="uk-clearfix" key={"text" + nextUnstableKey()}>
@@ -144,7 +162,7 @@ class BaseExercise extends Component {
     return itemDOM;
   }
 
-  renderBareText = (itemjson, json, meta, exerciseKey) => (<span key={nextUnstableKey()}>{DOMPurify.sanitize(itemjson.get('$'))}</span>)
+  renderBareText = (itemjson, json, meta, exerciseKey) => (<span key={nextUnstableKey()} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(itemjson.get('$'))}}/>)
 
   renderRight = (itemjson, json, meta, exerciseKey) => (
     <div className="uk-align-medium-right" key={nextUnstableKey()}>
@@ -184,6 +202,9 @@ class BaseExercise extends Component {
       return exerciseDOM;
   }
 
+  componentDidMount(props, state, root) {
+    this.componentDidUpdate(props, state, root);
+  }
   componentDidUpdate(props,state,root) {
     var node = ReactDOM.findDOMNode(this.refs.exercise);
     //MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
