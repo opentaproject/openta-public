@@ -24,7 +24,7 @@ import {
   setDetailResultExercise,
 } from '../actions.js';
 
-const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChange, pendingResults, onSendAudit, pendingSave, onMessageChange, onOldMessageClick, onAddAudit, onDeleteAudit, pendingDelete}) => {
+const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChange, pendingResults, onSendAudit, pendingSave, onMessageChange, onOldMessageClick, onAddAudit, onDeleteAudit, pendingDelete, onSubjectChange}) => {
   var auditsList = audits.filter( (audit) => audit.get('exercise') === activeExercise )
                          .toList()
                          .sort( (a, b) => a.get('date') > b.get('date') );
@@ -62,6 +62,9 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
           (<div className="uk-panel uk-panel-box uk-panel-box-primary">
             <form className="uk-form">
               <div className="uk-form-row">
+                <input type="text" className="uk-width-1-1 uk-form-small" value={audits.getIn([activeAudit, 'subject'])} onChange={e => onSubjectChange(e, activeAudit)}/>
+              </div>
+              <div className="uk-form-row">
                 <textarea className="uk-width-1-1" rows="5" onChange={e => onMessageChange(e, activeAudit)} value={audits.getIn([activeAudit, 'message'],'')}></textarea>
               </div>
               <div className="uk-form-row">
@@ -81,7 +84,7 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
       <h3 className="uk-panel-title">Other messages</h3>
       <table className="uk-table uk-table-hover">
       <tbody>
-      { auditsList.filter( audit => audit.get('sent') && audit.get('message','').length > 0)
+      { auditsList.filter( audit => /*audit.get('sent') &&*/ audit.get('message','').length > 0)
       .map( audit => (
         <tr key={audit.get('pk')} onClick={() => onOldMessageClick(activeAudit, audit.get('message'))}>
           <td>{ audit.get('message') }</td>
@@ -193,6 +196,10 @@ const mapDispatchToProps = dispatch => ({
   onDeleteAudit: (auditPk) => dispatch(handleDeleteAudit(auditPk)),
   onMessageChange: (e, pk) =>  {
     dispatch(updateAudit(pk, {'message': e.target.value}))
+    throttleSave(dispatch, pk);
+  },
+  onSubjectChange: (e, pk) =>  {
+    dispatch(updateAudit(pk, {'subject': e.target.value}))
     throttleSave(dispatch, pk);
   },
   onOldMessageClick: (audit, msg) => dispatch(handleOldMessageClick(audit, msg)),

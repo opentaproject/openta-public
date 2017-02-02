@@ -58,9 +58,10 @@ class ImageAnswerSerializer(serializers.ModelSerializer):
 class AuditExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuditExercise
-        fields = ('pk', 'student', 'auditor', 'exercise', 'date', 'message', 'sent')
+        fields = ('pk', 'student', 'auditor', 'exercise', 'date', 'message', 'subject', 'sent')
 
     def update(self, instance, validated_data):
         instance.message = validated_data.get('message', instance.message)
+        instance.subject = validated_data.get('subject', instance.subject)
         instance.save()
         return instance

@@ -54,7 +54,14 @@ def get_new_audit(request, exercise):
         return Response({'error': 'No completed students available for audit.'})
     targets = students_audits.filter(n_audits=minimum).values_list('pk', 'n_audits')
     auditee = User.objects.get(pk=choice(targets)[0])
-    audit = AuditExercise(auditor=request.user, student=auditee, exercise=dbexercise)
+    course = Course.objects.first()
+    template = get_template('audit/subject.txt')
+    data = {'course': course, 'exercise': dbexercise}
+    context = Context(data)
+    subject = template.render(context).strip()
+    audit = AuditExercise(
+        auditor=request.user, student=auditee, exercise=dbexercise, subject=subject
+    )
     audit.save()
     saudit = AuditExerciseSerializer(audit)
     return Response(saudit.data)
@@ -101,11 +108,6 @@ def send_audit(request, pk):
     except ObjectDoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    course = Course.objects.first()
-    template = get_template('audit/random_subject.tx')
-    data = {'course': course, 'exercise': audit.exercise}
-    context = Context(data)
-    subject = template.render(context).strip()
     email = EmailMessage(
         subject=subject,
         body=audit.message,
