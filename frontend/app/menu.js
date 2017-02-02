@@ -98,6 +98,11 @@ var menuTree = immutable.fromJS({
           key: 'xmlEditor',
           reqGroup: 'Author'
         },
+        student: {
+          name: 'Student',
+          key: 'student',
+          reqGroup: 'Author'
+        },
         options: {
           name: 'Options',
           key: 'options',

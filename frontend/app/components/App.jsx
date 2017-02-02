@@ -40,7 +40,7 @@ class BaseApp extends React.Component {
                 <ExerciseList showOnCanvas={!menuPositionUnder(this.props.menuPath, ['activeExercise', 'audit'])}/>               
               </div>
               }
-              { menuPositionUnder(this.props.menuPath, ['activeExercise']) && ((this.props.author || this.props.admin || this.props.view) ? <AuthorExercise /> : <div className="exercise uk-padding-remove"><Exercise/></div>) }
+              { menuPositionUnder(this.props.menuPath, ['activeExercise']) && (((this.props.author || this.props.admin || this.props.view) && !menuPositionUnder(this.props.menuPath, ['activeExercise', 'student'])) ? <AuthorExercise /> : <div className="exercise uk-padding-remove"><Exercise/></div>) }
             </div>
           </div>
         </div>
