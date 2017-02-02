@@ -243,7 +243,7 @@ def serve_file(path, filename, **kwargs):  # {{{
     else:
         response = HttpResponse()
         response["Content-Type"] = content_type if content_type else ""
-        response["Content-Disposition"] = "attachment; filename={0}".format(filename)
+        response["Content-Disposition"] = "inline; filename={0}".format(filename)
         response["X-Accel-Redirect"] = path
         return response  # }}}
 
