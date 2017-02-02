@@ -100,16 +100,20 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
               <div className="uk-width-2-10">
                 <Exercise/>
               </div>
+              { audits.getIn([activeAudit, 'exercise']) == activeExercise &&
               <div className="uk-width-6-10 uk-margin-top">
-                { !pendingResults && activeAudit && <StudentAuditExercise anonymous={true}/> }
+                { !pendingResults && activeAudit  && <StudentAuditExercise anonymous={true}/> }
                 { pendingResults && <Spinner/> }
               </div>
+              }
+              { audits.getIn([activeAudit, 'exercise']) == activeExercise &&
               <div className="uk-width-2-10 uk-margin-top uk-margin-small-left">
                 { auditMessage }
                 <div className="uk-text-small">
                   { previousMessages }
                 </div>
               </div>
+              }
             </div>
           </div>
         </div>
