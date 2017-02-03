@@ -316,5 +316,6 @@ class AuditExercise(models.Model):
     exercise = models.ForeignKey(Exercise)
     subject = models.CharField(max_length=255, default='')
     message = models.TextField(default="", blank=True)
+    resolved = models.BooleanField(default=False)
     date = models.DateTimeField(default=now)
     sent = models.BooleanField(default=False)

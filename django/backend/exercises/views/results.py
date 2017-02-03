@@ -9,6 +9,7 @@ from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAns
 from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
+from itertools import groupby
 import datetime
 import pytz
 
@@ -63,22 +64,18 @@ def get_recent_results(request, exercise):
             .order_by('-date')
             .values_list('user__pk', flat=True)[:100]
         )
-        latest_users = take_latest_unique_users(users, 5)
+        latest_users = take_latest_unique_users(users, 15)
         results[question.question_key] = []
         for user in latest_users:
             dbuser = User.objects.get(pk=user)
             answers = Answer.objects.filter(user__pk=user, question=question).order_by('-date')
             n_answers = answers.count()
-            sanswers = AnswerSerializer(answers[:5], many=True)
+            sanswers = AnswerSerializer(answers[:10], many=True)
+            unique = [next(x, None) for k, x in groupby(sanswers.data, lambda item: item['answer'])]
             results[question.question_key].append(
-                dict(pk=user, username=dbuser.username, answers=sanswers.data, n_answers=n_answers)
+                dict(pk=user, username=dbuser.username, answers=unique[:5], n_answers=n_answers)
             )
 
-        # for answer in answers:
-        #    print(answer)
-        # sanswers = AnswerSerializer(answers, many=True)
-        # AnswerSerializer
-        # results[question.question_key] = {}#sanswers.data
     return Response(results)
 
 

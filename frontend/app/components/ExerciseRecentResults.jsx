@@ -50,7 +50,7 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
                       {
                         data.get('answers').map( answer => (
                           <li className={answer.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'} key={answer.get('question')+':'+answer.get('user')+':'+answer.get('date')} title={moment(answer.get('date')).fromNow()/*.format('YYYY-MM-DD HH:mm')*/ + ': ' + answer.get('answer')} data-uk-tooltip>
-                            <div className="uk-text-truncate" style={{maxWidth: "200px"}}>
+                            <div className="uk-text-truncate" style={{maxWidth: "300px"}}>
                               <MathSpan className="uk-text-small">
                                 { renderExpression(answer.get('answer')) }
                               </MathSpan>

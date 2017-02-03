@@ -109,7 +109,7 @@ def send_audit(request, pk):
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     email = EmailMessage(
-        subject=subject,
+        subject=audit.subject,
         body=audit.message,
         from_email=Course.objects.course_name().lower() + "@openta.se",
         to=[audit.student.email],
