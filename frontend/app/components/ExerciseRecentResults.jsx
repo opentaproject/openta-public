@@ -47,6 +47,7 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
                     <div className="uk-panel uk-panel-box uk-margin-small-top" key={data.get('pk')}>
                     <h3 className="uk-panel-title">{data.get('username')}</h3>
                     <table className="uk-table uk-table-condensed" style={{ width: 'auto' }}>
+                    <tbody>
                       {
                         data.get('answers').map( answer => (
                           <tr key={answer.get('question')+':'+answer.get('user')+':'+answer.get('date')}>
@@ -64,6 +65,7 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
                         ))
                       }
                       { data.get('n_answers') > data.get('answers').size && <tr key="last"><td className="uk-text-center"><i className="uk-icon uk-icon-ellipsis-v"/></td><td/></tr> }
+                      </tbody>
                     </table>
                     </div>
                     )).toList()}

@@ -44,7 +44,14 @@ def get_current_audits_exercise(request, exercise):
 @permission_required('exercises.administer_exercise')
 @api_view(['POST', 'GET'])
 def get_new_audit(request, exercise):
-    dbexercise = Exercise.objects.get(pk=exercise)
+    try:
+        dbexercise = Exercise.objects.get(pk=exercise, meta__image=True)
+    except Exercise.DoesNotExist:
+        return Response(
+            {'error': 'Invalid exercise or no image required.'},
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
     students_audits = get_passed_students(dbexercise).annotate(n_audits=Count('audits'))
     # User.objects.filter(groups__name='Student').annotate(n_audits=Count('audits'))
     naudits_sorted = students_audits.order_by('n_audits').values_list('n_audits', flat=True)
