@@ -30,11 +30,11 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
                          .sort( (a, b) => a.get('date') > b.get('date') );
   var nAudits = auditsList.size;
   var auditsRender =  auditsList.map( (audit, key) => {
-    var activeClass = activeAudit === audit.get('pk') ? 'uk-active uk-button-primary ' : ' ';
+    var activeClass = activeAudit === audit.get('pk') ? ' uk-text-bold uk-text-large ' : ' ';
     var doneClass = (audit.get('sent') && audit.get('resolved')) ? ' uk-button-success ' : ' ';
-    var unresolvedClass = !audit.get('resolved') ? ' uk-button-danger ' : ' ';
+    var unresolvedClass = !audit.get('resolved') ? ' uk-button-danger ' : ' uk-button-primary ';
     return (
-      <a key={audit.get('pk')} onClick={() => onAuditChange(audit.get('pk'), audit.get('student'), activeExercise)} className={"uk-button uk-button-mini " + activeClass + doneClass + unresolvedClass}>{key+1}</a>
+      <a key={audit.get('pk')} onClick={() => onAuditChange(audit.get('pk'), audit.get('student'), activeExercise)} className={"uk-button uk-button-mini " + doneClass + unresolvedClass + activeClass}>{key+1}</a>
     );
   });
   var current = auditsList.findEntry( item => item.get('pk') === activeAudit, null, [0])[0];
