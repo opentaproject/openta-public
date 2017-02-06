@@ -29,13 +29,17 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
                          .toList()
                          .sort( (a, b) => a.get('date') > b.get('date') );
   var nAudits = auditsList.size;
-  var auditsRender =  auditsList.map( (audit, key) => {
+
+  const renderAuditListItem = (audit, nInList) => {
     var activeClass = activeAudit === audit.get('pk') ? ' uk-text-bold uk-text-large ' : ' ';
     var doneClass = (audit.get('sent') && audit.get('resolved')) ? ' uk-button-success ' : ' ';
     var unresolvedClass = !audit.get('resolved') ? ' uk-button-danger ' : ' uk-button-primary ';
     return (
-      <a key={audit.get('pk')} onClick={() => onAuditChange(audit.get('pk'), audit.get('student'), activeExercise)} className={"uk-button uk-button-mini " + doneClass + unresolvedClass + activeClass}>{key+1}</a>
+      <a key={audit.get('pk')} onClick={() => onAuditChange(audit.get('pk'), audit.get('student'), activeExercise)} className={"uk-button uk-button-mini " + doneClass + unresolvedClass + activeClass}>{nInList+1}</a>
     );
+  };
+  var auditsRender =  auditsList.map( (audit, key) => {
+    return renderAuditListItem(audit, key);
   });
   var current = auditsList.findEntry( item => item.get('pk') === activeAudit, null, [0])[0];
   var next = current + 1 < auditsList.size ? current + 1 : current;
@@ -50,7 +54,7 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
              {auditsRender}
             </div>
             <div className="uk-button-group uk-display-inline-block">
-              <button className="uk-button" type="button" onClick={ () => onAddAudit(activeExercise) }>Add audit</button>
+              <button className="uk-button" type="button" onClick={ () => onAddAudit(activeExercise) }>Add student</button>
               <button className="uk-button" type="button" onClick={() => showPrev ? onAuditChange(auditsList.getIn([prev, 'pk']), auditsList.getIn([prev,'student']), activeExercise) : 0}><i className="uk-icon uk-icon-chevron-left"/></button>
               <button className="uk-button" type="button" disabled>{nAudits > 0 ? (current+1) : 0} / {auditsList.size} </button>
               <button className="uk-button" type="button" onClick={() => showNext ? onAuditChange(auditsList.getIn([next, 'pk']), auditsList.getIn([next,'student']), activeExercise) : 0}><i className="uk-icon uk-icon-chevron-right"/></button>
@@ -86,39 +90,39 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, auditData, onAuditChan
             </form>
             </div>
             );//}}}
-  var previousMessages = activeAudit && 
+  var previousMessages = activeAudit && //{{{
     (
       <div className="uk-panel uk-panel-box uk-margin-small-top">
       <h3 className="uk-panel-title">Other messages</h3>
       <table className="uk-table uk-table-hover">
       <tbody>
       { auditsList.filter( audit => /*audit.get('sent') &&*/ audit.get('message','').length > 0)
+      .groupBy( audit => audit.get('message') )
+      .map( group => group.first() )
       .map( audit => (
         <tr key={audit.get('pk')} onClick={() => onOldMessageClick(activeAudit, audit.get('message'))}>
           <td>{ audit.get('message') }</td>
         </tr>
-      )) }
+      ))
+     .toList() }
       </tbody>
       </table>
       </div>
-    );
+    );//}}}
   return (
       <div className="uk-width-1-1 uk-margin-top">
         <div className="uk-panel uk-panel-box">
           <div className="uk-flex uk-flex-column">
             <div className="uk-width-1-1">{auditList}</div>
             <div className="uk-flex">
-              <div className="uk-width-2-10">
-                <Exercise/>
-              </div>
               { audits.getIn([activeAudit, 'exercise']) == activeExercise &&
-              <div className="uk-width-6-10 uk-margin-top">
+              <div className="uk-flex-item-1 uk-margin-small-top">
                 { !pendingResults && activeAudit  && <StudentAuditExercise anonymous={true}/> }
                 { pendingResults && <Spinner/> }
               </div>
               }
               { audits.getIn([activeAudit, 'exercise']) == activeExercise &&
-              <div className="uk-width-2-10 uk-margin-top uk-margin-small-left">
+              <div className="uk-width-2-10 uk-margin-small-top uk-margin-small-left">
                 { auditMessage }
                 <div className="uk-text-small">
                   { previousMessages }
@@ -173,9 +177,7 @@ const handleDeleteAudit = (auditPk) => dispatch => {
       else
         throw "Delete failed";
     })
-    .then( () => console.log('Before fetch audits') )
     .then( () => dispatch(fetchCurrentAuditsExercise()) )
-    .then( () => console.log('After fetch audits') )
     .then(() => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'delete'], false)))
     .catch( err => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'delete'], false)));
 }
