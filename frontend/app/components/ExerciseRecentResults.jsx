@@ -46,20 +46,25 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
                     { users.map( data => (
                     <div className="uk-panel uk-panel-box uk-margin-small-top" key={data.get('pk')}>
                     <h3 className="uk-panel-title">{data.get('username')}</h3>
-                    <ul className="uk-list uk-list-line">
+                    <table className="uk-table uk-table-condensed" style={{ width: 'auto' }}>
                       {
                         data.get('answers').map( answer => (
-                          <li className={answer.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'} key={answer.get('question')+':'+answer.get('user')+':'+answer.get('date')} title={moment(answer.get('date')).fromNow()/*.format('YYYY-MM-DD HH:mm')*/ + ': ' + answer.get('answer')} data-uk-tooltip>
+                          <tr key={answer.get('question')+':'+answer.get('user')+':'+answer.get('date')}>
+                          <td className={answer.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'} title={answer.get('answer')} data-uk-tooltip>
                             <div className="uk-text-truncate" style={{maxWidth: "300px"}}>
                               <MathSpan className="uk-text-small">
                                 { renderExpression(answer.get('answer')) }
                               </MathSpan>
                             </div>
-                          </li>
+                          </td>
+                          <td className="uk-text-small">
+                            { moment(answer.get('date')).fromNow() }
+                          </td>
+                          </tr>
                         ))
                       }
-                      { data.get('n_answers') > data.get('answers').size && <li className="uk-width-1-1 uk-text-center" key="last"><i className="uk-icon uk-icon-ellipsis-v"/></li> }
-                    </ul>
+                      { data.get('n_answers') > data.get('answers').size && <tr key="last"><td className="uk-text-center"><i className="uk-icon uk-icon-ellipsis-v"/></td><td/></tr> }
+                    </table>
                     </div>
                     )).toList()}
                   </td>
