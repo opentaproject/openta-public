@@ -30,15 +30,14 @@ export default class ImageCollection extends Component {
   render() {
     if(this.props.srcs.length > 0)
       return (
-        <div className="uk-width-1-1 uk-margin-top">
-        <span className="uk-text-large">Solution image: </span>
-        <div className="uk-button-group">
-          <button className="uk-button" type="button" onClick={this.onPrev}><i className="uk-icon uk-icon-chevron-left"/></button>
-          <button className="uk-button" type="button" disabled>{this.state.activeImage+1}/{this.props.srcs.length}</button>
-          <button className="uk-button" type="button" onClick={this.onNext}><i className="uk-icon uk-icon-chevron-right"/></button>
+        <div className="uk-width-1-1">
+        <div className="uk-button-group uk-margin-small-bottom">
+          <button className="uk-button uk-button-small" type="button" onClick={this.onPrev}><i className="uk-icon uk-icon-chevron-left"/></button>
+          <button className="uk-button uk-button-small" type="button" disabled>{this.state.activeImage+1}/{this.props.srcs.length}</button>
+          <button className="uk-button uk-button-small" type="button" onClick={this.onNext}><i className="uk-icon uk-icon-chevron-right"/></button>
         </div>
         { this.props.badges && this.state.activeImage < this.props.badges.length &&
-          <Badge>{this.props.badges[this.state.activeImage]}</Badge>
+          <Badge className="uk-margin-small-left">{this.props.badges[this.state.activeImage]}</Badge>
         }
         <Image src={this.props.srcs[this.state.activeImage]}/>
         </div>

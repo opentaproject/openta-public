@@ -34,6 +34,7 @@ export default class Image extends Component {
     else
       this.canvasref.height = this.container.clientWidth;
     this.canvas = new fabric.Canvas('imagecanvas');
+    this.canvas.backgroundColor = 'rgba(0,0,0, 0.2)';
     fabric.Image.fromURL(this.props.src, oImg => {
       oImg.scaleToWidth(this.canvas.getWidth());
       var tmpScale = oImg.getScaleX();
@@ -41,6 +42,7 @@ export default class Image extends Component {
       if(tmpScale < oImg.getScaleX())
         oImg.scaleToWidth(this.canvas.getWidth());
       this.canvas.add(oImg);
+      this.canvas.centerObject(oImg);
     });
   }
 
@@ -99,6 +101,7 @@ export default class Image extends Component {
         <button className="uk-button uk-button-small" onClick={this.onRotateRight}><i className="uk-icon uk-icon-rotate-right"/></button>
         <button className="uk-button uk-button-small" onClick={this.onZoomOut}><i className="uk-icon uk-icon-search-minus"/></button>
         <button className="uk-button uk-button-small" onClick={this.onZoomIn}><i className="uk-icon uk-icon-search-plus"/></button>
+        <a className="uk-button uk-button-small" href={this.props.src}><i className="uk-icon uk-icon-file-photo-o"/></a>
       </div>
       }
       <canvas id="imagecanvas" ref={ (node) => this.canvasref = node }></canvas> 
