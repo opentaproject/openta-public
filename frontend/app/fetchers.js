@@ -66,13 +66,16 @@ function fetchLoginStatus() {//{{{
     .then(data => {
       dispatch(updateLoginStatus(data))
       if(data.groups.indexOf('Author') > -1)
-        dispatch(updateMenuLeafDefaults(['activeExercise'], 'xmleditor'));
+        dispatch(updateMenuLeafDefaults(['activeExercise'], 'student'));
+        //dispatch(updateMenuLeafDefaults(['activeExercise'], 'xmleditor'));
         //dispatch(updateActiveAdminTool('xml-editor'));
       if(data.groups.indexOf('Admin') > -1) 
-        dispatch(updateMenuLeafDefaults(['activeExercise'], 'options'));
+        dispatch(updateMenuLeafDefaults(['activeExercise'], 'student'));
+        //dispatch(updateMenuLeafDefaults(['activeExercise'], 'options'));
         //dispatch(updateActiveAdminTool('options'));
       if(data.groups.indexOf('View') > -1) {
-        dispatch(updateMenuLeafDefaults(['activeExercise'], 'statistics'));
+        dispatch(updateMenuLeafDefaults(['activeExercise'], 'student'));
+        //dispatch(updateMenuLeafDefaults(['activeExercise'], 'statistics'));
         //dispatch(updateActiveAdminTool('statistics'));
         dispatch(fetchAllExerciseStatistics());
       }
