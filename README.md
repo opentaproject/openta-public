@@ -18,7 +18,7 @@ To start the server
 ```
 make serve
 ```
-which will now be available at ```localhost:8000```. To watch for file changes in the code use
+which will now be available at ```localhost:8000```. To serve and watch for file changes in the code use
 ```
 make watch
 ```
