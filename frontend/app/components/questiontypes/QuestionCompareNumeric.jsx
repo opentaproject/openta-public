@@ -326,6 +326,7 @@ export default class QuestionCompareNumeric extends Component {
   //Parse variables and their optional properties
   parseVariables = () => {
     this.varsList = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
+    this.varsList.push("pi");
     // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
     var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
     var localVars = enforceList(this.props.questionData.get('var', List([])));
