@@ -5,6 +5,27 @@ When cloning this repository a file based sqlite database is provided with two u
 * teacher:learning, can edit exercises via the author interface.
 * student:learning, can view and answer exercises.
 
+## Development environment using Docker 
+
+Install [Docker](https://docs.docker.com/engine/installation/) and configure backend and frontend settings from the template files (```settings_dev.py``` and ```settings_example.js```) as shown below.
+
+Change workdirectory ```cd docker```. To build the Docker image run (grab a coffee)
+```
+make image
+```
+
+To start the server
+```
+make serve
+```
+which will now be available at ```localhost:8000```. To watch for file changes in the code use
+```
+make watch
+```
+
+Stop the server by multiple **Ctrl-C** till you are back at your shell. Use ```make serve port=4000``` (and similar for watch) to use another port.
+
+
 ## Backend Installation
 The following will assume the repository is cloned into a folder ```openta/```.
 
@@ -91,6 +112,7 @@ cp settings_example.js settings.js
 
 Build frontend and copy the bundle to the django server (as specified in brunch-config.js)
 ```
+cd frontend
 brunch build
 ```
 Alternatively, start a live-development watcher that recompiles and copies the files whenever something changes
@@ -147,3 +169,4 @@ Example:
 | ```text``` | | Question text |
 | ```variables```| | Variables in semicolon separated list of var=value, e.g. "x=1;y=2;" |
 | ```expression```| | Correct expression |
+
