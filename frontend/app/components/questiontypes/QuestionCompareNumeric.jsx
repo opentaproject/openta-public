@@ -163,6 +163,7 @@ export default class QuestionCompareNumeric extends Component {
     this.lastParsable = '';
     this.varProps = {};
     this.varsList = [];
+    this.validSymbols = ['pi'];
     this.blacklist = [];
     if(this.props.canViewSolution)
       this.state.value = this.props.questionData.getIn(['expression','$'], '').replace(/;/g,'');
@@ -250,7 +251,7 @@ export default class QuestionCompareNumeric extends Component {
       const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : node._toTex(options);
       if(this.blacklist.indexOf(node.name) !== -1) 
         return '\\color{orange}{' + texSymbol + '}';
-      if(this.varsList.indexOf(node.name) !== -1)
+      if(this.varsList.indexOf(node.name) !== -1 || this.validSymbols.indexOf(node.name) !== -1)
         return '\\color{green}{' + texSymbol + '}';
       else 
         return '\\color{red}{' + texSymbol + '}';
@@ -326,7 +327,6 @@ export default class QuestionCompareNumeric extends Component {
   //Parse variables and their optional properties
   parseVariables = () => {
     this.varsList = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
-    this.varsList.push("pi");
     // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
     var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
     var localVars = enforceList(this.props.questionData.get('var', List([])));
