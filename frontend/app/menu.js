@@ -71,6 +71,13 @@ var menuTree = immutable.fromJS({
           name: 'List',
           key: 'list',
           onLoad: setDetailResultExercise(false),
+          menuItems: {
+            audit: {
+              invisible: true,
+              name: 'Audit',
+              key: 'audit',
+            }
+          },
         },
         histogram: {
           name: 'Histogram',

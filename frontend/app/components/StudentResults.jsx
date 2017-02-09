@@ -1,9 +1,12 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import {
-  fetchExercise
+  fetchCurrentAuditsExercise,
+  fetchExercise,
+  addAudit
 } from '../fetchers.js';
 import {
+  setActiveAudit,
   setResultsFilter,
   setDetailResultExercise,
   setDetailResultsView,
@@ -14,6 +17,8 @@ import Exercise from './Exercise.jsx';
 import MathSpan from './MathSpan.jsx';
 import ImageCollection from './ImageCollection.jsx';
 import StudentAuditExercise from './StudentAuditExercise.jsx';
+import Audit from './Audit.jsx';
+import { menuPositionAt, menuPositionUnder, navigateMenuArray } from '../menu.js';
 
 import immutable from 'immutable';
 import moment from 'moment';
@@ -27,7 +32,9 @@ const BaseStudentResults = ({userResults,
                             onBack, 
                             exerciseState, 
                             detailResultsView,
-                            onChangeView}) => {
+                            onChangeView,
+                            onAudit,
+                            menuPath,}) => {
   var required = userResults.get('exercises', immutable.Map({})).filter( item => item.getIn(['meta', 'required'])).toList().sortBy(item => item.getIn(['meta','deadline_date']));
   var bonus = userResults.get('exercises', immutable.Map({})).filter( item => item.getIn(['meta', 'bonus'])).toList().sortBy(item => item.getIn(['meta','deadline_date']));
   //var optional = userResults.get('exercises', immutable.Map({})).filter( item => (!item.getIn(['meta', 'required']))&&(!item.getIn(['meta', 'bonus']))).toList().sortBy( item => item.get('folder') + item.getIn(['meta', 'sort_key'])); 
@@ -52,7 +59,7 @@ const BaseStudentResults = ({userResults,
   var n_bonus = bonus.filter( e =>
     filter.get('bonusKeys').map(key => e.get(key, false)).reduce( (a,b) => a && b)).size;
 
-  const renderExercises = (exercises, caption, columnName) => (
+  const renderExercises = (exercises, caption, columnName) => (//{{{
       <table className="uk-table uk-table-hover">
         <caption className="uk-text-primary uk-text-bold">{ caption }</caption>
         <thead>
@@ -74,17 +81,17 @@ const BaseStudentResults = ({userResults,
                       <i className={'uk-margin-small-right uk-icon ' + (e.get('correct', false) ? 'uk-icon-check uk-text-success' : 'uk-icon-close uk-text-danger')}/>
                       <i className={'uk-margin-small-right uk-icon uk-icon-picture-o ' + (e.get('imageanswers', immutable.List([])).size > 0 ? 'uk-text-success' : 'uk-text-danger')}/>
                       <i className={'uk-margin-small-right uk-icon uk-icon-clock-o ' + (e.get('image_deadline', false) && e.get('correct_deadline',false) ? 'uk-text-success' : 'uk-text-danger')}/> 
+                      { e.get('force_passed') && <i className='uk-margin-small-right uk-icon uk-icon-exclamation-circle uk-text-success' title="Manually passed"/> }
               </td>
             </tr>
           )) }
         </tbody>
-      </table> );
+      </table> );//}}}
       var safeActivity = (item) => item.get('questions').size > 0 ? (item.get('tries') / item.get('questions').size) : 0;
       if(optional.size > 0)
         var maxOptionalActivity = safeActivity(optional.maxBy(item => safeActivity(item) ))
-  return (
-    <div className="uk-panel uk-panel-box" id="studentresults" style={ activeExercise ? {} : {}}>
-      <article className="uk-article">
+  var typeFilterMenu = //{{{
+    (
       <div className="uk-flex">
       
       { !pendingResults && !activeExercise && 
@@ -92,7 +99,6 @@ const BaseStudentResults = ({userResults,
         {userResults.get('username')/*userResults.get('first_name') + " " + userResults.get('last_name')*/}
         </h1>
       }
-      { pendingResults && <Spinner/> }
 
       { !pendingResults && !activeExercise &&
       <div className="uk-button-group uk-margin-left">
@@ -101,21 +107,8 @@ const BaseStudentResults = ({userResults,
         <a onClick={() => onChangeView('optional')} className={detailResultsView==="optional" ? 'uk-button uk-button-primary' : 'uk-button'}>Optional</a>
       </div>
       }
-      </div>
-      { !pendingResults && !activeExercise && detailResultsView === 'old' &&
-      <div className="uk-grid">
-      <div>
-          { renderExercises(required, "Obligatory " + n_required +'/'+ required.size, 'Obligatory') }
-      </div>
-      <div>
-          { renderExercises(bonus, "Bonus " + n_bonus + '/' + bonus.size, 'Bonus') }
-      </div>
-      </div>
-      }
-      
-      { !pendingResults && !activeExercise &&
-        <div>
-        { optionalByFolderSorted.map( (folder, key) => (
+      </div> );//}}}
+  var exercisesFilteredList = optionalByFolderSorted.map( (folder, key) => (//{{{
         <ul key={key} className="uk-thumbnav uk-flex uk-margin" style={{maxWidth: '500px'}}>
         {folder.map( item => (
             <li key={item.get('exercise_key')} className="uk-margin-remove">
@@ -136,6 +129,11 @@ const BaseStudentResults = ({userResults,
                       <div style={{lineHeight: '0'}}>
                           <i className={'uk-icon uk-icon-clock-o ' + (item.get('image_deadline', false) && item.get('correct_deadline',false) ? 'uk-text-success' : 'uk-text-danger')}/> 
                       </div>
+                      { item.get('force_passed') && 
+                        <div style={{lineHeight: '0'}}>
+                        <i className='uk-margin-small-right uk-icon uk-icon-exclamation-circle uk-text-success' title="Manually passed"/> 
+                        </div>
+                      }
                     </div>
                   }
                     </div>
@@ -153,25 +151,56 @@ const BaseStudentResults = ({userResults,
             </li>
          ))}
         </ul>
-        )).toList() }
+        )).toList();//}}}
+  return (
+    <div className="uk-panel uk-panel-box uk-width-1-1" id="studentresults" style={ activeExercise ? {} : {}}>
+      <article className="uk-article uk-width-1-1">
+      { menuPositionAt(menuPath, ['results', 'list']) && pendingResults &&
+        <Spinner/>
+      }
+      { typeFilterMenu }      
+      { !pendingResults && !activeExercise && menuPositionAt(menuPath, ['results', 'list']) &&
+        <div>
+          {exercisesFilteredList }
         </div>
       }
-      { !pendingResults && activeExercise &&
-        <div className="uk-flex uk-flex-wrap uk-flex-space-around">
+      { activeExercise && menuPositionUnder(menuPath, ['results', 'list']) &&
+        <div className="uk-flex uk-flex-wrap uk-flex-space-around uk-width-1-1">
         <div className="uk-width-1-1">
           <button className="uk-button uk-button-primary" onClick={() => onBack()}>Back to list</button>
+          <button className={"uk-button uk-button-primary uk-margin-left " + (menuPositionAt(menuPath, ['results', 'list', 'audit']) ? 'uk-active' : '')} onClick={() => onAudit(activeExercise, userResults.get('pk'))}>Audit</button>
         </div>
+        { menuPositionAt(menuPath, ['results', 'list']) &&
         <div className="uk-width-1-4">
           <Exercise/>
         </div>
+        }
+        { menuPositionAt(menuPath, ['results', 'list']) &&
         <div className="uk-width-3-4">
           <StudentAuditExercise anonymous={true}/>
         </div>
+        }
+        { menuPositionAt(menuPath, ['results', 'list', 'audit']) &&
+          <Audit/>
+        }
         </div>
       }
       </article>
     </div>
   );
+}
+
+const handleAudit = (exercise, studentPk) => dispatch => {
+  dispatch(navigateMenuArray(['results', 'list', 'audit']))
+  dispatch(setDetailResultExercise(exercise));
+  dispatch(addAudit(exercise, studentPk))
+    .then(res => {
+      dispatch(fetchCurrentAuditsExercise())
+        .then(() => dispatch(setActiveAudit(res.pk)))
+    });
+  //dispatch(setActiveAudit(auditPk));
+  //dispatch(fetchStudentDetailResults(studentPk));
+  //dispatch(setSelectedStudentResults(studentPk));
 }
 
 const mapStateToProps = state => ({
@@ -181,6 +210,7 @@ const mapStateToProps = state => ({
   activeExercise: state.getIn(['results', 'detailResultExercise'], false),
   exerciseState: state.get('exerciseState'),
   detailResultsView: state.getIn(['results', 'detailResultsView']),
+  menuPath: state.get('menuPath'),
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -188,7 +218,11 @@ const mapDispatchToProps = dispatch => ({
     dispatch(setDetailResultExercise(exercise));
     dispatch(fetchExercise(exercise, true));
   },
-  onBack: () => dispatch(setDetailResultExercise(false)),
+  onBack: () => {
+    dispatch(setDetailResultExercise(false))
+    dispatch(navigateMenuArray(['results', 'list']))
+  },
+  onAudit: (exercise, studentPk) => dispatch(handleAudit(exercise, studentPk)),
   onChangeView: (view) => dispatch(setDetailResultsView(view)),
 });
 

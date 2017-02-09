@@ -6,11 +6,14 @@ from exercises.modelhelpers import (
     get_passed_exercises_with_image_data,
     get_passed_exercises,
 )
-from exercises.models import Exercise, Question, Answer, ImageAnswer
+from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
+from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
 from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
-from datetime import datetime
+
+# from datetime import datetime
+import datetime
 import numpy
 from django.db import connection
 from django.core.cache import cache
@@ -26,6 +29,7 @@ from exercises.modelhelpers import (
     post_process_list,
     p_student_activity,
 )
+import pytz
 
 
 def students_results(cache_seconds=1 * 60 * 60, force=False):
@@ -48,17 +52,14 @@ def student_statistics_exercises(cache_seconds=1 * 60 * 60, force=False):
 
 def calculate_students_results():  # {{{
     required = Exercise.objects.filter(meta__required=True).select_related('meta')
-    required_questions = Question.objects.filter(exercise__in=required)
     bonus = Exercise.objects.filter(meta__bonus=True).select_related('meta')
     students = (
         User.objects.filter(groups__name='Student')
         .exclude(username='student')
         .order_by('first_name')
     )
-    deadline_time = Course.objects.deadline_time()
     results = []
     for student in students:
-        print(student.username)
         # n1 = len(connection.queries)
         passed_required = get_passed_exercises_with_image_data(
             required, student, deadline=False, image_deadline=False
@@ -127,3 +128,150 @@ def calculate_student_statistics_exercises():  # {{{
     aggregates = post_process_list(data, [p_student_activity])
     return {'exercises': data, 'aggregates': aggregates}
     # }}}
+
+
+def calculate_user_results(userpk):
+    user = User.objects.get(pk=userpk)
+    tz = pytz.timezone('Europe/Stockholm')
+    deadline_time = datetime.time(23, 59, 59, tzinfo=pytz.timezone('Europe/Stockholm'))
+    course = Course.objects.first()
+    if course is not None and course.deadline_time is not None:
+        deadline_time = course.deadline_time
+    exercises = Exercise.objects.filter(meta__published=True)
+    exercises_with_answers = exercises.prefetch_related(  # {{{
+        Prefetch(
+            'question',
+            queryset=Question.objects.all().prefetch_related(
+                Prefetch(
+                    'answer',
+                    queryset=Answer.objects.filter(user=user, correct=True).order_by('-date'),
+                    to_attr='correct',
+                ),
+                Prefetch(
+                    'answer',
+                    queryset=Answer.objects.filter(user=user).order_by('-date'),
+                    to_attr='allanswers',
+                ),
+            ),
+            to_attr='questions',
+        ),
+        Prefetch(
+            'imageanswer',
+            queryset=ImageAnswer.objects.filter(user=user).order_by('-date'),
+            to_attr='imageanswers',
+        ),
+        Prefetch(
+            'audits', queryset=AuditExercise.objects.filter(student=user), to_attr='student_audits'
+        ),
+    )  # }}}
+    exercises_render = {}
+
+    for exercise in exercises_with_answers:
+        sexercise = ExerciseSerializer(exercise)  # {{{
+        exercises_render[exercise.exercise_key] = sexercise.data
+        exercises_render[exercise.exercise_key]['questions'] = {}
+        # if exercise.student_audits:
+        exercises_render[exercise.exercise_key]['force_passed'] = (
+            exercise.student_audits[0].force_passed if exercise.student_audits else False
+        )
+        if exercise.meta.deadline_date:
+            deadline_tz_date = tz.localize(
+                datetime.datetime.combine(exercise.meta.deadline_date, deadline_time)
+            )
+            exercises_render[exercise.exercise_key]['deadline'] = deadline_tz_date
+            n_correct_deadline = 0
+
+            def before_deadline(item):
+                return item.date < deadline_tz_date
+
+            for question in exercise.questions:
+                correct_before_deadline = next(
+                    (x for x in question.correct if before_deadline(x)), None
+                )
+                if correct_before_deadline is not None:
+                    n_correct_deadline += 1
+            exercises_render[exercise.exercise_key]['correct_deadline'] = n_correct_deadline == len(
+                exercise.questions
+            )
+
+            n_image_before_deadline = 0
+            for imageanswer in exercise.imageanswers:
+                if before_deadline(imageanswer):
+                    n_image_before_deadline += 1
+            exercises_render[exercise.exercise_key]['image_deadline'] = (
+                n_image_before_deadline == len(exercise.imageanswers)
+                and n_image_before_deadline > 0
+            )
+            exercises_render[exercise.exercise_key]['image'] = len(exercise.imageanswers) > 0
+            imageanswers = ImageAnswerSerializer(exercise.imageanswers, many=True)
+            exercises_render[exercise.exercise_key]['imageanswers'] = imageanswers.data
+
+        n_correct = 0
+        n_tries = 0
+        for question in exercise.questions:
+            if question.correct:
+                n_correct += 1
+            answers = AnswerSerializer(question.allanswers, many=True)
+            exercises_render[exercise.exercise_key]['questions'][question.question_key] = {}
+            exercises_render[exercise.exercise_key]['questions'][question.question_key][
+                'answers'
+            ] = answers.data
+            n_tries += len(question.allanswers)
+        exercises_render[exercise.exercise_key]['correct'] = n_correct == len(exercise.questions)
+        exercises_render[exercise.exercise_key]['tries'] = n_tries  # }}}
+
+    n_passed_required = 0
+    n_passed_required_d = 0
+    n_passed_required_d_id = 0
+    n_passed_bonus = 0
+    n_passed_bonus_d = 0
+    n_passed_bonus_d_id = 0
+    n_optional = 0
+    n_total = 0
+
+    for key, exercise in exercises_render.items():
+        if exercise['correct'] or exercise['force_passed']:
+            n_total += 1
+        if exercise['meta']['required']:
+            if exercise['correct'] or exercise['force_passed']:
+                n_passed_required += 1
+            if exercise['correct_deadline'] or exercise['force_passed']:
+                n_passed_required_d += 1
+                if (
+                    exercise['image_deadline'] or exercise['force_passed']
+                ):  # Here d_id refers to both answer and image answer before deadline
+                    n_passed_required_d_id += 1
+        elif exercise['meta']['bonus']:
+            if exercise['correct'] or exercise['force_passed']:
+                n_passed_bonus += 1
+            if exercise['correct_deadline'] or exercise['force_passed']:
+                n_passed_bonus_d += 1
+                if (
+                    exercise['image_deadline'] or exercise['force_passed']
+                ):  # Here d_id refers to both answer and image answer before deadline
+                    n_passed_bonus_d_id += 1
+        else:
+            if exercise['correct'] or exercise['force_passed']:
+                n_optional += 1
+
+    return {
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'username': user.username,
+        'pk': user.pk,
+        'exercises': exercises_render,
+        'summary': {
+            'required': {
+                'n_correct': n_passed_required,
+                'n_deadline': n_passed_required_d,
+                'n_image_deadline': n_passed_required_d_id,
+            },
+            'bonus': {
+                'n_correct': n_passed_bonus,
+                'n_deadline': n_passed_bonus_d,
+                'n_image_deadline': n_passed_bonus_d_id,
+            },
+            'optional': n_optional,
+            'total': n_total,
+        },
+    }

@@ -68,11 +68,13 @@ class AuditExerciseSerializer(serializers.ModelSerializer):
             'subject',
             'sent',
             'resolved',
+            'force_passed',
         )
 
     def update(self, instance, validated_data):
         instance.message = validated_data.get('message', instance.message)
         instance.subject = validated_data.get('subject', instance.subject)
         instance.resolved = validated_data.get('resolved', instance.resolved)
+        instance.force_passed = validated_data.get('force_passed', instance.force_passed)
         instance.save()
         return instance

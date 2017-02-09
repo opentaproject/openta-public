@@ -130,3 +130,25 @@ def send_audit(request, pk):
     audit.sent = True
     audit.save()
     return Response({'success': "Email backend reported " + str(n_sent) + " email sent."})
+
+
+@permission_required('exercises.administer_exercise')
+@api_view(['POST'])
+def add_audit(request):
+    auditor = request.user
+    try:
+        exercise_pk = request.data['audit']['exercise']
+        student_pk = request.data['audit']['student']
+    except KeyError:
+        return Response(
+            {'error': 'Not valid audit data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    try:
+        current = AuditExercise.objects.get(exercise__pk=exercise_pk, student__pk=student_pk)
+        return Response({'pk': current.pk, 'created': False})
+    except AuditExercise.DoesNotExist:
+        exercise = Exercise.objects.get(pk=exercise_pk)
+        student = User.objects.get(pk=student_pk)
+        audit = AuditExercise(auditor=auditor, exercise=exercise, student=student)
+        audit.save()
+        return Response({'pk': audit.pk, 'created': True})

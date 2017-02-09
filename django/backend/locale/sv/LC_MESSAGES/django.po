@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-01-26 20:25+0100\n"
+"POT-Creation-Date: 2017-02-14 14:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -198,9 +198,9 @@ msgstr " försök per minut."
 msgid "Activation failed."
 msgstr "Aktivering misslyckades."
 
-#: templates/audit/random_subject.txt:2
+#: templates/audit/subject.txt:2
 msgid "Random audit - Exercise "
-msgstr "Slumpmässig kontroll - Uppgift "
+msgstr "Feedback - Uppgift "
 
 #: templates/batch_add_users.html:26
 msgid "Process"

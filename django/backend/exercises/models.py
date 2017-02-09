@@ -310,12 +310,26 @@ class ExerciseMeta(models.Model):  # {{{
     # }}}
 
 
+class AuditManager(models.Manager):
+    def get_force_passed_exercises_pk(self, user):
+        exercises = self.filter(student=user, force_passed=True).values_list(
+            'exercise__pk', flat=True
+        )
+        return exercises
+
+
 class AuditExercise(models.Model):
     student = models.ForeignKey(User, related_name='audits')
     auditor = models.ForeignKey(User, related_name='studentaudits')
-    exercise = models.ForeignKey(Exercise)
-    subject = models.CharField(max_length=255, default='')
+    exercise = models.ForeignKey(Exercise, related_name='audits')
+    subject = models.CharField(max_length=255, default='', blank=True)
     message = models.TextField(default="", blank=True)
     resolved = models.BooleanField(default=False)
+    force_passed = models.BooleanField(default=False)
     date = models.DateTimeField(default=now)
     sent = models.BooleanField(default=False)
+
+    objects = AuditManager()
+
+    class Meta:
+        unique_together = (("student", "exercise"),)  # Only one audit per student and exercise

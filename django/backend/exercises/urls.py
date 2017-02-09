@@ -45,6 +45,7 @@ urlpatterns = [
     url(r'^audit/update/(?P<pk>[0-9]+)/$', views.update_audit),
     url(r'^audit/send/(?P<pk>[0-9]+)/$', views.send_audit),
     url(r'^audit/delete/(?P<pk>[0-9]+)/$', views.delete_audit),
+    url(r'^audit/add/$', views.add_audit),
     url(r'^results/user/(?P<userpk>[0-9]+)/$', views.get_user_results),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/recentresults', views.get_recent_results),
 ]

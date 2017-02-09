@@ -7,8 +7,16 @@ import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 import counterApp from './reducers';
 import App from 'components/App';
-import { fetchExercises,fetchExerciseTree, fetchLoginStatus, updatePendingStateIn } from './fetchers';
-import { updateActiveExercise } from './actions.js';
+import { 
+  fetchExercises,
+  fetchExerciseTree, 
+  fetchLoginStatus, 
+  updatePendingStateIn,
+  fetchExercise
+} from './fetchers';
+import { 
+  updateActiveExercise,
+} from './actions.js';
 import { navigateMenuArray } from './menu.js';
 import { SUBPATH } from './settings.js';
 
@@ -33,6 +41,16 @@ if (module.hot) {
 }
 
 const load = () => {
+  var hash = window.location.hash;
+  if(hash.length > 0) {
+    var location = hash.substring(1);
+    var larray = location.split('/');
+    if(larray[0] == 'exercise' && larray.length >= 1) {
+      store.dispatch(navigateMenuArray(['activeExercise', 'student']));
+      store.dispatch( fetchLoginStatus() )
+        .then(() => store.dispatch(fetchExercise(larray[1], true)));
+    }
+  }
   if(window.history && history.pushState) {
     history.pushState({}, "", SUBPATH);
     history.pushState({}, "", SUBPATH);

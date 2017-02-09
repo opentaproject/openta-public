@@ -11,6 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         logger.info('Started calculating results and statistics')
         student_statistics_exercises(force=True)
+        logger.info('Statistics done, now doing results.')
         students_results(force=True)
         logger.info('Finished calculating results and statistics')
 

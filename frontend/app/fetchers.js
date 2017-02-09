@@ -467,6 +467,27 @@ function fetchNewAudit(exercise) {
   }
 }
 
+function addAudit(exercise, studentPk) {
+  return dispatch => {
+    var payload = {
+      'audit': {
+        'exercise': exercise,
+        'student': studentPk,
+        'subject': 'Kontroll'
+      }
+    };
+    var postData = JSON.stringify(payload);
+    var fetchconfig = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: postData
+    }
+    return jsonfetch('/audit/add/', fetchconfig)
+      .then( res => res.json() )
+      .catch( err => console.dir(err) );
+  }
+}
+
 function fetchExerciseRecentResults() {
   return (dispatch, getState) => {
     var state = getState();
@@ -505,5 +526,6 @@ export {
   sendAudit,
   deleteAudit,
   fetchNewAudit,
+  addAudit,
   fetchExerciseRecentResults,
 };

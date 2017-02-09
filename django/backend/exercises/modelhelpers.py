@@ -1,4 +1,4 @@
-from exercises.models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer
+from exercises.models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer, AuditExercise
 from course.models import Course
 from exercises.parsing import exercise_xmltree, question_xmltree_get
 from exercises.question import question_check
@@ -432,21 +432,13 @@ def get_passed_exercises_with_image_data(
 
     """
     extra_question_filters = []
-    extra_answer_filters = []
     deadline_time = Course.objects.deadline_time()
     if deadline:
         extra_question_filters.append(
             Q(answer__date__date__lt=F('exercise__meta__deadline_date'))
             | (
                 Q(answer__date__date=F('exercise__meta__deadline_date'))
-                & Q(answer__date__hour__lte=deadline_time.hour)
-            )
-        )
-        extra_answer_filters.append(
-            Q(date__date__lt=F('question__exercise__meta__deadline_date'))
-            | (
-                Q(date__date=F('question__exercise__meta__deadline_date'))
-                & Q(date__hour__lte=deadline_time.hour)
+                & Q(answer__date__hour__lt=deadline_time.hour)
             )
         )
     if image_deadline:
@@ -454,7 +446,7 @@ def get_passed_exercises_with_image_data(
             Q(exercise__imageanswer__date__date__lt=F('exercise__meta__deadline_date'))
             | (
                 Q(exercise__imageanswer__date__date=F('exercise__meta__deadline_date'))
-                & Q(exercise__imageanswer__date__hour__lte=deadline_time.hour)
+                & Q(exercise__imageanswer__date__hour__lt=deadline_time.hour)
             )
         )
 
@@ -471,25 +463,13 @@ def get_passed_exercises_with_image_data(
     passed_exercises = exercise_queryset.exclude(pk__in=failed_exercises_pk_list).select_related(
         'meta'
     )
-    # .prefetch_related(
-    #             Prefetch(
-    #                 'question__answer',
-    #                 queryset=Answer.objects.filter(
-    #                     correct=True,
-    #                     user=user,
-    #                     *extra_answer_filters
-    #                     ).order_by('-date'),
-    #                 )).select_related('meta')
-    # .order_by('pk')\
-    # .distinct()
+    force_passed_exercises = exercise_queryset.filter(
+        pk__in=AuditExercise.objects.get_force_passed_exercises_pk(user)
+    )
+    total_passed = passed_exercises | force_passed_exercises
+    total_passed = total_passed.distinct()
     passed_rendered = []
-    for passed in passed_exercises:
-        # question_data = {}
-        # for q in passed.question.all():
-        #    question_data[q.question_key] = {
-        #            'answer': q.answer.first().answer,
-        #            'date': q.answer.first().date
-        #            }
+    for passed in total_passed:
         passed_rendered.append(
             {
                 'exercise_name': passed.name,

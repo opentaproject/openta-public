@@ -291,7 +291,7 @@ const BaseResults = ({menuPath,
         }
       </div>
         { menuPositionUnder(menuPath, ['results', 'list']) && selectedUser && activeDetailExercise &&
-        <div>
+        <div className="uk-width-1-1">
         <StudentResults/> 
         </div>
         }
