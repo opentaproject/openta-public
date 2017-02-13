@@ -294,10 +294,9 @@ function uploadImage(exerciseKey, file) {//{{{
       xhr.open("POST", SUBPATH + "/exercise/" + exerciseKey + "/imageupload");
       xhr.setRequestHeader('X-CSRFToken', CSRF_TOKEN);
       xhr.setRequestHeader('Accept', 'application/json');
-      if(xhr.upload && xhr.upload.onprogress) 
-        xhr.upload.onprogress = (evt) => throttleUploadProgress(dispatch, evt, exerciseKey);//console.log(evt.loaded / evt.total);
+      if(xhr.upload)
+        xhr.upload.onprogress = (evt) => throttleUploadProgress(dispatch, evt, exerciseKey);
       xhr.onload = () => {
-        //console.dir(xhr.responseText);
         dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageuploadpending'], false));
         dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], 1.0));
         dispatch(fetchExerciseRemoteState(exerciseKey));
