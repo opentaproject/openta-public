@@ -106,8 +106,13 @@ var menuTree = immutable.fromJS({
           reqGroup: 'Author'
         },
         xmlEditor: {
-          name: 'XML Editor',
+          name: 'XML',
           key: 'xmlEditor',
+          reqGroup: 'Author'
+        },
+        xmlEditorSplit: {
+          name: 'Live edit',
+          key: 'xmlEditorSplit',
           reqGroup: 'Author'
         },
         options: {

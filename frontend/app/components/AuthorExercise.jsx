@@ -84,22 +84,31 @@ class BaseAuthorExercise extends Component {
     var authorDOM = (
       <div className="uk-grid admin">
         { !this.props.atMenu(['activeExercise', 'audit']) &&
+          !this.props.atMenu(['activeExercise', 'xmlEditor']) &&
         <div key="exercise" className="exercise-admin">
           <Tools savepending={savePending} savesuccess={!modified && saveError === false} saveerror={saveError} />
           <Exercise/>
         </div>
         }
-        <div key="xml" className="xmleditor">
-        { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }
-        { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
-        { this.props.atMenu(['activeExercise','options']) && this.props.admin && 
-          <div className="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-top">
-            <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> 
-            </div>
+        { !this.props.atMenu(['activeExercise','xmlEditor']) &&
+          <div key="xml" className="xmleditor">
+          { loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && <Spinner/> }
+          { !loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
+          { this.props.atMenu(['activeExercise','options']) && this.props.admin && 
+            <div className="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-top">
+              <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> 
+              </div>
+          }
+          { this.props.atMenu(['activeExercise','statistics']) && this.props.view && <Statistics/> }
+          { this.props.atMenu(['activeExercise','recent']) && this.props.view && <ExerciseRecentResults/> }
+          </div>
         }
-        { this.props.atMenu(['activeExercise','statistics']) && this.props.view && <Statistics/> }
-        { this.props.atMenu(['activeExercise','recent']) && this.props.view && <ExerciseRecentResults/> }
-        </div>
+        { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }
+        { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && this.props.author && 
+          <div className="uk-width-1-1">
+          <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> 
+          </div>
+        }
         { this.props.atMenu(['activeExercise','audit']) && this.props.admin && <Audit/> }
       </div>
     );
