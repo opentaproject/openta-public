@@ -97,18 +97,23 @@ def check_units_new(expression, correct, variables):
     nvalues = []
 
     def perturb(value):
-        return value + value * random.random() * 0.1
+        return value + value * random.random() * 0.1 + 0j
 
     for var, value in variables.items():
-        nvarsubs[var] = var * value
-        nvalues.append(1 + random.random() * 0.1)
+        nvarsubs[var] = var * value + 0j
+        nvalues.append(1 + random.random() * 0.1 + 0j)
     nexpression = expression.subs(nvarsubs)
     ncorrect = correct.subs(nvarsubs)
     allvars = tuple(variables.keys()) + (kg, meter, second)
     lexpr = sympy.lambdify(allvars, nexpression, modules=lambdifymodules)
     lcorrect = sympy.lambdify(allvars, ncorrect, modules=lambdifymodules)
 
-    checks = [[1, 1, 1], [perturb(2), 1, 1], [1, perturb(2), 1], [1, 1, perturb(2)]]
+    checks = [
+        [1 + 0j, 1 + 0j, 1 + 0j],
+        [perturb(2), 1 + 0j, 1 + 0j],
+        [1 + 0j, perturb(2), 1 + 0j],
+        [1 + 0j, 1 + 0j, perturb(2)],
+    ]
     results = []
     for check in checks:
         args = nvalues + check
@@ -119,7 +124,7 @@ def check_units_new(expression, correct, variables):
         else:
             results.append(vale)
     for res in results:
-        if abs(res - results[0]) > 10e-5:
+        if sympy.Abs(res - results[0]) > 10e-5:
             raise CompareNumericUnitError(
                 _("Seems like the expression does not have the correct units.")
             )
@@ -152,13 +157,13 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
         varsubs = parse_variables(variables)
         nvars = {}
         for var, value in varsubs.items():
-            nvars[var] = float(value.subs(uniteval))
+            nvars[var] = float(value.subs(uniteval)) + 0j
         neighbours = []
         random.seed(1)
         for i in range(0, number_of_points):
             neighbour = []
             for var, value in nvars.items():
-                neighbour.append(value + random.random() * value * 0.1)
+                neighbour.append(value + random.random() * value * 0.1 + 0j)
                 # neighbour[var] = value + random.random() * value * 0.1
             neighbours.append(neighbour)
 
@@ -194,7 +199,7 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
             for point in neighbours:
                 nvalue1 = numfunc1(*point)  # sympy1.subs(point).subs(uniteval).evalf()
                 nvalue2 = numfunc2(*point)  # sympy2.subs(point).subs(uniteval).evalf()
-                ndiff = numpy.fabs(nvalue2 - nvalue1)
+                ndiff = numpy.absolute(nvalue2 - nvalue1)
                 diffs.append(float(ndiff) < 1e-6)
             if diffs.count(True) >= number_of_points * 0.8:
                 response['correct'] = True
