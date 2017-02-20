@@ -11,6 +11,7 @@ import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful fo
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
 import HelpCompareNumeric from './HelpCompareNumeric.jsx';
 import mathjs from 'mathjs';
+import latex from './latex.js';
 import immutable, { List } from 'immutable';
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
@@ -248,7 +249,7 @@ export default class QuestionCompareNumeric extends Component {
     // Render green if allowed variable otherwise red
     else if(node.type === 'SymbolNode') {
       const origVar = node.name.replace(/\_/g, '');
-      const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : node._toTex(options);
+      const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : latex.toSymbol(node.name,false);//node._toTex(options);
       if(this.blacklist.indexOf(node.name) !== -1) 
         return '\\color{orange}{' + texSymbol + '}';
       if(this.varsList.indexOf(node.name) !== -1 || this.validSymbols.indexOf(node.name) !== -1)
