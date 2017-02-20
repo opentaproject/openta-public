@@ -332,8 +332,11 @@ export default class QuestionCompareNumeric extends Component {
     var localVars = enforceList(this.props.questionData.get('var', List([])));
     var allVars = localVars.concat(varPropsList);
     for(let v of allVars) {
-      if(v.has('token') && this.varsList.indexOf(v.getIn(['token','$'])) == -1) {
-        this.varsList.push(insertImplicitSubscript(v.getIn(['token','$'])));
+      if(v.hasIn('token','$')) {
+        var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 
+        if( this.varsList.indexOf(parsedVar) == -1) {
+          this.varsList.push(parsedVar);
+        }
       }
     }
     this.varProps = allVars.map( item => ({
