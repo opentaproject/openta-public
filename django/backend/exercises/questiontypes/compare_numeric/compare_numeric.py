@@ -195,7 +195,7 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
                 nvalue1 = numfunc1(*point)  # sympy1.subs(point).subs(uniteval).evalf()
                 nvalue2 = numfunc2(*point)  # sympy2.subs(point).subs(uniteval).evalf()
                 ndiff = numpy.fabs(nvalue2 - nvalue1)
-                diffs.append(float(ndiff) < 1e-10)
+                diffs.append(float(ndiff) < 1e-6)
             if diffs.count(True) >= number_of_points * 0.8:
                 response['correct'] = True
             else:
