@@ -15,7 +15,7 @@ var defaultState = immutable.fromJS({
   menuPath: [],
   menuLeafDefaults: {
     results: {
-      leafDefault: 'list'
+      //leafDefault: 'list'
     },
     exercises: {
       activity: {
