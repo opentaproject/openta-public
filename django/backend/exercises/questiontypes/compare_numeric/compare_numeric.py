@@ -164,33 +164,30 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
             neighbour = []
             for var, value in nvars.items():
                 neighbour.append(value + random.random() * value * 0.1 + 0j)
-                # neighbour[var] = value + random.random() * value * 0.1
             neighbours.append(neighbour)
+            if __debug__:
+                varvals = list(
+                    map(lambda x: str(x[0]) + ':' + str(x[1]), zip(nvars.keys(), neighbour))
+                )
+                logger.info('Neighbour point: ' + str(varvals))
 
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
         sympy1 = sympy.sympify(sexpression1, ns)
         sympy2 = sympy.sympify(sexpression2, ns)
+        if __debug__:
+            logger.info('Expression 1: ' + str(sympy1))
+            logger.info('Expression 2: ' + str(sympy2))
         tvars = tuple(varsubs.keys())
 
         numfunc1 = sympy.lambdify(tvars, sympy1, modules=lambdifymodules)
         numfunc2 = sympy.lambdify(tvars, sympy2, modules=lambdifymodules)
-        # value1 = numfunc1(*nvars.values())#sympy1.subs(varsubs).subs(uniteval).evalf()
-        # value2 = numfunc2(*nvars.values())#sympy2.subs(varsubs).subs(uniteval).evalf()
+
         value1 = sympy1.subs(varsubs).subs(uniteval).evalf()
         value2 = sympy2.subs(varsubs).subs(uniteval).evalf()
         diff = sympy.Abs(value2 - value1)
-        # symbolic = sympy.simplify(sympy1-sympy2)
-        # response['symbolic_difference'] = str(symbolic)
         if diff.is_constant():
             try:
-                # pass
-                # start = time.perf_counter()
                 check_units_new(sympy1, sympy2, varsubs)
-                # new = time.perf_counter()
-                # check_units(sympy1, sympy2, varsubs)
-                # old = time.perf_counter()
-                # print("Old: " + str(old-new) + " New: " + str(new-start))
-                # print("Stats")
             except CompareNumericUnitError as e:
                 response['warning'] = str(e)
             except ZeroDivisionError as e:
@@ -206,29 +203,18 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
             else:
                 response['correct'] = False
         else:
-            # print(type(diff.free_symbols))
             unrecognised = ', '.join(list(map(str, diff.free_symbols)))
-            # for sym in diff.free_symbols:
-            #    print(sym)
-            #    print(type(sym))
             response['error'] = _("Failed to evaluate expression")
             if len(unrecognised) > 0:
                 response['error'] = (
                     response['error'] + ': ' + unrecognised + _(' are not valid variables.')
                 )
     except SympifyError as e:
-        # print("SympifyError")
-        # print(e)
-        # print(traceback.format_exc())
         logger.error([str(e), expression1, expression2])
         response['error'] = _("Failed to evaluate expression.")
-        # pass
     except Exception as e:
         logger.error([str(e), expression1, expression2])
         response['error'] = _("Unknown error, check your expression.")
-        # print("SympifyError")
-        # print(e)
-        # print(traceback.format_exc())
     return response  # }}}
 
 
