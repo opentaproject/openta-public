@@ -165,20 +165,21 @@ def compare_numeric_internal(variables, expression1, expression2):  # {{{
             for var, value in nvars.items():
                 neighbour.append(value + random.random() * value * 0.1 + 0j)
             neighbours.append(neighbour)
-            if __debug__:
+            if logger.isEnabledFor(logging.DEBUG):
                 varvals = list(
                     map(lambda x: str(x[0]) + ':' + str(x[1]), zip(nvars.keys(), neighbour))
                 )
-                logger.info('Neighbour point: ' + str(varvals))
+                logger.debug('Neighbour point: ' + str(varvals))
 
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
         sympy1 = sympy.sympify(sexpression1, ns)
         sympy2 = sympy.sympify(sexpression2, ns)
-        if __debug__:
-            logger.info('Expression 1: ' + str(sympy1))
-            logger.info('Expression 2: ' + str(sympy2))
-        tvars = tuple(varsubs.keys())
-
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('Expression 1: ' + str(sympy1))
+            logger.debug('Expression 2: ' + str(sympy2))
+        tvars = tuple(nvars.keys())
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug('Lambdify order: ' + str(tvars))
         numfunc1 = sympy.lambdify(tvars, sympy1, modules=lambdifymodules)
         numfunc2 = sympy.lambdify(tvars, sympy2, modules=lambdifymodules)
 
