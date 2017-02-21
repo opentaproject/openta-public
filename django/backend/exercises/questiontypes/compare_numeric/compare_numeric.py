@@ -49,10 +49,8 @@ def asciiToSympy(expression):
         #        '[': '',
         #        ']': ''
     }
-    result = re.sub(
-        r"(?<=[\w)])\s+(?=[(\w])", r" * ", expression
-    )  # re.sub(r"([a-zA-Z0-9]) ([a-zA-Z0-9])", r"\1*\2", expression)
-    result = re.sub(r"([0-9])([a-zA-Z])", r"\1*\2*", result)
+    result = re.sub(r"(?<=[\w)])\s+(?=[(\w])", r" * ", expression)
+    result = re.sub(r"(\W*[0-9]+)([A-Za-z]+)", r"\1 * \2", result)
     result = re.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)])", r"\1)*(\2", result)
     for old, new in dict.items():
         result = result.replace(old, new)
