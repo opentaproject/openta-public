@@ -10,13 +10,14 @@ Mobile friendly E-learning platform.
 
 .. image:: front/mobile_exercise.png
   :height: 300px
+  :align: right
 
 .. toctree::
    :maxdepth: 2
-   :caption: Authoring:
 
-   author/intro
-   author/exercise_xml
+   installation/index
+   author/index
+   documentation/index
 
 
 

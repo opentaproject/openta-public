@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Introduction &#8212; OpenTA  documentation</title>
+    <title>Authoring &#8212; OpenTA  documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -26,8 +26,8 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Exercise XML format" href="exercise_xml.html" />
-    <link rel="prev" title="Authoring" href="index.html" />
+    <link rel="next" title="Introduction" href="intro.html" />
+    <link rel="prev" title="Installation" href="../installation/index.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -43,27 +43,23 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="introduction">
-<span id="intro"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>Content in OpenTA consists of exercises with one or many questions. An exercise and its questions are created using a custom <a class="reference external" href="https://en.wikipedia.org/wiki/XML">XML</a> format. For example,</p>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;exercise&gt;</span>
-  <span class="nt">&lt;exercisename&gt;</span>Kinetic energy<span class="nt">&lt;/exercisename&gt;</span>
-  <span class="nt">&lt;text&gt;</span>
-    What is the kinetic energy of a particle with mass $m$
-    moving with velocity $v$?
-  <span class="nt">&lt;/text&gt;</span>
-  <span class="nt">&lt;question</span> <span class="na">key=</span><span class="s">&quot;1&quot;</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;variables&gt;</span>
-      m = kg; v = meter / second;
-    <span class="nt">&lt;/variables&gt;</span>
-    <span class="nt">&lt;expression&gt;</span>
-      m*v^2/2
-    <span class="nt">&lt;/expression&gt;</span>
-  <span class="nt">&lt;/question&gt;</span>
-<span class="nt">&lt;/exercise&gt;</span>
-</pre></div>
+  <div class="section" id="authoring">
+<h1>Authoring<a class="headerlink" href="#authoring" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exercise_xml.html">Exercise XML format</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="exercise_xml.html#question-types">Question types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="exercise_xml.html#comparenumeric">compareNumeric</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="exercise_xml.html#example">Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
 </div>
-<p>In this example the question type compareNumeric is used which compares the student answer with the correct answer by random sampling.</p>
 </div>
 
 
@@ -75,8 +71,8 @@
 <h3><a href="../index.html">Table Of Contents</a></h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Authoring</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Authoring</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exercise_xml.html">Exercise XML format</a></li>
 </ul>
 </li>
@@ -105,7 +101,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
       
       |
-      <a href="../_sources/author/intro.rst.txt"
+      <a href="../_sources/author/index.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 

@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Development environment using Docker &#8212; OpenTA  documentation</title>
+    
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Deployment" href="deployed.html" />
+    <link rel="prev" title="Installation" href="index.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="development-environment-using-docker">
+<span id="development-environment-using-docker"></span><h1>Development environment using Docker<a class="headerlink" href="#development-environment-using-docker" title="Permalink to this headline">¶</a></h1>
+<p>Start by cloning the repository</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">hlinander</span><span class="o">/</span><span class="n">openta</span><span class="o">.</span><span class="n">git</span>
+</pre></div>
+</div>
+<p>Install <a class="reference external" href="https://docs.docker.com/engine/installation/">Docker</a> and configure backend and frontend settings from the template files (<code class="docutils literal"><span class="pre">settings_dev.py</span></code> and <code class="docutils literal"><span class="pre">settings_example.js</span></code>) as shown below.</p>
+<p>Change workdirectory <code class="docutils literal"><span class="pre">cd</span> <span class="pre">docker</span></code>. To build the Docker image run (grab a coffee)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">image</span>
+</pre></div>
+</div>
+<p>To start the server</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">serve</span>
+</pre></div>
+</div>
+<p>which will now be available at <code class="docutils literal"><span class="pre">localhost:8000</span></code>. To serve and watch for file changes in the code use</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">watch</span>
+</pre></div>
+</div>
+<p>Stop the server by multiple <strong>Ctrl-C</strong> till you are back at your shell. Use <code class="docutils literal"><span class="pre">make</span> <span class="pre">serve</span> <span class="pre">port=4000</span></code> (and similar for watch) to use another port.</p>
+</div>
+<div class="section" id="backend-installation">
+<span id="backend-installation"></span><h1>Backend Installation<a class="headerlink" href="#backend-installation" title="Permalink to this headline">¶</a></h1>
+<p>The following will assume the repository is cloned into a folder <code class="docutils literal"><span class="pre">openta/</span></code>.</p>
+<p>Requires:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://www.python.org">Python 3</a></li>
+<li>libjpeg</li>
+<li>libgraphivz</li>
+<li>libcairo2</li>
+<li>graphviz</li>
+<li>libxml2</li>
+<li>libxslt1</li>
+<li>python-dev</li>
+<li>libzmq-dev</li>
+</ul>
+<p>In an apt-based linux distribution the required dependencies can be installed with</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">apt</span> <span class="n">get</span> <span class="n">install</span> <span class="n">libjpeg</span><span class="o">-</span><span class="n">dev</span> <span class="n">libgraphviz</span><span class="o">-</span><span class="n">dev</span> <span class="n">graphviz</span> <span class="n">pkg</span><span class="o">-</span><span class="n">config</span> <span class="n">libxml2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxslt1</span><span class="o">-</span><span class="n">dev</span> <span class="n">python</span><span class="o">-</span><span class="n">dev</span> <span class="n">libzmq3</span><span class="o">-</span><span class="n">dev</span> <span class="n">libcairo2</span> <span class="n">libcairo2</span><span class="o">-</span><span class="n">dev</span>
+</pre></div>
+</div>
+<div class="section" id="steps">
+<span id="steps"></span><h2>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">¶</a></h2>
+<p>Enter the backend subfolder with <code class="docutils literal"><span class="pre">cd</span> <span class="pre">django</span></code>.
+Create a python 3 environment in a subdirectory <code class="docutils literal"><span class="pre">env</span></code> (name not important) with</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="n">env</span>
+</pre></div>
+</div>
+<p>or</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pyvenv</span> <span class="n">env</span>
+</pre></div>
+</div>
+<p>depending on your installation. You might need to add an argument <code class="docutils literal"><span class="pre">-p</span> <span class="pre">python3</span></code> with the path to your python3 binary.</p>
+<p>Enter the environment with</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
+</pre></div>
+</div>
+<p>Install all dependencies with (on some systems you might need <code class="docutils literal"><span class="pre">pkg-config</span></code> installed for the python build scripts to find some of the library dependencies)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
+<p>Choose a version of the django settings file located in</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">django</span><span class="o">/</span><span class="n">backend</span><span class="o">/</span><span class="n">backend</span><span class="o">/</span>
+</pre></div>
+</div>
+<p>For local development the <code class="docutils literal"><span class="pre">settings_dev.py</span></code> would be suitable.
+Copy the choosen file to <code class="docutils literal"><span class="pre">settings.py</span></code>, for example</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">backend</span><span class="o">/</span><span class="n">backend</span><span class="o">/</span>
+<span class="n">cp</span> <span class="n">settings_dev</span><span class="o">.</span><span class="n">py</span> <span class="n">settings</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>Start development server with</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">..</span>
+<span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">runserver</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="summary-of-third-party-libraries">
+<span id="summary-of-third-party-libraries"></span><h2>Summary of third party libraries<a class="headerlink" href="#summary-of-third-party-libraries" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="https://www.djangoproject.com/">Django</a></li>
+<li><a class="reference external" href="http://www.django-rest-framework.org/">Django-rest-framework (DRF)</a></li>
+<li><a class="reference external" href="http://www.sympy.org/">Sympy</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="front-end-installation">
+<span id="front-end-installation"></span><h1>Front-end installation<a class="headerlink" href="#front-end-installation" title="Permalink to this headline">¶</a></h1>
+<p>A web frontend for viewing/editing exercises served by the backend.</p>
+<p>Requires:</p>
+<ul class="simple">
+<li><a class="reference external" href="https://nodejs.org">NodeJS (&gt;6.0) &amp; NPM</a> package system</li>
+<li><a class="reference external" href="http://brunch.io/">Brunch</a>: A html/js build tool used during development
+(can be installed systemwide with <code class="docutils literal"><span class="pre">npm</span> <span class="pre">install</span> <span class="pre">-g</span> <span class="pre">brunch</span></code> (needs sudo if on *nix))</li>
+</ul>
+<p>Install all dependencies (specified in package.json) with</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">frontend</span>
+<span class="n">npm</span> <span class="n">install</span>
+</pre></div>
+</div>
+<p>Make a local copy of the settings file (for local development no changes are needed) with</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">frontend</span><span class="o">/</span><span class="n">app</span><span class="o">/</span>
+<span class="n">cp</span> <span class="n">settings_example</span><span class="o">.</span><span class="n">js</span> <span class="n">settings</span><span class="o">.</span><span class="n">js</span>
+</pre></div>
+</div>
+<p>Build frontend and copy the bundle to the django server (as specified in brunch-config.js)</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">frontend</span>
+<span class="n">brunch</span> <span class="n">build</span>
+</pre></div>
+</div>
+<p>Alternatively, start a live-development watcher that recompiles and copies the files whenever something changes</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">brunch</span> <span class="n">watch</span>
+</pre></div>
+</div>
+<div class="section" id="summary-of-third-party-libraries">
+<span id="id1"></span><h2>Summary of third party libraries<a class="headerlink" href="#summary-of-third-party-libraries" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference external" href="https://facebook.github.io/react/">React</a>: JS GUI framework</li>
+<li><a class="reference external" href="http://redux.js.org/">Redux</a>: State management library</li>
+<li><a class="reference external" href="http://getuikit.com/">UIKit</a>: CSS framework</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h3><a href="../index.html">Table Of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Installation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Development environment using Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#backend-installation">Backend Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#front-end-installation">Front-end installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployed.html">Deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../author/index.html">Authoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Hampus Linander, Stellan Östlund.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../_sources/installation/development.md.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
