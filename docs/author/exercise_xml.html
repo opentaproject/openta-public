@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Exercise XML format &#8212; OpenTA  documentation</title>
+    <title>Exercise structure &#8212; OpenTA  documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -26,7 +26,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Documentation" href="../documentation/index.html" />
+    <link rel="next" title="Question types" href="questiontypes/index.html" />
     <link rel="prev" title="Introduction" href="intro.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -36,18 +36,92 @@
 
   </head>
   <body role="document">
-  
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Authoring</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="intro.html">Introduction</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Exercise structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1"><cite>exercise.xml</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#exercisekey"><cite>exercisekey</cite></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#exercise-xml-format">Exercise XML format</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-example-xml">Example (example.xml)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#specifications">Specifications</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="questiontypes/index.html">Question types</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
+</ul>
 
-    <div class="document">
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="exercise-xml-format">
-<span id="exercise-xml"></span><h1>Exercise XML format<a class="headerlink" href="#exercise-xml-format" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="exercise-structure">
+<span id="exercise-xml"></span><h1>Exercise structure<a class="headerlink" href="#exercise-structure" title="Permalink to this headline">¶</a></h1>
+<p>An exercise consists of a directory containing a definition file <strong>exercise.xml</strong> together with a file <strong>exercisekey</strong> and possibly additional assets such as figures/pdf.</p>
+<ul class="simple">
+<li><cite>exercise_folder/</cite><ul>
+<li><cite>exercise.xml</cite></li>
+<li><cite>exercisekey</cite></li>
+<li>⋮</li>
+</ul>
+</li>
+</ul>
+<div class="section" id="id1">
+<h2><cite>exercise.xml</cite><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<p>An XML file containing all information about the exercise, see below for the XML format.</p>
+</div>
+<div class="section" id="exercisekey">
+<h2><cite>exercisekey</cite><a class="headerlink" href="#exercisekey" title="Permalink to this headline">¶</a></h2>
+<p>A text file containing a unique key (up to 255 bytes of UTF8 encoded ASCII) that identifies the exercise to the database. A key file can be added and assigned manually, but is automatically generated as a <a class="reference external" href="https://docs.python.org/3.5/library/uuid.html">uuid4</a> identifier if not present.</p>
+</div>
+</div>
+<div class="section" id="exercise-xml-format">
+<h1>Exercise XML format<a class="headerlink" href="#exercise-xml-format" title="Permalink to this headline">¶</a></h1>
 <p>This first part describes the XML tags that are common to all exercises.</p>
-<table border="1" class="colwidths-given docutils" id="id1">
-<caption><span class="caption-text">Top level tags</span><a class="headerlink" href="#id1" title="Permalink to this table">¶</a></caption>
+<div class="section" id="example-example-xml">
+<h2>Example (<a class="reference external" href="example.xml">example.xml</a>)<a class="headerlink" href="#example-example-xml" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;exercise&gt;</span>
+  <span class="nt">&lt;exercisename&gt;</span>Momentum and energy<span class="nt">&lt;/exercisename&gt;</span>
+  <span class="nt">&lt;text&gt;</span>
+    A particle with mass $m$ is moving with velocity $v$.
+  <span class="nt">&lt;/text&gt;</span>
+  <span class="nt">&lt;question</span> <span class="na">key=</span><span class="s">&quot;1&quot;</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;variables&gt;</span>
+      m = 3 kg; v = 5 meter / second;
+    <span class="nt">&lt;/variables&gt;</span>
+    <span class="nt">&lt;text&gt;</span>What is the particles kinetic energy?<span class="nt">&lt;/text&gt;</span>
+    <span class="nt">&lt;expression&gt;</span>m*v^2/2<span class="nt">&lt;/expression&gt;</span>
+  <span class="nt">&lt;/question&gt;</span>
+<span class="nt">&lt;/exercise&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="specifications">
+<h2>Specifications<a class="headerlink" href="#specifications" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="colwidths-given docutils" id="id2">
+<caption><span class="caption-text">Top level tags</span><a class="headerlink" href="#id2" title="Permalink to this table">¶</a></caption>
 <colgroup>
 <col width="20%" />
 <col width="40%" />
@@ -71,64 +145,20 @@
 <tr class="row-even"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;question&gt;</span></span></code></td>
 <td><ul class="first last simple">
 <li><code class="docutils literal"><span class="pre">key</span></code> = unique id (within the exercise)</li>
-<li><code class="docutils literal"><span class="pre">type</span></code> = question type (see ...)</li>
+<li><code class="docutils literal"><span class="pre">type</span></code> = <a class="reference internal" href="questiontypes/index.html#question-types"><span class="std std-ref">question type</span></a> [compareNumeric, ...]</li>
 </ul>
 </td>
-<td>Question root tag</td>
+<td>Question root tag. See <a class="reference internal" href="questiontypes/index.html#question-types"><span class="std std-ref">Question types</span></a>.</td>
 </tr>
 <tr class="row-odd"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;global&gt;</span></span></code></td>
 <td><ul class="first last simple">
-<li><code class="docutils literal"><span class="pre">type</span></code> = question type (optional)</li>
+<li><code class="docutils literal"><span class="pre">type</span></code> = question type (optional, if not specified all questions will recieve this data.)</li>
 </ul>
 </td>
 <td>Data that will be passed to all questions in this exercise. For example variables for multiple symbolic questions.</td>
 </tr>
 </tbody>
 </table>
-<div class="section" id="question-types">
-<h2>Question types<a class="headerlink" href="#question-types" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="comparenumeric">
-<h3>compareNumeric<a class="headerlink" href="#comparenumeric" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
- ...
-<span class="nt">&lt;/question&gt;</span>
-</pre></div>
-</div>
-<p>The answer is a symbolic or numeric expression in a set of variables. Student answers are graded by comparing them with the correct expression by random numeric sampling.</p>
-<p>The following tags can be used inside a <strong>compareNumeric</strong> block.</p>
-<table border="1" class="colwidths-given docutils">
-<colgroup>
-<col width="20%" />
-<col width="10%" />
-<col width="70%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Tag</th>
-<th class="head">Attributes</th>
-<th class="head">Description</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;text&gt;</span></span></code></td>
-<td>&nbsp;</td>
-<td>Question text shown in viscinity of the input field.</td>
-</tr>
-<tr class="row-odd"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;expression&gt;</span></span></code></td>
-<td>&nbsp;</td>
-<td>Expression for the correct answer</td>
-</tr>
-</tbody>
-</table>
-<div class="section" id="example">
-<h4>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h4>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
-  <span class="nt">&lt;text&gt;</span>What is 1+1?<span class="nt">&lt;/text&gt;</span>
-  <span class="nt">&lt;expression&gt;</span>2<span class="nt">&lt;/expression&gt;</span>
-<span class="nt">&lt;/question&gt;</span>
-</pre></div>
-</div>
-</div>
-</div>
 </div>
 </div>
 
@@ -136,33 +166,8 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h3><a href="../index.html">Table Of Contents</a></h3>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Authoring</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="intro.html">Introduction</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Exercise XML format</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
-</ul>
-
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
+    <div class="clearer"></div>
+  </div>
     <div class="footer">
       &copy;2017, Hampus Linander, Stellan Östlund.
       

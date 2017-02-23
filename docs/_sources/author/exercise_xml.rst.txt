@@ -3,10 +3,39 @@
 .. role:: xml(code)
    :language: xml
 
+Exercise structure
+==================
+
+An exercise consists of a directory containing a definition file **exercise.xml** together with a file **exercisekey** and possibly additional assets such as figures/pdf.
+
+* `exercise_folder/`
+
+  * `exercise.xml`
+  * `exercisekey`
+  * ⋮
+
+`exercise.xml`
+--------------
+An XML file containing all information about the exercise, see below for the XML format.
+
+`exercisekey`
+-------------
+
+A text file containing a unique key (up to 255 bytes of UTF8 encoded ASCII) that identifies the exercise to the database. A key file can be added and assigned manually, but is automatically generated as a `uuid4 <https://docs.python.org/3.5/library/uuid.html>`_ identifier if not present.
+
 Exercise XML format
 ===================
 
 This first part describes the XML tags that are common to all exercises.
+
+Example (`example.xml <example.xml>`_)
+--------------------------------------
+
+.. literalinclude:: example.xml
+  :language: xml
+
+Specifications
+--------------
 
 .. list-table:: Top level tags
   :widths: 20 40 40
@@ -23,50 +52,8 @@ This first part describes the XML tags that are common to all exercises.
     - The visible name/title of the exercise
   * - :xml:`<question>`
     - - ``key`` = unique id (within the exercise)
-      - ``type`` = question type (see ...)
-    - Question root tag
+      - ``type`` = :ref:`question type <question-types>` [compareNumeric, ...]
+    - Question root tag. See :ref:`question-types`.
   * - :xml:`<global>`
-    - - ``type`` = question type (optional)
+    - - ``type`` = question type (optional, if not specified all questions will recieve this data.)
     - Data that will be passed to all questions in this exercise. For example variables for multiple symbolic questions.
-
---------------
-Question types
---------------
-
-^^^^^^^^^^^^^^
-compareNumeric
-^^^^^^^^^^^^^^
-.. code-block:: xml
-
-  <question type="compareNumeric">
-   ...
-  </question>
-
-The answer is a symbolic or numeric expression in a set of variables. Student answers are graded by comparing them with the correct expression by random numeric sampling.
-
-The following tags can be used inside a **compareNumeric** block.
-
-.. list-table::
-  :header-rows: 1
-  :widths: 20 10 70
-
-  * - Tag 
-    - Attributes
-    - Description
-  * - :xml:`<text>`
-    -
-    - Question text shown in viscinity of the input field.
-  * - :xml:`<expression>`
-    - 
-    - Expression for the correct answer
-
-""""""""
-Example
-""""""""
-
-.. code-block:: xml
-
-  <question type="compareNumeric">
-    <text>What is 1+1?</text>
-    <expression>2</expression>
-  </question>

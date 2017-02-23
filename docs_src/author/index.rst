@@ -6,3 +6,4 @@ Authoring
 
    intro
    exercise_xml
+   questiontypes/index

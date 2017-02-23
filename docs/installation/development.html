@@ -36,9 +36,45 @@
 
   </head>
   <body role="document">
-  
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Installation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Development environment using Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#manual-installation">Manual installation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#backend-installation">Backend Installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#steps">Steps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#summary-of-third-party-libraries">Summary of third party libraries</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#front-end-installation">Front-end installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#summary-of-third-party-libraries">Summary of third party libraries</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="deployed.html">Deployment</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../author/index.html">Authoring</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
+</ul>
 
-    <div class="document">
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
       <div class="documentwrapper">
         <div class="bodywrapper">
           <div class="body" role="main">
@@ -64,8 +100,10 @@
 </div>
 <p>Stop the server by multiple <strong>Ctrl-C</strong> till you are back at your shell. Use <code class="docutils literal"><span class="pre">make</span> <span class="pre">serve</span> <span class="pre">port=4000</span></code> (and similar for watch) to use another port.</p>
 </div>
+<div class="section" id="manual-installation">
+<span id="manual-installation"></span><h1>Manual installation<a class="headerlink" href="#manual-installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="backend-installation">
-<span id="backend-installation"></span><h1>Backend Installation<a class="headerlink" href="#backend-installation" title="Permalink to this headline">¶</a></h1>
+<span id="backend-installation"></span><h2>Backend Installation<a class="headerlink" href="#backend-installation" title="Permalink to this headline">¶</a></h2>
 <p>The following will assume the repository is cloned into a folder <code class="docutils literal"><span class="pre">openta/</span></code>.</p>
 <p>Requires:</p>
 <ul class="simple">
@@ -84,7 +122,7 @@
 </pre></div>
 </div>
 <div class="section" id="steps">
-<span id="steps"></span><h2>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">¶</a></h2>
+<span id="steps"></span><h3>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">¶</a></h3>
 <p>Enter the backend subfolder with <code class="docutils literal"><span class="pre">cd</span> <span class="pre">django</span></code>.
 Create a python 3 environment in a subdirectory <code class="docutils literal"><span class="pre">env</span></code> (name not important) with</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="n">env</span>
@@ -120,7 +158,7 @@ Copy the choosen file to <code class="docutils literal"><span class="pre">settin
 </div>
 </div>
 <div class="section" id="summary-of-third-party-libraries">
-<span id="summary-of-third-party-libraries"></span><h2>Summary of third party libraries<a class="headerlink" href="#summary-of-third-party-libraries" title="Permalink to this headline">¶</a></h2>
+<span id="summary-of-third-party-libraries"></span><h3>Summary of third party libraries<a class="headerlink" href="#summary-of-third-party-libraries" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><a class="reference external" href="https://www.djangoproject.com/">Django</a></li>
 <li><a class="reference external" href="http://www.django-rest-framework.org/">Django-rest-framework (DRF)</a></li>
@@ -129,7 +167,7 @@ Copy the choosen file to <code class="docutils literal"><span class="pre">settin
 </div>
 </div>
 <div class="section" id="front-end-installation">
-<span id="front-end-installation"></span><h1>Front-end installation<a class="headerlink" href="#front-end-installation" title="Permalink to this headline">¶</a></h1>
+<span id="front-end-installation"></span><h2>Front-end installation<a class="headerlink" href="#front-end-installation" title="Permalink to this headline">¶</a></h2>
 <p>A web frontend for viewing/editing exercises served by the backend.</p>
 <p>Requires:</p>
 <ul class="simple">
@@ -157,7 +195,7 @@ Copy the choosen file to <code class="docutils literal"><span class="pre">settin
 </pre></div>
 </div>
 <div class="section" id="summary-of-third-party-libraries">
-<span id="id1"></span><h2>Summary of third party libraries<a class="headerlink" href="#summary-of-third-party-libraries" title="Permalink to this headline">¶</a></h2>
+<span id="id1"></span><h3>Summary of third party libraries<a class="headerlink" href="#summary-of-third-party-libraries" title="Permalink to this headline">¶</a></h3>
 <ul class="simple">
 <li><a class="reference external" href="https://facebook.github.io/react/">React</a>: JS GUI framework</li>
 <li><a class="reference external" href="http://redux.js.org/">Redux</a>: State management library</li>
@@ -165,40 +203,14 @@ Copy the choosen file to <code class="docutils literal"><span class="pre">settin
 </ul>
 </div>
 </div>
+</div>
 
 
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h3><a href="../index.html">Table Of Contents</a></h3>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="index.html">Installation</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Development environment using Docker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#backend-installation">Backend Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#front-end-installation">Front-end installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="deployed.html">Deployment</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="../author/index.html">Authoring</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
-</ul>
-
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
-      <div><input type="text" name="q" /></div>
-      <div><input type="submit" value="Go" /></div>
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
+    <div class="clearer"></div>
+  </div>
     <div class="footer">
       &copy;2017, Hampus Linander, Stellan Östlund.
       

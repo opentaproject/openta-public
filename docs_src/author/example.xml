@@ -1,0 +1,13 @@
+<exercise>
+  <exercisename>Momentum and energy</exercisename>
+  <text>
+    A particle with mass $m$ is moving with velocity $v$.
+  </text>
+  <question key="1" type="compareNumeric">
+    <variables>
+      m = 3 kg; v = 5 meter / second;
+    </variables>
+    <text>What is the particles kinetic energy?</text>
+    <expression>m*v^2/2</expression>
+  </question>
+</exercise>

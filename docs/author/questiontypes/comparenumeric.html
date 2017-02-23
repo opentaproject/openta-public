@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>compareNumeric &#8212; OpenTA  documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Documentation" href="../../documentation/index.html" />
+    <link rel="prev" title="Question types" href="index.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation/index.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Authoring</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../exercise_xml.html">Exercise structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../exercise_xml.html#exercise-xml-format">Exercise XML format</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Question types</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">compareNumeric</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#basic">Basic</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#variables">Variables</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#global-variables-multiple-questions-latex-units">Global variables, multiple questions, latex, units</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/index.html">Documentation</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="comparenumeric">
+<span id="id1"></span><h1>compareNumeric<a class="headerlink" href="#comparenumeric" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+ ...
+<span class="nt">&lt;/question&gt;</span>
+</pre></div>
+</div>
+<p>The answer is a symbolic or numeric expression in a set of variables. Student answers are graded by comparing them with the correct expression by random numeric sampling.</p>
+<p>The following tags can be used inside a <strong>compareNumeric</strong> block.</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="20%" />
+<col width="10%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Tag</th>
+<th class="head">Attributes</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;text&gt;</span></span></code></td>
+<td>&nbsp;</td>
+<td>Question text shown in viscinity of the input field.</td>
+</tr>
+<tr class="row-odd"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;expression&gt;</span></span></code></td>
+<td>&nbsp;</td>
+<td>Expression for the correct answer</td>
+</tr>
+<tr class="row-even"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;variables&gt;</span></span></code></td>
+<td>&nbsp;</td>
+<td>Variables in semicolon separated list of var=value, e.g. &#8220;x=1;y=2;&#8221;</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="basic">
+<h3>Basic<a class="headerlink" href="#basic" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;text&gt;</span>What is 1+1?<span class="nt">&lt;/text&gt;</span>
+  <span class="nt">&lt;expression&gt;</span>2<span class="nt">&lt;/expression&gt;</span>
+<span class="nt">&lt;/question&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="variables">
+<h3>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;variables&gt;</span>
+    a=3; b=5;
+  <span class="nt">&lt;/variables&gt;</span>
+  <span class="nt">&lt;text&gt;</span>
+    What is the length of the hypotenuse of a right angled
+    triangle with sides a and b?
+  <span class="nt">&lt;/text&gt;</span>
+  <span class="nt">&lt;expression&gt;</span>sqrt(a^2+b^2)<span class="nt">&lt;/expression&gt;</span>
+<span class="nt">&lt;/question&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="global-variables-multiple-questions-latex-units">
+<h3>Global variables, multiple questions, latex, units<a class="headerlink" href="#global-variables-multiple-questions-latex-units" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;exercise&gt;</span>
+  <span class="nt">&lt;exercisename&gt;</span>Momentum and energy<span class="nt">&lt;/exercisename&gt;</span>
+  <span class="nt">&lt;text&gt;</span>
+    A particle with mass $m$ is moving with velocity $v$.
+  <span class="nt">&lt;/text&gt;</span>
+
+  <span class="nt">&lt;global</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+    m = kg; v = meter / second;
+  <span class="nt">&lt;/global&gt;</span>
+
+  <span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;text&gt;</span>
+      What is the linear momentum of the particle?
+    <span class="nt">&lt;/text&gt;</span>
+    <span class="nt">&lt;expression&gt;</span>m*v<span class="nt">&lt;/expression&gt;</span>
+  <span class="nt">&lt;/question&gt;</span>
+
+  <span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;text&gt;</span>
+      What is the kinetic energy of the particle?
+    <span class="nt">&lt;/text&gt;</span>
+    <span class="nt">&lt;expression&gt;</span>m*v^2/2<span class="nt">&lt;/expression&gt;</span>
+  <span class="nt">&lt;/question&gt;</span>
+<span class="nt">&lt;/exercise&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2017, Hampus Linander, Stellan Östlund.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      
+      |
+      <a href="../../_sources/author/questiontypes/comparenumeric.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

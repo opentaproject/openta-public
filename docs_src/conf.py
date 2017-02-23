@@ -92,6 +92,7 @@ html_theme = 'alabaster'
 # documentation.
 #
 # html_theme_options = {}
+html_theme_options = {'fixed_sidebar': True}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -156,7 +157,8 @@ texinfo_documents = [
 
 html_sidebars = {
     '**': [
-        'globaltoc.html',
+        'navigation.html',
+        #'globaltoc.html',
         #'localtoc.html',
         'searchbox.html',
     ]

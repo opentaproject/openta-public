@@ -1,4 +1,4 @@
-## Development environment using Docker 
+# Development environment using Docker 
 
 Start by cloning the repository
 
@@ -24,6 +24,7 @@ make watch
 
 Stop the server by multiple **Ctrl-C** till you are back at your shell. Use ```make serve port=4000``` (and similar for watch) to use another port.
 
+# Manual installation
 ## Backend Installation
 The following will assume the repository is cloned into a folder ```openta/```.
 

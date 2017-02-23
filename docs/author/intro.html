@@ -26,7 +26,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Exercise XML format" href="exercise_xml.html" />
+    <link rel="next" title="Exercise structure" href="exercise_xml.html" />
     <link rel="prev" title="Authoring" href="index.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -36,52 +36,22 @@
 
   </head>
   <body role="document">
-  
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <div class="section" id="introduction">
-<span id="intro"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
-<p>Content in OpenTA consists of exercises with one or many questions. An exercise and its questions are created using a custom <a class="reference external" href="https://en.wikipedia.org/wiki/XML">XML</a> format. For example,</p>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;exercise&gt;</span>
-  <span class="nt">&lt;exercisename&gt;</span>Kinetic energy<span class="nt">&lt;/exercisename&gt;</span>
-  <span class="nt">&lt;text&gt;</span>
-    What is the kinetic energy of a particle with mass $m$
-    moving with velocity $v$?
-  <span class="nt">&lt;/text&gt;</span>
-  <span class="nt">&lt;question</span> <span class="na">key=</span><span class="s">&quot;1&quot;</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
-    <span class="nt">&lt;variables&gt;</span>
-      m = kg; v = meter / second;
-    <span class="nt">&lt;/variables&gt;</span>
-    <span class="nt">&lt;expression&gt;</span>
-      m*v^2/2
-    <span class="nt">&lt;/expression&gt;</span>
-  <span class="nt">&lt;/question&gt;</span>
-<span class="nt">&lt;/exercise&gt;</span>
-</pre></div>
-</div>
-<p>In this example the question type compareNumeric is used which compares the student answer with the correct answer by random sampling.</p>
-</div>
-
-
-          </div>
-        </div>
-      </div>
+  <div class="document">
+    
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-<h3><a href="../index.html">Table Of Contents</a></h3>
+        <div class="sphinxsidebarwrapper"><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Authoring</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="exercise_xml.html">Exercise XML format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise_xml.html">Exercise structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exercise_xml.html#exercise-xml-format">Exercise XML format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="questiontypes/index.html">Question types</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../documentation/index.html">Documentation</a></li>
 </ul>
+
 
 <div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
@@ -95,8 +65,38 @@
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="introduction">
+<span id="intro"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>Content in OpenTA consists of exercises with one or many questions. An exercise and its questions are created using a custom <a class="reference external" href="https://en.wikipedia.org/wiki/XML">XML</a> format. For example,</p>
+<p><a class="reference external" href="example.xml">example.xml:</a></p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;exercise&gt;</span>
+  <span class="nt">&lt;exercisename&gt;</span>Momentum and energy<span class="nt">&lt;/exercisename&gt;</span>
+  <span class="nt">&lt;text&gt;</span>
+    A particle with mass $m$ is moving with velocity $v$.
+  <span class="nt">&lt;/text&gt;</span>
+  <span class="nt">&lt;question</span> <span class="na">key=</span><span class="s">&quot;1&quot;</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+    <span class="nt">&lt;variables&gt;</span>
+      m = 3 kg; v = 5 meter / second;
+    <span class="nt">&lt;/variables&gt;</span>
+    <span class="nt">&lt;text&gt;</span>What is the particles kinetic energy?<span class="nt">&lt;/text&gt;</span>
+    <span class="nt">&lt;expression&gt;</span>m*v^2/2<span class="nt">&lt;/expression&gt;</span>
+  <span class="nt">&lt;/question&gt;</span>
+<span class="nt">&lt;/exercise&gt;</span>
+</pre></div>
+</div>
+<p>In this example the question type <a class="reference internal" href="questiontypes/comparenumeric.html#comparenumeric"><span class="std std-ref">compareNumeric</span></a> is used which compares the student answer with the correct answer by random sampling.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
     <div class="footer">
       &copy;2017, Hampus Linander, Stellan Östlund.
       
