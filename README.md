@@ -27,6 +27,6 @@ When cloning this repository a file based sqlite database is provided with two u
 * teacher:learning, can edit exercises via the author interface.
 * student:learning, can view and answer exercises.
 
-## [Exercise XML format](docs_src/author/exercise_xml.rst)
+## [Exercise format](docs_src/author/exercise_xml.rst)
 ## Question types
-### [compareNumeric](docs_src/author/questiontypes/comparenumeric.rst)
+- [compareNumeric](docs_src/author/questiontypes/comparenumeric.rst)
