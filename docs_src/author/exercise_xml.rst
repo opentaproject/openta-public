@@ -3,16 +3,24 @@
 .. role:: xml(code)
    :language: xml
 
-Exercise structure
-==================
+##################
+Exercise
+##################
 
-An exercise consists of a directory containing a definition file **exercise.xml** together with a file **exercisekey** and possibly additional assets such as figures/pdf.
+File structure
+==============
 
-* `exercise_folder/`
+An exercise consists of a directory containing a definition file **exercise.xml** together with a file **exercisekey** and possibly additional assets such as figures/pdf. This directory must be located somewhere under the root **exercises/** directory to be recognized by the system.
 
-  * `exercise.xml`
-  * `exercisekey`
+* `exercises/`
+
   * ⋮
+
+  * `exercise_folder/`
+
+    * `exercise.xml`
+    * `exercisekey`
+    * ⋮
 
 `exercise.xml`
 --------------

@@ -11,3 +11,4 @@ Content in OpenTA consists of exercises with one or many questions. An exercise 
   :language: xml
 
 In this example the question type :ref:`compareNumeric` is used which compares the student answer with the correct answer by random sampling.
+
