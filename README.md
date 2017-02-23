@@ -27,48 +27,6 @@ When cloning this repository a file based sqlite database is provided with two u
 * teacher:learning, can edit exercises via the author interface.
 * student:learning, can view and answer exercises.
 
-## Exercise format
-An exercise consists of a directory containing a definition file ```exercise.xml``` together with a file ```exercisekey``` and possibly additional assets such as figures/pdf.
-
-### ```exercisekey```
-Contains a unique key (up to 255 bytes of UTF8 encoded ASCII) that identifies the exercise to the database. A key file can be added and assigned manually, but is automatically generated as a [uuid4](https://docs.python.org/3.5/library/uuid.html) identifier if not present.
-
-### ```exercise.xml```
-Contains all exercise data, a typical example: 
-```xml
-<exercise>
-  <exercisename>...</exercisename>
-  <figure>...</figure>
-  <exercisetext>...</exercisetext>
-  
-  <question key=... type=...>
-    ....
-  </question>
-</exercise>
-```
-
-### Tags
-| Tag       | Attributes | Description |
-| ---       | ---------- | ----------- |
-| ```exercise```  | None           | Root tag  |
-| ```exercisename``` | | The visible name/title of the exercise |
-| ```question``` | ```key``` = unique id (within the exercise), ```type``` = question type (see ...) | Question root tag |
-
+## [Exercise XML format](docs_src/author/exercise_xml.rst)
 ## Question types
-### compareNumeric
-Compares two symbolic expressions numerically by evaluation.
-Example:
-```
-<question type="compareNumeric">
- <variables>x=3; y=7;</variables>
- <text>What is the derivative with respect to $x$ of $x^2*y$?</text>
- <expression>2*x*y</expression>
-</question>
-```
-### Subtags
-| Tag       | Attributes | Description |
-| ---       | ---------- | ----------- |
-| ```text``` | | Question text |
-| ```variables```| | Variables in semicolon separated list of var=value, e.g. "x=1;y=2;" |
-| ```expression```| | Correct expression |
-
+### [compareNumeric](docs_src/author/questiontypes/comparenumeric.rst)
