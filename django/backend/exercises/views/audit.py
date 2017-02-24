@@ -81,7 +81,7 @@ def delete_audit(request, pk):
         audit = AuditExercise.objects.get(pk=pk)
     except ObjectDoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    if audit.auditor is not request.user and not request.user.is_superuser:
+    if (audit.auditor != request.user) and not request.user.is_superuser:
         return Response(
             {'error': 'You are not the auditor of this audit and you are not a superuser.'},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
