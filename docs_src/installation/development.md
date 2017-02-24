@@ -1,4 +1,11 @@
-# Development environment using Docker 
+# Development
+## Note on login information
+
+When cloning this repository a file based sqlite database is provided with two users (user:password):
+* teacher:learning, can edit exercises via the author interface.
+* student:learning, can view and answer exercises.
+
+## Development environment using Docker 
 
 Start by cloning the repository
 
@@ -24,8 +31,9 @@ make watch
 
 Stop the server by multiple **Ctrl-C** till you are back at your shell. Use ```make serve port=4000``` (and similar for watch) to use another port.
 
-# Manual installation
-## Backend Installation
+
+## Manual installation
+### Backend Installation
 The following will assume the repository is cloned into a folder ```openta/```.
 
 Requires: 
@@ -44,7 +52,7 @@ In an apt-based linux distribution the required dependencies can be installed wi
 apt get install libjpeg-dev libgraphviz-dev graphviz pkg-config libxml2-dev libxslt1-dev python-dev libzmq3-dev libcairo2 libcairo2-dev
 ```
 
-### Steps
+#### Steps
 
 Enter the backend subfolder with ```cd django```.
 Create a python 3 environment in a subdirectory ```env``` (name not important) with
@@ -84,12 +92,12 @@ cd ..
 python manage.py runserver
 ```
 
-### Summary of third party libraries
+#### Summary of third party libraries
 * [Django](https://www.djangoproject.com/) 
 * [Django-rest-framework (DRF)](http://www.django-rest-framework.org/)
 * [Sympy](http://www.sympy.org/)
 
-## Front-end installation
+### Front-end installation
 A web frontend for viewing/editing exercises served by the backend.
 
 Requires: 
@@ -119,7 +127,7 @@ Alternatively, start a live-development watcher that recompiles and copies the f
 brunch watch
 ```
 
-### Summary of third party libraries
+#### Summary of third party libraries
 * [React](https://facebook.github.io/react/): JS GUI framework
 * [Redux](http://redux.js.org/): State management library
 * [UIKit](http://getuikit.com/): CSS framework
