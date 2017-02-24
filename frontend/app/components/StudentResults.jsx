@@ -109,7 +109,9 @@ const BaseStudentResults = ({userResults,
       }
       </div> );//}}}
   var exercisesFilteredList = optionalByFolderSorted.map( (folder, key) => (//{{{
-        <ul key={key} className="uk-thumbnav uk-flex uk-margin" style={{maxWidth: '500px'}}>
+        <div className="uk-panel uk-margin-small-top">
+        <h5 className="uk-margin-remove uk-text-success">{key}</h5>
+        <ul key={key} className="uk-thumbnav uk-flex uk-margin-small-top" style={{maxWidth: '500px'}}>
         {folder.map( item => (
             <li key={item.get('exercise_key')} className="uk-margin-remove">
               <a className="uk-thumbnail uk-margin-small-top" style={{
@@ -138,8 +140,18 @@ const BaseStudentResults = ({userResults,
                   }
                     </div>
                   <div style={{position:'absolute', left: '-10px', top: '-10px'}}>
-                    { item.getIn(['meta','bonus']) && <Badge className="uk-badge-warning"><i className="uk-icon uk-icon-calendar"/></Badge> }
-                    { item.getIn(['meta','required']) && <Badge className=""><i className="uk-icon uk-icon-calendar"/></Badge> }
+                    { item.getIn(['meta','bonus']) && 
+                      <Badge className="uk-badge-warning">
+                      {/*<i className="uk-icon uk-icon-calendar"/>*/}
+                        {moment(item.getIn(['meta','deadline_date'])).format('D MMM')}
+                      </Badge> 
+                    }
+                    { item.getIn(['meta','required']) && 
+                      <Badge className="">
+                      {/*<i className="uk-icon uk-icon-calendar"/>*/}
+                        {moment(item.getIn(['meta','deadline_date'])).format('D MMM')}
+                      </Badge> 
+                    }
                   </div>
                   <div className="uk-thumbnail-caption uk-text-small">{item.get('name')}</div>
                   <div className="uk-progress uk-margin-remove uk-progress-mini uk-progress-danger" title="Tries/Question">
@@ -151,6 +163,8 @@ const BaseStudentResults = ({userResults,
             </li>
          ))}
         </ul>
+        <hr className="uk-margin-remove"/>
+        </div>
         )).toList();//}}}
   return (
     <div className="uk-panel uk-panel-box uk-width-1-1" id="studentresults" style={ activeExercise ? {} : {}}>
