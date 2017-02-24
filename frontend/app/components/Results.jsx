@@ -130,20 +130,20 @@ function generateHistPlot(userResults) {//{{{
   }
 }//}}}
 
-const renderFilter = ({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) => (//{{{
+const renderFilter = ({filteredUsers, onFilterChange, onFilterKeypress, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) => (//{{{
       <div className="results-filters uk-margin-right  uk-margin-bottom">
         <div className="uk-panel uk-panel-box uk-margin-top">
           <h3 className="uk-panel-title">Filters</h3>
           <form className="uk-form uk-form-stacked">
             <div className="uk-form-row">
               <span className="uk-form-label">Text search</span>
-              <input type="text" placeholder="Filter on name and username" className="uk-width-1-1" onChange={onFilterChange} value={filter}/>        
+              <input type="text" placeholder="Filter on name and username" className={"uk-width-1-1 " + (filteredUsers.size === 1 ? 'uk-form-success' : '')} onChange={onFilterChange} onKeyPress={(e) => onFilterKeypress(e, filteredUsers, requiredFilter, bonusFilter)} value={filter}/>        
             </div>
 
             <span className="uk-form-label uk-margin-top">Obligatory deadline</span>
             <div className="uk-form-row uk-margin-small-top">
               <label>
-              <input type="radio" name="required" className="uk-width-1-1 uk-margin-small-right" onChange={() => onRequiredDeadline('n_correct')} checked={requiredFilter === 'n_correct'}/>        
+              <input type="radio" name="required" className={"uk-width-1-1 uk-margin-small-right" } onChange={() => onRequiredDeadline('n_correct')} checked={requiredFilter === 'n_correct'}/>        
               No deadline
               </label>
             </div>
@@ -188,6 +188,7 @@ const BaseResults = ({menuPath,
                      userResults, 
                      pendingResults, 
                      onFilterChange, 
+                     onFilterKeypress,
                      onRequiredDeadline,
                      onBonusDeadline,
                      filter, 
@@ -270,7 +271,7 @@ const BaseResults = ({menuPath,
         <h1><a href={SUBPATH + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a></h1> 
       </div>
       }
-      { !activeDetailExercise && !menuPositionUnder(menuPath, ['results', 'download']) && renderFilter({onFilterChange, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
+      { !activeDetailExercise && !menuPositionUnder(menuPath, ['results', 'download']) && renderFilter({filteredUsers: renderResults, onFilterChange, onFilterKeypress, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
       <div className="results-table "> {/*uk-width-4-10 uk-overflow-container*/}
         <div className="uk-container-center">
         { menuPositionUnder(menuPath, ['results', 'histogram']) && !pendingResults && 
@@ -348,6 +349,14 @@ const handleBonusDeadline = (value) => (dispatch) => {
 
 const mapDispatchToProps = dispatch => ({
   onFilterChange: (e) => dispatch(setResultsFilter({'text': e.target.value})),
+  onFilterKeypress: (e, filteredUsers, deadline, imageDeadline) => {
+    if(e.key === 'Enter') {
+      e.preventDefault();
+      if(filteredUsers.size === 1) {
+        dispatch(handleUserClick(filteredUsers.first().get('pk'), deadline, imageDeadline))
+      }
+    }
+  },
   onRequiredDeadline: (value) => dispatch(handleRequiredDeadline(value)), //dispatch(setResultsFilter({ 'requiredKey': value})),
   onBonusDeadline: (value) => dispatch(handleBonusDeadline(value)),//dispatch(setResultsFilter({ 'bonusKey': value})),
   onUserClick: (userPk, deadline, imageDeadline) => dispatch(handleUserClick(userPk, deadline, imageDeadline))

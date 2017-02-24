@@ -109,7 +109,7 @@ const BaseStudentResults = ({userResults,
       }
       </div> );//}}}
   var exercisesFilteredList = optionalByFolderSorted.map( (folder, key) => (//{{{
-        <div className="uk-panel uk-margin-small-top">
+        <div className="uk-panel uk-margin-small-top" key={key}>
         <h5 className="uk-margin-remove uk-text-success">{key}</h5>
         <ul key={key} className="uk-thumbnav uk-flex uk-margin-small-top" style={{maxWidth: '500px'}}>
         {folder.map( item => (
