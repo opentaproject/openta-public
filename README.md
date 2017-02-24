@@ -1,7 +1,7 @@
 # OpenTA
 A web-based platform for E-learning. Consists of a Python backend together with a web front end. Try it out by running the django development server locally (see below). 
 
-## [Installation](docs_src/installation/development.md)
+## [Installation](docs_src/installation/development.rst)
 
 ## Quick start with docker
 
