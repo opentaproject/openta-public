@@ -32,7 +32,7 @@ export default class QuestionMultipleChoice extends Component {
     }
   }
 
-  changeChoice = (choice) => {
+  toggleChoice = (choice) => {
     this.setState(({choices}) => ({choices: choices.update(choice, v => !v)}));
     //this.props.submitFunction(choice);
   }
@@ -96,23 +96,26 @@ export default class QuestionMultipleChoice extends Component {
   /* Both the questionData and questionState are of type Map from immutable.js. They are nested dictionaries that are accessed via the get and getIn functions. For example question.get('text') retrieves <question> <text> * </text> </question>. Deeper structures can be accessed with getIn, for example question.getIn(['tag1', 'tag2']) would retrieve <question> <tag1> <tag2> * </tag2> </tag1> </question>. */
 
   // System state data
-  var lastAnswer = parseInt(state.getIn(['answer'], '')); // Last saved answer in database, same format as passed to the submitFunction
-  var correct = state.getIn(['response','correct'])/*, false) || state.getIn(['correct'], false);*/ // Boolean indicating if the grader reported correct answer
+  var lastAnswer = JSON.parse(state.getIn(['answer'], "{}")); // Last saved answer in database, same format as passed to the submitFunction
+  var correct = state.getIn(['response'], immutable.Map({}))/*, false) || state.getIn(['correct'], false);*/ // Boolean indicating if the grader reported correct answer
   var choicesElements = question.get('choice',immutable.List([]));
   if( !immutable.List.isList(choicesElements) )choicesElements = immutable.List([choicesElements]);
   var choices = choicesElements.map( (item, key) => {
     var style = {}
-    var divClass = this.state.choices.get(key) ? 'uk-panel-box-primary' : '';
+    var choiceKey = item.getIn(['@attr', 'key'], key);
+    var divClass = this.state.choices.get(choiceKey) ? 'uk-panel-box-primary' : '';
     //if(correct && key === lastAnswer)style = {backgroundColor: '#f2fae3'}
     //if(!correct && key === lastAnswer)style = {backgroundColor: '#fff1f0'}
     var children = item.get('$children$', immutable.List([]))
               .map( child => this.dispatchElement(child) ).toSeq();
     return (
-    <div className="uk-width-1-1" key={key}>
-      <div style={style} className={"uk-panel uk-panel-box uk-margin-top pointer " + divClass} onClick={() => this.changeChoice(key)}>
+    <div className="uk-width-1-1" key={choiceKey}>
+      <div style={style} className={"uk-panel uk-panel-box uk-margin-bottom pointer " + divClass} onClick={() => this.toggleChoice(choiceKey)}>
         <div className="uk-panel-badge">
-        { this.props.canViewSolution && key === parseInt(question.getIn(['correct','$'], -1))-1 && <div className="uk-margin-small-right uk-badge uk-badge-success">correct</div> }
-        { this.props.isAuthor && <div className="uk-badge">{key+1}</div> }
+        { this.props.canViewSolution && item.getIn(['@attr', 'correct']) === 'true' && <div className="uk-margin-small-right uk-badge">correct</div> }
+        { this.props.isAuthor && <div className="uk-badge">{choiceKey}</div> }
+        { correct.get(choiceKey) && <div className="uk-margin-small-right uk-badge uk-badge-success">Rätt!</div> }
+        { !correct.get(choiceKey,false) && lastAnswer[choiceKey] === true && <div className="uk-margin-small-right uk-badge uk-badge-danger">Fel</div> }
         </div>
         <MathSpan>{item.get('$')}</MathSpan>
         {children}
@@ -127,16 +130,16 @@ export default class QuestionMultipleChoice extends Component {
   return (
         <div className="">
           <label className="uk-form-row uk-display-inline-block uk-margin-bottom">{question.getIn(['text','$'],'')} </label>
-            <a onClick={(event) => submit(this.state.choices)} className={ "uk-width-1-1 uk-button uk-padding-remove uk-button-success"}>
+            <a onClick={(event) => submit(JSON.stringify(this.state.choices))} className={ "uk-width-1-1 uk-button uk-padding-remove uk-button-success uk-margin-small-bottom"}>
               { pending && <i className="uk-icon-cog uk-icon-spin"/> }
               { !pending && <i className="uk-icon uk-icon-send"/> }
             </a>
+          { error && <Alert message={error} type="error" key="err"/> }
+          { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }
           { question.has('hint') && !correct && state.get('answer', '') !== '' && this.renderContentInPanel(question.get('hint'), (<div className="uk-badge">Hint</div>)) }
           <div className="uk-grid uk-grid-small">
               {choices}
           </div>
-          { error && <Alert message={error} type="error" key="err"/> }
-          { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }
         </div>
   );
 }

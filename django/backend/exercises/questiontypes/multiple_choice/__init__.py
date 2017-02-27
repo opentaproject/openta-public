@@ -40,24 +40,27 @@ def question_check_multiple_choice(question_json, question_xmltree, answer_data,
     '''
     choices = []
     choices_element = question_xmltree.xpath('//choice')
-    # correct_answer = question_xmltree.find('correct').text
-    correct_items = question_xmltree.xpath('//choice[correct]')
-    # answers = json.loads(answer_data)
-    print(answer_data)
-    print(correct_items)
+    correct_items = question_xmltree.xpath('//choice[@correct="true"]')
+    try:
+        answer_json = json.loads(answer_data)
+    except ValueError:
+        print('Not valid json')
+
     results = {}
-    for question, val in answer_data.items():
+    n_correct = 0
+    n_incorrect = 0
+    for question, val in answer_json.items():
         for item in correct_items:
-            if item.get('key') == question and val:
-                results[question] = 1
-            else:
-                print('nope')
-    result = {}
-    # if int(correct_answer) - 1 == int(answer_data):
-    #    result['correct'] = True
-    # else:
-    result['correct'] = False
-    return result
+            if val:
+                if item.get('key') == question:
+                    results[question] = True
+                    n_correct += 1
+                else:
+                    results[question] = False
+                    n_incorrect += 1
+    if n_incorrect == 0 and n_correct == len(correct_items):
+        results['correct'] = True
+    return results
 
 
 # This function call registers the question type with the system

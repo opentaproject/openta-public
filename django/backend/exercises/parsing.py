@@ -64,6 +64,9 @@ def exercise_json(path, hide_answers=False):  # {{{
             for question in questions:
                 expression = question.find('expression')
                 question.remove(expression)
+            correct = root.findall('.//question/*[@correct]')
+            for node in correct:
+                node.attrib.pop('correct', None)
         obj = bf.data(root)
     except ParseError as e:
         raise ExerciseParseError(e)
