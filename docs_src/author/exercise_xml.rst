@@ -4,7 +4,7 @@
    :language: xml
 
 ##################
-Exercise
+Exercises
 ##################
 
 File structure
@@ -12,15 +12,17 @@ File structure
 
 An exercise consists of a directory containing a definition file **exercise.xml** together with a file **exercisekey** and possibly additional assets such as figures/pdf. This directory must be located somewhere under the root **exercises/** directory to be recognized by the system.
 
-* `exercises/`
+.. topic:: Directory structure
 
-  * ⋮
+  * `exercises/`
 
-  * `exercise_folder/`
-
-    * `exercise.xml`
-    * `exercisekey`
     * ⋮
+
+    * `exercise_folder/`
+
+      * `exercise.xml`
+      * `exercisekey`
+      * ⋮
 
 `exercise.xml`
 --------------
@@ -59,9 +61,9 @@ Specifications
     -
     - The visible name/title of the exercise
   * - :xml:`<question>`
-    - - ``key`` = unique id (within the exercise)
-      - ``type`` = :ref:`question type <question-types>` [compareNumeric, ...]
+    - - ``key`` = [string] unique id (within the exercise)
+      - ``type`` = [string] :ref:`question type <question-types>` [compareNumeric, ...]
     - Question root tag. See :ref:`question-types`.
   * - :xml:`<global>`
-    - - ``type`` = question type (optional, if not specified all questions will recieve this data.)
+    - - ``type`` = [string] question type (optional, if not specified all questions will recieve this data.)
     - Data that will be passed to all questions in this exercise. For example variables for multiple symbolic questions.
