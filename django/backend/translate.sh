@@ -1,5 +1,5 @@
 #!/bin/bash
-
+source ../env/bin/activate
 echo "### Translating all messages..."
 python manage.py makemessages -a --symlinks
 echo "### Removing commented-out manual messages..."
