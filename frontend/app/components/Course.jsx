@@ -16,6 +16,7 @@ import {
 } from '../menu.js';
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
+import SafeImg from './SafeImg.jsx';
 
 import immutable from 'immutable';
 import moment from 'moment';
@@ -51,9 +52,9 @@ function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, f
   var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
 return (
   <li key={exercise} id={exercise} className="course-exercise-item">
-    <a className={"uk-thumbnail " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
+    <a className={"uk-thumbnail exercise-a " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
     <div className="exercise-thumb-wrap">
-      <img className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}/>
+      <SafeImg className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}><i className="uk-icon uk-icon-question-circle uk-icon-large"/></SafeImg>
       <div className="exercise-thumb-badge">
       { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
       { /*meta.required && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */ }

@@ -17,6 +17,7 @@ import immutable from 'immutable';
 import moment from 'moment';
 import Spinner from './Spinner.jsx'
 import Badge from './Badge.jsx';
+import SafeImg from './SafeImg.jsx';
 import {SUBPATH} from '../settings.js';
 
 var difficulties = {
@@ -54,8 +55,8 @@ return (
           <ul >
             <li>
               <div className="exercise-list-thumb-wrap">
-              <img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={SUBPATH + '/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
-              <div className="exercise-thumb-badge uk-position-relative">
+              <SafeImg className="" style={{maxHeight: '40px', height:'40px'}} src={SUBPATH + '/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}><i className="uk-icon uk-icon-question-circle uk-icon-medium"/></SafeImg>
+              <div className="exercise-thumb-badge">
               { meta.get('difficulty', false) && <Badge className="uk-badge-notification">{difficulties[meta.get('difficulty','none')]}</Badge> }
               { /*meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */}
               { /*meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
