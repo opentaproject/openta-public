@@ -9,6 +9,7 @@ import { registerQuestionType } from './question_type_dispatch.js' // Register f
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
+import HelpMultipleChoice from './HelpMultipleChoice.jsx';
 import MathSpan from '../MathSpan.jsx';
 import immutable from 'immutable';
 import {SUBPATH} from '../../settings.js';
@@ -28,13 +29,12 @@ export default class QuestionMultipleChoice extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      choices: immutable.Map({})
+      choices: props.questionState.getIn(['response'], immutable.Map({}))
     }
   }
 
   toggleChoice = (choice) => {
     this.setState(({choices}) => ({choices: choices.update(choice, v => !v)}));
-    //this.props.submitFunction(choice);
   }
 
   renderText = (itemjson) => {
@@ -75,7 +75,7 @@ export default class QuestionMultipleChoice extends Component {
     var children = element.get('$children$', immutable.List([]))
               .map( child => this.dispatchElement(child) ).toSeq();
     return (
-      <div className="uk-panel uk-panel-box">
+      <div className="uk-panel uk-panel-box uk-margin-bottom">
         <div className="uk-panel-badge">
           {badge}
         </div>
@@ -97,25 +97,29 @@ export default class QuestionMultipleChoice extends Component {
 
   // System state data
   var lastAnswer = JSON.parse(state.getIn(['answer'], "{}")); // Last saved answer in database, same format as passed to the submitFunction
-  var correct = state.getIn(['response'], immutable.Map({}))/*, false) || state.getIn(['correct'], false);*/ // Boolean indicating if the grader reported correct answer
+  var correctAnswers = state.getIn(['response'], immutable.Map({}));
+  var correct = state.getIn(['response', 'correct'], false);
+
   var choicesElements = question.get('choice',immutable.List([]));
   if( !immutable.List.isList(choicesElements) )choicesElements = immutable.List([choicesElements]);
   var choices = choicesElements.map( (item, key) => {
     var style = {}
-    var choiceKey = item.getIn(['@attr', 'key'], key);
+    var choiceKey = item.getIn(['@attr', 'key'], "index_" + key);
     var divClass = this.state.choices.get(choiceKey) ? 'uk-panel-box-primary' : '';
-    //if(correct && key === lastAnswer)style = {backgroundColor: '#f2fae3'}
-    //if(!correct && key === lastAnswer)style = {backgroundColor: '#fff1f0'}
     var children = item.get('$children$', immutable.List([]))
               .map( child => this.dispatchElement(child) ).toSeq();
+    var duplicateKey = choicesElements.filter( item => item.getIn(['@attr', 'key']) === choiceKey).size > 1;
+    var reactKey = duplicateKey ? (choiceKey + key) : choiceKey;
     return (
-    <div className="uk-width-1-1" key={choiceKey}>
+    <div className="uk-width-1-1" key={reactKey}>
       <div style={style} className={"uk-panel uk-panel-box uk-margin-bottom pointer " + divClass} onClick={() => this.toggleChoice(choiceKey)}>
         <div className="uk-panel-badge">
         { this.props.canViewSolution && item.getIn(['@attr', 'correct']) === 'true' && <div className="uk-margin-small-right uk-badge">correct</div> }
         { this.props.isAuthor && <div className="uk-badge">{choiceKey}</div> }
-        { correct.get(choiceKey) && <div className="uk-margin-small-right uk-badge uk-badge-success">Rätt!</div> }
-        { !correct.get(choiceKey,false) && lastAnswer[choiceKey] === true && <div className="uk-margin-small-right uk-badge uk-badge-danger">Fel</div> }
+        { correctAnswers.get(choiceKey) && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-success">Rätt!</div> }
+        { correctAnswers.get(choiceKey) === false && lastAnswer[choiceKey] === true && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-danger">Fel</div> }
+        { item.hasIn(['@attr', 'key']) && duplicateKey && <div className="uk-margin-small-right uk-badge uk-badge-danger">Duplicate choice key!</div> }
+        { !item.hasIn(['@attr', 'key']) && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-warning">No choice key, please add an attribute key="..." </div>}
         </div>
         <MathSpan>{item.get('$')}</MathSpan>
         {children}
@@ -127,15 +131,17 @@ export default class QuestionMultipleChoice extends Component {
   // Custom state data
   var error = state.getIn(['response','error']); // Custom field containing error information
   var author_error = state.getIn(['response','author_error']); // Custom field containing error information
+  var info = state.getIn(['response','info']); // Custom field containing error information
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block uk-margin-bottom">{question.getIn(['text','$'],'')} </label>
-            <a onClick={(event) => submit(JSON.stringify(this.state.choices))} className={ "uk-width-1-1 uk-button uk-padding-remove uk-button-success uk-margin-small-bottom"}>
+          <label className="uk-form-row uk-display-inline-block uk-margin-bottom">{question.getIn(['text','$'],'')} <HelpMultipleChoice/></label>
+            <a onClick={(event) => submit(JSON.stringify(this.state.choices))} className={ "uk-width-1-1 uk-button uk-padding-remove uk-button-success uk-margin-bottom"}>
               { pending && <i className="uk-icon-cog uk-icon-spin"/> }
               { !pending && <i className="uk-icon uk-icon-send"/> }
             </a>
           { error && <Alert message={error} type="error" key="err"/> }
           { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }
+          { info && <Alert message={info} type="info" key="info"/> }
           { question.has('hint') && !correct && state.get('answer', '') !== '' && this.renderContentInPanel(question.get('hint'), (<div className="uk-badge">Hint</div>)) }
           <div className="uk-grid uk-grid-small">
               {choices}

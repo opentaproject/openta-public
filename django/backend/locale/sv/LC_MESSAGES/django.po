@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-14 14:53+0100\n"
+"POT-Creation-Date: 2017-02-28 13:46+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,7 +30,7 @@ msgstr ""
 msgid "Site is down for maintenance."
 msgstr "Sidan är stängd för underhåll."
 
-#: backend/user_utilities.py:81
+#: backend/user_utilities.py:83
 msgid " account activation"
 msgstr " kontoaktivering"
 
@@ -133,52 +133,45 @@ msgstr ""
 msgid "Finished syncing exercises."
 msgstr ""
 
+#: exercises/question.py:41
+msgid "Answer rate exceeded, please wait before trying again. (Rate: "
+msgstr "Svarsintervall överskridet, vänta innan du försöker igen. (Intervall: "
+
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:80
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:80
 msgid "Terms do not seem to have the same unit."
 msgstr "Termerna i uttrycket verkar inte ha samma enhet."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:84
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:117
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:84
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:117
 msgid "Seems like the expression does not have the correct units."
 msgstr "Uttrycket verkar inte ha rätt enhet."
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:202
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:202
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:194
 msgid "Failed to evaluate expression"
 msgstr "Kunde inte evaluera uttrycket"
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:204
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:204
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:196
 msgid " are not valid variables."
 msgstr " är inte tillåtna variabler."
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:210
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:210
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:199
 msgid "Failed to evaluate expression."
 msgstr "Kunde inte evaluera uttrycket"
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:214
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:214
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:202
 msgid "Unknown error, check your expression."
 msgstr "Okänt fel, kontrollera ditt uttryck."
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:234
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:253
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:234
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:253
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:219
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:238
 msgid "Answer contains invalid character "
 msgstr "Uttrycket innehåller felaktiga tecken "
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:244
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:244
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:229
 msgid "Expression could not be parsed."
 msgstr "Uttrycket kunde inte tolkas."
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:274
-#: exercises/questiontypes/multiple_choice/compare_numeric.py:274
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:259
 msgid "Could not parse expression"
 msgstr "Uttrycket kunde inte tolkas."
 

@@ -9,33 +9,43 @@ from exercises.question import QuestionError
 
 # Below are imports that are specific to this question type
 from lxml import etree
+from django.utils.translation import ugettext as _
 import json
 
 # The function below is the core of the server interface and the only mandatory component.
 def question_check_multiple_choice(question_json, question_xmltree, answer_data, global_xmltree):
-    '''Checks a symbolic answer by numeric evaluation.
+    '''Checks a multiple choice question 
 
     Args:
         question_json (dictionary): The JSON representation of the <question> XML content
         question_xmltree (etree.Element): The XML ETree representation of the <question> XML content
-        answer_data (dynamic): The answer provided by the frontend
+        answer_data (JSON string): JSON encoded dictionary of answers
+            {
+                '[choice key]': true/false
+                ...
+            }
     Returns:
         (dictionary)
         {
             correct: true/false
+            correctAnswers: A dictionary with entries corresponding to the answers in answer_data
+                { 
+                '[choice key]': boolean
+                ...
+                }
             error: (optional)
-            status: correct/incorrect/error
-            latex: latex representation of answer_data by sympy
         }
     Notes:
     Expects the XML format:
-        <question type=compareNumeric>
-            <variables>
-                var1=value1; var2=value2; ...
-            </variables>
-            <expression>
-                f(var1,var2,...)
-            </expression>
+        <question type=multipleChoice>
+            <choice key="..">
+                ...
+            </choice>
+            <choice key=".." correct="true">
+            </choice>
+            <text>
+                Question text
+            </text>
         </question>
     '''
     choices = []
@@ -44,22 +54,25 @@ def question_check_multiple_choice(question_json, question_xmltree, answer_data,
     try:
         answer_json = json.loads(answer_data)
     except ValueError:
-        print('Not valid json')
+        return {'error': 'Not valid answer data.'}
 
     results = {}
     n_correct = 0
     n_incorrect = 0
     for question, val in answer_json.items():
-        for item in correct_items:
-            if val:
-                if item.get('key') == question:
-                    results[question] = True
-                    n_correct += 1
-                else:
-                    results[question] = False
-                    n_incorrect += 1
+        if val:
+            correct = next((True for item in correct_items if item.get('key') == question), None)
+            if correct is not None:
+                results[question] = True
+                n_correct += 1
+            else:
+                results[question] = False
+                n_incorrect += 1
+
     if n_incorrect == 0 and n_correct == len(correct_items):
         results['correct'] = True
+    if n_correct > 0 and n_correct < len(correct_items):
+        results['info'] = _('There are more correct alternatives.')
     return results
 
 
