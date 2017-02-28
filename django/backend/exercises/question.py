@@ -3,6 +3,8 @@ from exercises.models import Exercise, Question, Answer
 from exercises.parsing import question_json_get, question_xmltree_get, exercise_xmltree
 from exercises.util import nested_print
 from lxml import etree
+from ratelimit.utils import is_ratelimited
+from django.utils.translation import ugettext as _
 import json
 import logging
 
@@ -23,7 +25,7 @@ def register_question_type(question_type, grading_function):
     question_check_dispatch[question_type] = grading_function
 
 
-def question_check(user, user_agent, exercise_key, question_key, answer_data):
+def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
@@ -43,6 +45,18 @@ def question_check(user, user_agent, exercise_key, question_key, answer_data):
         )
         or [None]
     )[0]
+    rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
+    if rate_limit is not None and rate_limit.text is not None and not user.is_staff:
+        rate = rate_limit.text.strip()
+        print(rate)
+        if is_ratelimited(
+            request, group='question_custom_rate', key='user', rate=rate, increment=True
+        ):
+            return {
+                'error': _('Answer rate exceeded, please wait before trying again. (Rate: ')
+                + rate
+                + ')'
+            }
 
     if dbquestion.type in question_check_dispatch:
         result = {}
