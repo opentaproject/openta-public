@@ -7,8 +7,8 @@ from course.models import Course
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.translation import ugettext as _
+from django.core.mail import EmailMessage
 from backend.settings import RUNNING_DEVSERVER
-import requests
 import logging
 
 logger = logging.getLogger(__name__)
@@ -73,26 +73,18 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
         )
     context = Context(pcontext)
     rendered_email = template.render(context)
-    # send_mail('Account activation', rendered_email, sender + '@openta.se', [email], fail_silently=False)
-    mailgun_key = None
-    if RUNNING_DEVSERVER:
-        print(rendered_email)
-        return activate_url
 
-    with open('mailgun_key', 'r') as f:
-        mailgun_key = f.readline().strip()
-    if not mailgun_key:
-        logger.error("No mailgun key found")
-    else:
-        r = requests.post(
-            "https://api.mailgun.net/v3/openta.se/messages",
-            auth=("api", mailgun_key),
-            data={
-                "from": sender + " <" + sender + "@openta.se>",
-                "to": [email],
-                "subject": subject + _(" account activation"),
-                "text": rendered_email,
-            },
-        )
-        logger.info("Sent activation mail to email " + email + ", response: " + r.text)
+    email_object = EmailMessage(
+        subject=subject + _(" account activation"),
+        body=rendered_email,
+        from_email=sender + " <" + sender + "@openta.se>",
+        to=[email],
+        reply_to=[sender + "@openta.se"],
+    )
+    try:
+        n_sent = email_object.send()
+        logger.info("Sent activation mail to email " + email + " (" + str(n_sent) + " delivered)")
+    except Exception as e:
+        logger.error("Activation email sending failed: " + str(e))
+
     return activate_url
