@@ -46,16 +46,17 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
         Activation url.
     """
     course = Course.objects.first()
-    url = (
+    course_url = (
         course.url if course.url is not None else 'https://openta.se/' + course.course_name.lower()
     )
+    base_url = course.url if course.url is not None else 'https://openta.se'
     activate_url = create_activation_link(username, reverse_name)
     template = get_template('mail_activation')
     pcontext = {
         'course_name': 'OpenTA',
         'course_url': 'https://openta.se',
         'username': username,
-        'activate_url': url + activate_url,
+        'activate_url': base_url + activate_url,
     }
     sender = "openta"
     subject = "OpenTA"
@@ -67,7 +68,7 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
             {
                 'course_name': course.course_name,
                 'course_long_name': course.course_long_name,
-                'course_url': url,
+                'course_url': course_url,
             }
         )
     context = Context(pcontext)
