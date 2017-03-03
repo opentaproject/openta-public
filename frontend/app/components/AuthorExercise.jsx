@@ -20,6 +20,7 @@ import {
   updateQuestionResponse, 
   updateExerciseXML, 
   updateExerciseJSON,
+  updatePendingStateIn,
   setExerciseModifiedState
 } from '../actions.js';
 import {
@@ -35,16 +36,21 @@ var XMLParser = new xml2js.Parser({
   explicitCharkey: true,
   charkey: '$',
   attrkey: '@attr',
-  //mergeAttrs: true,
   explicitChildren: true,
   preserveChildrenOrder: true,
   charsAsChildren: true,
   childkey: '$children$',
-  strict: true
-  //attrNameProcessors: [ (name) => '@' + name ]
+  strict: true,
+  async: true,
+  chunkSize: 1000,
 });
 
-var throttleParseXML = _.throttle(XMLParser.parseString, 1000);
+var resetAndParse = (string, func) => {
+  XMLParser.reset();
+  return XMLParser.parseString(string, func)
+}
+
+var throttleParseXML = _.throttle(resetAndParse, 2000);
 
 var Tools = ({savepending, savesuccess, saveerror}) => (
   <div>
@@ -54,8 +60,9 @@ var Tools = ({savepending, savesuccess, saveerror}) => (
 );
 
 class BaseAuthorExercise extends Component {
-  constructor() {
+  constructor(props) {
     super();
+    this.state = { 'xml': props.exerciseState.get('xml','') }
   } 
 
   static propTypes = {
@@ -76,7 +83,6 @@ class BaseAuthorExercise extends Component {
     var key = this.props.exerciseKey;
     var exerciseState = this.props.exerciseState;
     var pendingState = this.props.pendingState;
-    var exercisexml = exerciseState.get('xml','');
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var modified = exerciseState.get('modified');
@@ -93,7 +99,7 @@ class BaseAuthorExercise extends Component {
         { !this.props.atMenu(['activeExercise','xmlEditor']) &&
           <div key="xml" className="xmleditor">
           { loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && <Spinner/> }
-          { !loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && this.props.author && <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> }
+          { !loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && this.props.author && <XMLEditor xmlCode={this.state.xml} onChange={ (xml) => this.xmlUpdate(xml, key)}/> }
           { this.props.atMenu(['activeExercise','options']) && this.props.admin && 
             <div className="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-top">
               <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> 
@@ -106,7 +112,7 @@ class BaseAuthorExercise extends Component {
         { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }
         { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && this.props.author && 
           <div className="uk-width-1-1">
-          <XMLEditor xmlCode={exercisexml} onChange={ (xml) => this.props.onXMLChange(xml, key)}/> 
+          <XMLEditor xmlCode={this.state.xml} onChange={ (xml) => this.xmlUpdate(xml, key)}/> 
           </div>
         }
         { this.props.atMenu(['activeExercise','audit']) && this.props.admin && <Audit/> }
@@ -122,16 +128,25 @@ class BaseAuthorExercise extends Component {
   }
 
   componentDidMount = (props,state,root) => {
-    if(this.iframeref) {
-      this.iframeref.onload = () => console.dir(this)
+    this.props.onXMLChange(this.state.xml, this.props.exerciseKey, true);
+  }
+
+  xmlUpdate = (xml, exercise) => {
+    this.setState({xml: xml});
+    this.props.onXMLChange(xml, exercise);
+  }
+
+  componentDidUpdate = (props, state, root) => {
+    if(props.exerciseState.get('xml') !== this.props.exerciseState.get('xml')) {
+      this.setState({ 'xml': this.props.exerciseState.get('xml','') });
     }
   }
 }
 
-function handleXMLChange(dispatch, xml, exercise) {
-  dispatch(updateExerciseXML(exercise, xml));
-  XMLParser.reset();
+function handleXMLChange(dispatch, xml, exercise, forced=false) {
   throttleParseXML(xml, (err, result) => {
+    dispatch(updateExerciseXML(exercise, xml));
+    dispatch(updatePendingStateIn(['exercises',exercise,'xmlParse'], false));
     if(err || result === null) {
       //console.dir(err);
     }
@@ -144,7 +159,8 @@ function handleXMLChange(dispatch, xml, exercise) {
         _.set(result, 'exercise.global', [global]);
 
       dispatch(updateExerciseJSON(exercise, result));
-      dispatch(setExerciseModifiedState(exercise, true));
+      if(!forced)
+        dispatch(setExerciseModifiedState(exercise, true));
     }
   });
 }
@@ -177,7 +193,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onXMLChange: (xml, exercise) => handleXMLChange(dispatch, xml, exercise) ,
+    onXMLChange: (xml, exercise, forced=false) => handleXMLChange(dispatch, xml, exercise, forced) ,
     onOptionsSubmit: () => dispatch(handleOptionsSubmit()),
   }
 }

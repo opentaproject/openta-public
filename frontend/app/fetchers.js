@@ -147,9 +147,14 @@ function fetchExerciseRemoteState(exercise) {//{{{
 function fetchExercise(exercise, empty) {//{{{
   return (dispatch, getState) => {
     dispatch(updateActiveExercise(exercise));
-    if(getState().getIn(['login','groups'], immutable.List([])).includes('Author'))
+    const state = getState();
+    const groups = state.getIn(['login','groups'], immutable.List([]));
+    const json = state.getIn(['exerciseState', exercise, 'json']);
+    //Only fetch XML if user is an Author and there is no XML already loaded
+    if(groups.includes('Author') && state.getIn(['exerciseState', exercise, 'xml']) === undefined)
       dispatch(fetchExerciseXML(exercise));
-    if(empty) {
+    //Do not fetch new JSON if user is Author and JSON has already been loaded (This ensures that unsaved changes will be rendered when returning to an exercise
+    if( !( json !== undefined && groups.includes('Author'))) {
       dispatch(setResetPendingState(exercise, true));
       dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingJSON'], true));
       return jsonfetch('/exercise/' + exercise + '/json')
@@ -172,7 +177,6 @@ function fetchExercise(exercise, empty) {//{{{
       .then(json => {
         dispatch(updateExerciseJSON(exercise, json));
         dispatch(setResetPendingState(exercise, false));
-        dispatch(setExerciseModifiedState(exercise, false));
         dispatch(setSaveError(exercise, undefined));
       })
       .catch( err => console.log(err) );

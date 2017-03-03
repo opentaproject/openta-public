@@ -11,12 +11,14 @@ import {
 import {
   updateActiveAdminTool,
   updateActiveExercise,
+  setSavePendingState,
 } from '../actions.js';
 import {
   navigateMenuArray
 } from '../menu.js';
 
 import immutable from 'immutable';
+import _ from 'lodash';
 import {SUBPATH} from '../settings.js';
 import Spinner from './Spinner.jsx';
 import Menu from './Menu.jsx';
@@ -56,11 +58,11 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
     var modified = exerciseState.get('modified');
-    //var loading = pendingState.getIn(['exercises', key, 'loadingXML'],false);
 
-  var savereset = (
-          <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(activeExercise)}/>
-  );
+    var savereset = (
+      <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(activeExercise)}/>
+    );
+
   var renderGroupIcons = groups.map( group => {
                                     if(group in groupIcons)
                                       return (<i key={group} className={"uk-icon uk-text-success uk-margin-small-left " + groupIcons[group].icon} title={groupIcons[group].alt}/>)
@@ -124,9 +126,14 @@ BaseLoginInfo.propTypes = {
 
 function handleSave(exercise) {
   return (dispatch, getState) => {
-    dispatch(saveExercise(exercise)).then(
-      res => dispatch(fetchSameFolder(exercise, getState().get('folder') ))
+    var state = getState();
+    dispatch(setSavePendingState(exercise, true));
+    const doSave = () => { 
+      dispatch(saveExercise(exercise)).then(
+      res => dispatch(fetchSameFolder(exercise, state.get('folder') ))
     );
+    }
+    _.delay(doSave, 2000); //Make sure that all parsing is done and the XML state is updated. This should be done by inspecting the state but for the moment this provides a safety net.
   }
 }
 function handleReset(exercise) {

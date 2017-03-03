@@ -62,6 +62,7 @@ return (
       { meta.image && <span className={"uk-badge uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></span> }
       { meta.solution && <Badge className={"uk-badge-notification"}>lösning</Badge> }
       {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
+      {exerciseState.getIn([exercise, 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
       </div>
       </div>
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
