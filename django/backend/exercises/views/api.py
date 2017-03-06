@@ -26,6 +26,7 @@ from django.db import transaction
 from django.db.models import Prefetch
 from ratelimit.decorators import ratelimit
 from PIL import Image
+import PyPDF2
 import logging
 import backend.settings as settings
 import json
@@ -283,7 +284,7 @@ def question_last_answer(request, exercise, question):  # {{{
 
 @api_view(['POST'])
 @parser_classes((MultiPartParser,))
-def upload_answer_image(request, exercise):  # {{{
+def upload_answer_image(request, exercise):
     # print(request.FILES['file'])
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     if request.FILES['file'].size > 10e6:
@@ -292,15 +293,30 @@ def upload_answer_image(request, exercise):  # {{{
     try:
         trial_image = Image.open(request.FILES['file'])
         trial_image.verify()
+        image_answer = ImageAnswer(
+            user=request.user,
+            exercise=dbexercise,
+            exercise_key=exercise,
+            image=request.FILES['file'],
+            filetype=ImageAnswer.IMAGE,
+        )
+        image_answer.save()
+        return Response({})
     except Exception as e:
-        return Response("Invalid image", status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            PyPDF2.PdfFileReader(request.FILES['file'])
+            image_answer = ImageAnswer(
+                user=request.user,
+                exercise=dbexercise,
+                exercise_key=exercise,
+                pdf=request.FILES['file'],
+                filetype=ImageAnswer.PDF,
+            )
+            image_answer.save()
+            return Response({})
 
-    image_answer = ImageAnswer(
-        user=request.user, exercise=dbexercise, exercise_key=exercise, image=request.FILES['file']
-    )
-    image_answer.save()
-    # nested_print(request.data)
-    return Response({})  # }}}
+        except PyPDF2.utils.PdfReadError:
+            return Response("Invalid image", status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['GET'])
@@ -309,12 +325,20 @@ def answer_image_view(request, image_id):  # {{{
         image_answer = ImageAnswer.objects.get(pk=image_id)
         print(image_answer.image.name)
         if image_answer.user == request.user or request.user.is_staff:
-            return serve_file(
-                '/' + settings.SUBPATH + image_answer.image.name,
-                os.path.basename(image_answer.image.name),
-                content_type="image/jpeg",
-                dev_path=image_answer.image.path,
-            )
+            if image_answer.filetype == 'IMG':
+                return serve_file(
+                    '/' + settings.SUBPATH + image_answer.image.name,
+                    os.path.basename(image_answer.image.name),
+                    content_type="image/jpeg",
+                    dev_path=image_answer.image.path,
+                )
+            if image_answer.filetype == 'PDF':
+                return serve_file(
+                    '/' + settings.SUBPATH + image_answer.pdf.name,
+                    os.path.basename(image_answer.pdf.name),
+                    content_type="application/pdf",
+                    dev_path=image_answer.pdf.path,
+                )
         else:
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
     except ObjectDoesNotExist:

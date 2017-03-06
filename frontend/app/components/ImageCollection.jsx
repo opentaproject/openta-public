@@ -39,7 +39,14 @@ export default class ImageCollection extends Component {
         { this.props.badges && this.state.activeImage < this.props.badges.length &&
           <Badge className="uk-margin-small-left">{this.props.badges[this.state.activeImage]}</Badge>
         }
+        { (/\.(pdf)$/i).test(this.props.srcs[this.state.activeImage]) &&
+          <a href={SUBPATH + "/imageanswer/" + imageAnswerId} target="_blank">
+            <i className="uk-icon uk-icon-large uk-icon-file-pdf-o"/>
+          </a>
+        }
+        { !((/\.(pdf)$/i).test(this.props.srcs[this.state.activeImage])) &&
         <Image src={this.props.srcs[this.state.activeImage]}/>
+        }
         </div>
       )
     return (<span/>)

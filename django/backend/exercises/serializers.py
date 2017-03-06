@@ -52,7 +52,7 @@ class AnswerSerializer(serializers.ModelSerializer):
 class ImageAnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImageAnswer
-        fields = ('user', 'exercise', 'pk', 'date')
+        fields = ('user', 'exercise', 'pk', 'date', 'filetype')
 
 
 class AuditExerciseSerializer(serializers.ModelSerializer):

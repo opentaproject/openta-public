@@ -2,6 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import immutable from 'immutable';
 import Spinner from './Spinner.jsx';
+import SafeImg from './SafeImg.jsx';
 import Badge from './Badge.jsx';
 import {
   uploadImage, 
@@ -17,7 +18,7 @@ const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPen
     imageAnswerId => (
       <div className="exercise-thumb-wrap" key={imageAnswerId}>
       <a href={SUBPATH + "/imageanswer/" + imageAnswerId} data-uk-lightbox data-lightbox-type="image">
-      <img src={SUBPATH + "/imageanswerthumb/" + imageAnswerId}/>
+      <SafeImg src={SUBPATH + "/imageanswerthumb/" + imageAnswerId}><i className="uk-icon uk-icon-large uk-icon-file-pdf-o"/></SafeImg>
       </a>
       <div className="exercise-thumb-badge">
         <a onClick={() => onImageAnswerDelete(imageAnswerId)}><Badge className="uk-badge-notification">
@@ -41,6 +42,12 @@ const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPen
         { uploadPending && progress }
         </a>
         <input type="file" accept="image/*" onChange={(e) => onUpload(e, exerciseKey)}/>
+        </div>
+        <div className="uk-form-file">
+        <a type="file" className={"uk-button"}>{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-file-pdf-o" title="PDF"></i>)}
+        { uploadPending && progress }
+        </a>
+        <input type="file" accept="application/pdf" onChange={(e) => onUpload(e, exerciseKey)}/>
         </div>
         <button data-uk-tooltip="{pos:'bottom-left'}" title="Denna uppgift kräver även bild på lösning. (Om du har en mobil enhet med kamera kan du välja att ta bilderna direkt.) Du kan ladda upp flera bilder samt ta bort de du laddat upp. Kontrollera att bilden är läsbar efter du laddat upp genom att klicka på den/dem." className="uk-button">
           <i className="uk-icon uk-icon-question-circle-o"/>

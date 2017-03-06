@@ -275,13 +275,18 @@ def answer_image_filename(instance, filename):  # {{{
 
 
 class ImageAnswer(models.Model):  # {{{
+    IMAGE = 'IMG'
+    PDF = 'PDF'
+    FILETYPE_CHOICES = ((IMAGE, 'Image'), (PDF, 'Pdf'))
     user = models.ForeignKey(User)
     exercise = models.ForeignKey(
         Exercise, on_delete=models.SET_NULL, null=True, related_name="imageanswer"
     )
     exercise_key = models.CharField(max_length=255, default='')
     date = models.DateTimeField(default=now)
-    image = models.ImageField(upload_to=answer_image_filename)
+    filetype = models.CharField(max_length=3, choices=FILETYPE_CHOICES, default=IMAGE)
+    image = models.ImageField(default=None, blank=True, null=True, upload_to=answer_image_filename)
+    pdf = models.FileField(default=None, blank=True, null=True, upload_to=answer_image_filename)
     image_thumb = ImageSpecField(
         source='image', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60}
     )
@@ -318,12 +323,26 @@ class AuditManager(models.Manager):
         return exercises
 
 
+def audit_fileresponse_filename(instance, filename):
+    return '/'.join(
+        [
+            'audit_fileresponses',
+            instance.student.username,
+            instance.exercise.exercise_key,
+            str(uuid.uuid4()) + os.path.splitext(filename)[1],
+        ]
+    )  # }}}
+
+
 class AuditExercise(models.Model):
     student = models.ForeignKey(User, related_name='audits')
     auditor = models.ForeignKey(User, related_name='studentaudits')
     exercise = models.ForeignKey(Exercise, related_name='audits')
     subject = models.CharField(max_length=255, default='', blank=True)
     message = models.TextField(default="", blank=True)
+    fileresponse = models.FileField(
+        default=None, blank=True, null=True, upload_to=audit_fileresponse_filename
+    )
     resolved = models.BooleanField(default=False)
     force_passed = models.BooleanField(default=False)
     date = models.DateTimeField(default=now)
