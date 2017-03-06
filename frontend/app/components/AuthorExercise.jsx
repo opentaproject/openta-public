@@ -19,6 +19,7 @@ import {SUBPATH} from '../settings.js';
 import { 
   updateQuestionResponse, 
   updateExerciseXML, 
+  updateExerciseActiveXML, 
   updateExerciseJSON,
   updatePendingStateIn,
   setExerciseModifiedState
@@ -62,7 +63,9 @@ var Tools = ({savepending, savesuccess, saveerror}) => (
 class BaseAuthorExercise extends Component {
   constructor(props) {
     super();
-    this.state = { 'xml': props.exerciseState.get('xml','') }
+    this.state = { 
+      'xml': props.exerciseState.get('activeXML',''), 
+    }
   } 
 
   static propTypes = {
@@ -127,42 +130,40 @@ class BaseAuthorExercise extends Component {
       onOptionsSubmit()
   }
 
-  componentDidMount = (props,state,root) => {
-    this.props.onXMLChange(this.state.xml, this.props.exerciseKey, true);
-  }
-
   xmlUpdate = (xml, exercise) => {
     this.setState({xml: xml});
     this.props.onXMLChange(xml, exercise);
   }
 
   componentDidUpdate = (props, state, root) => {
+    //Check if the exercise XML changed from the store (i.e. active exercise changed or reset of current) and update to the corresponding working state XML
     if(props.exerciseState.get('xml') !== this.props.exerciseState.get('xml')) {
-      this.setState({ 'xml': this.props.exerciseState.get('xml','') });
+      this.setState({ 'xml': this.props.exerciseState.get('activeXML','') });
     }
   }
 }
 
-function handleXMLChange(dispatch, xml, exercise, forced=false) {
-  throttleParseXML(xml, (err, result) => {
-    dispatch(updateExerciseXML(exercise, xml));
-    dispatch(updatePendingStateIn(['exercises',exercise,'xmlParse'], false));
-    if(err || result === null) {
-      //console.dir(err);
-    }
-    else {
-      var questions = _.get(result, 'exercise.question', {});
-      var global = _.get(result, 'exercise.global', {});
-      if(questions.constructor !== Array)
-        _.set(result, 'exercise.question', [questions]);
-      if(global.constructor !== Array)
-        _.set(result, 'exercise.global', [global]);
+function handleXMLChange(xml, exercise) {
+  return dispatch => {
+    throttleParseXML(xml, (err, result) => {
+      dispatch(updateExerciseActiveXML(exercise, xml));
+      dispatch(updatePendingStateIn(['exercises',exercise,'xmlParse'], false));
+      if(err || result === null) {
+        //console.dir(err);
+      }
+      else {
+        var questions = _.get(result, 'exercise.question', {});
+        var global = _.get(result, 'exercise.global', {});
+        if(questions.constructor !== Array)
+          _.set(result, 'exercise.question', [questions]);
+        if(global.constructor !== Array)
+          _.set(result, 'exercise.global', [global]);
 
-      dispatch(updateExerciseJSON(exercise, result));
-      if(!forced)
+        dispatch(updateExerciseJSON(exercise, result));
         dispatch(setExerciseModifiedState(exercise, true));
-    }
-  });
+      }
+    });
+  }
 }
 
 function handleOptionsSubmit() {
@@ -193,9 +194,10 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onXMLChange: (xml, exercise, forced=false) => handleXMLChange(dispatch, xml, exercise, forced) ,
+    onXMLChange: (xml, exercise) => dispatch(handleXMLChange(xml, exercise)) ,
     onOptionsSubmit: () => dispatch(handleOptionsSubmit()),
   }
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseAuthorExercise)
+export { throttleParseXML } //Give other modules the possibility to cancel the queued actions form the throttled parsing

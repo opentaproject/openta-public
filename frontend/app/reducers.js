@@ -65,6 +65,8 @@ export default (state = defaultState, action) => {
       //return state.mergeDeep(action.data);
     case 'UPDATE_EXERCISE_XML':
       return state.setIn(['exerciseState', action.exercise, 'xml'], action.xml);
+    case 'UPDATE_EXERCISE_ACTIVE_XML':
+      return state.setIn(['exerciseState', action.exercise, 'activeXML'], action.xml);
     case 'SET_SAVE_PENDING':
       return state.setIn(['exerciseState', action.exercise, 'savepending'], action.pending);
     case 'SET_SAVE_ERROR':

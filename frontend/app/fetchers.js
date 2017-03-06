@@ -4,6 +4,7 @@ import {
   updateExercises,
   setExerciseTree,
   updateExerciseXML,
+  updateExerciseActiveXML,
   updateExerciseJSON,
   updateExerciseState,
   updateExercisesState,
@@ -122,6 +123,21 @@ function fetchSameFolder(exercise, folder) {//{{{
   };
 }//}}}
 
+function fetchExerciseJSON(exercise) {
+  return dispatch => {
+    return jsonfetch('/exercise/' + exercise + '/json')
+      .then( res => { 
+        return res;
+      })
+      .then( res => res.json() )
+      .then(json => {
+        dispatch(updateExerciseJSON(exercise, json));
+        dispatch(setSaveError(exercise, undefined));
+      })
+      .catch( err => console.log(err) );
+  }
+}
+
 function fetchExerciseXML(exercise) {//{{{
   return dispatch => {
     dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingXML'], true));
@@ -132,7 +148,10 @@ function fetchExerciseXML(exercise) {//{{{
       })
       .then( res => res.json() )
       .then( json => json.xml )
-      .then( xml => dispatch(updateExerciseXML(exercise, xml)));
+      .then( xml => {
+        dispatch(updateExerciseActiveXML(exercise, xml));
+        return dispatch(updateExerciseXML(exercise, xml))
+      });
   }
 }//}}}
 
@@ -151,11 +170,11 @@ function fetchExercise(exercise, empty) {//{{{
     const groups = state.getIn(['login','groups'], immutable.List([]));
     const json = state.getIn(['exerciseState', exercise, 'json']);
     //Only fetch XML if user is an Author and there is no XML already loaded
-    if(groups.includes('Author') && state.getIn(['exerciseState', exercise, 'xml']) === undefined)
+    if(groups.includes('Author') && state.getIn(['exerciseState', exercise, 'xml']) === undefined) {
       dispatch(fetchExerciseXML(exercise));
+    }
     //Do not fetch new JSON if user is Author and JSON has already been loaded (This ensures that unsaved changes will be rendered when returning to an exercise
     if( !( json !== undefined && groups.includes('Author'))) {
-      dispatch(setResetPendingState(exercise, true));
       dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingJSON'], true));
       return jsonfetch('/exercise/' + exercise + '/json')
       .then( res => {
@@ -176,7 +195,6 @@ function fetchExercise(exercise, empty) {//{{{
       .then(response => response.json())
       .then(json => {
         dispatch(updateExerciseJSON(exercise, json));
-        dispatch(setResetPendingState(exercise, false));
         dispatch(setSaveError(exercise, undefined));
       })
       .catch( err => console.log(err) );
@@ -186,10 +204,18 @@ function fetchExercise(exercise, empty) {//{{{
   };
 }//}}}
 
+function resetExercise(exercise) {
+  return (dispatch) => {
+    dispatch(updateExerciseXML(exercise, "")); // Trigger reload of editor XML
+    return dispatch(fetchExerciseXML(exercise))
+      .then( () => dispatch(fetchExerciseJSON(exercise)));
+  }
+}
+
 function saveExercise(exercise) {//{{{
   return (dispatch, getState) => {
     var state = getState();
-    var xml = state.getIn(['exerciseState', exercise, 'xml']);
+    var xml = state.getIn(['exerciseState', exercise, 'activeXML']);
     var payload = {
       exercise: exercise,
       xml: xml
@@ -217,6 +243,7 @@ function saveExercise(exercise) {//{{{
         dispatch(setSavePendingState(exercise, false));
         dispatch(setExerciseModifiedState(exercise, false));
         dispatch(setSaveError(exercise, false));
+        dispatch(updateExerciseXML(exercise, xml));
       } 
       else {
         dispatch(setSavePendingState(exercise, false));
@@ -514,6 +541,7 @@ export {
   fetchExerciseRemoteState,
   updatePendingStateIn,
   saveExercise,
+  resetExercise,
   uploadImage,
   deleteImageAnswer,
   fetchImageAnswers,

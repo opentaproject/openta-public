@@ -6,12 +6,16 @@ import {
   fetchExercise,
   fetchSameFolder,
   saveExercise,
+  resetExercise,
 } from '../fetchers.js';
 
 import {
   updateActiveAdminTool,
   updateActiveExercise,
   setSavePendingState,
+  setResetPendingState,
+  updatePendingStateIn,
+  setExerciseModifiedState,
 } from '../actions.js';
 import {
   navigateMenuArray
@@ -22,6 +26,7 @@ import _ from 'lodash';
 import {SUBPATH} from '../settings.js';
 import Spinner from './Spinner.jsx';
 import Menu from './Menu.jsx';
+import { throttleParseXML } from './AuthorExercise.jsx';
 import { menuPositionAt, menuPositionUnder } from '../menu.js';
 
 var groupIcons = {
@@ -137,9 +142,14 @@ function handleSave(exercise) {
   }
 }
 function handleReset(exercise) {
+  throttleParseXML.cancel(); //Cancel possibly queued XML parsing updates
   return (dispatch, getState) => {
-    console.log("Reset " + exercise);
-    dispatch(fetchExercise(exercise, true));
+    dispatch(setResetPendingState(exercise, true))
+    dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingJSON'], true));
+    return dispatch(resetExercise(exercise))
+      .then( () => dispatch(setResetPendingState(exercise, false)))
+      .then( () => dispatch(setExerciseModifiedState(exercise, false)))
+      .then( () => dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingJSON'], false)));
   }
 }
 
