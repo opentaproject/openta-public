@@ -56,6 +56,8 @@ class ImageAnswerSerializer(serializers.ModelSerializer):
 
 
 class AuditExerciseSerializer(serializers.ModelSerializer):
+    student_username = serializers.SerializerMethodField()
+
     class Meta:
         model = AuditExercise
         fields = (
@@ -69,6 +71,7 @@ class AuditExerciseSerializer(serializers.ModelSerializer):
             'sent',
             'resolved',
             'force_passed',
+            'student_username',
         )
 
     def update(self, instance, validated_data):
@@ -78,3 +81,6 @@ class AuditExerciseSerializer(serializers.ModelSerializer):
         instance.force_passed = validated_data.get('force_passed', instance.force_passed)
         instance.save()
         return instance
+
+    def get_student_username(self, instance):
+        return instance.student.username

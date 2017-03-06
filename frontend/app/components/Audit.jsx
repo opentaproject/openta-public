@@ -4,6 +4,7 @@ import immutable from 'immutable';
 import Spinner from './Spinner.jsx';
 import Exercise from './Exercise.jsx';
 import StudentAuditExercise from './StudentAuditExercise.jsx';
+import AuditStatistics from './AuditStatistics.jsx';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import _ from 'lodash';
@@ -31,11 +32,14 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, exerciseState, auditDa
   var nAudits = auditsList.size;
 
   const renderAuditListItem = (audit, nInList) => {
-    var activeClass = activeAudit === audit.get('pk') ? ' uk-text-bold uk-text-large ' : ' ';
+    var activeClass = activeAudit === audit.get('pk') ? ' uk-text-bold ' : ' ';
     var doneClass = (audit.get('sent') && audit.get('resolved')) ? ' uk-button-success ' : ' ';
     var unresolvedClass = !audit.get('resolved') ? ' uk-button-danger ' : ' uk-button-primary ';
     return (
-      <a key={audit.get('pk')} onClick={() => onAuditChange(audit.get('pk'), audit.get('student'), activeExercise)} className={"uk-button uk-button-mini " + doneClass + unresolvedClass + activeClass}>{nInList+1}</a>
+      <a key={audit.get('pk')} onClick={() => onAuditChange(audit.get('pk'), audit.get('student'), activeExercise)} className={"uk-button uk-button-mini " + doneClass + unresolvedClass + activeClass} title={audit.get('student_username')} data-uk-tooltip>
+        { activeAudit === audit.get('pk') && <i className="uk-text-primary uk-icon uk-icon-caret-right uk-icon-small"/> }
+        {nInList+1}
+      </a>
     );
   };
   var auditsRender =  auditsList.map( (audit, key) => {
@@ -50,12 +54,14 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, exerciseState, auditDa
   var auditList = //{{{
     (
           <div className="uk-panel uk-panel-box uk-panel-box-primary" style={{padding: '5px'}}>
-            <div className="uk-float-left">Audits for <a href={"#exercise/"+activeExercise} target="_blank" className="uk-button">{exerciseName}</a></div>
+            <div className="uk-float-left"><div>Audits for <a href={"#exercise/"+activeExercise} target="_blank" className="uk-button" title="Click to open exercise in a new tab">{exerciseName}</a></div><div><AuditStatistics/></div></div>
             <div className="uk-flex uk-flex-wrap uk-flex-right">
-            <div className="uk-grid uk-margin-right uk-margin-small-top">
+            <div>
+            <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top">
              {auditsRender}
             </div>
-            <div className="uk-button-group uk-display-inline-block">
+            </div>
+            <div className="uk-button-group uk-display-inline-block uk-margin-small-top">
               <button className="uk-button" type="button" onClick={ () => onAddAudit(activeExercise) }>Add student</button>
               <button className="uk-button" type="button" onClick={() => showPrev ? onAuditChange(auditsList.getIn([prev, 'pk']), auditsList.getIn([prev,'student']), activeExercise) : 0}><i className="uk-icon uk-icon-chevron-left"/></button>
               <button className="uk-button" type="button" disabled>{nAudits > 0 ? (current+1) : 0} / {auditsList.size} </button>
@@ -71,11 +77,11 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, exerciseState, auditDa
           (<div className="uk-panel uk-panel-box uk-panel-box-primary">
             <form className="uk-form">
               <div className="uk-form-row">
-                <label class="uk-form-label">Subject <i className={"uk-float-right uk-icon uk-icon-save " + (!pendingSave ? "uk-text-success" : "")}/></label>
+                <label className="uk-form-label">Subject <i className={"uk-float-right uk-icon uk-icon-save " + (!pendingSave ? "uk-text-success" : "")}/></label>
                 <input type="text" className="uk-width-1-1 uk-form-small" value={audits.getIn([activeAudit, 'subject'])} onChange={e => onSubjectChange(e, activeAudit)}/>
               </div>
               <div className="uk-form-row">
-                <label class="uk-form-label">Message</label>
+                <label className="uk-form-label">Message</label>
                 <textarea className="uk-width-1-1" rows="5" onChange={e => onMessageChange(e, activeAudit)} value={audits.getIn([activeAudit, 'message'],'')}></textarea>
               </div>
               <div className="uk-form-row">

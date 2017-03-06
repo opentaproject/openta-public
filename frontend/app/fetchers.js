@@ -27,6 +27,7 @@ import {
   setExerciseModifiedState,
   setImageAnswers,
   setAuditData,
+  setAuditExerciseStats,
   setExerciseRecentResults,
 } from './actions.js';
 import {logImmutable} from 'immutablehelpers.js'
@@ -440,11 +441,25 @@ function fetchCurrentAuditsExercise() {
     var state = getState();
     var exercise = state.get('activeExercise');
     dispatch(updatePendingStateIn( ['audit', 'fetchAudits'], true));
+    dispatch(fetchAuditExerciseStats());
     return jsonfetch('/audit/get/exercise/' + exercise)
       .then(response => response.json())
       .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({}))) 
       .then(immutableMap => dispatch(updateAudits(immutableMap)))
       .then( () => dispatch(updatePendingStateIn( ['audit', 'fetchAudits'], false)))
+      .catch( err => console.log(err) );
+  }
+}
+
+function fetchAuditExerciseStats() {
+  return (dispatch, getState) => {
+    var state = getState();
+    var exercise = state.get('activeExercise');
+    dispatch(updatePendingStateIn( ['audit', 'fetchAuditStats'], true));
+    return jsonfetch('/audit/stats/exercise/' + exercise)
+      .then(response => response.json())
+      .then(json => dispatch(setAuditExerciseStats(exercise, json)))
+      .then( () => dispatch(updatePendingStateIn( ['audit', 'fetchAuditStats'], false)))
       .catch( err => console.log(err) );
   }
 }
@@ -553,6 +568,7 @@ export {
   reloadExercises,
   fetchUnsentAudits,
   fetchCurrentAuditsExercise,
+  fetchAuditExerciseStats,
   saveAudit,
   sendAudit,
   deleteAudit,

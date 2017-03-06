@@ -99,6 +99,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['audit', 'audits'], action.audits);
     case 'UPDATE_AUDIT':
       return state.mergeIn(['audit', 'audits', action.audit], immutable.fromJS(action.data));
+    case 'SET_AUDIT_EXERCISE_STATS':
+      return state.setIn(['exerciseState', action.exercise, "auditStats"], immutable.fromJS(action.data));
     case 'SET_ACTIVE_AUDIT':
       return state.setIn(['audit', 'activeAudit'], action.audit);
     case 'SET_ACTIVITY_RANGE':

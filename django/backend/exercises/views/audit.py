@@ -14,6 +14,7 @@ from exercises.serializers import AuditExerciseSerializer, ImageAnswerSerializer
 from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
+from django.db import IntegrityError
 from django.core.mail import EmailMessage
 import datetime
 from django.utils import timezone
@@ -39,6 +40,26 @@ def get_current_audits_exercise(request, exercise):
     audits = AuditExercise.objects.filter(auditor=request.user, exercise__pk=exercise)
     saudits = AuditExerciseSerializer(audits, many=True)
     return Response(saudits.data)
+
+
+@permission_required('exercises.administer_exercise')
+@api_view(['GET'])
+def get_current_audits_stats(request, exercise):
+    dbexercise = Exercise.objects.get(pk=exercise)
+    audits = AuditExercise.objects.filter(exercise__pk=exercise)
+    your_audits = AuditExercise.objects.filter(exercise__pk=exercise, auditor=request.user)
+    n_auditees = audits.count()
+    n_your_audits = your_audits.count()
+    n_complete = get_passed_students(dbexercise).count()
+    n_total = User.objects.filter(groups__name='Student').exclude(username='student').count()
+    data = {
+        'n_auditees': n_auditees,
+        'n_complete': n_complete,
+        'n_unaudited': (n_complete - n_auditees),
+        'n_your_audits': n_your_audits,
+        'n_total': n_total,
+    }
+    return Response(data)
 
 
 @permission_required('exercises.administer_exercise')
@@ -69,7 +90,11 @@ def get_new_audit(request, exercise):
     audit = AuditExercise(
         auditor=request.user, student=auditee, exercise=dbexercise, subject=subject
     )
-    audit.save()
+    try:
+        audit.save()
+    except IntegrityError:
+        logger.error("This would result in multiple audits for the same student on this exercise.")
+        return Response({'error': 'Duplicate audit for this student and exercise'})
     saudit = AuditExerciseSerializer(audit)
     return Response(saudit.data)
 
