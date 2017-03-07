@@ -18,6 +18,7 @@ class ExerciseMetaUpdate(UpdateView):
         'required',
         'bonus',
         'image',
+        'allow_pdf',
         'published',
         'sort_key',
     ]

@@ -48,11 +48,15 @@ const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, a
               </table>
             </div>
             ));//}}}
+  const imageAnswers = userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse();
+  const srcs = imageAnswers.map( ia => SUBPATH + "/imageanswer/"+ia.get('pk')).toJS();
+  const badges = imageAnswers.map( ia => moment(ia.get('date')).format('YYYY-MM-DD HH:mm')).toJS();
+  const types = imageAnswers.map( ia => ia.get('filetype') ).toJS();
   return (
     <div className="uk-panel uk-panel-box">
         <div className="uk-flex">
           <div className="uk-width-2-3 uk-margin-small-right">
-            <ImageCollection srcs={userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse().map( ia => SUBPATH + "/imageanswer/"+ia.get('pk')).toJS()} badges={userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse().map( ia => moment(ia.get('date')).format('YYYY-MM-DD HH:mm')).toJS()}/>
+            <ImageCollection srcs={srcs} badges={badges} types={types}/>
           </div>
           <div className="uk-width-1-3">
 

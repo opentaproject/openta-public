@@ -86,14 +86,14 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, exerciseState, auditDa
               </div>
               <div className="uk-form-row">
                 <div className="uk-flex uk-flex-space-between uk-flex-wrap uk-margin-small-top">
-                  <a className={"uk-button uk-margin-small-top " + sendClass} onClick={() => onSendAudit(activeAudit)}>{sendName} 
-                  { pendingSend && <Spinner size="uk-icon-small"/> }
+                  <a className={"uk-button uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit)}>{sendName} 
+                  { pendingSend && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
-                  <a className={"uk-button uk-margin-small-top " + resolveClass} onClick={() => onResolveAudit(activeAudit, audits.getIn([activeAudit, 'resolved']))}>{resolveName} 
-                  { pendingResolve && <Spinner size="uk-icon-small"/> }
+                  <a className={"uk-button uk-margin-small-top uk-position-relative " + resolveClass} onClick={() => onResolveAudit(activeAudit, audits.getIn([activeAudit, 'resolved']))}>{resolveName} 
+                  { pendingResolve && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
-                  <a className="uk-button uk-button-danger uk-margin-small-top" onClick={() => onDeleteAudit(activeAudit)}>Delete
-                  { pendingDelete && <Spinner size="uk-icon-small"/> }
+                  <a className="uk-button uk-button-danger uk-margin-small-top uk-position-relative" onClick={() => onDeleteAudit(activeAudit)}>Delete
+                  { pendingDelete && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                 </div>
               </div>

@@ -13,7 +13,7 @@ import {
 } from '../fetchers.js';
 import {SUBPATH} from '../settings.js';
 
-const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPending, uploadProgress, onImageAnswerDelete, imageAnswerDeletePending}) => {
+const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPending, uploadProgress, onImageAnswerDelete, imageAnswerDeletePending, showPDF}) => {
   var renderImageAnswers = imageAnswers.map(
     imageAnswerId => (
       <div className="exercise-thumb-wrap" key={imageAnswerId}>
@@ -43,12 +43,14 @@ const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPen
         </a>
         <input type="file" accept="image/*" onChange={(e) => onUpload(e, exerciseKey)}/>
         </div>
-        <div className="uk-form-file">
-        <a type="file" className={"uk-button"}>{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-file-pdf-o" title="PDF"></i>)}
-        { uploadPending && progress }
-        </a>
-        <input type="file" accept="application/pdf" onChange={(e) => onUpload(e, exerciseKey)}/>
-        </div>
+        { showPDF && 
+          <div className="uk-form-file">
+          <a type="file" className={"uk-button"}>{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-file-pdf-o" title="PDF"></i>)}
+          { uploadPending && progress }
+          </a>
+          <input type="file" accept="application/pdf" onChange={(e) => onUpload(e, exerciseKey)}/>
+          </div>
+        }
         <button data-uk-tooltip="{pos:'bottom-left'}" title="Denna uppgift kräver även bild på lösning. (Om du har en mobil enhet med kamera kan du välja att ta bilderna direkt.) Du kan ladda upp flera bilder samt ta bort de du laddat upp. Kontrollera att bilden är läsbar efter du laddat upp genom att klicka på den/dem." className="uk-button">
           <i className="uk-icon uk-icon-question-circle-o"/>
         </button>
@@ -85,6 +87,7 @@ const mapStateToProps = state => {
     exerciseKey: key,
     imageAnswers: activeExerciseState.get('image_answers'),
     imageAnswerDeletePending: state.getIn(['pendingState', 'exercises', key, 'imageanswerdelete'], immutable.Map({})),
+    showPDF: activeExerciseState.getIn(['meta','allow_pdf']),
   };
 }
 

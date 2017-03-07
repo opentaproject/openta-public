@@ -304,6 +304,7 @@ class ExerciseMeta(models.Model):  # {{{
     difficulty = models.IntegerField(null=True, blank=True, choices=DIFFICULTIES, default=None)
     required = models.BooleanField(default=False, verbose_name='Obligatory')
     image = models.BooleanField(default=False, verbose_name='Image upload')
+    allow_pdf = models.BooleanField(default=False, verbose_name='Allow pdf as image upload')
     bonus = models.BooleanField(default=False)
     server_reply_time = models.DurationField(default=None, null=True, blank=True)
     published = models.BooleanField(default=False)

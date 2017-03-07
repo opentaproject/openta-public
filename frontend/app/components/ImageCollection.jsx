@@ -26,8 +26,25 @@ export default class ImageCollection extends Component {
         activeImage: this.state.activeImage - 1
       });
   }
-
   render() {
+    var renderImage = null;
+    if(this.props.types[this.state.activeImage] === 'PDF') {
+      renderImage = (
+        <div className="uk-panel uk-panel-box">
+        <h5 className="uk-panel-title">
+          <a href={this.props.srcs[this.state.activeImage]} target="_blank">
+            <i className="uk-icon uk-icon-medium uk-icon-justify uk-icon-file-pdf-o"/>Pdf file
+          </a>
+        </h5>
+          <div className="uk-width-1-1" style={{height: '80vh'}}>
+            <embed src={this.props.srcs[this.state.activeImage]} width="100%" height="100%"/>
+          </div>
+        </div>
+      );
+    }
+    else {
+      renderImage = (<Image src={this.props.srcs[this.state.activeImage]}/>);
+    }
     if(this.props.srcs.length > 0)
       return (
         <div className="uk-width-1-1">
@@ -36,17 +53,12 @@ export default class ImageCollection extends Component {
           <button className="uk-button uk-button-small" type="button" disabled>{this.state.activeImage+1}/{this.props.srcs.length}</button>
           <button className="uk-button uk-button-small" type="button" onClick={this.onNext}><i className="uk-icon uk-icon-chevron-right"/></button>
         </div>
+        { this.props.types[this.state.activeImage] === 'PDF' && <Badge className="uk-margin-small-left">pdf</Badge> }
+        { this.props.types[this.state.activeImage] === 'IMG' && <Badge className="uk-margin-small-left">image</Badge> }
         { this.props.badges && this.state.activeImage < this.props.badges.length &&
           <Badge className="uk-margin-small-left">{this.props.badges[this.state.activeImage]}</Badge>
         }
-        { (/\.(pdf)$/i).test(this.props.srcs[this.state.activeImage]) &&
-          <a href={SUBPATH + "/imageanswer/" + imageAnswerId} target="_blank">
-            <i className="uk-icon uk-icon-large uk-icon-file-pdf-o"/>
-          </a>
-        }
-        { !((/\.(pdf)$/i).test(this.props.srcs[this.state.activeImage])) &&
-        <Image src={this.props.srcs[this.state.activeImage]}/>
-        }
+        { renderImage }
         </div>
       )
     return (<span/>)

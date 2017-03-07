@@ -39,6 +39,11 @@
           <div class="uk-form-controls">{{ form.image }}</div>
         </div>
         <div class="uk-form-row">
+          {{ form.allow_pdf.errors }}
+          <label class="uk-form-label" for={{ form.allow_pdf.id_for_label }}>{{ form.allow_pdf.label }}</label>
+          <div class="uk-form-controls">{{ form.allow_pdf }}</div>
+        </div>
+        <div class="uk-form-row">
           {{ form.required.errors }}
           <label class="uk-form-label" for={{ form.required.id_for_label }}>{{ form.required.label }}</label>
           <div class="uk-form-controls">{{ form.required }}</div>

@@ -24,6 +24,9 @@ from django.template import Context
 from rest_framework.parsers import JSONParser
 import pytz
 from random import choice
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @permission_required('exercises.administer_exercise')

@@ -303,6 +303,8 @@ def upload_answer_image(request, exercise):
         image_answer.save()
         return Response({})
     except Exception as e:
+        if not dbexercise.meta.allow_pdf:
+            return Response("Invalid image", status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             PyPDF2.PdfFileReader(request.FILES['file'])
             image_answer = ImageAnswer(
