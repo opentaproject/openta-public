@@ -47,6 +47,10 @@ urlpatterns = [
     url(r'^audit/send/(?P<pk>[0-9]+)/$', views.send_audit),
     url(r'^audit/delete/(?P<pk>[0-9]+)/$', views.delete_audit),
     url(r'^audit/add/$', views.add_audit),
+    url(r'^auditresponsefile/new/(?P<pk>[0-9]+)/$', views.upload_audit_response_file),
+    url(r'^auditresponsefile/view/(?P<pk>[0-9]+)/$', views.audit_response_file_view),
+    url(r'^auditresponsefile/view/(?P<pk>[0-9]+)/thumb$', views.audit_response_file_thumb_view),
+    url(r'^auditresponsefile/delete/(?P<pk>[0-9]+)/$', views.delete_audit_response_file),
     url(r'^results/user/(?P<userpk>[0-9]+)/$', views.get_user_results),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/recentresults', views.get_recent_results),
 ]

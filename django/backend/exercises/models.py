@@ -353,3 +353,31 @@ class AuditExercise(models.Model):
 
     class Meta:
         unique_together = (("student", "exercise"),)  # Only one audit per student and exercise
+
+
+def audit_response_filename(instance, filename):  # {{{
+    return '/'.join(
+        [
+            'auditresponses',
+            instance.audit.student.username,
+            instance.audit.exercise.exercise_key,
+            str(uuid.uuid4()) + os.path.splitext(filename)[1],
+        ]
+    )  # }}}
+
+
+class AuditResponseFile(models.Model):
+    IMAGE = 'IMG'
+    PDF = 'PDF'
+    FILETYPE_CHOICES = ((IMAGE, 'Image'), (PDF, 'Pdf'))
+    audit = models.ForeignKey(AuditExercise, related_name='responsefiles')
+    auditor = models.ForeignKey(User)
+    date = models.DateTimeField(default=now)
+    filetype = models.CharField(max_length=3, choices=FILETYPE_CHOICES, default=IMAGE)
+    image = models.ImageField(
+        default=None, blank=True, null=True, upload_to=audit_response_filename
+    )
+    pdf = models.FileField(default=None, blank=True, null=True, upload_to=audit_response_filename)
+    image_thumb = ImageSpecField(
+        source='image', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60}
+    )

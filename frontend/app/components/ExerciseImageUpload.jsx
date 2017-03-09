@@ -37,16 +37,15 @@ const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPen
           <div>
         { renderImageAnswers }
     <div className="uk-button-group uk-align-medium-right"> 
+        { uploadPending && <span className="uk-button">{progress}</span> }
         <div className="uk-form-file">
         <a type="file" className={"uk-button"}>{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-camera"></i>)}
-        { uploadPending && progress }
         </a>
         <input type="file" accept="image/*" onChange={(e) => onUpload(e, exerciseKey)}/>
         </div>
         { showPDF && 
           <div className="uk-form-file">
           <a type="file" className={"uk-button"}>{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-file-pdf-o" title="PDF"></i>)}
-          { uploadPending && progress }
           </a>
           <input type="file" accept="application/pdf" onChange={(e) => onUpload(e, exerciseKey)}/>
           </div>

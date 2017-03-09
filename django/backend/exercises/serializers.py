@@ -4,6 +4,7 @@ from exercises.models import Question
 from exercises.models import Answer
 from exercises.models import ImageAnswer
 from exercises.models import AuditExercise
+from exercises.models import AuditResponseFile
 from course.models import Course
 
 
@@ -56,8 +57,17 @@ class ImageAnswerSerializer(serializers.ModelSerializer):
         fields = ('user', 'exercise', 'pk', 'date', 'filetype')
 
 
+class AuditResponseFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuditResponseFile
+        fields = '__all__'
+
+
 class AuditExerciseSerializer(serializers.ModelSerializer):
     student_username = serializers.SerializerMethodField()
+    responsefiles = AuditResponseFileSerializer(
+        many=True
+    )  # serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = AuditExercise
@@ -73,6 +83,7 @@ class AuditExerciseSerializer(serializers.ModelSerializer):
             'resolved',
             'force_passed',
             'student_username',
+            'responsefiles',
         )
 
     def update(self, instance, validated_data):

@@ -20,35 +20,17 @@ import {
   updateMenuPath,
   updateMenuPathArray,
   updateMenuLeafDefaults,
-  updateAudits,
   setSavePendingState,
   setResetPendingState,
   setSaveError,
   setExerciseModifiedState,
   setImageAnswers,
-  setAuditData,
-  setAuditExerciseStats,
   setExerciseRecentResults,
 } from './actions.js';
 import {logImmutable} from 'immutablehelpers.js'
-import {getcookie} from 'cookies.js'
-import immutable from 'immutable'
 import _ from 'lodash'
-import {SUBPATH} from 'settings.js'
-
-var CSRF_TOKEN = getcookie('csrftoken')[0]; 
-
-function jsonfetch(url, options = {}) {//{{{
-  var defaults = {
-      headers: { 
-        'X-CSRFToken': CSRF_TOKEN,
-        'Accept': 'application/json',
-      },
-      credentials: 'same-origin'
-  };
-  var _opts = immutable.fromJS(defaults).mergeDeep(immutable.fromJS(options));
-  return fetch(SUBPATH + url, _opts.toJS());
-}//}}}
+import immutable from 'immutable'
+import {jsonfetch} from './fetch_backend.js'
 
 function fetchLoginStatus() {//{{{
   return dispatch => {
@@ -422,116 +404,6 @@ function reloadExercises() {
   }
 }
 
-function fetchUnsentAudits() {
-  return dispatch => {
-    dispatch(updatePendingStateIn( ['audit', 'fetchUnsertAudits'], true));
-    return jsonfetch('/audit/unsent/')
-      .then(response => response.json())
-      .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({}))) 
-      .then(immutableMap => {
-        dispatch(updateAudits(immutableMap))
-      })
-      .then( () => dispatch(updatePendingStateIn( ['audit', 'fetchUnsentAudits'], false)))
-      .catch( err => console.log(err) );
-  }
-}
-
-function fetchCurrentAuditsExercise() {
-  return (dispatch, getState) => {
-    var state = getState();
-    var exercise = state.get('activeExercise');
-    dispatch(updatePendingStateIn( ['audit', 'fetchAudits'], true));
-    dispatch(fetchAuditExerciseStats());
-    return jsonfetch('/audit/get/exercise/' + exercise)
-      .then(response => response.json())
-      .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({}))) 
-      .then(immutableMap => dispatch(updateAudits(immutableMap)))
-      .then( () => dispatch(updatePendingStateIn( ['audit', 'fetchAudits'], false)))
-      .catch( err => console.log(err) );
-  }
-}
-
-function fetchAuditExerciseStats() {
-  return (dispatch, getState) => {
-    var state = getState();
-    var exercise = state.get('activeExercise');
-    dispatch(updatePendingStateIn( ['audit', 'fetchAuditStats'], true));
-    return jsonfetch('/audit/stats/exercise/' + exercise)
-      .then(response => response.json())
-      .then(json => dispatch(setAuditExerciseStats(exercise, json)))
-      .then( () => dispatch(updatePendingStateIn( ['audit', 'fetchAuditStats'], false)))
-      .catch( err => console.log(err) );
-  }
-}
-
-function sendAudit(auditPk) {
-  return dispatch => {
-    var fetchconfig = {
-      method: "POST",
-    }
-    return jsonfetch('/audit/send/' + auditPk + '/', fetchconfig)
-      .then( res => res.json() )
-      .catch(err => console.dir(err))
-  }
-}
-
-function deleteAudit(auditPk) {
-  return dispatch => {
-    var fetchconfig = {
-      method: "POST",
-    }
-    return jsonfetch('/audit/delete/' + auditPk + '/', fetchconfig)
-      .then( res => res.json() )
-      .catch(err => console.dir(err))
-  }
-}
-
-function saveAudit(auditPk, auditData) {
-  return dispatch => {
-    var payload = {
-      'audit': auditData
-    };
-    var postData = JSON.stringify(payload);
-    var fetchconfig = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: postData
-    }
-    return jsonfetch('/audit/update/' + auditPk + '/', fetchconfig)
-      .then( res => res.json() )
-  }
-}
-
-function fetchNewAudit(exercise) {
-  return dispatch => {
-    dispatch(updatePendingStateIn( ['audit', 'newAudit'], true));
-    return jsonfetch('/audit/new/exercise/' + exercise)
-      .then( () => dispatch(fetchCurrentAuditsExercise()) )
-      .then( () => dispatch(updatePendingStateIn( ['audit', 'audits'], false)))
-      .catch( err => console.log(err) );
-  }
-}
-
-function addAudit(exercise, studentPk) {
-  return dispatch => {
-    var payload = {
-      'audit': {
-        'exercise': exercise,
-        'student': studentPk,
-        'subject': 'Kontroll'
-      }
-    };
-    var postData = JSON.stringify(payload);
-    var fetchconfig = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: postData
-    }
-    return jsonfetch('/audit/add/', fetchconfig)
-      .then( res => res.json() )
-      .catch( err => console.dir(err) );
-  }
-}
 
 function fetchExerciseRecentResults() {
   return (dispatch, getState) => {
@@ -566,13 +438,6 @@ export {
   fetchStudentResults,
   fetchStudentDetailResults,
   reloadExercises,
-  fetchUnsentAudits,
-  fetchCurrentAuditsExercise,
-  fetchAuditExerciseStats,
-  saveAudit,
-  sendAudit,
-  deleteAudit,
-  fetchNewAudit,
-  addAudit,
   fetchExerciseRecentResults,
 };
+export * from './fetchers/audit.js'

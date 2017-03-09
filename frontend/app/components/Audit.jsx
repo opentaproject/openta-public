@@ -5,6 +5,7 @@ import Spinner from './Spinner.jsx';
 import Exercise from './Exercise.jsx';
 import StudentAuditExercise from './StudentAuditExercise.jsx';
 import AuditStatistics from './AuditStatistics.jsx';
+import AuditResponseUpload from './AuditResponseUpload.jsx';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import _ from 'lodash';
@@ -84,7 +85,10 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, exerciseState, auditDa
                 <label className="uk-form-label">Message</label>
                 <textarea className="uk-width-1-1" rows="5" onChange={e => onMessageChange(e, activeAudit)} value={audits.getIn([activeAudit, 'message'],'')}></textarea>
               </div>
-              <div className="uk-form-row">
+              <div className="uk-form-row uk-margin-small-top">
+                  <AuditResponseUpload/>
+              </div>
+              <div className="uk-form-row uk-margin-small-top">
                 <div className="uk-flex uk-flex-space-between uk-flex-wrap uk-margin-small-top">
                   <a className={"uk-button uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit)}>{sendName} 
                   { pendingSend && <Spinner size="uk-icon-small uk-position-top-right"/> }

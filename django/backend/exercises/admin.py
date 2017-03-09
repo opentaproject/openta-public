@@ -21,6 +21,7 @@ from .models import Question
 from .models import Answer
 from .models import ImageAnswer
 from .models import AuditExercise
+from .models import AuditResponseFile
 
 from .models import ExerciseMeta
 from course.models import Course
@@ -469,6 +470,7 @@ admin.site.register(Question)
 admin.site.register(Answer, AnswerAdmin)
 admin.site.register(ImageAnswer, ImageAnswerAdmin)
 admin.site.register(ExerciseMeta)
+admin.site.register(AuditResponseFile)
 admin.site.register(AuditExercise, AuditExerciseAdmin)
 
 # Register your models here.
