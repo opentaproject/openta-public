@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from exercises.models import Exercise, Question, Answer, ImageAnswer
-from exercises.serializers import ExerciseSerializer, AnswerSerializer
+from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
 from exercises import parsing
 from exercises.question import question_check
 from exercises.modelhelpers import (
@@ -390,8 +390,9 @@ def exercises_test(request):
 @api_view(['GET'])
 def image_answers_get(request, exercise):
     image_answers = ImageAnswer.objects.filter(user=request.user, exercise__exercise_key=exercise)
+    image_answers_serialized = ImageAnswerSerializer(image_answers, many=True)
     image_answers_id_list = [image_answer.pk for image_answer in image_answers]
-    return Response(image_answers_id_list)
+    return Response({'ids': image_answers_id_list, 'data': image_answers_serialized.data})
 
 
 @api_view(['POST'])

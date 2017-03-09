@@ -3,7 +3,12 @@ from course.models import Course
 from exercises.parsing import exercise_xmltree, question_xmltree_get
 from exercises.question import question_check
 from django.contrib.auth.models import User
-from exercises.serializers import ExerciseSerializer, ExerciseMetaSerializer, AnswerSerializer
+from exercises.serializers import (
+    ExerciseSerializer,
+    ExerciseMetaSerializer,
+    AnswerSerializer,
+    ImageAnswerSerializer,
+)
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Prefetch, Count, Case, When, Avg, Q, F
@@ -331,15 +336,11 @@ def serialize_exercise_with_question_data(exercise, user):  # {{{
     data = serializer.data
     data['question'] = {}
     data['correct'] = correct
-    # try:
-    #    meta = ExerciseMeta.objects.get(exercise=exercise)
-    #    metaser = ExerciseMetaSerializer(meta)
-    #    data['meta'] = metaser.data
-    # except ObjectDoesNotExist:
-    #    pass
     image_answers = ImageAnswer.objects.filter(user=user, exercise=exercise)
+    image_answers_serialized = ImageAnswerSerializer(image_answers, many=True)
     image_answers_ids = [image_answer.pk for image_answer in image_answers]
     data['image_answers'] = image_answers_ids
+    data['image_answers_data'] = image_answers_serialized.data
     for question in questions:
         try:
             dbanswer = Answer.objects.filter(user=user, question=question).latest('date')

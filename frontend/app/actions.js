@@ -160,6 +160,14 @@ function setImageAnswers(exercise, imageAnswers) {//{{{
   }
 }//}}}
 
+function setImageAnswersData(exercise, imageAnswersData) {//{{{
+  return {
+    type: 'SET_IMAGE_ANSWERS_DATA',
+    exercise: exercise,
+    imageAnswersData: imageAnswersData
+  }
+}//}}}
+
 function updateStudentResults(json) {//{{{
   return {
     type: 'UPDATE_STUDENT_RESULTS',
@@ -308,4 +316,4 @@ function setExerciseRecentResults(exercise, data) {//{{{
   }
 }//}}}
 
-export { updateLoginStatus, updateExercises, setExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseActiveXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, updateAudit, setActiveAudit, setAuditExerciseStats, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise, setDetailResultsView, updateExerciseTreeUI, setExerciseRecentResults}
+export { updateLoginStatus, updateExercises, setExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseActiveXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, setImageAnswersData,updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, updateAudit, setActiveAudit, setAuditExerciseStats, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise, setDetailResultsView, updateExerciseTreeUI, setExerciseRecentResults}

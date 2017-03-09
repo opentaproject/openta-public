@@ -25,12 +25,14 @@ import {
   setSaveError,
   setExerciseModifiedState,
   setImageAnswers,
+  setImageAnswersData,
   setExerciseRecentResults,
 } from './actions.js';
 import {logImmutable} from 'immutablehelpers.js'
 import _ from 'lodash'
 import immutable from 'immutable'
-import {jsonfetch} from './fetch_backend.js'
+import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js'
+import {SUBPATH} from 'settings.js'
 
 function fetchLoginStatus() {//{{{
   return dispatch => {
@@ -333,7 +335,10 @@ function fetchImageAnswers(exerciseKey) {//{{{
   return dispatch => {
     return jsonfetch('/exercise/' + exerciseKey + '/imageanswers')
       .then( res => res.json() )
-      .then( json => dispatch(setImageAnswers(exerciseKey, json)) )
+      .then( json => { 
+        dispatch(setImageAnswers(exerciseKey, json.ids));
+        dispatch(setImageAnswersData(exerciseKey, json.data));
+      })
       .catch( err => console.dir(err) )
   }
 }//}}}

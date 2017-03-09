@@ -13,17 +13,24 @@ import {
 } from '../fetchers.js';
 import {SUBPATH} from '../settings.js';
 
-const BaseComponent = ({exerciseKey, imageAnswers, uploaded, onUpload, uploadPending, uploadProgress, onImageAnswerDelete, imageAnswerDeletePending, showPDF}) => {
-  var renderImageAnswers = imageAnswers.map(
-    imageAnswerId => (
-      <div className="exercise-thumb-wrap" key={imageAnswerId}>
-      <a href={SUBPATH + "/imageanswer/" + imageAnswerId} data-uk-lightbox data-lightbox-type="image">
-      <SafeImg src={SUBPATH + "/imageanswerthumb/" + imageAnswerId}><i className="uk-icon uk-icon-large uk-icon-file-pdf-o"/></SafeImg>
+const BaseComponent = ({exerciseKey, imageAnswers, imageAnswersData, uploaded, onUpload, uploadPending, uploadProgress, onImageAnswerDelete, imageAnswerDeletePending, showPDF}) => {
+  var renderImageAnswers = imageAnswersData.map(
+    imageAnswer => (
+      <div className="exercise-thumb-wrap" key={imageAnswer.get('pk')}>
+      { imageAnswer.get('filetype') === 'IMG' &&
+      <a href={SUBPATH + "/imageanswer/" + imageAnswer.get('pk')} data-uk-lightbox data-lightbox-type="image">
+      <SafeImg src={SUBPATH + "/imageanswerthumb/" + imageAnswer.get('pk')}><i className="uk-icon uk-icon-large uk-icon-file-pdf-o"/></SafeImg>
       </a>
+      }
+      { imageAnswer.get('filetype') === 'PDF' &&
+      <a href={SUBPATH + "/imageanswer/" + imageAnswer.get('pk')} target="_blank">
+        <i className="uk-icon uk-icon-large uk-icon-file-pdf-o"/>
+      </a>
+      }
       <div className="exercise-thumb-badge">
-        <a onClick={() => onImageAnswerDelete(imageAnswerId)}><Badge className="uk-badge-notification">
-        { !imageAnswerDeletePending.get(imageAnswerId, false) && <i className="uk-icon uk-icon-trash"/> }
-        { imageAnswerDeletePending.get(imageAnswerId, false) && <Spinner/> }
+        <a onClick={() => onImageAnswerDelete(imageAnswer.get('pk'))}><Badge className="uk-badge-notification">
+        { !imageAnswerDeletePending.get(imageAnswer.get('pk'), false) && <i className="uk-icon uk-icon-trash"/> }
+        { imageAnswerDeletePending.get(imageAnswer.get('pk'), false) && <Spinner/> }
         </Badge></a>
       </div>
       </div>
@@ -85,6 +92,7 @@ const mapStateToProps = state => {
     uploadProgress: state.getIn(['pendingState', 'exercises', key, 'imageupload']),
     exerciseKey: key,
     imageAnswers: activeExerciseState.get('image_answers'),
+    imageAnswersData: activeExerciseState.get('image_answers_data', immutable.List([])),
     imageAnswerDeletePending: state.getIn(['pendingState', 'exercises', key, 'imageanswerdelete'], immutable.Map({})),
     showPDF: activeExerciseState.getIn(['meta','allow_pdf']),
   };

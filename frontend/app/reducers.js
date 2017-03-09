@@ -81,6 +81,8 @@ export default (state = defaultState, action) => {
       return state.set('activeAdminTool', action.tool);
     case 'SET_IMAGE_ANSWERS':
       return state.setIn(['exerciseState', action.exercise, 'image_answers'], immutable.fromJS(action.imageAnswers));
+    case 'SET_IMAGE_ANSWERS_DATA':
+      return state.setIn(['exerciseState', action.exercise, 'image_answers_data'], immutable.fromJS(action.imageAnswersData));
     case 'UPDATE_EXERCISE_STATISTICS':
       return state.mergeDeepIn(['exerciseState'], immutable.fromJS(action.stats));
     case 'UPDATE_AGGREGATE_STATISTICS':
