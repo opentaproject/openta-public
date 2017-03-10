@@ -1,16 +1,71 @@
 from django.test import TestCase, LiveServerTestCase
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.remote.remote_connection import LOGGER
+from tempfile import TemporaryDirectory
 import time
 import random
+import os
+import logging
+
+LOGGER.setLevel(logging.WARNING)
+
+import exercises.paths as paths
+
+from .models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer, AuditExercise
+from course.models import Course
+from django.contrib.auth.models import User, Group
 
 
-class CourseListTest(TestCase):
+def create_database():
+    student = Group(name="Student")
+    student.save()
+    admin = Group(name="Admin")
+    admin.save()
+    author = Group(name="Author")
+    author.save()
+    u1 = User.objects.create_user('student1', 'student1@test.se', 'pw1')
+    u2 = User.objects.create_user('student2', 'student2@test.se', 'pw2')
+    uadmin = User.objects.create_superuser('admin1', 'admin1@test.se', 'pw3')
+    student.user_set.add(u1)
+    student.user_set.add(u2)
+    admin.user_set.add(uadmin)
+    author.user_set.add(uadmin)
+
+
+def create_exercise(directory):
+    path = os.path.join(directory.name, "exercise1")
+    os.makedirs(path)
+    exercise_path = os.path.join(path, "exercise.xml")
+    print(exercise_path)
+    with open(exercise_path, "w") as f:
+        f.write(
+            """
+                <exercise>\n
+                <exercisename>Exercise1</exercisename>\n
+                <text>Test exercise text</text>\n
+                <question type="compareNumeric">\n
+                <text>compareNumeric</text>\n
+                <expression>sin(2)</expression>\n
+                </question>\n
+                </exercise>\n
+                """
+        )
+    return os.path.join("exercise1")
+
+
+class CourseListTest(StaticLiveServerTestCase):
     def setUp(self):
-        self.selenium = webdriver.Firefox()
+        create_database()
+        self.dir = TemporaryDirectory()
+        exercise_path = create_exercise(self.dir)
+        paths.EXERCISES_PATH = self.dir.name
+        Exercise.objects.add_exercise('exercise1')
+        self.selenium = webdriver.Chrome()
         self.selenium.implicitly_wait(0)
         super().setUp()
 
@@ -18,22 +73,27 @@ class CourseListTest(TestCase):
         self.selenium.quit()
         super().tearDown()
 
+    def change_exercise_options(self):
+        exercise = Exercise.objects.all()[0]
+        exercise.meta.published = True
+        exercise.meta.save()
+
     def login(self):
         sel = self.selenium
-        wait = WebDriverWait(sel, 0)
-        sel.get("http://localhost:8000")
+        wait = WebDriverWait(sel, 100)
+        sel.get(self.live_server_url)
         username = sel.find_element_by_css_selector('input[id=id_username]')
         password = sel.find_element_by_css_selector('input[id=id_password]')
         login = sel.find_element_by_css_selector('input[type=submit]')
-        username.send_keys("student")
-        password.send_keys('learning')
+        username.send_keys("student1")
+        password.send_keys('pw1')
         login.click()
         wait.until(EC.text_to_be_present_in_element((By.ID, 'app'), "student"))
         assert "student" in sel.page_source
 
     def random_exercise(self):
         sel = self.selenium
-        wait = WebDriverWait(sel, 0)
+        wait = WebDriverWait(sel, 2)
         exercises = sel.find_elements_by_css_selector('li.course-exercise-item')
         exercise = random.choice(exercises)
         exercise.click()
@@ -41,12 +101,16 @@ class CourseListTest(TestCase):
 
     def back_to_course(self):
         sel = self.selenium
-        wait = WebDriverWait(sel, 0)
+        wait = WebDriverWait(sel, 2)
         back = sel.find_element_by_css_selector('ul.exercise-menu > li.uk-nav-header > a')
         back.click()
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'li.course-exercise-item')))
 
     def test_one(self):
+        '''
+        Publish an exercise and verify that students can see and enter exercise.
+        '''
+        self.change_exercise_options()
         self.login()
         self.random_exercise()
         self.back_to_course()

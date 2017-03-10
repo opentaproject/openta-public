@@ -1,7 +1,7 @@
 from exercises.xmljson import BadgerFish
 from xml.etree.ElementTree import fromstring, ParseError
 from lxml import etree
-from exercises.paths import EXERCISES_PATH
+import exercises.paths as paths
 from exercises.util import deep_get, nested_print
 from functools import reduce, lru_cache
 from PIL import Image
@@ -28,17 +28,17 @@ class ExerciseNotFound(Exception):
 
 
 def is_exercise(path):
-    return os.path.isfile(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
+    return os.path.isfile(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
 
 
 def exercise_key_get(path):
-    with open(EXERCISES_PATH + '/{path}/exercisekey'.format(path=path)) as keyfile:
+    with open(paths.EXERCISES_PATH + '/{path}/exercisekey'.format(path=path)) as keyfile:
         exercisekey = keyfile.read().strip(" \n")
         return exercisekey
 
 
 def exercise_key_set(path, key):
-    with open(EXERCISES_PATH + '/{path}/exercisekey'.format(path=path), 'w') as keyfile:
+    with open(paths.EXERCISES_PATH + '/{path}/exercisekey'.format(path=path), 'w') as keyfile:
         keyfile.write(key)
     return key
 
@@ -54,7 +54,7 @@ def exercise_key_get_or_create(path):
 
 # @lru_cache(maxsize=128)
 def exercise_json(path, hide_answers=False):  # {{{
-    xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
+    xmlfile = open(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
     obj = {}
     try:
@@ -86,14 +86,14 @@ def exercise_validate_and_json(path):
 
 # @lru_cache(maxsize=128)
 def exercise_xml(path):  # {{{
-    xmlfile = open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
+    xmlfile = open(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
     return xml  # }}}
 
 
 def exercise_save(exercise, xml):  # {{{
     print('Saving ' + exercise)
-    with open(EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise), 'w') as file:
+    with open(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise), 'w') as file:
         file.write(xml)
     return {'success': True}  # }}}
 
@@ -112,7 +112,7 @@ def question_validate_xmltree(question):
 
 # @lru_cache(maxsize=128)
 def exercise_xmltree(exercise_path):
-    xmlfile = EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise_path)
+    xmlfile = paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise_path)
     parser = etree.XMLParser(remove_blank_text=True)
     try:
         root = etree.parse(xmlfile, parser)
@@ -159,7 +159,7 @@ def question_json_get(exercise_path, question_key):
 
 def exercise_check_thumbnail(xmltree, path):
     messages = []
-    thumbnail_path = EXERCISES_PATH + '/{path}/thumbnail.png'.format(path=path)
+    thumbnail_path = paths.EXERCISES_PATH + '/{path}/thumbnail.png'.format(path=path)
     if not os.path.isfile(thumbnail_path):
         figure = xmltree.xpath('/exercise//figure')
         try:
@@ -169,7 +169,7 @@ def exercise_check_thumbnail(xmltree, path):
             return messages
         size = (100, 100)
         try:
-            image = Image.open(EXERCISES_PATH + '/{path}/'.format(path=path) + figurepath)
+            image = Image.open(paths.EXERCISES_PATH + '/{path}/'.format(path=path) + figurepath)
         except IOError:
             messages.append(('error', 'Could not open figure'))
             return messages
