@@ -8,6 +8,7 @@ from exercises.serializers import (
     ExerciseMetaSerializer,
     AnswerSerializer,
     ImageAnswerSerializer,
+    AuditExerciseSerializer,
 )
 import json
 from django.core.exceptions import ObjectDoesNotExist
@@ -330,6 +331,17 @@ def exercise_folder_structure(manager, user):  # {{{
 
 
 def serialize_exercise_with_question_data(exercise, user):  # {{{
+    """
+    Serialize an exercise together with question and image answer data for the specified user.
+
+    Args:
+        exercise: Exercise instance (Django ORM)
+        user: User instance (Django ORM)
+
+    Returns:
+        Dictionary corresponding to a JSON representation of the exercise together with user data.
+
+    """
     questions = Question.objects.filter(exercise=exercise)
     correct = exercise.user_is_correct(user)
     serializer = ExerciseSerializer(exercise)
@@ -341,6 +353,13 @@ def serialize_exercise_with_question_data(exercise, user):  # {{{
     image_answers_ids = [image_answer.pk for image_answer in image_answers]
     data['image_answers'] = image_answers_ids
     data['image_answers_data'] = image_answers_serialized.data
+    try:
+        audit = AuditExercise.objects.get(student=user, exercise=exercise)
+        saudit = AuditExerciseSerializer(audit)
+        data['audit'] = saudit.data
+    except AuditExercise.DoesNotExist:
+        pass
+
     for question in questions:
         try:
             dbanswer = Answer.objects.filter(user=user, question=question).latest('date')

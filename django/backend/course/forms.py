@@ -1,5 +1,6 @@
 from django import forms
 from course.models import Course
+from django.utils.translation import ugettext as _
 
 
 class CourseForm(forms.ModelForm):
@@ -9,3 +10,4 @@ class CourseForm(forms.ModelForm):
 
     class Meta:
         model = Course
+        fields = '__all__'

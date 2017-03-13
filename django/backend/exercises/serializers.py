@@ -6,6 +6,13 @@ from exercises.models import ImageAnswer
 from exercises.models import AuditExercise
 from exercises.models import AuditResponseFile
 from course.models import Course
+from django.contrib.auth.models import User
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'first_name', 'last_name', 'email')
 
 
 class ExerciseMetaSerializer(serializers.ModelSerializer):
@@ -65,6 +72,7 @@ class AuditResponseFileSerializer(serializers.ModelSerializer):
 
 class AuditExerciseSerializer(serializers.ModelSerializer):
     student_username = serializers.SerializerMethodField()
+    auditor_data = UserSerializer(source="auditor", read_only=True)
     responsefiles = AuditResponseFileSerializer(
         many=True
     )  # serializers.PrimaryKeyRelatedField(many=True, read_only=True)
@@ -75,6 +83,7 @@ class AuditExerciseSerializer(serializers.ModelSerializer):
             'pk',
             'student',
             'auditor',
+            'auditor_data',
             'exercise',
             'date',
             'message',

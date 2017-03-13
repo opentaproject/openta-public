@@ -2,6 +2,8 @@ from django.shortcuts import render
 from course.models import Course
 from django.views.generic.edit import UpdateView
 from course.forms import CourseForm
+from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import permission_required
 
 
 class CourseUpdate(UpdateView):

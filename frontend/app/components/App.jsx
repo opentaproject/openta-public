@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import Counter from './Counter';
 import ExerciseList from './ExerciseList';
-import Exercise from './Exercise';
+import StudentExercise from './StudentExercise';
 import AuthorExercise from './AuthorExercise';
 import LoginInfo from './LoginInfo';
 import Course from './Course';
@@ -40,7 +40,7 @@ class BaseApp extends React.Component {
                 <ExerciseList showOnCanvas={!menuPositionUnder(this.props.menuPath, ['activeExercise', 'audit'])}/>               
               </div>
               }
-              { menuPositionUnder(this.props.menuPath, ['activeExercise']) && (((this.props.author || this.props.admin || this.props.view) && !menuPositionUnder(this.props.menuPath, ['activeExercise', 'student'])) ? <AuthorExercise /> : <div className="exercise uk-padding-remove"><Exercise/></div>) }
+              { menuPositionUnder(this.props.menuPath, ['activeExercise']) && (((this.props.author || this.props.admin || this.props.view) && !menuPositionUnder(this.props.menuPath, ['activeExercise', 'student'])) ? <AuthorExercise /> : <div className="exercise uk-padding-remove"><StudentExercise/></div>) }
             </div>
           </div>
         </div>
@@ -53,6 +53,7 @@ const mapStateToProps = state => ({
   admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
   author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
   view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
+  student: state.getIn(['login', 'groups'],immutable.List([])).includes('Student'),
   activeExercise: state.get('activeExercise'),
   menuPath: state.get('menuPath')
 });
