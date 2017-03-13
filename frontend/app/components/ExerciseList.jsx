@@ -4,7 +4,8 @@ import {
   fetchExercises, 
   fetchExerciseXML,
   fetchExerciseTree,
-  fetchExercise
+  fetchExercise,
+  fetchExerciseRemoteState,
 } from '../fetchers.js';
 
 import { 
@@ -54,15 +55,16 @@ return (
             <li>
               <div className="exercise-list-thumb-wrap">
               <img className="uk-margin-right" style={{maxHeight: '40px'}} height="40px" src={SUBPATH + '/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}/>
-              <div className="exercise-thumb-badge">
+              <div className="exercise-thumb-badge uk-position-relative">
               { meta.get('difficulty', false) && <Badge className="uk-badge-notification">{difficulties[meta.get('difficulty','none')]}</Badge> }
               { /*meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */}
               { /*meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
               { meta.get('solution', false) && <Badge className={"uk-badge-notification"}>lösning</Badge> }
-              { meta.get('deadline_date',false) && <Badge className={"uk-badge-notification uk-text-small " + deadlineClass} title={legend}><i className="uk-icon uk-icon-calendar uk-text-bold uk-margin-small-right"/>{moment(meta.get('deadline_date')).format('D MMM')}</Badge> }
+              { meta.get('deadline_date',false) && <Badge className={"uk-badge-notification uk-text-small " + deadlineClass} title={legend}>{moment(meta.get('deadline_date')).format('D MMM')}</Badge> }
               { meta.get('image', false) && <Badge className={"uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></Badge> }
               {exerciseState.getIn([exercise.get('exercise_key'), 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
               {exerciseState.getIn([exercise.get('exercise_key'), 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
+              {exerciseState.getIn([exercise.get('exercise_key'), 'audit', 'sent'], false) && <Badge type={exerciseState.getIn([exercise.get('exercise_key'), 'audit', 'resolved'], false) ? 'success' : 'error'} className={"uk-badge-notification"}>granskad</Badge> }
               </div>
               </div>
             </li>
@@ -148,6 +150,7 @@ const mapDispatchToProps = dispatch => {
   return {
     onExerciseClick: (exercise, empty) =>  {
       dispatch(fetchExercise(exercise, empty))
+      dispatch(fetchExerciseRemoteState(exercise))
       dispatch(navigateAgain());
     },
     onBack: () => dispatch(handleBack())

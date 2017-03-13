@@ -1,5 +1,12 @@
-import { List } from 'immutable'
+import { List , Set} from 'immutable'
 const isList = List.isList
+
+function keyIn(...keys) {
+  var keySet = Set(keys); 
+  return function (v, k) {
+    return keySet.has(k);
+  }
+}
 
 function logImmutable(x) {
   console.log(JSON.stringify(x, null, 4));
@@ -21,4 +28,4 @@ function enforceList(a) {
     return a;
 }
 
-export { logImmutable, mergeNotLists, enforceList }
+export { logImmutable, mergeNotLists, enforceList, keyIn }

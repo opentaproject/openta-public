@@ -41,6 +41,22 @@ var defaultState = immutable.fromJS({
   }
 });
 
+const exerciseStateMerger = (oldVal, newVal, key) => {
+  if(key == 'responsefiles') {
+    console.log('responsefiles')
+    console.dir(oldVal)
+    console.dir(newVal)
+  }
+  console.log(key)
+  if(immutable.Map.isMap(oldVal))
+    return oldVal.mergeDeep(newVal);
+  else
+    return newVal;
+  /*switch(key) {
+    case 'audit'
+  }*/
+}
+
 export default (state = defaultState, action) => {
   switch (action.type) {
     case 'UPDATE_LOGIN_STATUS':
@@ -50,7 +66,12 @@ export default (state = defaultState, action) => {
     case 'UPDATE_EXERCISE_JSON':
       return state.setIn(['exerciseState',action.exercise, 'json'], immutable.fromJS(action.json));
     case 'UPDATE_EXERCISE_STATE':
-      return state.mergeDeepIn(['exerciseState', action.exercise], immutable.fromJS(action.state));
+      const updatedState = immutable.fromJS(action.state);
+      var newState = state.mergeDeepIn(['exerciseState', action.exercise], updatedState);
+      // The merge does not delete items from lists so now lets replace the lists in the structure with their new values
+      if(updatedState.hasIn(['audit', 'responsefiles']))
+        newState = newState.setIn(['exerciseState', action.exercise, 'audit', 'responsefiles'], updatedState.getIn(['audit', 'responsefiles']));
+      return newState;
     case 'UPDATE_EXERCISES_STATE':
       return state.mergeDeepIn(['exerciseState'], immutable.fromJS(action.state));
     case 'UPDATE_EXERCISES':

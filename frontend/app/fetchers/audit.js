@@ -1,4 +1,4 @@
-import {logImmutable} from '../immutablehelpers.js'
+import {logImmutable, keyIn} from '../immutablehelpers.js'
 import _ from 'lodash'
 import immutable from 'immutable'
 import {jsonfetch, CSRF_TOKEN} from '../fetch_backend.js'
@@ -123,8 +123,9 @@ function deleteAudit(auditPk) {
 
 function saveAudit(auditPk, auditData) {
   return dispatch => {
+    var selectedData = auditData.filter(keyIn('pk','message', 'subject', 'resolved', 'force_passed')).toJS();
     var payload = {
-      'audit': auditData
+      'audit': selectedData
     };
     var postData = JSON.stringify(payload);
     var fetchconfig = {

@@ -2,10 +2,12 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import immutable from 'immutable';
 import Spinner from './Spinner.jsx';
+import SafeImg from './SafeImg.jsx';
 import Exercise from './Exercise.jsx';
 import StudentAuditExercise from './StudentAuditExercise.jsx';
 import AuditStatistics from './AuditStatistics.jsx';
 import AuditResponseUpload from './AuditResponseUpload.jsx';
+import Badge from './Badge';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import _ from 'lodash';
@@ -27,16 +29,52 @@ import {
 } from '../actions.js';
 
 const BaseAuditViewStudent = ({ hasAuditData, auditor, auditFiles, subject, message, resolved }) => {
+  var renderAuditFiles = auditFiles.map(
+    auditResponse => (
+      <li key={auditResponse.get('id')}>
+      <div className="exercise-thumb-wrap" >
+      { auditResponse.get('filetype') === 'IMG' &&
+      <a href={SUBPATH + "/auditresponsefile/view/" + auditResponse.get('id')} data-uk-lightbox data-lightbox-type="image">
+      <SafeImg src={SUBPATH + "/auditresponsefile/view/" + auditResponse.get('id') + "/thumb"}><i className="uk-icon uk-icon-large uk-icon-question"/></SafeImg>
+      </a>
+      }
+      { auditResponse.get('filetype') === 'PDF' &&
+      <a href={SUBPATH + "/auditresponsefile/view/" + auditResponse.get('id')} target="_blank">
+      <i className="uk-icon uk-icon-large uk-icon-file-pdf-o"/>
+      </a>
+      }
+      </div>
+      </li>
+    ));
+    //<div className="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
   if(hasAuditData)
     return (
-    <div className="uk-panel uk-panel-box uk-panel-box-primary uk-margin uk-margin-left uk-margin-right">
-      <article className="uk-comment">
-        <header className="uk-comment-header">
-            <h4 className="uk-comment-title">{auditor.get('first_name')} {auditor.get('last_name')}</h4>
-            <div className="uk-comment-meta">{/*moment(auditDate).format("YY")*/}</div>
-        </header>
-        <div className="uk-comment-body">...</div>
-      </article>
+    <div className="uk-block uk-block-primary uk-width-1-1 uk-contrast uk-margin-small-left uk-padding-bottom-remove">
+    <div className="uk-container">
+      <div className="uk-flex uk-margin-bottom">
+      <div className="uk-width-2-3">
+      <h3 className="uk-margin-small-bottom">
+        Granskning
+        { resolved && <Badge type="success" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-check"/></Badge> }
+        { !resolved && <Badge type="error" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-close"/></Badge> }
+      </h3>
+      <div className="uk-text-small">
+              Granskad av <a href={"mailto:" + auditor.get('email')} className="uk-text-bold uk-contrast">{auditor.get('first_name')} {auditor.get('last_name')}</a>
+      </div>
+      <hr/>
+      <h4>{subject}</h4>
+      <div>{message}</div>
+      </div>
+      { renderAuditFiles.size > 0 && 
+        <div className="uk-margin-left">
+        <h3>Filer</h3>
+        <ul className="uk-subnav uk-subnav-line">
+          {renderAuditFiles}
+        </ul>
+        </div>
+      }
+      </div>
+    </div>
     </div>
     );
   return (<span/>);

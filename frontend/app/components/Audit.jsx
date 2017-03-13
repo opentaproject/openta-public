@@ -158,14 +158,15 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, exerciseState, auditDa
 }
 
 const handleOldMessageClick = (auditPk, msg) => (dispatch) => {
-    console.log("Updated message");
-    return dispatch(updateAudit(auditPk, { message: msg }));
+    dispatch(updatePendingStateIn(['audit', 'audits', auditPk, 'save'], true));
+    dispatch(updateAudit(auditPk, { message: msg }));
+    return dispatch(handleAuditSave(auditPk));
 }
 
 const handleAuditSave = (auditPk) => (dispatch, getState) => {
   var state = getState();
   if(state.hasIn(['audit', 'audits', auditPk])) {
-    var auditData = state.getIn(['audit', 'audits', auditPk]).toJS();
+    var auditData = state.getIn(['audit', 'audits', auditPk]);
     return dispatch(saveAudit(auditPk, auditData))
       .then( () => dispatch(updatePendingStateIn(['audit', 'audits', auditPk, 'save'], false)));
   } else {

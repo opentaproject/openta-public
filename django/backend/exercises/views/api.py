@@ -3,8 +3,13 @@ from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
-from exercises.models import Exercise, Question, Answer, ImageAnswer
-from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
+from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
+from exercises.serializers import (
+    ExerciseSerializer,
+    AnswerSerializer,
+    ImageAnswerSerializer,
+    AuditExerciseSerializer,
+)
 from exercises import parsing
 from exercises.question import question_check
 from exercises.modelhelpers import (
@@ -128,6 +133,12 @@ def exercise_list(request):  # {{{
             data = exerciseserializer.data
             data['question'] = {}
             data['image_answers'] = [image_answer.pk for image_answer in exercise.userimageanswers]
+            try:
+                audit = AuditExercise.objects.get(student=request.user, exercise=exercise)
+                saudit = AuditExerciseSerializer(audit)
+                data['audit'] = saudit.data
+            except AuditExercise.DoesNotExist:
+                pass
             allcorrect = True
             for question in exercise.question.all():  # questions:
                 try:

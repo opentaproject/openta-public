@@ -126,10 +126,11 @@ def update_audit(request, pk):
     except ObjectDoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    saudit = AuditExerciseSerializer(audit, data=request.data['audit'])
+    saudit = AuditExerciseSerializer(audit, data=request.data['audit'], partial=True)
     if not saudit.is_valid():
         return Response(
-            {'error': 'Not valid audit data'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            {'error': 'Not valid audit data', 'details': saudit.errors},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
     saudit.save()
     return Response({})

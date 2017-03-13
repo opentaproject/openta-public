@@ -16,9 +16,9 @@ export default class Badge extends Component {
 
   render() {
     var typeToClass = {
-      success: 'uk-alert-success',
-      warning: 'uk-alert-warning',
-      error: 'uk-alert-danger'
+      success: 'uk-badge-success',
+      warning: 'uk-badge-warning',
+      error: 'uk-badge-danger'
     }
     var typeClass = this.props.type ? typeToClass[this.props.type] : "";
     return (
