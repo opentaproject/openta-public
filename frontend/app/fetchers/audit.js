@@ -99,10 +99,13 @@ function fetchAuditExerciseStats() {
   }
 }
 
-function sendAudit(auditPk) {
+function sendAudit(auditPk, bcc) {
   return dispatch => {
+    var payload = { 'bcc': bcc };
     var fetchconfig = {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     }
     return jsonfetch('/audit/send/' + auditPk + '/', fetchconfig)
       .then( res => res.json() )

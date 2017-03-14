@@ -151,10 +151,15 @@ def send_audit(request, pk):
         to=[audit.student.email],
         reply_to=[request.user.email],
     )
+    # Send bcc to auditor (and current user if not auditor)
+    bcc = request.data.get('bcc')
+    if bcc:
+        logger.info("Sending with bcc.")
+        email.bcc = list(set([audit.auditor.email, request.user.email]))
     try:
         n_sent = email.send()
     except Exception as e:
-        return Response({error: str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     audit.sent = True
     audit.save()

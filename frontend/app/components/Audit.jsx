@@ -1,4 +1,4 @@
-import React, { PropTypes } from 'react';
+import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import immutable from 'immutable';
 import Spinner from './Spinner.jsx';
@@ -26,7 +26,8 @@ import {
   setDetailResultExercise,
 } from '../actions.js';
 
-const BaseAudit = ({ audits, activeAudit, activeExercise, exerciseState, auditData, onAuditChange, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onAddAudit, onDeleteAudit, pendingDelete, onSubjectChange, onResolveAudit, pendingResolve, onPassAudit}) => {
+
+const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, onAuditChange, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onAddAudit, onDeleteAudit, pendingDelete, onSubjectChange, onResolveAudit, pendingResolve, onPassAudit}, bccStatus, onBccClick) => {
   var auditsList = audits.filter( (audit) => audit.get('exercise') === activeExercise )
                          .toList()
                          .sort( (a, b) => a.get('date') > b.get('date') );
@@ -89,10 +90,11 @@ const BaseAudit = ({ audits, activeAudit, activeExercise, exerciseState, auditDa
                   <AuditResponseUpload/>
               </div>
               <div className="uk-form-row uk-margin-small-top">
-                <div className="uk-flex uk-flex-space-between uk-flex-wrap uk-margin-small-top">
-                  <a className={"uk-button uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit)}>{sendName} 
+                <div className="uk-flex uk-flex-middle uk-flex-space-between uk-flex-wrap uk-margin-small-top">
+                  <a className={"uk-button uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit, bccStatus)}>{sendName} 
                   { pendingSend && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
+                  <label data-uk-tooltip title="Send copy to auditor (and you if different)"><input type="checkbox" className="uk-margin-small-right" checked={bccStatus} onChange={onBccClick}/>Bcc</label>
                   <a className={"uk-button uk-margin-small-top uk-position-relative " + resolveClass} onClick={() => onResolveAudit(activeAudit, audits.getIn([activeAudit, 'resolved']))}>{resolveName} 
                   { pendingResolve && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
@@ -174,10 +176,10 @@ const handleAuditSave = (auditPk) => (dispatch, getState) => {
   }
 }
 
-const handleAuditSend = (auditPk) => dispatch => {
+const handleAuditSend = (auditPk, bcc) => dispatch => {
    dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'send'], true))
    return dispatch(handleAuditSave(auditPk))
-    .then(() => dispatch(sendAudit(auditPk)))
+    .then(() => dispatch(sendAudit(auditPk, bcc)))
     .then( res => dispatch(updateAudit(auditPk, { sent: 'success' in res })))
     .then(() => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'send'], false)))
     .catch( err => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'send'], false)));
@@ -242,7 +244,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchStudentDetailResults(studentPk));
     dispatch(setSelectedStudentResults(studentPk));
   },
-  onSendAudit: (auditPk) => dispatch(handleAuditSend(auditPk)),
+  onSendAudit: (auditPk, bcc) => dispatch(handleAuditSend(auditPk, bcc)),
   onResolveAudit: (auditPk, currentlyResolved) => dispatch(handleAuditResolve(auditPk, currentlyResolved)),
   onAddAudit: (exercise) => dispatch(fetchNewAudit(exercise)),
   onDeleteAudit: (auditPk) => dispatch(handleDeleteAudit(auditPk)),
@@ -259,5 +261,18 @@ const mapDispatchToProps = dispatch => ({
   },
   onOldMessageClick: (audit, msg) => dispatch(handleOldMessageClick(audit, msg)),
 });
+
+class BaseAudit extends Component {
+  constructor() {
+    super();
+    this.state = { bcc: false }
+  }
+  handleBccClick = (e) => {
+    this.setState( {bcc: e.target.checked} )
+  }
+  render() {
+    return auditRender(this.props, this.state.bcc, this.handleBccClick);
+  }
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseAudit);
