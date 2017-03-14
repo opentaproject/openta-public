@@ -94,14 +94,13 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
         </ul>
       </div>
     </div>
-    { /*<a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas" data-uk-offcanvas/> */ }
     { showOnCanvas &&
     <ul className="uk-nav uk-nav-side uk-list-space exercise-menu exercise-list-on-canvas">
     <li className="uk-nav-header" key="header">
       <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
     </li>
     { pendingState.get('exerciseList', false) && (<Spinner/>) }
-    {exerciselist/*.sort((a,b) => a.get('name').localeCompare(b.get('name')))*/.map( exercise => {
+    {exerciselist.map( exercise => {
       var meta = exercise.get('meta');
       if(!meta)meta = immutable.Map({});
       var key = exercise.get('exercise_key');
@@ -141,7 +140,6 @@ function handleBack() {
   return dispatch => {
     dispatch(fetchExerciseTree());
     dispatch(updateActiveExercise(""));
-    //dispatch(updateMenuPathArray([]));
     dispatch(navigateMenuArray([]));
   }
 }

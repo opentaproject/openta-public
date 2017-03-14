@@ -41,22 +41,6 @@ var defaultState = immutable.fromJS({
   }
 });
 
-const exerciseStateMerger = (oldVal, newVal, key) => {
-  if(key == 'responsefiles') {
-    console.log('responsefiles')
-    console.dir(oldVal)
-    console.dir(newVal)
-  }
-  console.log(key)
-  if(immutable.Map.isMap(oldVal))
-    return oldVal.mergeDeep(newVal);
-  else
-    return newVal;
-  /*switch(key) {
-    case 'audit'
-  }*/
-}
-
 export default (state = defaultState, action) => {
   switch (action.type) {
     case 'UPDATE_LOGIN_STATUS':

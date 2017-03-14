@@ -72,13 +72,6 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
                   </td>
                 )).toList()}
               </tr>
-                  {/*q.get('answers').map( a => (
-                    <tr key={a.get('date')}>
-                      <td className={a.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'} title={moment(a.get('date')).format('YYYY-MM-DD HH:mm')} data-uk-tooltip>
-                        {a.get('answer')}
-                      </td>
-                    </tr>
-                  ))*/}          
             </tbody>
           </table>
         </div>

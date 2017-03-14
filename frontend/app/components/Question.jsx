@@ -21,8 +21,6 @@ class BaseQuestion extends Component {
     var json = exerciseState.get('json', immutable.Map({})) || immutable.Map({});
     var question = json.getIn(['exercise','question'], immutable.List([])).find( q => q.getIn(['@attr','key']) == questionKey, this, immutable.Map({}));
     var questionType = question.getIn(['@attr','type'], undefined);
-    //console.dir(globals);
-    //console.dir(json.getIn(['exercise','global'], immutable.Map({})));
     var questionState = exerciseState.getIn(['question', questionKey], immutable.Map({}))
     if(questionType && questionType in questionDispatch) {
       var globals = json.getIn(['exercise','global'], immutable.List([])).find( q => {

@@ -46,7 +46,6 @@ const BaseAuditViewStudent = ({ hasAuditData, auditor, auditFiles, subject, mess
       </div>
       </li>
     ));
-    //<div className="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top uk-margin-bottom uk-margin-left uk-margin-right">
   if(hasAuditData)
     return (
     <div className="uk-block uk-block-primary uk-width-1-1 uk-contrast uk-margin-small-left uk-padding-bottom-remove">

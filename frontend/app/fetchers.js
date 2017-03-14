@@ -86,7 +86,6 @@ function fetchExercises() {//{{{
 function fetchExerciseTree() {//{{{
   return dispatch => {
     return jsonfetch('/exercises/tree/')
-      //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
       .then(json => dispatch(setExerciseTree(json)))
       .catch( err => console.log(err) );
@@ -96,9 +95,7 @@ function fetchExerciseTree() {//{{{
 function fetchSameFolder(exercise, folder) {//{{{
   return dispatch => {
     return jsonfetch('/exercise/' + exercise + '/samefolder')
-      //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
-      //.then(json => json.map( item => item.exercise_name ))
       .then(json => {
         dispatch(updatePendingStateIn( ['exerciseList'], false));
         return json;
@@ -285,7 +282,6 @@ function checkQuestion(exerciseKey, questionKey, answerData) {//{{{
     })
     .then( json => dispatch(fetchExerciseRemoteState(exerciseKey)))
     .catch( err => console.log(err) )
-    //.then(json => console.dir(json))
   }
 }//}}}
 
@@ -347,7 +343,6 @@ function fetchAllExerciseStatistics() {//{{{
   return dispatch => {
     dispatch(updatePendingStateIn( ['exercises_statistics'], true));
     return jsonfetch('/statistics/statsperexercise')
-      //.then(response => {console.dir(response); return response;})
       .then(response => response.json())
       .then(json =>  { 
         dispatch(updateExerciseStatistics(json.exercises))
