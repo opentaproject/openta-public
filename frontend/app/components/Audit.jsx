@@ -27,7 +27,7 @@ import {
 } from '../actions.js';
 
 
-const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, onAuditChange, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onAddAudit, onDeleteAudit, pendingDelete, onSubjectChange, onPublishAudit, pendingPublish, onPassAudit, onRevisionAudit, pendingRevision}, bccStatus, onBccClick, filter, onFilterChange) => {
+const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, onAuditChange, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onAddAudit, onDeleteAudit, pendingDelete, onSubjectChange, onPublishAudit, pendingPublish, onPassAudit, onRevisionAudit, pendingRevision, onPublishAndSend, pendingStateAudits}, bccStatus, onBccClick, filter, onFilterChange) => {
   var auditsList = audits.filter( (audit) => audit.get('exercise') === activeExercise )
                          .filter( item => filter === '' || (item.get('student_username') /*+ ' ' + item.get('first_name') + ' ' + item.get('last_name')*/).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
                          .toList()
@@ -52,16 +52,21 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
       <a key={audit.get('pk')} onClick={() => onAuditChange(audit.get('pk'), audit.get('student'), activeExercise)} className={"uk-contrast uk-button uk-button-mini " + activeClass} title={audit.get('student_username')} data-uk-tooltip style={{backgroundColor: statusColor[statusColorType], textShadow: 'none'}}>
         { activeAudit === audit.get('pk') && <i className="uk-text-primary uk-icon uk-icon-caret-right uk-icon-small"/> }
         {nInList+1}
+        { pendingStateAudits.getIn([audit.get('pk'), 'send']) && <Spinner size=''/> }
+        { pendingStateAudits.getIn([audit.get('pk'), 'publish']) && <Spinner size=''/> }
+        { (pendingStateAudits.getIn([audit.get('pk'), 'send']) === null ||  
+          pendingStateAudits.getIn([audit.get('pk'), 'publish']) === null ) && <i className="uk-icon uk-icon-exclamation-triangle"/> }
       </a>
     );
   };
   var auditsRenderPublished =  auditsList.filter(item => item.get('published')).map( (audit, key) => {
     return renderAuditListItem(audit, key);
   });
-  var auditsRenderReady = auditsList.filter(item => !item.get('published') && item.get('revision_needed') !== null).map( (audit, key) => {
+  var auditsUnfinished = auditsList.filter(item => !item.get('published') && item.get('revision_needed') === null);
+  var auditsReady = auditsList.filter(item => !item.get('published') && item.get('revision_needed') !== null);
+  var auditsRenderReady = auditsReady.map( (audit, key) => {
     return renderAuditListItem(audit, key);
   });
-  var auditsUnfinished = auditsList.filter(item => !item.get('published') && item.get('revision_needed') === null);
   var auditsRenderUnpublished = auditsUnfinished.map( (audit, key) => {
     return renderAuditListItem(audit, key);
   });
@@ -75,7 +80,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
     (
           <div className="uk-panel uk-panel-box uk-panel-box-primary" style={{padding: '5px'}}>
             <div className="uk-float-left"><div>Audits for <a href={"#exercise/"+activeExercise} target="_blank" className="uk-button" title="Click to open exercise in a new tab">{exerciseName}</a></div><div><AuditStatistics/></div></div>
-            <div className="uk-flex uk-flex-wrap uk-flex-right">
+            <div className="uk-flex uk-flex-right">
             <div>
             <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top">
              <div className="uk-margin-right">Published:</div>
@@ -90,8 +95,8 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
             </div>
             <div className="uk-flex uk-flex-column">
             <button className="uk-button uk-button-primary" type="button" onClick={ () => onAddAudit(activeExercise) }>Add student</button>
-            <button className={"uk-button uk-button-medium uk-margin-small-top " + (auditsRenderReady.size > 0 ? 'uk-button-success' : '')} type="button" onClick={ () => onAddAudit(activeExercise) }>Publish ready</button>
-            <div className="uk-margin-small-top"><input className="uk-form-width-small uk-form-small" type="text" value={filter} onChange={onFilterChange}/></div>
+            <button className={"uk-button uk-button-medium uk-margin-small-top " + (auditsRenderReady.size > 0 ? 'uk-button-success' : '')} type="button" onClick={ () => onPublishAndSend(auditsReady) }>Publish ready ({auditsRenderReady.size})</button>
+            <div className="uk-margin-small-top"><input className="uk-form-width-small uk-form-small" type="text" placeholder="Username filter" value={filter} onChange={onFilterChange}/></div>
             </div>
             <div className="uk-button-group uk-display-inline-block uk-margin-small-top">
               { /*
@@ -228,7 +233,11 @@ const handleAuditSave = (auditPk) => (dispatch, getState) => {
   if(state.hasIn(['audit', 'audits', auditPk])) {
     var auditData = state.getIn(['audit', 'audits', auditPk]);
     return dispatch(saveAudit(auditPk, auditData))
-      .then( () => dispatch(updatePendingStateIn(['audit', 'audits', auditPk, 'save'], false)));
+      .then( () => dispatch(updatePendingStateIn(['audit', 'audits', auditPk, 'save'], false)))
+      .catch( err => { 
+        dispatch(updatePendingStateIn(['audit', 'audits', auditPk, 'save'], null));
+        throw "saveError";
+      })
   } else {
     return console.log('No audit with that pk populated');
   }
@@ -240,7 +249,7 @@ const handleAuditSend = (auditPk, bcc) => dispatch => {
     .then(() => dispatch(sendAudit(auditPk, bcc)))
     .then( res => dispatch(updateAudit(auditPk, { sent: 'success' in res })))
     .then(() => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'send'], false)))
-    .catch( err => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'send'], false)));
+    .catch( err => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'send'], null)));
 }
 
 const handleAuditPass = (auditPk, studentPk, currentlyPassed) => dispatch => {
@@ -255,7 +264,18 @@ const handleAuditPublish = (auditPk, currentlyPublished) => dispatch => {
   dispatch(updateAudit(auditPk, { published: !currentlyPublished }))
   return dispatch(handleAuditSave(auditPk))
     .then(() => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], false)))
-    .catch( err => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], false)));
+    .catch( err => {
+      dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], null))
+      dispatch(updateAudit(auditPk, { published: currentlyPublished }))
+    });
+}
+
+const handlePublishAndSend = (audits) => dispatch => {
+  audits.forEach( audit => {
+    dispatch(handleAuditPublish(audit.get('pk'), false))
+      .then(() => dispatch(handleAuditSend(audit.get('pk'))));
+  });
+  /**/
 }
 
 const handleAuditRevision= (auditPk, needRevision) => dispatch => {
@@ -301,6 +321,7 @@ const mapStateToProps = state => {
     pendingDelete: state.getIn(['pendingState', 'audit', 'audits', activeAudit, 'delete'], false),
     pendingPublish: state.getIn(['pendingState', 'audit', 'audits', activeAudit, 'publish'], false),
     pendingRevision: state.getIn(['pendingState', 'audit', 'audits', activeAudit, 'revision'], false),
+    pendingStateAudits: state.getIn(['pendingState', 'audit', 'audits'], immutable.Map({})),
   }
 };
 
@@ -313,6 +334,7 @@ const mapDispatchToProps = dispatch => ({
   },
   onSendAudit: (auditPk, bcc) => dispatch(handleAuditSend(auditPk, bcc)),
   onPublishAudit: (auditPk, currentlyPublished) => dispatch(handleAuditPublish(auditPk, currentlyPublished)),
+  onPublishAndSend: (audits) => dispatch(handlePublishAndSend(audits)),
   onRevisionAudit: (auditPk, needRevision) => dispatch(handleAuditRevision(auditPk, needRevision)),
   onAddAudit: (exercise) => dispatch(fetchNewAudit(exercise)),
   onDeleteAudit: (auditPk) => dispatch(handleDeleteAudit(auditPk)),

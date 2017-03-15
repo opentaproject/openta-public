@@ -113,6 +113,20 @@ function sendAudit(auditPk, bcc) {
   }
 }
 
+function publishReadyAudits(exercise) {
+  return dispatch => {
+    //var payload = { 'bcc': bcc };
+    var fetchconfig = {
+      method: "POST",
+      //headers: { "Content-Type": "application/json" },
+      //body: JSON.stringify(payload),
+    }
+    return jsonfetch('/audit/publishready/' + exercise + '/', fetchconfig)
+      .then( res => res.json() )
+      .catch(err => console.dir(err))
+  }
+}
+
 function deleteAudit(auditPk) {
   return dispatch => {
     var fetchconfig = {
