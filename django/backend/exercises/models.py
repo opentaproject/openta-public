@@ -341,13 +341,14 @@ class AuditExercise(models.Model):
     exercise = models.ForeignKey(Exercise, related_name='audits')
     subject = models.CharField(max_length=255, default='', blank=True)
     message = models.TextField(default="", blank=True)
-    fileresponse = models.FileField(
-        default=None, blank=True, null=True, upload_to=audit_fileresponse_filename
-    )
-    resolved = models.BooleanField(default=False)
+    published = models.BooleanField(default=False)  # Audit shown to student
     force_passed = models.BooleanField(default=False)
     date = models.DateTimeField(default=now)
     sent = models.BooleanField(default=False)
+    revision_needed = models.NullBooleanField(
+        blank=True, default=None
+    )  # Initial audit is complete and can be shown to student
+    updated = models.BooleanField(default=False)
 
     objects = AuditManager()
 

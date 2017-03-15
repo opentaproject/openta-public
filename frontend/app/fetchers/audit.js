@@ -126,7 +126,7 @@ function deleteAudit(auditPk) {
 
 function saveAudit(auditPk, auditData) {
   return dispatch => {
-    var selectedData = auditData.filter(keyIn('pk','message', 'subject', 'resolved', 'force_passed')).toJS();
+    var selectedData = auditData.filter(keyIn('pk','message', 'subject', 'published', 'revision_needed', 'force_passed')).toJS();
     var payload = {
       'audit': selectedData
     };
