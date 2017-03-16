@@ -13,6 +13,7 @@ import operator
 from exercises.util import compose
 from lxml import etree
 from .linear_algebra import linear_algebra_expression
+from .linear_algebra import linear_algebra_expression_blocking
 
 
 def parse_variables(variables):  # {{{
@@ -97,7 +98,7 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     correct_answer = question_xmltree.find('expression').text.split(';')[0]
 
     result = {}
-    result = linear_algebra_expression(variables, answer_data, correct_answer)
+    result = linear_algebra_expression_blocking(variables, answer_data, correct_answer)
     if 'correct' in result:
         result['status'] = 'correct' if result['correct'] else 'incorrect'
     elif 'error' in result:
