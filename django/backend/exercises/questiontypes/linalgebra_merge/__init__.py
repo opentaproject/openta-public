@@ -48,8 +48,8 @@ def parse_xml_variables(node):
     for var in variables:
         token = var.find('token')
         value = var.find('val')
-        if token is not None:
-            res.append({'name': token.text, 'value': value if value is not None else '1'})
+        if token is not None and value is not None:
+            res.append({'name': token.text, 'value': value})
     return res
 
 

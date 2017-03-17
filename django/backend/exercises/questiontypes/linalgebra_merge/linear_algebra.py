@@ -24,6 +24,13 @@ logger = logging.getLogger(__name__)
 
 meter, second, kg = sympy.symbols('meter,second,kg', real=True, positive=True)
 
+"""
+Sympy expressions trees contain special operators for Matrix algebra, for example MatMul instead of Mul. This means
+that when substituting matrices into expressions with symbols the operators need to be able to handle matrices for the
+ resulting expression to be valid. To generate the correct operators the variables that are matrices or vectors need
+ to be specified as MatrixSymbol instead of Symbol.
+"""
+
 
 class Cross(sympy.Function):  # {{{
     nargs = (1, 2)
@@ -53,6 +60,12 @@ class Dot(sympy.Function):  # {{{
             print(type(y))  # }}}
 
 
+class Sample(sympy.Function):
+    @classmethod
+    def eval(cls, value):
+        return value + 0.1 * value * random.random()
+
+
 ns = {}
 ns.update(_clash)
 ns.update(
@@ -63,6 +76,7 @@ ns.update(
         'pi': sympy.pi,
         'ff': sympy.Symbol('ff'),
         'FF': sympy.Symbol('FF'),
+        #'sample': Sample
         #'Cross': Cross,
         #'Dot': Dot,
     }
@@ -113,24 +127,40 @@ def parse_variables(variables):
     # Decode JSON string into python lists/dictionaries
     vars = variables
     subs = {}
+    sample_variables = []
+    next_sample_variable = 0
     for var in vars:
         expr = sympify_with_custom(ascii_to_sympy(var['value']), {})
-        # if hasattr(expr, 'shape'):
-        #    sym[var['name']] = sympy.MatrixSymbol(var['name'], *expr.shape)#sympy.symbols(var['name'])
-        # else:
-        sym[var['name']] = sympy.Symbol(var['name'])
-        subs[sym[var['name']]] = expr  # _clash)
-    return subs
+        if hasattr(expr, 'shape'):
+            sym[var['name']] = sympy.MatrixSymbol(
+                var['name'], *expr.shape
+            )  # sympy.symbols(var['name'])
+        else:
+            sym[var['name']] = sympy.Symbol(var['name'])
+        if expr.has(sympy.Function('sample')):
+            sample_around = expr.replace(sympy.Function('sample'), lambda x: x).doit()
+            sample_variables.append({'symbol': sym[var['name']], 'around': sample_around})
+            next_sample_variable += 1
+        else:
+            subs[sym[var['name']]] = expr  # _clash)
+    return (subs, sample_variables)
 
 
 def parse_variables_symp(variables):
     sym = {}
     # Decode JSON string into python lists/dictionaries
     vars = variables
-    subs = []
+    # subs = []
+    subs = {}
     for var in vars:
         expr = sympify_with_custom(ascii_to_sympy(var['value']), {})
-        subs.append((sympy.Symbol(var['name']), expr))
+        if hasattr(expr, 'shape'):
+            subs[var['name']] = sympy.MatrixSymbol(
+                var['name'], *expr.shape
+            )  # sympy.symbols(var['name'])
+        else:
+            subs[var['name']] = sympy.Symbol(var['name'])
+        # subs.append((sympy.Symbol(var['name']), expr))
     return subs
 
 
@@ -195,36 +225,37 @@ def linear_algebra(variables, expression1, expression2):  # {{{
         sexpression1 = ascii_to_sympy(expression1)
         sexpression2 = ascii_to_sympy(expression2)
 
-        # Parse variables into substitution dictionary
-        varsubs = parse_variables(variables)
-        varsubs_symp = parse_variables_symp(variables)
-        nvars = {}
-        for var, value in varsubs.items():
-            nvars[var] = sympy.N(value.subs(uniteval))
-        neighbours = []
         random.seed(1)
-        for i in range(0, number_of_points):
-            neighbour = []
-            for var, value in nvars.items():
-                neighbour.append(value + random.random() * value * 0.1)
-            neighbours.append(sympy.lambdify([], neighbour)())
-            if logger.isEnabledFor(logging.DEBUG):
-                varvals = list(
-                    map(lambda x: str(x[0]) + ':' + str(x[1]), zip(nvars.keys(), neighbour))
-                )
-                logger.debug('Neighbour point: ' + str(varvals))
-
+        varsubs, sample_variables = parse_variables(variables)
+        varsubs_sympify = parse_variables_symp(variables)
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
-        sympy1 = sympify_with_custom(sexpression1, {})
-        sympy2 = sympify_with_custom(sexpression2, {})
+        sympy1 = (
+            sympify_with_custom(sexpression1, varsubs_sympify).subs(uniteval).subs(varsubs).doit()
+        )
+        sympy2 = (
+            sympify_with_custom(sexpression2, varsubs_sympify).subs(uniteval).subs(varsubs).doit()
+        )
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug('Expression 1: ' + str(sympy1))
             logger.debug('Expression 2: ' + str(sympy2))
-        tvars = tuple(nvars.keys())
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.debug('Lambdify order: ' + str(tvars))
-        numfunc1 = sympy.lambdify(tvars, sympy1, modules=lambdifymodules)
-        numfunc2 = sympy.lambdify(tvars, sympy2, modules=lambdifymodules)
+        sample_variable_symbols = list(map(lambda item: item['symbol'], sample_variables))
+        numfunc1 = sympy.lambdify(sample_variable_symbols, sympy1, modules=lambdifymodules)
+        numfunc2 = sympy.lambdify(sample_variable_symbols, sympy2, modules=lambdifymodules)
+
+        neighbours = []
+        for i in range(0, number_of_points):
+            neighbour = []
+            for var in sample_variables:
+                neighbour.append(var['around'] + random.random() * var['around'] * 0.1 + 0j)
+            neighbours.append(neighbour)
+            if logger.isEnabledFor(logging.DEBUG):
+                varvals = list(
+                    map(
+                        lambda x: str(x[0]['symbol']) + ':' + str(x[1]),
+                        zip(sample_variables, neighbour),
+                    )
+                )
+                logger.debug('Neighbour point: ' + str(varvals))
 
         diff = numpy.absolute(numfunc1(*neighbours[0]) - numfunc2(*neighbours[0]))
         test_bool = numpy.all(diff < 1e6)
@@ -240,9 +271,9 @@ def linear_algebra(variables, expression1, expression2):  # {{{
         # except ZeroDivisionError as e:
         #    response['zerodivision'] = True
         diffs = []
-        for point in neighbours:
-            nvalue1 = numfunc1(*point)  # sympy1.subs(point).subs(uniteval).evalf()
-            nvalue2 = numfunc2(*point)  # sympy2.subs(point).subs(uniteval).evalf()
+        for n in range(0, number_of_points):
+            nvalue1 = numfunc1(*neighbours[n])  # sympy1.subs(point).subs(uniteval).evalf()
+            nvalue2 = numfunc2(*neighbours[n])  # sympy2.subs(point).subs(uniteval).evalf()
             ndiff = numpy.absolute(nvalue2 - nvalue1)
             correct = numpy.all(ndiff < 1e-06)
             diffs.append(correct)
