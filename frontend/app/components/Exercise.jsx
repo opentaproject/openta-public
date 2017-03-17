@@ -123,7 +123,7 @@ class BaseExercise extends Component {
 
   renderAsset = (itemjson, json, meta, exerciseKey) => {
     return (
-      <a key={"asset" + itemjson.get('$')} className="uk-button uk-button-small" target="_blank" href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$')}>{itemjson.getIn(['@attr', 'name'])}</a>
+      <a key={"asset" + itemjson.get('$')} className="uk-button uk-button-small" target="_blank" href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$','').trim()}>{itemjson.getIn(['@attr', 'name'])}</a>
     );
   }
 

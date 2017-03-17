@@ -342,7 +342,7 @@ export default class QuestionCompareNumeric extends Component {
     }
     this.varProps = allVars.map( item => ({
       //The token is the key, the other items that are not the token or the special $children$ are added as a map.
-      [item.getIn(['token', '$'], '')]: item.filterNot( (val, key) => key === 'token' || key === '$children$' || key === '$').map( val => val.get('$') )
+      [item.getIn(['token', '$'], '').trim()]: item.filterNot( (val, key) => key === 'token' || key === '$children$' || key === '$').map( val => val.get('$') )
     }) )
     .reduce( (prev, next) => prev.merge(next), immutable.Map({}));
   }
@@ -467,3 +467,4 @@ export default class QuestionCompareNumeric extends Component {
 
 //Register the question component with the system
 registerQuestionType('compareNumeric', QuestionCompareNumeric);
+registerQuestionType('linearAlgebra', QuestionCompareNumeric);
