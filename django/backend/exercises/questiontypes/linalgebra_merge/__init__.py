@@ -98,14 +98,11 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     correct_answer = question_xmltree.find('expression').text.split(';')[0]
 
     result = {}
-    result = linear_algebra_expression_blocking(variables, answer_data, correct_answer)
+    result = linear_algebra_expression(variables, answer_data, correct_answer)
     if 'correct' in result:
         result['status'] = 'correct' if result['correct'] else 'incorrect'
     elif 'error' in result:
         result['status'] = 'error'
-    # Add the sympy representation in latex form for possible visual checks
-    # latex = { 'latex': '' } #to_latex(answer_data) }
-    # result.update(latex)
     return result
 
 

@@ -9,7 +9,7 @@ import { registerQuestionType } from './question_type_dispatch.js' // Register f
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
-import HelpCompareNumeric from './HelpCompareNumeric.jsx';
+import HelpLinearAlgebra from './HelpLinearAlgebra.jsx';
 import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
@@ -144,7 +144,7 @@ const insertCursor = (str, pos) => {//{{{
   return str;
 }//}}}
 
-export default class QuestionCompareNumeric extends Component {
+export default class QuestionLinearAlgebra extends Component {
   static propTypes = {
     questionData: PropTypes.object, // Data from exercise XML file, i.e. whats inside the <question> tag
     questionState: PropTypes.object, // Current question state together with response data from server
@@ -414,16 +414,6 @@ export default class QuestionCompareNumeric extends Component {
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
   }
-  var mathjsError = false;
-  try {
-    var mathjsParse = mathjs.eval(insertImplicitSubscript(input), mathjsEvalVars);
-  }
-  catch(e) {
-    if(e instanceof Error && !(e instanceof TypeError))
-      mathjsError = e.toString();//(<Alert type="warning" message={ e.toString() }/>);
-    if(e instanceof TypeError)
-      mathjsError = e.toString();//(<Alert type="warning" message="Expression unfinished"/>);
-  }
   var mathSizeClass = 'large';
   var sizeActive = 'uk-text-bold';
   switch(this.state.mathSize) {
@@ -436,7 +426,10 @@ export default class QuestionCompareNumeric extends Component {
   }
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span><HelpCompareNumeric/></label>
+          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span>
+          <span data-uk-tooltip title="Denna fråga är av en ny typ där vektorer och matriser kan användas."><Badge message="experimentell" type="warning" className="uk-margin-left"/></span>
+          <HelpLinearAlgebra/>
+          </label>
 { hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">
@@ -445,7 +438,7 @@ export default class QuestionCompareNumeric extends Component {
           </div>
           </div>
           <div className="uk-width-1-6">
-            <a onClick={(event) => submit(input)} className={ "uk-width-1-1 uk-button uk-padding-remove " + (nonEmpty && hasChanged && !mathjsError ? "uk-button-success" : "")}>
+            <a onClick={(event) => submit(input)} className={ "uk-width-1-1 uk-button uk-padding-remove " + (nonEmpty && hasChanged && !renderedResult.error ? "uk-button-success" : "")}>
               { pending && <i className="uk-icon-cog uk-icon-spin"/> }
               { !pending && <i className="uk-icon uk-icon-send"/> }
             </a>
@@ -477,4 +470,4 @@ export default class QuestionCompareNumeric extends Component {
 }
 
 //Register the question component with the system
-registerQuestionType('compareNumeric', QuestionCompareNumeric);
+registerQuestionType('linearAlgebra', QuestionLinearAlgebra);

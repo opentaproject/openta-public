@@ -1,14 +1,11 @@
 import sympy
 import numpy
 from sympy.abc import _clash1, _clash2, _clash
-import json
-import re
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
 import random
 from exercises.questiontypes.safe_run import safe_run
-import time
 import logging
 import traceback
 from .string_formatting import (
@@ -32,34 +29,52 @@ that when substituting matrices into expressions with symbols the operators need
 """
 
 
-class Cross(sympy.Function):  # {{{
-    nargs = (1, 2)
-
+class Norm(sympy.Function):
     @classmethod
-    def eval(cls, x, y):
-        if isinstance(x, sympy.ImmutableMatrix) and isinstance(y, sympy.ImmutableMatrix):
-            res = x.cross(y)
-            return res
+    def eval(cls, x):
+        if isinstance(x, sympy.ImmutableMatrix):
+            return x.norm()
         else:
-            print("ILLEGAL TYPES IN CROSS")
-            print(type(x))
-            print(type(y))  # }}}
+            return None
+
+
+class Cross(sympy.MatrixExpr):
+    """
+    This reimplementation of the cross product is necessary for sympify to generate a correct expression tree with
+    the correct matrix operators instead of the standard scalar ones. For example sympify('5*cross(a,b)'),
+     without any special handling, generates an expression tree with Mul instead of MatMul. Because of how sympy handles
+     matrices this will result in a runtime error when eventually the cross products gets replaced with an actual matrix.
+    """
+
+    def __new__(cls, arg1, arg2):
+        return sympy.Basic.__new__(cls, arg1, arg2)
+
+    @property
+    def shape(self):
+        return self.args[0].shape
+
+    def doit(self, **hints):
+        x = self.args[0].doit() if isinstance(self.args[0], sympy.Basic) else self.args[0]
+        y = self.args[1].doit() if isinstance(self.args[1], sympy.Basic) else self.args[1]
+        if isinstance(x, sympy.ImmutableMatrix) and isinstance(y, sympy.ImmutableMatrix):
+            return x.cross(y)
+        else:
+            return self
 
 
 class Dot(sympy.Function):  # {{{
-    nargs = (1, 2)
+    nargs = 2
 
     @classmethod
     def eval(cls, x, y):
         if isinstance(x, sympy.ImmutableMatrix) and isinstance(y, sympy.ImmutableMatrix):
-            res = x.dot(y)
-            return res
+            return x.dot(y)
         else:
-            print("ILLEGAL TYPES IN DOT")
-            print(type(x))
-            print(type(y))  # }}}
+            return None
 
 
+# Dictionary specifying behaviour of sympify conversion of asciimath to sympy. _clash is a special sympy list that
+# removes, among other things, conversion of greek letter to special functions.
 ns = {}
 ns.update(_clash)
 ns.update(
@@ -70,21 +85,13 @@ ns.update(
         'pi': sympy.pi,
         'ff': sympy.Symbol('ff'),
         'FF': sympy.Symbol('FF'),
-        #'sample': Sample
-        #'Cross': Cross,
-        #'Dot': Dot,
     }
 )
 
+# Sympy substitution rule for removing units from an expression
 uniteval = {meter: 1, second: 1, kg: 1}
 
-
-def crosslog(x, y):
-    print(x)
-    print(y)
-    return 1
-
-
+# List of special handling in the conversion from sympy to numpy expressions for final evaluation
 lambdifymodules = [
     {
         'cot': lambda x: 1.0 / numpy.tan(x),
@@ -93,23 +100,34 @@ lambdifymodules = [
         'abs': numpy.linalg.norm,
         'cross': lambda x, y: numpy.cross(x, y, axis=0),
         'dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
-        #'Cross': lambda x,y : numpy.cross(x,y,axis=0) ,
     },
     "numpy",
 ]
 
 
 def sympify_with_custom(expression, varsubs):
-    scope = {'abs': sympy.Function('norm')}
+    """
+    Convert asciimath expression into sympy using extra context
+    Args:
+        expression: asciimath
+        varsubs: { string(name): substitution, ... }
+
+    Returns:
+        Sympy expression
+    """
+    scope = {'abs': Norm, 'cross': Cross, 'dot': Dot, 'norm': Norm}  # sympy.Function('norm')
     scope.update(ns)
     scope.update(varsubs)
-    # for var, value in varsubs:
 
     sexpr = sympy.sympify(ascii_to_sympy(expression), scope)
     return sexpr
 
 
 class LinearAlgebraUnitError(Exception):
+    """
+    Can be raised from check_units_new
+    """
+
     def __init__(self, value):
         self.value = value
 
@@ -118,8 +136,22 @@ class LinearAlgebraUnitError(Exception):
 
 
 def parse_variables(variables):
+    """
+    Parses a list of asciimath defined variables into correct sympy representations.
+
+    Args:
+        variables: [ { name: string, value: asciimath } , ... ]
+
+    Returns:
+        tuple ( subs_rules, sympify_rules, sample_variables )
+        subs_rules: { sympy symbol: sympy expression, ... } used in .subs(...)
+        sympify_rules: { string(name): sympy symbol } used in sympify(...)
+        sample_variables: [ { symbol: sympy Symbol/MatrixSymbol,
+                              around: sympy expression ( a point around which to sample (might contain units))
+                              }, ... ]
+
+    """
     sym = {}
-    # Decode JSON string into python lists/dictionaries
     vars = variables
     subs_rules = {}
     sympify_rules = {}
@@ -142,8 +174,24 @@ def parse_variables(variables):
 
 
 def check_units_new(expression, correct, sample_variables):
+    """
+    Checks if expression has the same SI units as correct by confirming that the quotient is independent of variations
+    in each unit separately (by random sampling).
+
+    Args:
+        expression: sympy expression
+        correct: sympy expression
+        sample_variables: [ { symbol: sympy Symbol/MatrixSymbol,
+                              around: sympy expression ( a point around which to sample (might contain units))
+                              }, ... ]
+
+    Returns:
+        Nothing
+    Raises:
+        LinearAlgebraUnitError if the units do not match
+    """
     nvarsubs = {}
-    nvalues = []
+    nsubs_values = []
 
     def perturb(value):
         return value + value * random.random() * 0.1
@@ -151,19 +199,22 @@ def check_units_new(expression, correct, sample_variables):
     for item in sample_variables:
         nvarsubs[item['symbol']] = item['symbol'] * item['around']
         value = float(item['around'].subs(uniteval))
-        nvalues.append(value + random.random() * value * 0.1 + 0j)
-    nexpression = expression.subs(nvarsubs)
-    ncorrect = correct.subs(nvarsubs)
-    allvars = tuple(map(lambda item: item['symbol'], sample_variables)) + (kg, meter, second)
-    lexpr = sympy.lambdify(allvars, nexpression, modules=lambdifymodules)
-    lcorrect = sympy.lambdify(allvars, ncorrect, modules=lambdifymodules)
+        sampled_value = value + random.random() * value * 0.1
+        nsubs_values.append((item['symbol'], sampled_value))
+    nexpression = expression.subs(nvarsubs).doit()
+    ncorrect = correct.subs(nvarsubs).doit()
 
     checks = [[1, 1, 1], [perturb(2), 1, 1], [1, perturb(2), 1], [1, 1, perturb(2)]]
     results = []
     for check in checks:
-        args = nvalues + check
-        vale = numpy.linalg.norm(lexpr(*args))
-        valc = numpy.linalg.norm(lcorrect(*args))
+        unit_values = list(map(lambda item: (item[1], item[0]), zip(check, [kg, meter, second])))
+        allvalues = nsubs_values + unit_values
+        vale = numpy.linalg.norm(
+            sympy.lambdify([], nexpression.subs(allvalues).doit(), modules=lambdifymodules)()
+        )
+        valc = numpy.linalg.norm(
+            sympy.lambdify([], ncorrect.subs(allvalues).doit(), modules=lambdifymodules)()
+        )
         if valc != 0:
             results.append(vale / valc)
         else:
@@ -175,54 +226,81 @@ def check_units_new(expression, correct, sample_variables):
             )
 
 
-def linear_algebra_parse_expression(variables, student_answer, correct_answer):
-    return {}
+def linear_algebra_compare_expressions(variables, student_answer, correct):
+    """
+    Compare two asciimath expressions for equality.
+
+    Args:
+        variables: [ { name: string, value: asciimath }, ... ]
+        student_answer: asciimath
+        correct: asciimath
+
+    Returns:
+        {
+            correct: boolean
+            error: string
+        }
+    """
+    varsubs, varsubs_sympify, sample_variables = parse_variables(variables)
+    # Let sympy parse the expressions and substitute the variables together with the units and then evaluate
+    # expression (necessary for matrix expressions).
+    prelhs = sympify_with_custom(student_answer, varsubs_sympify)
+    lhs = prelhs.subs(varsubs).doit()
+    prerhs = sympify_with_custom(correct, varsubs_sympify)
+    rhs = prerhs.subs(varsubs).doit()
+    if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
+        if lhs.shape != rhs.shape:
+            return {'error': _('The answer does not have the correct dimensions.')}
+    if hasattr(lhs, 'shape') and not hasattr(rhs, 'shape'):
+        return {'error': _('The answer does not have the correct dimensions.')}
+    if hasattr(rhs, 'shape') and not hasattr(lhs, 'shape'):
+        return {'error': _('The answer does not have the correct dimensions.')}
+
+    return linear_algebra_check_equality(lhs, rhs, sample_variables)
 
 
-def linear_algebra_parse_condition(variables, condition):
-    return {}
+def linear_algebra_check_equality(lhs, rhs, sample_variables):  # {{{
+    """
+    Compares two sympy expressions for equality using random sampling around a point specified in variables.
 
+    Args:
+        variables: [ { name: string, value: asciimath }, ... ]
+        lhs: sympy expression
+        rhs: sympy expression
 
-def linear_algebra(variables, student_answer, correct):  # {{{
-    # Do some initial formatting
-    expression1 = student_answer
-    expression2 = correct
+    Returns:
+        {
+            correct: boolean
+            error: string
+        }
+    """
+
     number_of_points = 10
     response = {}
     try:
-        sexpression1 = ascii_to_sympy(expression1)
-        sexpression2 = ascii_to_sympy(expression2)
-
         random.seed(1)
-        varsubs, varsubs_sympify, sample_variables = parse_variables(variables)
-        # varsubs_sympify = parse_variables_symp(variables)
-        # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
-        sympy1_units = sympify_with_custom(sexpression1, varsubs_sympify).subs(varsubs).doit()
-        sympy2_units = sympify_with_custom(sexpression2, varsubs_sympify).subs(varsubs).doit()
+        # Let sympy parse the expressions and substitute the variables together with the units and then evaluate
+        # expression (necessary for matrix expressions).
+        sympy1_units = lhs
+        sympy2_units = rhs
         sympy1 = sympy1_units.subs(uniteval)
         sympy2 = sympy2_units.subs(uniteval)
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug('Expression 1: ' + str(sympy1))
             logger.debug('Expression 2: ' + str(sympy2))
-        sample_variable_symbols = list(map(lambda item: item['symbol'], sample_variables))
-        numfunc1 = sympy.lambdify(sample_variable_symbols, sympy1, modules=lambdifymodules)
-        numfunc2 = sympy.lambdify(sample_variable_symbols, sympy2, modules=lambdifymodules)
 
-        neighbours = []
+        subs_neighbours = []
         for i in range(0, number_of_points):
-            neighbour = []
+            subs_neighbour = []
             for var in sample_variables:
                 var_value = float(var['around'].subs(uniteval))
-                neighbour.append(var_value + random.random() * var_value * 0.1 + 0j)
-            neighbours.append(neighbour)
-            if logger.isEnabledFor(logging.DEBUG):
-                varvals = list(
-                    map(
-                        lambda x: str(x[0]['symbol']) + ':' + str(x[1]),
-                        zip(sample_variables, neighbour),
-                    )
+                subs_neighbour.append(
+                    (var['symbol'], var_value + random.random() * var_value * 0.1 + 0j)
                 )
+            if logger.isEnabledFor(logging.DEBUG):
+                varvals = list(map(lambda x: str(x[0]) + ':' + str(x[1]), subs_neighbour))
                 logger.debug('Neighbour point: ' + str(varvals))
+            subs_neighbours.append(subs_neighbour)
 
         one_point = list(
             map(lambda item: (item['symbol'], item['around'].subs(uniteval)), sample_variables)
@@ -235,7 +313,9 @@ def linear_algebra(variables, student_answer, correct):  # {{{
 
         test_evaluation = numpy.linalg.norm(
             sympy.lambdify(
-                [], (sympy1.subs(one_point) - sympy2.subs(one_point)), modules=lambdifymodules
+                [],
+                (sympy1.subs(one_point).doit() - sympy2.subs(one_point).doit()),
+                modules=lambdifymodules,
             )()
         )
         try:
@@ -245,8 +325,12 @@ def linear_algebra(variables, student_answer, correct):  # {{{
 
         diffs = []
         for n in range(0, number_of_points):
-            nvalue1 = numfunc1(*neighbours[n])  # sympy1.subs(point).subs(uniteval).evalf()
-            nvalue2 = numfunc2(*neighbours[n])  # sympy2.subs(point).subs(uniteval).evalf()
+            nvalue1 = sympy.lambdify(
+                [], sympy1.subs(subs_neighbours[n]).doit(), modules=lambdifymodules
+            )()
+            nvalue2 = sympy.lambdify(
+                [], sympy2.subs(subs_neighbours[n]).doit(), modules=lambdifymodules
+            )()
             ndiff = numpy.absolute(nvalue2 - nvalue1)
             correct = numpy.all(ndiff < 1e-06)
             diffs.append(correct)
@@ -255,17 +339,17 @@ def linear_algebra(variables, student_answer, correct):  # {{{
         else:
             response['correct'] = False
     except SympifyError as e:
-        logger.error([str(e), expression1, expression2])
+        logger.error([str(e), str(lhs), str(rhs)])
         response['error'] = _("Failed to evaluate expression.")
     except Exception as e:
-        logger.error([str(e), expression1, expression2])
+        logger.error([str(e), str(lhs), str(rhs)])
         # traceback.print_exc()
         response['error'] = _("Unknown error, check your expression.")
     return response  # }}}
 
 
 def linear_algebra_expression_runner(variables, expression1, expression2, result_queue):
-    response = linear_algebra(variables, expression1, expression2)
+    response = linear_algebra_compare_expressions(variables, expression1, expression2)
     result_queue.put(response)
 
 
@@ -287,4 +371,4 @@ def linear_algebra_expression_blocking(variables, student_answer, correct_answer
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
-    return linear_algebra(variables, student_answer, correct_answer)
+    return linear_algebra_compare_expressions(variables, student_answer, correct_answer)
