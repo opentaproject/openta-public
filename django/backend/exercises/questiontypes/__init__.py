@@ -1,3 +1,3 @@
 from . import compare_numeric
 from . import multiple_choice
-from . import linalgebra_merge
+from . import linear_algebra
