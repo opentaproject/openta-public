@@ -26,7 +26,7 @@ def ascii_to_sympy(expression):  # {{{
     # result = resub.sub(r"cross", r"Cross", result)
     # result = resub.sub(r"norm", r"Norm", result)
     # result = resub.sub(r"dot", r"Dot", result)
-    result = declash(result)
+    # result = declash(result)
     for old, new in dict.items():
         result = result.replace(old, new)
     result = resub.sub(
@@ -78,7 +78,7 @@ def absify(expression):  # {{{
     if depth == 0:
         return s
     else:
-        return sexpression  # }}}
+        return expression  # }}}
 
 
 def braketify(expression):  # {{{

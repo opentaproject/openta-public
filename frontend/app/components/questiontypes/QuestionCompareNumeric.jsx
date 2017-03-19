@@ -396,7 +396,7 @@ export default class QuestionCompareNumeric extends Component {
   var availableVariables = "";
   if(this.varsList) {
     this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
-    availableVariables = this.varsList.length ? "(i termer av " + this.varsList.filter(v => typeof v === 'string').map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
+    availableVariables = this.varsList.length ? "(i termer av " + this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
   }
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.

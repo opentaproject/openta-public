@@ -41,6 +41,34 @@ var braketify = (sstr) => {
   return snew;
 }
 
+var absify = (expression) => {//{{{
+    var l = expression.length;
+    var i = 0; 
+    var s = ''
+    var depth = 0
+    while(i < l) {
+            var c = expression[i]
+            if(c === '|'){
+                 if(depth == 0) {
+                        s += "Norm("
+                        depth = -1
+                 }
+                 else if(depth == -1)
+                        depth = 0
+            }
+            else {
+                s += expression[i]
+            }
+            if(c === '|' && depth == 0)
+                    s += ")"
+            i += 1
+    }
+    if(depth == 0)
+        return s
+    else
+        return expression
+}//}}}
+
 //An alpha character followed by a number should be rendered in subscript
 const insertImplicitSubscript = (asciitext) => {
   var re = /([a-zA-Z]+)([0-9]+)/g;
@@ -396,7 +424,7 @@ export default class QuestionLinearAlgebra extends Component {
   var availableVariables = "";
   if(this.varsList) {
     this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
-    availableVariables = this.varsList.length ? "(i termer av " + this.varsList.filter(v => typeof v === 'string').map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
+    availableVariables = this.varsList.length ? "(i termer av " + this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
   }
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
@@ -471,3 +499,5 @@ export default class QuestionLinearAlgebra extends Component {
 
 //Register the question component with the system
 registerQuestionType('linearAlgebra', QuestionLinearAlgebra);
+
+export {absify}
