@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-19 01:02+0100\n"
+"POT-Creation-Date: 2017-03-19 14:43+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -152,23 +152,23 @@ msgid "Failed to evaluate expression"
 msgstr "Kunde inte evaluera uttrycket"
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:196
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:296
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:306
 msgid " are not valid variables."
 msgstr " är inte tillåtna variabler."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:199
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:318
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:328
 msgid "Failed to evaluate expression."
 msgstr "Kunde inte evaluera uttrycket"
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:202
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:322
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:332
 msgid "Unknown error, check your expression."
 msgstr "Okänt fel, kontrollera ditt uttryck."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:219
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:238
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:337
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:347
 msgid "Answer contains invalid character "
 msgstr "Uttrycket innehåller felaktiga tecken "
 
@@ -206,11 +206,16 @@ msgstr ""
 msgid "1-Answer contains invalid character "
 msgstr "Uttrycket innehåller felaktiga tecken "
 
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:242
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:244
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:246
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:243
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:245
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:247
 msgid "The answer does not have the correct dimensions."
-msgstr "Svaret har inte rätt dimensionalitet."
+msgstr "Svaret har inte rätt dimensionalitet (skalär/vektor/matris)."
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:254
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:256
+msgid "Forbidden token: "
+msgstr "Otillåten funktion/variabel: "
 
 #: exercises/questiontypes/multiple_choice/__init__.py:73
 msgid "There are more correct alternatives."

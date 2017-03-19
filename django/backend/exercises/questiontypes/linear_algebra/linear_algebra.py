@@ -224,7 +224,7 @@ def check_units_new(expression, correct, sample_variables):
             )
 
 
-def linear_algebra_compare_expressions(variables, student_answer, correct):
+def linear_algebra_compare_expressions(variables, student_answer, correct, blacklist=[]):
     """
     Compare two asciimath expressions for equality.
 
@@ -232,6 +232,7 @@ def linear_algebra_compare_expressions(variables, student_answer, correct):
         variables: [ { name: string, value: asciimath }, ... ]
         student_answer: asciimath
         correct: asciimath
+        blacklist: [ string ] blacklisted tokens
 
     Returns:
         {
@@ -253,6 +254,15 @@ def linear_algebra_compare_expressions(variables, student_answer, correct):
         return {'error': _('The answer does not have the correct dimensions.')}
     if hasattr(rhs, 'shape') and not hasattr(lhs, 'shape'):
         return {'error': _('The answer does not have the correct dimensions.')}
+    if isinstance(prelhs, sympy.Basic):
+        atoms = prelhs.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
+        for atom in atoms:
+            strrep = str(atom)
+            funcstr = str(atom.func)
+            if strrep in blacklist:
+                return {'error': _('Forbidden token: ') + strrep}
+            if funcstr in blacklist:
+                return {'error': _('Forbidden token: ') + funcstr}
 
     return linear_algebra_check_equality(lhs, rhs, sample_variables)
 
@@ -346,12 +356,12 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables):  # {{{
     return response  # }}}
 
 
-def linear_algebra_expression_runner(variables, expression1, expression2, result_queue):
-    response = linear_algebra_compare_expressions(variables, expression1, expression2)
+def linear_algebra_expression_runner(variables, expression1, expression2, blacklist, result_queue):
+    response = linear_algebra_compare_expressions(variables, expression1, expression2, blacklist)
     result_queue.put(response)
 
 
-def linear_algebra_expression(variables, student_answer, correct_answer):
+def linear_algebra_expression(variables, student_answer, correct_answer, blacklist=[]):
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
@@ -361,12 +371,13 @@ def linear_algebra_expression(variables, student_answer, correct_answer):
             return {'error': _('Answer contains invalid character ') + i}
     # print(compare_numeric_internal(variables, expression1, expression2))
     return safe_run(
-        linear_algebra_expression_runner, args=(variables, student_answer, correct_answer)
+        linear_algebra_expression_runner,
+        args=(variables, student_answer, correct_answer, blacklist),
     )
 
 
-def linear_algebra_expression_blocking(variables, student_answer, correct_answer):
+def linear_algebra_expression_blocking(variables, student_answer, correct_answer, blacklist=[]):
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
-    return linear_algebra_compare_expressions(variables, student_answer, correct_answer)
+    return linear_algebra_compare_expressions(variables, student_answer, correct_answer, blacklist)

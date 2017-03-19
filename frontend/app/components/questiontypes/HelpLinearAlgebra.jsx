@@ -9,7 +9,7 @@ export default class HelpLinearAlgebra extends Component {
 <a data-uk-toggle={"{target:'#" + this.id + "'}"}><i className="uk-icon uk-text-warning uk-icon-small uk-icon-question-circle-o uk-margin-small-left"/></a>
 <div id={this.id} className="uk-hidden">
   <p>Skriv in ditt svar i rutan och tryck på <i className="uk-icon uk-icon-send uk-margin-small-left uk-margin-small-right"/> för att kontrollera. Under tiden som du skriver in uttrycket får du löpande information om eventuella syntaxfel.</p>
-  Förutom syntax i vanliga svarsfält (<HelpCompareNumeric/>) så finns det här även vektoroperatorer som skrivs på funktionsform: kryssprodukt <code>cross(v1, v2)</code>, skalärprodukt <code>dot(v1, v2)</code> och storlek av en vektor <code>norm(v)</code>.
+  Förutom syntax i vanliga svarsfält (<HelpCompareNumeric/>) så finns det här även vektoroperatorer som skrivs på funktionsform: kryssprodukt <code>cross(v1, v2)</code>, skalärprodukt <code>dot(v1, v2)</code> och storlek av en vektor <code>norm(v)</code> (eller <code>abs(v)</code>).
     <hr/>
     T.ex kan uttrycket <MathSpan message="$(\vec{u}+\vec{v}) \times \vec{w}$"></MathSpan> skrivas som <code>cross(u+v,w)</code> 
     <hr/>

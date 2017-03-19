@@ -18,7 +18,7 @@ def safe_run(function, args):
         starttime = time.perf_counter()
         response = q.get(True, 6)
         timedelta = time.perf_counter() - starttime
-        logger.info(
+        logger.debug(
             "Safe run of "
             + function.__name__
             + " took "
