@@ -13,6 +13,7 @@ from exercises.serializers import (
 import json
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Prefetch, Count, Case, When, Avg, Q, F
+from django.test import RequestFactory
 import os
 from functools import reduce
 from collections import OrderedDict, defaultdict
@@ -380,6 +381,8 @@ def student_attempts_exercises():  # {{{
 
 
 def exercise_test(exercise_key):  # {{{
+    requests = RequestFactory()
+    request = requests.get('/test')
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     dbquestions = Question.objects.filter(exercise=dbexercise)
     xmltree = exercise_xmltree(dbexercise.path)
@@ -394,7 +397,9 @@ def exercise_test(exercise_key):  # {{{
                 answer = answer_element.text.split(';')[0]
                 result = {}
                 try:
-                    result = question_check(user, "tester", exercise_key, question_key, answer)
+                    result = question_check(
+                        request, user, "tester", exercise_key, question_key, answer
+                    )
                 except Exception as e:
                     result['exception'] = str(e)
                 result.update({'answer': answer})

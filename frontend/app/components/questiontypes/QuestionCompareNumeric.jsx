@@ -359,11 +359,12 @@ export default class QuestionCompareNumeric extends Component {
   }
 
   parseBlacklist = () => {
-    var blacklistObject =  this.props.questionData.getIn(['global','blacklist','token']);
-    if( blacklistObject ){
-      var blacklistList = enforceList(blacklistObject);
-      this.blacklist = blacklistList.map( item => insertImplicitSubscript(item.get('$','').trim()) ).toJS();
-    }
+    var blacklist = immutable.List([]);
+    var globalBlacklistObject =  this.props.questionData.getIn(['global','blacklist','token']);
+    var blacklistObject =  this.props.questionData.getIn(['blacklist','token']);
+    if( globalBlacklistObject )blacklist = blacklist.concat(enforceList(globalBlacklistObject));
+    if( blacklistObject )blacklist = blacklist.concat(enforceList(blacklistObject));
+    this.blacklist = blacklist.map( item => insertImplicitSubscript(item.get('$','').trim()) ).toJS();
   }
 
   /* render gets called every time the question is shown on screen */

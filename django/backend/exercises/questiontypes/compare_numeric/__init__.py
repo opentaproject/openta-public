@@ -12,10 +12,13 @@ import functools
 import operator
 from exercises.util import compose
 from lxml import etree
+import logging
 from .compare_numeric import (
     compare_numeric,
     to_latex,
 )  # The sympy interface is placed in a separate file "compare_numeric.py" in this folder
+
+logger = logging.getLogger(__name__)
 
 
 def parse_variables(variables):  # {{{
@@ -55,6 +58,15 @@ def parse_xml_variables(node):
     return res
 
 
+def parse_blacklist(node):
+    tokens = node.xpath('./blacklist/token')
+    ret = []
+    for token in tokens:
+        if hasattr(token, 'text'):
+            ret.append(token.text.strip(' \t\n\r'))
+    return ret
+
+
 # The function below is the core of the server interface and the only mandatory component.
 def question_check_compare_numeric(question_json, question_xmltree, answer_data, global_xmltree):
     '''Checks a symbolic answer by numeric evaluation.
@@ -83,6 +95,7 @@ def question_check_compare_numeric(question_json, question_xmltree, answer_data,
         </question>
     '''
     variables = []
+    blacklist = set([])
 
     variables += parse_xml_variables(question_xmltree)
     if global_xmltree is not None:
@@ -99,8 +112,11 @@ def question_check_compare_numeric(question_json, question_xmltree, answer_data,
     variables = list(unique_vars.values())
     correct_answer = question_xmltree.find('expression').text.split(';')[0]
 
+    blacklist.update(parse_blacklist(global_xmltree))
+    blacklist.update(parse_blacklist(question_xmltree))
+
     result = {}
-    result = compare_numeric(variables, answer_data, correct_answer)
+    result = compare_numeric(variables, answer_data, correct_answer, list(blacklist))
     if 'correct' in result:
         result['status'] = 'correct' if result['correct'] else 'incorrect'
     elif 'error' in result:
