@@ -63,7 +63,7 @@ class Cross(sympy.MatrixExpr):
             return self
 
 
-class Dot(sympy.Function):  # {{{
+class Dot(sympy.Function):
     nargs = 2
 
     @classmethod
@@ -245,9 +245,9 @@ def linear_algebra_compare_expressions(variables, student_answer, correct, black
     # Let sympy parse the expressions and substitute the variables together with the units and then evaluate
     # expression (necessary for matrix expressions).
     prelhs = sympify_with_custom(student_answer, varsubs_sympify)
-    lhs = prelhs.subs(varsubs).doit()
+    lhs = prelhs.subs(varsubs).subs(varsubs).subs(varsubs).doit()
     prerhs = sympify_with_custom(correct, varsubs_sympify)
-    rhs = prerhs.subs(varsubs).doit()
+    rhs = prerhs.subs(varsubs).subs(varsubs).subs(varsubs).doit()
     if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
         if lhs.shape != rhs.shape:
             return {'error': _('The answer does not have the correct dimensions.')}
