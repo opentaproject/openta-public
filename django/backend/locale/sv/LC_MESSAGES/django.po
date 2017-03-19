@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-28 13:46+0100\n"
+"POT-Creation-Date: 2017-03-19 01:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: backend/forms.py:51 course/forms.py:5 course/models.py:26
+#: backend/forms.py:51 course/forms.py:6 course/models.py:26
 msgid "Registration password"
 msgstr "Registreringslösenord"
 
@@ -30,7 +30,7 @@ msgstr ""
 msgid "Site is down for maintenance."
 msgstr "Sidan är stängd för underhåll."
 
-#: backend/user_utilities.py:83
+#: backend/user_utilities.py:70
 msgid " account activation"
 msgstr " kontoaktivering"
 
@@ -73,11 +73,11 @@ msgstr " gånger per minut."
 msgid "Password reset successful, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
-#: exercises/admin.py:249
+#: exercises/admin.py:250
 msgid "Number of samples larger than population, showing all users."
 msgstr ""
 
-#: exercises/admin.py:286
+#: exercises/admin.py:287
 msgid "Random control"
 msgstr "Slumpmässig kontroll"
 
@@ -143,6 +143,7 @@ msgstr "Termerna i uttrycket verkar inte ha samma enhet."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:84
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:117
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:216
 msgid "Seems like the expression does not have the correct units."
 msgstr "Uttrycket verkar inte ha rätt enhet."
 
@@ -151,39 +152,79 @@ msgid "Failed to evaluate expression"
 msgstr "Kunde inte evaluera uttrycket"
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:196
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:296
 msgid " are not valid variables."
 msgstr " är inte tillåtna variabler."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:199
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:318
 msgid "Failed to evaluate expression."
 msgstr "Kunde inte evaluera uttrycket"
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:202
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:322
 msgid "Unknown error, check your expression."
 msgstr "Okänt fel, kontrollera ditt uttryck."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:219
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:238
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:337
 msgid "Answer contains invalid character "
 msgstr "Uttrycket innehåller felaktiga tecken "
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:229
+#: exercises/questiontypes/linalgebra/linalgebra.py:542
 msgid "Expression could not be parsed."
 msgstr "Uttrycket kunde inte tolkas."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:259
+#: exercises/questiontypes/linalgebra/linalgebra.py:571
+#: exercises/questiontypes/safe_run.py:31
 msgid "Could not parse expression"
 msgstr "Uttrycket kunde inte tolkas."
 
-#: exercises/views/api.py:190
+#: exercises/questiontypes/linalgebra/linalgebra.py:98
+msgid "Error subsituting  for variable"
+msgstr ""
+
+#: exercises/questiontypes/linalgebra/linalgebra.py:367
+msgid "ILLEGAL CHARACTER "
+msgstr ""
+
+#: exercises/questiontypes/linalgebra/linalgebra.py:430
+#: exercises/questiontypes/linalgebra/linalgebra.py:432
+msgid "Error in facit: "
+msgstr ""
+
+#: exercises/questiontypes/linalgebra/linalgebra.py:551
+msgid "E2-illegal character "
+msgstr ""
+
+#: exercises/questiontypes/linalgebra/linalgebra.py:552
+#, fuzzy
+#| msgid "Answer contains invalid character "
+msgid "1-Answer contains invalid character "
+msgstr "Uttrycket innehåller felaktiga tecken "
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:242
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:244
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:246
+msgid "The answer does not have the correct dimensions."
+msgstr "Svaret har inte rätt dimensionalitet."
+
+#: exercises/questiontypes/multiple_choice/__init__.py:73
+msgid "There are more correct alternatives."
+msgstr "Det finns fler korrekta alternativ."
+
+#: exercises/views/api.py:197
 msgid "Exercise not activated."
 msgstr "Uppgiften är inte aktiverad."
 
-#: exercises/views/api.py:193
+#: exercises/views/api.py:200
 msgid "You are limited to "
 msgstr "Max "
 
-#: exercises/views/api.py:193
+#: exercises/views/api.py:200
 msgid " tries per minute."
 msgstr " försök per minut."
 
