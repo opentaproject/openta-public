@@ -28,7 +28,7 @@ import {
   setDetailResultExercise,
 } from '../actions.js';
 
-const BaseAuditViewStudent = ({ hasAuditData, auditor, auditFiles, subject, message, resolved }) => {
+const BaseAuditViewStudent = ({ hasAuditData, auditor, auditFiles, subject, message, revisionNeeded }) => {
   var renderAuditFiles = auditFiles.map(
     auditResponse => (
       <li key={auditResponse.get('id')}>
@@ -54,8 +54,8 @@ const BaseAuditViewStudent = ({ hasAuditData, auditor, auditFiles, subject, mess
       <div className="uk-width-2-3">
       <h3 className="uk-margin-small-bottom">
         Granskning
-        { resolved && <Badge type="success" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-check"/></Badge> }
-        { !resolved && <Badge type="error" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-close"/></Badge> }
+        { !revisionNeeded && <Badge type="success" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-check"/></Badge> }
+        { revisionNeeded && <Badge type="error" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-close"/></Badge> }
       </h3>
       <div className="uk-text-small">
               Granskad av <a href={"mailto:" + auditor.get('email')} className="uk-text-bold uk-contrast">{auditor.get('first_name')} {auditor.get('last_name')}</a>
@@ -92,7 +92,7 @@ const mapStateToProps = state => {
     auditor: auditData.get('auditor_data'),
     message: auditData.get('message'),
     subject: auditData.get('subject'),
-    resolved: auditData.get('resolved'),
+    revisionNeeded: auditData.get('revision_needed'),
   }
 };
 

@@ -64,7 +64,7 @@ return (
       { meta.solution && <Badge className={"uk-badge-notification"}>lösning</Badge> }
       {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
       {exerciseState.getIn([exercise, 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
-      {exerciseState.getIn([exercise, 'audit', 'sent'], false) && <Badge type={exerciseState.getIn([exercise, 'audit', 'resolved'], false) ? 'success' : 'error'} className={"uk-badge-notification"}>granskad</Badge> }
+      {exerciseState.getIn([exercise, 'audit', 'sent'], false) && <Badge type={exerciseState.getIn([exercise, 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
       </div>
       </div>
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>

@@ -160,7 +160,7 @@ function fetchNewAudit(exercise) {
     dispatch(updatePendingStateIn( ['audit', 'newAudit'], true));
     return jsonfetch('/audit/new/exercise/' + exercise)
       .then( () => dispatch(fetchCurrentAuditsExercise()) )
-      .then( () => dispatch(updatePendingStateIn( ['audit', 'audits'], false)))
+      .then( () => dispatch(updatePendingStateIn( ['audit', 'newAudit'], false)))
       .catch( err => console.log(err) );
   }
 }
