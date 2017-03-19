@@ -144,7 +144,7 @@ def parse_variables(variables):
 
     Returns:
         tuple ( subs_rules, sympify_rules, sample_variables )
-        subs_rules: { sympy symbol: sympy expression, ... } used in .subs(...)
+        subs_rules: list of 2-tuples [ (sympy symbol, sympy expression), ... ] used in .subs(...)
         sympify_rules: { string(name): sympy symbol } used in sympify(...)
         sample_variables: [ { symbol: sympy Symbol/MatrixSymbol,
                               around: sympy expression ( a point around which to sample (might contain units))
@@ -153,15 +153,13 @@ def parse_variables(variables):
     """
     sym = {}
     vars = variables
-    subs_rules = {}
+    subs_rules = []
     sympify_rules = {}
     sample_variables = []
     for var in vars:
         expr = sympify_with_custom(ascii_to_sympy(var['value']), {})
         if hasattr(expr, 'shape'):
-            sym[var['name']] = sympy.MatrixSymbol(
-                var['name'], *expr.shape
-            )  # sympy.symbols(var['name'])
+            sym[var['name']] = sympy.MatrixSymbol(var['name'], *expr.shape)
         else:
             sym[var['name']] = sympy.Symbol(var['name'])
         sympify_rules[var['name']] = sym[var['name']]
@@ -169,8 +167,8 @@ def parse_variables(variables):
             sample_around = expr.replace(sympy.Function('sample'), lambda x: x).doit()
             sample_variables.append({'symbol': sym[var['name']], 'around': sample_around})
         else:
-            subs_rules[sym[var['name']]] = expr  # _clash)
-    return (subs_rules, sympify_rules, sample_variables)
+            subs_rules.append((sym[var['name']], expr))
+    return (list(reversed(subs_rules)), sympify_rules, sample_variables)
 
 
 def check_units_new(expression, correct, sample_variables):
