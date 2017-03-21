@@ -6,6 +6,7 @@ from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
 import random
+import itertools
 from exercises.questiontypes.safe_run import safe_run
 import logging
 import traceback
@@ -165,7 +166,12 @@ def parse_variables(variables):
             sym[var['name']] = sympy.Symbol(var['name'])
         sympify_rules[var['name']] = sym[var['name']]
         if expr.has(sympy.Function('sample')):
-            sample_around = expr.replace(sympy.Function('sample'), lambda x: x).doit()
+            [sample] = expr.find(sympy.Function('sample'))
+            sample_points = list(sample.args)
+            sample_around = [
+                expr.replace(sympy.Function('sample'), lambda *args: point).doit()
+                for point in sample_points
+            ]
             sample_variables.append({'symbol': sym[var['name']], 'around': sample_around})
         else:
             subs_rules.append((sym[var['name']], expr))
@@ -196,8 +202,8 @@ def check_units_new(expression, correct, sample_variables):
         return value + value * random.random() * 0.1
 
     for item in sample_variables:
-        nvarsubs[item['symbol']] = item['symbol'] * item['around']
-        value = float(item['around'].subs(uniteval))
+        nvarsubs[item['symbol']] = item['symbol'] * item['around'][0]
+        value = float(item['around'][0].subs(uniteval))
         sampled_value = value + random.random() * value * 0.1
         nsubs_values.append((item['symbol'], sampled_value))
     nexpression = expression.subs(nvarsubs).doit()
@@ -284,7 +290,7 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables):  # {{{
         }
     """
 
-    number_of_points = 10
+    number_of_points = 5
     response = {}
     try:
         random.seed(1)
@@ -302,17 +308,21 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables):  # {{{
         for i in range(0, number_of_points):
             subs_neighbour = []
             for var in sample_variables:
-                var_value = float(var['around'].subs(uniteval))
-                subs_neighbour.append(
-                    (var['symbol'], var_value + random.random() * var_value * 0.1 + 0j)
-                )
-            if logger.isEnabledFor(logging.DEBUG):
-                varvals = list(map(lambda x: str(x[0]) + ':' + str(x[1]), subs_neighbour))
-                logger.debug('Neighbour point: ' + str(varvals))
-            subs_neighbours.append(subs_neighbour)
+                sample_point_values = []
+                for sample_point in var['around']:
+                    var_value = float(sample_point.subs(uniteval))
+                    sample_point_values.append(
+                        (var['symbol'], var_value + random.random() * var_value * 0.1 + 0j)
+                    )
+                subs_neighbour.append(sample_point_values)
+            for combination in itertools.product(*subs_neighbour):
+                subs_neighbours.append(combination)
+                if logger.isEnabledFor(logging.DEBUG):
+                    varvals = list(map(lambda x: str(x[0]) + ':' + str(x[1]), combination))
+                    logger.debug('Neighbour point: ' + str(varvals))
 
         one_point = list(
-            map(lambda item: (item['symbol'], item['around'].subs(uniteval)), sample_variables)
+            map(lambda item: (item['symbol'], item['around'][0].subs(uniteval)), sample_variables)
         )
         undefined_variables = sympy1.subs(one_point).free_symbols - set([kg, second, meter])
         if len(undefined_variables) > 0:
@@ -333,17 +343,17 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables):  # {{{
             response['warning'] = str(e)
 
         diffs = []
-        for n in range(0, number_of_points):
+        for sample_point in subs_neighbours:
             nvalue1 = sympy.lambdify(
-                [], sympy1.subs(subs_neighbours[n]).doit(), modules=lambdifymodules
+                [], sympy1.subs(sample_point).doit(), modules=lambdifymodules
             )()
             nvalue2 = sympy.lambdify(
-                [], sympy2.subs(subs_neighbours[n]).doit(), modules=lambdifymodules
+                [], sympy2.subs(sample_point).doit(), modules=lambdifymodules
             )()
             ndiff = numpy.absolute(nvalue2 - nvalue1)
             correct = numpy.all(ndiff < 1e-06)
             diffs.append(correct)
-        if diffs.count(True) >= number_of_points * 0.8:
+        if diffs.count(True) >= len(subs_neighbours) * 0.9:
             response['correct'] = True
         else:
             response['correct'] = False
