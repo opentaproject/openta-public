@@ -456,7 +456,7 @@ export default class QuestionLinearAlgebra extends Component {
   return (
         <div className="">
           <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span>
-          <span data-uk-tooltip title="Denna fråga är av en ny typ där vektorer och matriser kan användas."><Badge message="experimentell" type="warning" className="uk-margin-left"/></span>
+          <span data-uk-tooltip title="Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."><Badge message="experimentell" type="warning" className="uk-margin-left uk-text-small"/></span>
           <HelpLinearAlgebra/>
           </label>
 { hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
