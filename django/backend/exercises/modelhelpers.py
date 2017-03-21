@@ -518,6 +518,9 @@ def get_passed_students(exercise):
     )
     users = []
     for question in questions:
+        deadline_date = datetime.datetime.now(tz) + datetime.timedelta(days=2)
+        if question.exercise.meta.deadline_date:
+            deadline_date = question.exercise.meta.deadline_date
         users.append(
             set(
                 students.filter(
@@ -525,9 +528,7 @@ def get_passed_students(exercise):
                     answer__question=question,
                     answer__correct=True,
                     answer__date__lt=tz.localize(
-                        datetime.datetime.combine(
-                            question.exercise.meta.deadline_date, deadline_time
-                        )
+                        datetime.datetime.combine(deadline_date, deadline_time)
                     ),
                 )
                 .values_list('pk', flat=True)

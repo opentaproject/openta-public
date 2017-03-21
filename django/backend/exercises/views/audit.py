@@ -69,7 +69,7 @@ def get_current_audits_stats(request, exercise):
 @api_view(['POST', 'GET'])
 def get_new_audit(request, exercise):
     try:
-        dbexercise = Exercise.objects.get(pk=exercise, meta__image=True)
+        dbexercise = Exercise.objects.get(pk=exercise)
     except Exercise.DoesNotExist:
         return Response(
             {'error': 'Invalid exercise or no image required.'},
