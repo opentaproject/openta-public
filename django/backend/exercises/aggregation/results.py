@@ -235,21 +235,23 @@ def calculate_user_results(userpk):
         if exercise['meta']['required']:
             if exercise['correct'] or exercise['force_passed']:
                 n_passed_required += 1
-            if exercise['correct_deadline'] or exercise['force_passed']:
-                n_passed_required_d += 1
-                if (
-                    exercise['image_deadline'] or exercise['force_passed']
-                ):  # Here d_id refers to both answer and image answer before deadline
-                    n_passed_required_d_id += 1
+            if exercise['meta']['deadline_date']:
+                if exercise['correct_deadline'] or exercise['force_passed']:
+                    n_passed_required_d += 1
+                    if (
+                        exercise['image_deadline'] or exercise['force_passed']
+                    ):  # Here d_id refers to both answer and image answer before deadline
+                        n_passed_required_d_id += 1
         elif exercise['meta']['bonus']:
             if exercise['correct'] or exercise['force_passed']:
                 n_passed_bonus += 1
-            if exercise['correct_deadline'] or exercise['force_passed']:
-                n_passed_bonus_d += 1
-                if (
-                    exercise['image_deadline'] or exercise['force_passed']
-                ):  # Here d_id refers to both answer and image answer before deadline
-                    n_passed_bonus_d_id += 1
+            if exercise['meta']['deadline_date']:
+                if exercise['correct_deadline'] or exercise['force_passed']:
+                    n_passed_bonus_d += 1
+                    if (
+                        exercise['image_deadline'] or exercise['force_passed']
+                    ):  # Here d_id refers to both answer and image answer before deadline
+                        n_passed_bonus_d_id += 1
         else:
             if exercise['correct'] or exercise['force_passed']:
                 n_optional += 1

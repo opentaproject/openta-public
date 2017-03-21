@@ -142,14 +142,14 @@ const BaseStudentResults = ({userResults,
                   <div style={{position:'absolute', left: '-10px', top: '-10px'}}>
                     { item.getIn(['meta','bonus']) && 
                       <Badge className="uk-badge-warning">
-                      {/*<i className="uk-icon uk-icon-calendar"/>*/}
-                        {moment(item.getIn(['meta','deadline_date'])).format('D MMM')}
+                        {item.getIn(['meta','deadline_date']) && moment(item.getIn(['meta','deadline_date'])).format('D MMM')}
+                        {!item.getIn(['meta', 'deadline_date']) && <span>bonus</span>}
                       </Badge> 
                     }
                     { item.getIn(['meta','required']) && 
                       <Badge className="">
-                      {/*<i className="uk-icon uk-icon-calendar"/>*/}
-                        {moment(item.getIn(['meta','deadline_date'])).format('D MMM')}
+                        {item.getIn(['meta','deadline_date']) && moment(item.getIn(['meta','deadline_date'])).format('D MMM')}
+                        {!item.getIn(['meta', 'deadline_date']) && <span>required</span>}
                       </Badge> 
                     }
                   </div>
