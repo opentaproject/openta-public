@@ -7,9 +7,9 @@ import AuditViewStudent from './AuditViewStudent';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 
-const BaseStudentExercise = ({ hasAudit, hasSentAudit }) => (
+const BaseStudentExercise = ({ hasAudit, hasPublishedAudit }) => (
   <div className="uk-flex uk-width-1-1 uk-flex-wrap">
-    { hasSentAudit && <AuditViewStudent/> }
+    { hasPublishedAudit && <AuditViewStudent/> }
     <Exercise/>
   </div>
 );
@@ -17,10 +17,10 @@ const BaseStudentExercise = ({ hasAudit, hasSentAudit }) => (
 const mapStateToProps = state => {
   var activeExercise = state.get('activeExercise');
   var hasAudit = state.hasIn(['exerciseState', activeExercise, 'audit']);
-  var hasSentAudit = state.getIn(['exerciseState', activeExercise, 'audit', 'sent'], false);
+  var hasPublishedAudit = state.getIn(['exerciseState', activeExercise, 'audit', 'published'], false);
   return {
     hasAudit: hasAudit,
-    hasSentAudit: hasSentAudit,
+    hasPublishedAudit: hasPublishedAudit,
   }
 };
 

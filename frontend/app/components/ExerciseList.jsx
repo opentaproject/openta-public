@@ -65,7 +65,7 @@ return (
               { meta.get('image', false) && <Badge className={"uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></Badge> }
               {exerciseState.getIn([exercise.get('exercise_key'), 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
               {exerciseState.getIn([exercise.get('exercise_key'), 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
-              {exerciseState.getIn([exercise.get('exercise_key'), 'audit', 'sent'], false) && <Badge type={exerciseState.getIn([exercise.get('exercise_key'), 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
+              {exerciseState.getIn([exercise.get('exercise_key'), 'audit', 'published'], false) && <Badge type={exerciseState.getIn([exercise.get('exercise_key'), 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
               </div>
               </div>
             </li>
