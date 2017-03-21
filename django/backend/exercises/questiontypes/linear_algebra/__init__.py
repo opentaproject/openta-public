@@ -110,7 +110,8 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     variables = list(unique_vars.values())
     correct_answer = question_xmltree.find('expression').text.split(';')[0]
 
-    blacklist.update(parse_blacklist(global_xmltree))
+    if global_xmltree is not None:
+        blacklist.update(parse_blacklist(global_xmltree))
     blacklist.update(parse_blacklist(question_xmltree))
 
     result = {}
