@@ -27,7 +27,7 @@ import {
 } from '../actions.js';
 
 
-const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, onAuditChange, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onAddAudit, onDeleteAudit, pendingDelete, onSubjectChange, onPublishAudit, pendingPublish, onPassAudit, onRevisionAudit, pendingRevision, onPublishAndSend, pendingStateAudits}, bccStatus, onBccClick, filter, onFilterChange) => {
+const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, onAuditChange, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onAddAudit, onDeleteAudit, pendingDelete, onSubjectChange, onPublishAudit, pendingPublish, onPassAudit, onRevisionAudit, pendingRevision, onPublishAndSend, pendingStateAudits, pendingNewAudit}, bccStatus, onBccClick, filter, onFilterChange) => {
   var auditsList = audits.filter( (audit) => audit.get('exercise') === activeExercise )
                          .filter( item => filter === '' || (item.get('student_username') /*+ ' ' + item.get('first_name') + ' ' + item.get('last_name')*/).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
                          .toList()
@@ -94,8 +94,8 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
             </div>
             </div>
             <div className="uk-flex uk-flex-column">
-            <button className="uk-button uk-button-primary" type="button" onClick={ () => onAddAudit(activeExercise) }>Add student</button>
-            <button className={"uk-button uk-button-medium uk-margin-small-top " + (auditsRenderReady.size > 0 ? 'uk-button-success' : '')} type="button" onClick={ () => onPublishAndSend(auditsReady) }>Publish ready ({auditsRenderReady.size})</button>
+            <button className="uk-button uk-button-primary" type="button" onClick={ () => onAddAudit(activeExercise) }>Add student { pendingNewAudit && <Spinner size="uk-icon-small"/> }</button>
+            <button className={"uk-button uk-button-medium uk-margin-small-top " + (auditsRenderReady.size > 0 ? 'uk-button-success' : '')} type="button" onClick={ () => onPublishAndSend(auditsReady) } data-uk-tooltip title="Publish ready audits and send an email to students.">Publish ready ({auditsRenderReady.size})</button>
             <div className="uk-margin-small-top"><input className="uk-form-width-small uk-form-small" type="text" placeholder="Username filter" value={filter} onChange={onFilterChange}/></div>
             </div>
             <div className="uk-button-group uk-display-inline-block uk-margin-small-top">
@@ -273,7 +273,7 @@ const handleAuditPublish = (auditPk, currentlyPublished) => dispatch => {
 const handlePublishAndSend = (audits) => dispatch => {
   audits.forEach( audit => {
     dispatch(handleAuditPublish(audit.get('pk'), false))
-      .then(() => dispatch(handleAuditSend(audit.get('pk'))));
+      .then(() => dispatch(handleAuditSend(audit.get('pk'), false)));
   });
   /**/
 }
@@ -322,6 +322,7 @@ const mapStateToProps = state => {
     pendingPublish: state.getIn(['pendingState', 'audit', 'audits', activeAudit, 'publish'], false),
     pendingRevision: state.getIn(['pendingState', 'audit', 'audits', activeAudit, 'revision'], false),
     pendingStateAudits: state.getIn(['pendingState', 'audit', 'audits'], immutable.Map({})),
+    pendingNewAudit: state.getIn(['pendingState', 'audit', 'newAudit'], false),
   }
 };
 
