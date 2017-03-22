@@ -247,29 +247,43 @@ def linear_algebra_compare_expressions(variables, student_answer, correct, black
             error: string
         }
     """
-    varsubs, varsubs_sympify, sample_variables = parse_variables(variables)
-    # Let sympy parse the expressions and substitute the variables together with the units and then evaluate
-    # expression (necessary for matrix expressions).
-    prelhs = sympify_with_custom(student_answer, varsubs_sympify)
-    lhs = prelhs.subs(varsubs).subs(varsubs).subs(varsubs).doit()
-    prerhs = sympify_with_custom(correct, varsubs_sympify)
-    rhs = prerhs.subs(varsubs).subs(varsubs).subs(varsubs).doit()
-    if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
-        if lhs.shape != rhs.shape:
+    try:
+        varsubs, varsubs_sympify, sample_variables = parse_variables(variables)
+        # Let sympy parse the expressions and substitute the variables together with the units and then evaluate
+        # expression (necessary for matrix expressions).
+        prelhs = sympify_with_custom(student_answer, varsubs_sympify)
+        lhs = prelhs.subs(varsubs).subs(varsubs).subs(varsubs).doit()
+        prerhs = sympify_with_custom(correct, varsubs_sympify)
+        rhs = prerhs.subs(varsubs).subs(varsubs).subs(varsubs).doit()
+        if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
+            if lhs.shape != rhs.shape:
+                return {'error': _('The answer does not have the correct dimensions.')}
+        if hasattr(lhs, 'shape') and not hasattr(rhs, 'shape'):
             return {'error': _('The answer does not have the correct dimensions.')}
-    if hasattr(lhs, 'shape') and not hasattr(rhs, 'shape'):
-        return {'error': _('The answer does not have the correct dimensions.')}
-    if hasattr(rhs, 'shape') and not hasattr(lhs, 'shape'):
-        return {'error': _('The answer does not have the correct dimensions.')}
-    if isinstance(prelhs, sympy.Basic):
-        atoms = prelhs.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
-        for atom in atoms:
-            strrep = str(atom)
-            funcstr = str(atom.func)
-            if strrep in blacklist:
-                return {'error': _('Forbidden token: ') + strrep}
-            if funcstr in blacklist:
-                return {'error': _('Forbidden token: ') + funcstr}
+        if hasattr(rhs, 'shape') and not hasattr(lhs, 'shape'):
+            return {'error': _('The answer does not have the correct dimensions.')}
+        if isinstance(prelhs, sympy.Basic):
+            atoms = prelhs.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
+            for atom in atoms:
+                strrep = str(atom)
+                funcstr = str(atom.func)
+                if strrep in blacklist:
+                    return {'error': _('Forbidden token: ') + strrep}
+                if funcstr in blacklist:
+                    return {'error': _('Forbidden token: ') + funcstr}
+    except SympifyError as e:
+        logger.error([str(e), str(student_answer), str(correct)])
+        response = dict(error=_("Failed to evaluate expression."))
+        return response
+    except ShapeError as e:
+        response = dict(
+            error=_("There seems to be a vector or matrix operation with incompatible dimensions.")
+        )
+        return response
+    except Exception as e:
+        logger.error([str(e), str(student_answer), str(correct)])
+        response = dict(error=_("Unknown error, check your expression."))
+        return response
 
     return linear_algebra_check_equality(lhs, rhs, sample_variables)
 
