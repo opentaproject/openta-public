@@ -3,6 +3,7 @@ from queue import Empty
 import logging
 import time
 import json
+from django.utils.translation import ugettext as _
 
 logger = logging.getLogger(__name__)
 
