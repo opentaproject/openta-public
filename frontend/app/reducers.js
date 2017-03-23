@@ -130,6 +130,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['results', 'detailResultsView'], action.view);
     case 'UPDATE_EXERCISE_TREE_UI':
       return state.mergeDeepIn(['exerciseTreeUI'], action.tree);
+    case 'SET_EXERCISE_XML_ERROR':
+      return state.setIn(['exerciseState', action.exercise, 'xmlError'], action.error);
     default:
       return state
   }

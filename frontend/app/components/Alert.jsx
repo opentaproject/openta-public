@@ -21,7 +21,7 @@ export default class Alert extends Component {
     }
     var typeClass = this.props.type ? typeToClass[this.props.type] : "";
     return (
-      <div className={"uk-alert uk-overflow-container uk-margin-small-top uk-margin-small-bottom " + typeClass + " " + this.props.className} ref="alert">{this.props.message}</div>
+      <div className={"uk-alert uk-overflow-container uk-margin-small-top uk-margin-small-bottom " + typeClass + " " + this.props.className} ref="alert">{this.props.message}{this.props.children}</div>
     );
   }
 
