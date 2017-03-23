@@ -485,9 +485,13 @@ def get_passed_exercises_with_image_data(
 
     failed_questions = questions.exclude(pk__in=passed_questions_pk_list)
     failed_exercises_pk_list = failed_questions.values_list('exercise__pk', flat=True)
-    passed_exercises = exercise_queryset.exclude(pk__in=failed_exercises_pk_list).select_related(
-        'meta'
+    failed_by_audit = exercise_queryset.filter(
+        audits__student=user, audits__published=True, audits__revision_needed=True
     )
+    failed_by_audit_pk_list = failed_by_audit.values_list('pk', flat=True)
+    all_failed_pk_list = list(set(failed_by_audit_pk_list) | set(failed_exercises_pk_list))
+
+    passed_exercises = exercise_queryset.exclude(pk__in=all_failed_pk_list).select_related('meta')
     force_passed_exercises = exercise_queryset.filter(
         pk__in=AuditExercise.objects.get_force_passed_exercises_pk(user)
     )
