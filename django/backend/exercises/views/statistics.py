@@ -9,16 +9,18 @@ from exercises.modelhelpers import (
     exercise_test,
 )
 from exercises.models import Exercise, Question, Answer, ImageAnswer
-from exercises.aggregation import student_statistics_exercises, students_results
+from exercises.aggregation import (
+    student_statistics_exercises,
+    students_results,
+    create_xlsx_from_results_list,
+)
 from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
 from django.views.decorators.cache import cache_page
 from .results import get_user_results
-import xlsxwriter
 from datetime import datetime
 import numpy
-import io
 
 
 @permission_required('exercises.administer_exercise')
@@ -44,51 +46,10 @@ def get_results(request):
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
 def get_results_excel(request):
-    required_key = request.GET.get('required_key', 'n_image_deadline')
-    bonus_key = request.GET.get('bonus_key', 'n_image_deadline')
-    key_text = {
-        'n_image_deadline': 'Both answer and image of solution needs to be submitted before deadline.',
-        'n_deadline': 'The answer needs to be submitted before deadline. (Image is ok after deadline)',
-        'n_correct': 'The answer needs to be correct and image provided. (No deadline enforced)',
-    }
-
     results = students_results()
-    output = io.BytesIO()
-    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-    worksheet = workbook.add_worksheet()
-    worksheet.write(0, 0, 'Username')
-    worksheet.write(0, 1, 'First')
-    worksheet.write(0, 2, 'Last')
-    worksheet.write(0, 3, 'Obligatory (before deadline)')
-    worksheet.write(0, 4, 'Obligatory (total)')
-    worksheet.write(0, 5, 'Bonus (before deadline)')
-    worksheet.write(0, 6, 'Bonus (total)')
-    worksheet.write(0, 7, 'Optional')
-    worksheet.write(0, 8, 'After deadline')
-    worksheet.write(0, 9, 'Total (Correct exercises)')
-    for index, student in enumerate(results):
-        worksheet.write(index + 1, 0, student['username'])
-        worksheet.write(index + 1, 1, student['first_name'])
-        worksheet.write(index + 1, 2, student['last_name'])
-        worksheet.write(index + 1, 3, student['required']['n_image_deadline'])
-        worksheet.write(index + 1, 4, student['required']['n_correct'])
-        worksheet.write(index + 1, 5, student['bonus']['n_image_deadline'])
-        worksheet.write(index + 1, 6, student['bonus']['n_correct'])
-        worksheet.write(index + 1, 7, student['optional'])
-        worksheet.write(
-            index + 1,
-            8,
-            student['required']['n_correct']
-            - student['required']['n_image_deadline']
-            + student['bonus']['n_correct']
-            - student['bonus']['n_image_deadline'],
-        )
-        worksheet.write(index + 1, 9, student['total'])
-    workbook.close()
-    output.seek(0)
+    xlsx_data = create_xlsx_from_results_list(results)
     response = HttpResponse(
-        output.read(),
-        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        xlsx_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
     response['Content-Disposition'] = 'attachment; filename=results.xlsx'
     return response

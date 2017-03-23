@@ -1,0 +1,45 @@
+import xlsxwriter
+import io
+
+
+def write_xlsx_from_results_list(filename, results):
+    xlsx_data = create_xlsx_from_results_list(results)
+    with open(filename, 'wb') as f:
+        f.write(xlsx_data)
+
+
+def create_xlsx_from_results_list(results):
+    output = io.BytesIO()
+    workbook = xlsxwriter.Workbook(output, {'in_memory': True})
+    worksheet = workbook.add_worksheet()
+    worksheet.write(0, 0, 'Username')
+    worksheet.write(0, 1, 'First')
+    worksheet.write(0, 2, 'Last')
+    worksheet.write(0, 3, 'Obligatory (before deadline)')
+    worksheet.write(0, 4, 'Obligatory (total)')
+    worksheet.write(0, 5, 'Bonus (before deadline)')
+    worksheet.write(0, 6, 'Bonus (total)')
+    worksheet.write(0, 7, 'Optional')
+    worksheet.write(0, 8, 'After deadline')
+    worksheet.write(0, 9, 'Total (Correct exercises)')
+    for index, student in enumerate(results):
+        worksheet.write(index + 1, 0, student['username'])
+        worksheet.write(index + 1, 1, student['first_name'])
+        worksheet.write(index + 1, 2, student['last_name'])
+        worksheet.write(index + 1, 3, student['required']['n_image_deadline'])
+        worksheet.write(index + 1, 4, student['required']['n_correct'])
+        worksheet.write(index + 1, 5, student['bonus']['n_image_deadline'])
+        worksheet.write(index + 1, 6, student['bonus']['n_correct'])
+        worksheet.write(index + 1, 7, student['optional'])
+        worksheet.write(
+            index + 1,
+            8,
+            student['required']['n_correct']
+            - student['required']['n_image_deadline']
+            + student['bonus']['n_correct']
+            - student['bonus']['n_image_deadline'],
+        )
+        worksheet.write(index + 1, 9, student['total'])
+    workbook.close()
+    output.seek(0)
+    return output.read()
