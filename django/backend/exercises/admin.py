@@ -458,7 +458,18 @@ class AnswerAdmin(admin.ModelAdmin):
 
 
 class AuditExerciseAdmin(admin.ModelAdmin):
-    list_display = ['exercise', 'student', 'auditor', 'date', 'message', 'sent']
+    list_display = [
+        'exercise',
+        'student',
+        'auditor',
+        'date',
+        'message',
+        'sent',
+        'published',
+        'revision_needed',
+        'force_passed',
+    ]
+    list_filter = ['sent', 'published', 'force_passed', 'revision_needed']
     list_per_page = 20
     search_fields = ['student', 'auditor', 'exercise']
     ordering = ['date']
