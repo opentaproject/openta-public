@@ -107,6 +107,17 @@ def create_answers_and_imageanswers(user, deadline, q1, q2, q3, q4, e1, e2, e3, 
     create_image_answer_at(user, e4, now + datetime.timedelta(days=1))
 
 
+def create_audit_revision_tests(user, admin, deadline, q1, q2, e1, e2):
+    now = deadline
+    create_answer_at(user, q1, now - datetime.timedelta(days=1))  # Well before deadline
+    create_image_answer_at(user, e1, now - datetime.timedelta(days=1))
+    create_answer_at(user, q2, now - datetime.timedelta(days=1))  # Well before deadline
+    create_image_answer_at(user, e2, now - datetime.timedelta(days=1))
+
+    create_audit(admin, user, e1, revision_needed=True, published=True)
+    create_audit(admin, user, e2, revision_needed=False, published=True)
+
+
 def create_database():
     course = create_course("A course", datetime.time(8, 0, 0))
     e1 = create_exercise('r1', 'Required Exercise 1', 'path1')
@@ -141,17 +152,23 @@ def create_database():
     admin.save()
     u1 = User.objects.create_user('student1', 'student1@test.se', 'pw1')
     u2 = User.objects.create_user('student2', 'student2@test.se', 'pw2')
+    u3 = User.objects.create_user('student3', 'student3@test.se', 'pw3')
     uadmin = User.objects.create_user('admin1', 'admin1@test.se', 'pw3')
     student.user_set.add(u1)
     student.user_set.add(u2)
+    student.user_set.add(u3)
     admin.user_set.add(uadmin)
     # 3 correct, 2 before deadline, 1 after deadline
     # 1 force passed by audit
     create_answers_and_imageanswers(u1, now, q1, q2, q3, q4, e1, e2, e3, e4)
     create_answers_and_imageanswers(u2, now, bq1, bq2, bq3, bq4, b1, b2, b3, b4)
 
+    # Test force_passed with two exercises that are after deadline being passed
     create_audit(uadmin, u1, e4, force_passed=True)
     create_audit(uadmin, u2, b4, force_passed=True)
+
+    # Create audits both with and without need for revision
+    create_audit_revision_tests(u3, uadmin, now, q1, q2, e1, e2)
 
 
 class QuestionMethodTests(TestCase):
@@ -175,6 +192,12 @@ class QuestionMethodTests(TestCase):
         self.assertEqual(ru2[0]['bonus']['n_image_deadline'], 2)
         self.assertEqual(ru2[0]['total'], 4)
         self.assertEqual(ru2[0]['optional'], 0)
+        ru3 = list(filter(lambda user: user['username'] == 'student3', results))
+        self.assertEqual(ru3[0]['required']['n_correct'], 2)
+        self.assertEqual(ru3[0]['required']['n_deadline'], 1)
+        self.assertEqual(ru3[0]['required']['n_image_deadline'], 1)
+        self.assertEqual(ru3[0]['total'], 2)
+        self.assertEqual(ru3[0]['optional'], 0)
 
         u1 = User.objects.get(username='student1')
         u1detailed = calculate_user_results(u1.pk)
