@@ -30,6 +30,9 @@ from exercises.modelhelpers import (
     p_student_activity,
 )
 import pytz
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 def students_results(cache_seconds=1 * 60 * 60, force=False):
@@ -51,66 +54,7 @@ def student_statistics_exercises(cache_seconds=1 * 60 * 60, force=False):
 
 
 def calculate_students_results():  # {{{
-    required = Exercise.objects.filter(meta__required=True).select_related('meta')
-    bonus = Exercise.objects.filter(meta__bonus=True).select_related('meta')
-    students = (
-        User.objects.filter(groups__name='Student')
-        .exclude(username='student')
-        .order_by('first_name')
-    )
-    results = []
-    for student in students:
-        # n1 = len(connection.queries)
-        passed_required = get_passed_exercises_with_image_data(
-            required, student, deadline=False, image_deadline=False
-        )
-        passed_required_d = get_passed_exercises_with_image_data(
-            required, student, deadline=True, image_deadline=False
-        )
-        passed_required_d_id = get_passed_exercises_with_image_data(
-            required, student, deadline=True, image_deadline=True
-        )
-        passed_bonus = get_passed_exercises_with_image_data(
-            bonus, student, deadline=False, image_deadline=False
-        )
-        passed_bonus_d = get_passed_exercises_with_image_data(
-            bonus, student, deadline=True, image_deadline=False
-        )
-        passed_bonus_d_id = get_passed_exercises_with_image_data(
-            bonus, student, deadline=True, image_deadline=True
-        )
-        total = get_passed_exercises(Exercise.objects.filter(meta__published=True), student)
-        optional = get_passed_exercises(
-            Exercise.objects.filter(meta__published=True, meta__required=False, meta__bonus=False),
-            student,
-        )
-        # n2 = len(connection.queries)
-        # print('N_queries: ' + str(n2-n1))
-        # for query in connection.queries[-(n2-n1):]:
-        #    print(query['time'])
-        results.append(
-            {
-                'username': student.username,
-                'pk': student.pk,
-                'first_name': student.first_name,
-                'last_name': student.last_name,
-                #'failed': failed_exercises,
-                #'passed': set(passed_questions.values_list('exercise__name', 'answers',))
-                'required': {
-                    'n_correct': len(passed_required),
-                    'n_deadline': len(passed_required_d),
-                    'n_image_deadline': len(passed_required_d_id),
-                },
-                'bonus': {
-                    'n_correct': len(passed_bonus),
-                    'n_deadline': len(passed_bonus_d),
-                    'n_image_deadline': len(passed_bonus_d_id),
-                },
-                'optional': len(optional),
-                'total': len(total),
-            }
-        )
-    return results  # }}}
+    return calculate_students_results_subset(Exercise.objects.all())
 
 
 def calculate_student_statistics_exercises():  # {{{
@@ -174,6 +118,9 @@ def calculate_user_results(userpk):
         exercises_render[exercise.exercise_key]['force_passed'] = (
             exercise.student_audits[0].force_passed if exercise.student_audits else False
         )
+        exercises_render[exercise.exercise_key]['revision_needed'] = (
+            exercise.student_audits[0].revision_needed if exercise.student_audits else False
+        )
         if exercise.meta.deadline_date:
             deadline_tz_date = tz.localize(
                 datetime.datetime.combine(exercise.meta.deadline_date, deadline_time)
@@ -233,24 +180,32 @@ def calculate_user_results(userpk):
         if exercise['correct'] or exercise['force_passed']:
             n_total += 1
         if exercise['meta']['required']:
-            if exercise['correct'] or exercise['force_passed']:
+            if (exercise['correct'] and not exercise['revision_needed']) or exercise[
+                'force_passed'
+            ]:
                 n_passed_required += 1
             if exercise['meta']['deadline_date']:
-                if exercise['correct_deadline'] or exercise['force_passed']:
+                if (exercise['correct_deadline'] and not exercise['revision_needed']) or exercise[
+                    'force_passed'
+                ]:
                     n_passed_required_d += 1
-                    if (
-                        exercise['image_deadline'] or exercise['force_passed']
-                    ):  # Here d_id refers to both answer and image answer before deadline
+                    if (exercise['image_deadline'] and not exercise['revision_needed']) or exercise[
+                        'force_passed'
+                    ]:  # Here d_id refers to both answer and image answer before deadline
                         n_passed_required_d_id += 1
         elif exercise['meta']['bonus']:
-            if exercise['correct'] or exercise['force_passed']:
+            if (exercise['correct'] and not exercise['revision_needed']) or exercise[
+                'force_passed'
+            ]:
                 n_passed_bonus += 1
             if exercise['meta']['deadline_date']:
-                if exercise['correct_deadline'] or exercise['force_passed']:
+                if (exercise['correct_deadline'] and not exercise['revision_needed']) or exercise[
+                    'force_passed'
+                ]:
                     n_passed_bonus_d += 1
-                    if (
-                        exercise['image_deadline'] or exercise['force_passed']
-                    ):  # Here d_id refers to both answer and image answer before deadline
+                    if (exercise['image_deadline'] and not exercise['revision_needed']) or exercise[
+                        'force_passed'
+                    ]:  # Here d_id refers to both answer and image answer before deadline
                         n_passed_bonus_d_id += 1
         else:
             if exercise['correct'] or exercise['force_passed']:
@@ -277,3 +232,65 @@ def calculate_user_results(userpk):
             'total': n_total,
         },
     }
+
+
+def calculate_students_results_subset(exercise_query):
+    required = exercise_query.filter(meta__required=True).select_related('meta')
+    bonus = exercise_query.filter(meta__bonus=True).select_related('meta')
+    students = (
+        User.objects.filter(groups__name='Student')
+        .exclude(username='student')
+        .order_by('first_name')
+    )
+    results = []
+    for student in students:
+        passed_required = get_passed_exercises_with_image_data(
+            required, student, deadline=False, image_deadline=False
+        )
+        passed_required_d = get_passed_exercises_with_image_data(
+            required, student, deadline=True, image_deadline=False
+        )
+        passed_required_d_id = get_passed_exercises_with_image_data(
+            required, student, deadline=True, image_deadline=True
+        )
+        passed_bonus = get_passed_exercises_with_image_data(
+            bonus, student, deadline=False, image_deadline=False
+        )
+        passed_bonus_d = get_passed_exercises_with_image_data(
+            bonus, student, deadline=True, image_deadline=False
+        )
+        passed_bonus_d_id = get_passed_exercises_with_image_data(
+            bonus, student, deadline=True, image_deadline=True
+        )
+        total = get_passed_exercises(exercise_query.filter(meta__published=True), student)
+        optional = get_passed_exercises(
+            exercise_query.filter(meta__published=True, meta__required=False, meta__bonus=False),
+            student,
+        )
+        failed_by_audits = exercise_query.filter(
+            audits__student=student, audits__published=True, audits__revision_needed=True
+        )
+        results.append(
+            {
+                'username': student.username,
+                'pk': student.pk,
+                'first_name': student.first_name,
+                'last_name': student.last_name,
+                'required': {
+                    'n_correct': len(passed_required),
+                    'n_deadline': len(passed_required_d),
+                    'n_image_deadline': len(passed_required_d_id),
+                },
+                'bonus': {
+                    'n_correct': len(passed_bonus),
+                    'n_deadline': len(passed_bonus_d),
+                    'n_image_deadline': len(passed_bonus_d_id),
+                },
+                'failed_by_audits': failed_by_audits.count(),
+                'optional': len(optional),
+                'total': len(total),
+            }
+        )
+        if logger.isEnabledFor(logging.DEBUG):
+            logger.debug("Adding result for " + student.username)
+    return results  # }}}
