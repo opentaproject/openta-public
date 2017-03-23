@@ -8,7 +8,7 @@ import re as resub
 
 def insert_implicit_multiply(expression):  # {{{
     result = resub.sub(r"(?<=[\w)])\s+(?=[(\w])", r" * ", expression)
-    result = resub.sub(r"([0-9])([a-zA-Z])", r"\1*\2*", result)
+    result = resub.sub(r"((?:\W|^)[0-9]+)([a-zA-Z]+)", r"\1*\2", result)
     result = resub.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)])", r"\1)*(\2", result)
     result = resub.sub("\)([A-Za-z0-9]+)", r") * \1 ", result)
     return result  # }}}
@@ -16,7 +16,7 @@ def insert_implicit_multiply(expression):  # {{{
 
 def ascii_to_sympy(expression):  # {{{
     result = expression
-    result = resub.sub(r"([^=]+)==([^=]+)", r"(\1) - ( \2)", result)
+    result = resub.sub(r"([^=]+)==([^=]+)", r"(\1) - (\2)", result)
     dict = {'^': '**'}
 
     result = resub.sub(r"\|([^>]+)>\s*<([^|]+)\|", r" KetBra(\1,\2) ", result)
