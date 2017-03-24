@@ -107,15 +107,20 @@ def create_answers_and_imageanswers(user, deadline, q1, q2, q3, q4, e1, e2, e3, 
     create_image_answer_at(user, e4, now + datetime.timedelta(days=1))
 
 
-def create_audit_revision_tests(user, admin, deadline, q1, q2, e1, e2):
+def create_audit_revision_tests(user, admin, deadline, q1, q2, q3, e1, e2, e3):
     now = deadline
     create_answer_at(user, q1, now - datetime.timedelta(days=1))  # Well before deadline
     create_image_answer_at(user, e1, now - datetime.timedelta(days=1))
     create_answer_at(user, q2, now - datetime.timedelta(days=1))  # Well before deadline
     create_image_answer_at(user, e2, now - datetime.timedelta(days=1))
+    create_answer_at(user, q3, now - datetime.timedelta(days=1))  # Well before deadline
+    create_image_answer_at(user, e3, now - datetime.timedelta(days=1))
 
     create_audit(admin, user, e1, revision_needed=True, published=True)
     create_audit(admin, user, e2, revision_needed=False, published=True)
+    create_audit(
+        admin, user, e3, revision_needed=True, published=False
+    )  # Revision is needed but not published yet, this means that the audit should not impact the student in any way yet
 
 
 def create_database():
@@ -168,7 +173,7 @@ def create_database():
     create_audit(uadmin, u2, b4, force_passed=True)
 
     # Create audits both with and without need for revision
-    create_audit_revision_tests(u3, uadmin, now, q1, q2, e1, e2)
+    create_audit_revision_tests(u3, uadmin, now, q1, q2, q3, e1, e2, e3)
 
 
 class QuestionMethodTests(TestCase):
@@ -194,15 +199,18 @@ class QuestionMethodTests(TestCase):
         self.assertEqual(ru2[0]['optional'], 0)
         ru3 = list(filter(lambda user: user['username'] == 'student3', results))
         self.assertEqual(ru3[0]['required']['n_correct'], 2)
-        self.assertEqual(ru3[0]['required']['n_deadline'], 1)
-        self.assertEqual(ru3[0]['required']['n_image_deadline'], 1)
-        self.assertEqual(ru3[0]['total'], 2)
+        self.assertEqual(ru3[0]['required']['n_deadline'], 2)
+        self.assertEqual(ru3[0]['required']['n_image_deadline'], 2)
+        self.assertEqual(ru3[0]['total'], 3)
         self.assertEqual(ru3[0]['optional'], 0)
+        self.assertEqual(ru3[0]['failed_by_audits'], 1)
 
         u1 = User.objects.get(username='student1')
         u1detailed = calculate_user_results(u1.pk)
         u2 = User.objects.get(username='student2')
         u2detailed = calculate_user_results(u2.pk)
+        u3 = User.objects.get(username='student3')
+        u3detailed = calculate_user_results(u3.pk)
 
         self.assertEqual(u1detailed['summary']['required']['n_correct'], 4)
         self.assertEqual(u1detailed['summary']['required']['n_deadline'], 3)
@@ -214,6 +222,13 @@ class QuestionMethodTests(TestCase):
         self.assertEqual(u1detailed['summary']['optional'], 0)
         self.assertEqual(u2detailed['summary']['total'], 4)
         self.assertEqual(u2detailed['summary']['optional'], 0)
+
+        # Audit revision test user
+        self.assertEqual(u3detailed['summary']['required']['n_correct'], 2)
+        self.assertEqual(u3detailed['summary']['required']['n_deadline'], 2)
+        self.assertEqual(u3detailed['summary']['required']['n_image_deadline'], 2)
+        self.assertEqual(u3detailed['summary']['total'], 3)
+        self.assertEqual(u3detailed['summary']['optional'], 0)
 
         self.assertEqual(u1detailed['exercises']['r1']['correct'], True)
         self.assertEqual(u1detailed['exercises']['r1']['image'], True)
@@ -256,3 +271,28 @@ class QuestionMethodTests(TestCase):
         self.assertEqual(u2detailed['exercises']['b4']['correct_deadline'], False)
         self.assertEqual(u2detailed['exercises']['b4']['image_deadline'], False)
         self.assertEqual(u2detailed['exercises']['b4']['force_passed'], True)
+
+        self.assertEqual(u3detailed['exercises']['r1']['correct'], True)
+        self.assertEqual(u3detailed['exercises']['r1']['image'], True)
+        self.assertEqual(u3detailed['exercises']['r1']['correct_deadline'], True)
+        self.assertEqual(u3detailed['exercises']['r1']['image_deadline'], True)
+        self.assertEqual(u3detailed['exercises']['r1']['audited'], True)
+        self.assertEqual(u3detailed['exercises']['r1']['revision_needed'], True)
+
+        self.assertEqual(u3detailed['exercises']['r2']['correct'], True)
+        self.assertEqual(u3detailed['exercises']['r2']['image'], True)
+        self.assertEqual(u3detailed['exercises']['r2']['correct_deadline'], True)
+        self.assertEqual(u3detailed['exercises']['r2']['image_deadline'], True)
+        self.assertEqual(u3detailed['exercises']['r2']['audited'], True)
+        self.assertEqual(u3detailed['exercises']['r2']['revision_needed'], False)
+
+        self.assertEqual(u3detailed['exercises']['r3']['correct'], True)
+        self.assertEqual(u3detailed['exercises']['r3']['image'], True)
+        self.assertEqual(u3detailed['exercises']['r3']['correct_deadline'], True)
+        self.assertEqual(u3detailed['exercises']['r3']['image_deadline'], True)
+        self.assertEqual(
+            u3detailed['exercises']['r3']['audited'], False
+        )  # Audit exists but not published
+        self.assertEqual(
+            u3detailed['exercises']['r3']['revision_needed'], False
+        )  # Revision is needed but not published yet so shouldn't affect the student

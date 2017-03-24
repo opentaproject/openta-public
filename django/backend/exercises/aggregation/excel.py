@@ -21,7 +21,9 @@ def create_xlsx_from_results_list(results):
     worksheet.write(0, 6, 'Bonus (total)')
     worksheet.write(0, 7, 'Optional')
     worksheet.write(0, 8, 'After deadline')
-    worksheet.write(0, 9, 'Total (Correct exercises)')
+    worksheet.write(0, 9, 'Failed by audit')
+    worksheet.write(0, 10, 'Manually passed')
+    worksheet.write(0, 11, 'Total (Correct exercises)')
     for index, student in enumerate(results):
         worksheet.write(index + 1, 0, student['username'])
         worksheet.write(index + 1, 1, student['first_name'])
@@ -39,7 +41,9 @@ def create_xlsx_from_results_list(results):
             + student['bonus']['n_correct']
             - student['bonus']['n_image_deadline'],
         )
-        worksheet.write(index + 1, 9, student['total'])
+        worksheet.write(index + 1, 9, student['failed_by_audits'])
+        worksheet.write(index + 1, 10, student['manually_passed'])
+        worksheet.write(index + 1, 11, student['total'])
     workbook.close()
     output.seek(0)
     return output.read()

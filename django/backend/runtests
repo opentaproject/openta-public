@@ -2,5 +2,5 @@
 if [ -z ${VIRTUAL_ENV+x} ]; then
   echo "You probably want to be in the corresponding python virtual env when running the tests.";
   else
-    python manage.py test -v 2 --settings=backend.settings_test;
+    python manage.py test -v 2 --settings=backend.settings_test $1;
     fi

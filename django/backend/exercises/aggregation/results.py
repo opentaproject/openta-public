@@ -119,7 +119,12 @@ def calculate_user_results(userpk):
             exercise.student_audits[0].force_passed if exercise.student_audits else False
         )
         exercises_render[exercise.exercise_key]['revision_needed'] = (
-            exercise.student_audits[0].revision_needed if exercise.student_audits else False
+            exercise.student_audits[0].revision_needed
+            if (exercise.student_audits and exercise.student_audits[0].published)
+            else False
+        )
+        exercises_render[exercise.exercise_key]['audited'] = (
+            True if (exercise.student_audits and exercise.student_audits[0].published) else False
         )
         if exercise.meta.deadline_date:
             deadline_tz_date = tz.localize(
@@ -270,6 +275,7 @@ def calculate_students_results_subset(exercise_query):
         failed_by_audits = exercise_query.filter(
             audits__student=student, audits__published=True, audits__revision_needed=True
         )
+        passed_manually = exercise_query.filter(audits__student=student, audits__force_passed=True)
         results.append(
             {
                 'username': student.username,
@@ -287,6 +293,7 @@ def calculate_students_results_subset(exercise_query):
                     'n_image_deadline': len(passed_bonus_d_id),
                 },
                 'failed_by_audits': failed_by_audits.count(),
+                'manually_passed': passed_manually.count(),
                 'optional': len(optional),
                 'total': len(total),
             }
