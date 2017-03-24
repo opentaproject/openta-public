@@ -247,7 +247,7 @@ function checkQuestion(exerciseKey, questionKey, answerData) {//{{{
     if(answerData === "")return;
     var payload = {
       answerData: answerData
-    }
+    };
     //var data = new FormData();
     //data.append('json', new Blob([JSON.stringify(payload)], {type: 'application/json'}));
     var postData = JSON.stringify(payload);
@@ -255,7 +255,7 @@ function checkQuestion(exerciseKey, questionKey, answerData) {//{{{
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: postData
-    }
+    };
     dispatch(updatePendingStateIn( ['exercises', exerciseKey, 'questions', questionKey, 'waiting'], true));
     jsonfetch('/exercise/' + exerciseKey + '/question/' + questionKey + '/check', fetchconfig)
     .then( res => {
@@ -266,10 +266,10 @@ function checkQuestion(exerciseKey, questionKey, answerData) {//{{{
       if(res.status >= 400) {
         return {
           error: 'Du är inte inloggad, tryck på logga ut eller ladda om sidan.'
-        }
+        };
       }
       else {
-          return res.json()
+          return res.json();
       }
     })
     .then(json => { dispatch(updateQuestionResponse(exerciseKey, questionKey, json)); return json})

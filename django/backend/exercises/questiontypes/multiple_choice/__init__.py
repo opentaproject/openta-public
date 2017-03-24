@@ -11,6 +11,9 @@ from exercises.question import QuestionError
 from lxml import etree
 from django.utils.translation import ugettext as _
 import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 # The function below is the core of the server interface and the only mandatory component.
 def question_check_multiple_choice(question_json, question_xmltree, answer_data, global_xmltree):
@@ -56,17 +59,17 @@ def question_check_multiple_choice(question_json, question_xmltree, answer_data,
     except ValueError:
         return {'error': 'Not valid answer data.'}
 
-    results = {}
+    results = {'choices': {}}
     n_correct = 0
     n_incorrect = 0
     for question, val in answer_json.items():
         if val:
             correct = next((True for item in correct_items if item.get('key') == question), None)
             if correct is not None:
-                results[question] = True
+                results['choices'][question] = True
                 n_correct += 1
             else:
-                results[question] = False
+                results['choices'][question] = False
                 n_incorrect += 1
 
     if n_incorrect == 0 and n_correct == len(correct_items):

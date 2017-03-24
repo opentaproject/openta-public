@@ -29,7 +29,7 @@ export default class QuestionMultipleChoice extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      choices: props.questionState.getIn(['response'], immutable.Map({}))
+      choices: props.questionState.getIn(['response', 'choices'], immutable.Map({}))
     }
   }
 
@@ -86,18 +86,18 @@ export default class QuestionMultipleChoice extends Component {
   }
 
   /* render gets called every time the question is shown on screen */
-  render() {  
+  render() {
   // Some convenience definitions
   var question = this.props.questionData;
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
   var pending = this.props.questionPending;
-  
+
   /* Both the questionData and questionState are of type Map from immutable.js. They are nested dictionaries that are accessed via the get and getIn functions. For example question.get('text') retrieves <question> <text> * </text> </question>. Deeper structures can be accessed with getIn, for example question.getIn(['tag1', 'tag2']) would retrieve <question> <tag1> <tag2> * </tag2> </tag1> </question>. */
 
   // System state data
   var lastAnswer = JSON.parse(state.getIn(['answer'], "{}")); // Last saved answer in database, same format as passed to the submitFunction
-  var correctAnswers = state.getIn(['response'], immutable.Map({}));
+  var correctAnswers = state.getIn(['response', 'choices'], immutable.Map({}));
   var correct = state.getIn(['response', 'correct'], false);
 
   var choicesElements = question.get('choice',immutable.List([]));
@@ -114,12 +114,14 @@ export default class QuestionMultipleChoice extends Component {
     <div className="uk-width-1-1" key={reactKey}>
       <div style={style} className={"uk-panel uk-panel-box uk-margin-bottom pointer " + divClass} onClick={() => this.toggleChoice(choiceKey)}>
         <div className="uk-panel-badge">
-        { this.props.canViewSolution && item.getIn(['@attr', 'correct']) === 'true' && <div className="uk-margin-small-right uk-badge">correct</div> }
+        { this.props.canViewSolution && item.getIn(['@attr', 'correct']) === 'true' && <div className="uk-margin-small-left uk-margin-small-right uk-badge">correct</div> }
         { this.props.isAuthor && <div className="uk-badge">{choiceKey}</div> }
         { correctAnswers.get(choiceKey) && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-success">Rätt!</div> }
         { correctAnswers.get(choiceKey) === false && lastAnswer[choiceKey] === true && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-danger">Fel</div> }
         { item.hasIn(['@attr', 'key']) && duplicateKey && <div className="uk-margin-small-right uk-badge uk-badge-danger">Duplicate choice key!</div> }
         { !item.hasIn(['@attr', 'key']) && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-warning">No choice key, please add an attribute key="..." </div>}
+        { this.state.choices.get(choiceKey) && <div className="uk-margin-small-left uk-display-inline-block"><i className="uk-margin-small-top uk-icon uk-icon-medium uk-icon-check-square-o"/></div>}
+        { !this.state.choices.get(choiceKey) && <div className="uk-margin-small-left uk-display-inline-block"><i className="uk-margin-small-top uk-icon uk-icon-medium uk-icon-square-o"/></div>}
         </div>
         <MathSpan>{item.get('$')}</MathSpan>
         {children}
