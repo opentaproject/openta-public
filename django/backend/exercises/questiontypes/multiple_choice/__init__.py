@@ -49,8 +49,8 @@ def question_check_multiple_choice(question_json, question_xmltree, answer_data,
         </question>
     '''
     choices = []
-    choices_element = question_xmltree.xpath('//choice')
-    correct_items = question_xmltree.xpath('//choice[@correct="true"]')
+    choices_element = question_xmltree.xpath('.//choice')
+    correct_items = question_xmltree.xpath('.//choice[@correct="true"]')
     try:
         answer_json = json.loads(answer_data)
     except ValueError:
