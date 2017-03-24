@@ -94,6 +94,7 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     '''
     variables = []
     blacklist = set([])
+    check_units = True
 
     variables += parse_xml_variables(question_xmltree)
     if global_xmltree is not None:
@@ -114,8 +115,14 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
         blacklist.update(parse_blacklist(global_xmltree))
     blacklist.update(parse_blacklist(question_xmltree))
 
+    # Disable unit check if the answer contains an equality
+    if '==' in answer_data:
+        check_units = False
+
     result = {}
-    result = linear_algebra_expression(variables, answer_data, correct_answer, list(blacklist))
+    result = linear_algebra_expression(
+        variables, answer_data, correct_answer, check_units=check_units, blacklist=list(blacklist)
+    )
     if 'correct' in result:
         result['status'] = 'correct' if result['correct'] else 'incorrect'
     elif 'error' in result:

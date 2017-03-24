@@ -231,7 +231,9 @@ def check_units_new(expression, correct, sample_variables):
             )
 
 
-def linear_algebra_compare_expressions(variables, student_answer, correct, blacklist=[]):
+def linear_algebra_compare_expressions(
+    variables, student_answer, correct, check_units=True, blacklist=[]
+):
     """
     Compare two asciimath expressions for equality.
 
@@ -285,10 +287,10 @@ def linear_algebra_compare_expressions(variables, student_answer, correct, black
         response = dict(error=_("Unknown error, check your expression."))
         return response
 
-    return linear_algebra_check_equality(lhs, rhs, sample_variables)
+    return linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=check_units)
 
 
-def linear_algebra_check_equality(lhs, rhs, sample_variables):  # {{{
+def linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=True):  # {{{
     """
     Compares two sympy expressions for equality using random sampling around a point specified in variables.
 
@@ -351,10 +353,11 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables):  # {{{
                 modules=lambdifymodules,
             )()
         )
-        try:
-            check_units_new(sympy1_units, sympy2_units, sample_variables)
-        except LinearAlgebraUnitError as e:
-            response['warning'] = str(e)
+        if check_units:
+            try:
+                check_units_new(sympy1_units, sympy2_units, sample_variables)
+            except LinearAlgebraUnitError as e:
+                response['warning'] = str(e)
 
         diffs = []
         for sample_point in subs_neighbours:
@@ -381,12 +384,18 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables):  # {{{
     return response  # }}}
 
 
-def linear_algebra_expression_runner(variables, expression1, expression2, blacklist, result_queue):
-    response = linear_algebra_compare_expressions(variables, expression1, expression2, blacklist)
+def linear_algebra_expression_runner(
+    variables, expression1, expression2, check_units, blacklist, result_queue
+):
+    response = linear_algebra_compare_expressions(
+        variables, expression1, expression2, check_units, blacklist
+    )
     result_queue.put(response)
 
 
-def linear_algebra_expression(variables, student_answer, correct_answer, blacklist=[]):
+def linear_algebra_expression(
+    variables, student_answer, correct_answer, check_units=True, blacklist=[]
+):
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
@@ -397,12 +406,16 @@ def linear_algebra_expression(variables, student_answer, correct_answer, blackli
     # print(compare_numeric_internal(variables, expression1, expression2))
     return safe_run(
         linear_algebra_expression_runner,
-        args=(variables, student_answer, correct_answer, blacklist),
+        args=(variables, student_answer, correct_answer, check_units, blacklist),
     )
 
 
-def linear_algebra_expression_blocking(variables, student_answer, correct_answer, blacklist=[]):
+def linear_algebra_expression_blocking(
+    variables, student_answer, correct_answer, check_units=True, blacklist=[]
+):
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
-    return linear_algebra_compare_expressions(variables, student_answer, correct_answer, blacklist)
+    return linear_algebra_compare_expressions(
+        variables, student_answer, correct_answer, check_units, blacklist
+    )
