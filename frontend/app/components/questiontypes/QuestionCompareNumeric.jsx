@@ -390,7 +390,7 @@ export default class QuestionCompareNumeric extends Component {
   var warning = state.getIn(['response','warning']); // Custom field containing error information
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   if(state.getIn(['response','detail']))
-    error = "Du är inte inloggad, tryck på logga ut eller ladda om sidan.";
+    error = "Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)";
 
   this.parseBlacklist();
   this.parseVariables();

@@ -265,7 +265,7 @@ function checkQuestion(exerciseKey, questionKey, answerData) {//{{{
     .then(res => {
       if(res.status >= 400) {
         return {
-          error: 'Du är inte inloggad, tryck på logga ut eller ladda om sidan.'
+            error: 'Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)'
         };
       }
       else {
