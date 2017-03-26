@@ -77,30 +77,24 @@ def create_audit(auditor, user, exercise, **kwargs):
 
 def create_answers_and_imageanswers(user, deadline, q1, q2, q3, q4, e1, e2, e3, e4):
     now = deadline
+    after = deadline + datetime.timedelta(seconds=1)
+    before = deadline - datetime.timedelta(seconds=1)
     midnight = timezone.make_aware(datetime.datetime(year=now.year, month=now.month, day=now.day))
-    create_answer_at(
-        user, q1, midnight + datetime.timedelta(hours=7, minutes=59, seconds=59)
-    )  # Just before deadline
+    create_answer_at(user, q1, before)  # Just before deadline
     create_incorrect_at(
-        user, q1, midnight + datetime.timedelta(hours=8, minutes=59, seconds=59)
+        user, q1, after
     )  # An incorrect answer after a correct one should still register as passed
-    create_answer_at(
-        user, q2, midnight + datetime.timedelta(hours=8, minutes=0, seconds=1)
-    )  # Just after deadline
+    create_answer_at(user, q2, after)  # Just after deadline
     create_answer_at(user, q3, now - datetime.timedelta(days=1))  # Well before deadline
     create_incorrect_at(
         user, q3, now - datetime.timedelta(days=1) + datetime.timedelta(hours=2)
     )  # An incorrect answer after a correct one should still register as passed
     # 3 images, 1 before deadline, 2 after deadline
-    create_image_answer_at(
-        user, e1, midnight + datetime.timedelta(hours=7, minutes=59, seconds=59)
-    )  # Just before deadline
+    create_image_answer_at(user, e1, before)  # Just before deadline
     create_image_answer_at(
         user, e2, timezone.now() + datetime.timedelta(days=1)
     )  # Well after deadline
-    create_image_answer_at(
-        user, e3, midnight + datetime.timedelta(hours=8, minutes=0, seconds=1)
-    )  # Just after deadline
+    create_image_answer_at(user, e3, after)  # Just after deadline
 
     # Both after deadline
     create_answer_at(user, q4, now + datetime.timedelta(days=1))
@@ -142,6 +136,9 @@ def create_database():
     bq3 = create_question(b3, 'q3')
     bq4 = create_question(b4, 'q4')
     now = timezone.now()
+    deadline = timezone.make_aware(
+        datetime.datetime(year=now.year, month=now.month, day=now.day, hour=8, minute=0, second=0)
+    )
     midnight = timezone.make_aware(datetime.datetime(year=now.year, month=now.month, day=now.day))
     set_meta(e1, published=True, required=True, deadline_date=now)
     set_meta(e2, published=True, required=True, deadline_date=now)
@@ -165,8 +162,8 @@ def create_database():
     admin.user_set.add(uadmin)
     # 3 correct, 2 before deadline, 1 after deadline
     # 1 force passed by audit
-    create_answers_and_imageanswers(u1, now, q1, q2, q3, q4, e1, e2, e3, e4)
-    create_answers_and_imageanswers(u2, now, bq1, bq2, bq3, bq4, b1, b2, b3, b4)
+    create_answers_and_imageanswers(u1, deadline, q1, q2, q3, q4, e1, e2, e3, e4)
+    create_answers_and_imageanswers(u2, deadline, bq1, bq2, bq3, bq4, b1, b2, b3, b4)
 
     # Test force_passed with two exercises that are after deadline being passed
     create_audit(uadmin, u1, e4, force_passed=True)
