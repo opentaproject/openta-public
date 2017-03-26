@@ -45,6 +45,7 @@ class BaseExercise extends Component {
       'h1': this.renderHTMLElement(),
       'ul': this.renderHTMLElement("uk-list"),
       'li': this.renderHTMLElement(),
+      'a': this.renderHTMLElementA(),
       'right': this.renderRight,
       '__text__': this.renderBareText,
     };
@@ -151,16 +152,27 @@ class BaseExercise extends Component {
     );
   }
 
-  renderHTMLElement = (className="") => (itemjson, json, meta, exerciseKey) => {
-    var children = itemjson.get('$children$', immutable.List([]))
-    .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toList();
-    var itemDOM = React.createElement(itemjson.get('#name'), {
-      className: className + " " + itemjson.getIn(['@attr', 'class']),
-      style: itemjson.getIn(['@attr', 'style']),
-      key: nextUnstableKey(),
-    }, children);
-    return itemDOM;
-  }
+    renderHTMLElementA = () =>  (itemjson, json, meta, exerciseKey) => {
+        var children = itemjson.get('$children$', immutable.List([]))
+                               .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toList();
+        return (<a href={itemjson.getIn(['@attr', 'href'])} target="_blank" key={nextUnstableKey()}>{children}</a>)
+    }
+
+    renderHTMLElement = (className="", extraAttrs=[]) => (itemjson, json, meta, exerciseKey) => {
+        var attrs = {};
+        for(let attr of extraAttrs)
+            attrs[attr] = itemjson.getIn(['@attr', attr])
+
+        var children = itemjson.get('$children$', immutable.List([]))
+                               .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toList();
+        var itemDOM = React.createElement(itemjson.get('#name'), {
+            className: className + " " + itemjson.getIn(['@attr', 'class']),
+            style: itemjson.getIn(['@attr', 'style']),
+            key: nextUnstableKey(),
+            ...attrs
+        }, children);
+        return itemDOM;
+    }
 
   renderBareText = (itemjson, json, meta, exerciseKey) => (<span key={nextUnstableKey()} dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(itemjson.get('$'))}}/>)
 

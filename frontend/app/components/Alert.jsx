@@ -7,7 +7,7 @@ export default class Alert extends Component {
   }
 
   static propTypes = {
-    message: PropTypes.string.isRequired,
+    message: PropTypes.string,
     hasMath: PropTypes.bool,
     type: PropTypes.string,
     className: PropTypes.string,
