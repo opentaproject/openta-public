@@ -77,7 +77,7 @@ def calculate_student_statistics_exercises():  # {{{
 def calculate_user_results(userpk):
     user = User.objects.get(pk=userpk)
     tz = pytz.timezone('Europe/Stockholm')
-    deadline_time = datetime.time(23, 59, 59, tzinfo=pytz.timezone('Europe/Stockholm'))
+    deadline_time = datetime.time(23, 59, 59)
     course = Course.objects.first()
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time

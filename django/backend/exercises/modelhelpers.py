@@ -152,7 +152,7 @@ def e_student_percent_complete(exercise):  # {{{
     #            to_attr = 'answers'
     #            ))
     tz = pytz.timezone('Europe/Stockholm')
-    deadline_time = datetime.time(23, 59, 59, tzinfo=pytz.timezone('Europe/Stockholm'))
+    deadline_time = datetime.time(23, 59, 59)
     course = Course.objects.first()
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
@@ -513,7 +513,7 @@ def get_passed_exercises_with_image_data(
 def get_passed_students(exercise):
     students = User.objects.filter(groups__name='Student')
     tz = pytz.timezone('Europe/Stockholm')
-    deadline_time = datetime.time(8, 0, 0, tzinfo=tz)
+    deadline_time = datetime.time(8, 0, 0)
     course = Course.objects.first()
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
