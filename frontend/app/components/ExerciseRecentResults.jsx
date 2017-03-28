@@ -12,11 +12,13 @@ import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import mathjs from 'mathjs';
+import {asciiMathToMathJS} from './mathrender/string_parse.js'
 
 
 function renderExpression(expression) {
   try {
-    return '$' + mathjs.parse(expression).toTex() + '$';
+    var preParsed = asciiMathToMathJS(expression);
+    return '$' + mathjs.parse(preParsed.out).toTex() + '$';
   }
   catch(e) {
     return expression;
