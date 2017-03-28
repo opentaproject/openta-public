@@ -1,4 +1,4 @@
-import backend.settings as settings
+from django.conf import settings
 from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 
 
