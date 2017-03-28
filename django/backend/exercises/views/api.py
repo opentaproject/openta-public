@@ -20,6 +20,7 @@ from exercises.modelhelpers import (
 )
 from exercises.paths import EXERCISES_PATH
 from exercises.util import nested_print
+from exercises.views.file_handling import serve_file
 from django.utils.translation import ugettext as _
 from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -241,47 +242,6 @@ def exercise_check(request, exercise, question):  # {{{
     agent = request.META.get('HTTP_USER_AGENT', 'unknown')
     result = question_check(request, request.user, agent, exercise, question, answer_data)
     return Response(result)  # }}}
-
-
-def serve_file(path, filename, **kwargs):  # {{{
-    content_type = kwargs['content_type'] if 'content_type' in kwargs else None
-    dev_path = kwargs['dev_path'] if 'dev_path' in kwargs else path
-
-    if settings.RUNNING_DEVSERVER:
-        if content_type:
-            return FileResponse(open(dev_path, 'rb'), content_type)
-        else:
-            return FileResponse(open(dev_path, 'rb'))
-    else:
-        response = HttpResponse()
-        response["Content-Type"] = content_type if content_type else ""
-        response["Content-Disposition"] = "inline; filename={0}".format(filename)
-        response["X-Accel-Redirect"] = path.encode('utf-8')
-        return response  # }}}
-
-
-@api_view(['GET'])
-def exercise_asset(request, exercise, asset):  # {{{
-    if not asset.lower().endswith(('.png', '.pdf', '.jpg', '.jpeg', '.svg', '.tiff')):
-        return Response({}, status.HTTP_403_FORBIDDEN)
-    content_type = ''
-    dbexercise = Exercise.objects.get(exercise_key=exercise)
-    if asset.lower().endswith('.pdf'):
-        if not dbexercise.meta.solution and not request.user.has_perm('exercises.view_solution'):
-            return Response({}, status.HTTP_403_FORBIDDEN)
-        content_type = 'application/pdf'
-
-    return serve_file(
-        "/"
-        + settings.SUBPATH
-        + "exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset),
-        asset,
-        dev_path='{root}/{path}/{asset}'.format(
-            root=EXERCISES_PATH, path=dbexercise.path, asset=asset
-        ),
-        content_type=content_type,
-    )
-    # }}}
 
 
 @api_view(['GET'])
