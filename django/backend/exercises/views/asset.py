@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import permission_required
 from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
 from exercises.views.file_handling import serve_file
 import backend.settings as settings
-from exercises.paths import EXERCISES_PATH
+import exercises.paths as paths
 import os
 
 
@@ -27,7 +27,7 @@ def exercise_asset(request, exercise, asset):  # {{{
         + "exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset),
         asset,
         dev_path='{root}/{path}/{asset}'.format(
-            root=EXERCISES_PATH, path=dbexercise.path, asset=asset
+            root=paths.EXERCISES_PATH, path=dbexercise.path, asset=asset
         ),
         content_type=content_type,
     )
@@ -38,5 +38,5 @@ def exercise_asset(request, exercise, asset):  # {{{
 @api_view(['GET'])
 def exercise_list_assets(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    files = os.listdir(os.path.join(EXERCISES_PATH, dbexercise.path))
+    files = os.listdir(os.path.join(paths.EXERCISES_PATH, dbexercise.path))
     return Response(files)
