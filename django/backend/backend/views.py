@@ -29,6 +29,7 @@ from django.contrib.auth.models import Group
 from django.template.response import TemplateResponse
 from backend.user_utilities import send_activation_mail
 from django.core.mail import EmailMessage
+from django.conf import settings
 from smtplib import SMTPException
 import logging
 import csv
@@ -147,7 +148,7 @@ def login(request):  # {{{
     course = Course.objects.first()
     course_data = CourseSerializer(course).data
     extra = {'course': course_data}
-    if not getattr(request, 'limited', False):
+    if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
         return auth_views.login(request, extra_context=extra)
     else:
         return render(
