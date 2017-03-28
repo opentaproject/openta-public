@@ -33,6 +33,7 @@ def create_database(password="pw"):
     admin.user_set.add(usuper)
     author.user_set.add(usuper)
     view.user_set.add(usuper)
+    course, created = Course.objects.get_or_create(course_name="Test course")
 
 
 def create_exercise(directory, name):

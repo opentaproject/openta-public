@@ -23,16 +23,15 @@ from django.utils import timezone
 
 class AuditTest(StaticLiveServerTestCase):
     def setUp(self):
+        super().setUp()
         create_database()
         self.dir = TemporaryDirectory()
         exercise_path = create_exercise(self.dir, 'exercise1')
         paths.EXERCISES_PATH = self.dir.name
         for msg in Exercise.objects.sync_with_disc():
             print(msg)
-        # Exercise.objects.add_exercise('exercise1')
         self.selenium = webdriver.Chrome()
         self.selenium.implicitly_wait(0)
-        super().setUp()
 
     def tearDown(self):
         self.selenium.quit()
@@ -140,3 +139,4 @@ class AuditTest(StaticLiveServerTestCase):
         self.login('super', 'pw', 'admin')
         self.first_exercise()
         self.audit()
+        self.logout()
