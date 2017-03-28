@@ -1,7 +1,7 @@
 from django.db import models
 import os
 from functools import reduce
-from exercises.paths import EXERCISES_PATH
+import exercises.paths as paths
 from exercises.parsing import (
     exercise_validate_and_json,
     question_validate,
@@ -121,11 +121,11 @@ class ExerciseManager(models.Manager):  # {{{
         progress = [('success', _('Started syncing exercises...'))]
         exerciselist = []
         keys = {}
-        for root, directories, filenames in os.walk(EXERCISES_PATH, followlinks=True):
+        for root, directories, filenames in os.walk(paths.EXERCISES_PATH, followlinks=True):
             for filename in filenames:
                 if filename == 'exercise.xml':
                     name = os.path.basename(os.path.normpath(root))
-                    relpath = root[len(EXERCISES_PATH) :]
+                    relpath = root[len(paths.EXERCISES_PATH) :]
                     exerciselist.append((name, relpath))
         for name, path in exerciselist:
             key = exercise_key_get_or_create(path)
