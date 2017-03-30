@@ -101,9 +101,10 @@ class BaseExercise extends Component {
   }
 
   renderFigure = (itemjson, json, meta, exerciseKey) => {
+      var figure = itemjson.get('$', '');
     return (
-              <a className="uk-thumbnail uk-thumbnail-small" key={"figure"+itemjson.get('$')} href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + itemjson.get('$').trim()} data-uk-lightbox data-lightbox-type="image">
-                <img src={SUBPATH + '/exercise/' + this.props.exerciseKey + '/asset/' + itemjson.get('$','').trim()} alt=""/>
+              <a className="uk-thumbnail uk-thumbnail-small" key={"figure"+figure} href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + figure.trim()} data-uk-lightbox data-lightbox-type="image">
+                <img src={SUBPATH + '/exercise/' + this.props.exerciseKey + '/asset/' + figure.trim()} alt=""/>
                 { itemjson.has('caption') && <div className="uk-thumbnail-caption">{itemjson.getIn(['caption', '$'])}</div> }
               </a>
     );
