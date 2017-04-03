@@ -9,6 +9,7 @@ import { registerQuestionType } from './question_type_dispatch.js' // Register f
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
+import MathSpan from '../MathSpan.jsx';
 import HelpCompareNumeric from './HelpCompareNumeric.jsx';
 import mathjs from 'mathjs';
 import latex from './latex.js';
@@ -396,11 +397,21 @@ export default class QuestionCompareNumeric extends Component {
   this.parseVariables();
 
   var mathjsEvalVars = {}
-  var availableVariables = "";
-  if(this.varsList) {
-    this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
-    availableVariables = this.varsList.length ? "(i termer av " + this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
-  }
+  var availableVariables = [];
+      if(this.varsList) {
+          this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
+          availableVariables.push( (<span key="s">(i termer av </span>) );
+              var filteredVars = this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
+              for(const [i, v] of filteredVars.entries()) {
+                  availableVariables.push((<span key={"v"+i}>{v}</span>));
+                  if(this.varProps.hasIn([v, 'tex']))
+                      availableVariables.push((<span key={"tex"+i}> (<MathSpan message={"$" + this.varProps.getIn([v,'tex']) + "$"}></MathSpan>)</span>));
+                  if(i < filteredVars.length - 1)
+                      availableVariables.push((<span key={"c"+i}>, </span>));
+              }
+              availableVariables.push((<span key={"e"}>)</span>));
+          //availableVariables = this.varsList.length ? "(i termer av " + this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
+      }
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
   var graderResponse = null;
