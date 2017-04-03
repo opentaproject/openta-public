@@ -140,7 +140,7 @@ function deleteAudit(auditPk) {
 
 function saveAudit(auditPk, auditData) {
   return dispatch => {
-    var selectedData = auditData.filter(keyIn('pk','message', 'subject', 'published', 'revision_needed', 'force_passed')).toJS();
+      var selectedData = auditData.filter(keyIn('pk','message', 'subject', 'published', 'revision_needed', 'force_passed', 'updated')).toJS();
     var payload = {
       'audit': selectedData
     };
@@ -153,6 +153,22 @@ function saveAudit(auditPk, auditData) {
     return jsonfetch('/audit/update/' + auditPk + '/', fetchconfig)
       .then( res => res.json() )
   }
+}
+
+function updateAuditStudent(auditPk, updated) {
+    return dispatch => {
+        var payload = {
+            'updated': updated
+        };
+        var postData = JSON.stringify(payload);
+        var fetchconfig = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: postData
+        }
+        return jsonfetch('/audit/update_student/' + auditPk + '/', fetchconfig)
+            .then( res => res.json() )
+    }
 }
 
 function fetchNewAudit(exercise) {
@@ -197,4 +213,5 @@ export {
   addAudit,
   uploadAuditResponseFile,
   deleteAuditResponseFile,
+    updateAuditStudent,
 }

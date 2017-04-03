@@ -13,12 +13,14 @@ import {SUBPATH} from '../settings.js';
 import _ from 'lodash';
 
 import { 
+  fetchExerciseRemoteState,
   fetchStudentDetailResults,
   fetchCurrentAuditsExercise,
   fetchNewAudit,
   saveAudit,
   deleteAudit,
   sendAudit,
+  updateAuditStudent,
 } from '../fetchers.js';
 import { 
   setActiveAudit,
@@ -28,7 +30,7 @@ import {
   setDetailResultExercise,
 } from '../actions.js';
 
-const BaseAuditViewStudent = ({ hasAuditData, auditor, auditFiles, subject, message, revisionNeeded }) => {
+const BaseAuditViewStudent = ({ activeExercise, hasAuditData, auditPk, auditor, auditFiles, subject, message, revisionNeeded, currentlyUpdated, onUpdated, pendingUpdate }) => {
   var renderAuditFiles = auditFiles.map(
     auditResponse => (
       <li key={auditResponse.get('id')}>
@@ -48,33 +50,51 @@ const BaseAuditViewStudent = ({ hasAuditData, auditor, auditFiles, subject, mess
     ));
   if(hasAuditData)
     return (
-    <div className="uk-block uk-block-primary uk-width-1-1 uk-contrast uk-margin-small-left uk-padding-bottom-remove">
-    <div className="uk-container">
-      <div className="uk-flex uk-margin-bottom">
-      <div className="uk-width-2-3">
-      <h3 className="uk-margin-small-bottom">
-        Granskning
-        { !revisionNeeded && <Badge type="success" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-check"/></Badge> }
-        { revisionNeeded && <Badge type="error" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-close"/></Badge> }
-      </h3>
-      <div className="uk-text-small">
-              Granskad av <a href={"mailto:" + auditor.get('email')} className="uk-text-bold uk-contrast">{auditor.get('first_name')} {auditor.get('last_name')}</a>
-      </div>
-      <hr/>
-      <h4>{subject}</h4>
-      <div>{message}</div>
-      </div>
-      { renderAuditFiles.size > 0 && 
-        <div className="uk-margin-left">
-        <h3>Filer</h3>
-        <ul className="uk-subnav uk-subnav-line">
-          {renderAuditFiles}
-        </ul>
+        <div className="uk-block uk-block-primary uk-width-1-1 uk-contrast uk-margin-small-left uk-padding-bottom-remove">
+            <div className="uk-container">
+                <div className="uk-flex uk-margin-bottom">
+                    <div className="uk-width-2-3">
+                        <div className="uk-flex">
+                            <div>
+                                <h3 className="uk-margin-small-bottom">
+                                    Granskning
+                                    { !revisionNeeded && <Badge type="success" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-check"/> Godkänd.</Badge> }
+                                    { revisionNeeded && <Badge type="error" className="uk-margin-left">Uppdatering krävs.</Badge> }
+                                </h3>
+                                <div className="uk-text-small">
+                                    Granskad av <a href={"mailto:" + auditor.get('email')} className="uk-text-bold uk-contrast">{auditor.get('first_name')} {auditor.get('last_name')}</a>
+                                </div>
+                            </div>
+        { revisionNeeded &&
+          <div className="uk-margin-left uk-flex uk-flex-column">
+            <div>
+            <a className="uk-button" data-uk-tooltip title="Klicka här när du uppdaterat din lösning." onClick={e => onUpdated(activeExercise, auditPk, !currentlyUpdated)}>Uppdaterad
+            { !currentlyUpdated && <i className="uk-margin-small-left uk-icon uk-icon-small uk-icon-square-o"/>}
+            { currentlyUpdated && <i className="uk-text-success uk-margin-small-left uk-icon uk-icon-small uk-icon-check-square-o"/>}
+            { pendingUpdate && <Spinner size="uk-icon-small"/>}
+            </a>
+            </div>
+            { currentlyUpdated && <div><span className="uk-text-small">(Granskare uppmärksammad)</span></div>}
+            </div>
+        }
+                        </div>
+                        <hr/>
+                        <h4>{subject}</h4>
+                        <div>{message}</div>
+                    </div>
+                    { renderAuditFiles.size > 0 && 
+                      <div className="uk-margin-left">
+                          <h3>Filer</h3>
+                          <ul className="uk-subnav uk-subnav-line">
+                              {renderAuditFiles}
+                          </ul>
+                      </div>
+                    }
+                </div>
+                <div className="uk-width-1-1">
+                </div>
+            </div>
         </div>
-      }
-      </div>
-    </div>
-    </div>
     );
   return (<span/>);
 }
@@ -84,16 +104,33 @@ const mapStateToProps = state => {
   var auditData = state.getIn(['exerciseState', activeExercise, 'audit'], immutable.Map({}));
   var hasAuditData = state.hasIn(['exerciseState', activeExercise, 'audit']);
 
-  return {
-    hasAuditData: hasAuditData,
-    activeExercise: activeExercise,
-    exerciseState: state.getIn(['exerciseState', activeExercise]),
-    auditFiles: auditData.get('responsefiles'),
-    auditor: auditData.get('auditor_data'),
-    message: auditData.get('message'),
-    subject: auditData.get('subject'),
-    revisionNeeded: auditData.get('revision_needed'),
-  }
+    return {
+        hasAuditData: hasAuditData,
+        auditPk: auditData.get('pk'),
+        activeExercise: activeExercise,
+        exerciseState: state.getIn(['exerciseState', activeExercise]),
+        auditFiles: auditData.get('responsefiles'),
+        auditor: auditData.get('auditor_data'),
+        message: auditData.get('message'),
+        subject: auditData.get('subject'),
+        revisionNeeded: auditData.get('revision_needed'),
+        currentlyUpdated: auditData.get('updated'),
+        pendingUpdate: state.getIn(['pendingState', 'audit', 'audits', auditData.get('pk'), 'updateStudent']),
+    }
 };
 
-export default connect(mapStateToProps)(BaseAuditViewStudent);
+const mapDispatchToProps = dispatch => {
+    return {
+        onUpdated: (exercise, auditPk, updated) => {
+            dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'updateStudent'], true))
+            dispatch(updateAuditStudent(auditPk, updated))
+                .then(json => {
+                    if(!json.error){
+                        dispatch(fetchExerciseRemoteState(exercise));
+                    }
+                    dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'updateStudent'], false))
+                })
+        }
+    }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(BaseAuditViewStudent);

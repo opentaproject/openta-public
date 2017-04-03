@@ -21,6 +21,7 @@ from django.utils import timezone
 from django.utils.six import BytesIO
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.timezone import now
 from rest_framework.parsers import JSONParser
 import pytz
 from random import choice
@@ -186,3 +187,26 @@ def add_audit(request):
         audit = AuditExercise(auditor=auditor, exercise=exercise, student=student)
         audit.save()
         return Response({'pk': audit.pk, 'created': True})
+
+
+@api_view(['POST'])
+def student_audit_update(request, pk):
+    try:
+        audit = AuditExercise.objects.get(pk=pk)
+    except ObjectDoesNotExist:
+        return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    if (audit.student != request.user) and not request.user.is_superuser:
+        return Response(
+            {'error': 'You are not the student of this audit and you are not a superuser.'},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+    updated = request.data.get('updated')
+    if updated is None:
+        return Response(
+            {'error': 'No update status in request'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+    audit.updated = updated
+    audit.updated_date = now()
+    audit.save()
+    return Response({'success': "Update status: " + str(updated)})

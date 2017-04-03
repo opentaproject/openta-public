@@ -345,10 +345,9 @@ class AuditExercise(models.Model):
     force_passed = models.BooleanField(default=False)
     date = models.DateTimeField(default=now)
     sent = models.BooleanField(default=False)
-    revision_needed = models.NullBooleanField(
-        blank=True, default=None
-    )  # Initial audit is complete and can be shown to student
+    revision_needed = models.NullBooleanField(blank=True, default=None)
     updated = models.BooleanField(default=False)
+    updated_date = models.DateTimeField(null=True, blank=True, default=None)
 
     objects = AuditManager()
 

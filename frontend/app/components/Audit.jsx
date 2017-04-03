@@ -2,6 +2,7 @@ import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import immutable from 'immutable';
 import Spinner from './Spinner.jsx';
+import Badge from './Badge.jsx';
 import Exercise from './Exercise.jsx';
 import StudentAuditExercise from './StudentAuditExercise.jsx';
 import AuditStatistics from './AuditStatistics.jsx';
@@ -56,6 +57,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
         { pendingStateAudits.getIn([audit.get('pk'), 'publish']) && <Spinner size=''/> }
         { (pendingStateAudits.getIn([audit.get('pk'), 'send']) === null ||  
           pendingStateAudits.getIn([audit.get('pk'), 'publish']) === null ) && <i className="uk-icon uk-icon-exclamation-triangle"/> }
+        { audit.get('updated') && <i className="uk-margin-small-left uk-icon uk-icon uk-icon-envelope"/>}
       </a>
     );
   };
@@ -112,6 +114,8 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
   var publishName = audits.getIn([activeAudit, 'published']) ? 'Retract' : 'Publish';
   var publishClass = audits.getIn([activeAudit, 'published']) ? 'uk-button-primary' : 'uk-button-success';
   var revisionNeeded = audits.getIn([activeAudit, 'revision_needed']);
+  if(audits.getIn([activeAudit, 'updated']))
+      revisionNeeded = null;
   var passedClass = '';
   var revisionClass = '';
   if(revisionNeeded !== null) {
@@ -134,7 +138,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               </div>
               <div className="uk-form-row uk-margin-small-top">
                 <div className="uk-flex uk-flex-middle uk-flex-wrap uk-margin-small-top">
-                  <a className={"uk-button uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit, bccStatus)}>{sendName} 
+                  <a className={"uk-button uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit, bccStatus)} data-uk-tooltip title="Send/resend message">{sendName} 
                   { pendingSend && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   <label data-uk-tooltip title="Send copy to auditor (and you if different)"><input type="checkbox" className="uk-margin-small-right uk-margin-left" checked={bccStatus} onChange={onBccClick}/>Bcc</label>
@@ -143,12 +147,12 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               <div className="uk-form-row uk-margin-small-top">
                 <div className="uk-button-group uk-flex uk-flex-center">
                   <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-success " + passedClass} onClick={() => onRevisionAudit(activeAudit, false)} data-uk-tooltip title="The student has completed all tasks and no further action is required. Unless otherwise stated this means the student has passed.">
-                    Passed { audits.getIn([activeAudit, 'revision_needed']) === false && <i className="uk-icon uk-icon-check uk-icon-medium"/> }
+                    Passed { revisionNeeded === false && <i className="uk-icon uk-icon-check uk-icon-medium"/> }
                     { pendingRevision && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-danger " + revisionClass} onClick={() => onRevisionAudit(activeAudit, true)} data-uk-tooltip title="Student need to amend their answer/files.">
                     Revision needed
-                    { audits.getIn([activeAudit, 'revision_needed']) === true && <i className="uk-icon uk-icon-check uk-icon-medium"/> }
+                    { revisionNeeded === true && <i className="uk-icon uk-icon-check uk-icon-medium"/> }
                   { pendingRevision && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                 </div>
@@ -161,7 +165,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
                   { pendingPublish && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   }
-                  <a className="uk-button uk-button-danger uk-margin-small-top uk-position-relative" onClick={() => onDeleteAudit(activeAudit)}>Delete
+                  <a className="uk-button uk-button-danger uk-margin-small-top uk-position-relative" onClick={() => onDeleteAudit(activeAudit)} data-uk-tooltip title="Delete audit (no trace will remain and the result of the student will be unaffected)">Delete
                   { pendingDelete && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                 </div>
@@ -203,6 +207,11 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
             <div className="uk-flex" >
               { audits.getIn([activeAudit, 'exercise']) == activeExercise &&
               <div className="uk-flex-item-1 uk-margin-small-top" style={{maxWidth: '75vw'}}>
+                { audits.getIn([activeAudit, 'updated'], false) && <Badge type="success" className="uk-margin-small-bottom uk-width-1-1 uk-text-center uk-text-large">Updated by student ({ moment(audits.getIn([activeAudit, 'updated_date'], '')).format('YYYY-MM-DD HH:mm')})</Badge> }
+                { !audits.getIn([activeAudit, 'updated'], false)
+               && audits.getIn([activeAudit, 'updated_date']) !== null
+               && audits.getIn([activeAudit, 'revision_needed'])
+               && <Badge type="info" className="uk-margin-small-bottom uk-width-1-1 uk-text-center uk-text-large">Awaiting new response (Previous update by student at { moment(audits.getIn([activeAudit, 'updated_date'], '')).format('YYYY-MM-DD HH:mm')})</Badge> }
                 { !pendingResults && activeAudit  && <StudentAuditExercise anonymous={true}/> }
                 { pendingResults && <Spinner/> }
               </div>
@@ -280,7 +289,7 @@ const handlePublishAndSend = (audits) => dispatch => {
 
 const handleAuditRevision= (auditPk, needRevision) => dispatch => {
   dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'revision'], true));
-  dispatch(updateAudit(auditPk, { revision_needed: needRevision }))
+  dispatch(updateAudit(auditPk, { revision_needed: needRevision, updated: false }))
   return dispatch(handleAuditSave(auditPk))
     .then(() => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'revision'], false)))
     .catch( err => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'revision'], false)));
