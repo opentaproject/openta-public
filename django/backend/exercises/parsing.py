@@ -166,8 +166,8 @@ def exercise_check_thumbnail(xmltree, path):
     if not os.path.isfile(thumbnail_path):
         figure = xmltree.xpath('/exercise//figure')
         try:
-            figurepath = figure[0].text
-        except IndexError:
+            figurepath = figure[0].text.strip()
+        except (IndexError, NameError, AttributeError) as e:
             messages.append(('warning', "No figure for exercise"))
             return messages
         size = (100, 100)
