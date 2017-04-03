@@ -41,7 +41,7 @@ var tags = {
       key: null,
       type: ["compareNumeric", "multipleChoice"]
     },
-    children: ["text", "expression", "choice"]
+    children: ["text", "expression", "choice", "variables"]
   },
 }
 
