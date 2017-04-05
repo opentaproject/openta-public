@@ -131,9 +131,13 @@ class BaseExercise extends Component {
 
   renderName = (itemjson, json, meta, exerciseKey) => {
     var deadlineDate = meta.get('deadline_date');
+    var deadlineTime = meta.get('deadline_time');
+    var deadlineDateFormat = '';
     if(deadlineDate) {
-      var deadlineTime = meta.get('deadline_time');
-      var deadlineDateFormat = moment(deadlineDate + ' ' + deadlineTime).format('D MMM HH:mm');
+        if(deadlineTime)
+            deadlineDateFormat = moment(deadlineDate + ' ' + deadlineTime).format('D MMM HH:mm');
+        else
+            deadlineDateFormat = moment(deadlineDate).format('D MMM');
     }
     var obligatorisk = meta.get('required', false);
     var bonus = meta.get('bonus', false);

@@ -16,7 +16,7 @@ class CourseManager(models.Manager):
 
     def deadline_time(self):
         course = self.first()
-        if course is not None:
+        if course is not None and course.deadline_time is not None:
             return course.deadline_time
         else:
             return datetime.time(23, 59, 0, tzinfo=pytz.timezone('Europe/Stockholm'))
