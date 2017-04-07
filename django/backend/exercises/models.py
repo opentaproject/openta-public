@@ -159,7 +159,7 @@ class ExerciseManager(models.Manager):  # {{{
                 yield progress
                 progress.clear()
             except (ExerciseParseError, IOError) as e:
-                print("Failed to add " + name + " because " + str(e))
+                progress.append(('error', "Failed to add " + path + " because " + str(e)))
         for exercise in self.all():
             fullpath = exercise.path + '/exercise.xml'
             if not is_exercise(exercise.path):
