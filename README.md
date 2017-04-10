@@ -4,8 +4,16 @@ A web-based platform for E-learning. Consists of a Python backend together with 
 ## [Installation](docs_src/installation/development.rst)
 
 ## Quick start with docker
+Install [Docker](https://docs.docker.com/engine/installation/).
 
-Install [Docker](https://docs.docker.com/engine/installation/) and configure backend and frontend settings from the template files (```settings_dev.py``` and ```settings_example.js```) as shown below.
+
+Clone the repository to a local folder
+```
+git clone https://github.com/hlinander/openta.git
+```
+
+and configure backend and frontend settings from the template files (```settings_dev.py``` and ```settings_example.js```), for a simple single site installation you can copy the templates to ```settings.py``` and ```settings.js``` (for details see installation instructions above). 
+
 
 Change workdirectory ```cd docker```. To build the Docker image run (grab a coffee)
 ```
