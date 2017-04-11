@@ -34,7 +34,7 @@ that when substituting matrices into expressions with symbols the operators need
 class Norm(sympy.Function):
     @classmethod
     def eval(cls, x):
-        if isinstance(x, sympy.ImmutableMatrix):
+        if isinstance(x, sympy.MatrixBase):
             return x.norm()
         else:
             return None
@@ -58,7 +58,7 @@ class Cross(sympy.MatrixExpr):
     def doit(self, **hints):
         x = self.args[0].doit() if isinstance(self.args[0], sympy.Basic) else self.args[0]
         y = self.args[1].doit() if isinstance(self.args[1], sympy.Basic) else self.args[1]
-        if isinstance(x, sympy.ImmutableMatrix) and isinstance(y, sympy.ImmutableMatrix):
+        if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
             return x.cross(y)
         else:
             return self
@@ -69,7 +69,7 @@ class Dot(sympy.Function):
 
     @classmethod
     def eval(cls, x, y):
-        if isinstance(x, sympy.ImmutableMatrix) and isinstance(y, sympy.ImmutableMatrix):
+        if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
             return x.dot(y)
         else:
             return None
@@ -254,9 +254,9 @@ def linear_algebra_compare_expressions(
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate
         # expression (necessary for matrix expressions).
         prelhs = sympify_with_custom(student_answer, varsubs_sympify)
-        lhs = prelhs.subs(varsubs).subs(varsubs).subs(varsubs).doit()
+        lhs = prelhs.doit().subs(varsubs).subs(varsubs).subs(varsubs).doit()
         prerhs = sympify_with_custom(correct, varsubs_sympify)
-        rhs = prerhs.subs(varsubs).subs(varsubs).subs(varsubs).doit()
+        rhs = prerhs.doit().subs(varsubs).subs(varsubs).subs(varsubs).doit()
         if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
             if lhs.shape != rhs.shape:
                 return {'error': _('The answer does not have the correct dimensions.')}
@@ -264,7 +264,11 @@ def linear_algebra_compare_expressions(
             return {'error': _('The answer does not have the correct dimensions.')}
         if hasattr(rhs, 'shape') and not hasattr(lhs, 'shape'):
             return {'error': _('The answer does not have the correct dimensions.')}
-        if isinstance(prelhs, sympy.Basic):
+        if isinstance(prelhs, sympy.Basic) or isinstance(prelhs, sympy.MatrixBase):
+            specials = [('cross', Cross), ('dot', Dot), ('norm', Norm)]
+            for special in specials:
+                if special[0] in blacklist and prelhs.has(special[1]):
+                    return {'error': _('Forbidden token: ') + special[0]}
             atoms = prelhs.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
             for atom in atoms:
                 strrep = str(atom)
