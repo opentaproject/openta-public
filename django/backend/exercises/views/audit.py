@@ -51,15 +51,19 @@ def get_current_audits_exercise(request, exercise):
 def get_current_audits_stats(request, exercise):
     dbexercise = Exercise.objects.get(pk=exercise)
     audits = AuditExercise.objects.filter(exercise__pk=exercise)
+    passed_students = get_passed_students(dbexercise)
+    passed_audited = passed_students.filter(audits__exercise=dbexercise)
+    passed_audited_pks = passed_audited.values_list('pk', flat=True)
+    n_passed_unaudited = passed_students.exclude(pk__in=passed_audited_pks).count()
     your_audits = AuditExercise.objects.filter(exercise__pk=exercise, auditor=request.user)
     n_auditees = audits.count()
     n_your_audits = your_audits.count()
-    n_complete = get_passed_students(dbexercise).count()
+    n_complete = passed_students.count()
     n_total = User.objects.filter(groups__name='Student').exclude(username='student').count()
     data = {
         'n_auditees': n_auditees,
         'n_complete': n_complete,
-        'n_unaudited': (n_complete - n_auditees),
+        'n_unaudited': n_passed_unaudited,
         'n_your_audits': n_your_audits,
         'n_total': n_total,
     }
@@ -77,8 +81,16 @@ def get_new_audit(request, exercise):
             status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    students_audits = get_passed_students(dbexercise).annotate(n_audits=Count('audits'))
-    # User.objects.filter(groups__name='Student').annotate(n_audits=Count('audits'))
+    students_audited_here = (
+        User.objects.filter(groups__name='Student', audits__exercise=dbexercise)
+        .values_list('pk', flat=True)
+        .distinct()
+    )
+    students_audits = (
+        get_passed_students(dbexercise)
+        .exclude(pk__in=students_audited_here)
+        .annotate(n_audits=Count('audits'))
+    )
     naudits_sorted = students_audits.order_by('n_audits').values_list('n_audits', flat=True)
     try:
         minimum = naudits_sorted[0]
