@@ -1,6 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import {
+    reloadExercises
 } from '../fetchers.js';
 import {
 } from '../actions.js';
@@ -11,7 +12,7 @@ import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 
-const BaseReloadExercises = ({ messages, pendingReload }) => {
+const BaseReloadExercises = ({ messages, pendingReload, onPerformReload }) => {
   var classDispatch = {
     error: 'uk-text-danger',
     info: 'uk-text-primary',
@@ -24,11 +25,16 @@ const BaseReloadExercises = ({ messages, pendingReload }) => {
   //var rows = messages.map( item => console.dir(item) );
   return (
     <div>
-    { pendingReload && <span>Reloading exercises...<Spinner/></span> }
-    { !pendingReload && <span>Reload finished, please review the messages for any errors or warnings:</span> } 
+    { pendingReload && <span><Spinner/></span> }
+    { !pendingReload && <span>Please review for any errors or warnings:</span> } 
+    { !pendingReload &&
     <ul className="uk-list">
         { rows }
     </ul>
+    }
+    { !pendingReload &&
+    <a className="uk-button" onClick={onPerformReload}>Perform reload</a>
+    }
     </div>
   );
 }
@@ -39,6 +45,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
+    onPerformReload: () => dispatch(reloadExercises(true))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseReloadExercises)

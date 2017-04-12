@@ -391,17 +391,26 @@ function fetchExerciseStatistics() {
   }
 }
 
-function reloadExercises() {
-  return dispatch => {
-    dispatch(updatePendingStateIn( ['exercisesReload'], true));
-    return jsonfetch('/exercises/reload/json')
-      .then(response => response.json())
-      .then(json => dispatch(updateExercisesReloadMessages(json)))
-      .then( () => dispatch(updatePendingStateIn( ['exercisesReload'], false)))
-      .then( () => dispatch( fetchExercises() ))
-      .then( () => dispatch( fetchExerciseTree() )) 
-      .catch( err => console.log(err) );
-  }
+function reloadExercises(iAmSure = false) {
+    return dispatch => {
+        var payload = {
+            i_am_sure: iAmSure
+        };
+        var data = JSON.stringify(payload);
+        var fetchconfig = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: data
+        };
+        dispatch(updatePendingStateIn( ['exercisesReload'], true));
+        return jsonfetch('/exercises/reload/json', fetchconfig)
+            .then(response => response.json())
+            .then(json => dispatch(updateExercisesReloadMessages(json)))
+            .then( () => dispatch(updatePendingStateIn( ['exercisesReload'], false)))
+            .then( () => dispatch( fetchExercises() ))
+            .then( () => dispatch( fetchExerciseTree() )) 
+            .catch( err => console.log(err) );
+    };
 }
 
 

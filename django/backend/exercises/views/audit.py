@@ -92,7 +92,11 @@ def get_new_audit(request, exercise):
     context = Context(data)
     subject = template.render(context).strip()
     audit = AuditExercise(
-        auditor=request.user, student=auditee, exercise=dbexercise, subject=subject
+        auditor=request.user,
+        student=auditee,
+        exercise=dbexercise,
+        subject=subject,
+        exercise_key=dbexercise.exercise_key,
     )
     try:
         audit.save()
@@ -184,7 +188,9 @@ def add_audit(request):
     except AuditExercise.DoesNotExist:
         exercise = Exercise.objects.get(pk=exercise_pk)
         student = User.objects.get(pk=student_pk)
-        audit = AuditExercise(auditor=auditor, exercise=exercise, student=student)
+        audit = AuditExercise(
+            auditor=auditor, exercise=exercise, student=student, exercise_key=exercise.exercise_key
+        )
         audit.save()
         return Response({'pk': audit.pk, 'created': True})
 

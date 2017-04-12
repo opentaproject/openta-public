@@ -12,6 +12,7 @@ from exercises.parsing import (
     exercise_xmltree,
     question_validate_xmltree,
     exercise_check_thumbnail,
+    exercise_key_get,
 )
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 class ExerciseManager(models.Manager):  # {{{
-    def mend_answers(self):
+    def mend_answers_and_audits(self):
         '''
         Tries to match orphan answers with an exercise and question.
         '''
@@ -43,7 +44,7 @@ class ExerciseManager(models.Manager):  # {{{
                 )
                 answer.question = question
                 answer.save()
-                print("Found question for orphan answer")
+                logger.info("Found question for orphan answer")
             except ObjectDoesNotExist:
                 pass
         imageanswers = ImageAnswer.objects.filter(exercise__isnull=True)
@@ -52,7 +53,16 @@ class ExerciseManager(models.Manager):  # {{{
                 exercise = Exercise.objects.get(exercise_key=imageanswer.exercise_key)
                 imageanswer.exercise = exercise
                 imageanswer.save()
-                print("Found exercise for orphan imageanswer")
+                logger.info("Found exercise for orphan imageanswer")
+            except ObjectDoesNotExist:
+                pass
+        audits = AuditExercise.objects.filter(exercise__isnull=True)
+        for audit in audits:
+            try:
+                exercise = Exercise.objects.get(exercise_key=audit.exercise_key)
+                audit.exercise = exercise
+                audit.save()
+                logger.info("Found exercise for orphan audit")
             except ObjectDoesNotExist:
                 pass
 
@@ -73,17 +83,17 @@ class ExerciseManager(models.Manager):  # {{{
         )
         if created:
             progress.append(('success', _("Added exercise ") + path))
-            print('Adding ' + path + '/' + name + ' to database.')
+            logger.info('Adding ' + path + '/' + name + ' to database.')
         else:
             progress.append(('info', _("Updated exercise ") + path))
-            print('Updated ' + path + '/' + name)
+            logger.info('Updated ' + path + '/' + name)
         questions = exercisetree.xpath('/exercise/question[@key and @type]')
         keys = [x.get('key') for x in questions]
         if len(keys) > len(set(keys)):
             raise ExerciseParseError("Duplicate question keys!")
         for question in questions:
             if not question_validate_xmltree(question):
-                print(path + " contains invalid question: ")
+                logger.info(path + " contains invalid question: ")
                 nested_print(question)
                 raise ExerciseParseError("Invalid question in " + name)
             dbquestion, created = Question.objects.update_or_create(
@@ -92,7 +102,7 @@ class ExerciseManager(models.Manager):  # {{{
                 defaults={'type': question.get('type')},
             )
             if created:
-                print(
+                logger.info(
                     name
                     + ': Adding question '
                     + question.get('key')
@@ -100,7 +110,7 @@ class ExerciseManager(models.Manager):  # {{{
                     + question.get('type')
                 )
             else:
-                print(
+                logger.info(
                     name
                     + ': Updating question '
                     + question.get('key')
@@ -116,10 +126,13 @@ class ExerciseManager(models.Manager):  # {{{
         progress.extend(exercise_check_thumbnail(exercisetree, path))
         return progress
 
-    def sync_with_disc(self):
+    def sync_with_disc(self, i_am_sure=False):
+        need_to_be_sure = False
+        prevent_reload = False
         logger.info("Starting sync with disc of exercises.")
-        progress = [('success', _('Started syncing exercises...'))]
+        progress = [('success', _('Checking status of file tree...'))]
         exerciselist = []
+        exercises_without_keys = []
         keys = {}
         for root, directories, filenames in os.walk(paths.EXERCISES_PATH, followlinks=True):
             for filename in filenames:
@@ -127,31 +140,123 @@ class ExerciseManager(models.Manager):  # {{{
                     name = os.path.basename(os.path.normpath(root))
                     relpath = root[len(paths.EXERCISES_PATH) :]
                     exerciselist.append((name, relpath))
+
         for name, path in exerciselist:
-            key = exercise_key_get_or_create(path)
-            if key in keys:
-                progress.append(('error', _("Duplicate exercise keys!")))
-                progress.append(
-                    (
-                        'error',
-                        _("Exercise at [")
-                        + path
-                        + _("] has the same key as exercise at [")
-                        + keys[key]
-                        + "]",
+            try:
+                key = exercise_key_get(path)
+                if key in keys:
+                    progress.append(('error', _("Duplicate exercise keys!")))
+                    progress.append(
+                        (
+                            'error',
+                            _("Exercise at [")
+                            + path
+                            + _("] has the same key as exercise at [")
+                            + keys[key]
+                            + "]",
+                        )
                     )
-                )
-                progress.append(
-                    (
-                        'warning',
-                        _(
-                            "Neither was added. (Perhaps you copied an exercise? Then please remove the key file from the new exercise to generate a new one on reload)"
-                        ),
+                    progress.append(
+                        (
+                            'warning',
+                            _(
+                                "You will need to fix this before a reload is possible. (Perhaps you copied an exercise? Then please remove the key file from the new exercise to generate a new one on reload)"
+                            ),
+                        )
                     )
+                    keys.pop(key)
+                    prevent_reload = True
+                else:
+                    keys[key] = path
+            except IOError:
+                exercises_without_keys.append(path)
+
+        existing_exercises = set(self.all().values_list('pk', flat=True))
+        file_tree_exercises = set(keys.keys())
+        new_exercises = file_tree_exercises - existing_exercises
+        for new_exercise in new_exercises:
+            progress.append(('success', 'A reload would add the exercise at ' + keys[new_exercise]))
+        for exercise_path in exercises_without_keys:
+            progress.append(('success', 'A reload would add the exercise at ' + exercise_path))
+
+        for exercise in self.all():
+            if not is_exercise(exercise.path):
+                if exercise.exercise_key in keys:
+                    progress.append(
+                        (
+                            'info',
+                            _("The exercise with path ")
+                            + exercise.path
+                            + _(" seems to have been moved to ")
+                            + keys[exercise.exercise_key],
+                        )
+                    )
+                else:
+                    progress.append(
+                        (
+                            'warning',
+                            _("The exercise with path ")
+                            + exercise.path
+                            + _(
+                                " does no longer contain an exercise.xml file and will be deleted."
+                            ),
+                        )
+                    )
+
+        for name, path in exerciselist:
+            try:
+                dbexercise = Exercise.objects.get(path=path)
+                try:
+                    key = exercise_key_get(path)
+                except IOError:
+                    key = None
+                if dbexercise.exercise_key != key:
+                    need_to_be_sure = True
+                    progress.append(
+                        (
+                            'warning',
+                            _("The exercise with path ")
+                            + path
+                            + _(
+                                " changed exercise key, this will result in a new exercise being added and the old one deleted."
+                            ),
+                        )
+                    )
+                    progress.append(('info', 'Old key:  ' + dbexercise.exercise_key))
+                    if key is not None:
+                        progress.append(('info', 'New key: ' + key))
+                    else:
+                        progress.append(('info', 'New key: Empty, a new one will be generated.'))
+            except Exercise.DoesNotExist:
+                pass
+
+        if prevent_reload:
+            progress.append(
+                (
+                    'error',
+                    _(
+                        "Something will prevent a reload from being carried out, please review messages above."
+                    ),
                 )
-                keys.pop(key)
-            else:
-                keys[key] = path
+            )
+            yield progress
+            return
+        if need_to_be_sure and not i_am_sure:
+            progress.append(('error', _("Are you sure you want to do these actions?")))
+            yield progress
+            return
+        if not need_to_be_sure and not i_am_sure:
+            progress.append(
+                (
+                    'info',
+                    _(
+                        "Do you want to do a reload? This will update all existing exercises and perform any additional actions listed above."
+                    ),
+                )
+            )
+            yield progress
+            return
+        progress.append(('info', 'Ok, starting reload...'))
         for name, path in exerciselist:
             try:
                 msgs = self.add_exercise(path)
@@ -188,7 +293,7 @@ class ExerciseManager(models.Manager):  # {{{
                         )
                     )
 
-        self.mend_answers()  # }}}
+        self.mend_answers_and_audits()  # }}}
         progress.append(('success', _("Finished syncing exercises.")))
         yield progress
 
@@ -338,7 +443,10 @@ def audit_fileresponse_filename(instance, filename):
 class AuditExercise(models.Model):
     student = models.ForeignKey(User, related_name='audits')
     auditor = models.ForeignKey(User, related_name='studentaudits')
-    exercise = models.ForeignKey(Exercise, related_name='audits')
+    exercise = models.ForeignKey(
+        Exercise, on_delete=models.SET_NULL, null=True, related_name='audits'
+    )
+    exercise_key = models.CharField(max_length=255, default='')
     subject = models.CharField(max_length=255, default='', blank=True)
     message = models.TextField(default="", blank=True)
     published = models.BooleanField(default=False)  # Audit shown to student

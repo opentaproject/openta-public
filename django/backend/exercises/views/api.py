@@ -71,10 +71,12 @@ def exercises_reload_streaming(request):  # {{{
 @permission_required('exercises.reload_exercise')
 @api_view(['POST', 'GET'])
 def exercises_reload(request):  # {{{
+    i_am_sure = request.data.get('i_am_sure', False)
+
     @transaction.atomic
     def sync():
         mess = []
-        exercises = Exercise.objects.sync_with_disc()
+        exercises = Exercise.objects.sync_with_disc(i_am_sure)
         for progress in exercises:
             mess = mess + progress
         return mess
@@ -89,10 +91,12 @@ def exercises_reload(request):  # {{{
 @permission_required('exercises.reload_exercise')
 @api_view(['POST', 'GET'])
 def exercises_reload_json(request):  # {{{
+    i_am_sure = request.data.get('i_am_sure', False)
+
     @transaction.atomic
     def sync():
         mess = []
-        exercises = Exercise.objects.sync_with_disc()
+        exercises = Exercise.objects.sync_with_disc(i_am_sure)
         for progress in exercises:
             mess = mess + progress
         return mess
