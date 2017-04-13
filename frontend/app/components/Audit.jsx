@@ -138,7 +138,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               </div>
               <div className="uk-form-row uk-margin-small-top">
                 <div className="uk-flex uk-flex-middle uk-flex-wrap uk-margin-small-top">
-                  <a className={"uk-button uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit, bccStatus)} data-uk-tooltip title="Send/resend message">{sendName} 
+                  <a className={"uk-button uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit, bccStatus)} data-uk-tooltip title="Send/resend email">{sendName} 
                   { pendingSend && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   <label data-uk-tooltip title="Send copy to auditor (and you if different)"><input type="checkbox" className="uk-margin-small-right uk-margin-left" checked={bccStatus} onChange={onBccClick}/>Bcc</label>
@@ -161,7 +161,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
                 <div className="uk-flex uk-flex-middle uk-flex-space-between uk-flex-wrap uk-margin-small-top">
                   { audits.getIn([activeAudit, 'revision_needed']) === null && <a className="uk-button uk-text-muted" title="Please select status before publishing." data-uk-tooltip>Publish</a> }
                   { audits.getIn([activeAudit, 'revision_needed']) !== null &&
-                  <a className={"uk-button uk-margin-small-top uk-position-relative " + publishClass} onClick={() => onPublishAudit(activeAudit, audits.getIn([activeAudit, 'published']))} data-uk-tooltip title="The audit will become visible for the student.">{publishName} 
+                  <a className={"uk-button uk-margin-small-top uk-position-relative " + publishClass} onClick={() => onPublishAudit(activeAudit, audits.getIn([activeAudit, 'published']), audits.getIn([activeAudit, 'sent']), bccStatus)} data-uk-tooltip title="The audit will become visible for the student and an email will be sent if first time.">{publishName} 
                   { pendingPublish && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   }
@@ -268,10 +268,13 @@ const handleAuditPass = (auditPk, studentPk, currentlyPassed) => dispatch => {
     .catch( err => console.dir(err));
 }
 
-const handleAuditPublish = (auditPk, currentlyPublished) => dispatch => {
+const handleAuditPublish = (auditPk, currentlyPublished, sent, bcc) => dispatch => {
   dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], true));
   dispatch(updateAudit(auditPk, { published: !currentlyPublished }))
   return dispatch(handleAuditSave(auditPk))
+      .then(() => {
+          if(!currentlyPublished && !sent)dispatch(handleAuditSend(auditPk, bcc));
+      })
     .then(() => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], false)))
     .catch( err => {
       dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], null))
@@ -281,7 +284,7 @@ const handleAuditPublish = (auditPk, currentlyPublished) => dispatch => {
 
 const handlePublishAndSend = (audits) => dispatch => {
   audits.forEach( audit => {
-    dispatch(handleAuditPublish(audit.get('pk'), false))
+    dispatch(handleAuditPublish(audit.get('pk'), false, audit.get('sent'), false))
       .then(() => dispatch(handleAuditSend(audit.get('pk'), false)));
   });
   /**/
@@ -343,7 +346,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(setSelectedStudentResults(studentPk));
   },
   onSendAudit: (auditPk, bcc) => dispatch(handleAuditSend(auditPk, bcc)),
-  onPublishAudit: (auditPk, currentlyPublished) => dispatch(handleAuditPublish(auditPk, currentlyPublished)),
+  onPublishAudit: (auditPk, currentlyPublished, sent, bcc) => dispatch(handleAuditPublish(auditPk, currentlyPublished, sent, bcc)),
   onPublishAndSend: (audits) => dispatch(handlePublishAndSend(audits)),
   onRevisionAudit: (auditPk, needRevision) => dispatch(handleAuditRevision(auditPk, needRevision)),
   onAddAudit: (exercise) => dispatch(fetchNewAudit(exercise)),
