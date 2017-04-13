@@ -5,3 +5,4 @@ from .audit import *
 from .audit_response import *
 from .results import *
 from .asset import *
+from .exercises import *

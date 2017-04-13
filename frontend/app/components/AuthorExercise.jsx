@@ -12,6 +12,7 @@ import Spinner from './Spinner.jsx';
 import Audit from './Audit.jsx';
 import AuditOverview from './AuditOverview.jsx';
 import AuditCompactList from './AuditCompactList.jsx';
+import Assets from './Assets.jsx'
 
 import Exercise from './Exercise';
 import { menuPositionAt, menuPositionUnder } from '../menu.js';
@@ -94,16 +95,20 @@ class BaseAuthorExercise extends Component {
     var saveError = exerciseState.get('saveerror');
     var modified = exerciseState.get('modified');
     var loadingXML = pendingState.getIn(['exercises', key, 'loadingXML'],false);
+    var gridClass = this.props.atMenu(['activeExercise', 'assets']) ? '' : 'admin';
     var authorDOM = (
-      <div className="uk-grid admin">
-        { !this.props.underMenu(['activeExercise', 'audit']) &&
+      <div className={"uk-grid uk-margin-small-left " + gridClass}>
+        { !this.props.atMenu(['activeExercise', 'audit']) &&
           !this.props.atMenu(['activeExercise', 'xmlEditor']) &&
+          !this.props.atMenu(['activeExercise', 'assets']) &&
         <div key="exercise" className="exercise-admin">
           <Tools savepending={savePending} savesuccess={!modified && saveError === false} saveerror={saveError} />
           <Exercise/>
         </div>
         }
         { !this.props.atMenu(['activeExercise','xmlEditor']) &&
+          !this.props.atMenu(['activeExercise', 'audit']) &&
+          !this.props.atMenu(['activeExercise', 'assets']) &&
           <div key="xml" className="xmleditor">
           { loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && <Spinner/> }
           { !loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && this.props.author && <XMLEditor xmlCode={this.state.xml} onChange={ (xml) => this.xmlUpdate(xml, key)}/> }
@@ -119,9 +124,18 @@ class BaseAuthorExercise extends Component {
         }
         { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }
         { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && this.props.author && 
-          <div className="uk-width-1-1">
-          <XMLEditor xmlCode={this.state.xml} onChange={ (xml) => this.xmlUpdate(xml, key)}/> 
-          { xmlError && this.props.atMenu(['activeExercise','xmlEditor']) && <Alert type="error">{xmlError}</Alert>}
+          <div className="uk-width-1-1 uk-padding-remove">
+              <div className="uk-flex">
+                  <div style={{flex: '1'}}>
+                  <XMLEditor xmlCode={this.state.xml} onChange={ (xml) => this.xmlUpdate(xml, key)}/> 
+                  { xmlError && this.props.atMenu(['activeExercise','xmlEditor']) &&
+                    <Alert type="error">{xmlError}</Alert>
+                  }
+                  </div>
+              <div className="uk-margin-small-top">
+                  <Assets/>
+              </div>
+              </div>
           </div>
         }
       {this.props.underMenu(['activeExercise','audit','myaudits']) &&
@@ -131,6 +145,11 @@ class BaseAuthorExercise extends Component {
       }
       { this.props.underMenu(['activeExercise','audit','myaudits']) && this.props.admin && <Audit/> }
       { this.props.underMenu(['activeExercise','audit','overview']) && this.props.admin && <AuditOverview/> }
+        { this.props.atMenu(['activeExercise','assets']) && this.props.author &&
+          <div className="uk-margin-top">
+              <Assets/>
+          </div>
+        }
       </div>
     );
     return key ? authorDOM : (<span/>);
@@ -149,13 +168,15 @@ class BaseAuthorExercise extends Component {
 
   componentDidUpdate = (props, state, root) => {
     //Check if the exercise XML changed from the store (i.e. active exercise changed or reset of current) and update to the corresponding working state XML
+    // Use a props function to dispatch XML parse?
     if(props.exerciseState.get('xml') !== this.props.exerciseState.get('xml')) {
       this.setState({ 'xml': this.props.exerciseState.get('activeXML','') });
+      this.props.onXMLChange(this.props.exerciseState.get('activeXML',''), this.props.exerciseKey, false);
     }
   }
 }
 
-function handleXMLChange(xml, exercise) {
+function handleXMLChange(xml, exercise, flagModified=true) {
   return dispatch => {
     throttleParseXML(xml, (err, result) => {
       dispatch(updateExerciseActiveXML(exercise, xml));
@@ -183,7 +204,8 @@ function handleXMLChange(xml, exercise) {
           _.set(result, 'exercise.global', [global]);
 
         dispatch(updateExerciseJSON(exercise, result));
-        dispatch(setExerciseModifiedState(exercise, true));
+        if(flagModified)
+          dispatch(setExerciseModifiedState(exercise, true));
         dispatch(setExerciseXMLError(exercise, null));
       }
     });
@@ -220,7 +242,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onXMLChange: (xml, exercise) => dispatch(handleXMLChange(xml, exercise)) ,
+    onXMLChange: (xml, exercise, flagModified=true) => dispatch(handleXMLChange(xml, exercise, flagModified)) ,
     onOptionsSubmit: () => dispatch(handleOptionsSubmit()),
   }
 }

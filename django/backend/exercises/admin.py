@@ -60,7 +60,10 @@ class ImageAnswerAdmin(admin.ModelAdmin):
     get_userid.short_description = 'User id'
 
     def get_exercise_name(self, answer):
-        return answer.exercise.name
+        try:
+            return answer.exercise.name
+        except AttributeError:
+            return "__Orphan__"
 
     get_exercise_name.short_description = 'Exercise'
 

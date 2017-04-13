@@ -34,6 +34,8 @@ import immutable from 'immutable'
 import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js'
 import {SUBPATH} from 'settings.js'
 
+import {fetchAssets} from './fetchers/assets.js';
+
 function fetchLoginStatus() {//{{{
   return dispatch => {
     return jsonfetch('/loggedin')
@@ -155,6 +157,7 @@ function fetchExercise(exercise, empty) {//{{{
     //Only fetch XML if user is an Author and there is no XML already loaded
     if(groups.includes('Author') && state.getIn(['exerciseState', exercise, 'xml']) === undefined) {
       dispatch(fetchExerciseXML(exercise));
+      dispatch(fetchAssets(exercise));
     }
     //Do not fetch new JSON if user is Author and JSON has already been loaded (This ensures that unsaved changes will be rendered when returning to an exercise
     if( !( json !== undefined && groups.includes('Author'))) {
@@ -451,3 +454,5 @@ export {
   fetchExerciseRecentResults,
 };
 export * from './fetchers/audit.js'
+export * from './fetchers/exercise.js'
+export * from './fetchers/assets.js'

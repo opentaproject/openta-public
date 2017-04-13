@@ -70,6 +70,8 @@ class ExerciseManager(models.Manager):  # {{{
         progress = []
         result = {}
         json = {}
+        if not path.startswith("/"):
+            raise ExerciseParseError("Exercise path does not start with a /")
         if not is_exercise(path):
             raise ExerciseNotFound(path)
         exercisetree = exercise_xmltree(path)
@@ -397,7 +399,10 @@ class ImageAnswer(models.Model):  # {{{
     )
 
     def __str__(self):
-        return self.user.username + " image for " + self.exercise.name  # }}}
+        try:
+            return self.user.username + " image for " + self.exercise.name  # }}}
+        except AttributeError:
+            return "__Orphan__"
 
 
 class ExerciseMeta(models.Model):  # {{{
@@ -489,3 +494,9 @@ class AuditResponseFile(models.Model):
     image_thumb = ImageSpecField(
         source='image', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60}
     )
+
+
+# class Folder(models.Model):
+#    name = models.CharField(max_length=255)
+#    parent = models.ForeignKey('self', null=True, default=None, on_delete=models.CASCADE)
+#    exercises = models.ManyToManyField(Exercise)

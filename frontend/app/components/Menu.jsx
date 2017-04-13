@@ -45,14 +45,16 @@ const BaseMenu = ({menuPath, menuClick}) => {
     return ( <a key={item.get('name')} className={cssclass} onClick={e => menuClick((leaf ? menuPath.butLast() : menuPath).push(item.get('key')))}>{item.get('name')}</a> )
   }).toArray();
   return (
-    <span>
+    <div className="uk-flex uk-flex-column uk-flex-middle">
+    <div className="uk-button-group uk-margin-left">
+    {subMenu}
+    </div>
+    {menuPath.size > 0 && !(menuPath.size == 1 && leaf) &&
     <ul className="uk-breadcrumb uk-display-inline-block uk-vertical-align-middle">
-      {menuPath.size > 0 && !(menuPath.size == 1 && leaf) && breadcrumbs}
+     {breadcrumbs}
     </ul>
-      <div className="uk-button-group uk-margin-left">
-      {subMenu}
-      </div>
-    </span>
+    }
+    </div>
   )
 };
 

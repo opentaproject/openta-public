@@ -12,7 +12,8 @@ import {
   reloadExercises,
   fetchUnsentAudits,
   fetchCurrentAuditsExercise,
-  fetchExerciseRecentResults,
+    fetchExerciseRecentResults,
+    fetchAssets,
 } from './fetchers.js';
 
 var menuTree = immutable.fromJS({
@@ -107,7 +108,7 @@ var menuTree = immutable.fromJS({
           reqGroup: 'Author'
         },
         xmlEditor: {
-          name: 'XML',
+          name: 'XML & Assets',
           key: 'xmlEditor',
           reqGroup: 'Author'
         },

@@ -37,7 +37,10 @@ class BaseApp extends React.Component {
               { /*(this.props.admin || this.props.author) ? <span/> : <div className="exercise-spacing"></div> */ }
               { menuPositionUnder(this.props.menuPath, ['activeExercise']) &&
               <div className="exercise-list">
-                <ExerciseList showOnCanvas={!menuPositionUnder(this.props.menuPath, ['activeExercise', 'audit'])}/>               
+                  <ExerciseList showOnCanvas={
+                      !menuPositionUnder(this.props.menuPath, ['activeExercise', 'audit']) &&
+                      !menuPositionUnder(this.props.menuPath, ['activeExercise', 'xmlEditor'])
+                                             }/>
               </div>
               }
               { menuPositionUnder(this.props.menuPath, ['activeExercise']) && (((this.props.author || this.props.admin || this.props.view) && !menuPositionUnder(this.props.menuPath, ['activeExercise', 'student'])) ? <AuthorExercise /> : <div className="exercise uk-padding-remove"><StudentExercise/></div>) }

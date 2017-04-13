@@ -26,6 +26,8 @@ import _ from 'lodash';
 import {SUBPATH} from '../settings.js';
 import Spinner from './Spinner.jsx';
 import Menu from './Menu.jsx';
+import ExerciseHistory from './ExerciseHistory.jsx';
+import DeleteExercise from './DeleteExercise.jsx';
 import { throttleParseXML } from './AuthorExercise.jsx';
 import { menuPositionAt, menuPositionUnder } from '../menu.js';
 
@@ -54,7 +56,9 @@ var pendingPaths = [
 var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => (
     <div className="uk-button-group"> 
         { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
-        { showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary uk-margin-right" onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a> }
+        { showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary" onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a> }
+      <ExerciseHistory/>
+      <DeleteExercise/>
     </div>
 );
 
@@ -80,6 +84,7 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
   <div className="uk-container uk-container-center">
+  <div className="uk-navbar-content uk-flex uk-flex-wrap">
   { activeExercise && menuPositionUnder(menuPath, ['activeExercise']) &&
   <div className="uk-navbar-content uk-padding-remove">
     <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas uk-padding-remove" data-uk-offcanvas/>
@@ -87,8 +92,14 @@ return (
   <ul className="uk-navbar-nav exercise-list-on-canvas"><li>
   <a className="uk-navbar-brand" onClick={onHome}><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> {course}</span></a>
   </li></ul>
+  <div className="uk-vertical-align">
+  <span className="uk-vertical-align-middle">
+  {renderGroupIcons} <span className="uk-text-middle">{username}</span>{ admin ? ( <span className="uk-text-small uk-text-middle"> (admin)</span> ) : "" }
+  </span>
+  </div>
+  </div>
   <div className="uk-navbar-flip">
-  { author && activeExercise && 
+  { author && activeExercise && ( menuPositionUnder(menuPath, ['activeExercise', 'xmlEditor']) || menuPositionUnder(menuPath, ['activeExercise', 'xmlEditorSplit']) ) &&
   <div className="uk-navbar-content">
   {savereset}
   </div>
@@ -102,8 +113,7 @@ return (
       </li>
   </ul>
   </div>
-  <div className="uk-navbar-content uk-margin-remove">
-  {renderGroupIcons} <span className="uk-text-middle">{username}</span>{ admin ? ( <span className="uk-text-small uk-text-middle"> (admin)</span> ) : "" }
+  <div className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap" style={{height: 'auto'}}>
   { renderPending }
   { admin && <Menu/>}
 </div>

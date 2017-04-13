@@ -82,10 +82,13 @@ def e_student_activity(exercise):
 
 
 def p_student_activity(data):
-    max_1h = max(data.values(), key=lambda exercise: exercise['activity']['1h'])
-    max_24h = max(data.values(), key=lambda exercise: exercise['activity']['24h'])
-    max_1w = max(data.values(), key=lambda exercise: exercise['activity']['1w'])
-    max_all = max(data.values(), key=lambda exercise: exercise['activity']['all'])
+    try:
+        max_1h = max(data.values(), key=lambda exercise: exercise['activity']['1h'])
+        max_24h = max(data.values(), key=lambda exercise: exercise['activity']['24h'])
+        max_1w = max(data.values(), key=lambda exercise: exercise['activity']['1w'])
+        max_all = max(data.values(), key=lambda exercise: exercise['activity']['all'])
+    except ValueError:
+        return {'max_1h': 0, 'max_24h': 0, 'max_1w': 0, 'max_all': 0}
     # for item in data.:
     #    print(item)
     return {
@@ -276,6 +279,7 @@ def exercise_folder_structure(manager, user):  # {{{
         exercises = manager.filter(meta__published=True).select_related('meta')
     paths = map(lambda x: os.path.dirname(x.path), exercises)
     unique_paths = filter(lambda x: x != '/', set(paths))
+    folders['path'] = ''
     for path in list(map(lambda x: x.split('/')[1:], unique_paths)):
         root = folders
         fullpath = []

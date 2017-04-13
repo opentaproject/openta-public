@@ -7,12 +7,28 @@ from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExerc
 from exercises.views.file_handling import serve_file
 import backend.settings as settings
 import exercises.paths as paths
+from exercises.parsing import list_assets, add_asset, delete_asset
 import os
+
+asset_types = ('.pdf', '.jpg', '.jpeg', '.svg', '.tiff', '.tif', '.png', '.gif')
+
+
+@permission_required('exercises.edit_exercise')
+@api_view(['DELETE'])
+def exercise_asset_delete(request, exercise, asset):  # {{{
+    if not asset.lower().endswith(asset_types):
+        return Response({}, status.HTTP_403_FORBIDDEN)
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
+
+    res = delete_asset(dbexercise.path, asset)
+    if 'error' in res:
+        return Response(res, status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(res)
 
 
 @api_view(['GET'])
 def exercise_asset(request, exercise, asset):  # {{{
-    if not asset.lower().endswith(('.png', '.pdf', '.jpg', '.jpeg', '.svg', '.tiff')):
+    if not asset.lower().endswith(asset_types):
         return Response({}, status.HTTP_403_FORBIDDEN)
     content_type = ''
     dbexercise = Exercise.objects.get(exercise_key=exercise)
@@ -20,6 +36,8 @@ def exercise_asset(request, exercise, asset):  # {{{
         if not dbexercise.meta.solution and not request.user.has_perm('exercises.view_solution'):
             return Response({}, status.HTTP_403_FORBIDDEN)
         content_type = 'application/pdf'
+    if asset.lower().endswith(('.png', '.jpg', '.jpeg', '.svg', '.tiff', '.tif')):
+        content_type = 'image'
 
     return serve_file(
         "/"
@@ -38,5 +56,23 @@ def exercise_asset(request, exercise, asset):  # {{{
 @api_view(['GET'])
 def exercise_list_assets(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    files = os.listdir(os.path.join(paths.EXERCISES_PATH, dbexercise.path))
-    return Response(files)
+    assets = list_assets(dbexercise.path, asset_types)
+    return Response(assets)
+
+
+@permission_required('exercises.edit_exercise')
+@api_view(['POST'])
+@parser_classes((MultiPartParser,))
+def exercise_upload_asset(request, exercise):
+    if request.FILES['file'].size > 10e6:
+        return Response("File larger than 10mb", status.HTTP_500_INTERNAL_SERVER_ERROR)
+    try:
+        dbexercise = Exercise.objects.get(exercise_key=exercise)
+        res = add_asset(dbexercise.path, request.FILES['file'], asset_types)
+        if 'error' in res:
+            return Response(res, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response(res)
+
+    except Exception as e:
+        return Response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)

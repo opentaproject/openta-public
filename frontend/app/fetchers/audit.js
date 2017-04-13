@@ -1,7 +1,7 @@
-import {logImmutable, keyIn} from '../immutablehelpers.js'
-import _ from 'lodash'
-import immutable from 'immutable'
-import {jsonfetch, CSRF_TOKEN} from '../fetch_backend.js'
+import {logImmutable, keyIn} from '../immutablehelpers.js';
+import _ from 'lodash';
+import immutable from 'immutable';
+import {jsonfetch, CSRF_TOKEN} from '../fetch_backend.js';
 import {SUBPATH} from '../settings.js';
 
 import {

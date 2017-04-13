@@ -1,0 +1,93 @@
+import React, { PropTypes, Component } from 'react';
+import { connect } from 'react-redux';
+import immutable from 'immutable';
+import Spinner from './Spinner.jsx';
+import moment from 'moment';
+import {SUBPATH} from '../settings.js';
+import _ from 'lodash';
+import {
+    updatePendingStateIn,
+    fetchAddExercise,
+    fetchExerciseTree,
+} from '../fetchers.js';
+
+class BaseAddExercise extends Component {
+    constructor() {
+        super();
+        this.state = { 
+            name: ''
+        }
+    }
+    handleNameChange = (e) => {
+        this.setState( {name: e.target.value} );
+    }
+
+    handleAdd = () => {
+        if(this.state.name.trim() !== '')
+            this.props.onExerciseAdd(this.props.path, this.state.name)
+    }
+    handleKeypress = (e) => {
+        if(e.key == 'Enter'){
+            this.handleAdd()
+        }
+    }
+
+    render() {
+        const onExerciseAdd = this.props.onExerciseAdd;
+        const pendingExerciseAdd = this.props.pendingExerciseAdd;
+        const path = this.props.path;
+
+        if(!this.props.author)
+            return (<span/>);
+        return (
+            <li key="addExercise" className="course-exercise-item">
+                { !pendingExerciseAdd &&
+                 <div className="uk-thumbnail exercise-unpublished"> 
+                  <div className="uk-placeholder uk-margin-remove uk-padding-remove">
+                      <div className="uk-flex uk-flex-column uk-flex-middle uk-margin-small-left uk-margin-small-right uk-margin-small-bottom uk-margin-small-top">
+                          <div>
+                      <a className={"exercise-a uk-margin-small-right"} onClick={(ev) => this.handleAdd()}>
+                          <i className="uk-icon uk-icon-plus uk-icon-medium"/>
+                      </a>
+                          </div>
+                          <div>
+                              <input type="text" placeholder="Exercise name" className="uk-form-small uk-form-width-small" style={{height: 'auto', width:'80px'}} value={this.state.name} onChange={this.handleNameChange} onKeyPress={this.handleKeypress}/>
+                          </div>
+                      </div>
+                  </div>
+                 </div>
+                }
+            { pendingExerciseAdd &&
+              <Spinner/>
+            }
+            { pendingExerciseAdd === null &&
+              <i className="uk-icon uk-icon-exclamation-triangle"/>
+            }
+            </li>
+        );
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        onExerciseAdd: (path, name) => {
+            dispatch(updatePendingStateIn(['course', 'addExercise'], true))
+            dispatch(fetchAddExercise(path, name))
+                .then(() => dispatch(fetchExerciseTree()))
+                .then( () => dispatch(updatePendingStateIn(['course', 'addExercise'], false)))
+                .catch( err => {
+                    console.dir(err);
+                    dispatch(updatePendingStateIn(['course', 'addExercise'], null))
+                })
+        }
+    }
+}
+
+const mapStateToProps = (state) => {
+    return {
+        pendingExerciseAdd: state.getIn(['pendingState', 'course', 'addExercise']),
+        author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author')
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(BaseAddExercise);

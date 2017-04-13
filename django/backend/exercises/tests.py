@@ -25,7 +25,7 @@ class CourseListTest(StaticLiveServerTestCase):
         self.dir = TemporaryDirectory()
         exercise_path = create_exercise(self.dir, 'exercise1')
         paths.EXERCISES_PATH = self.dir.name
-        Exercise.objects.add_exercise('exercise1')
+        Exercise.objects.add_exercise('/exercise1')
         self.selenium = webdriver.Chrome()
         self.selenium.implicitly_wait(0)
         super().setUp()

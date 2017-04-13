@@ -5,6 +5,7 @@ import {
   fetchExerciseRemoteState,
   fetchExercises, 
   fetchSameFolder,
+  fetchAddExercise,
   updatePendingStateIn,
 } from '../fetchers.js';
 import {
@@ -17,6 +18,9 @@ import {
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
 import SafeImg from './SafeImg.jsx';
+import AddExercise from './AddExercise.jsx';
+import ExerciseHoverMenu from './ExerciseHoverMenu.jsx';
+import FolderHoverMenu from './FolderHoverMenu.jsx';
 
 import immutable from 'immutable';
 import moment from 'moment';
@@ -28,7 +32,7 @@ var difficulties = {
   '3': 'Svår',
 };
 
-function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, folder, foldername, showStatistics, statistics, activityRange) {
+function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, folder, foldername, showStatistics, statistics, activityRange, author) {
   var meta = metaImmutable.toJS();
   var deadlineClass = "uk-badge-primary";
   var legend = 'Obligatorisk';
@@ -51,22 +55,21 @@ function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, f
   var imageUploaded = exerciseState.getIn([exercise, 'image_answers'], immutable.List([])).size > 0;
   var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
 return (
-  <li key={exercise} id={exercise} className="course-exercise-item">
+  <li key={exercise} id={exercise} className="course-exercise-item ">
+    <div className="uk-position-relative" data-uk-dropdown="{hoverDelayIdle: 0, delay: 300}">
     <a className={"uk-thumbnail exercise-a " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
-    <div className="exercise-thumb-wrap">
-      <SafeImg className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}><i className="uk-icon uk-icon-question-circle uk-icon-large"/></SafeImg>
-      <div className="exercise-thumb-badge">
-      { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
-      { /*meta.required && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */ }
-      { /*meta.bonus && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
-      { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>{moment(meta.deadline_date).format('D MMM')}</Badge> }
-      { meta.image && <span className={"uk-badge uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></span> }
-      { meta.solution && <Badge className={"uk-badge-notification"}>lösning</Badge> }
-      {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
-      {exerciseState.getIn([exercise, 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
-      {exerciseState.getIn([exercise, 'audit', 'published'], false) && <Badge type={exerciseState.getIn([exercise, 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
-      </div>
-      </div>
+        <div className="exercise-thumb-wrap" style={{minWidth: '80px'}}>
+            <SafeImg className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}><i className="uk-icon uk-icon-question-circle uk-icon-large"/></SafeImg>
+            <div className="exercise-thumb-badge">
+                { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
+                { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>{moment(meta.deadline_date).format('D MMM')}</Badge> }
+                { meta.image && <span className={"uk-badge uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></span> }
+                { meta.solution && <Badge className={"uk-badge-notification"}>lösning</Badge> }
+                {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
+                {exerciseState.getIn([exercise, 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
+                {exerciseState.getIn([exercise, 'audit', 'published'], false) && <Badge type={exerciseState.getIn([exercise, 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
+            </div>
+        </div>
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
       {folder.getIn(['exercises',exercise, 'name'])}
       </div>
@@ -93,20 +96,21 @@ return (
       </div>
       }
     </a>
+      { author && 
+    <div className="uk-dropdown uk-dropdown-small uk-margin-remove" style={{minWidth: 0}}>
+      <ExerciseHoverMenu exerciseKey={exercise}/>
+    </div>
+      }
+    </div>
   </li>);
 }
 
-const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics, statistics, activityRange, onFolderClick, student }) => {
+
+const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics, statistics, activityRange, onFolderClick, student, onExerciseAdd, pendingExerciseAdd, author }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
   function countFinished(folder, name, type) {
-    /*function traverseCount(folder, type) {
-      if(folder.has('exercises')) {
-        folder.get('exercises').filter( e => e.getIn(['meta', type]))
-                               .map( e => e.getIn([')
-      }
-    }*/
     if(folder.has('exercises')) {
         var results = folder.get('exercises').filter( e => e.getIn(['meta', type]))
                                .map( (e, key) => exerciseState.getIn([key, 'correct'], false) );
@@ -114,22 +118,22 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
           total: results.size,
           correct: results.filter( x => x).size
         }
-      } 
+      }
       else
         return {
           total: 0,
           correct: 0
         };
   }
-  function parseFolder( folder, foldername, level=0 ) {//{{{
-    var exercises = [], children = [];
+  function parseFolder( folder, foldername, level=0 ) {
+    var exercises = immutable.List([]), children = [];
     if(folder.has('exercises')) {
-      //exerciseState.getIn([exercise, 'correct'], false)
-      exercises = folder.get('order')/*Object.keys(folder.exercises)/*.sort( (a,b) => folder.exercises[a].name > folder.exercises[b].name )*/.map( exercise => {
-        var meta = folder.getIn(['exercises', exercise, 'meta'])//folder.exercises[exercise].meta;
-        return generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics, statistics, activityRange);
-      });
+      exercises = folder.get('order').map( exercise => {
+        var meta = folder.getIn(['exercises', exercise, 'meta']);
+        return generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics, statistics, activityRange, author);
+      })
     }
+    exercises = exercises.push(( <AddExercise key="addExercise" path={folder.get('path')}/>));
     if(folder.has('folders'))
       children = folder.get('folders', immutable.Map({})).keySeq().sort().map ( childfolder => 
                                                           ({
@@ -137,7 +141,8 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
                                                             folder: folder.getIn(['folders', childfolder, 'content']), 
                                                             content: parseFolder( folder.getIn(['folders', childfolder, 'content']), childfolder, level + 1), 
                                                             path: folder.getIn(['folders', childfolder, 'content', 'path']),
-                                                            folded: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$folded$'), true)
+                                                            folded: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$folded$'), true),
+                                                            pending: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$pending$'), false)
                                                           }) );
     var levelClass = "";
     switch(level) {
@@ -164,9 +169,19 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
         if(summaryBonus.total > 0)
           var percentBonus = 100 * summaryBonus.correct / summaryBonus.total;
         var rendered = [
-          (<dt className="uk-text-large uk-margin-right" style={{float:'none'}} key={"dt"+child.name}>
+          (<dt className="uk-text-large uk-margin-right" style={{float:'none', overflow:'visible', width: 'auto'}} key={"dt"+child.name}>
+            <div className="uk-position-relative uk-display-inline" data-uk-dropdown="{hoverDelayIdle: 0, delay: 300, pos: 'right-center'}">
             <a onClick={ () => onFolderClick(child.path, child.folded) }>
-                <i className={"uk-icon " + folderClass}></i> {folderName}
+              <i className={"uk-icon " + folderClass}/>
+              {
+                folderName === 'Trash' &&
+                <i className='uk-icon uk-icon-trash uk-margin-small-left'/>
+              }
+                <span className="uk-margin-small-left">
+                  {folderName}
+                  {child.pending && <Spinner size=""/>}
+                  {child.pending === null && <i className="uk-icon uk-icon-exclamation-triangle"/>}
+                </span>
                   { student && false &&
                   <div className="uk-grid">
                   { summaryReq.total > 0 &&
@@ -182,6 +197,12 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
                   </div>
                   }
             </a>
+              { author && 
+            <div className="uk-dropdown uk-dropdown-small uk-margin-small" style={{minWidth: 0, paddingLeft: '5px', paddingRight:'5px', paddingTop: 0, paddingBottom: 0}}>
+                <FolderHoverMenu folderPath={child.path}/>
+            </div>
+              }
+            </div>
             </dt>)];
         if(!child.folded) 
           rendered.push((<dd className="uk-margin-left" key={"dd"+child.name}> {child.content} </dd>));
@@ -194,8 +215,7 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
       </div>
     );
     return DOM;
-    //return exercises.concat( flatten(children) );
-  }//}}}
+  }
   if(pendingState.getIn(['course', 'loadingExercises'], false)) {
       return (<Spinner/>);
   }
@@ -214,16 +234,22 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
   }
 }
 
+const handleAddExercise = (path) => dispatch => {
+    console.dir("Will add exercise at " + path)
+    return dispatch(fetchAddExercise(path));
+}
+
 const mapStateToProps = state => ({
-  exerciseState: state.get('exerciseState'),
-  pendingState: state.get('pendingState'),
-  exercisetree: state.get('exerciseTree'),
-  exerciseTreeUI: state.get('exerciseTreeUI'),
-  currentpath: state.get('currentpath'),
-  showStatistics: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
-  statistics: state.get('statistics', immutable.Map({})),
-  activityRange: state.get('activityRange', '1h'),
-  student: state.getIn(['login', 'groups'], immutable.List([])).includes('Student')
+    exerciseState: state.get('exerciseState'),
+    pendingState: state.get('pendingState'),
+    exercisetree: state.get('exerciseTree'),
+    exerciseTreeUI: state.get('exerciseTreeUI'),
+    currentpath: state.get('currentpath'),
+    showStatistics: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
+    statistics: state.get('statistics', immutable.Map({})),
+    activityRange: state.get('activityRange', '1h'),
+    student: state.getIn(['login', 'groups'], immutable.List([])).includes('Student'),
+    author: state.getIn(['login', 'groups'], immutable.List([])).includes('Author')
 });
 
 const mapDispatchToProps = dispatch => ({
@@ -236,7 +262,6 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchSameFolder(exercise, folder));
   },
   onFolderClick: (path, folded) => {
-    //var fullPath = immutable.List(path).interpose(immutable.List(['content', 'folders'])).unshift('folders').push('folded').flatten(0);
     var fullPath = immutable.List(path).push('$folded$');
     var updated = immutable.Map({}).setIn(fullPath, !folded)
     dispatch(updateExerciseTreeUI(updated))

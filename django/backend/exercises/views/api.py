@@ -28,6 +28,7 @@ from django.contrib.auth.decorators import permission_required
 from django.template.response import TemplateResponse
 from django.template import loader
 from django.contrib import messages
+from django.utils.timezone import now
 from django.db import transaction
 from django.db.models import Prefetch
 from ratelimit.decorators import ratelimit
@@ -227,7 +228,8 @@ def exercise_save(request, exercise):  # {{{
     result = {}
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
-        result = parsing.exercise_save(dbexercise.path, request.data['xml'])
+        backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"
+        result = parsing.exercise_save(dbexercise.path, request.data['xml'], backup_name)
         Exercise.objects.add_exercise(dbexercise.path)
         parsing.invalidate_caches()
         return Response(result)

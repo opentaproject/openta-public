@@ -60,6 +60,8 @@ export default (state = defaultState, action) => {
       // The merge does not delete items from lists so now lets replace the lists in the structure with their new values
       if(updatedState.hasIn(['audit', 'responsefiles']))
         newState = newState.setIn(['exerciseState', action.exercise, 'audit', 'responsefiles'], updatedState.getIn(['audit', 'responsefiles']));
+      if(updatedState.hasIn(['assets']))
+          newState = newState.setIn(['exerciseState', action.exercise, 'assets'], updatedState.getIn(['assets']));
       return newState;
     case 'UPDATE_EXERCISES_STATE':
       return state.mergeDeepIn(['exerciseState'], immutable.fromJS(action.state));
@@ -137,7 +139,9 @@ export default (state = defaultState, action) => {
       return state.mergeDeepIn(['exerciseTreeUI'], action.tree);
     case 'SET_EXERCISE_XML_ERROR':
       return state.setIn(['exerciseState', action.exercise, 'xmlError'], action.error);
+  case 'SET_EXERCISE_HISTORY':
+      return state.setIn(['exerciseState', action.exercise, 'history'], immutable.fromJS(action.data));
     default:
-      return state
+      return state;
   }
 }
