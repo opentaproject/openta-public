@@ -431,7 +431,10 @@ class AnswerAdmin(admin.ModelAdmin):
             ]
 
     def get_question(self, answer):
-        return answer.question.question_key
+        try:
+            return answer.question.question_key
+        except AttributeError:
+            return "__Orphan__"
 
     get_question.short_description = 'Question'
 
@@ -452,7 +455,10 @@ class AnswerAdmin(admin.ModelAdmin):
     get_userid.short_description = 'User id'
 
     def get_exercise_name(self, answer):
-        return answer.question.exercise.name
+        try:
+            return answer.question.exercise.name
+        except AttributeError:
+            return "__Orphan__"
 
     get_exercise_name.short_description = 'Exercise'
 

@@ -31,7 +31,6 @@ def get_student_attempts_per_exercise(request):
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
-@cache_page(1 * 60 * 60)
 def get_statistics_per_exercise(request):
     return Response(student_statistics_exercises())
 
