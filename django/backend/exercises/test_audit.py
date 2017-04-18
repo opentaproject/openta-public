@@ -28,7 +28,7 @@ class AuditTest(StaticLiveServerTestCase):
         self.dir = TemporaryDirectory()
         exercise_path = create_exercise(self.dir, 'exercise1')
         paths.EXERCISES_PATH = self.dir.name
-        for msg in Exercise.objects.sync_with_disc():
+        for msg in Exercise.objects.sync_with_disc(True):
             print(msg)
         self.selenium = webdriver.Chrome()
         self.selenium.implicitly_wait(0)
