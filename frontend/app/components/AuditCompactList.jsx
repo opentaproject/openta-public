@@ -52,6 +52,7 @@ const renderAuditCompactList = (
     pendingStateAudits,
     pendingNewAudit,
     onAuditChange,
+    onAddAudit,
     onPublishAndSend,
     userPk
   }, filter, onFilterChange) => {
