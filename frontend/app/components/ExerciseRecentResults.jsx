@@ -25,7 +25,15 @@ function renderExpression(expression) {
   }
 }
 
+
 const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers, pending}) => {
+  const getQuestionText = key => {
+    const q = exerciseState.getIn([activeExercise, 'json', 'exercise', 'question']).find(q => q.getIn(['@attr', 'key']) === key, null);
+    if (q) {
+      return q.getIn(['text', '$']);
+    }
+    return '';
+  }
   var questions = recentAnswers.keys();
   return (
     <div className="uk-panel uk-panel-box uk-margin-top">
@@ -37,7 +45,7 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
             <thead>
               <tr>
               { recentAnswers.map( (users, question) => (
-                <th key={question} style={{maxWidth: '300px'}}><MathSpan message={exerciseState.getIn([activeExercise, 'json', 'exercise', 'question', question, 'text', '$'], '')}/></th>
+                <th key={question} style={{maxWidth: '300px'}}><MathSpan message={getQuestionText(question)}/></th>
               )).toList()}
               </tr>
             </thead>

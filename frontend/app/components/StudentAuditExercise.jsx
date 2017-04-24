@@ -25,13 +25,20 @@ function renderExpression(expression) {
 }
 
 const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, activeExercise, anonymous=false}) => {
-  var answers = userResults.getIn(['exercises', activeExercise, 'questions'], immutable.Map({})).toList()//{{{
+  const getQuestionText = key => {
+    const q = exerciseState.getIn([activeExercise, 'json', 'exercise', 'question']).find(q => q.getIn(['@attr', 'key']) === key, null);
+    if (q) {
+      return q.getIn(['text', '$']);
+    }
+    return '';
+  }
+  var answers = userResults.getIn(['exercises', activeExercise, 'questions'], immutable.Map({}))//{{{
       .map( (q, key) => (
             <div className="uk-display-inline-block uk-margin-right" key={key}>
               <table className="uk-table uk-table-condensed">
                 <thead>
                   <tr>
-                    <th style={{maxWidth: '300px'}}><MathSpan message={exerciseState.getIn([activeExercise, 'json', 'exercise', 'question', key, 'text', '$'], '')}/></th>
+                    <th style={{maxWidth: '300px'}}><MathSpan message={getQuestionText(key)}/></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -47,7 +54,7 @@ const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, a
                 </tbody>
               </table>
             </div>
-            ));//}}}
+            )).toList();//}}}
   const imageAnswers = userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).reverse();
   const srcs = imageAnswers.map( ia => SUBPATH + "/imageanswer/"+ia.get('pk')).toJS();
   const badges = imageAnswers.map( ia => moment(ia.get('date')).format('YYYY-MM-DD HH:mm')).toJS();
