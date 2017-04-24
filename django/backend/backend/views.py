@@ -124,6 +124,7 @@ def login_status(request):  # {{{
         groups.append(group.name)
     response = {
         'username': request.user.get_username(),
+        'user_pk': request.user.pk,
         'admin': request.user.is_staff,
         'groups': groups,
     }

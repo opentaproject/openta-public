@@ -44,11 +44,12 @@ function fetchLoginStatus() {//{{{
       }
       return json;
     })
-    .then(json => ({
-      username: json.username,
-      groups: json.groups,
-      course: json.course
-    }))
+          .then(json => ({
+              username: json.username,
+              user_pk: json.user_pk,
+              groups: json.groups,
+              course: json.course
+          }))
     .then(data => {
       dispatch(updateLoginStatus(data))
       if(data.groups.indexOf('Author') > -1)
