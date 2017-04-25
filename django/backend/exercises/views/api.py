@@ -31,6 +31,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.db.models import Prefetch
 from ratelimit.decorators import ratelimit
+from django.views.decorators.cache import never_cache
 from PIL import Image
 import PyPDF2
 import logging
@@ -105,6 +106,7 @@ def exercises_reload_json(request):  # {{{
     return Response(mess)  # }}}
 
 
+@never_cache
 @api_view(['GET'])
 def exercise(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
@@ -112,6 +114,7 @@ def exercise(request, exercise):  # {{{
     return Response(data)  # }}}
 
 
+@never_cache
 @api_view(['GET'])
 def exercise_list(request):  # {{{
     """
@@ -163,6 +166,7 @@ def exercise_list(request):  # {{{
     return Response(responselist)  # }}}
 
 
+@never_cache
 @api_view(['GET'])
 def exercise_tree(request):  # {{{
     """
@@ -171,6 +175,7 @@ def exercise_tree(request):  # {{{
     return Response(exercise_folder_structure(Exercise.objects, request.user))  # }}}
 
 
+@never_cache
 @api_view(['GET'])
 def other_exercises_from_folder(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
@@ -195,6 +200,7 @@ def other_exercises_from_folder(request, exercise):  # {{{
     return Response(inorder)  # }}}
 
 
+@never_cache
 @api_view(['GET'])
 def exercise_json(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
@@ -208,6 +214,7 @@ def exercise_json(request, exercise):  # {{{
 
 
 @permission_required('exercises.edit_exercise')
+@never_cache
 @api_view(['GET'])
 def exercise_xml(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
@@ -248,6 +255,7 @@ def exercise_check(request, exercise, question):  # {{{
     return Response(result)  # }}}
 
 
+@never_cache
 @api_view(['GET'])
 def question_last_answer(request, exercise, question):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
