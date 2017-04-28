@@ -14,9 +14,11 @@ import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import mathjs from 'mathjs';
+import {asciiMathToMathJS} from './mathrender/string_parse.js'
 
 function renderExpression(expression) {
   try {
+    const preParsed = asciiMathToMathJS(expression);
     return '$' + mathjs.parse(expression).toTex() + '$';
   }
   catch(e) {
@@ -26,7 +28,7 @@ function renderExpression(expression) {
 
 const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, activeExercise, anonymous=false}) => {
   const getQuestionText = key => {
-    const q = exerciseState.getIn([activeExercise, 'json', 'exercise', 'question']).find(q => q.getIn(['@attr', 'key']) === key, null);
+    const q = exerciseState.getIn([activeExercise, 'json', 'exercise', 'question'], immutable.List([])).find(q => q.getIn(['@attr', 'key']) === key, null);
     if (q) {
       return q.getIn(['text', '$']);
     }

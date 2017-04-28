@@ -28,7 +28,7 @@ function renderExpression(expression) {
 
 const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers, pending}) => {
   const getQuestionText = key => {
-    const q = exerciseState.getIn([activeExercise, 'json', 'exercise', 'question']).find(q => q.getIn(['@attr', 'key']) === key, null);
+    const q = exerciseState.getIn([activeExercise, 'json', 'exercise', 'question'], immutable.List([])).find(q => q.getIn(['@attr', 'key']) === key, null);
     if (q) {
       return q.getIn(['text', '$']);
     }
