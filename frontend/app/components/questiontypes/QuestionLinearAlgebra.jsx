@@ -38,10 +38,10 @@ export default class QuestionLinearAlgebra extends Component {
     this.lastParsable = '';
     this.varProps = {};
     this.varsList = [];
-    this.validSymbols = ['pi'];
+    this.validSymbols = ['pi', 'I', 'e'];
     this.blacklist = [];
     if(this.props.canViewSolution)
-      this.state.value = this.props.questionData.getIn(['expression','$'], '').replace(/;/g,'');
+      this.state.value = this.props.questionData.getIn(['expression','$'], '').replace(/;/g,'').trim();
   }
 
   handleChange = (event) => {
@@ -312,7 +312,7 @@ export default class QuestionLinearAlgebra extends Component {
   return (
         <div className="">
           <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span>
-          <span data-uk-tooltip title="Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."><Badge message="experimentell" type="warning" className="uk-margin-left uk-text-small"/></span>
+          <span data-uk-tooltip title="Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."></span>
           <HelpLinearAlgebra/>
           </label>
 { hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}

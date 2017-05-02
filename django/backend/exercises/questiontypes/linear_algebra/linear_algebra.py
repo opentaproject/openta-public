@@ -85,6 +85,8 @@ ns.update(
         'second': second,
         'kg': kg,
         'pi': sympy.pi,
+        'e': sympy.E,
+        'I': sympy.I,
         'ff': sympy.Symbol('ff'),
         'FF': sympy.Symbol('FF'),
     }
@@ -344,7 +346,9 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=True):
         one_point = list(
             map(lambda item: (item['symbol'], item['around'][0].subs(uniteval)), sample_variables)
         )
-        undefined_variables = sympy1.subs(one_point).free_symbols - set([kg, second, meter])
+        undefined_variables = sympy1.subs(one_point).free_symbols - set(
+            [kg, second, meter, sympy.I, sympy.E]
+        )
         if len(undefined_variables) > 0:
             unrecognised = ', '.join(list(map(str, undefined_variables)))
             response['error'] = unrecognised + _(' are not valid variables.')
