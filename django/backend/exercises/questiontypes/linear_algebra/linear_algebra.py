@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 import traceback
 import random
 import itertools
+
 from exercises.questiontypes.safe_run import safe_run
 import logging
 import traceback
@@ -104,6 +105,7 @@ lambdifymodules = [
         'abs': numpy.linalg.norm,
         'cross': lambda x, y: numpy.cross(x, y, axis=0),
         'dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
+        'zoo': numpy.inf,
     },
     "numpy",
 ]
@@ -354,10 +356,12 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=True):
             response['error'] = unrecognised + _(' are not valid variables.')
             return response
 
+        eval_point = subs_neighbours[0] if subs_neighbours else []
+
         test_evaluation = numpy.linalg.norm(
             sympy.lambdify(
                 [],
-                (sympy1.subs(one_point).doit() - sympy2.subs(one_point).doit()),
+                (sympy1.subs(eval_point).doit() - sympy2.subs(eval_point).doit()),
                 modules=lambdifymodules,
             )()
         )
@@ -387,7 +391,7 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=True):
         response['error'] = _("Failed to evaluate expression.")
     except Exception as e:
         logger.error([str(e), str(lhs), str(rhs)])
-        # traceback.print_exc()
+        logger.error(traceback.format_exc())
         response['error'] = _("Unknown error, check your expression.")
     return response  # }}}
 
