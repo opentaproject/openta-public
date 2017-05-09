@@ -37,7 +37,15 @@ const BaseTable = ({ data, fields, keyIndex, onSort, sortField, sortReverse, onI
     <table className="uk-table uk-table-hover uk-table-condensed">
       <thead>
         <tr>
-          { fields.map( field => (<th key={field.name}><a onClick={() => onSort(field.index, sortField, sortReverse)}>{field.name}</a></th>)) }
+          { fields.map( field => (
+              <th key={field.name}>
+                { sortField && field.index === sortField && !sortReverse && <i className="uk-icon uk-icon-chevron-circle-down"/> }
+                { sortField && field.index === sortField && sortReverse && <i className="uk-icon uk-icon-chevron-circle-up"/> }
+                <a onClick={() => onSort(field.index, sortField, sortReverse)}>
+                  {field.name}
+                </a>
+              </th>
+            )) }
         </tr>
       </thead>
       <tbody>
