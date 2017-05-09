@@ -3,6 +3,7 @@ import {
   updateMenuLeafDefaults,
   updateMenuPath,
   setActivityRange,
+    setActiveAudit,
   setDetailResultExercise,
 } from './actions.js';
 import {
@@ -137,6 +138,20 @@ var menuTree = immutable.fromJS({
           key: 'audit',
           reqGroup: 'Admin',
           onLoad: fetchCurrentAuditsExercise(),
+            rememberChoice: true,
+            menuItems: {
+                overview: {
+                    name: 'Overview',
+                    key: 'overview',
+                    reqGroup: 'Admin'
+                },
+                myaudits: {
+                    name: 'My audits',
+                    key: 'myaudits',
+                    onLoad: setActiveAudit(""),
+                    reqGroup: 'Admin'
+                }
+            }
         }
       }
     }

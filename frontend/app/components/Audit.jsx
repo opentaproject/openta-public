@@ -7,7 +7,6 @@ import Exercise from './Exercise.jsx';
 import StudentAuditExercise from './StudentAuditExercise.jsx';
 import AuditResponseUpload from './AuditResponseUpload.jsx';
 import AuditPreviousMessages from './AuditPreviousMessages.jsx';
-import AuditCompactList from './AuditCompactList.jsx';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import _ from 'lodash';
@@ -105,21 +104,28 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
             );//}}}
 
   return (
-      <div className="uk-width-1-1 uk-margin-top uk-padding-remove">
+      <div className="uk-width-1-1 uk-margin-small-top uk-padding-remove">
         <div className="uk-panel uk-panel-box">
           <div className="uk-flex uk-flex-column">
-            <div className="uk-width-1-1">
-              <AuditCompactList />
-            </div>
             <div className="uk-flex" >
               { audits.getIn([activeAudit, 'exercise']) == activeExercise &&
               <div className="uk-flex-item-1 uk-margin-small-top" style={{maxWidth: '75vw'}}>
-                { audits.getIn([activeAudit, 'updated'], false) && <Badge type="success" className="uk-margin-small-bottom uk-width-1-1 uk-text-center uk-text-large">Updated by student ({ moment(audits.getIn([activeAudit, 'updated_date'], '')).format('YYYY-MM-DD HH:mm')})</Badge> }
+                { audits.getIn([activeAudit, 'updated'], false) &&
+                  <Badge type="success" className="uk-margin-small-bottom uk-width-1-1 uk-text-center uk-text-large">
+                    Updated by student ({ moment(audits.getIn([activeAudit, 'updated_date'], '')).format('YYYY-MM-DD HH:mm')})
+                  </Badge>
+                }
                 { !audits.getIn([activeAudit, 'updated'], false)
                && audits.getIn([activeAudit, 'updated_date']) !== null
                && audits.getIn([activeAudit, 'revision_needed'])
-               && <Badge type="info" className="uk-margin-small-bottom uk-width-1-1 uk-text-center uk-text-large">Awaiting new response (Previous update by student at { moment(audits.getIn([activeAudit, 'updated_date'], '')).format('YYYY-MM-DD HH:mm')})</Badge> }
-                { !pendingResults && activeAudit  && <StudentAuditExercise anonymous={true}/> }
+                  &&
+                  <Badge type="info" className="uk-margin-small-bottom uk-width-1-1 uk-text-center uk-text-large">
+                    Awaiting new response (Previous update by student at { moment(audits.getIn([activeAudit, 'updated_date'], '')).format('YYYY-MM-DD HH:mm')})
+                  </Badge>
+                }
+                { !pendingResults && activeAudit  &&
+                  <StudentAuditExercise anonymous={true}/>
+                }
                 { pendingResults && <Spinner/> }
               </div>
               }

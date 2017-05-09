@@ -17,6 +17,11 @@ var defaultState = immutable.fromJS({
     results: {
       //leafDefault: 'list'
     },
+      activeExercise: {
+          audit: {
+              leafDefault: 'overview'
+          }
+      },
     exercises: {
       activity: {
         leafDefault: 'all',

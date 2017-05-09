@@ -10,9 +10,11 @@ import ExerciseRecentResults from './ExerciseRecentResults.jsx';
 import xml2js from 'xml2js';
 import Spinner from './Spinner.jsx';
 import Audit from './Audit.jsx';
+import AuditOverview from './AuditOverview.jsx';
+import AuditCompactList from './AuditCompactList.jsx';
 
 import Exercise from './Exercise';
-import { menuPositionAt } from '../menu.js';
+import { menuPositionAt, menuPositionUnder } from '../menu.js';
 import {getcookie} from '../cookies.js';
 import {SUBPATH} from '../settings.js';
 
@@ -94,7 +96,7 @@ class BaseAuthorExercise extends Component {
     var loadingXML = pendingState.getIn(['exercises', key, 'loadingXML'],false);
     var authorDOM = (
       <div className="uk-grid admin">
-        { !this.props.atMenu(['activeExercise', 'audit']) &&
+        { !this.props.underMenu(['activeExercise', 'audit']) &&
           !this.props.atMenu(['activeExercise', 'xmlEditor']) &&
         <div key="exercise" className="exercise-admin">
           <Tools savepending={savePending} savesuccess={!modified && saveError === false} saveerror={saveError} />
@@ -122,7 +124,13 @@ class BaseAuthorExercise extends Component {
           { xmlError && this.props.atMenu(['activeExercise','xmlEditor']) && <Alert type="error">{xmlError}</Alert>}
           </div>
         }
-        { this.props.atMenu(['activeExercise','audit']) && this.props.admin && <Audit/> }
+      {this.props.underMenu(['activeExercise','audit','myaudits']) &&
+       <div className="uk-width-1-1 uk-padding-remove">
+         <AuditCompactList />
+       </div>
+      }
+      { this.props.underMenu(['activeExercise','audit','myaudits']) && this.props.admin && <Audit/> }
+      { this.props.underMenu(['activeExercise','audit','overview']) && this.props.admin && <AuditOverview/> }
       </div>
     );
     return key ? authorDOM : (<span/>);
@@ -205,6 +213,7 @@ const mapStateToProps = state => {
     author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
     view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
     atMenu: (path) => menuPositionAt( state.get('menuPath'), path ),
+    underMenu: (path) => menuPositionUnder( state.get('menuPath'), path ),
     xmlError: activeExerciseState.get('xmlError'),
   })
 };

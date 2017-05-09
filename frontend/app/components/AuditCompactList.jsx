@@ -81,7 +81,7 @@ const renderAuditCompactList = (
     return renderAuditListItem({activeExercise, activeAudit, audit, nInList: key, onAuditChange, pendingStateAudits});
   });
   return  (
-          <div className="uk-panel uk-panel-box uk-panel-box-primary" style={{padding: '5px'}}>
+          <div className="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top" style={{padding: '5px'}}>
             <div className="uk-float-left"><div>Audits for <a href={"#exercise/"+activeExercise} target="_blank" className="uk-button" title="Click to open exercise in a new tab">{exerciseName}</a></div><div><AuditStatistics/></div></div>
             <div className="uk-flex uk-flex-right">
             <div>
