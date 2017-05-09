@@ -17,7 +17,7 @@ import {
 import { 
   updateActiveExercise,
 } from './actions.js';
-import { navigateMenuArray } from './menu.js';
+import { navigateMenuArray, menuPositionUnder } from './menu.js';
 import { SUBPATH } from './settings.js';
 
 //const store = createStore(counterApp, module.hot && module.hot.data && module.hot.data.counter || { exercises: ['test'] });
@@ -59,7 +59,7 @@ const load = () => {
     history.pushState({}, "", SUBPATH);
     store.dispatch( (dispatch, getState) => {
         var state = getState();
-        if(state.activeExercise !== "") {
+        if(state.activeExercise !== "" && menuPositionUnder(state.get('menuPath'), ['activeExercise'])) {
           //dispatch(updateActiveExercise(""));
           dispatch(navigateMenuArray([]));
         }
