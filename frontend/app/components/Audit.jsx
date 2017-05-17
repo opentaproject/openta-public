@@ -69,7 +69,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               <div className="uk-form-row uk-margin-small-top">
                 <div className="uk-button-group uk-flex uk-flex-center">
                   <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-success " + passedClass} onClick={() => onRevisionAudit(activeAudit, false)} data-uk-tooltip title="The student has completed all tasks and no further action is required. Unless otherwise stated this means the student has passed." id="revision-not-needed">
-                    Passed { revisionNeeded === false && <i className="uk-icon uk-icon-check uk-icon-medium"/> }
+                    Passed { revisionNeeded === false && <i className="uk-icon uk-icon-check uk-icon-medium" id="revision-not-needed-done"/> }
                     { pendingRevision && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-danger " + revisionClass} onClick={() => onRevisionAudit(activeAudit, true)} data-uk-tooltip title="Student need to amend their answer/files." id="revision-needed">
@@ -112,6 +112,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               <div className="uk-flex-item-1 uk-margin-small-top" style={{maxWidth: '75vw'}}>
                 { audits.getIn([activeAudit, 'updated'], false) &&
                   <Badge type="success" className="uk-margin-small-bottom uk-width-1-1 uk-text-center uk-text-large">
+                    <span id="audit-updated"/>
                     Updated by student ({ moment(audits.getIn([activeAudit, 'updated_date'], '')).format('YYYY-MM-DD HH:mm')})
                   </Badge>
                 }
