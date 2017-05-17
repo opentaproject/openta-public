@@ -53,7 +53,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               </div>
               <div className="uk-form-row">
                 <label className="uk-form-label">Message</label>
-                <textarea className="uk-width-1-1" rows="5" onChange={e => onMessageChange(e, activeAudit)} value={audits.getIn([activeAudit, 'message'],'')}></textarea>
+                <textarea className="uk-width-1-1" rows="5" onChange={e => onMessageChange(e, activeAudit)} value={audits.getIn([activeAudit, 'message'],'')} id="audit-message"></textarea>
               </div>
               <div className="uk-form-row uk-margin-small-top">
                   <AuditResponseUpload/>
@@ -68,11 +68,11 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               </div>
               <div className="uk-form-row uk-margin-small-top">
                 <div className="uk-button-group uk-flex uk-flex-center">
-                  <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-success " + passedClass} onClick={() => onRevisionAudit(activeAudit, false)} data-uk-tooltip title="The student has completed all tasks and no further action is required. Unless otherwise stated this means the student has passed.">
+                  <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-success " + passedClass} onClick={() => onRevisionAudit(activeAudit, false)} data-uk-tooltip title="The student has completed all tasks and no further action is required. Unless otherwise stated this means the student has passed." id="revision-not-needed">
                     Passed { revisionNeeded === false && <i className="uk-icon uk-icon-check uk-icon-medium"/> }
                     { pendingRevision && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
-                  <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-danger " + revisionClass} onClick={() => onRevisionAudit(activeAudit, true)} data-uk-tooltip title="Student need to amend their answer/files.">
+                  <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-danger " + revisionClass} onClick={() => onRevisionAudit(activeAudit, true)} data-uk-tooltip title="Student need to amend their answer/files." id="revision-needed">
                     Revision needed
                     { revisionNeeded === true && <i className="uk-icon uk-icon-check uk-icon-medium"/> }
                   { pendingRevision && <Spinner size="uk-icon-small uk-position-top-right"/> }
@@ -81,9 +81,9 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               </div>
               <div className="uk-form-row uk-margin-small-top">
                 <div className="uk-flex uk-flex-middle uk-flex-space-between uk-flex-wrap uk-margin-small-top">
-                  { audits.getIn([activeAudit, 'revision_needed']) === null && <a className="uk-button uk-text-muted" title="Please select status before publishing." data-uk-tooltip>Publish</a> }
+                  { audits.getIn([activeAudit, 'revision_needed']) === null && <a className="uk-button uk-text-muted" title="Please select status before publishing." data-uk-tooltip id="publish-single">Publish</a> }
                   { audits.getIn([activeAudit, 'revision_needed']) !== null &&
-                  <a className={"uk-button uk-margin-small-top uk-position-relative " + publishClass} onClick={() => onPublishAudit(activeAudit, audits.getIn([activeAudit, 'published']), audits.getIn([activeAudit, 'sent']), bccStatus)} data-uk-tooltip title="The audit will become visible for the student and an email will be sent if first time.">{publishName} 
+                  <a className={"uk-button uk-margin-small-top uk-position-relative " + publishClass} onClick={() => onPublishAudit(activeAudit, audits.getIn([activeAudit, 'published']), audits.getIn([activeAudit, 'sent']), bccStatus)} data-uk-tooltip title="The audit will become visible for the student and an email will be sent if first time." id="publish-single">{publishName} 
                   { pendingPublish && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   }

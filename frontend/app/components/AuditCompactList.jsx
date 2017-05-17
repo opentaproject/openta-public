@@ -85,11 +85,11 @@ const renderAuditCompactList = (
             <div className="uk-float-left"><div>Audits for <a href={"#exercise/"+activeExercise} target="_blank" className="uk-button" title="Click to open exercise in a new tab">{exerciseName}</a></div><div><AuditStatistics/></div></div>
             <div className="uk-flex uk-flex-right">
             <div>
-            <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top">
+            <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top" id="published-audits">
              <div className="uk-margin-right">Published:</div>
              {auditsRenderPublished}
             </div>
-            <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top">
+            <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top" id="unfinished-audits">
              { auditsRenderReady.size > 0 && <div className="uk-margin-small-right">Ready:</div>}
              { auditsRenderReady.size > 0 && auditsRenderReady }
              <div className="uk-margin-small-left uk-margin-small-right uk-padding-remove">Unfinished:</div>

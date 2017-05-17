@@ -110,10 +110,11 @@ class AuditTest(StaticLiveServerTestCase):
         wait = WebDriverWait(sel, 500)
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'wait_forever')))
 
-    def audit(self):
+    def audit_exists(self):
         sel = self.selenium
         wait = WebDriverWait(sel, 2)
         sel.find_element_by_xpath('//a[contains(text(), \'Audit\')]').click()
+        sel.find_element_by_xpath('//a[contains(text(), \'My audits\')]').click()
         wait.until(
             EC.presence_of_element_located(
                 (
@@ -122,6 +123,57 @@ class AuditTest(StaticLiveServerTestCase):
                 )
             )
         )
+
+    def audit_add_audit(self):
+        sel = self.selenium
+        wait = WebDriverWait(sel, 2)
+        sel.find_element_by_xpath('//button[contains(text(), \'Add student\')]').click()
+        wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//div[@id="unfinished-audits"]/a[text()[contains(., \'1\')]]')
+            )
+        )
+        sel.find_element_by_xpath(
+            '//div[@id="unfinished-audits"]/a[text()[contains(., \'1\')]]'
+        ).click()
+        wait.until(EC.presence_of_element_located((By.XPATH, '//textarea[@id="audit-message"]')))
+
+    def audit_add_message(self):
+        sel = self.selenium
+        wait = WebDriverWait(sel, 2)
+        input_box = sel.find_elements_by_xpath('//textarea[@id="audit-message"]')[0]
+        input_box.send_keys('test message')
+
+    def audit_revision_needed(self):
+        sel = self.selenium
+        wait = WebDriverWait(sel, 2)
+        sel.find_element_by_xpath('//a[@id="revision-needed"]').click()
+
+    def audit_publish(self):
+        sel = self.selenium
+        wait = WebDriverWait(sel, 2)
+        sel.find_element_by_xpath('//a[@id="publish-single"]').click()
+        wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//div[@id="published-audits"]/a[text()[contains(., \'1\')]]')
+            )
+        )
+
+    def audit_check_student_revision_needed(self):
+        sel = self.selenium
+        wait = WebDriverWait(sel, 2)
+        wait.until(EC.presence_of_element_located((By.XPATH, '//span[@id="revision-needed"]')))
+        wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//div[@id="audit-message" and text()[contains(., \'test message\')]]')
+            )
+        )
+
+    def audit_submit_revision(self):
+        sel = self.selenium
+        wait = WebDriverWait(sel, 2)
+        sel.find_element_by_xpath('//a[@id="revision-update"]').click()
+        wait.until(EC.presence_of_element_located((By.XPATH, '//span[@id="revision-updated"]')))
 
     def test_1_student_answer_and_upload_image(self):
         '''
@@ -138,5 +190,19 @@ class AuditTest(StaticLiveServerTestCase):
         self.open_site()
         self.login('super', 'pw', 'admin')
         self.first_exercise()
-        self.audit()
+        self.audit_exists()
+        self.audit_add_audit()
+        self.audit_add_message()
+        self.audit_revision_needed()
+        self.audit_publish()
+
+        self.logout()
+        self.open_site()
+        self.login()
+        self.first_exercise()
+        self.audit_check_student_revision_needed()
+        self.audit_submit_revision()
+
+        # self.audit_revision_needed()
+
         self.logout()

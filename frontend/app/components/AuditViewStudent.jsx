@@ -58,8 +58,8 @@ const BaseAuditViewStudent = ({ activeExercise, hasAuditData, auditPk, auditor, 
                             <div>
                                 <h3 className="uk-margin-small-bottom">
                                     Granskning
-                                    { !revisionNeeded && <Badge type="success" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-check"/> Godkänd.</Badge> }
-                                    { revisionNeeded && <Badge type="error" className="uk-margin-left">Uppdatering krävs.</Badge> }
+                                    { !revisionNeeded && <Badge type="success" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-check" /><span id="revision-not-needed"/> Godkänd.</Badge> }
+                                    { revisionNeeded && <Badge type="error" className="uk-margin-left" ><span id="revision-needed"/>Uppdatering krävs.</Badge> }
                                 </h3>
                                 <div className="uk-text-small">
                                     Granskad av <a href={"mailto:" + auditor.get('email')} className="uk-text-bold uk-contrast">{auditor.get('first_name')} {auditor.get('last_name')}</a>
@@ -68,19 +68,19 @@ const BaseAuditViewStudent = ({ activeExercise, hasAuditData, auditPk, auditor, 
         { revisionNeeded &&
           <div className="uk-margin-left uk-flex uk-flex-column">
             <div>
-            <a className="uk-button" data-uk-tooltip title="Klicka här när du uppdaterat din lösning." onClick={e => onUpdated(activeExercise, auditPk, !currentlyUpdated)}>Uppdaterad
+            <a className="uk-button" data-uk-tooltip title="Klicka här när du uppdaterat din lösning." onClick={e => onUpdated(activeExercise, auditPk, !currentlyUpdated)} id="revision-update">Uppdaterad
             { !currentlyUpdated && <i className="uk-margin-small-left uk-icon uk-icon-small uk-icon-square-o"/>}
             { currentlyUpdated && <i className="uk-text-success uk-margin-small-left uk-icon uk-icon-small uk-icon-check-square-o"/>}
             { pendingUpdate && <Spinner size="uk-icon-small"/>}
             </a>
             </div>
-            { currentlyUpdated && <div><span className="uk-text-small">(Granskare uppmärksammad)</span></div>}
+            { currentlyUpdated && <div><span className="uk-text-small" id="revision-updated">(Granskare uppmärksammad)</span></div>}
             </div>
         }
                         </div>
                         <hr/>
                         <h4>{subject}</h4>
-                        <div>{message}</div>
+                        <div id="audit-message">{message}</div>
                     </div>
                     { renderAuditFiles.size > 0 && 
                       <div className="uk-margin-left">
