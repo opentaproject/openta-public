@@ -31,6 +31,7 @@ const BaseAuditOverview = ({menuPath, audits, pendingAudits, onAuditClick, activ
       'revisionNeeded': audit.get('revision_needed') ? "Yes" : "No",
       'published': audit.get('published') ? 'Yes' : 'No',
       'message': trimMessage(audit.get('message', '')),
+      'date': moment(audit.get('date')).format('YYYY-MM-DD HH:mm'),
     }))).toList();
 
   var tableFields = [
@@ -41,6 +42,10 @@ const BaseAuditOverview = ({menuPath, audits, pendingAudits, onAuditClick, activ
     {
       name: 'Auditor',
       index: 'auditor',
+    },
+    {
+      name: 'Date',
+      index: 'date',
     },
     {
       name: 'Revision needed',
