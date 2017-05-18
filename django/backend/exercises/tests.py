@@ -63,14 +63,10 @@ class CourseListTest(StaticLiveServerTestCase):
     def back_to_course(self):
         sel = self.selenium
         wait = WebDriverWait(sel, 2)
-        back = sel.find_element_by_css_selector('a.exercise-list-off-canvas')
-        back.click()
-        back = wait.until(
-            EC.element_to_be_clickable(
-                (By.CSS_SELECTOR, 'ul.uk-nav-offcanvas > li.uk-nav-header > a')
-            )
-        )
-        # back = sel.find_element_by_css_selector('ul.uk-nav-offcanvas > li.uk-nav-header > a')
+        back = sel.find_element_by_css_selector('a.uk-navbar-brand')
+        # back = sel.find_element_by_css_selector('a.exercise-list-off-canvas')
+        # back.click()
+        # back = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'ul.uk-nav-offcanvas > li.uk-nav-header > a')))
         back.click()
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'li.course-exercise-item')))
 
