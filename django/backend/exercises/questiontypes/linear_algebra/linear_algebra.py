@@ -162,10 +162,12 @@ def parse_variables(variables):
     subs_rules = []
     sympify_rules = {}
     sample_variables = []
+    matrix_symbols = {}
     for var in vars:
-        expr = sympify_with_custom(ascii_to_sympy(var['value']), {})
+        expr = sympify_with_custom(ascii_to_sympy(var['value']), matrix_symbols)
         if hasattr(expr, 'shape'):
             sym[var['name']] = sympy.MatrixSymbol(var['name'], *expr.shape)
+            matrix_symbols[var['name']] = sym[var['name']]
         else:
             sym[var['name']] = sympy.Symbol(var['name'])
         sympify_rules[var['name']] = sym[var['name']]
