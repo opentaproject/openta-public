@@ -19,6 +19,7 @@ import {
 } from './actions.js';
 import { navigateMenuArray, menuPositionUnder } from './menu.js';
 import { SUBPATH } from './settings.js';
+import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js'
 
 //const store = createStore(counterApp, module.hot && module.hot.data && module.hot.data.counter || { exercises: ['test'] });
 //const store = createStore(counterApp, applyMiddleware(thunk));
@@ -65,7 +66,23 @@ const load = () => {
         }
       }
                   );
-  }
+  };
+    (function checkLogin(){
+        const delay = 7000;
+        const delayS = Math.round(delay / 1000.0);
+        setTimeout(function() {
+            jsonfetch('/loggedin/')
+                .then(res => {
+                    if(res.status >= 300){
+                        UIkit.notify('Logged out, please reload page.', {timeout: delay, status: 'danger'});
+                    }
+                })
+                .catch( err => {
+                    UIkit.notify('Connection lost, retrying in ' + delayS + 's.', {timeout: delay, status: 'danger'});
+                });
+            checkLogin();
+        }, delay);
+    })();
   ReactDOM.render(
     <Provider store={store}>
       <App />

@@ -4,6 +4,7 @@ import immutable from 'immutable';
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
 import Exercise from './Exercise.jsx';
+import Alert from './Alert.jsx';
 import StudentAuditExercise from './StudentAuditExercise.jsx';
 import AuditResponseUpload from './AuditResponseUpload.jsx';
 import AuditPreviousMessages from './AuditPreviousMessages.jsx';
@@ -25,7 +26,7 @@ import {
 } from '../actions.js';
 
 
-const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onDeleteAudit, pendingDelete, onSubjectChange, onPublishAudit, pendingPublish, onPassAudit, onRevisionAudit, pendingRevision, userPk}, bccStatus, onBccClick) => {
+const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onDeleteAudit, pendingDelete, onSubjectChange, onPublishAudit, pendingPublish, onPassAudit, onRevisionAudit, onSaveAudit, pendingRevision, userPk}, bccStatus, onBccClick) => {
   const auditsList = audits.filter( (audit) => audit.get('exercise') === activeExercise )
                            .filter( (audit) => audit.get('auditor') === userPk )
                            .toList()
@@ -46,9 +47,19 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
   }
   var auditControls = activeAudit && audits.getIn([activeAudit, 'exercise']) == activeExercise && //{{{
           (<div className="uk-panel uk-panel-box uk-panel-box-primary">
+              {
+                  pendingSave === null &&
+                  <Alert type="error">
+                      Error while saving current audit, please copy any unsaved data and reload.
+                      <a className="uk-button uk-margin-small-left" onClick={e => onSaveAudit(activeAudit)}>Retry</a>
+                  </Alert>
+              }
             <form className="uk-form">
               <div className="uk-form-row">
-                <label className="uk-form-label">Subject <i className={"uk-float-right uk-icon uk-icon-save " + (!pendingSave ? "uk-text-success" : "")}/></label>
+                  <label className="uk-form-label">Subject
+                      { pendingSave !== null && <i className={"uk-float-right uk-icon uk-icon-save " + (!pendingSave ? "uk-text-success" : "")}/> }
+              { pendingSave === null && <i className={"uk-float-right uk-icon uk-icon-save uk-text-danger"}/> }
+                  </label>
                 <input type="text" className="uk-width-1-1 uk-form-small" value={audits.getIn([activeAudit, 'subject'])} onChange={e => onSubjectChange(e, activeAudit)}/>
               </div>
               <div className="uk-form-row">
@@ -182,7 +193,7 @@ const handleAuditPass = (auditPk, studentPk, currentlyPassed) => dispatch => {
     .catch( err => console.dir(err));
 }
 
-const handleAuditPublish = (auditPk, currentlyPublished, sent, bcc) => dispatch => {
+const handleAuditPublish = (auditPk, currentlyPublished, sent, bcc) => (dispatch, getState) => {
   dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], true));
   dispatch(updateAudit(auditPk, { published: !currentlyPublished }))
   return dispatch(handleAuditSave(auditPk))
@@ -191,6 +202,9 @@ const handleAuditPublish = (auditPk, currentlyPublished, sent, bcc) => dispatch 
       })
     .then(() => dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], false)))
     .catch( err => {
+        var state = getState();
+        var auditee = state.getIn(['audit', 'audits', auditPk, 'student_username'], '');
+        UIkit.notify('An error occured while publishing audit for ' + auditee + ', please reload this page and try again.', { status: 'danger' });
       dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], null))
       dispatch(updateAudit(auditPk, { published: currentlyPublished }))
     });
@@ -258,6 +272,7 @@ const mapDispatchToProps = dispatch => ({
   onRevisionAudit: (auditPk, needRevision) => dispatch(handleAuditRevision(auditPk, needRevision)),
   onDeleteAudit: (auditPk) => dispatch(handleDeleteAudit(auditPk)),
   onPassAudit: (auditPk, studentPk, currentlyPassed) => dispatch(handleAuditPass(auditPk, studentPk, currentlyPassed)),
+  onSaveAudit: (auditPk) => dispatch(handleAuditSave(auditPk)),
   onMessageChange: (e, pk) =>  {
     dispatch(updatePendingStateIn(['audit', 'audits', pk, 'save'], true));
     dispatch(updateAudit(pk, {'message': e.target.value}))

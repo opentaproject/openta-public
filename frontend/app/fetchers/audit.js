@@ -149,10 +149,16 @@ function saveAudit(auditPk, auditData) {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: postData
-    }
-    return jsonfetch('/audit/update/' + auditPk + '/', fetchconfig)
-      .then( res => res.json() )
-  }
+    };
+      return jsonfetch('/audit/update/' + auditPk + '/', fetchconfig)
+          .then(response => {
+              if(response.status >= 300){
+                  throw response.status;
+              }
+              return response;
+          })
+          .then( res => res.json() );
+  };
 }
 
 function updateAuditStudent(auditPk, updated) {
