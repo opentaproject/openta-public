@@ -145,7 +145,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               <div className="uk-width-2-10 uk-margin-small-top uk-margin-small-left">
                 { auditControls }
                 <div className="uk-text-small">
-                  {activeAudit && <AuditPreviousMessages activeAudit={activeAudit} auditsList={auditsList} onOldMessageClick={onOldMessageClick}/>}
+                  {activeAudit && <AuditPreviousMessages activeAudit={activeAudit} auditsList={auditsList} onOldMessageClick={onOldMessageClick} confirm={audits.getIn([activeAudit, 'message'], '').length > 0}/>}
                 </div>
               </div>
               }

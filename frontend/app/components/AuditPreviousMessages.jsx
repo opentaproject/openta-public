@@ -1,6 +1,6 @@
 import React, { PropTypes, Component } from 'react';
 
-const AuditPreviousMessages = ({auditsList, onOldMessageClick, activeAudit}) =>
+const AuditPreviousMessages = ({auditsList, onOldMessageClick, activeAudit, confirm}) =>
     (
       <div className="uk-panel uk-panel-box uk-margin-small-top">
         <h3 className="uk-panel-title">Other messages</h3>
@@ -14,7 +14,10 @@ const AuditPreviousMessages = ({auditsList, onOldMessageClick, activeAudit}) =>
                             <tr key={audit.get('pk')} >
                               <td>
                                 <div className="uk-flex uk-flex-column uk-flex-middle">
-                                  <div><a onClick={() => UIkit.modal.confirm('Replace current text with this message?', () => onOldMessageClick(activeAudit, audit.get('message')))}>Use</a></div>
+                                    <div>
+                                        {confirm && <a onClick={() => UIkit.modal.confirm('Replace current text with this message?', () => onOldMessageClick(activeAudit, audit.get('message')))}>Use</a>}
+                                        {!confirm && <a onClick={() => onOldMessageClick(activeAudit, audit.get('message'))}>Use</a>}
+                                    </div>
                                   <div>
                                     { audit.get('message') }
                                   </div>
