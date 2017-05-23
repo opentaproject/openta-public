@@ -284,15 +284,18 @@ def linear_algebra_compare_expressions(
                 if funcstr in blacklist:
                     return {'error': _('Forbidden token: ') + funcstr}
     except SympifyError as e:
+        logger.error(traceback.format_exc())
         logger.error([str(e), str(student_answer), str(correct)])
         response = dict(error=_("Failed to evaluate expression."))
         return response
     except ShapeError as e:
+        logger.error(traceback.format_exc())
         response = dict(
             error=_("There seems to be a vector or matrix operation with incompatible dimensions.")
         )
         return response
     except Exception as e:
+        logger.error(traceback.format_exc())
         logger.error([str(e), str(student_answer), str(correct)])
         response = dict(error=_("Unknown error, check your expression."))
         return response

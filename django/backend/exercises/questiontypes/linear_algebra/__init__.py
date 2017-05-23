@@ -8,6 +8,7 @@ from exercises.question import (
 from exercises.question import QuestionError
 
 # Below are imports that are specific to this question type
+from collections import OrderedDict
 import functools
 import operator
 from exercises.util import compose
@@ -107,7 +108,7 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
         global_variables = parse_variables(global_xmltree.text)
         variables += global_variables
 
-    unique_vars = {var['name']: var for var in variables}
+    unique_vars = OrderedDict((var['name'], var) for var in variables)
     variables = list(unique_vars.values())
     correct_answer = question_xmltree.find('expression').text.split(';')[0]
 
