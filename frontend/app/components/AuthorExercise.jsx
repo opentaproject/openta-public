@@ -98,7 +98,7 @@ class BaseAuthorExercise extends Component {
     var gridClass = this.props.atMenu(['activeExercise', 'assets']) ? '' : 'admin';
     var authorDOM = (
       <div className={"uk-grid uk-margin-small-left " + gridClass}>
-        { !this.props.atMenu(['activeExercise', 'audit']) &&
+        { !this.props.underMenu(['activeExercise', 'audit']) &&
           !this.props.atMenu(['activeExercise', 'xmlEditor']) &&
           !this.props.atMenu(['activeExercise', 'assets']) &&
         <div key="exercise" className="exercise-admin">
@@ -107,7 +107,7 @@ class BaseAuthorExercise extends Component {
         </div>
         }
         { !this.props.atMenu(['activeExercise','xmlEditor']) &&
-          !this.props.atMenu(['activeExercise', 'audit']) &&
+          !this.props.underMenu(['activeExercise', 'audit']) &&
           !this.props.atMenu(['activeExercise', 'assets']) &&
           <div key="xml" className="xmleditor">
           { loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && <Spinner/> }
