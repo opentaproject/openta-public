@@ -97,7 +97,7 @@ class BaseAuthorExercise extends Component {
     var loadingXML = pendingState.getIn(['exercises', key, 'loadingXML'],false);
     var gridClass = this.props.atMenu(['activeExercise', 'assets']) ? '' : 'admin';
     var authorDOM = (
-      <div className={"uk-grid uk-margin-small-left " + gridClass}>
+      <div className={"uk-grid admin"}>
         { !this.props.underMenu(['activeExercise', 'audit']) &&
           !this.props.atMenu(['activeExercise', 'xmlEditor']) &&
           !this.props.atMenu(['activeExercise', 'assets']) &&
