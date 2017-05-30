@@ -5,3 +5,4 @@ Question types
 
 .. toctree::
   comparenumeric.rst
+  linearalgebra.rst

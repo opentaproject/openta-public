@@ -1,12 +1,12 @@
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Development environment using Docker &#8212; OpenTA  documentation</title>
+    <title>Development &#8212; OpenTA  documentation</title>
     
     <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -36,22 +36,25 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
 
   </head>
-  <body role="document">
+  <body>
   <div class="document">
     
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3><a class="reference internal" href="../index.html">Home</a></h3>
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Installation</a><ul class="current">
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Development environment using Docker</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#manual-installation">Manual installation</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#backend-installation">Backend Installation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#steps">Steps</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#summary-of-third-party-libraries">Summary of third party libraries</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Development</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#development-environment-using-docker">Development environment using Docker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#manual-installation">Manual installation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#backend-installation">Backend Installation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#steps">Steps</a></li>
+<li class="toctree-l5"><a class="reference internal" href="#summary-of-third-party-libraries">Summary of third party libraries</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#front-end-installation">Front-end installation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#summary-of-third-party-libraries">Summary of third party libraries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#front-end-installation">Front-end installation</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#id1">Summary of third party libraries</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -80,14 +83,28 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="development-environment-using-docker">
-<span id="development-environment-using-docker"></span><h1>Development environment using Docker<a class="headerlink" href="#development-environment-using-docker" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="development">
+<h1>Development<a class="headerlink" href="#development" title="Permalink to this headline">¶</a></h1>
+<div class="sidebar">
+<p class="first sidebar-title">Login information</p>
+<p>When cloning this repository a file based sqlite database is provided
+with two users (user:password):</p>
+<ul class="last simple">
+<li><strong>teacher:learning</strong>, can edit exercises via the author interface.</li>
+<li><strong>student:learning</strong>, can view and answer exercises.</li>
+</ul>
+</div>
+<div class="section" id="development-environment-using-docker">
+<h2>Development environment using Docker<a class="headerlink" href="#development-environment-using-docker" title="Permalink to this headline">¶</a></h2>
 <p>Start by cloning the repository</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">hlinander</span><span class="o">/</span><span class="n">openta</span><span class="o">.</span><span class="n">git</span>
 </pre></div>
 </div>
-<p>Install <a class="reference external" href="https://docs.docker.com/engine/installation/">Docker</a> and configure backend and frontend settings from the template files (<code class="docutils literal"><span class="pre">settings_dev.py</span></code> and <code class="docutils literal"><span class="pre">settings_example.js</span></code>) as shown below.</p>
-<p>Change workdirectory <code class="docutils literal"><span class="pre">cd</span> <span class="pre">docker</span></code>. To build the Docker image run (grab a coffee)</p>
+<p>Install <a class="reference external" href="https://docs.docker.com/engine/installation/">Docker</a> and
+configure backend and frontend settings from the template files
+(<code class="docutils literal"><span class="pre">settings_dev.py</span></code> and <code class="docutils literal"><span class="pre">settings_example.js</span></code>) as shown below.</p>
+<p>Change workdirectory <code class="docutils literal"><span class="pre">cd</span> <span class="pre">docker</span></code>. To build the Docker image run (grab
+a coffee)</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">image</span>
 </pre></div>
 </div>
@@ -95,17 +112,21 @@
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">serve</span>
 </pre></div>
 </div>
-<p>which will now be available at <code class="docutils literal"><span class="pre">localhost:8000</span></code>. To serve and watch for file changes in the code use</p>
+<p>which will now be available at <code class="docutils literal"><span class="pre">localhost:8000</span></code>. To serve and watch
+for file changes in the code use</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">watch</span>
 </pre></div>
 </div>
-<p>Stop the server by multiple <strong>Ctrl-C</strong> till you are back at your shell. Use <code class="docutils literal"><span class="pre">make</span> <span class="pre">serve</span> <span class="pre">port=4000</span></code> (and similar for watch) to use another port.</p>
+<p>Stop the server by multiple <strong>Ctrl-C</strong> till you are back at your shell.
+Use <code class="docutils literal"><span class="pre">make</span> <span class="pre">serve</span> <span class="pre">port=4000</span></code> (and similar for watch) to use another
+port.</p>
 </div>
 <div class="section" id="manual-installation">
-<span id="manual-installation"></span><h1>Manual installation<a class="headerlink" href="#manual-installation" title="Permalink to this headline">¶</a></h1>
+<h2>Manual installation<a class="headerlink" href="#manual-installation" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="backend-installation">
-<span id="backend-installation"></span><h2>Backend Installation<a class="headerlink" href="#backend-installation" title="Permalink to this headline">¶</a></h2>
-<p>The following will assume the repository is cloned into a folder <code class="docutils literal"><span class="pre">openta/</span></code>.</p>
+<h3>Backend Installation<a class="headerlink" href="#backend-installation" title="Permalink to this headline">¶</a></h3>
+<p>The following will assume the repository is cloned into a folder
+<code class="docutils literal"><span class="pre">openta/</span></code>.</p>
 <p>Requires:</p>
 <ul class="simple">
 <li><a class="reference external" href="https://www.python.org">Python 3</a></li>
@@ -118,14 +139,15 @@
 <li>python-dev</li>
 <li>libzmq-dev</li>
 </ul>
-<p>In an apt-based linux distribution the required dependencies can be installed with</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">apt</span> <span class="n">get</span> <span class="n">install</span> <span class="n">libjpeg</span><span class="o">-</span><span class="n">dev</span> <span class="n">libgraphviz</span><span class="o">-</span><span class="n">dev</span> <span class="n">graphviz</span> <span class="n">pkg</span><span class="o">-</span><span class="n">config</span> <span class="n">libxml2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxslt1</span><span class="o">-</span><span class="n">dev</span> <span class="n">python</span><span class="o">-</span><span class="n">dev</span> <span class="n">libzmq3</span><span class="o">-</span><span class="n">dev</span> <span class="n">libcairo2</span> <span class="n">libcairo2</span><span class="o">-</span><span class="n">dev</span>
+<p>In an apt-based linux distribution the required dependencies can be
+installed with</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">apt</span><span class="o">-</span><span class="n">get</span> <span class="n">install</span> <span class="n">libjpeg</span><span class="o">-</span><span class="n">dev</span> <span class="n">libgraphviz</span><span class="o">-</span><span class="n">dev</span> <span class="n">graphviz</span> <span class="n">pkg</span><span class="o">-</span><span class="n">config</span> <span class="n">libxml2</span><span class="o">-</span><span class="n">dev</span> <span class="n">libxslt1</span><span class="o">-</span><span class="n">dev</span> <span class="n">python</span><span class="o">-</span><span class="n">dev</span> <span class="n">libzmq3</span><span class="o">-</span><span class="n">dev</span> <span class="n">libcairo2</span> <span class="n">libcairo2</span><span class="o">-</span><span class="n">dev</span>
 </pre></div>
 </div>
 <div class="section" id="steps">
-<span id="steps"></span><h3>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">¶</a></h3>
-<p>Enter the backend subfolder with <code class="docutils literal"><span class="pre">cd</span> <span class="pre">django</span></code>.
-Create a python 3 environment in a subdirectory <code class="docutils literal"><span class="pre">env</span></code> (name not important) with</p>
+<h4>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">¶</a></h4>
+<p>Enter the backend subfolder with <code class="docutils literal"><span class="pre">cd</span> <span class="pre">django</span></code>. Create a python 3
+environment in a subdirectory <code class="docutils literal"><span class="pre">env</span></code> (name not important) with</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">virtualenv</span> <span class="n">env</span>
 </pre></div>
 </div>
@@ -133,12 +155,15 @@ Create a python 3 environment in a subdirectory <code class="docutils literal"><
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pyvenv</span> <span class="n">env</span>
 </pre></div>
 </div>
-<p>depending on your installation. You might need to add an argument <code class="docutils literal"><span class="pre">-p</span> <span class="pre">python3</span></code> with the path to your python3 binary.</p>
+<p>depending on your installation. You might need to add an argument
+<code class="docutils literal"><span class="pre">-p</span> <span class="pre">python3</span></code> with the path to your python3 binary.</p>
 <p>Enter the environment with</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="n">env</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">activate</span>
 </pre></div>
 </div>
-<p>Install all dependencies with (on some systems you might need <code class="docutils literal"><span class="pre">pkg-config</span></code> installed for the python build scripts to find some of the library dependencies)</p>
+<p>Install all dependencies with (on some systems you might need
+<code class="docutils literal"><span class="pre">pkg-config</span></code> installed for the python build scripts to find some of
+the library dependencies)</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip</span> <span class="n">install</span> <span class="o">-</span><span class="n">r</span> <span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
 </pre></div>
 </div>
@@ -146,8 +171,8 @@ Create a python 3 environment in a subdirectory <code class="docutils literal"><
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">django</span><span class="o">/</span><span class="n">backend</span><span class="o">/</span><span class="n">backend</span><span class="o">/</span>
 </pre></div>
 </div>
-<p>For local development the <code class="docutils literal"><span class="pre">settings_dev.py</span></code> would be suitable.
-Copy the choosen file to <code class="docutils literal"><span class="pre">settings.py</span></code>, for example</p>
+<p>For local development the <code class="docutils literal"><span class="pre">settings_dev.py</span></code> would be suitable. Copy
+the choosen file to <code class="docutils literal"><span class="pre">settings.py</span></code>, for example</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">backend</span><span class="o">/</span><span class="n">backend</span><span class="o">/</span>
 <span class="n">cp</span> <span class="n">settings_dev</span><span class="o">.</span><span class="n">py</span> <span class="n">settings</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
@@ -159,49 +184,53 @@ Copy the choosen file to <code class="docutils literal"><span class="pre">settin
 </div>
 </div>
 <div class="section" id="summary-of-third-party-libraries">
-<span id="summary-of-third-party-libraries"></span><h3>Summary of third party libraries<a class="headerlink" href="#summary-of-third-party-libraries" title="Permalink to this headline">¶</a></h3>
+<h4>Summary of third party libraries<a class="headerlink" href="#summary-of-third-party-libraries" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
 <li><a class="reference external" href="https://www.djangoproject.com/">Django</a></li>
-<li><a class="reference external" href="http://www.django-rest-framework.org/">Django-rest-framework (DRF)</a></li>
+<li><a class="reference external" href="http://www.django-rest-framework.org/">Django-rest-framework
+(DRF)</a></li>
 <li><a class="reference external" href="http://www.sympy.org/">Sympy</a></li>
 </ul>
 </div>
 </div>
 <div class="section" id="front-end-installation">
-<span id="front-end-installation"></span><h2>Front-end installation<a class="headerlink" href="#front-end-installation" title="Permalink to this headline">¶</a></h2>
+<h3>Front-end installation<a class="headerlink" href="#front-end-installation" title="Permalink to this headline">¶</a></h3>
 <p>A web frontend for viewing/editing exercises served by the backend.</p>
 <p>Requires:</p>
 <ul class="simple">
 <li><a class="reference external" href="https://nodejs.org">NodeJS (&gt;6.0) &amp; NPM</a> package system</li>
-<li><a class="reference external" href="http://brunch.io/">Brunch</a>: A html/js build tool used during development
-(can be installed systemwide with <code class="docutils literal"><span class="pre">npm</span> <span class="pre">install</span> <span class="pre">-g</span> <span class="pre">brunch</span></code> (needs sudo if on *nix))</li>
+<li><a class="reference external" href="http://brunch.io/">Brunch</a>: A html/js build tool used during development (can be installed systemwide with <code class="docutils literal"><span class="pre">npm</span> <span class="pre">install</span> <span class="pre">-g</span> <span class="pre">brunch</span></code> (needs sudo if on *nix))</li>
 </ul>
 <p>Install all dependencies (specified in package.json) with</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">frontend</span>
 <span class="n">npm</span> <span class="n">install</span>
 </pre></div>
 </div>
-<p>Make a local copy of the settings file (for local development no changes are needed) with</p>
+<p>Make a local copy of the settings file (for local development no changes
+are needed) with</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">frontend</span><span class="o">/</span><span class="n">app</span><span class="o">/</span>
 <span class="n">cp</span> <span class="n">settings_example</span><span class="o">.</span><span class="n">js</span> <span class="n">settings</span><span class="o">.</span><span class="n">js</span>
 </pre></div>
 </div>
-<p>Build frontend and copy the bundle to the django server (as specified in brunch-config.js)</p>
+<p>Build frontend and copy the bundle to the django server (as specified in
+brunch-config.js)</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="n">frontend</span>
 <span class="n">brunch</span> <span class="n">build</span>
 </pre></div>
 </div>
-<p>Alternatively, start a live-development watcher that recompiles and copies the files whenever something changes</p>
+<p>Alternatively, start a live-development watcher that recompiles and
+copies the files whenever something changes</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">brunch</span> <span class="n">watch</span>
 </pre></div>
 </div>
-<div class="section" id="summary-of-third-party-libraries">
-<span id="id1"></span><h3>Summary of third party libraries<a class="headerlink" href="#summary-of-third-party-libraries" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h4>Summary of third party libraries<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h4>
 <ul class="simple">
 <li><a class="reference external" href="https://facebook.github.io/react/">React</a>: JS GUI framework</li>
 <li><a class="reference external" href="http://redux.js.org/">Redux</a>: State management library</li>
 <li><a class="reference external" href="http://getuikit.com/">UIKit</a>: CSS framework</li>
 </ul>
+</div>
 </div>
 </div>
 </div>
@@ -216,11 +245,11 @@ Copy the choosen file to <code class="docutils literal"><span class="pre">settin
       &copy;2017, Hampus Linander, Stellan Östlund.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.9</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../_sources/installation/development.md.txt"
+      <a href="../_sources/installation/development.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
