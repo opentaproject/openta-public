@@ -68,7 +68,7 @@ const load = () => {
                   );
   };
     (function checkLogin(){
-        const delay = 7000;
+        const delay = 20000;
         const delayS = Math.round(delay / 1000.0);
         setTimeout(function() {
             jsonfetch('/loggedin/')
