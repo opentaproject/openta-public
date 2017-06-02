@@ -44,7 +44,10 @@ class BaseExerciseHoverMenu extends Component {
         var folderNameRender = folderPrename[folderPrename.length - 1]
         return (
             <li key={folderName}>
-                <a onClick={() => this.props.onExerciseMove(exercise, content.get('path').join('/'))} className="uk-modal-close">
+              <a onClick={() => {
+                  UIkit.modal("#move-modal" + this.props.exerciseKey).hide();
+                  this.props.onExerciseMove(exercise, content.get('path').join('/'));
+                }} className="uk-modal-close">
                     {folderNameRender}
                 </a>
                 <ul className="uk-list">
