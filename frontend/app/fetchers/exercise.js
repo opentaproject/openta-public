@@ -14,7 +14,7 @@ import {
 function fetchAddExercise(path, name) {
     return dispatch => {
         var payload = {
-            path: path,
+            path: '/' + path.join('/'),
             name: name
         };
         var fetchconfig = {
