@@ -279,7 +279,7 @@ def exercise_folder_structure(manager, user):  # {{{
         exercises = manager.filter(meta__published=True).select_related('meta')
     paths = map(lambda x: os.path.dirname(x.path), exercises)
     unique_paths = filter(lambda x: x != '/', set(paths))
-    folders['path'] = ''
+    folders['path'] = ['']
     for path in list(map(lambda x: x.split('/')[1:], unique_paths)):
         root = folders
         fullpath = []
