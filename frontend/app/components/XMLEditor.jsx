@@ -33,13 +33,13 @@ var tags = {
   },
   global: {
     attrs: {
-      type: ["compareNumeric", "multipleChoice"]
+      type: ["ClonedCompareNumeric","compareNumeric", "multipleChoice"]
     }
   },
   question: {
     attrs: {
       key: null,
-      type: ["compareNumeric", "multipleChoice"]
+      type: ["ClonedCompareNumeric","compareNumeric", "multipleChoice"]
     },
     children: ["text", "expression", "choice", "variables"]
   },
