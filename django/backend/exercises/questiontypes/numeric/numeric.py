@@ -38,7 +38,7 @@ baseunits = {meter: 1, second: 1, kg: 1}
 lambdifymodules = ["numpy", {'cot': lambda x: 1.0 / numpy.tan(x)}]
 
 
-class ClonedCompareNumericUnitError(Exception):
+class NumericUnitError(Exception):
     def __init__(self, value):
         self.value = value
 
@@ -99,7 +99,7 @@ def check_units(expression, correct, variables):
     # evaluatedp = convert_to( sympy.simplify(expression.subs(variables)), [kg,m,s] )
     # print("evaluatedp ", evaluatedp)
     if len(evaluated.as_terms()[0]) > 1:
-        raise ClonedCompareNumericUnitError(_("Terms do not seem to have the same unit."))
+        raise NumericUnitError(_("Terms do not seem to have the same unit."))
     ceval = sympy.simplify(correct.subs(variables))
     quotient = sympy.simplify(ceval / evaluated)
     # print("u.__dict__")
@@ -108,9 +108,7 @@ def check_units(expression, correct, variables):
     print("quotient", quotient)
     # print("quotient", quotient.subs(u.__dict__) )
     if len(list(quotient.free_symbols)) > 0:
-        raise ClonedCompareNumericUnitError(
-            _("Seems like the expression does not have the correct units.")
-        )
+        raise NumericUnitError(_("Seems like the expression does not have the correct units."))
 
 
 def evaluate(variables, expression):
@@ -125,7 +123,7 @@ def evaluate(variables, expression):
     return json.dumps(response)
 
 
-def cloned_compare_numeric_internal(variables, e1, e2, precision):  # {{{
+def numeric_internal(variables, e1, e2, precision):  # {{{
     # Do some initial formatting
     expression1 = re.sub(
         r"([0-9])\.([^0-9])", r"\1.0 \2", e1
@@ -213,7 +211,7 @@ def cloned_compare_numeric_internal(variables, e1, e2, precision):  # {{{
         if diff.is_constant():
             try:
                 check_units(sympy1, sympy2, varsubs)
-            except ClonedCompareNumericUnitError as e:
+            except NumericUnitError as e:
                 response['warning'] = str(e)
             except ZeroDivisionError as e:
                 response['zerodivision'] = True
@@ -248,24 +246,22 @@ def cloned_compare_numeric_internal(variables, e1, e2, precision):  # {{{
     return response  # }}}
 
 
-def cloned_compare_numeric_runner(variables, expression1, expression2, precision, result_queue):
+def numeric_runner(variables, expression1, expression2, precision, result_queue):
     print("RUNNER - precision ", precision)
-    response = cloned_compare_numeric_internal(variables, expression1, expression2, precision)
+    response = numeric_internal(variables, expression1, expression2, precision)
     result_queue.put(response)
 
 
-def cloned_compare_numeric(variables, expression1, expression2, precision):
+def numeric(variables, expression1, expression2, precision):
     """
-    Starts a process with cloned_compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
+    Starts a process with numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
     print("CLONED_COMPARE_NUMERIC precision = ", precision)
     invalid_strings = ['_', '[', ']']
     for i in invalid_strings:
         if i in expression1:
             return {'error': _('Answer contains invalid character ') + i}
-    return safe_run(
-        cloned_compare_numeric_runner, args=(variables, expression1, expression2, precision)
-    )
+    return safe_run(numeric_runner, args=(variables, expression1, expression2, precision))
 
 
 def to_latex(expression):

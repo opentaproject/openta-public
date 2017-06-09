@@ -1,7 +1,7 @@
 import React, { PropTypes, Component } from 'react';
 import uniqueId from 'lodash/uniqueId';
 
-export default class HelpClonedCompareNumeric extends Component {
+export default class HelpNumeric extends Component {
   render = () => (
   <span>
 <a data-uk-toggle={"{target:'#" + this.id + "'}"}><i className="uk-icon uk-icon-small uk-icon-question-circle-o uk-margin-small-left"/></a>

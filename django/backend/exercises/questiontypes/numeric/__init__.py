@@ -1,5 +1,5 @@
 '''
-This is the server side implementation of the question type ClonedCompareNumeric.
+This is the server side implementation of the question type Numeric.
 '''
 
 from exercises.question import (
@@ -13,10 +13,10 @@ import operator
 from exercises.util import compose
 from lxml import etree
 import logging
-from .cloned_compare_numeric import (
-    cloned_compare_numeric,
+from .numeric import (
+    numeric,
     to_latex,
-)  # The sympy interface is placed in a separate file "cloned_compare_numeric.py" in this folder
+)  # The sympy interface is placed in a separate file "numeric.py" in this folder
 
 logger = logging.getLogger(__name__)
 
@@ -67,9 +67,7 @@ def parse_xml_variables(node):
 #    return ret
 
 # The function below is the core of the server interface and the only mandatory component.
-def question_check_cloned_compare_numeric(
-    question_json, question_xmltree, answer_data, global_xmltree
-):
+def question_check_numeric(question_json, question_xmltree, answer_data, global_xmltree):
     '''Checks a symbolic answer by numeric evaluation.
 
     Args:
@@ -86,7 +84,7 @@ def question_check_cloned_compare_numeric(
         }
     Notes:
     Expects the XML format:
-        <question type=ClonedCompareNumeric>
+        <question type=Numeric>
             <variables>
                 var1=value1; var2=value2; ...
             </variables>
@@ -117,7 +115,7 @@ def question_check_cloned_compare_numeric(
     #   blacklist.update(parse_blacklist(global_xmltree))
     # blacklist.update(parse_blacklist(question_xmltree))
     result = {}
-    result = cloned_compare_numeric(variables, answer_data, correct_answer, precision)
+    result = numeric(variables, answer_data, correct_answer, precision)
     if 'correct' in result:
         result['status'] = 'correct' if result['correct'] else 'incorrect'
     elif 'error' in result:
@@ -129,4 +127,4 @@ def question_check_cloned_compare_numeric(
 
 
 # This function call registers the question type with the system
-register_question_type('ClonedCompareNumeric', question_check_cloned_compare_numeric)
+register_question_type('Numeric', question_check_numeric)

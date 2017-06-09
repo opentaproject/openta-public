@@ -10,7 +10,7 @@ import Alert from '../Alert.jsx'; // Another component useful for showing alerts
 import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
 import MathSpan from '../MathSpan.jsx';
-import HelpClonedCompareNumeric from './HelpClonedCompareNumeric.jsx';
+import HelpNumeric from './HelpNumeric.jsx';
 import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
@@ -145,7 +145,7 @@ const insertCursor = (str, pos) => {//{{{
   return str;
 }//}}}
 
-export default class QuestionClonedCompareNumeric extends Component {
+export default class QuestionNumeric extends Component {
   static propTypes = {
     questionData: PropTypes.object, // Data from exercise XML file, i.e. whats inside the <question> tag
     questionState: PropTypes.object, // Current question state together with response data from server
@@ -452,7 +452,7 @@ var precision = state.getIn(['response','precision'], 'none'); // Custom field c
   }
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">  {availableVariables} NUMERISK: {precision}</span><HelpClonedCompareNumeric/></label>
+          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">  {availableVariables} NUMERISK: {precision}</span><HelpNumeric/></label>
 { hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">
@@ -493,4 +493,4 @@ var precision = state.getIn(['response','precision'], 'none'); // Custom field c
 }
 
 //Register the question component with the system
-registerQuestionType('ClonedCompareNumeric', QuestionClonedCompareNumeric);
+registerQuestionType('Numeric', QuestionNumeric);
