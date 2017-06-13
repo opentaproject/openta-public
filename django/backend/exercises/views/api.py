@@ -11,15 +11,13 @@ from exercises.serializers import (
     AuditExerciseSerializer,
 )
 from exercises import parsing
-from exercises.question import question_check
+from exercises.question import question_check, question_json_hook
 from exercises.modelhelpers import (
     serialize_exercise_with_question_data,
     exercise_folder_structure,
     student_attempts_exercises,
     exercise_test,
 )
-from exercises.paths import EXERCISES_PATH
-from exercises.util import nested_print
 from exercises.views.file_handling import serve_file
 from django.utils.translation import ugettext as _
 from django.http import FileResponse, HttpResponse, StreamingHttpResponse
@@ -27,7 +25,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import permission_required
 from django.template.response import TemplateResponse
 from django.template import loader
-from django.contrib import messages
 from django.utils.timezone import now
 from django.db import transaction
 from django.db.models import Prefetch
@@ -38,14 +35,8 @@ import PyPDF2
 import logging
 import backend.settings as settings
 import json
-import time
-import random
 
-import sys
 import os
-
-# sys.path.insert(0, os.path.realpath(os.path.dirname(__file__) + '/../../../../questiontypes'))
-# import question_types
 
 logger = logging.getLogger(__name__)
 
@@ -60,9 +51,8 @@ def exercises_reload_streaming(request):  # {{{
     def next_exercise():
         yield base.render()
         for progress in exercises:
-            # c = RequestContext(request._request)
             rendered = loader.render_to_string('reload_progress.html', {'progress': progress})
-            yield rendered  # template.render(c)
+            yield rendered
 
     return StreamingHttpResponse(next_exercise())
 
@@ -208,7 +198,11 @@ def exercise_json(request, exercise):  # {{{
     try:
         hide_answers = not request.user.has_perm("exercises.view_solution")
         exercisejson = parsing.exercise_json(dbexercise.path, hide_answers=hide_answers)
-        # questions = deep_get(exercisejson, 'exercise', 'question')
+        if 'question' in exercisejson['exercise']:
+            exercisejson['exercise']['question'] = [
+                question_json_hook(question, request.user)
+                for question in exercisejson['exercise']['question']
+            ]
         return Response(exercisejson)
     except parsing.ExerciseParseError as e:
         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}

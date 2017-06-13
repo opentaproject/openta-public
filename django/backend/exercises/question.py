@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from exercises.models import Exercise, Question, Answer
 from exercises.parsing import question_json_get, question_xmltree_get, exercise_xmltree
-from exercises.util import nested_print
+from exercises.util import deep_get
 from lxml import etree
 from ratelimit.utils import is_ratelimited
 from django.utils.translation import ugettext as _
@@ -11,6 +11,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 question_check_dispatch = {}
+question_json_hooks = {}
 
 
 class QuestionError(Exception):
@@ -21,8 +22,9 @@ class QuestionError(Exception):
         return repr(self.value)
 
 
-def register_question_type(question_type, grading_function):
+def register_question_type(question_type, grading_function, json_hook=lambda q, user: q):
     question_check_dispatch[question_type] = grading_function
+    question_json_hooks[question_type] = json_hook
 
 
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
@@ -35,6 +37,8 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             'author_error': 'You must save the exercise (save button in toolbar) before the question can be evaluated.',
         }
     question_json = question_json_get(dbexercise.path, question_key)
+    if dbquestion.type in question_json_hooks:
+        question_json = question_json_hooks[dbquestion.type](question_json, user)
     xmltree = exercise_xmltree(dbexercise.path)
     question_xmltree = question_xmltree_get(xmltree, question_key)
     global_xmltree = (
@@ -85,3 +89,10 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         return result
     else:
         return {'error': 'No grading function for question type ' + dbquestion.type}
+
+
+def question_json_hook(question, user):
+    type = deep_get(question, '@attr', 'type')
+    if type is not None and type in question_json_hooks:
+        return question_json_hooks[type](question, user)
+    return question

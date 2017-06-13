@@ -8,6 +8,7 @@ from exercises.question import (
 from exercises.question import QuestionError
 
 # Below are imports that are specific to this question type
+import hashlib
 from collections import OrderedDict
 import functools
 import operator
@@ -131,5 +132,10 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     return result
 
 
+def linear_algebra_json_hook(question, user):
+    question['username'] = user.username
+    return question
+
+
 # This function call registers the question type with the system
-register_question_type('linearAlgebra', question_check_linear_algebra)
+register_question_type('linearAlgebra', question_check_linear_algebra, linear_algebra_json_hook)
