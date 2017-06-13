@@ -28,7 +28,7 @@ const BaseAuditOverview = ({menuPath, audits, pendingAudits, onAuditClick, activ
       'username': audit.get('student_username'),
       'pk': audit.get('pk'),
       'auditor': audit.getIn(['auditor_data', 'first_name']) + ' ' + audit.getIn(['auditor_data', 'last_name']),
-      'revisionNeeded': audit.get('revision_needed') ? "Yes" : "No",
+      'passed': (!audit.get('revision_needed')) ? "Yes" : "No",
       'published': audit.get('published') ? 'Yes' : 'No',
       'message': trimMessage(audit.get('message', '')),
       'date': moment(audit.get('date')).format('YYYY-MM-DD HH:mm'),
@@ -48,8 +48,8 @@ const BaseAuditOverview = ({menuPath, audits, pendingAudits, onAuditClick, activ
       index: 'date',
     },
     {
-      name: 'Revision needed',
-      index: 'revisionNeeded',
+      name: 'Passed (no revision needed)',
+      index: 'passed',
     },
     {
       name: 'Published',
