@@ -338,15 +338,41 @@ export default class QuestionNumeric extends Component {
   }
 
   //Parse variables and their optional properties
+
+/* arrayUnique = (array) =>  {
+    var a = array.concat();
+    for(var i=0; i<a.length; ++i) {
+        for(var j=i+1; j<a.length; ++j) {
+            if(a[i] === a[j])
+                a.splice(j--, 1);
+        }
+    }
+
+    return a;
+}
+*/
+  
+
   parseVariables = () => {
     // var varsListGlobal = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
     var  varsListGlobal = ['meter','kg','second'];
+    var  varsListGlobal = [];
     var varsListLocal = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
     this.varsList = varsListGlobal.concat(varsListLocal);
+    var correctanswer = this.parseVariableString(this.props.questionData.getIn(['expression','$'], '')).toString(); 
+    console.log("QUESTION_NUMERIC - varsList ", this.varsList )
+    correctanswer = correctanswer.replace(/\^/g,' ' )
+    console.log("QUESTION_NUMERIC - correctanserstring ", correctanswer )
+    var found = correctanswer.match( /([A-z]+[A-z0-9_]*)/gi )
+    console.log("QUESTION_NUMERIC - found ", found)
+    // var usedVars = this.arrayUnique( found )
+    var usedVars = found
+    console.log("QUESTION_NUMERIC - usedVars ", usedVars)
     // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
     var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
     var localVars = enforceList(this.props.questionData.get('var', List([])));
     var allVars = localVars.concat(varPropsList);
+    this.varsList = usedVars
     for(let v of allVars) {
       if(v.hasIn('token','$')) {
         var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 
@@ -400,6 +426,7 @@ var precision = state.getIn(['response','precision'], 'none'); // Custom field c
 
   var mathjsEvalVars = {}
   var availableVariables = [];
+  console.log("this.varsList = ", this.varsList )
       if(this.varsList) {
           this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
           availableVariables.push( (<span key="s">(i termer av </span>) );

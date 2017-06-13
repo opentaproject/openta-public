@@ -10,6 +10,7 @@ from exercises.question import QuestionError
 # Below are imports that are specific to this question type
 import functools
 import operator
+import re
 from exercises.util import compose
 from lxml import etree
 import logging
@@ -94,7 +95,19 @@ def question_check_numeric(question_json, question_xmltree, answer_data, global_
         </question>
     '''
     precision = question_json.get('@attr').get('precision', '0')
+    questiontext = question_xmltree.find('expression', None)
+    print("questiontext = ", questiontext.text)
     print("precision = ", precision)
+    print("answerdata = ", answer_data)
+    caretless = re.sub(r"\^", ' ', questiontext.text)
+    print("caretless = ", caretless)
+    lis = re.findall(r'([A-z]+\w*)', caretless)
+    print("lis = ", lis)
+    used_variable_list = []
+    [
+        used_variable_list.append(item) for item in lis if item not in used_variable_list
+    ]  # SELECT UNIQUE ITEMS
+    print("used_variable_list = ", used_variable_list)
     variables = []
     variables += parse_xml_variables(question_xmltree)
     # NOTE THAT GLOBAL XMLTREE IS NOT PARSED IN THIS TYPE
@@ -114,8 +127,12 @@ def question_check_numeric(question_json, question_xmltree, answer_data, global_
     # if global_xmltree is not None:
     #   blacklist.update(parse_blacklist(global_xmltree))
     # blacklist.update(parse_blacklist(question_xmltree))
+    print("variables = ", variables)
+    print("used_variable_list = ", used_variable_list)
+    used_variables = [v for v in variables if v['name'] in used_variable_list]
+    print("used_variables = ", used_variables)
     result = {}
-    result = numeric(variables, answer_data, correct_answer, precision)
+    result = numeric(used_variables, answer_data, correct_answer, precision)
     if 'correct' in result:
         result['status'] = 'correct' if result['correct'] else 'incorrect'
     elif 'error' in result:
