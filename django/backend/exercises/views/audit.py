@@ -200,8 +200,17 @@ def add_audit(request):
     except AuditExercise.DoesNotExist:
         exercise = Exercise.objects.get(pk=exercise_pk)
         student = User.objects.get(pk=student_pk)
+        course = Course.objects.first()
+        template = get_template('audit/subject.txt')
+        data = {'course': course, 'exercise': exercise}
+        context = Context(data)
+        subject = template.render(context).strip()
         audit = AuditExercise(
-            auditor=auditor, exercise=exercise, student=student, exercise_key=exercise.exercise_key
+            auditor=auditor,
+            exercise=exercise,
+            subject=subject,
+            student=student,
+            exercise_key=exercise.exercise_key,
         )
         audit.save()
         return Response({'pk': audit.pk, 'created': True})
