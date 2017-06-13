@@ -66,7 +66,12 @@ const BaseComponent = ({exerciseKey, imageAnswers, imageAnswersData, uploaded, o
 
 const handleUpload = (dispatch, event, exerciseKey) => {
   var file = event.target.files[0];
-  dispatch(uploadImage(exerciseKey, file));
+  dispatch(uploadImage(exerciseKey, file))
+    .then(res => {
+      if('error' in res){
+        UIkit.notify(res.error, {timeout: 10000, status: 'danger'});
+      }
+    })
 }
 
 const handleImageAnswerDelete = (imageAnswerId) => 
@@ -75,7 +80,10 @@ const handleImageAnswerDelete = (imageAnswerId) =>
     var exerciseKey = state.get('activeExercise');
     dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageanswerdelete', imageAnswerId], true));
     dispatch(deleteImageAnswer(imageAnswerId))
-      .then( () => { 
+      .then( (res) => { 
+        if('error' in res) {
+          UIkit.notify(res.error, {timeout: 10000, status: 'danger'});
+        }
           dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageanswerdelete', imageAnswerId], false));
           dispatch(fetchImageAnswers(exerciseKey));
       }

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-03-19 14:43+0100\n"
+"POT-Creation-Date: 2017-06-13 14:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,11 +34,11 @@ msgstr "Sidan är stängd för underhåll."
 msgid " account activation"
 msgstr " kontoaktivering"
 
-#: backend/views.py:56
+#: backend/views.py:57
 msgid "Password is now set, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
-#: backend/views.py:69 backend/views.py:82
+#: backend/views.py:70 backend/views.py:83
 msgid ""
 "Registration complete, check inbox for activation mail (possibly spam "
 "folder)."
@@ -46,142 +46,175 @@ msgstr ""
 "Registrering klar, ett aktiveringsmail kommer inom några minuter skickas "
 "till din mail (möjligen i spam mapp)."
 
-#: backend/views.py:131 backend/views.py:193 backend/views.py:205
+#: backend/views.py:133 backend/views.py:195 backend/views.py:207
 msgid "5 times per 30 seconds"
 msgstr "5 gånger per 30 sekunder"
 
-#: backend/views.py:150
+#: backend/views.py:152
 msgid "Activation successful, please login."
 msgstr "Aktivering lyckades, logga in nedan."
 
-#: backend/views.py:169
+#: backend/views.py:171
 msgid "User is already activated"
 msgstr "Användaren är redan aktiverad."
 
-#: backend/views.py:275
+#: backend/views.py:277
 msgid ""
 "Password reset link sent to your email (check your spam folder as well)."
 msgstr ""
 "En länk för lösenordsåterställning kommer inom några minuter skickas till "
 "din email (titta även bland spam)."
 
-#: backend/views.py:284
+#: backend/views.py:286
 msgid "times per minute."
 msgstr " gånger per minut."
 
-#: backend/views.py:297
+#: backend/views.py:299
 msgid "Password reset successful, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
-#: exercises/admin.py:250
+#: exercises/admin.py:253
 msgid "Number of samples larger than population, showing all users."
 msgstr ""
 
-#: exercises/admin.py:287
+#: exercises/admin.py:290
 msgid "Random control"
 msgstr "Slumpmässig kontroll"
 
-#: exercises/models.py:57
+#: exercises/models.py:68
 msgid "Added exercise "
 msgstr ""
 
-#: exercises/models.py:60
+#: exercises/models.py:71
 msgid "Updated exercise "
 msgstr ""
 
-#: exercises/models.py:87
-msgid "Started syncing exercises..."
+#: exercises/models.py:100
+msgid "Checking status of file tree..."
 msgstr ""
 
-#: exercises/models.py:99
+#: exercises/models.py:115
 msgid "Duplicate exercise keys!"
 msgstr ""
 
-#: exercises/models.py:100
+#: exercises/models.py:116
 msgid "Exercise at ["
 msgstr ""
 
-#: exercises/models.py:100
+#: exercises/models.py:116
 msgid "] has the same key as exercise at ["
 msgstr ""
 
-#: exercises/models.py:101
+#: exercises/models.py:117
 msgid ""
-"Neither was added. (Perhaps you copied an exercise? Then please remove the "
-"key file from the new exercise to generate a new one on reload)"
+"You will need to fix this before a reload is possible. (Perhaps you copied "
+"an exercise? Then please remove the key file from the new exercise to "
+"generate a new one on reload)"
 msgstr ""
 
-#: exercises/models.py:117
+#: exercises/models.py:136 exercises/models.py:138 exercises/models.py:149
+msgid "The exercise with path "
+msgstr ""
+
+#: exercises/models.py:136
+msgid " seems to have been moved to "
+msgstr ""
+
+#: exercises/models.py:138
+msgid " does no longer contain an exercise.xml file and will be deleted."
+msgstr ""
+
+#: exercises/models.py:149
+msgid ""
+" changed exercise key, this will result in a new exercise being added and "
+"the old one deleted."
+msgstr ""
+
+#: exercises/models.py:159
+msgid ""
+"Something will prevent a reload from being carried out, please review "
+"messages above."
+msgstr ""
+
+#: exercises/models.py:163
+msgid "Are you sure you want to do these actions?"
+msgstr ""
+
+#: exercises/models.py:167
+msgid ""
+"Do you want to do a reload? This will update all existing exercises and "
+"perform any additional actions listed above."
+msgstr ""
+
+#: exercises/models.py:183
 msgid "Deleted "
 msgstr ""
 
-#: exercises/models.py:117
+#: exercises/models.py:183
 msgid " since it is not present on disc anymore"
 msgstr ""
 
-#: exercises/models.py:123
+#: exercises/models.py:189
 msgid "Deleted an entry for "
 msgstr ""
 
-#: exercises/models.py:123
+#: exercises/models.py:189
 msgid ""
 " since the stored exercise key did not correspond to the exercisekey in the "
 "folder."
 msgstr ""
 
-#: exercises/models.py:126
+#: exercises/models.py:192
 msgid "Finished syncing exercises."
 msgstr ""
 
-#: exercises/question.py:41
+#: exercises/question.py:45
 msgid "Answer rate exceeded, please wait before trying again. (Rate: "
 msgstr "Svarsintervall överskridet, vänta innan du försöker igen. (Intervall: "
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:80
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:81
 msgid "Terms do not seem to have the same unit."
 msgstr "Termerna i uttrycket verkar inte ha samma enhet."
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:84
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:117
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:216
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:85
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:118
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:226
 msgid "Seems like the expression does not have the correct units."
 msgstr "Uttrycket verkar inte ha rätt enhet."
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:194
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:170
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:172
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:263
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:269
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:271
+msgid "Forbidden token: "
+msgstr "Otillåten funktion/variabel: "
+
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:204
 msgid "Failed to evaluate expression"
 msgstr "Kunde inte evaluera uttrycket"
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:196
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:306
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:206
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:339
 msgid " are not valid variables."
 msgstr " är inte tillåtna variabler."
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:199
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:328
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:209
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:275
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:364
 msgid "Failed to evaluate expression."
 msgstr "Kunde inte evaluera uttrycket"
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:202
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:332
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:212
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:284
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:368
 msgid "Unknown error, check your expression."
 msgstr "Okänt fel, kontrollera ditt uttryck."
 
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:219
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:238
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:347
+#: exercises/questiontypes/compare_numeric/compare_numeric.py:226
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:383
 msgid "Answer contains invalid character "
 msgstr "Uttrycket innehåller felaktiga tecken "
-
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:229
-#: exercises/questiontypes/linalgebra/linalgebra.py:542
-msgid "Expression could not be parsed."
-msgstr "Uttrycket kunde inte tolkas."
-
-#: exercises/questiontypes/compare_numeric/compare_numeric.py:259
-#: exercises/questiontypes/linalgebra/linalgebra.py:571
-#: exercises/questiontypes/safe_run.py:31
-msgid "Could not parse expression"
-msgstr "Uttrycket kunde inte tolkas."
 
 #: exercises/questiontypes/linalgebra/linalgebra.py:98
 msgid "Error subsituting  for variable"
@@ -196,6 +229,10 @@ msgstr ""
 msgid "Error in facit: "
 msgstr ""
 
+#: exercises/questiontypes/linalgebra/linalgebra.py:542
+msgid "Expression could not be parsed."
+msgstr "Uttrycket kunde inte tolkas."
+
 #: exercises/questiontypes/linalgebra/linalgebra.py:551
 msgid "E2-illegal character "
 msgstr ""
@@ -206,32 +243,51 @@ msgstr ""
 msgid "1-Answer contains invalid character "
 msgstr "Uttrycket innehåller felaktiga tecken "
 
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:243
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:245
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:247
-msgid "The answer does not have the correct dimensions."
-msgstr "Svaret har inte rätt dimensionalitet (skalär/vektor/matris)."
+#: exercises/questiontypes/linalgebra/linalgebra.py:571
+#: exercises/questiontypes/safe_run.py:32
+msgid "Could not parse expression"
+msgstr "Uttrycket kunde inte tolkas."
 
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:254
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:256
-msgid "Forbidden token: "
-msgstr "Otillåten funktion/variabel: "
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:258
+msgid "The answer does not have the correct dimensions."
+msgstr "Svaret har inte rätt dimensionalitet (skalär/vektor/matris)."
 
-#: exercises/questiontypes/multiple_choice/__init__.py:73
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:279
+msgid ""
+"There seems to be a vector or matrix operation with incompatible dimensions."
+msgstr ""
+
+#: exercises/questiontypes/multiple_choice/__init__.py:77
 msgid "There are more correct alternatives."
 msgstr "Det finns fler korrekta alternativ."
 
-#: exercises/views/api.py:197
+#: exercises/views/api.py:203
 msgid "Exercise not activated."
 msgstr "Uppgiften är inte aktiverad."
 
-#: exercises/views/api.py:200
+#: exercises/views/api.py:206
 msgid "You are limited to "
 msgstr "Max "
 
-#: exercises/views/api.py:200
+#: exercises/views/api.py:206
 msgid " tries per minute."
 msgstr " försök per minut."
+
+#: exercises/views/api.py:227
+msgid ""
+"File larger than 10mb, please try to reduce the size and upload again. (For "
+"images try to reduce the resolution and for pdf files it is most likely "
+"large embedded images)"
+msgstr ""
+"Fil större än 10mb, försök reducera storlek och testa igen. (För bilder kan "
+"du testa att minska upplösning, för pdf är det förmodligen stora bilder i "
+"dokumentet)"
+
+#: exercises/views/api.py:312
+msgid "You cannot delete after the deadline has passed."
+msgstr ""
 
 #: templates/activation_failed.html:10
 msgid "Activation failed."

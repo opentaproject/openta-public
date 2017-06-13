@@ -303,32 +303,37 @@ var throttleUploadProgress = _.throttle(uploadProgress, 300);
 function uploadImage(exerciseKey, file) {//{{{
   return dispatch => {
       //|| !file.type.match(/image.*/)
-      if (!file ) return;
-      var fd = new FormData();
-      fd.append('file', file);
-      var xhr = new XMLHttpRequest();
-      xhr.open("POST", SUBPATH + "/exercise/" + exerciseKey + "/imageupload");
-      xhr.setRequestHeader('X-CSRFToken', CSRF_TOKEN);
-      xhr.setRequestHeader('Accept', 'application/json');
-      if(xhr.upload)
-        xhr.upload.onprogress = (evt) => throttleUploadProgress(dispatch, evt, exerciseKey);
-      xhr.onload = () => {
-        dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageuploadpending'], false));
-        dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], 1.0));
-        dispatch(fetchExerciseRemoteState(exerciseKey));
-      }
-      xhr.send(fd);
-      dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageuploadpending'], true));
-    }
+      return new Promise((resolve, reject) => {
+          if (!file ) reject("No file");
+          var fd = new FormData();
+          fd.append('file', file);
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", SUBPATH + "/exercise/" + exerciseKey + "/imageupload");
+          xhr.setRequestHeader('X-CSRFToken', CSRF_TOKEN);
+          xhr.setRequestHeader('Accept', 'application/json');
+          if(xhr.upload)
+              xhr.upload.onprogress = (evt) => throttleUploadProgress(dispatch, evt, exerciseKey);
+          xhr.onload = () => {
+              dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageuploadpending'], false));
+              dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageupload'], 1.0));
+              dispatch(fetchExerciseRemoteState(exerciseKey));
+              resolve(JSON.parse(xhr.response));
+          };
+          xhr.onerror = () => resolve(JSON.parse(xhr.response));
+          xhr.send(fd);
+          dispatch(updatePendingStateIn(['exercises', exerciseKey, 'imageuploadpending'], true));
+      });
+  };
 } //}}}
 
 function deleteImageAnswer(imageAnswerId) {//{{{
   return dispatch => {
     var fetchconfig = {
       method: "POST"
-    }
-    return jsonfetch('/imageanswer/' + imageAnswerId + '/delete', fetchconfig)
-  }
+    };
+      return jsonfetch('/imageanswer/' + imageAnswerId + '/delete', fetchconfig)
+          .then(res => res.json());
+  };
 }//}}}
 
 function fetchImageAnswers(exerciseKey) {//{{{

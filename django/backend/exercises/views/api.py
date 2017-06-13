@@ -19,6 +19,7 @@ from exercises.modelhelpers import (
     exercise_test,
 )
 from exercises.views.file_handling import serve_file
+from exercises.time import before_deadline
 from django.utils.translation import ugettext as _
 from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -31,6 +32,7 @@ from django.db.models import Prefetch
 from ratelimit.decorators import ratelimit
 from django.views.decorators.cache import never_cache
 from PIL import Image
+import datetime
 import PyPDF2
 import logging
 import backend.settings as settings
@@ -267,7 +269,14 @@ def upload_answer_image(request, exercise):
     # print(request.FILES['file'])
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     if request.FILES['file'].size > 10e6:
-        return Response("Image larger than 10mb", status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {
+                'error': _(
+                    "File larger than 10mb, please try to reduce the size and upload again. (For images try to reduce the resolution and for pdf files it is most likely large embedded images)"
+                )
+            },
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
 
     try:
         trial_image = Image.open(request.FILES['file'])
@@ -384,5 +393,11 @@ def image_answer_delete(request, pk):
         )
     if not request.user == image_answer.user and not request.user.is_staff:
         return Response({'deleted': 0, 'error': 'Permission denied'})
+    if not before_deadline(image_answer.date, image_answer.exercise.meta.deadline_date):
+        if now() > image_answer.date + datetime.timedelta(minutes=10):
+            return Response(
+                {'deleted': 0, 'error': _('You cannot delete after the deadline has passed.')}
+            )
+
     deleted, deltype = image_answer.delete()
     return Response({'deleted': deleted})
