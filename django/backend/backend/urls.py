@@ -53,12 +53,14 @@ internalurlpatterns = [
     ),
     url(r'^batch_add_users$', backendviews.BatchAddUserView.as_view()),
     url(r'^$', backendviews.main),
+    url(r'^', include('workqueue.urls')),
 ]
 
 urlpatterns = [
     url(r'^' + SUBPATH, include(internalurlpatterns)),
     url(r'^hijack/', include('hijack.urls')),
 ]
+
 
 admin.site.site_header = 'OpenTA Admin'
 

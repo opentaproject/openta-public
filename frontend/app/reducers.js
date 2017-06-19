@@ -131,6 +131,8 @@ export default (state = defaultState, action) => {
       return state.setIn(['results', 'detailResults', action.user], immutable.fromJS(action.results));
     case 'SET_SELECTED_STUDENT_RESULTS':
       return state.setIn(['results', 'selectedUser'], action.user);
+    case 'UPDATE_CUSTOM_RESULTS':
+        return state.mergeIn(['results', 'customResults'], immutable.fromJS(action.data));
     case 'SET_DETAIL_RESULT_EXERCISE':
       return state.setIn(['results', 'detailResultExercise'], action.exercise);
     case 'SET_DETAIL_RESULTS_VIEW':

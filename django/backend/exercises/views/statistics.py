@@ -13,11 +13,16 @@ from exercises.aggregation import (
     student_statistics_exercises,
     students_results,
     create_xlsx_from_results_list,
+    calculate_students_results_subset,
+    excel_custom_results_pipeline,
 )
 from course.models import Course
+from workqueue.models import QueueTask
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
 from django.views.decorators.cache import cache_page
+import django_rq
+from io import StringIO
 from .results import get_user_results
 from datetime import datetime
 import numpy
@@ -52,6 +57,45 @@ def get_results_excel(request):
     )
     response['Content-Disposition'] = 'attachment; filename=results.xlsx'
     return response
+
+
+@permission_required('exercises.view_statistics')
+@api_view(['GET'])
+def get_custom_result_excel(request):
+    exercises = request.query_params.get('exercises').split(',')
+    print(exercises)
+    dbexercises = Exercise.objects.filter(pk__in=exercises)
+    results = calculate_students_results_subset(dbexercises)
+    xlsx_data = create_xlsx_from_results_list(results)
+    response = HttpResponse(
+        xlsx_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = 'attachment; filename=results.xlsx'
+    return response
+
+
+@permission_required('exercises.view_statistics')
+@api_view(['GET', 'POST'])
+def enqueue_custom_result_excel(request):
+    if request.method == 'GET':
+        exercises = request.query_params.get('exercises').split(',')
+        dbexercises = Exercise.objects.filter(pk__in=exercises)
+        task = QueueTask.objects.create(name="Custom results", owner=request.user)
+        result = django_rq.enqueue(excel_custom_results_pipeline, dbexercises, task)
+        return Response({'task_id': task.pk})
+    if request.method == 'POST':
+        exercises = request.data.get('exercises')
+        dbexercises = Exercise.objects.filter(pk__in=exercises)
+        task = QueueTask.objects.create(name="Custom results", owner=request.user)
+        result = django_rq.enqueue(excel_custom_results_pipeline, dbexercises, task)
+        return Response({'task_id': task.pk})
+
+
+@permission_required('exercises.view_statistics')
+@api_view(['GET'])
+def progress_custom_result_excel(request, task):
+    dbtask = QueueTask.objects.get(pk=task)
+    return Response({'status': dbtask.status, 'progress': dbtask.progress, 'done': dbtask.done})
 
 
 @permission_required('exercises.view_statistics')

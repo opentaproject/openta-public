@@ -57,6 +57,8 @@ urlpatterns = [
     url(r'^statistics/allstudentattempts', views.get_student_attempts_per_exercise),
     url(r'^statistics/statsperexercise', views.get_statistics_per_exercise),
     url(r'^statistics/results$', views.get_results),
+    url(r'^statistics/customresult$', views.enqueue_custom_result_excel),
+    url(r'^statistics/customresult/(?P<task>[0-9]+)$', views.progress_custom_result_excel),
     url(r'^statistics/results/excel$', views.get_results_excel),
     url(r'^statistics/exercise/(?P<exercise>[\w\.-]+)/activity', views.get_activity_exercise),
     url(r'^audit/unsent/$', views.get_current_unsent_audits),

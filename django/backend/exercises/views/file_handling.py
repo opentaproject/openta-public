@@ -8,9 +8,13 @@ def serve_file(path, filename, **kwargs):  # {{{
 
     if settings.RUNNING_DEVSERVER:
         if content_type:
-            return FileResponse(open(dev_path, 'rb'), content_type)
+            response = FileResponse(open(dev_path, 'rb'), content_type)
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            return response
         else:
-            return FileResponse(open(dev_path, 'rb'))
+            response = FileResponse(open(dev_path, 'rb'))
+            response['Content-Disposition'] = 'attachment; filename="{}"'.format(filename)
+            return response
     else:
         response = HttpResponse()
         response["Content-Type"] = content_type if content_type else ""

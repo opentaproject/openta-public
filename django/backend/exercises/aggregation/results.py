@@ -239,7 +239,7 @@ def calculate_user_results(userpk):
     }
 
 
-def calculate_students_results_subset(exercise_query):
+def calculate_students_results_subset(exercise_query, task=None):
     required = exercise_query.filter(meta__required=True).select_related('meta')
     bonus = exercise_query.filter(meta__bonus=True).select_related('meta')
     students = (
@@ -248,7 +248,12 @@ def calculate_students_results_subset(exercise_query):
         .order_by('first_name')
     )
     results = []
-    for student in students:
+    n_students = students.count()
+    for index, student in enumerate(students):
+        if task is not None:
+            task.status = "Working"
+            task.progress = round(((index + 1) / n_students) * 100)
+            task.save()
         passed_required = get_passed_exercises_with_image_data(
             required, student, deadline=False, image_deadline=False
         )
@@ -275,6 +280,10 @@ def calculate_students_results_subset(exercise_query):
         failed_by_audits = exercise_query.filter(
             audits__student=student, audits__published=True, audits__revision_needed=True
         )
+        passed_audits = exercise_query.filter(
+            audits__student=student, audits__published=True, audits__revision_needed=False
+        )
+        all_audits = exercise_query.filter(audits__student=student, audits__published=True)
         passed_manually = exercise_query.filter(audits__student=student, audits__force_passed=True)
         results.append(
             {
@@ -293,6 +302,8 @@ def calculate_students_results_subset(exercise_query):
                     'n_image_deadline': len(passed_bonus_d_id),
                 },
                 'failed_by_audits': failed_by_audits.count(),
+                'passed_audits': passed_audits.count(),
+                'total_audits': all_audits.count(),
                 'manually_passed': passed_manually.count(),
                 'optional': len(optional),
                 'total': len(total),

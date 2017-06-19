@@ -487,3 +487,4 @@ export {
 export * from './fetchers/audit.js'
 export * from './fetchers/exercise.js'
 export * from './fetchers/assets.js'
+export * from './fetchers/results.js'

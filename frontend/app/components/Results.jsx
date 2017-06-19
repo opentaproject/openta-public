@@ -13,6 +13,7 @@ import Badge from './Badge.jsx';
 import Plot from './Plot.jsx';
 import Table from './Table.jsx';
 import StudentResults from './StudentResults.jsx';
+import CustomResult from './CustomResult.jsx';
 
 import immutable from 'immutable';
 import moment from 'moment';
@@ -271,7 +272,10 @@ const BaseResults = ({menuPath,
         <h1><a href={SUBPATH + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a></h1> 
       </div>
       }
-      { !activeDetailExercise && !menuPositionUnder(menuPath, ['results', 'download']) && renderFilter({filteredUsers: renderResults, onFilterChange, onFilterKeypress, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
+      { !activeDetailExercise &&
+        !menuPositionUnder(menuPath, ['results', 'download']) &&
+        !menuPositionUnder(menuPath, ['results', 'custom']) &&
+        renderFilter({filteredUsers: renderResults, onFilterChange, onFilterKeypress, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
       <div className="results-table "> {/*uk-width-4-10 uk-overflow-container*/}
         <div className="uk-container-center">
         { menuPositionUnder(menuPath, ['results', 'histogram']) && !pendingResults && 
@@ -300,6 +304,9 @@ const BaseResults = ({menuPath,
         <div className="uk-margin-left">
         <StudentResults/> 
         </div>
+        }
+        { menuPositionUnder(menuPath, ['results', 'custom']) &&
+          <div className="uk-width-medium-4-5 uk-margin-small-left"><CustomResult/></div>
         }
     </div>
     </div>

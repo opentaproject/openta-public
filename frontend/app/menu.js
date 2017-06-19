@@ -92,7 +92,11 @@ var menuTree = immutable.fromJS({
         download: {
           name: 'Download',
           key: 'download',
-        }
+        },
+          custom: {
+              name: 'Custom',
+              key: 'custom',
+          }
       }
     },
     activeExercise: {
