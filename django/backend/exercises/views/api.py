@@ -11,7 +11,12 @@ from exercises.serializers import (
     AuditExerciseSerializer,
 )
 from exercises import parsing
-from exercises.question import question_check, question_json_hook
+from exercises.question import (
+    question_check,
+    question_json_hook,
+    get_sensitive_attrs,
+    get_sensitive_tags,
+)
 from exercises.modelhelpers import (
     serialize_exercise_with_question_data,
     exercise_folder_structure,
@@ -199,13 +204,24 @@ def exercise_json(request, exercise):  # {{{
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
         hide_answers = not request.user.has_perm("exercises.view_solution")
-        exercisejson = parsing.exercise_json(dbexercise.path, hide_answers=hide_answers)
-        if 'question' in exercisejson['exercise']:
-            exercisejson['exercise']['question'] = [
-                question_json_hook(question, request.user)
-                for question in exercisejson['exercise']['question']
+        full_exercisejson = parsing.exercise_json(dbexercise.path, hide_answers=False)
+        hide_tags = get_sensitive_tags()
+        hide_attrs = get_sensitive_attrs()
+        safe_exercisejson = parsing.exercise_json(
+            dbexercise.path,
+            hide_answers=hide_answers,
+            sensitive_attrs=hide_attrs,
+            sensitive_tags=hide_tags,
+        )
+        if 'question' in safe_exercisejson['exercise']:
+            safe_and_full = zip(
+                safe_exercisejson['exercise']['question'], full_exercisejson['exercise']['question']
+            )
+            safe_exercisejson['exercise']['question'] = [
+                question_json_hook(safe_question, full_question, request.user)
+                for safe_question, full_question in safe_and_full
             ]
-        return Response(exercisejson)
+        return Response(safe_exercisejson)
     except parsing.ExerciseParseError as e:
         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}
 

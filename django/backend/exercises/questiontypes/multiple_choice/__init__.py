@@ -8,7 +8,6 @@ from exercises.question import (
 from exercises.question import QuestionError
 
 # Below are imports that are specific to this question type
-from lxml import etree
 from django.utils.translation import ugettext as _
 import json
 import logging
@@ -80,4 +79,4 @@ def question_check_multiple_choice(question_json, question_xmltree, answer_data,
 
 
 # This function call registers the question type with the system
-register_question_type('multipleChoice', question_check_multiple_choice)
+register_question_type('multipleChoice', question_check_multiple_choice, hide_attrs=['correct'])

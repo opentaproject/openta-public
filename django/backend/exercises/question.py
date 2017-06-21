@@ -12,6 +12,8 @@ logger = logging.getLogger(__name__)
 
 question_check_dispatch = {}
 question_json_hooks = {}
+sensitive_tags = {}
+sensitive_attrs = {}
 
 
 class QuestionError(Exception):
@@ -22,9 +24,17 @@ class QuestionError(Exception):
         return repr(self.value)
 
 
-def register_question_type(question_type, grading_function, json_hook=lambda q, user: q):
+def register_question_type(
+    question_type,
+    grading_function,
+    json_hook=lambda safe_json, full_json, user: safe_json,
+    hide_tags=[],
+    hide_attrs=[],
+):
     question_check_dispatch[question_type] = grading_function
     question_json_hooks[question_type] = json_hook
+    sensitive_tags[question_type] = hide_tags
+    sensitive_attrs[question_type] = hide_attrs
 
 
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
@@ -38,7 +48,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         }
     question_json = question_json_get(dbexercise.path, question_key)
     if dbquestion.type in question_json_hooks:
-        question_json = question_json_hooks[dbquestion.type](question_json, user)
+        question_json = question_json_hooks[dbquestion.type](question_json, question_json, user)
     xmltree = exercise_xmltree(dbexercise.path)
     question_xmltree = question_xmltree_get(xmltree, question_key)
     global_xmltree = (
@@ -91,8 +101,16 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         return {'error': 'No grading function for question type ' + dbquestion.type}
 
 
-def question_json_hook(question, user):
-    type = deep_get(question, '@attr', 'type')
+def question_json_hook(safe_question, full_question, user):
+    type = deep_get(safe_question, '@attr', 'type')
     if type is not None and type in question_json_hooks:
-        return question_json_hooks[type](question, user)
+        return question_json_hooks[type](safe_question, full_question, user)
     return question
+
+
+def get_sensitive_tags():
+    return sensitive_tags
+
+
+def get_sensitive_attrs():
+    return sensitive_attrs

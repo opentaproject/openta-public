@@ -132,10 +132,17 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     return result
 
 
-def linear_algebra_json_hook(question, user):
-    question['username'] = user.username
-    return question
+def linear_algebra_json_hook(safe_question, full_question, user):
+    safe_question['username'] = user.username
+    # Remove correct answer if user is a student
+
+    return safe_question
 
 
 # This function call registers the question type with the system
-register_question_type('linearAlgebra', question_check_linear_algebra, linear_algebra_json_hook)
+register_question_type(
+    'linearAlgebra',
+    question_check_linear_algebra,
+    linear_algebra_json_hook,
+    hide_tags=['expression'],
+)

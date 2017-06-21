@@ -71,24 +71,45 @@ def exercise_key_get_or_create(path):
 
 
 # @lru_cache(maxsize=128)
-def exercise_json(path, hide_answers=False):  # {{{
+def exercise_json(path, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):  # {{{
     xmlfile = open(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
-    return exercise_xml_to_json(xml, hide_answers)
+    return exercise_xml_to_json(xml, hide_answers, sensitive_tags, sensitive_attrs)
 
 
-def exercise_xml_to_json(xml, hide_answers=False):
+def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):
+    """
+    Converts exercise xml to json using the custom xmljson module. Enforces list structure of question and global tags.
+
+    Args:
+        xml: xml data (string)
+        hide_answers: Removes sensitive tags/attributes (i.e. if student)
+        sensitive_tags: { question_type: [tag1, tag2, ...], ... }
+        sensitive_attrs: { question_type: [attr1, attr2, ...], ... }
+        without_layout: Discard layout information (normally the children of each node is added in layout order in __children__ for convenience, this is a possible source for stray sensitive tags/attributes)
+
+    Returns:
+        Dictionary corresponding to the JSON representation.
+    """
     obj = {}
     try:
         root = fromstring(xml)
         if hide_answers:
-            questions = root.findall('./question/expression/..')
-            for question in questions:
-                expression = question.find('expression')
-                question.remove(expression)
-            correct = root.findall('.//question/*[@correct]')
-            for node in correct:
-                node.attrib.pop('correct', None)
+            for question_type, tags in sensitive_tags.items():
+                questions = root.findall('./question[@type="{type}"]'.format(type=question_type))
+                for question in questions:
+                    for tag in tags:
+                        node = question.find(tag)
+                        question.remove(node)
+            for question_type, attrs in sensitive_attrs.items():
+                for attr in attrs:
+                    nodes = root.findall(
+                        './/question[@type="{type}"]/*[@{attr}]'.format(
+                            type=question_type, attr=attr
+                        )
+                    )
+                    for node in nodes:
+                        node.attrib.pop(attr, None)
         obj = bf.data(root)
     except ParseError as e:
         raise ExerciseParseError(e)
