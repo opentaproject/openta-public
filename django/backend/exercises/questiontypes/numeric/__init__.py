@@ -12,6 +12,7 @@ import functools
 import operator
 import re
 from exercises.util import compose
+import json
 from lxml import etree
 import logging
 from .numeric import (
@@ -96,18 +97,18 @@ def question_check_numeric(question_json, question_xmltree, answer_data, global_
     '''
     precision = question_json.get('@attr').get('precision', '0')
     questiontext = question_xmltree.find('expression', None)
-    print("questiontext = ", questiontext.text)
-    print("precision = ", precision)
-    print("answerdata = ", answer_data)
+    # print("questiontext = ", questiontext.text)
+    # print("precision = ", precision)
+    # print("answerdata = ", answer_data)
     caretless = re.sub(r"\^", ' ', questiontext.text)
-    print("caretless = ", caretless)
+    # print("caretless = ", caretless )
     lis = re.findall(r'([A-z]+\w*)', caretless)
-    print("lis = ", lis)
+    # print("lis = ", lis )
     used_variable_list = []
     [
         used_variable_list.append(item) for item in lis if item not in used_variable_list
     ]  # SELECT UNIQUE ITEMS
-    print("used_variable_list = ", used_variable_list)
+    # print("used_variable_list = ", used_variable_list )
     variables = []
     variables += parse_xml_variables(question_xmltree)
     # NOTE THAT GLOBAL XMLTREE IS NOT PARSED IN THIS TYPE
@@ -127,10 +128,10 @@ def question_check_numeric(question_json, question_xmltree, answer_data, global_
     # if global_xmltree is not None:
     #   blacklist.update(parse_blacklist(global_xmltree))
     # blacklist.update(parse_blacklist(question_xmltree))
-    print("variables = ", variables)
-    print("used_variable_list = ", used_variable_list)
+    # print("variables = ", variables)
+    # print("used_variable_list = ", used_variable_list)
     used_variables = [v for v in variables if v['name'] in used_variable_list]
-    print("used_variables = ", used_variables)
+    # print("used_variables = ", used_variables )
     result = {}
     result = numeric(used_variables, answer_data, correct_answer, precision)
     if 'correct' in result:
@@ -143,5 +144,30 @@ def question_check_numeric(question_json, question_xmltree, answer_data, global_
     return result
 
 
+def numeric_json_hook(question, user):
+    # print("NUMERIC_INIT.PY: question", json.dumps( question ,  sort_keys=True, indent=4))
+    print("NUMERIC_INIT.PY ")
+    try:
+        # print("NUMERIC_INIT.PY: question.children", question.get('$children$',"NO children") )
+        # print("NUMERIC_INIT.PY: question.expression", question.get('expression').get('$',"NO EXPRESSION") )
+        correct_answer = question.get('expression').get('$', 'NO TEXT IN EXPRESSION').split(';')[0]
+        caretless = re.sub(r"\^", ' ', correct_answer)
+        # print("Ncaretless = ", caretless )
+        lis = re.findall(r'([A-z]+\w*)', caretless)
+        # print("Nlis = ", lis )
+        used_variable_list = []
+        [
+            used_variable_list.append(item) for item in lis if item not in used_variable_list
+        ]  # SELECT UNIQUE ITEMS
+        print("Nused_variable_list = ", used_variable_list)
+        print("NNUMERIC_INIT.PY CORRECTANSWER = ", correct_answer)
+        question['username'] = user.username
+        question['usedvariablelist'] = used_variable_list
+    except:
+        print("ERROR IN JSON HOOK")
+    # print("RETURN FROM HOOK, question = ",  json.dumps( question ,  sort_keys=True, indent=4))
+    return question
+
+
 # This function call registers the question type with the system
-register_question_type('Numeric', question_check_numeric)
+register_question_type('Numeric', question_check_numeric, numeric_json_hook)

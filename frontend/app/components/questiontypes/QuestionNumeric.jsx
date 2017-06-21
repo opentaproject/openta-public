@@ -357,22 +357,23 @@ export default class QuestionNumeric extends Component {
     // var varsListGlobal = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
     var  varsListGlobal = ['meter','kg','second'];
     var  varsListGlobal = [];
-    var varsListLocal = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
+    var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
+    var  varsListLocal = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
     this.varsList = varsListGlobal.concat(varsListLocal);
-    var correctanswer = this.parseVariableString(this.props.questionData.getIn(['expression','$'], '')).toString(); 
-    console.log("QUESTION_NUMERIC - varsList ", this.varsList )
-    correctanswer = correctanswer.replace(/\^/g,' ' )
-    console.log("QUESTION_NUMERIC - correctanserstring ", correctanswer )
-    var found = correctanswer.match( /([A-z]+[A-z0-9_]*)/gi )
-    console.log("QUESTION_NUMERIC - found ", found)
+    //var correctanswer = this.parseVariableString(this.props.questionData.getIn(['expression','$'], '')).toString(); 
+    //console.log("QUESTION_NUMERIC - varsList ", this.varsList )
+    // correctanswer = correctanswer.replace(/\^/g,' ' )
+   //  console.log("QUESTION_NUMERIC - correctanserstring ", correctanswer )
+    // var found = correctanswer.match( /([A-z]+[A-z0-9_]*)/gi )
+    // console.log("QUESTION_NUMERIC - found ", found)
     // var usedVars = this.arrayUnique( found )
-    var usedVars = found
-    console.log("QUESTION_NUMERIC - usedVars ", usedVars)
+    // var usedVars = found
+    // console.log("QUESTION_NUMERIC - usedVars ", usedVars)
     // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
     var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
     var localVars = enforceList(this.props.questionData.get('var', List([])));
     var allVars = localVars.concat(varPropsList);
-    this.varsList = usedVars
+    this.varsList = varsListUsed;
     for(let v of allVars) {
       if(v.hasIn('token','$')) {
         var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 
@@ -404,6 +405,9 @@ export default class QuestionNumeric extends Component {
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
   var pending = this.props.questionPending;
+  //console.log('question = ', question )
+  console.log('questionstate = ', question.get('username') ) 
+  console.log('usedvariablelist = ', question.get('usedvariablelist',List([])).toJS() );
   
   /* Both the questionData and questionState are of type Map from immutable.js. They are nested dictionaries that are accessed via the get and getIn functions. For example question.get('text') retrieves <question> <text> * </text> </question>. Deeper structures can be accessed with getIn, for example question.getIn(['tag1', 'tag2']) would retrieve <question> <tag1> <tag2> * </tag2> </tag1> </question>. */
 
@@ -426,7 +430,7 @@ var precision = state.getIn(['response','precision'], 'none'); // Custom field c
 
   var mathjsEvalVars = {}
   var availableVariables = [];
-  console.log("this.varsList = ", this.varsList )
+  //console.log("this.varsList = ", this.varsList )
       if(this.varsList) {
           this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
           availableVariables.push( (<span key="s">(i termer av </span>) );

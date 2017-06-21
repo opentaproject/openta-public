@@ -5,7 +5,7 @@
    <text>
     <right><figure>figure.jpg</figure></right>
      <p>
-     <em> Natrium </em> har täthet $\rho=0.98\cdot10^3 kg/m^3$, en atommassa på M=23 u (atommassenhet $u=1.66\cdot 10^{-27}$kg) . Elektronens massa är $m_e=9.11\cdot 10^{-31}$kg.
+     <em> Natrium </em> har     täthet $\rho=0.98\cdot10^3 kg/m^3$, en atommassa på M=23 u (atommassenhet $u=1.66\cdot 10^{-27}$kg) . Elektronens massa är $m_e=9.11\cdot 10^{-31}$kg.
      </p>
     <p> 
      1) Beräkna tätheten $n$ av ledningselektroner  i antal/$m^3$. (Elektrontäthet brukar uttryckas i m$^{-3}$ eller cm$^{-3}$. Men det är ofta enklare att använda Å$^{-3}$ för att undvika stora potenser.)   
