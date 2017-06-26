@@ -6,6 +6,7 @@ from exercises.question import (
     register_question_type,
 )  # This function is used to register the question type
 from exercises.question import QuestionError
+from exercises.question import get_number_of_attempts, get_previous_answers
 
 # Below are imports that are specific to this question type
 import hashlib
@@ -132,10 +133,9 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     return result
 
 
-def linear_algebra_json_hook(safe_question, full_question, user_data):
-    safe_question['n_attempts'] = user_data['n_attempts']
-    safe_question['last_attempts'] = user_data['last_attempts']
-    safe_question['student'] = user_data['user']
+def linear_algebra_json_hook(safe_question, full_question, question_id, user_id):
+    safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)
+    safe_question['last_attempts'] = get_previous_answers(question_id, user_id, 5)
     return safe_question
 
 

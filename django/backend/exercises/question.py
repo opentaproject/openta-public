@@ -25,36 +25,39 @@ class QuestionError(Exception):
         return repr(self.value)
 
 
-def compile_user_data(user, question):
+def get_number_of_attempts(question_id, user_id):
     """
-    User data together with last attempts at the question.
-
+    Number of attempts by user at question.
     Args:
-        user: Django user object
-        question: Question (model) instance
-
+        question_id: question primary key
+        user_id: user primary key
     Returns:
-        {
-    'user': User data (see UserSerializer for format)
-    'last_attempts': List of last attempts (see AnswerSerializer for format)
-    }
+        Number of attempts (int)
     """
-    attempts = []
-    if question is not None:
-        answers = Answer.objects.filter(user=user, question=question)
-        last_answers = answers.order_by('-date')[:10]
-        sanswers = AnswerSerializer(last_answers, many=True)
-        attempts = sanswers.data
-    suser = UserSerializer(user)
+    answers = Answer.objects.filter(user__pk=user_id, question__pk=question_id)
+    return answers.count()
 
-    student_data = {'user': suser.data, 'n_attempts': answers.count(), 'last_attempts': attempts}
-    return student_data
+
+def get_previous_answers(question_id, user_id, n_answers=10):
+    """
+    Previous attempts (time ordered with most recent first) at the question by user.
+    Args:
+        question_id: question primary key
+        user_id: user primary key
+        n_answers: number of attempts to include (default: 10)
+    Returns:
+        List of serialized answers (see AnswerSerializer for fields)
+    """
+    answers = Answer.objects.filter(user__pk=user_id, question__pk=question_id)
+    last_answers = answers.order_by('-date')[:n_answers]
+    sanswers = AnswerSerializer(last_answers, many=True)
+    return sanswers.data
 
 
 def register_question_type(
     question_type,
     grading_function,
-    json_hook=lambda safe_json, full_json, user: safe_json,
+    json_hook=lambda safe_json, full_json, q_id, u_id: safe_json,
     hide_tags=[],
     hide_attrs=[],
 ):
@@ -75,9 +78,8 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         }
     question_json = question_json_get(dbexercise.path, question_key)
     if dbquestion.type in question_json_hooks:
-        user_data = compile_user_data(user, dbquestion)
         question_json = question_json_hooks[dbquestion.type](
-            question_json, question_json, user_data
+            question_json, question_json, dbquestion.pk, user.pk
         )
     xmltree = exercise_xmltree(dbexercise.path)
     question_xmltree = question_xmltree_get(xmltree, question_key)
@@ -131,10 +133,10 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         return {'error': 'No grading function for question type ' + dbquestion.type}
 
 
-def question_json_hook(safe_question, full_question, student_data):
+def question_json_hook(safe_question, full_question, question_id, user_id):
     type = deep_get(safe_question, '@attr', 'type')
     if type is not None and type in question_json_hooks:
-        return question_json_hooks[type](safe_question, full_question, student_data)
+        return question_json_hooks[type](safe_question, full_question, question_id, user_id)
     return question
 
 

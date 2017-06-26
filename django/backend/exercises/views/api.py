@@ -219,9 +219,8 @@ def exercise_json(request, exercise):  # {{{
                 dbquestion = Question.objects.filter(
                     exercise=dbexercise, question_key=question_key
                 ).first()
-                student_data = question_module.compile_user_data(request.user, dbquestion)
                 modified_question = question_module.question_json_hook(
-                    safe_question, full_question, student_data
+                    safe_question, full_question, dbquestion.pk, request.user.pk
                 )
                 safe_exercisejson['exercise']['question'].append(modified_question)
         return Response(safe_exercisejson)
