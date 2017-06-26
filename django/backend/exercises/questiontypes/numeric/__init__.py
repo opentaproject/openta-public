@@ -6,6 +6,7 @@ from exercises.question import (
     register_question_type,
 )  # This function is used to register the question type
 from exercises.question import QuestionError
+from exercises.models import Exercise, Question, Answer
 
 # Below are imports that are specific to this question type
 import functools
@@ -18,6 +19,7 @@ import logging
 from .numeric import (
     numeric,
     to_latex,
+    getprecision,
 )  # The sympy interface is placed in a separate file "numeric.py" in this folder
 
 logger = logging.getLogger(__name__)
@@ -144,30 +146,53 @@ def question_check_numeric(question_json, question_xmltree, answer_data, global_
     return result
 
 
-def numeric_json_hook(question, user):
-    # print("NUMERIC_INIT.PY: question", json.dumps( question ,  sort_keys=True, indent=4))
-    print("NUMERIC_INIT.PY ")
+def numeric_json_hook(safe_question, full_question, question_id, user_id):
+    # print("NUMERIC_INIT.PY: question", json.dumps( full_question,  sort_keys=True, indent=4))
+    question_key = full_question.get('@attr').get('key', 0)
+    # print("NUMERIC_INIT.PY question_key =  ", question_key )
+    # print("NUMERIC_INIT.PY exercise_key =  ", exercise_key )
+    # print("NUMERIC_INIT.PY:  Answer Objects : number incorrect=",    len( Answer.objects.filter(user=user,question_key=question_key,exercise_key=exercise_key,correct=False)))
     try:
         # print("NUMERIC_INIT.PY: question.children", question.get('$children$',"NO children") )
         # print("NUMERIC_INIT.PY: question.expression", question.get('expression').get('$',"NO EXPRESSION") )
-        correct_answer = question.get('expression').get('$', 'NO TEXT IN EXPRESSION').split(';')[0]
+        correct_answer = (
+            full_question.get('expression').get('$', 'NO TEXT IN EXPRESSION').split(';')[0]
+        )
         caretless = re.sub(r"\^", ' ', correct_answer)
         # print("Ncaretless = ", caretless )
-        lis = re.findall(r'([A-z]+\w*)', caretless)
+        lis = re.findall(r'([A-Z,a-z]+\w*)', caretless)
         # print("Nlis = ", lis )
         used_variable_list = []
         [
             used_variable_list.append(item) for item in lis if item not in used_variable_list
         ]  # SELECT UNIQUE ITEMS
-        print("Nused_variable_list = ", used_variable_list)
-        print("NNUMERIC_INIT.PY CORRECTANSWER = ", correct_answer)
-        question['username'] = user.username
-        question['usedvariablelist'] = used_variable_list
+        # print("Nused_variable_list = ", used_variable_list )
+        # print("NNUMERIC_INIT.PY CORRECTANSWER = ",  correct_answer )
+        safe_question['username'] = user_id
+        safe_question['usedvariablelist'] = used_variable_list
+        precision = full_question.get('@attr').get('precision', 0)
+        precision = float(precision)
+        if precision == 0:
+            precision = getprecision(correct_answer)
+            # if prec[0] == 0:
+            #    precision =  0
+            # else:
+            #    precision = 'numeriskt &plusmn; '+ str( 100 * prec[0] )+'%'
+        # print("NUMERIC_JSON_HOOK: prec = ", precision )
+        if precision == 0:
+            precisiontext = "EXAKT"
+        else:
+            precisiontext = '\u00B1 ' + str(100 * precision) + '%'
+        safe_question['precision'] = precisiontext
     except:
         print("ERROR IN JSON HOOK")
     # print("RETURN FROM HOOK, question = ",  json.dumps( question ,  sort_keys=True, indent=4))
-    return question
+    return safe_question
+
+
+register_question_type(
+    'Numeric', question_check_numeric, numeric_json_hook, hide_tags=['expression']
+)
 
 
 # This function call registers the question type with the system
-register_question_type('Numeric', question_check_numeric, numeric_json_hook)

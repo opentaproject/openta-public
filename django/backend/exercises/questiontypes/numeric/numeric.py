@@ -91,11 +91,11 @@ def check_units(expression, correct, variables):
     """
     # all_units = {bar:foo for bar,foo in u.__dict__.items() if isinstance(foo, type(u.m))}
     # print("allunits = ", all_units)
-    print("CHECK UNITS")
+    # print("CHECK UNITS" )
     evaluated = sympy.simplify(expression.subs(variables))
-    print("evaluated ", evaluated)
+    # print("evaluated ", evaluated)
     evaluatedn = sympy.simplify(expression.subs(variables))
-    print("evaluatedn ", evaluatedn)
+    # print("evaluatedn ", evaluatedn)
     # evaluatedp = convert_to( sympy.simplify(expression.subs(variables)), [kg,m,s] )
     # print("evaluatedp ", evaluatedp)
     if len(evaluated.as_terms()[0]) > 1:
@@ -105,7 +105,7 @@ def check_units(expression, correct, variables):
     # print("u.__dict__")
     # print(u.__dict__)
     # print("u.__dict__",u.__dict__.items())
-    print("quotient", quotient)
+    # print("quotient", quotient )
     # print("quotient", quotient.subs(u.__dict__) )
     if len(list(quotient.free_symbols)) > 0:
         raise NumericUnitError(_("Seems like the expression does not have the correct units."))
@@ -123,6 +123,27 @@ def evaluate(variables, expression):
     return json.dumps(response)
 
 
+def getprecision(e2):
+    expression2 = re.sub(
+        r"([0-9])\.([^0-9])", r"\1.0 \2", e2
+    )  # strip trailing decimal to force integer
+    intpart2 = re.search(r"([0-9]*\.[0-9]*)", expression2)
+    floatpart = float(1)
+    if intpart2 != None:
+        floatpart = float(intpart2.group(0))
+        # print("GETPRECISION: intpart2", intpart2.group(0) )
+        # print("GETPRECISION: floatpart", floatpart )
+        digits = re.sub(r"\.", '', intpart2.group(0))
+        # print("GETPRECISION digits", digits )
+        precision = 2.0 / float(digits)
+        precision = round(precision, -int(floor(log10(abs(precision)))))
+    else:
+        precision = 0
+        # print("GETPRECISION: old precision = ", precision )
+    # print("GETPRECISION: new precision = ", precision )
+    return precision
+
+
 def numeric_internal(variables, e1, e2, precision):  # {{{
     # Do some initial formatting
     expression1 = re.sub(
@@ -133,23 +154,23 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
     )  # strip trailing decimal to force integer
     number_of_points = 10
     response = {}
-    print("variables = ", variables)
-    print("INTERNAL: precision = ", precision)
+    # print("variables = ", variables )
+    # print("INTERNAL: precision = ", precision )
     try:
         sexpression1 = asciiToSympy(expression1)
-        print("sexpression1 = ", sexpression1)
+        # print("sexpression1 = ", sexpression1 )
         sexpression2 = asciiToSympy(expression2)
-        print("sexpression2 = ", sexpression2)
+        # print("sexpression2 = ", sexpression2 )
         # Parse variables into substitution dictionary
         varsubs = parse_variables(variables)
         nvars = {}
         for var, value in varsubs.items():
-            print("var = ", var)
-            print("value = ", value)
+            # print("var = ", var )
+            # print("value = ", value )
             nvars[var] = value
         neighbours = []
         random.seed(1)
-        print("nvars=", nvars)
+        # print("nvars=", nvars )
         # for i in range(0,number_of_points):
         #    neighbour = []
         #    for var, value in nvars.items():
@@ -162,25 +183,17 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
         sympy1 = sympy.sympify(sexpression1, ns).subs(derivedunits)
         sympy2 = sympy.sympify(sexpression2, ns).subs(derivedunits)
-        print("sympy1=", sympy1)
-        print("sympy2=", sympy2)
+        # print("sympy1=",sympy1 )
+        # print("sympy2=",sympy2 )
         # intpart = re.sub(r"([0-9])*\.([0-9]*).*",r"BEGIN#\1\2#END",expression2)
         # intpart = re.sub(r"^[^#]*#",r"",intpart)
         # intpart = re.sub(r"#.*$",r"",intpart)
         # print("inpart = ", intpart )
-        print("expression2 = ", expression2)
-        intpart2 = re.search(r"([0-9]*\.[0-9]*)", expression2)
-        floatpart = float(1)
-        if intpart2 != None and float(precision) == 0:
-            floatpart = float(intpart2.group(0))
-            print("intpart2", intpart2.group(0))
-            digits = re.sub(r"\.", '', intpart2.group(0))
-            print("digits", digits)
-            precision = 2.0 / float(digits)
-            precision = round(precision, -int(floor(log10(abs(precision)))))
-        else:
-            print("old precision = ", precision)
-        print("new precision = ", precision)
+        # print("expression2 = ", expression2 )
+        if precision == 0:
+            precision = getprecision(expression2)
+        # floatpart = prec[1];
+        # print("new precision = ", precision )
         if isinstance(sympy1, sympy.Basic):
             atoms = sympy1.atoms(sympy.Symbol, sympy.Function)
             for atom in atoms:
@@ -200,14 +213,15 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
         # numfunc2 = sympy.lambdify(tvars, sympy2, modules=lambdifymodules)
         value1 = sympy1.subs(varsubs).subs(baseunits).evalf()
         value2 = sympy2.subs(varsubs).subs(baseunits).evalf()
-        print("sympy1, value1 = ", sympy1, value1)
-        print("sympy2, value2 = ", sympy2, value2.subs(baseunits))
-        diff = sympy.Abs((value1 / value2 - 1.0) * floatpart * 0.999)
-        print("diff = ", diff)
-        print("baseunits = ", baseunits)
-        print("value1 = ", value1)
-        print("value2 = ", value2)
-        print("varsubs = ", varsubs)
+        # print("sympy1, value1 = ", sympy1, value1)
+        # print("sympy2, value2 = ", sympy2, value2.subs(baseunits) )
+        # diff = sympy.Abs( ( value1/value2 - 1.0 ) * floatpart * .999)
+        diff = sympy.Abs((value1 / value2 - 1.0))
+        # print("diff = ", diff )
+        # print("baseunits = ", baseunits)
+        # print("value1 = ", value1)
+        # print("value2 = ", value2)
+        # print("varsubs = ", varsubs)
         if diff.is_constant():
             try:
                 check_units(sympy1, sympy2, varsubs)
@@ -247,7 +261,7 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
 
 
 def numeric_runner(variables, expression1, expression2, precision, result_queue):
-    print("RUNNER - precision ", precision)
+    # print("RUNNER - precision ", precision )
     response = numeric_internal(variables, expression1, expression2, precision)
     result_queue.put(response)
 
@@ -256,7 +270,7 @@ def numeric(variables, expression1, expression2, precision):
     """
     Starts a process with numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
-    print("CLONED_COMPARE_NUMERIC precision = ", precision)
+    # print("CLONED_COMPARE_NUMERIC precision = ", precision)
     invalid_strings = ['_', '[', ']']
     for i in invalid_strings:
         if i in expression1:
