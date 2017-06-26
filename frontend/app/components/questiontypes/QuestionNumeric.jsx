@@ -424,7 +424,7 @@ export default class QuestionNumeric extends Component {
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
 // var precision = state.getIn(['response','precision'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
-  var precision = question.get('precision',23)
+  var precision = question.get('precision',0)
   // console.log("QUESTION_NUMERIC precision = ", precision );
   if(state.getIn(['response','detail']))
     error = "Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)";
