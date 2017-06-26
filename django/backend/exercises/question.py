@@ -1,5 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from exercises.models import Exercise, Question, Answer
+from exercises.serializers import AnswerSerializer, UserSerializer
 from exercises.parsing import question_json_get, question_xmltree_get, exercise_xmltree
 from exercises.util import deep_get
 from lxml import etree
@@ -22,6 +23,32 @@ class QuestionError(Exception):
 
     def __str__(self):
         return repr(self.value)
+
+
+def compile_user_data(user, question):
+    """
+    User data together with last attempts at the question.
+
+    Args:
+        user: Django user object
+        question: Question (model) instance
+
+    Returns:
+        {
+    'user': User data (see UserSerializer for format)
+    'last_attempts': List of last attempts (see AnswerSerializer for format)
+    }
+    """
+    attempts = []
+    if question is not None:
+        answers = Answer.objects.filter(user=user, question=question)
+        last_answers = answers.order_by('-date')[:10]
+        sanswers = AnswerSerializer(last_answers, many=True)
+        attempts = sanswers.data
+    suser = UserSerializer(user)
+
+    student_data = {'user': suser.data, 'n_attempts': answers.count(), 'last_attempts': attempts}
+    return student_data
 
 
 def register_question_type(
@@ -48,7 +75,10 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         }
     question_json = question_json_get(dbexercise.path, question_key)
     if dbquestion.type in question_json_hooks:
-        question_json = question_json_hooks[dbquestion.type](question_json, question_json, user)
+        user_data = compile_user_data(user, dbquestion)
+        question_json = question_json_hooks[dbquestion.type](
+            question_json, question_json, user_data
+        )
     xmltree = exercise_xmltree(dbexercise.path)
     question_xmltree = question_xmltree_get(xmltree, question_key)
     global_xmltree = (
@@ -101,10 +131,10 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         return {'error': 'No grading function for question type ' + dbquestion.type}
 
 
-def question_json_hook(safe_question, full_question, user):
+def question_json_hook(safe_question, full_question, student_data):
     type = deep_get(safe_question, '@attr', 'type')
     if type is not None and type in question_json_hooks:
-        return question_json_hooks[type](safe_question, full_question, user)
+        return question_json_hooks[type](safe_question, full_question, student_data)
     return question
 
 

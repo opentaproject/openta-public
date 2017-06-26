@@ -132,10 +132,10 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     return result
 
 
-def linear_algebra_json_hook(safe_question, full_question, user):
-    safe_question['username'] = user.username
-    # Remove correct answer if user is a student
-
+def linear_algebra_json_hook(safe_question, full_question, user_data):
+    safe_question['n_attempts'] = user_data['n_attempts']
+    safe_question['last_attempts'] = user_data['last_attempts']
+    safe_question['student'] = user_data['user']
     return safe_question
 
 

@@ -11,12 +11,7 @@ from exercises.serializers import (
     AuditExerciseSerializer,
 )
 from exercises import parsing
-from exercises.question import (
-    question_check,
-    question_json_hook,
-    get_sensitive_attrs,
-    get_sensitive_tags,
-)
+import exercises.question as question_module
 from exercises.modelhelpers import (
     serialize_exercise_with_question_data,
     exercise_folder_structure,
@@ -25,6 +20,7 @@ from exercises.modelhelpers import (
 )
 from exercises.views.file_handling import serve_file
 from exercises.time import before_deadline
+from exercises.util import deep_get
 from django.utils.translation import ugettext as _
 from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -205,8 +201,8 @@ def exercise_json(request, exercise):  # {{{
     try:
         hide_answers = not request.user.has_perm("exercises.view_solution")
         full_exercisejson = parsing.exercise_json(dbexercise.path, hide_answers=False)
-        hide_tags = get_sensitive_tags()
-        hide_attrs = get_sensitive_attrs()
+        hide_tags = question_module.get_sensitive_tags()
+        hide_attrs = question_module.get_sensitive_attrs()
         safe_exercisejson = parsing.exercise_json(
             dbexercise.path,
             hide_answers=hide_answers,
@@ -217,10 +213,17 @@ def exercise_json(request, exercise):  # {{{
             safe_and_full = zip(
                 safe_exercisejson['exercise']['question'], full_exercisejson['exercise']['question']
             )
-            safe_exercisejson['exercise']['question'] = [
-                question_json_hook(safe_question, full_question, request.user)
-                for safe_question, full_question in safe_and_full
-            ]
+            safe_exercisejson['exercise']['question'] = []
+            for safe_question, full_question in safe_and_full:
+                question_key = deep_get(full_question, '@attr', 'key')
+                dbquestion = Question.objects.filter(
+                    exercise=dbexercise, question_key=question_key
+                ).first()
+                student_data = question_module.compile_user_data(request.user, dbquestion)
+                modified_question = question_module.question_json_hook(
+                    safe_question, full_question, student_data
+                )
+                safe_exercisejson['exercise']['question'].append(modified_question)
         return Response(safe_exercisejson)
     except parsing.ExerciseParseError as e:
         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}
@@ -265,7 +268,9 @@ def exercise_check(request, exercise, question):  # {{{
         return Response({'error': _('You are limited to ') + "5" + _(" tries per minute.")})
 
     agent = request.META.get('HTTP_USER_AGENT', 'unknown')
-    result = question_check(request, request.user, agent, exercise, question, answer_data)
+    result = question_module.question_check(
+        request, request.user, agent, exercise, question, answer_data
+    )
     return Response(result)  # }}}
 
 
