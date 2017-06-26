@@ -442,6 +442,7 @@ export {
   fetchSameFolder,
   fetchExerciseTree, 
   fetchExerciseXML,
+  fetchExerciseJSON,
   fetchExercise,
   fetchExerciseRemoteState,
   updatePendingStateIn,

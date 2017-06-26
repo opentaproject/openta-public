@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
   fetchExercises, 
   fetchExerciseXML,
+  fetchExerciseJSON,
   fetchExercise,
   fetchSameFolder,
   saveExercise,
@@ -144,7 +145,9 @@ function handleSave(exercise) {
     var state = getState();
     dispatch(setSavePendingState(exercise, true));
     const doSave = () => { 
-      dispatch(saveExercise(exercise)).then(
+      dispatch(saveExercise(exercise))
+        .then(() => dispatch(fetchExerciseJSON(exercise)))
+        .then(
       res => dispatch(fetchSameFolder(exercise, state.get('folder') ))
     );
     }
