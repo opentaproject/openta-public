@@ -263,7 +263,7 @@ def check_units_new(expression, correct, sample_variables):
             )
 
 
-def dev_linear_algebra_compare_expressions(
+def linear_algebra_compare_expressions(
     variables, student_answer, correct, check_units=True, blacklist=[]
 ):
     """
@@ -326,10 +326,10 @@ def dev_linear_algebra_compare_expressions(
         response = dict(error=_("Unknown error, check your expression."))
         return response
 
-    return dev_linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=check_units)
+    return linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=check_units)
 
 
-def dev_linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=True):  # {{{
+def linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=True):  # {{{
     """
     Compares two sympy expressions for equality using random sampling around a point specified in variables.
 
@@ -430,16 +430,16 @@ def dev_linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=Tr
     return response  # }}}
 
 
-def dev_linear_algebra_expression_runner(
+def linear_algebra_expression_runner(
     variables, expression1, expression2, check_units, blacklist, result_queue
 ):
-    response = dev_linear_algebra_compare_expressions(
+    response = linear_algebra_compare_expressions(
         variables, expression1, expression2, check_units, blacklist
     )
     result_queue.put(response)
 
 
-def dev_linear_algebra_expression(
+def linear_algebra_expression(
     variables, student_answer, correct_answer, check_units=True, blacklist=[]
 ):
     """
@@ -451,17 +451,17 @@ def dev_linear_algebra_expression(
             return {'error': _('Answer contains invalid character ') + i}
     # print(compare_numeric_internal(variables, expression1, expression2))
     return safe_run(
-        dev_linear_algebra_expression_runner,
+        linear_algebra_expression_runner,
         args=(variables, student_answer, correct_answer, check_units, blacklist),
     )
 
 
-def dev_linear_algebra_expression_blocking(
+def linear_algebra_expression_blocking(
     variables, student_answer, correct_answer, check_units=True, blacklist=[]
 ):
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
-    return dev_linear_algebra_compare_expressions(
+    return linear_algebra_compare_expressions(
         variables, student_answer, correct_answer, check_units, blacklist
     )

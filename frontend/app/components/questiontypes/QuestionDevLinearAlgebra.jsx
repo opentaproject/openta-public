@@ -9,7 +9,7 @@ import { registerQuestionType } from './question_type_dispatch.js' // Register f
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
-import HelpDevLinearAlgebra from './HelpDevLinearAlgebra.jsx';
+import HelpLinearAlgebra from './HelpDevLinearAlgebra.jsx';
 import MathSpan from '../MathSpan.jsx';
 import mathjs from 'mathjs';
 import latex from './latex.js';
@@ -18,7 +18,7 @@ import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
 import { asciiMathToMathJS, insertCursor, braketify, absify, insertImplicitMultiply, insertImplicitSubscript, fixDelimiters } from '../mathrender/string_parse.js'
 
-export default class QuestionDevLinearAlgebra extends Component {
+export default class QuestionLinearAlgebra extends Component {
   static propTypes = {
     questionData: PropTypes.object, // Data from exercise XML file, i.e. whats inside the <question> tag
     questionState: PropTypes.object, // Current question state together with response data from server
@@ -322,7 +322,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         <div className="">
           <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span>
           <span data-uk-tooltip title="Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."></span>
-          <HelpDevLinearAlgebra/>
+          <HelpLinearAlgebra/>
           </label>
 { hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
@@ -364,6 +364,6 @@ export default class QuestionDevLinearAlgebra extends Component {
 }
 
 //Register the question component with the system
-registerQuestionType('dev_linearAlgebra', QuestionDevLinearAlgebra);
+registerQuestionType('linearAlgebra', QuestionLinearAlgebra);
 
 export {absify}

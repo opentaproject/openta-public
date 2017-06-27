@@ -3,7 +3,7 @@ import uniqueId from 'lodash/uniqueId';
 import HelpCompareNumeric from './HelpCompareNumeric.jsx'
 import MathSpan from '../MathSpan'
 
-export default class HelpDevLinearAlgebra extends Component {
+export default class HelpLinearAlgebra extends Component {
   render = () => (
   <span>
 <a data-uk-toggle={"{target:'#" + this.id + "'}"}><i className="uk-icon uk-text-warning uk-icon-small uk-icon-question-circle-o uk-margin-small-left"/></a>

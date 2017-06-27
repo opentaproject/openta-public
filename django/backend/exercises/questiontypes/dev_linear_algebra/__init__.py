@@ -1,5 +1,5 @@
 '''
-This is the server side implementation of the question type dev_linearAlgebra.
+This is the server side implementation of the question type linearAlgebra.
 '''
 
 from exercises.question import (
@@ -17,8 +17,8 @@ from exercises.util import compose
 from lxml import etree
 import logging
 import re
-from .dev_linear_algebra import dev_linear_algebra_expression
-from .dev_linear_algebra import dev_linear_algebra_expression_blocking
+from .linear_algebra import linear_algebra_expression
+from .linear_algebra import linear_algebra_expression_blocking
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ def parse_blacklist(node):
 
 
 # The function below is the core of the server interface and the only mandatory component.
-def question_check_dev_linear_algebra(question_json, question_xmltree, answer_data, global_xmltree):
+def question_check_linear_algebra(question_json, question_xmltree, answer_data, global_xmltree):
     '''Checks a symbolic answer by numeric evaluation.
 
     Args:
@@ -125,7 +125,7 @@ def question_check_dev_linear_algebra(question_json, question_xmltree, answer_da
         check_units = False
 
     result = {}
-    result = dev_linear_algebra_expression(
+    result = linear_algebra_expression(
         variables, answer_data, correct_answer, check_units=check_units, blacklist=list(blacklist)
     )
     if 'correct' in result:
@@ -135,7 +135,7 @@ def question_check_dev_linear_algebra(question_json, question_xmltree, answer_da
     return result
 
 
-def dev_linear_algebra_json_hook(safe_question, full_question, question_id, user_id):
+def linear_algebra_json_hook(safe_question, full_question, question_id, user_id):
     print("DEV INIT.PY full_question", full_question)
     correct_answer = full_question.get('expression').get('$', 'NO TEXT IN EXPRESSION').split(';')[0]
     caretless = re.sub(r"\^", ' ', correct_answer)
@@ -160,8 +160,8 @@ def dev_linear_algebra_json_hook(safe_question, full_question, question_id, user
 
 # This function call registers the question type with the system
 register_question_type(
-    'dev_linearAlgebra',
-    question_check_dev_linear_algebra,
-    dev_linear_algebra_json_hook,
+    'linearAlgebra',
+    question_check_linear_algebra,
+    linear_algebra_json_hook,
     hide_tags=['expression'],
 )
