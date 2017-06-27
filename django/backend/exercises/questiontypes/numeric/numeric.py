@@ -17,7 +17,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-meter, second, kg, ampere = sympy.symbols('meter,second,kg,ampere', real=True, positive=True)
+meter, second, kg, ampere, kelvin, mole, candela = sympy.symbols(
+    'meter,second,kg,ampere,kelvin,mole,candela ', real=True, positive=True
+)
 ns = {}
 ns.update(_clash)
 ns.update(
@@ -26,6 +28,9 @@ ns.update(
         'second': second,
         'kg': kg,
         'ampere': ampere,
+        'kelvin': kelvin,
+        'mole': mole,
+        'candela': candela,
         'pi': sympy.pi,
         'ff': sympy.Symbol('ff'),
         'FF': sympy.Symbol('FF'),
@@ -39,7 +44,7 @@ derivedunits = {
     'volt': kg * meter ** 2 / second ** 3 / ampere,
 }
 
-baseunits = {meter: 1, second: 1, kg: 1, ampere: 1}
+baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
 
 lambdifymodules = ["numpy", {'cot': lambda x: 1.0 / numpy.tan(x)}]
 

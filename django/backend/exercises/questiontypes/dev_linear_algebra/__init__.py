@@ -16,6 +16,7 @@ import operator
 from exercises.util import compose
 from lxml import etree
 import logging
+import re
 from .dev_linear_algebra import dev_linear_algebra_expression
 from .dev_linear_algebra import dev_linear_algebra_expression_blocking
 
@@ -135,6 +136,23 @@ def question_check_dev_linear_algebra(question_json, question_xmltree, answer_da
 
 
 def dev_linear_algebra_json_hook(safe_question, full_question, question_id, user_id):
+    print("DEV INIT.PY full_question", full_question)
+    correct_answer = full_question.get('expression').get('$', 'NO TEXT IN EXPRESSION').split(';')[0]
+    caretless = re.sub(r"\^", ' ', correct_answer)
+    lis = re.findall(r'([A-Z,a-z]+\w*)', caretless)
+    if full_question.get('@attr').get('exposeglobals', False):
+        print("EXPOSE GLOBALS WAS SET")
+        safe_question['exposeglobals'] = True
+    else:
+        safe_question['exposeglobals'] = False
+        print("EXPOSE GLOBALS WAS NOT  SET")
+    print("Nlis = ", lis)
+    used_variable_list = []
+    [
+        used_variable_list.append(item) for item in lis if item not in used_variable_list
+    ]  # SELECT UNIQUE ITEMS
+    safe_question['username'] = user_id
+    safe_question['usedvariablelist'] = used_variable_list
     safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)
     safe_question['last_attempts'] = get_previous_answers(question_id, user_id, 5)
     return safe_question

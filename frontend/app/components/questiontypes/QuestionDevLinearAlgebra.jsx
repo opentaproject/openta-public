@@ -266,13 +266,22 @@ export default class QuestionDevLinearAlgebra extends Component {
 
   this.parseBlacklist();
   this.parseVariables();
-
+  var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
+  var  exposeglobals =  this.props.questionData.get('exposeglobals');
+  // console.log("QUESTION DEV exposeglobals = ", exposeglobals )
+  //console.log("QUESTION_DEF varsListUsed: ", varsListUsed );
+  // console.log("QUESTION_DEF this.varsList : ", this.varsList);
   var mathjsEvalVars = {}
   var availableVariables = [];
-      if(this.varsList) {
-          this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
+ if( exposeglobals ){
+  	var usethesevars = this.varsList; // THIS WAS THE ORIGINAL; ALL VARIABLE NAMES ARE EXPOSED UNLESS BLACKLISTED
+ 	} else {
+  	usethesevars = varsListUsed;	    // THIS EXPOSES ONLY VARIABLES IN EXPRESSION
+ 	}
+   if(this.varsList) {
+          usethesevars.map( v => {mathjsEvalVars[v] = 1;} );
           availableVariables.push( (<span key="s">(i termer av </span>) );
-              var filteredVars = this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
+              var filteredVars = usethesevars.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
               for(const [i, v] of filteredVars.entries()) {
                   availableVariables.push((<span key={"v"+i}>{v}</span>));
                   if(this.varProps.hasIn([v, 'tex']))

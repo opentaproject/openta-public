@@ -22,8 +22,8 @@ from .string_formatting import (
 
 logger = logging.getLogger(__name__)
 
-meter, second, kg, ampere, kelvin = sympy.symbols(
-    'meter,second,kg,ampere,kelvin', real=True, positive=True
+meter, second, kg, ampere, kelvin, mole, candela = sympy.symbols(
+    'meter,second,kg,ampere,kelvin,mole,candela', real=True, positive=True
 )
 
 """
@@ -89,6 +89,8 @@ ns.update(
         'kg': kg,
         'ampere': ampere,
         'kelvin': kelvin,
+        'mole': mole,
+        'candela': candela,
         'pi': sympy.pi,
         'e': sympy.E,
         'I': sympy.I,
@@ -98,7 +100,12 @@ ns.update(
 )
 
 # Sympy substitution rule for removing units from an expression
-uniteval = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1}
+baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
+derivedunits = {
+    'coulomb': sympy.sympify(ampere * second),
+    'volt': sympy.sympify(kg * meter ** 2 / second ** 3 / ampere),
+}
+ns.update(derivedunits)
 
 # List of special handling in the conversion from sympy to numpy expressions for final evaluation
 lambdifymodules = [
@@ -213,24 +220,29 @@ def check_units_new(expression, correct, sample_variables):
 
     for item in sample_variables:
         nvarsubs[item['symbol']] = item['symbol'] * item['around'][0]
-        value = float(item['around'][0].subs(uniteval))
+        value = float(item['around'][0].subs(baseunits))
         sampled_value = value + random.random() * value * 0.1
         nsubs_values.append((item['symbol'], sampled_value))
     nexpression = expression.subs(nvarsubs).doit()
     ncorrect = correct.subs(nvarsubs).doit()
 
     checks = [
-        [1, 1, 1, 1, 1],
-        [perturb(2), 1, 1, 1, 1],
-        [1, perturb(2), 1, 1, 1],
-        [1, 1, perturb(2), 1, 1],
-        [1, 1, 1, perturb(2), 1],
-        [1, 1, 1, 1, perturb(2)],
+        [1, 1, 1, 1, 1, 1, 1],
+        [perturb(2), 1, 1, 1, 1, 1, 1],
+        [1, perturb(2), 1, 1, 1, 1, 1],
+        [1, 1, perturb(2), 1, 1, 1, 1],
+        [1, 1, 1, perturb(2), 1, 1, 1],
+        [1, 1, 1, 1, perturb(2), 1, 1],
+        [1, 1, 1, 1, 1, perturb(2), 1],
+        [1, 1, 1, 1, 1, 1, perturb(2)],
     ]
     results = []
     for check in checks:
         unit_values = list(
-            map(lambda item: (item[1], item[0]), zip(check, [kg, meter, second, ampere, kelvin]))
+            map(
+                lambda item: (item[1], item[0]),
+                zip(check, [kg, meter, second, ampere, kelvin, mole, candela]),
+            )
         )
         print("unit_values = ", unit_values)
         allvalues = nsubs_values + unit_values
@@ -341,8 +353,8 @@ def dev_linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=Tr
         # expression (necessary for matrix expressions).
         sympy1_units = lhs
         sympy2_units = rhs
-        sympy1 = sympy1_units.subs(uniteval)
-        sympy2 = sympy2_units.subs(uniteval)
+        sympy1 = sympy1_units.subs(baseunits)
+        sympy2 = sympy2_units.subs(baseunits)
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug('Expression 1: ' + str(sympy1))
             logger.debug('Expression 2: ' + str(sympy2))
@@ -353,7 +365,7 @@ def dev_linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=Tr
             for var in sample_variables:
                 sample_point_values = []
                 for sample_point in var['around']:
-                    var_value = float(sample_point.subs(uniteval))
+                    var_value = float(sample_point.subs(baseunits))
                     sample_point_values.append(
                         (var['symbol'], var_value + random.random() * var_value * 0.1 + 0j)
                     )
@@ -365,10 +377,10 @@ def dev_linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=Tr
                     logger.debug('Neighbour point: ' + str(varvals))
 
         one_point = list(
-            map(lambda item: (item['symbol'], item['around'][0].subs(uniteval)), sample_variables)
+            map(lambda item: (item['symbol'], item['around'][0].subs(baseunits)), sample_variables)
         )
         undefined_variables = sympy1.subs(one_point).free_symbols - set(
-            [kg, second, meter, ampere, kelvin, sympy.I, sympy.E]
+            [kg, second, meter, ampere, kelvin, mole, candela, sympy.I, sympy.E]
         )
         if len(undefined_variables) > 0:
             unrecognised = ', '.join(list(map(str, undefined_variables)))

@@ -40,7 +40,15 @@
    
 </global>
   
-  <question key="1" type="linearAlgebra">
+  <question key="12" type="dev_linearAlgebra">
+ 
+    
+    <text> coulomb </text>
+      <expression> coulomb  </expression>
+  </question>
+   
+  
+  <question key="1" type="dev_linearAlgebra">
  
     
     <text>Täthet n, symboliskt svar </text>

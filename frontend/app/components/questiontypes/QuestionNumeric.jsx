@@ -403,7 +403,7 @@ arrayUnique = (array) =>  {
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
   var pending = this.props.questionPending;
-  console.log("QUESTION_JSX state", state );
+  // console.log("QUESTION_JSX state", state );
   //console.log('question = ', question )
   //console.log('questionstate = ', question.get('username') ) 
   //console.log('usedvariablelist = ', question.get('usedvariablelist',List([])).toJS() );
