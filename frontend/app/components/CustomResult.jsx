@@ -39,7 +39,7 @@ const mapDispatchToProps = (dispatch) => ({
     var selected = exerciseState.filter( exercise => exercise.get('selected'));
     var exercises = selected.keySeq().toJS();
     //dispatch(fetchCustomResults(exercises));
-    dispatch(enqueueTask('/statistics/customresult', {exercises: exercises}))
+    dispatch(enqueueTask('/statistics/customresult', { data: {exercises: exercises}, method: "POST" } ))
      .then( taskId => dispatch(updateCustomResults({taskId: taskId})) );
   }
 })

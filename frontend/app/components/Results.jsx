@@ -264,7 +264,7 @@ const BaseResults = ({menuPath,
     <div className="uk-flex uk-flex-wrap uk-width-1-1">
       <div className="uk-width-1-1 uk-text-center">
         <h1>
-          { pendingResults && <Spinner size="uk-icon"/> }
+          { pendingResults !== false && <div className="uk-width-1-5"><Spinner size="uk-icon"/><div className="uk-progress"><div className="uk-progress-bar" style={{width: pendingResults + '%'}}>{pendingResults}</div></div></div> }
         </h1>
       </div>
       { menuPositionUnder(menuPath, ['results', 'download']) && !pendingResults && 

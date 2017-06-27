@@ -35,6 +35,7 @@ import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js';
 import {SUBPATH} from 'settings.js';
 
 import {fetchAssets} from './fetchers/assets.js';
+import {enqueueTask} from './fetchers/tasks.js';
 
 function notify(messages, levels) {
     var levelsRender = {
@@ -361,8 +362,8 @@ function fetchImageAnswers(exerciseKey) {//{{{
         dispatch(setImageAnswers(exerciseKey, json.ids));
         dispatch(setImageAnswersData(exerciseKey, json.data));
       })
-      .catch( err => console.dir(err) )
-  }
+          .catch( err => console.dir(err) );
+  };
 }//}}}
 
 function fetchAllExerciseStatistics() {//{{{
@@ -371,8 +372,8 @@ function fetchAllExerciseStatistics() {//{{{
     return jsonfetch('/statistics/statsperexercise')
       .then(response => response.json())
       .then(json =>  { 
-        dispatch(updateExerciseStatistics(json.exercises))
-        dispatch(updateAggregateStatistics(json.aggregates))
+          dispatch(updateExerciseStatistics(json.exercises));
+          dispatch(updateAggregateStatistics(json.aggregates));
       })
       .then( () => dispatch(updatePendingStateIn( ['exercises_statistics'], false)))
       .catch( err => console.log(err) );
@@ -380,14 +381,22 @@ function fetchAllExerciseStatistics() {//{{{
 }//}}}
 
 function fetchStudentResults() {
-  return dispatch => {
-    dispatch(updatePendingStateIn( ['studentResults'], true));
-    return jsonfetch('/statistics/results')
-      .then(response => response.json())
-      .then(json => dispatch(updateStudentResults(json)))
-      .then( () => dispatch(updatePendingStateIn( ['studentResults'], false)))
-      .catch( err => console.log(err) );
-  }
+    return dispatch => {
+        dispatch(updatePendingStateIn( ['studentResults'], true));
+        var taskOptions = {
+            progressAction: (progress) => dispatch => dispatch(updatePendingStateIn( ['studentResults'], progress)),
+            completeAction: (data) => dispatch => {
+                dispatch(updateStudentResults(data));
+                dispatch(updatePendingStateIn( ['studentResults'], false));
+            }
+        };
+        return dispatch(enqueueTask('/statistics/resultsasync', taskOptions));
+    //return jsonfetch('/statistics/results')
+    //  .then(response => response.json())
+    //  .then(json => dispatch(updateStudentResults(json)))
+    //  .then( () => dispatch(updatePendingStateIn( ['studentResults'], false)))
+    //  .catch( err => console.log(err) );
+  };
 }
 
 function fetchStudentDetailResults(userPk) {
@@ -487,5 +496,4 @@ export {
 export * from './fetchers/audit.js'
 export * from './fetchers/exercise.js'
 export * from './fetchers/assets.js'
-export * from './fetchers/results.js'
 export * from './fetchers/tasks.js'

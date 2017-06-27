@@ -21,7 +21,11 @@ def excel_custom_results_pipeline(dbexercises, task):
 
 
 def students_results_async_pipeline(task):
+    task.status = "Working"
+    task.save()
     result = students_results(task=task)
     task.done = True
+    task.status = "Working"
+    task.progress = 100
     task.save()
     return result

@@ -8,7 +8,7 @@ import {
     updateTask,
 } from '../actions.js';
 
-function fetchTaskProgress(taskId, completeAction) {
+function fetchTaskProgress(taskId, completeAction, progressAction) {
     return dispatch => {
         return jsonfetch('/queuetask/' + taskId)
             .then( res => res.json() )
@@ -17,6 +17,8 @@ function fetchTaskProgress(taskId, completeAction) {
                     progress: json.progress,
                     done: json.done
                 }));
+                if(progressAction !== undefined)
+                    dispatch(progressAction(json.progress));
                 if(json.done) {
                     jsonfetch('/queuetask/' + taskId + '/result')
                         .then( res => res.json())
@@ -32,24 +34,27 @@ function fetchTaskProgress(taskId, completeAction) {
                                 }));
                         });
                 }
-                if(!json.done && json.status == 'Working')
-                    setTimeout(() => {dispatch(fetchTaskProgress(taskId, completeAction));}, 1000);
+                if(!json.done)
+                    setTimeout(() => {dispatch(fetchTaskProgress(taskId, completeAction, progressAction));}, 1000);
             })
             .catch( err => console.dir(err) );
     };
 }
 
-function enqueueTask(url, data, completeAction) {
+function enqueueTask(url, {data, method="GET", completeAction, progressAction} = {}) {
     return dispatch => {
         var fetchconfig = {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(data)
+            method: method
         };
+        if(data !== undefined) {
+            fetchconfig.headers = { "Content-Type": "application/json" };
+            fetchconfig.body = JSON.stringify(data);
+        }
         return jsonfetch(url, fetchconfig)
             .then( res => res.json() )
             .then( json => {
-                setTimeout(() => {dispatch(fetchTaskProgress(json.task_id, completeAction));}, 1000);
+                //setTimeout(() => {dispatch(fetchTaskProgress(json.task_id, completeAction, progressAction));}, 1000);
+                dispatch(fetchTaskProgress(json.task_id, completeAction, progressAction));
                 return json.task_id;
             })
             .catch(err => console.dir(err));
