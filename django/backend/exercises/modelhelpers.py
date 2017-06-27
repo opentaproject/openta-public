@@ -393,7 +393,7 @@ def exercise_test(exercise_key):  # {{{
     user = User.objects.get(username='tester')
     results = []
     for dbquestion in dbquestions:
-        if dbquestion.type in ['compareNumeric', 'linearAlgebra']:
+        if dbquestion.type in ['compareNumeric', 'linearAlgebra', 'dev_linearAlgebra']:
             question_key = dbquestion.question_key
             question_xml = question_xmltree_get(xmltree, question_key)
             answer_element = question_xml.find('expression')
