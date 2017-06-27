@@ -5,14 +5,14 @@
    <text>
     <right><figure>figure.jpg</figure></right>
      <p>
-     <em> Natrium </em> har     täthet $\rho=0.98\cdot10^3 kg/m^3$, en atommassa på M=23 u (atommassenhet $u=1.66\cdot 10^{-27}$kg) . Elektronens massa är $m_e=9.11\cdot 10^{-31}$kg.
+     <em> Natrium </em> har täthet $\rho=0.98\cdot10^3 kg/m^3$, en atommassa på M=23 u    (atommassenhet $u=1.66\cdot 10^{-27}$kg) . Elektronens massa är $m_e=9.11\cdot 10^{-31}$kg.
      </p>
     <p> 
      1) Beräkna tätheten $n$ av ledningselektroner  i antal/$m^3$. (Elektrontäthet brukar uttryckas i m$^{-3}$ eller cm$^{-3}$. Men det är ofta enklare att använda Å$^{-3}$ för att undvika stora potenser.)   
 	</p>
      <p> 
      2) Beräkna Fermienergin $\epsilon_F$ i eV. 
- (Tips, för att beräkna Fermienergin är det smidigt att använda att  $\frac{\hbar^2}{2m_e}\approx 3.81 $eVÅ$^{2}$, och uttrycka elektrontätheten i Å$^{-3}$.)
+ (Tips, för att  beräkna Fermienergin är det smidigt att använda att  $\frac{\hbar^2}{2m_e}\approx 3.81 $eVÅ$^{2}$, och uttrycka elektrontätheten i Å$^{-3}$.)
 	</p>
      <p> 
      3) Beräkna Fermivågtalet $k_F$. Uttryck i Å$^{-1}$. (Detta kan man också relatera till de Broglie-våglängden för en elektron på Fermiytan, $\lambda_F=2\pi/k_F$. )
@@ -28,52 +28,52 @@
     <asset name="Lösning">FFY143 uppgifter.png</asset>
   </solution>
   <global>
-  rho =  sample(1) kg / meter^3;
-    au= sample(1) kg;
-    M=23 au;
-    ang =  3.0 meter;
-    ev = 1.30 kg meter / second^2;
    
+    rho =  sample(1) kg / meter^3;
+ 
+    M= 23 kg;
+ 
+    
     <var><token> ev </token><tex> eV  </tex></var>
     <var><token> ang </token><tex> \text{Å}</tex></var>
     <var><token>rho</token><tex>\rho</tex></var>
-    <var><token>au</token><tex>u</tex></var>
+   
 </global>
   
   <question key="1" type="linearAlgebra">
-    <blacklist><token>rbar</token>
-      <token>g</token>
-    </blacklist>
+ 
     
     <text>Täthet n, symboliskt svar </text>
       <expression> rho/M  </expression>
   </question>
    <question key="2" type="Numeric">
-  
+    
     
     <text> Täthet n, numeriskt svar (till två värdesiffror)</text>
-      <expression> 2.6 10^(28) meter^(-3)  </expression>
+     <variables> m = meter </variables> 
+      <expression> 2.60 10^(28) m^(-3)  </expression>
   </question>
   <question key="3" type="Numeric">
-    <variables>ev = 1.609 * 10^(-19) kg meter^2 / second^2;
-    kev = 453.0 </variables>
     
     <text>  Fermienergin $\epsilon_F$ i eV </text>
+    <variables> ev = kg meter^2 / second^2  </variables>
       <expression>  3.18 ev </expression>
   </question>
    <question key="4" type="Numeric">
     
-    <text> Fermivågtalet $k_F$. Uttryck i Å$^{-1}$. </text>
-     <variables> ang = 10^(-10) meter </variables>
-      <expression>  0.91 /ang / ang / ang   </expression>
+    <text> Fermivågtalet $k_F$. Uttryck i Å$^{-1}$ "ang". </text>
+     <variables> ang = meter </variables>
+      <expression>  0.910 ang^(-1)  </expression>
   </question>
    <question key="5" type="Numeric">
-     <text>  $v_F$. Uttryck i meter $/$second. </text>
-      <expression> 1.05 10^6 meter/second  </expression>
+     <text>  $v_F$. Uttryck i m$/$s. </text>
+     <variables> m = meter; s = second </variables> 
+      <expression> 1.05 10^6 m/s  </expression>
   </question>
     <question key="6" type="Numeric">
-       <variables>ev = 1.609 * 10^(-19) kg meter / second^2  </variables>
+      <variables> ev = kg meter / second^2 </variables>
      <text>  $D(\epsilon_F)$ i $ eV^{-1} $. </text>
       <expression> 1.21 10^22 ev^(-1)  </expression>
   </question>
 </exercise>
+

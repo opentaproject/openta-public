@@ -339,7 +339,7 @@ export default class QuestionNumeric extends Component {
 
   //Parse variables and their optional properties
 
-/* arrayUnique = (array) =>  {
+arrayUnique = (array) =>  {
     var a = array.concat();
     for(var i=0; i<a.length; ++i) {
         for(var j=i+1; j<a.length; ++j) {
@@ -350,16 +350,14 @@ export default class QuestionNumeric extends Component {
 
     return a;
 }
-*/
   
 
   parseVariables = () => {
     // var varsListGlobal = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
-    var  varsListGlobal = ['meter','kg','second'];
+    var  varsListGlobal = ['meter','kg','second','ampp'];
     var  varsListGlobal = [];
     var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
     var  varsListLocal = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
-    this.varsList = varsListGlobal.concat(varsListLocal);
     //var correctanswer = this.parseVariableString(this.props.questionData.getIn(['expression','$'], '')).toString(); 
     //console.log("QUESTION_NUMERIC - varsList ", this.varsList )
     // correctanswer = correctanswer.replace(/\^/g,' ' )
@@ -373,7 +371,7 @@ export default class QuestionNumeric extends Component {
     var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
     var localVars = enforceList(this.props.questionData.get('var', List([])));
     var allVars = localVars.concat(varPropsList);
-    this.varsList = varsListUsed;
+    this.varsList = this.arrayUnique( varsListUsed.concat( varsListLocal) )
     for(let v of allVars) {
       if(v.hasIn('token','$')) {
         var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 

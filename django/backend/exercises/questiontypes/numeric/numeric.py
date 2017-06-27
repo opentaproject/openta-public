@@ -17,7 +17,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-meter, second, kg = sympy.symbols('meter,second,kg', real=True, positive=True)
+meter, second, kg, ampere = sympy.symbols('meter,second,kg,ampere', real=True, positive=True)
 ns = {}
 ns.update(_clash)
 ns.update(
@@ -25,15 +25,21 @@ ns.update(
         'meter': meter,
         'second': second,
         'kg': kg,
+        'ampere': ampere,
         'pi': sympy.pi,
         'ff': sympy.Symbol('ff'),
         'FF': sympy.Symbol('FF'),
     }
 )
 
-derivedunits = {'joule': kg * meter ** 2 / second ** 2, 'N': kg * meter ** 2 / second ** 2}
+derivedunits = {
+    'joule': kg * meter ** 2 / second ** 2,
+    'N': kg * meter ** 2 / second ** 2,
+    'coulomb': ampere * second,
+    'volt': kg * meter ** 2 / second ** 3 / ampere,
+}
 
-baseunits = {meter: 1, second: 1, kg: 1}
+baseunits = {meter: 1, second: 1, kg: 1, ampere: 1}
 
 lambdifymodules = ["numpy", {'cot': lambda x: 1.0 / numpy.tan(x)}]
 
@@ -190,7 +196,7 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
         # intpart = re.sub(r"#.*$",r"",intpart)
         # print("inpart = ", intpart )
         # print("expression2 = ", expression2 )
-        if precision == 0:
+        if float(precision) == float(0):
             precision = getprecision(expression2)
         # floatpart = prec[1];
         # print("new precision = ", precision )
@@ -217,7 +223,8 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
         # print("sympy2, value2 = ", sympy2, value2.subs(baseunits) )
         # diff = sympy.Abs( ( value1/value2 - 1.0 ) * floatpart * .999)
         diff = sympy.Abs((value1 / value2 - 1.0))
-        # print("diff = ", diff )
+        print("diff = ", diff)
+        print("precision = ", precision)
         # print("baseunits = ", baseunits)
         # print("value1 = ", value1)
         # print("value2 = ", value2)
