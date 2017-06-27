@@ -329,3 +329,4 @@ export { updateLoginStatus, updateExercises, setExerciseTree, updateActiveExerci
 
 export * from './actions/exercise.js'
 export * from './actions/results.js'
+export * from './actions/task.js'

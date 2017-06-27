@@ -1,8 +1,9 @@
-function updateCustomResults(data) {
+function setExerciseHistory(exerciseKey, list) {
     return {
-        type: 'UPDATE_CUSTOM_RESULTS',
-        data: data
+        type: 'SET_EXERCISE_HISTORY',
+        exercise: exerciseKey,
+        data: list
     };
 }
 
-export {updateCustomResults}
+export {setExerciseHistory}

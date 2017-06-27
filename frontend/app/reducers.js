@@ -141,8 +141,10 @@ export default (state = defaultState, action) => {
       return state.mergeDeepIn(['exerciseTreeUI'], action.tree);
     case 'SET_EXERCISE_XML_ERROR':
       return state.setIn(['exerciseState', action.exercise, 'xmlError'], action.error);
-  case 'SET_EXERCISE_HISTORY':
-      return state.setIn(['exerciseState', action.exercise, 'history'], immutable.fromJS(action.data));
+    case 'SET_EXERCISE_HISTORY':
+        return state.setIn(['exerciseState', action.exercise, 'history'], immutable.fromJS(action.data));
+    case 'UPDATE_TASK':
+      return state.mergeIn(['tasks', action.task], immutable.fromJS(action.data));
     default:
       return state;
   }

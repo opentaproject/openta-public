@@ -2,7 +2,8 @@ import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import ExerciseSelect from './ExerciseSelect.jsx';
 
-import { fetchCustomResults } from '../fetchers.js';
+import { fetchCustomResults, enqueueTask } from '../fetchers.js';
+import { updateCustomResults } from '../actions.js';
 
 const BaseCustomResult = ({onGenerateResults, exerciseState, taskId, progress, done}) => {
   var selected = exerciseState.filter( exercise => exercise.get('selected'));
@@ -37,15 +38,20 @@ const mapDispatchToProps = (dispatch) => ({
   onGenerateResults: (exerciseState) => {
     var selected = exerciseState.filter( exercise => exercise.get('selected'));
     var exercises = selected.keySeq().toJS();
-    dispatch(fetchCustomResults(exercises));
+    //dispatch(fetchCustomResults(exercises));
+    dispatch(enqueueTask('/statistics/customresult', {exercises: exercises}))
+     .then( taskId => dispatch(updateCustomResults({taskId: taskId})) );
   }
 })
 
-const mapStateToProps = (state) => ({
-  exerciseState: state.get('exerciseState'),
-  taskId: state.getIn(['results', 'customResults', 'taskId']),
-  progress: state.getIn(['results', 'customResults', 'progress']),
-  done: state.getIn(['results', 'customResults', 'done']),
-})
+const mapStateToProps = (state) => {
+  var taskId = state.getIn(['results', 'customResults', 'taskId']);
+  return {
+    taskId: taskId,
+    exerciseState: state.get('exerciseState'),
+    progress: state.getIn(['tasks', taskId, 'progress']),
+    done: state.getIn(['tasks', taskId, 'done']),
+  };
+}
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseCustomResult)

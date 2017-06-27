@@ -57,6 +57,7 @@ urlpatterns = [
     url(r'^statistics/allstudentattempts', views.get_student_attempts_per_exercise),
     url(r'^statistics/statsperexercise', views.get_statistics_per_exercise),
     url(r'^statistics/results$', views.get_results),
+    url(r'^statistics/resultsasync$', views.get_results_async),
     url(r'^statistics/customresult$', views.enqueue_custom_result_excel),
     url(r'^statistics/customresult/(?P<task>[0-9]+)$', views.progress_custom_result_excel),
     url(r'^statistics/results/excel$', views.get_results_excel),

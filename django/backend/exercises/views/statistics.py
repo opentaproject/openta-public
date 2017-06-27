@@ -15,9 +15,11 @@ from exercises.aggregation import (
     create_xlsx_from_results_list,
     calculate_students_results_subset,
     excel_custom_results_pipeline,
+    students_results_async_pipeline,
 )
 from course.models import Course
 from workqueue.models import QueueTask
+import workqueue.util as workqueue
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
 from django.views.decorators.cache import cache_page
@@ -45,6 +47,15 @@ def get_statistics_per_exercise(request):
 def get_results(request):
     results = students_results()
     return Response(results)
+
+
+@permission_required('exercises.view_statistics')
+@api_view(['GET'])
+def get_results_async(request):
+    # task = QueueTask.objects.create(name="student_results", owner=None)
+    # job = django_rq.enqueue(students_results_async_pipeline, task, job_id=str(task.pk))
+    task_id = workqueue.enqueue_task("student_results", students_results_async_pipeline)
+    return Response({'task_id': task_id})
 
 
 @permission_required('exercises.view_statistics')
@@ -77,18 +88,19 @@ def get_custom_result_excel(request):
 @permission_required('exercises.view_statistics')
 @api_view(['GET', 'POST'])
 def enqueue_custom_result_excel(request):
+    exercises = None
     if request.method == 'GET':
         exercises = request.query_params.get('exercises').split(',')
-        dbexercises = Exercise.objects.filter(pk__in=exercises)
-        task = QueueTask.objects.create(name="Custom results", owner=request.user)
-        result = django_rq.enqueue(excel_custom_results_pipeline, dbexercises, task)
-        return Response({'task_id': task.pk})
     if request.method == 'POST':
         exercises = request.data.get('exercises')
-        dbexercises = Exercise.objects.filter(pk__in=exercises)
-        task = QueueTask.objects.create(name="Custom results", owner=request.user)
-        result = django_rq.enqueue(excel_custom_results_pipeline, dbexercises, task)
-        return Response({'task_id': task.pk})
+    if exercises is None:
+        return Response({})
+
+    dbexercises = Exercise.objects.filter(pk__in=exercises)
+    # task = QueueTask.objects.create(name="Custom results", owner=request.user)
+    # result = django_rq.enqueue(excel_custom_results_pipeline, dbexercises, task)
+    task_id = workqueue.enqueue_task("Custom results", excel_custom_results_pipeline, dbexercises)
+    return Response({'task_id': task_id})
 
 
 @permission_required('exercises.view_statistics')

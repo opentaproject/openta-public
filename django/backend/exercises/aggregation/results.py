@@ -35,11 +35,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def students_results(cache_seconds=1 * 60 * 60, force=False):
+def students_results(cache_seconds=1 * 60 * 60, force=False, task=None):
     result = cache.get('exercises.aggregation.results')
     if result is not None and not force:
         return result
-    result = calculate_students_results()
+    result = calculate_students_results(task)
     cache.set('exercises.aggregation.results', result, cache_seconds)
     return result
 
@@ -53,8 +53,8 @@ def student_statistics_exercises(cache_seconds=1 * 60 * 60, force=False):
     return result
 
 
-def calculate_students_results():  # {{{
-    return calculate_students_results_subset(Exercise.objects.all())
+def calculate_students_results(task=None):  # {{{
+    return calculate_students_results_subset(Exercise.objects.all(), task)
 
 
 def calculate_student_statistics_exercises():  # {{{
@@ -311,4 +311,5 @@ def calculate_students_results_subset(exercise_query, task=None):
         )
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Adding result for " + student.username)
+
     return results  # }}}
