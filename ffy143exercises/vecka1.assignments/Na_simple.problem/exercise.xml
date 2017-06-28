@@ -1,6 +1,6 @@
 <exercise>
 	<exercisename>
-	Frielektron för natrium
+	FFrielektron för natrium
 	</exercisename>
    <text>
     <right><figure>figure.jpg</figure></right>
@@ -40,7 +40,7 @@
    
 </global>
   
-  <question key="12" type="dev_linearAlgebra">
+  <question key="12" type="linearAlgebra">
  
     
     <text> coulomb </text>
@@ -48,7 +48,7 @@
   </question>
    
   
-  <question key="1" type="dev_linearAlgebra">
+  <question key="1" type="linearAlgebra">
  
     
     <text>Täthet n, symboliskt svar </text>
