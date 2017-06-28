@@ -1,0 +1,13 @@
+{% load url from compat %}
+{% load i18n %}
+
+<div id="hijacked-warning" class="hijacked-warning hijacked-warning-default">
+        <form style="display:inline" action="{% url 'release_hijack' %}" method="POST">
+            {% csrf_token %}
+            <button class="uk-button-primary uk-button-mini">{% blocktrans with user=request.user %}release {{ user }}{% endblocktrans %}</button>
+        </form>
+        <form style="display:inline" action="{% url 'disable_hijack_warning' %}?next={{ request.path }}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="uk-button-danger uk-button-mini">{% trans "hide" %}</button>
+        </form>
+</div>
