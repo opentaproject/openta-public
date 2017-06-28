@@ -94,14 +94,10 @@ const BaseStudentResults = ({userResults,
     (
       <div className="uk-flex">
       
-      { !pendingResults && !activeExercise && 
-        <h1 className="uk-article-title">
-        {userResults.get('username')/*userResults.get('first_name') + " " + userResults.get('last_name')*/}
-        </h1>
-      }
-
       { !pendingResults && !activeExercise &&
       <div className="uk-button-group uk-margin-left">
+        <a onClick={() => window.open("./hijack/username/"+userResults.get('username') ) } 
+	className={'uk-button uk-button-link uk-alert-warning'}> {userResults.get('username')}</a>
         <a onClick={() => onChangeView('all')} className={detailResultsView==="all" ? 'uk-button uk-button-primary' : 'uk-button'}>All</a>
         <a onClick={() => onChangeView('graded')} className={detailResultsView==="graded" ? 'uk-button uk-button-primary' : 'uk-button'}>Graded</a>
         <a onClick={() => onChangeView('optional')} className={detailResultsView==="optional" ? 'uk-button uk-button-primary' : 'uk-button'}>Optional</a>
