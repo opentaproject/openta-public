@@ -268,6 +268,8 @@ export default class QuestionLinearAlgebra extends Component {
   this.parseVariables();
   var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
   var  exposeglobals =  this.props.questionData.get('exposeglobals');
+  var localVars = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
+  console.log("QUESTION DEV localVars = ", localVars )
   // console.log("QUESTION DEV exposeglobals = ", exposeglobals )
   //console.log("QUESTION_DEF varsListUsed: ", varsListUsed );
   // console.log("QUESTION_DEF this.varsList : ", this.varsList);
@@ -276,7 +278,10 @@ export default class QuestionLinearAlgebra extends Component {
  if( exposeglobals ){
   	var usethesevars = this.varsList; // THIS WAS THE ORIGINAL; ALL VARIABLE NAMES ARE EXPOSED UNLESS BLACKLISTED
  	} else {
-  	usethesevars = varsListUsed;	    // THIS EXPOSES ONLY VARIABLES IN EXPRESSION
+  	usethesevars = varsListUsed.concat( localVars);	    // THIS EXPOSES ONLY VARIABLES IN EXPRESSION
+	usethesevars = varsListUsed.concat( localVars.filter( function( item ) {
+		return varsListUsed.indexOf( item ) < 0 ; } ) ) // THIS EXPOSES ONLY LOCAL VARIABLES AND THOSE USED
+								// EXPLICITLY IN THE variales TAG FOR THE QUESTION
  	}
    if(this.varsList) {
           usethesevars.map( v => {mathjsEvalVars[v] = 1;} );
