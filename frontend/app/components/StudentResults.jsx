@@ -96,7 +96,7 @@ const BaseStudentResults = ({userResults,
       
       { !pendingResults && !activeExercise &&
       <div className="uk-button-group uk-margin-left">
-        <a onClick={() => window.open("./hijack/username/"+userResults.get('username') ) } 
+        <a onClick={() => window.open("./hijack/username/"+userResults.get('username') , "_self") } 
 	className={'uk-button uk-button-link uk-alert-warning'}> {userResults.get('username')}</a>
         <a onClick={() => onChangeView('all')} className={detailResultsView==="all" ? 'uk-button uk-button-primary' : 'uk-button'}>All</a>
         <a onClick={() => onChangeView('graded')} className={detailResultsView==="graded" ? 'uk-button uk-button-primary' : 'uk-button'}>Graded</a>
