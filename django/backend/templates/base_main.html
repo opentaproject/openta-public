@@ -1,4 +1,6 @@
 {% load static %}
+{% load staticfiles %}
+{% load hijack_tags %}
 <!DOCTYPE html>
 <head>
   <meta charset="utf-8">
@@ -27,6 +29,7 @@
   <script src="{% static "js/ASCIIMathTeXImg.js" %}"></script>
 </head>
 <body>
+{% hijack_notification %}
   <div id="app"></div>
 </body>
 </html>
