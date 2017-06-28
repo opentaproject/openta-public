@@ -55,7 +55,10 @@ internalurlpatterns = [
     url(r'^$', backendviews.main),
 ]
 
-urlpatterns = [url(r'^' + SUBPATH, include(internalurlpatterns))]
+urlpatterns = [
+    url(r'^' + SUBPATH, include(internalurlpatterns)),
+    url(r'^hijack/', include('hijack.urls')),
+]
 
 admin.site.site_header = 'OpenTA Admin'
 
