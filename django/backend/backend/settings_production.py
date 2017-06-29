@@ -171,3 +171,6 @@ LOGGING = {
     'root': {'handlers': ['file', 'stderr'], 'level': 'DEBUG'},
     'loggers': {'django': {'handlers': ['file', 'stderr'], 'level': 'ERROR', 'propagate': True}},
 }
+
+# Enable the user hijack app for get requests for it to integrate with the frontend.
+HIJACK_ALLOW_GET_REQUESTS = True
