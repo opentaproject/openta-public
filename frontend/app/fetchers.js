@@ -412,8 +412,16 @@ function reloadExercises(iAmSure = false) {
             body: data
         };
         dispatch(updatePendingStateIn( ['exercisesReload'], true));
-        return jsonfetch('/exercises/reload/json', fetchconfig)
+        return jsonfetch('/exercises/reload/json/', fetchconfig)
             .then(response => response.json())
+            .then(json => {
+                if('detail' in json) {
+                    UIkit.notify(json.detail, {timeout: 10000, status: 'danger'});
+                    dispatch(updatePendingStateIn( ['exercisesReload'], false));
+                    throw json.detail;
+                }
+                return json;
+            })
             .then(json => dispatch(updateExercisesReloadMessages(json)))
             .then( () => dispatch(updatePendingStateIn( ['exercisesReload'], false)))
             .then( () => dispatch( fetchExercises() ))

@@ -3,6 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
+from rest_framework.exceptions import PermissionDenied
 from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
 from exercises.serializers import (
     ExerciseSerializer,
@@ -83,9 +84,10 @@ def exercises_reload(request):  # {{{
 # }}}
 
 
-@permission_required('exercises.reload_exercise')
 @api_view(['POST', 'GET'])
 def exercises_reload_json(request):  # {{{
+    if not request.user.has_perm('exercises.reload_exercise'):
+        raise PermissionDenied(_("Permission denied"))
     i_am_sure = request.data.get('i_am_sure', False)
 
     @transaction.atomic
