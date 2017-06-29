@@ -92,12 +92,16 @@ const BaseStudentResults = ({userResults,
         var maxOptionalActivity = safeActivity(optional.maxBy(item => safeActivity(item) ))
   var typeFilterMenu = //{{{
     (
-      <div className="uk-flex">
+      <div className="uk-flex uk-margin-bottom">
+      { !pendingResults && !activeExercise &&
+      <div className="uk-button-group uk-margin-right">
+        <a onClick={(e) => UIkit.modal.confirm("Log in as user " + userResults.get('username') + "?", () => window.open("./hijack/username/"+userResults.get('username') , "_self"))} className="uk-button uk-alert-warning" data-uk-tooltip title="Log in as user"> {userResults.get('username')} 
+        </a>
+      </div>
+      }
       
       { !pendingResults && !activeExercise &&
       <div className="uk-button-group uk-margin-left">
-        <a onClick={() => window.open("./hijack/username/"+userResults.get('username') , "_self") } 
-	className={'uk-button uk-button-link uk-alert-warning'}> {userResults.get('username')}</a>
         <a onClick={() => onChangeView('all')} className={detailResultsView==="all" ? 'uk-button uk-button-primary' : 'uk-button'}>All</a>
         <a onClick={() => onChangeView('graded')} className={detailResultsView==="graded" ? 'uk-button uk-button-primary' : 'uk-button'}>Graded</a>
         <a onClick={() => onChangeView('optional')} className={detailResultsView==="optional" ? 'uk-button uk-button-primary' : 'uk-button'}>Optional</a>
