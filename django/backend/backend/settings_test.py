@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_extensions',
     'imagekit',
+    'hijack',
+    'compat',
 ]
 
 MIDDLEWARE = [
