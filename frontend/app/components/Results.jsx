@@ -260,13 +260,18 @@ const BaseResults = ({menuPath,
   //var filters = {
 
   return (
-    <div className="uk-margin-left uk-margin-top uk-width-1-1">
+    <div className="uk-margin-top uk-width-1-1">
     <div className="uk-flex uk-flex-wrap uk-width-1-1">
+
+    {!menuPositionUnder(menuPath, ['results', 'custom']) &&
       <div className="uk-width-1-1 uk-text-center">
-        <h1>
-          { pendingResults !== false && <div className="uk-width-1-5"><Spinner size="uk-icon"/><div className="uk-progress"><div className="uk-progress-bar" style={{width: pendingResults + '%'}}>{pendingResults}</div></div></div> }
-        </h1>
+          <div className="uk-flex uk-flex-center uk-flex-middle">
+          { pendingResults !== false && <span className="uk-margin-right"><Spinner size="uk-text-medium"/></span>}
+          { typeof(pendingResults) !== 'boolean' &&
+            <div className="uk-progress uk-width-medium-1-5 uk-width-4-5"><div className="uk-progress-bar" style={{width: pendingResults + '%'}}>{pendingResults}</div></div> }
+          </div>
       </div>
+    }
       { menuPositionUnder(menuPath, ['results', 'download']) && !pendingResults && 
       <div className="uk-width-1-1 uk-text-center">
         <h1><a href={SUBPATH + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a></h1> 
@@ -276,7 +281,8 @@ const BaseResults = ({menuPath,
         !menuPositionUnder(menuPath, ['results', 'download']) &&
         !menuPositionUnder(menuPath, ['results', 'custom']) &&
         renderFilter({filteredUsers: renderResults, onFilterChange, onFilterKeypress, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
-      <div className="results-table "> {/*uk-width-4-10 uk-overflow-container*/}
+    { !menuPositionUnder(menuPath, ['results', 'custom']) &&
+      <div className="results-table" style={{flex:'1'}}> {/*uk-width-4-10 uk-overflow-container*/}
         <div className="uk-container-center">
         { menuPositionUnder(menuPath, ['results', 'histogram']) && !pendingResults && 
           <article className="uk-article">
@@ -295,13 +301,14 @@ const BaseResults = ({menuPath,
             <div className="uk-scrollable-box uk-margin-bottom" style={{height:'70vh'}}><Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} activeItem={selectedUser} onItem={(id) => onUserClick(id)}/></div>
         }
       </div>
+    }
         { menuPositionUnder(menuPath, ['results', 'list']) && selectedUser && activeDetailExercise &&
         <div className="uk-width-1-1">
         <StudentResults/> 
         </div>
         }
         { menuPositionUnder(menuPath, ['results', 'list']) && selectedUser && !activeDetailExercise &&
-        <div className="uk-margin-left">
+        <div className="uk-margin-left uk-margin-small-right">
         <StudentResults/> 
         </div>
         }

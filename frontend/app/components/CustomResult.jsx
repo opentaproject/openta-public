@@ -10,9 +10,10 @@ const BaseCustomResult = ({onGenerateResults, exerciseState, taskId, progress, d
   var keys = selected.keySeq().toJS();
   var urlkeys = keys.join(',');
   return (
-    <div className="uk-flex">
-      <div className="uk-width-1-2"><ExerciseSelect/></div>
-      <div className="uk-flex uk-width-1-2 uk-flex-column uk-flex-middle uk-margin-left">
+    <div className="uk-flex uk-flex-wrap">
+      <div className="uk-panel-box" style={{flex: '1'}}><ExerciseSelect/></div>
+      <div data-uk-sticky="{top:100}">
+      <div className="uk-flex uk-flex-column uk-flex-middle uk-margin-left uk-panel uk-panel-box">
         <div><p>Select exercises on the left</p></div>
         { selected.size > 0 &&
           <div><a className="uk-button" onClick={() => onGenerateResults(exerciseState)}>Generate results</a></div>
@@ -29,6 +30,7 @@ const BaseCustomResult = ({onGenerateResults, exerciseState, taskId, progress, d
             <a href={"/queuetask/" + taskId + "/resultfile"}>Download excel file</a>
           </div>
         }
+      </div>
       </div>
     </div>
   );
