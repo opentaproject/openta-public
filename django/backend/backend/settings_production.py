@@ -47,9 +47,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'exercises.apps.ExercisesConfig',
     'course.apps.CourseConfig',
+    'workqueue.apps.WorkqueueConfig',
     'widget_tweaks',
     'django_extensions',
     'imagekit',
+    'django_rq',
     'hijack',
     'compat',
 ]
@@ -172,5 +174,23 @@ LOGGING = {
     'loggers': {'django': {'handlers': ['file', 'stderr'], 'level': 'ERROR', 'propagate': True}},
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/tmp/django_cache',
+    }
+}
+
 # Enable the user hijack app for get requests for it to integrate with the frontend.
 HIJACK_ALLOW_GET_REQUESTS = True
+
+# Redis information
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': 'theredisqueue',
+        'DEFAULT_TIMEOUT': 360,
+    }
+}

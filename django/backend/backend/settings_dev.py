@@ -48,9 +48,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'exercises.apps.ExercisesConfig',
     'course.apps.CourseConfig',
+    'workqueue.apps.WorkqueueConfig',
     'widget_tweaks',
     'django_extensions',
     'imagekit',
+    'django_rq',
     'hijack',
     'compat',
 ]
@@ -175,3 +177,18 @@ LOGGING = {
 
 # Enable the user hijack app for get requests for it to integrate with the frontend.
 HIJACK_ALLOW_GET_REQUESTS = True
+
+# Redis info for django-rq (for long running tasks)
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': 'theredisqueue',
+        'DEFAULT_TIMEOUT': 360,
+    }
+}
+
+# Remove this to actually use the backround worker that needs to be started with manage.py rqworker
+for queueConfig in RQ_QUEUES.values():
+    queueConfig['ASYNC'] = False

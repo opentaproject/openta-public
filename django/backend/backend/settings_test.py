@@ -50,9 +50,11 @@ INSTALLED_APPS = [
     'rest_framework',
     'exercises.apps.ExercisesConfig',
     'course.apps.CourseConfig',
+    'workqueue.apps.WorkqueueConfig',
     'widget_tweaks',
     'django_extensions',
     'imagekit',
+    'django_rq',
     'hijack',
     'compat',
 ]
@@ -190,6 +192,8 @@ CACHES = {
         'LOCATION': '/tmp/django_cache',
     }
 }
+
+RQ_QUEUES = {'default': {'ASYNC': False}}
 
 import warnings
 
