@@ -1,13 +1,17 @@
 backports-abc==0.5
 chardet==2.3.0
+click==6.7
 decorator==4.0.10
 Django==1.10
 django-anymail==0.6
 django-appconf==1.0.2
+django-compat==1.0.14
 django-debug-toolbar==1.6
 django-extensions==1.7.4
+django-hijack==2.1.4
 django-imagekit==3.3
 django-ratelimit==1.0.0
+django-rq==0.9.5
 django-widget-tweaks==1.4.1
 djangorestframework==3.4.4
 entrypoints==0.2.2
@@ -43,7 +47,9 @@ pyparsing==2.1.9
 PyPDF2==1.26.0
 pytz==2016.7
 pyzmq==16.0.0
+redis==2.10.5
 requests==2.11.0
+rq==0.8.0
 selenium==2.53.6
 simplegeneric==0.8.1
 six==1.10.0
@@ -56,4 +62,3 @@ wcwidth==0.1.7
 widgetsnbextension==1.2.6
 XlsxWriter==0.9.4
 xmljson==0.1.6
-django-hijack
