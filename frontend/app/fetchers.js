@@ -28,13 +28,30 @@ import {
   setImageAnswersData,
   setExerciseRecentResults,
 } from './actions.js';
-import {logImmutable} from 'immutablehelpers.js'
-import _ from 'lodash'
-import immutable from 'immutable'
-import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js'
-import {SUBPATH} from 'settings.js'
+import {logImmutable} from 'immutablehelpers.js';
+import _ from 'lodash';
+import immutable from 'immutable';
+import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js';
+import {SUBPATH} from 'settings.js';
 
 import {fetchAssets} from './fetchers/assets.js';
+
+function notify(messages, levels) {
+    var levelsRender = {
+        'error': 'danger',
+        'warning': 'warning',
+        'success': 'success',
+        'info': 'primary'
+    };
+    for(let message of messages) {
+        if(levels.indexOf(message[0]) !== -1) {
+            if(message[0] in levelsRender)
+                UIkit.notify(message[1], {timeout: 10000, status: levelsRender[message[0]]});
+            else
+                UIkit.notify(message[1], {timeout: 10000, status: 'primary'});
+        }
+    }
+}
 
 function fetchLoginStatus() {//{{{
   return dispatch => {
@@ -198,53 +215,53 @@ function resetExercise(exercise) {
   }
 }
 
-function saveExercise(exercise) {//{{{
-  return (dispatch, getState) => {
-    var state = getState();
-    var xml = state.getIn(['exerciseState', exercise, 'activeXML']);
-    var payload = {
-      exercise: exercise,
-      xml: xml
-    }
-    var data = JSON.stringify(payload);
-    var fetchconfig = {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: data
-    }
-    dispatch(setSavePendingState(exercise, true));
-    return jsonfetch('/exercise/' + exercise + '/save', fetchconfig)
-    .catch( err => console.dir("Fetch error" + err) )
-    .then( res => {
-      if(res.status >= 300) {
-        throw res.status;
-      } 
-      else {
-        return res;
-      }
-    })
-    .then(res => res.json())
-    .then( json => {
-      if(_.get(json, 'success', false)) {
-        dispatch(setSavePendingState(exercise, false));
-        dispatch(setExerciseModifiedState(exercise, false));
-        dispatch(setSaveError(exercise, false));
-        dispatch(updateExerciseXML(exercise, xml));
-      } 
-      else {
-        dispatch(setSavePendingState(exercise, false));
-        dispatch(setExerciseModifiedState(exercise, true));
-        dispatch(setSaveError(exercise, true));
-        //dispatch(
-      }
-    })
-    .catch( err => {
-        dispatch(setSavePendingState(exercise, false));
-        dispatch(setSaveError(exercise, true));
-        console.log('Error while saving:' + err);
-    });
-  }
-}//}}}
+function saveExercise(exercise) {
+    return (dispatch, getState) => {
+        var state = getState();
+        var xml = state.getIn(['exerciseState', exercise, 'activeXML']);
+        var payload = {
+            exercise: exercise,
+            xml: xml
+        };
+        var data = JSON.stringify(payload);
+        var fetchconfig = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: data
+        };
+        dispatch(setSavePendingState(exercise, true));
+        return jsonfetch('/exercise/' + exercise + '/save', fetchconfig)
+            .catch( err => console.dir("Fetch error" + err) )
+            .then( res => {
+                if(res.status >= 300) {
+                    throw res.status;
+                }
+                else {
+                    return res;
+                }
+            })
+            .then(res => res.json())
+            .then( json => {
+                notify(_.get(json, 'messages', []), ['error', 'warning']);
+                if(_.get(json, 'success', false)) {
+                    dispatch(setSavePendingState(exercise, false));
+                    dispatch(setExerciseModifiedState(exercise, false));
+                    dispatch(setSaveError(exercise, false));
+                    dispatch(updateExerciseXML(exercise, xml));
+                }
+                else {
+                    dispatch(setSavePendingState(exercise, false));
+                    dispatch(setExerciseModifiedState(exercise, true));
+                    dispatch(setSaveError(exercise, true));
+                }
+            })
+            .catch( err => {
+                dispatch(setSavePendingState(exercise, false));
+                dispatch(setSaveError(exercise, true));
+                console.log('Error while saving:' + err);
+            });
+    };
+}
 
 function checkQuestion(exerciseKey, questionKey, answerData) {//{{{
   return dispatch => {

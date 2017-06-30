@@ -22,6 +22,7 @@ from exercises.modelhelpers import (
 from exercises.views.file_handling import serve_file
 from exercises.time import before_deadline
 from exercises.util import deep_get
+from utils import response_from_messages
 from django.utils.translation import ugettext as _
 from django.http import FileResponse, HttpResponse, StreamingHttpResponse
 from django.core.exceptions import ObjectDoesNotExist
@@ -240,21 +241,21 @@ def exercise_xml(request, exercise):
 
 @permission_required('exercises.edit_exercise')
 @api_view(['POST'])
-def exercise_save(request, exercise):  # {{{
-    result = {}
+def exercise_save(request, exercise):
+    messages = []
     dbexercise = Exercise.objects.get(exercise_key=exercise)
+    backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"
+    combined_results = dict(errors=[])
     try:
-        backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"
-        result = parsing.exercise_save(dbexercise.path, request.data['xml'], backup_name)
-        Exercise.objects.add_exercise(dbexercise.path)
-        parsing.invalidate_caches()
-        return Response(result)
-    except parsing.ExerciseParseError as e:
-        result = {'success': True, 'warning': str(e)}
-        return Response(result)
+        messages += parsing.exercise_save(dbexercise.path, request.data['xml'], backup_name)
     except IOError as e:
-        result = {'success': False, 'error': str(e)}
-        return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}
+        messages.append(('error', str(e)))
+    try:
+        messages += Exercise.objects.add_exercise(dbexercise.path)
+    except parsing.ExerciseParseError as e:
+        messages.append(('warning', str(e)))
+    result = response_from_messages(messages)
+    return Response(result)
 
 
 @ratelimit(key='user', rate='5/1m')

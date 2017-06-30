@@ -7,6 +7,7 @@ import os.path
 import uuid
 import time
 import logging
+from subprocess import check_output, CalledProcessError
 
 import exercises.paths as paths
 from exercises.util import deep_get, nested_print
@@ -137,9 +138,9 @@ def exercise_xml(path):  # {{{
     return xml  # }}}
 
 
-def exercise_save(exercise, xml, backup=None):  # {{{
+def exercise_save(exercise, xml, backup=None):
+    messages = []
     logger.info('Saving ' + exercise)
-    ret = {}
     if backup is not None:
         exercise_path = os.path.join(paths.EXERCISES_PATH, *exercise.split('/'))
         backup_path = os.path.join(exercise_path, 'history')
@@ -149,11 +150,11 @@ def exercise_save(exercise, xml, backup=None):  # {{{
             with open(backup_file, 'w') as file:
                 file.write(xml)
         except IOError:
-            ret['warning'] = "Couldn't write backup file."
+            messages.append(('warning', "Couldn't write backup file"))
     with open(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise), 'w') as file:
         file.write(xml)
-    ret['success'] = True
-    return ret  # }}}
+    messages.append(('success', 'Saved exercise'))
+    return messages
 
 
 def question_validate(question):
@@ -225,18 +226,32 @@ def exercise_check_thumbnail(xmltree, path):
         except (IndexError, NameError, AttributeError) as e:
             messages.append(('warning', "No figure for exercise"))
             return messages
+        full_figurepath = paths.EXERCISES_PATH + '/{path}/'.format(path=path) + figurepath
+        _, ext = os.path.splitext(figurepath)
+        iext = ext.lower()
         size = (100, 100)
-        try:
-            image = Image.open(paths.EXERCISES_PATH + '/{path}/'.format(path=path) + figurepath)
-        except IOError:
-            messages.append(('error', 'Could not open figure'))
-            return messages
-        image.thumbnail(size, Image.ANTIALIAS)
-        background = Image.new('RGBA', size, (255, 255, 255, 0))
-        background.paste(
-            image, (round((size[0] - image.size[0]) / 2), round((size[1] - image.size[1]) / 2))
-        )
-        background.save(thumbnail_path)
+        if iext == '.pdf':
+            messages.append(('info', 'Trying to create thumbnail from pdf...'))
+            try:
+                res = check_output(
+                    ['convert', '-thumbnail', "100x100", full_figurepath, thumbnail_path]
+                )
+            except (CalledProcessError, IOError) as e:
+                messages.append(('warning', "Thumbnail creation failed for pdf"))
+                messages.append(('warning', str(e)))
+                return messages
+        else:
+            try:
+                image = Image.open(full_figurepath)
+            except IOError:
+                messages.append(('error', 'Could not open figure'))
+                return messages
+            image.thumbnail(size, Image.ANTIALIAS)
+            background = Image.new('RGBA', size, (255, 255, 255, 0))
+            background.paste(
+                image, (round((size[0] - image.size[0]) / 2), round((size[1] - image.size[1]) / 2))
+            )
+            background.save(thumbnail_path)
         messages.append(('success', 'Created thumbnail'))
     return messages
 
