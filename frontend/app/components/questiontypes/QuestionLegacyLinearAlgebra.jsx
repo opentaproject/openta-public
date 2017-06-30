@@ -9,7 +9,7 @@ import { registerQuestionType } from './question_type_dispatch.js' // Register f
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
-import HelpLinearAlgebra from './HelpDevLinearAlgebra.jsx';
+import HelpLegacyLinearAlgebra from './HelpLegacyLinearAlgebra.jsx';
 import MathSpan from '../MathSpan.jsx';
 import mathjs from 'mathjs';
 import latex from './latex.js';
@@ -18,7 +18,7 @@ import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
 import { asciiMathToMathJS, insertCursor, braketify, absify, insertImplicitMultiply, insertImplicitSubscript, fixDelimiters } from '../mathrender/string_parse.js'
 
-export default class QuestionLinearAlgebra extends Component {
+export default class QuestionLegacyLinearAlgebra extends Component {
   static propTypes = {
     questionData: PropTypes.object, // Data from exercise XML file, i.e. whats inside the <question> tag
     questionState: PropTypes.object, // Current question state together with response data from server
@@ -266,27 +266,13 @@ export default class QuestionLinearAlgebra extends Component {
 
   this.parseBlacklist();
   this.parseVariables();
-  var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
-  var  exposeglobals =  this.props.questionData.get('exposeglobals');
-  var localVars = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
-  console.log("QUESTION DEV localVars = ", localVars )
-  // console.log("QUESTION DEV exposeglobals = ", exposeglobals )
-  //console.log("QUESTION_DEF varsListUsed: ", varsListUsed );
-  // console.log("QUESTION_DEF this.varsList : ", this.varsList);
+
   var mathjsEvalVars = {}
   var availableVariables = [];
- if( exposeglobals ){
-  	var usethesevars = this.varsList; // THIS WAS THE ORIGINAL; ALL VARIABLE NAMES ARE EXPOSED UNLESS BLACKLISTED
- 	} else {
-  	usethesevars = varsListUsed.concat( localVars);	    // THIS EXPOSES ONLY VARIABLES IN EXPRESSION
-	usethesevars = varsListUsed.concat( localVars.filter( function( item ) {
-		return varsListUsed.indexOf( item ) < 0 ; } ) ) // THIS EXPOSES ONLY LOCAL VARIABLES AND THOSE USED
-								// EXPLICITLY IN THE variales TAG FOR THE QUESTION
- 	}
-   if(usethesevars) {
-          usethesevars.map( v => {mathjsEvalVars[v] = 1;} );
+      if(this.varsList) {
+          this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
           availableVariables.push( (<span key="s">(i termer av </span>) );
-              var filteredVars = usethesevars.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
+              var filteredVars = this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
               for(const [i, v] of filteredVars.entries()) {
                   availableVariables.push((<span key={"v"+i}>{v}</span>));
                   if(this.varProps.hasIn([v, 'tex']))
@@ -299,7 +285,6 @@ export default class QuestionLinearAlgebra extends Component {
       }
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
-  console.log("availableVariables = ", availableVariables )
   var graderResponse = null;
   var input = this.state.value.trim();
   var hasChanged = input !== lastAnswer;
@@ -328,7 +313,7 @@ export default class QuestionLinearAlgebra extends Component {
         <div className="">
           <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span>
           <span data-uk-tooltip title="Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."></span>
-          <HelpLinearAlgebra/>
+          <HelpLegacyLinearAlgebra/>
           </label>
 { hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
@@ -370,6 +355,6 @@ export default class QuestionLinearAlgebra extends Component {
 }
 
 //Register the question component with the system
-registerQuestionType('linearAlgebra', QuestionLinearAlgebra);
+registerQuestionType('legacy_linearAlgebra', QuestionLegacyLinearAlgebra);
 
 export {absify}
