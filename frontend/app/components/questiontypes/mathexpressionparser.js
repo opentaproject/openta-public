@@ -1,0 +1,95 @@
+import { insertImplicitSubscript } from '../mathrender/string_parse.js'
+import { enforceList } from '../../immutablehelpers.js';
+import immutable, { List } from 'immutable';
+
+"use strict"; // It is recommended to use strict javascript for easier debugging
+
+function uniquecat(a,b) {
+	var c = a.concat(b.filter(function (item) {
+    		return a.indexOf(item) < 0;
+	})) 
+    return c
+     };
+ function parseVariableString( variableString ) {
+    var vars = variableString.trim()
+      .split(';')
+      .filter(str => str !== "")
+      .map( str => str.split('=') )
+      .map( entry => insertImplicitSubscript(entry[0].trim()) );
+      return vars;
+  }
+
+ function parseVariables(question) {
+    var varsList = parseVariableString(question.getIn(['global','$'], ''));
+    var varsListGlobal1 = parseVariableString(question.getIn(['global','$'], ''));
+    // console.log("DEV varsListGlobal=", varsListGlobal1 )
+    var varsListGlobal2 =   enforceList( question.getIn(['global','var'], List([]))  ).map(
+	item =>  ( item.getIn(['token','$']).trim() ) ).toJS()
+    // console.log("DEV varsListGlobal2=", varsListGlobal2 )
+    var varsListLocal1 = parseVariableString(question.getIn(['variables','$'], ''));
+    // console.log("DEV varsListLocal1=", varsListLocal1)
+    var varsListLocal2 = enforceList( question.getIn(['var','token','$'], List([]))).map(
+	item => item.trim() ).toJS();
+    // console.log("DEV varsListLocal2=", varsListLocal2)
+    var  varsUsed = question.get('usedvariablelist',List([])).toJS() ;
+    if( varsUsed.length == 0 ){
+	// console.log("Length is zero ");
+	var correct_answer =  question.getIn(['expression','$'], '').replace(/;/g,'').trim();
+ 	var caretless = correct_answer;
+	// console.log("correct_answer = ", correct_answer )
+    	caretless = caretless.replace(/[A-Z,a-z,0-9]+\(/g,'(' )
+ 	// console.log("caretless = ", caretless )
+	var rx = new RegExp("([A-Z,a-z]+\w*)","g")
+	var lis = [];
+	var match ;
+	while((match = rx.exec(caretless)) !== null){
+    		lis.push(match[0] );
+		}
+	// console.log("lis = ", lis )
+	varsUsed = lis;
+   	}	
+    var baseunits = immutable.fromJS( {
+			coulomb:{"tex":"C"},
+			meter:{"tex":"m"},
+			})
+    //console.log("DEV: baseunits = ", JSON.stringify( baseunits ,'null','\t') )
+    //console.log("DEV varsUsed =", varsUsed)
+    var varPropsList = enforceList(question.getIn(['global', 'var'], List([])));
+    var localVars = enforceList(question.get('var', List([])));
+    var allVars = localVars.concat(varPropsList);
+    var usethese = uniquecat( uniquecat( varsUsed, varsListLocal1 ), varsListLocal2 )
+    //console.log("usethese = ", usethese )
+    varsList = usethese;
+    for(let v of allVars) {
+      if(v.hasIn('token','$')) {
+        var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 
+        if( varsList.indexOf(parsedVar) == -1) {
+          varsList.push(parsedVar);
+        }
+      }
+    }
+    //console.log("varsList = ", varsList );
+    //console.log("allVars= ", JSON.stringify( allVars ));
+    var varProps = allVars.map( item => ({
+      //The token is the key, the other items that are not the token or the special $children$ are added as a map.
+      [item.getIn(['token', '$'], '').trim()]: item.filterNot( (val, key) => key === 'token' || key === '$children$' || key === '$').map( val => val.get('$') )
+    }) )
+    .reduce( (prev, next) => prev.merge(next), immutable.Map({}));
+    //varProps = immutable.fromJS({"f":{},"c":{"tex":" C "},"h":{}} )
+    //console.log("DEV: varProps = ",  varProps  )
+    // var addprops = immutable.fromJS({"f":{},"q":{"tex":" Q "},"h":{}} )
+    //console.log("DEV: baseunits = ",  JSON.stringify( baseunits ) )
+   // varProps = varProps.concat( baseunits )
+   varProps = baseunits.concat( varProps );
+   /* this.varsList = varsList;
+   this.varProps = varProps;
+   */
+   /*console.log("MATHEX varsList = ", varsList )
+   console.log("MATHEX varsUsed = ", varsUsed )
+   console.log("MATHEX varsProps = ", varProps)
+   */
+   return {'varsList': varsList,'varProps': varProps,'varsUsed':varsUsed}
+  }
+
+
+export {uniquecat, parseVariableString, parseVariables }

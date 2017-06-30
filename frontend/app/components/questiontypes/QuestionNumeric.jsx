@@ -16,6 +16,8 @@ import latex from './latex.js';
 import immutable, { List } from 'immutable';
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
+import {uniquecat, parseVariableString , parseVariables } from './mathexpressionparser.js'
+
 
 //Returns a new string where the character at pos in str is replaced with newstring
 function replaceAt(str, pos, newString) {
@@ -328,6 +330,7 @@ export default class QuestionNumeric extends Component {
   }
 
   //Parse the shorthand semicolor separated variable string
+/*
   parseVariableString = (variableString) => {
     var vars = variableString.trim()
       .split(';')
@@ -337,6 +340,7 @@ export default class QuestionNumeric extends Component {
       return vars;
   }
 
+*/
   //Parse variables and their optional properties
 
 arrayUnique = (array) =>  {
@@ -350,9 +354,11 @@ arrayUnique = (array) =>  {
 
     return a;
 }
-  
 
-  parseVariables = () => {
+  
+/*
+
+  oldparseVariables = () => {
     // var varsListGlobal = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
     var  varsListGlobal = ['meter','kg','second','ampp'];
     var  varsListGlobal = [];
@@ -386,6 +392,7 @@ arrayUnique = (array) =>  {
     }) )
     .reduce( (prev, next) => prev.merge(next), immutable.Map({}));
   }
+*/
 
   parseBlacklist = () => {
     var blacklist = immutable.List([]);
@@ -428,7 +435,9 @@ arrayUnique = (array) =>  {
     error = "Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)";
 
   this.parseBlacklist();
-  this.parseVariables();
+  var res = parseVariables(question);
+  this.varsList = res['varsList'];
+  this.varProps = res['varProps'];
 
   var mathjsEvalVars = {}
   var availableVariables = [];

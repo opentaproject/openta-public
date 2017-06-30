@@ -16,6 +16,7 @@ import latex from './latex.js';
 import immutable, { List } from 'immutable';
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
+import {uniquecat, parseVariableString , parseVariables } from './mathexpressionparser.js'
 import { asciiMathToMathJS, insertCursor, braketify, absify, insertImplicitMultiply, insertImplicitSubscript, fixDelimiters } from '../mathrender/string_parse.js'
 
 export default class QuestionLinearAlgebra extends Component {
@@ -201,6 +202,7 @@ export default class QuestionLinearAlgebra extends Component {
   }
 
   //Parse the shorthand semicolor separated variable string
+  /*
   parseVariableString = (variableString) => {
     var vars = variableString.trim()
       .split(';')
@@ -209,28 +211,31 @@ export default class QuestionLinearAlgebra extends Component {
       .map( entry => insertImplicitSubscript(entry[0].trim()) );
       return vars;
   }
+ */
  
-  uniquecat = (a,b) => {
+  /*uniquecat = (a,b) => {
 	var c = a.concat(b.filter(function (item) {
     		return a.indexOf(item) < 0;
 	})) 
     return c
      };
+*/
 
   //Parse variables and their optional properties
-  parseVariables = () => {
-    this.varsList = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
-    var varsListGlobal1 = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
+/*
+ parseVariables = (question) => {
+    var varsList = parseVariableString(question.getIn(['global','$'], ''));
+    var varsListGlobal1 = parseVariableString(question.getIn(['global','$'], ''));
     console.log("DEV varsListGlobal=", varsListGlobal1 )
-    var varsListGlobal2 =   enforceList( this.props.questionData.getIn(['global','var'], List([]))  ).map(
+    var varsListGlobal2 =   enforceList( question.getIn(['global','var'], List([]))  ).map(
 	item =>  ( item.getIn(['token','$']).trim() ) ).toJS()
     console.log("DEV varsListGlobal2=", varsListGlobal2 )
-    var varsListLocal1 = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
+    var varsListLocal1 = parseVariableString(question.getIn(['variables','$'], ''));
     console.log("DEV varsListLocal1=", varsListLocal1)
-    var varsListLocal2 = enforceList( this.props.questionData.getIn(['var','token','$'], List([]))).map(
+    var varsListLocal2 = enforceList( question.getIn(['var','token','$'], List([]))).map(
 	item => item.trim() ).toJS();
     console.log("DEV varsListLocal2=", varsListLocal2)
-    var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
+    var  varsListUsed = question.get('usedvariablelist',List([])).toJS() ;
     if( varsListUsed.length == 0 ){
 	console.log("Length is zero ");
 	var correct_answer =  question.getIn(['expression','$'], '').replace(/;/g,'').trim();
@@ -253,39 +258,45 @@ export default class QuestionLinearAlgebra extends Component {
 			})
     console.log("DEV: baseunits = ", JSON.stringify( baseunits ,'null','\t') )
     console.log("DEV varsListUsed =", varsListUsed)
-    var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
-    var localVars = enforceList(this.props.questionData.get('var', List([])));
+    var varPropsList = enforceList(question.getIn(['global', 'var'], List([])));
+    var localVars = enforceList(question.get('var', List([])));
     var allVars = localVars.concat(varPropsList);
-    var usethese = this.uniquecat( this.uniquecat( varsListUsed, varsListLocal1 ), varsListLocal2 )
+    var usethese = uniquecat( uniquecat( varsListUsed, varsListLocal1 ), varsListLocal2 )
     console.log("usethese = ", usethese )
-    this.varsList = usethese;
+    varsList = usethese;
     for(let v of allVars) {
       if(v.hasIn('token','$')) {
         var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 
-        if( this.varsList.indexOf(parsedVar) == -1) {
-          this.varsList.push(parsedVar);
+        if( varsList.indexOf(parsedVar) == -1) {
+          varsList.push(parsedVar);
         }
       }
     }
-    console.log("this.varsList = ", this.varsList );
-    console.log("this.allVars= ", JSON.stringify( allVars ));
-    this.varProps = allVars.map( item => ({
+    console.log("varsList = ", varsList );
+    console.log("allVars= ", JSON.stringify( allVars ));
+    var varProps = allVars.map( item => ({
       //The token is the key, the other items that are not the token or the special $children$ are added as a map.
       [item.getIn(['token', '$'], '').trim()]: item.filterNot( (val, key) => key === 'token' || key === '$children$' || key === '$').map( val => val.get('$') )
     }) )
     .reduce( (prev, next) => prev.merge(next), immutable.Map({}));
-    //this.varProps = immutable.fromJS({"f":{},"c":{"tex":" C "},"h":{}} )
-    console.log("DEV: this.varProps = ",  this.varProps  )
+    //varProps = immutable.fromJS({"f":{},"c":{"tex":" C "},"h":{}} )
+    console.log("DEV: varProps = ",  varProps  )
     // var addprops = immutable.fromJS({"f":{},"q":{"tex":" Q "},"h":{}} )
     console.log("DEV: baseunits = ",  JSON.stringify( baseunits ) )
-   // this.varProps = this.varProps.concat( baseunits )
-   this.varProps = baseunits.concat( this.varProps );
+   // varProps = varProps.concat( baseunits )
+   varProps = baseunits.concat( varProps );
+   */
+   /* this.varsList = varsList;
+   this.varProps = varProps;
+   return {'varsList': varsList,'varProps': varProps}
   }
+ */
 
   parseBlacklist = () => {
+    var question = this.props.questionData;
     var blacklist = immutable.List([]);
-    var globalBlacklistObject =  this.props.questionData.getIn(['global','blacklist','token']);
-    var blacklistObject =  this.props.questionData.getIn(['blacklist','token']);
+    var globalBlacklistObject =  question.getIn(['global','blacklist','token']);
+    var blacklistObject =  question.getIn(['blacklist','token']);
     if( globalBlacklistObject )blacklist = blacklist.concat(enforceList(globalBlacklistObject));
     if( blacklistObject )blacklist = blacklist.concat(enforceList(blacklistObject));
     this.blacklist = blacklist.map( item => insertImplicitSubscript(item.get('$','').trim()) ).toJS();
@@ -316,24 +327,25 @@ export default class QuestionLinearAlgebra extends Component {
     error = "Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)";
 
   this.parseBlacklist();
-  this.parseVariables();
+  var res = parseVariables( question );
+  this.varsList = res['varsList'];
+  this.varProps = res['varProps'];
+  var varsUsed = res['varsUsed'];
   var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
   var  exposeglobals =  this.props.questionData.get('exposeglobals');
-  var localVars = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
-  console.log("QUESTION DEV localVars = ", localVars )
-  console.log("QUESTION DEV exposeglobals = ", exposeglobals )
-  console.log("QUESTION_DEF varsListUsed: ", varsListUsed );
-  console.log("QUESTION_DEF this.varsList : ", this.varsList);
+  var localVars = parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
+  //console.log("QUESTION DEV localVars = ", localVars )
+  //console.log("QUESTION DEV exposeglobals = ", exposeglobals )
+  //console.log("QUESTION_DEF varsListUsed: ", varsListUsed );
+  //console.log("QUESTION_DEF this.varsList : ", this.varsList);
   var mathjsEvalVars = {}
   var availableVariables = [];
  if( exposeglobals ){
   	var usethesevars = this.varsList; // THIS WAS THE ORIGINAL; ALL VARIABLE NAMES ARE EXPOSED UNLESS BLACKLISTED
  	} else {
-  	usethesevars = varsListUsed.concat( localVars);	    // THIS EXPOSES ONLY VARIABLES IN EXPRESSION
-	usethesevars = varsListUsed.concat( localVars.filter( function( item ) {
-		return varsListUsed.indexOf( item ) < 0 ; } ) ) // THIS EXPOSES ONLY LOCAL VARIABLES AND THOSE USED
-								// EXPLICITLY IN THE variales TAG FOR THE QUESTION
+ 	usethesevars = varsUsed;
  	}
+  // console.log("DEV usethesevars", usethesevars )
    if(usethesevars) {
           usethesevars.map( v => {mathjsEvalVars[v] = 1;} );
           availableVariables.push( (<span key="s">(i termer av </span>) );
@@ -350,7 +362,7 @@ export default class QuestionLinearAlgebra extends Component {
       }
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
-  console.log("availableVariables = ", availableVariables )
+  // console.log("availableVariables = ", availableVariables )
   var graderResponse = null;
   var input = this.state.value.trim();
   var hasChanged = input !== lastAnswer;
