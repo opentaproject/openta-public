@@ -139,6 +139,7 @@ def linear_algebra_json_hook(safe_question, full_question, question_id, user_id)
     print("DEV INIT.PY full_question", full_question)
     correct_answer = full_question.get('expression').get('$', 'NO TEXT IN EXPRESSION').split(';')[0]
     caretless = re.sub(r"\^", ' ', correct_answer)
+    caretless = re.sub(r"[A-Z,a-z,0-9]+\(", '(', caretless)
     lis = re.findall(r'([A-Z,a-z]+\w*)', caretless)
     if full_question.get('@attr').get('exposeglobals', False):
         print("EXPOSE GLOBALS WAS SET")
@@ -151,6 +152,7 @@ def linear_algebra_json_hook(safe_question, full_question, question_id, user_id)
     [
         used_variable_list.append(item) for item in lis if item not in used_variable_list
     ]  # SELECT UNIQUE ITEMS
+    print("usedvariablelist=", used_variable_list)
     safe_question['username'] = user_id
     safe_question['usedvariablelist'] = used_variable_list
     safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)

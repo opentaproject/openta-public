@@ -209,14 +209,51 @@ export default class QuestionLinearAlgebra extends Component {
       .map( entry => insertImplicitSubscript(entry[0].trim()) );
       return vars;
   }
+ 
+  uniquecat = (a,b) => {
+	var c = a.concat(b.filter(function (item) {
+    		return a.indexOf(item) < 0;
+	})) 
+    return c
+     };
 
   //Parse variables and their optional properties
   parseVariables = () => {
     this.varsList = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
-    // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
+    var varsListGlobal1 = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
+    console.log("DEV varsListGlobal=", varsListGlobal1 )
+    var varsListGlobal2 =   enforceList( this.props.questionData.getIn(['global','var'], List([]))  ).map(
+	item =>  ( item.getIn(['token','$']).trim() ) ).toJS()
+    console.log("DEV varsListGlobal2=", varsListGlobal2 )
+    var varsListLocal1 = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
+    console.log("DEV varsListLocal1=", varsListLocal1)
+    var varsListLocal2 = enforceList( this.props.questionData.getIn(['var','token','$'], List([]))).map(
+	item => item.trim() ).toJS();
+    console.log("DEV varsListLocal2=", varsListLocal2)
+    var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
+    if( varsListUsed.length == 0 ){
+	console.log("Length is zero ");
+	var correct_answer =  question.getIn(['expression','$'], '').replace(/;/g,'').trim();
+ 	var caretless = correct_answer;
+	console.log("correct_answer = ", correct_answer )
+    	caretless = caretless.replace(/[A-Z,a-z,0-9]+\(/g,'(' )
+ 	console.log("caretless = ", caretless )
+	var rx = new RegExp("([A-Z,a-z]+\w*)","g")
+	var lis = [];
+	var match ;
+	while((match = rx.exec(caretless)) !== null){
+    		lis.push(match[0] );
+		}
+	console.log("lis = ", lis )
+	varsListUsed = lis;
+   	}	
+    console.log("DEV varsListUsed =", varsListUsed)
     var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
     var localVars = enforceList(this.props.questionData.get('var', List([])));
     var allVars = localVars.concat(varPropsList);
+    var usethese = this.uniquecat( this.uniquecat( varsListUsed, varsListLocal1 ), varsListLocal2 )
+    console.log("usethese = ", usethese )
+    this.varsList = usethese;
     for(let v of allVars) {
       if(v.hasIn('token','$')) {
         var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 
@@ -225,6 +262,7 @@ export default class QuestionLinearAlgebra extends Component {
         }
       }
     }
+    console.log("this.varsList = ", this.varsList );
     this.varProps = allVars.map( item => ({
       //The token is the key, the other items that are not the token or the special $children$ are added as a map.
       [item.getIn(['token', '$'], '').trim()]: item.filterNot( (val, key) => key === 'token' || key === '$children$' || key === '$').map( val => val.get('$') )
@@ -240,6 +278,7 @@ export default class QuestionLinearAlgebra extends Component {
     if( blacklistObject )blacklist = blacklist.concat(enforceList(blacklistObject));
     this.blacklist = blacklist.map( item => insertImplicitSubscript(item.get('$','').trim()) ).toJS();
   }
+
 
   /* render gets called every time the question is shown on screen */
   render() {  
@@ -270,9 +309,9 @@ export default class QuestionLinearAlgebra extends Component {
   var  exposeglobals =  this.props.questionData.get('exposeglobals');
   var localVars = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
   console.log("QUESTION DEV localVars = ", localVars )
-  // console.log("QUESTION DEV exposeglobals = ", exposeglobals )
-  //console.log("QUESTION_DEF varsListUsed: ", varsListUsed );
-  // console.log("QUESTION_DEF this.varsList : ", this.varsList);
+  console.log("QUESTION DEV exposeglobals = ", exposeglobals )
+  console.log("QUESTION_DEF varsListUsed: ", varsListUsed );
+  console.log("QUESTION_DEF this.varsList : ", this.varsList);
   var mathjsEvalVars = {}
   var availableVariables = [];
  if( exposeglobals ){
