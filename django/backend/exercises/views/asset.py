@@ -7,7 +7,7 @@ from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExerc
 from exercises.views.file_handling import serve_file
 import backend.settings as settings
 import exercises.paths as paths
-from exercises.parsing import list_assets, add_asset, delete_asset
+from exercises.parsing import list_assets, add_asset, delete_asset, exercise_xmltree
 import os
 
 asset_types = ('.pdf', '.jpg', '.jpeg', '.svg', '.tiff', '.tif', '.png', '.gif')
@@ -32,9 +32,15 @@ def exercise_asset(request, exercise, asset):  # {{{
         return Response({}, status.HTTP_403_FORBIDDEN)
     content_type = ''
     dbexercise = Exercise.objects.get(exercise_key=exercise)
+    xmltree = exercise_xmltree(dbexercise.path)
+    solution_assets = xmltree.xpath('//solution/asset')
+    for asset_node in solution_assets:
+        if hasattr(asset_node, "text") and asset_node.text.strip() == asset:
+            if not dbexercise.meta.solution and not request.user.has_perm(
+                'exercises.view_solution'
+            ):
+                return Response({}, status.HTTP_403_FORBIDDEN)
     if asset.lower().endswith('.pdf'):
-        if not dbexercise.meta.solution and not request.user.has_perm('exercises.view_solution'):
-            return Response({}, status.HTTP_403_FORBIDDEN)
         content_type = 'application/pdf'
     if asset.lower().endswith(('.png', '.jpg', '.jpeg', '.svg', '.tiff', '.tif')):
         content_type = 'image'
