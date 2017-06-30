@@ -247,6 +247,11 @@ export default class QuestionLinearAlgebra extends Component {
 	console.log("lis = ", lis )
 	varsListUsed = lis;
    	}	
+    var baseunits = immutable.fromJS( {
+			coulomb:{"tex":"C"},
+			meter:{"tex":"m"},
+			})
+    console.log("DEV: baseunits = ", JSON.stringify( baseunits ,'null','\t') )
     console.log("DEV varsListUsed =", varsListUsed)
     var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
     var localVars = enforceList(this.props.questionData.get('var', List([])));
@@ -263,11 +268,18 @@ export default class QuestionLinearAlgebra extends Component {
       }
     }
     console.log("this.varsList = ", this.varsList );
+    console.log("this.allVars= ", JSON.stringify( allVars ));
     this.varProps = allVars.map( item => ({
       //The token is the key, the other items that are not the token or the special $children$ are added as a map.
       [item.getIn(['token', '$'], '').trim()]: item.filterNot( (val, key) => key === 'token' || key === '$children$' || key === '$').map( val => val.get('$') )
     }) )
     .reduce( (prev, next) => prev.merge(next), immutable.Map({}));
+    //this.varProps = immutable.fromJS({"f":{},"c":{"tex":" C "},"h":{}} )
+    console.log("DEV: this.varProps = ",  this.varProps  )
+    // var addprops = immutable.fromJS({"f":{},"q":{"tex":" Q "},"h":{}} )
+    console.log("DEV: baseunits = ",  JSON.stringify( baseunits ) )
+   // this.varProps = this.varProps.concat( baseunits )
+   this.varProps = baseunits.concat( this.varProps );
   }
 
   parseBlacklist = () => {
