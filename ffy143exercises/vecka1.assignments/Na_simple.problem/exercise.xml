@@ -33,7 +33,7 @@
  
     M= 23 kg;
   
-    <var><token> coulomb </token><tex> C </tex></var>
+   
  
     
     <var><token> ev </token><tex> eV  </tex></var>
@@ -43,12 +43,12 @@
    
 </global>
   
-  <question key="12" type="legacy_linearAlgebra">
-    <variables> doulomb = 1 meter</variables>
+  <question key="12" type="linearAlgebra">
+  
     
     <text> coulomb </text>
   
-      <expression> 1 coulomb  </expression>
+      <expression> 1* coulomb  </expression>
   </question>
    
   

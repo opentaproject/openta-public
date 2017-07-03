@@ -23,6 +23,7 @@ from .numeric import (
 )  # The sympy interface is placed in a separate file "numeric.py" in this folder
 
 logger = logging.getLogger(__name__)
+from .variableparser import getallvariables
 
 
 def parse_variables(variables):  # {{{
@@ -46,21 +47,20 @@ def parse_variables(variables):  # {{{
         raise QuestionError("Cannot parse variables")
 
 
-def parse_xml_variables(node):
-    '''
-    Parses variables defined through the XML syntax <var>...</var>
-    '''
-    variables = node.xpath('./var')
-    res = []
-    if variables is None:
-        return res
-    for var in variables:
-        token = var.find('token')
-        value = var.find('val')
-        if token is not None:
-            res.append({'name': token.text, 'value': value if value is not None else '1'})
-    return res
-
+# def parse_xml_variables(node):
+#    '''
+#    Parses variables defined through the XML syntax <var>...</var>
+#    '''
+#    variables = node.xpath('./var')
+#    res = []
+#    if variables is None:
+#        return res
+#    for var in variables:
+#        token = var.find('token')
+#        value = var.find('val')
+#        if token is not None:
+#            res.append({'name': token.text, 'value': value if value is not None else '1'})
+#    return res
 
 # def parse_blacklist(node):
 #    tokens = node.xpath('./blacklist/token')
@@ -111,21 +111,24 @@ def question_check_numeric(question_json, question_xmltree, answer_data, global_
         used_variable_list.append(item) for item in lis if item not in used_variable_list
     ]  # SELECT UNIQUE ITEMS
     # print("used_variable_list = ", used_variable_list )
-    variables = []
-    variables += parse_xml_variables(question_xmltree)
-    if global_xmltree is not None:
-        variables += parse_xml_variables(global_xmltree)
-    variables_element = question_xmltree.find('variables')
-    if variables_element is not None:
-        variables += parse_variables(variables_element.text)
-    if global_xmltree is not None and global_xmltree.text is not None:
-        global_variables = parse_variables(global_xmltree.text)
-        variables += global_variables
-
-    unique_vars = {var['name']: var for var in variables}
-    variables = list(unique_vars.values())
-    correct_answer = question_xmltree.find('expression').text.split(';')[0]
-
+    ret = getallvariables(global_xmltree, question_xmltree)
+    variables = ret['variables']
+    blacklist = ret['blacklist']
+    correct_answer = ret['correct_answer']
+    # variables = []
+    # variables += parse_xml_variables(question_xmltree)
+    # if global_xmltree is not None:
+    #   variables += parse_xml_variables(global_xmltree)
+    # variables_element = question_xmltree.find('variables')
+    # if variables_element is not None:
+    #    variables += parse_variables(variables_element.text)
+    # if global_xmltree is not None and global_xmltree.text is not None:
+    #    global_variables = parse_variables(global_xmltree.text)
+    #    variables += global_variables
+    #
+    # unique_vars = { var['name']: var for var in variables }
+    # variables = list(unique_vars.values())
+    # correct_answer = question_xmltree.find('expression').text.split(';')[0]
     # if global_xmltree is not None:
     #   blacklist.update(parse_blacklist(global_xmltree))
     # blacklist.update(parse_blacklist(question_xmltree))

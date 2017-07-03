@@ -50,7 +50,12 @@ function uniquecat(a,b) {
    	}	
     var baseunits = immutable.fromJS( {
 			coulomb:{"tex":"C"},
+ 			joule:{"tex":"J"},
 			meter:{"tex":"m"},
+			volt:{"tex":"V"},
+ 			kelvin:{"tex":"K"},
+			meter:{"tex":"m"},
+			second:{"tex":"s"},
 			})
     //console.log("DEV: baseunits = ", JSON.stringify( baseunits ,'null','\t') )
     //console.log("DEV varsUsed =", varsUsed)

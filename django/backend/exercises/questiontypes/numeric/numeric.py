@@ -5,7 +5,6 @@ from sympy.abc import _clash1, _clash2, _clash
 # from sympy.physics.units import *
 from math import log10, floor
 import json
-import re
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
@@ -17,35 +16,39 @@ import time
 import logging
 
 logger = logging.getLogger(__name__)
+from .unithelpers import *
+import re
 
-meter, second, kg, ampere, kelvin, mole, candela = sympy.symbols(
-    'meter,second,kg,ampere,kelvin,mole,candela ', real=True, positive=True
-)
-ns = {}
-ns.update(_clash)
-ns.update(
-    {
-        'meter': meter,
-        'second': second,
-        'kg': kg,
-        'ampere': ampere,
-        'kelvin': kelvin,
-        'mole': mole,
-        'candela': candela,
-        'pi': sympy.pi,
-        'ff': sympy.Symbol('ff'),
-        'FF': sympy.Symbol('FF'),
-    }
-)
-
-derivedunits = {
-    'joule': kg * meter ** 2 / second ** 2,
-    'N': kg * meter ** 2 / second ** 2,
-    'coulomb': ampere * second,
-    'volt': kg * meter ** 2 / second ** 3 / ampere,
-}
-
-baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
+# meter, second, kg , ampere , kelvin, mole, candela = sympy.symbols('meter,second,kg,ampere,kelvin,mole,candela ', real=True, positive=True)
+# ns = {}
+# ns.update(_clash)
+# ns.update({
+#        'meter': meter,
+#        'second': second,
+#        'kg': kg,
+#        'ampere': ampere, 'kelvin': kelvin, 'mole': mole, 'candela': candela,
+#        'pi': sympy.pi,
+#        'ff': sympy.Symbol('ff'),
+#        'FF': sympy.Symbol('FF')
+#        })
+#
+# derivedunits = {
+#            'joule': kg*meter**2/second**2,
+#            'N': kg*meter**2/second**2,
+#            'coulomb': ampere * second,
+#            'volt': kg * meter**2 / second**3  / ampere
+#             }
+#
+# baseunits = {
+#        meter: 1,
+#        second: 1,
+#        kg: 1,
+#        ampere: 1,
+#       kelvin: 1,
+#       mole: 1,
+#       candela: 1
+#
+#        }
 
 lambdifymodules = ["numpy", {'cot': lambda x: 1.0 / numpy.tan(x)}]
 
@@ -169,10 +172,10 @@ def getprecision(e2):
 def numeric_internal(variables, e1, e2, precision):  # {{{
     # Do some initial formatting
     expression1 = re.sub(
-        r"([0-9])\.([^0-9])", r"\1.0 \2", e1
+        r'([0-9])\.([^0-9])', r'\1.0 \2', e1
     )  # strip trailing decimal to force integer
     expression2 = re.sub(
-        r"([0-9])\.([^0-9])", r"\1.0 \2", e2
+        r'([0-9])\.([^0-9])', r'\1.0 \2', e2
     )  # strip trailing decimal to force integer
     number_of_points = 10
     response = {}

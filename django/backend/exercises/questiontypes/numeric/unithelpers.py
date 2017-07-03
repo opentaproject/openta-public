@@ -1,6 +1,6 @@
 import sympy
 import numpy
-from sympy import sympify, symbols
+from sympy import *
 from sympy.abc import _clash1, _clash2, _clash
 
 meter, second, kg, ampere, kelvin, mole, candela = sympy.symbols(
@@ -30,7 +30,7 @@ baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela:
 derivedunits = {
     'joule': kg * meter ** 2 / second ** 2,
     'N': kg * meter ** 2 / second ** 2,
-    'coulomb': sympy.sympify(ampere * second),
+    'coulomb': ampere * second,
     'volt': sympy.sympify(kg * meter ** 2 / second ** 3 / ampere),
 }
 ns.update(derivedunits)

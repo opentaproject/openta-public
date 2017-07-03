@@ -19,7 +19,7 @@ import logging
 import re
 from .linear_algebra import linear_algebra_expression
 from .linear_algebra import linear_algebra_expression_blocking
-from .variableparser import parse_blacklist, parse_xml_variables, getallvariables
+from .variableparser import getallvariables
 
 logger = logging.getLogger(__name__)
 
