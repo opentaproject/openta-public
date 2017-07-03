@@ -113,15 +113,14 @@ def question_check_numeric(question_json, question_xmltree, answer_data, global_
     # print("used_variable_list = ", used_variable_list )
     variables = []
     variables += parse_xml_variables(question_xmltree)
-    # NOTE THAT GLOBAL XMLTREE IS NOT PARSED IN THIS TYPE
-    # if global_xmltree is not None:
-    #    variables += parse_xml_variables(global_xmltree)
+    if global_xmltree is not None:
+        variables += parse_xml_variables(global_xmltree)
     variables_element = question_xmltree.find('variables')
     if variables_element is not None:
         variables += parse_variables(variables_element.text)
-    # if global_xmltree is not None and global_xmltree.text is not None:
-    #    global_variables = parse_variables(global_xmltree.text)
-    #    variables += global_variables
+    if global_xmltree is not None and global_xmltree.text is not None:
+        global_variables = parse_variables(global_xmltree.text)
+        variables += global_variables
 
     unique_vars = {var['name']: var for var in variables}
     variables = list(unique_vars.values())
@@ -135,7 +134,7 @@ def question_check_numeric(question_json, question_xmltree, answer_data, global_
     used_variables = [v for v in variables if v['name'] in used_variable_list]
     # print("used_variables = ", used_variables )
     result = {}
-    result = numeric(used_variables, answer_data, correct_answer, precision)
+    result = numeric(variables, answer_data, correct_answer, precision)
     if 'correct' in result:
         result['status'] = 'correct' if result['correct'] else 'incorrect'
     elif 'error' in result:

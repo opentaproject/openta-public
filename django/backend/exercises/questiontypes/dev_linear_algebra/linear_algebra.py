@@ -19,12 +19,11 @@ from .string_formatting import (
     braketify,
     declash,
 )
+from .unithelpers import *
 
 logger = logging.getLogger(__name__)
 
-meter, second, kg, ampere, kelvin, mole, candela = sympy.symbols(
-    'meter,second,kg,ampere,kelvin,mole,candela', real=True, positive=True
-)
+# meter, second, kg , ampere , kelvin, mole, candela = sympy.symbols('meter,second,kg,ampere,kelvin,mole,candela', real=True, positive=True)
 
 """
 Sympy expressions trees contain special operators for Matrix algebra, for example MatMul instead of Mul. This means
@@ -80,32 +79,32 @@ class Dot(sympy.Function):
 
 # Dictionary specifying behaviour of sympify conversion of asciimath to sympy. _clash is a special sympy list that
 # removes, among other things, conversion of greek letter to special functions.
-ns = {}
-ns.update(_clash)
-ns.update(
-    {
-        'meter': meter,
-        'second': second,
-        'kg': kg,
-        'ampere': ampere,
-        'kelvin': kelvin,
-        'mole': mole,
-        'candela': candela,
-        'pi': sympy.pi,
-        'e': sympy.E,
-        'I': sympy.I,
-        'ff': sympy.Symbol('ff'),
-        'FF': sympy.Symbol('FF'),
-    }
-)
-
-# Sympy substitution rule for removing units from an expression
-baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
-derivedunits = {
-    'coulomb': sympy.sympify(ampere * second),
-    'volt': sympy.sympify(kg * meter ** 2 / second ** 3 / ampere),
-}
-ns.update(derivedunits)
+# ns = {}
+# ns.update(_clash)
+# ns.update({
+#        'meter': meter,
+#        'second': second,
+#        'kg': kg,
+# 	'ampere': ampere, 'kelvin': kelvin, 'mole': mole, 'candela': candela,
+#        'pi': sympy.pi,
+#        'e': sympy.E,
+#        'I': sympy.I,
+#        'ff': sympy.Symbol('ff'),
+#        'FF': sympy.Symbol('FF'),
+#        })
+#
+## Sympy substitution rule for removing units from an expression
+# baseunits = {
+#        meter: 1,
+#        second: 1,
+#        kg: 1,
+#        ampere: 1, kelvin: 1, mole: 1, candela: 1
+#        }
+# derivedunits = {
+# 	'coulomb': sympy.sympify( ampere * second ),
+# 	'volt': sympy.sympify( kg * meter**2 / second**3 / ampere )
+# 	}
+# ns.update( derivedunits )
 
 # List of special handling in the conversion from sympy to numpy expressions for final evaluation
 lambdifymodules = [
@@ -152,7 +151,7 @@ class LinearAlgebraUnitError(Exception):
         return str(self.value)
 
 
-def parse_variables(variables):
+def parse_sample_variables(variables):
     """
     Parses a list of asciimath defined variables into correct sympy representations.
 
@@ -282,7 +281,7 @@ def linear_algebra_compare_expressions(
         }
     """
     try:
-        varsubs, varsubs_sympify, sample_variables = parse_variables(variables)
+        varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate
         # expression (necessary for matrix expressions).
         prelhs = sympify_with_custom(student_answer, varsubs_sympify)

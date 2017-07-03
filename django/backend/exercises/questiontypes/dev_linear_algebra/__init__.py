@@ -19,6 +19,7 @@ import logging
 import re
 from .linear_algebra import linear_algebra_expression
 from .linear_algebra import linear_algebra_expression_blocking
+from .variableparser import parse_blacklist, parse_xml_variables, getallvariables
 
 logger = logging.getLogger(__name__)
 
@@ -44,30 +45,28 @@ def parse_variables(variables):  # {{{
         raise QuestionError("Cannot parse variables")
 
 
-def parse_xml_variables(node):
-    '''
-    Parses variables defined through the XML syntax <var>...</var>
-    '''
-    variables = node.xpath('./var')
-    res = []
-    if variables is None:
-        return res
-    for var in variables:
-        token = var.find('token')
-        value = var.find('val')
-        if token is not None and value is not None:
-            res.append({'name': token.text, 'value': value})
-    return res
+# def parse_xml_variables(node):
+#    '''
+#    Parses variables defined through the XML syntax <var>...</var>
+#    '''
+#    variables = node.xpath('./var')
+#    res = []
+#    if variables is None:
+#        return res
+#    for var in variables:
+#        token = var.find('token')
+#        value = var.find('val')
+#        if token is not None and value is not None:
+#            res.append({'name': token.text, 'value': value})
+#    return res
 
-
-def parse_blacklist(node):
-    tokens = node.xpath('./blacklist/token')
-    ret = []
-    for token in tokens:
-        if hasattr(token, 'text'):
-            ret.append(token.text.strip(' \t\n\r'))
-    return ret
-
+# def parse_blacklist(node):
+#    tokens = node.xpath('./blacklist/token')
+#    ret = []
+#    for token in tokens:
+#        if hasattr(token,'text'):
+#            ret.append(token.text.strip(' \t\n\r'))
+#    return ret
 
 # The function below is the core of the server interface and the only mandatory component.
 def question_check_linear_algebra(question_json, question_xmltree, answer_data, global_xmltree):
@@ -96,29 +95,38 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
             </expression>
         </question>
     '''
-    variables = []
-    blacklist = set([])
+    # getallvariables( global_xmltree, question_xmltree )
+    # variables = []
+    # blacklist = set([])
+    # check_units = True
+    #
+    #    variables += parse_xml_variables(question_xmltree)
+    #    if global_xmltree is not None:
+    #        variables += parse_xml_variables(global_xmltree)
+    #
+    #    variables_element = question_xmltree.find('variables')
+    #    if variables_element is not None:
+    #        variables += parse_variables(variables_element.text)
+    #    if global_xmltree is not None and global_xmltree.text is not None:
+    #        global_variables = parse_variables(global_xmltree.text)
+    #        variables += global_variables
+    #
+    #    unique_vars = OrderedDict( (var['name'], var) for var in variables)
+    #    variables = list(unique_vars.values())
+    #    print("variables = ", variables )
+    #    correct_answer = question_xmltree.find('expression').text.split(';')[0]
+    #
+    #    if global_xmltree is not None:
+    #        blacklist.update(parse_blacklist(global_xmltree))
+    #    blacklist.update(parse_blacklist(question_xmltree))
     check_units = True
-
-    variables += parse_xml_variables(question_xmltree)
-    if global_xmltree is not None:
-        variables += parse_xml_variables(global_xmltree)
-
-    variables_element = question_xmltree.find('variables')
-    if variables_element is not None:
-        variables += parse_variables(variables_element.text)
-    if global_xmltree is not None and global_xmltree.text is not None:
-        global_variables = parse_variables(global_xmltree.text)
-        variables += global_variables
-
-    unique_vars = OrderedDict((var['name'], var) for var in variables)
-    variables = list(unique_vars.values())
-    print("variables = ", variables)
-    correct_answer = question_xmltree.find('expression').text.split(';')[0]
-
-    if global_xmltree is not None:
-        blacklist.update(parse_blacklist(global_xmltree))
-    blacklist.update(parse_blacklist(question_xmltree))
+    ret = getallvariables(global_xmltree, question_xmltree)
+    variables = ret['variables']
+    print("getallvariables: ", variables)
+    blacklist = ret['blacklist']
+    print("blacklist: ", blacklist)
+    correct_answer = ret['correct_answer']
+    print("correct_anwer: ", correct_answer)
 
     # Disable unit check if the answer contains an equality
     if '==' in answer_data:

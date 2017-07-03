@@ -1,7 +1,8 @@
 import sympy
 import numpy
 from sympy.abc import _clash1, _clash2, _clash
-from sympy.physics.units import *
+
+# from sympy.physics.units import *
 from math import log10, floor
 import json
 import re
@@ -103,12 +104,16 @@ def check_units(expression, correct, variables):
     # all_units = {bar:foo for bar,foo in u.__dict__.items() if isinstance(foo, type(u.m))}
     # print("allunits = ", all_units)
     # print("CHECK UNITS" )
+    print("CHECK UNITS variables = ", variables)
     evaluated = sympy.simplify(expression.subs(variables))
-    # print("evaluated ", evaluated)
+    print("evaluated ", evaluated)
     evaluatedn = sympy.simplify(expression.subs(variables))
-    # print("evaluatedn ", evaluatedn)
+    print("evaluatedn ", evaluatedn)
+    print("correct", correct)
+    print("correct", sympy.simplify(correct.subs(variables)))
     # evaluatedp = convert_to( sympy.simplify(expression.subs(variables)), [kg,m,s] )
     # print("evaluatedp ", evaluatedp)
+    unitsok = False
     if len(evaluated.as_terms()[0]) > 1:
         raise NumericUnitError(_("Terms do not seem to have the same unit."))
     ceval = sympy.simplify(correct.subs(variables))
@@ -118,8 +123,14 @@ def check_units(expression, correct, variables):
     # print("u.__dict__",u.__dict__.items())
     # print("quotient", quotient )
     # print("quotient", quotient.subs(u.__dict__) )
-    if len(list(quotient.free_symbols)) > 0:
+    print("quotient = ", quotient)
+    print("NUMERIC len = ", len(list(quotient.free_symbols)))
+    unitsok = int(len(list(quotient.free_symbols))) == 0
+    print("NUMERIC unitsok = ", unitsok)
+    if not (unitsok):
         raise NumericUnitError(_("Seems like the expression does not have the correct units."))
+    print("NUMERIC unitsok = ", unitsok)
+    return unitsok
 
 
 def evaluate(variables, expression):
@@ -165,7 +176,7 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
     )  # strip trailing decimal to force integer
     number_of_points = 10
     response = {}
-    # print("variables = ", variables )
+    print("NUMERIC_INTERRNA variables = ", variables)
     # print("INTERNAL: precision = ", precision )
     try:
         sexpression1 = asciiToSympy(expression1)
@@ -194,8 +205,9 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
         sympy1 = sympy.sympify(sexpression1, ns).subs(derivedunits)
         sympy2 = sympy.sympify(sexpression2, ns).subs(derivedunits)
-        # print("sympy1=",sympy1 )
-        # print("sympy2=",sympy2 )
+        print("sympy1=", sympy1)
+        print("sympy2=", sympy2)
+        print("variables =", variables)
         # intpart = re.sub(r"([0-9])*\.([0-9]*).*",r"BEGIN#\1\2#END",expression2)
         # intpart = re.sub(r"^[^#]*#",r"",intpart)
         # intpart = re.sub(r"#.*$",r"",intpart)
@@ -233,14 +245,22 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
         # print("baseunits = ", baseunits)
         # print("value1 = ", value1)
         # print("value2 = ", value2)
-        # print("varsubs = ", varsubs)
+        print("varsubs = ", varsubs)
+        unitsok = False
         if diff.is_constant():
+            print("NUMERIC2 unitsok ", unitsok)
             try:
-                check_units(sympy1, sympy2, varsubs)
+                unitsok = check_units(sympy1, sympy2, varsubs)
+                print("NUMERIC5 unitsok ", unitsok)
             except NumericUnitError as e:
+                print("NUMERIC6 unitsok ", unitsok)
+                unitsok = False
                 response['warning'] = str(e)
             except ZeroDivisionError as e:
+                unitsok = False
+                print("NUMERIC7 unitsok ", unitsok)
                 response['zerodivision'] = True
+            print("NUMERIC3 unitsok ", unitsok)
             # diffs = []
             # for point in neighbours:
             #    nvalue1 = numfunc1(*point)#sympy1.subs(point).subs(baseunits).evalf()
@@ -252,7 +272,7 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
                 response['precision'] = " [ precision " + str(precision) + " erfodras ]"
             else:
                 response['precision'] = " [ exakt svar erfodras ]  "
-            if diff <= float(precision):
+            if diff <= float(precision) and unitsok:
                 response['correct'] = True
             else:
                 response['correct'] = False
