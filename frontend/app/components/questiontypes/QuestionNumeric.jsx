@@ -430,9 +430,15 @@ arrayUnique = (array) =>  {
 // var precision = state.getIn(['response','precision'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
   var precision = question.get('precision',0)
+  if( precision == 0 ){
+        precision = '\u00B1 '+( (100 * question.getIn(['@attr','precision'],0) ) ).toString()+'%'
+        }
+        
+        
   // console.log("QUESTION_NUMERIC precision = ", precision );
   if(state.getIn(['response','detail']))
     error = "Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)";
+  // console.log("NUMERIC: @attr", question.getIn(['@attr','precision'],'0') )
 
   this.parseBlacklist();
   var res = parseVariables(question);
