@@ -331,17 +331,16 @@ export default class QuestionLinearAlgebra extends Component {
   this.varsList = res['varsList'];
   this.varProps = res['varProps'];
   var varsUsed = res['varsUsed'];
-  var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
+  var allVars = res['allVars'];
   var  exposeglobals =  this.props.questionData.get('exposeglobals');
   var localVars = parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
-  //console.log("QUESTION DEV localVars = ", localVars )
-  //console.log("QUESTION DEV exposeglobals = ", exposeglobals )
-  //console.log("QUESTION_DEF varsListUsed: ", varsListUsed );
-  //console.log("QUESTION_DEF this.varsList : ", this.varsList);
+  console.log("QUESTION DEV localVars = ", localVars )
+  console.log("QUESTION DEV exposeglobals = ", exposeglobals )
+  console.log("QUESTION_DEF this.varsList : ", this.varsList);
   var mathjsEvalVars = {}
   var availableVariables = [];
  if( exposeglobals ){
-  	var usethesevars = this.varsList; // THIS WAS THE ORIGINAL; ALL VARIABLE NAMES ARE EXPOSED UNLESS BLACKLISTED
+  	var usethesevars = allVars; // THIS WAS THE ORIGINAL; ALL VARIABLE NAMES ARE EXPOSED UNLESS BLACKLISTED
  	} else {
  	usethesevars = varsUsed;
  	}
@@ -358,7 +357,8 @@ export default class QuestionLinearAlgebra extends Component {
                       availableVariables.push((<span key={"c"+i}>, </span>));
               }
               availableVariables.push((<span key={"e"}>)</span>));
-          //availableVariables = this.varsList.length ? "(i termer av " + this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
+          /*availableVariables = usethesevars.length ? "(i termer av " + usethesevars.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
+	*/
       }
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.

@@ -410,6 +410,8 @@ arrayUnique = (array) =>  {
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
   var pending = this.props.questionPending;
+  var  hidevariables =  question.getIn(['@attr','hidevariables'],false);
+  console.log("NUMERIC hidevariables = ", hidevariables)
   // console.log("QUESTION_JSX state", state );
   //console.log('question = ', question )
   //console.log('questionstate = ', question.get('username') ) 
@@ -444,14 +446,15 @@ arrayUnique = (array) =>  {
   var res = parseVariables(question);
   this.varsList = res['varsList'];
   this.varProps = res['varProps'];
+  var varsUsed = res['varsUsed'];
 
   var mathjsEvalVars = {}
   var availableVariables = [];
   //console.log("this.varsList = ", this.varsList )
-      if(this.varsList) {
-          this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
+      if(varsUsed && !hidevariables ) {
+          varsUsed.map( v => {mathjsEvalVars[v] = 1;} );
           availableVariables.push( (<span key="s">(i termer av </span>) );
-              var filteredVars = this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
+              var filteredVars = varsUsed.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
               for(const [i, v] of filteredVars.entries()) {
                   availableVariables.push((<span key={"v"+i}>{v}</span>));
                   if(this.varProps.hasIn([v, 'tex']))
@@ -460,7 +463,7 @@ arrayUnique = (array) =>  {
                       availableVariables.push((<span key={"c"+i}>, </span>));
               }
           availableVariables.push((<span key={"e"}>)</span>));
-          availableVariables = this.varsList.length ? "(i termer av " + this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
+          /* availableVariables = this.varsList.length ? "(i termer av " + varsUsed.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : ""; */
       }
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
