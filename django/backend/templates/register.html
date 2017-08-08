@@ -6,6 +6,12 @@
 <div id="content" class="uk-vertical-align uk-text-center">
 <div class="uk-vertical-align-middle uk-container-center">
 
+  {% if domains != None %}
+  <div class="uk-alert uk-alert-success">
+    {{ _("Valid domains: ") }}
+    {{ domains|join:" or "}}
+  </div>
+  {% endif %}
 <form method="post" class="uk-form uk-form-stacked">
 {% csrf_token %}
 {% for field in form %}

@@ -48,6 +48,11 @@ internalurlpatterns = [
         name='register-with-password',
     ),
     url(
+        r'^register_by_domain/$',
+        backendviews.RegisterUserDomain.as_view(),
+        name='register-with-domain',
+    ),
+    url(
         r'^register_by_password/register/(?P<password>[\w]+)$',
         backendviews.validate_and_show_registration,
     ),

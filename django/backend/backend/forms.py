@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
 from .user_utilities import create_activation_link, send_activation_mail
+from course.models import Course
 
 
 class UserCreateFormNoPassword(ModelForm):
@@ -26,6 +27,39 @@ class UserCreateFormNoPassword(ModelForm):
         send_activation_mail(
             self.cleaned_data["username"], self.cleaned_data["email"], 'user-activation-and-reset'
         )
+        return user
+
+
+class UserCreateFormDomain(ModelForm):
+    """
+    Form used for user registration where the password is set after the activation mail is sent.
+    """
+
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ("email",)
+
+    def clean_email(self):
+        domains = Course.objects.registration_domains()
+        user_domain = self.cleaned_data["email"].split('@')[-1]
+        username = self.cleaned_data["email"].split('@')[0]
+        if domains is not None:
+            if user_domain not in domains:
+                raise forms.ValidationError(_("Email domain must be ") + " or ".join(domains))
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError(
+                "{} {} already exists!".format(_("A user with username"), username)
+            )
+        return self.cleaned_data["email"]
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.username = self.cleaned_data["email"].split("@")[0]
+        user.is_active = False
+        user.save()
+        send_activation_mail(user.username, self.cleaned_data["email"], 'user-activation-and-reset')
         return user
 
 

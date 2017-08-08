@@ -13,13 +13,9 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from course.models import Course
 from course.serializers import CourseSerializer
-from backend.forms import (
-    RegisterWithPasswordForm,
-    BatchAddUsersForm,
-    UserCreateForm,
-    UserCreateFormNoPassword,
-    EmailUsersForm,
-)
+from backend.forms import RegisterWithPasswordForm, BatchAddUsersForm
+from backend.forms import UserCreateForm, UserCreateFormNoPassword
+from backend.forms import EmailUsersForm, UserCreateFormDomain
 from django.views.generic.edit import CreateView
 from ratelimit.decorators import ratelimit
 from ratelimit.mixins import RatelimitMixin
@@ -95,6 +91,30 @@ class RegisterUserNoPassword(CreateView):  # {{{
     template_name = 'register.html'
     form_class = UserCreateFormNoPassword
     success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        super().form_valid(form)
+        messages.add_message(
+            self.request,
+            messages.SUCCESS,
+            _('Registration complete, check inbox for activation mail (possibly spam folder).'),
+        )
+        return redirect(reverse('login'))  # }}}
+
+
+class RegisterUserDomain(CreateView):  # {{{
+    """
+    View for user registration where password is given at activation time and the email is locked to specific domains.
+    """
+
+    template_name = 'register.html'
+    form_class = UserCreateFormDomain
+    success_url = reverse_lazy('login')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['domains'] = Course.objects.registration_domains()
+        return ctx
 
     def form_valid(self, form):
         super().form_valid(form)

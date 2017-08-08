@@ -21,6 +21,13 @@ class CourseManager(models.Manager):
         else:
             return datetime.time(23, 59, 0, tzinfo=pytz.timezone('Europe/Stockholm'))
 
+    def registration_domains(self):
+        course = self.first()
+        if course is not None and course.registration_domains is not None:
+            return list(map(lambda s: s.strip(), course.registration_domains.split(',')))
+        else:
+            return None
+
 
 class Course(models.Model):
     course_name = models.CharField(max_length=255)
@@ -31,6 +38,8 @@ class Course(models.Model):
     registration_by_password = models.BooleanField(default=False, blank=True)
     deadline_time = models.TimeField(null=True, default=None, blank=True)
     url = models.CharField(max_length=255, blank=True, null=True, default=None)
+    registration_domains = models.CharField(max_length=255, blank=True, null=True, default=None)
+    registration_by_domain = models.BooleanField(default=False, blank=True)
     objects = CourseManager()
 
     def __str__(self):
