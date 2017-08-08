@@ -411,7 +411,7 @@ arrayUnique = (array) =>  {
   var submit = this.props.submitFunction;
   var pending = this.props.questionPending;
   var  hidevariables =  question.getIn(['@attr','hidevariables'],false);
-  console.log("NUMERIC hidevariables = ", hidevariables)
+  // console.log("NUMERIC hidevariables = ", hidevariables)
   // console.log("QUESTION_JSX state", state );
   //console.log('question = ', question )
   //console.log('questionstate = ', question.get('username') ) 

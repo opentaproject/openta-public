@@ -334,9 +334,9 @@ export default class QuestionLinearAlgebra extends Component {
   var allVars = res['allVars'];
   var  exposeglobals =  this.props.questionData.get('exposeglobals');
   var localVars = parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
-  console.log("QUESTION DEV localVars = ", localVars )
-  console.log("QUESTION DEV exposeglobals = ", exposeglobals )
-  console.log("QUESTION_DEF this.varsList : ", this.varsList);
+  //console.log("QUESTION DEV localVars = ", localVars )
+  //console.log("QUESTION DEV exposeglobals = ", exposeglobals )
+  //console.log("QUESTION_DEF this.varsList : ", this.varsList);
   var mathjsEvalVars = {}
   var availableVariables = [];
  if( exposeglobals ){
