@@ -51,7 +51,7 @@ class BaseQuestion extends Component {
       return topDOM;
     } 
     else {
-      return (<div>Invalid question [ Exxercise.jsx ] </div>);
+      return (<div>Invalid question</div>);
     }
   }
 

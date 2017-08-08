@@ -22,9 +22,7 @@ from .string_formatting import (
 
 logger = logging.getLogger(__name__)
 
-meter, second, kg, ampere, kelvin = sympy.symbols(
-    'meter,second,kg,ampere,kelvin', real=True, positive=True
-)
+meter, second, kg = sympy.symbols('meter,second,kg', real=True, positive=True)
 
 """
 Sympy expressions trees contain special operators for Matrix algebra, for example MatMul instead of Mul. This means
@@ -87,8 +85,6 @@ ns.update(
         'meter': meter,
         'second': second,
         'kg': kg,
-        'ampere': ampere,
-        'kelvin': kelvin,
         'pi': sympy.pi,
         'e': sympy.E,
         'I': sympy.I,
@@ -98,7 +94,7 @@ ns.update(
 )
 
 # Sympy substitution rule for removing units from an expression
-uniteval = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1}
+uniteval = {meter: 1, second: 1, kg: 1}
 
 # List of special handling in the conversion from sympy to numpy expressions for final evaluation
 lambdifymodules = [
@@ -219,20 +215,10 @@ def check_units_new(expression, correct, sample_variables):
     nexpression = expression.subs(nvarsubs).doit()
     ncorrect = correct.subs(nvarsubs).doit()
 
-    checks = [
-        [1, 1, 1, 1, 1],
-        [perturb(2), 1, 1, 1, 1],
-        [1, perturb(2), 1, 1, 1],
-        [1, 1, perturb(2), 1, 1],
-        [1, 1, 1, perturb(2), 1],
-        [1, 1, 1, 1, perturb(2)],
-    ]
+    checks = [[1, 1, 1], [perturb(2), 1, 1], [1, perturb(2), 1], [1, 1, perturb(2)]]
     results = []
     for check in checks:
-        unit_values = list(
-            map(lambda item: (item[1], item[0]), zip(check, [kg, meter, second, ampere, kelvin]))
-        )
-        print("unit_values = ", unit_values)
+        unit_values = list(map(lambda item: (item[1], item[0]), zip(check, [kg, meter, second])))
         allvalues = nsubs_values + unit_values
         vale = numpy.linalg.norm(
             sympy.lambdify([], nexpression.subs(allvalues).doit(), modules=lambdifymodules)()
@@ -368,7 +354,7 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=True):
             map(lambda item: (item['symbol'], item['around'][0].subs(uniteval)), sample_variables)
         )
         undefined_variables = sympy1.subs(one_point).free_symbols - set(
-            [kg, second, meter, ampere, kelvin, sympy.I, sympy.E]
+            [kg, second, meter, sympy.I, sympy.E]
         )
         if len(undefined_variables) > 0:
             unrecognised = ', '.join(list(map(str, undefined_variables)))
@@ -386,9 +372,6 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=True):
         )
         if check_units:
             try:
-                print("sympy1_units = ", sympy1_units)
-                print("sympy2_units = ", sympy2_units)
-                print("sample_variables = ", sample_variables)
                 check_units_new(sympy1_units, sympy2_units, sample_variables)
             except LinearAlgebraUnitError as e:
                 response['warning'] = str(e)

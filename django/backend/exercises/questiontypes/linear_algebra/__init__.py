@@ -112,7 +112,6 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
 
     unique_vars = OrderedDict((var['name'], var) for var in variables)
     variables = list(unique_vars.values())
-    print("variables = ", variables)
     correct_answer = question_xmltree.find('expression').text.split(';')[0]
 
     if global_xmltree is not None:
