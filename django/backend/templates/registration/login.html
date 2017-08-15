@@ -33,14 +33,15 @@
     <input type="hidden" name="next" value="{{ next }}" />
 </form>
 
-<a class="uk-button uk-button-mini" href="{% url 'password_reset' %}">{% trans "Lost password?" %}</a>
+{% if course.registration_by_domain %}
+<a href="{% url 'register-with-domain' %}" class="uk-button uk-button-mini uk-margin-small-bottom">{% trans "Register by email" %}</a>
+{% endif %}
+<a class="uk-button uk-button-mini uk-margin-small-bottom" href="{% url 'password_reset' %}">{% trans "Lost password?" %}</a>
 
 {% if course.registration_by_password %}
-<a href="{% url 'register-with-password' %}" class="uk-button uk-button-mini">{% trans "Register" %}</a>
+<a href="{% url 'register-with-password' %}" class="uk-button uk-button-mini uk-margin-small-bottom">{% trans "Register" %}</a>
 {% endif %}
-{% if course.registration_by_domain %}
-<a href="{% url 'register-with-domain' %}" class="uk-button uk-button-mini">{% trans "Register by email" %}</a>
-{% endif %}
+<a class="uk-button uk-button-mini uk-margin-small-bottom" href="mailto:{{course.course_name|lower}}@openta.se">{% trans "Problem?" %}</a>
 {# Assumes you setup the password_reset view in your URLconf #}
 {# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
 </div>

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-06-13 14:28+0200\n"
+"POT-Creation-Date: 2017-08-15 13:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,11 +18,19 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: backend/forms.py:51 course/forms.py:6 course/models.py:26
+#: backend/forms.py:47
+msgid "Email domain must be "
+msgstr "Email domän måste vara "
+
+#: backend/forms.py:49
+msgid "A user with username"
+msgstr ""
+
+#: backend/forms.py:84 course/forms.py:6 course/models.py:33
 msgid "Registration password"
 msgstr "Registreringslösenord"
 
-#: backend/forms.py:57
+#: backend/forms.py:90
 msgid "Batch CSV file"
 msgstr ""
 
@@ -34,11 +42,11 @@ msgstr "Sidan är stängd för underhåll."
 msgid " account activation"
 msgstr " kontoaktivering"
 
-#: backend/views.py:57
+#: backend/views.py:59
 msgid "Password is now set, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
-#: backend/views.py:70 backend/views.py:83
+#: backend/views.py:72 backend/views.py:85 backend/views.py:103
 msgid ""
 "Registration complete, check inbox for activation mail (possibly spam "
 "folder)."
@@ -46,30 +54,30 @@ msgstr ""
 "Registrering klar, ett aktiveringsmail kommer inom några minuter skickas "
 "till din mail (möjligen i spam mapp)."
 
-#: backend/views.py:133 backend/views.py:195 backend/views.py:207
+#: backend/views.py:153 backend/views.py:215 backend/views.py:227
 msgid "5 times per 30 seconds"
 msgstr "5 gånger per 30 sekunder"
 
-#: backend/views.py:152
+#: backend/views.py:172
 msgid "Activation successful, please login."
 msgstr "Aktivering lyckades, logga in nedan."
 
-#: backend/views.py:171
+#: backend/views.py:191
 msgid "User is already activated"
 msgstr "Användaren är redan aktiverad."
 
-#: backend/views.py:277
+#: backend/views.py:297
 msgid ""
 "Password reset link sent to your email (check your spam folder as well)."
 msgstr ""
 "En länk för lösenordsåterställning kommer inom några minuter skickas till "
 "din email (titta även bland spam)."
 
-#: backend/views.py:286
+#: backend/views.py:306
 msgid "times per minute."
 msgstr " gånger per minut."
 
-#: backend/views.py:299
+#: backend/views.py:319
 msgid "Password reset successful, please login."
 msgstr "Lösenord sparat, logga in nedan."
 
@@ -168,22 +176,28 @@ msgstr ""
 msgid "Finished syncing exercises."
 msgstr ""
 
-#: exercises/question.py:45
+#: exercises/question.py:77
 msgid "Answer rate exceeded, please wait before trying again. (Rate: "
 msgstr "Svarsintervall överskridet, vänta innan du försöker igen. (Intervall: "
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:81
+#: exercises/questiontypes/numeric/numeric.py:112
 msgid "Terms do not seem to have the same unit."
 msgstr "Termerna i uttrycket verkar inte ha samma enhet."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:85
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:118
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:239
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:226
+#: exercises/questiontypes/numeric/numeric.py:125
 msgid "Seems like the expression does not have the correct units."
 msgstr "Uttrycket verkar inte ha rätt enhet."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:170
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:172
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:276
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:282
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:284
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:263
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:269
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:271
@@ -191,30 +205,56 @@ msgid "Forbidden token: "
 msgstr "Otillåten funktion/variabel: "
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:204
+#: exercises/questiontypes/numeric/numeric.py:269
 msgid "Failed to evaluate expression"
 msgstr "Kunde inte evaluera uttrycket"
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:206
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:352
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:339
+#: exercises/questiontypes/numeric/numeric.py:271
 msgid " are not valid variables."
 msgstr " är inte tillåtna variabler."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:209
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:288
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:380
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:275
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:364
+#: exercises/questiontypes/numeric/numeric.py:274
 msgid "Failed to evaluate expression."
 msgstr "Kunde inte evaluera uttrycket"
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:212
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:297
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:384
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:284
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:368
+#: exercises/questiontypes/numeric/numeric.py:277
 msgid "Unknown error, check your expression."
 msgstr "Okänt fel, kontrollera ditt uttryck."
 
 #: exercises/questiontypes/compare_numeric/compare_numeric.py:226
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:399
 #: exercises/questiontypes/linear_algebra/linear_algebra.py:383
+#: exercises/questiontypes/numeric/numeric.py:293
 msgid "Answer contains invalid character "
 msgstr "Uttrycket innehåller felaktiga tecken "
+
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:267
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:269
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:271
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:254
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:256
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:258
+msgid "The answer does not have the correct dimensions."
+msgstr "Svaret har inte rätt dimensionalitet (skalär/vektor/matris)."
+
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:292
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:279
+msgid ""
+"There seems to be a vector or matrix operation with incompatible dimensions."
+msgstr ""
 
 #: exercises/questiontypes/linalgebra/linalgebra.py:98
 msgid "Error subsituting  for variable"
@@ -248,34 +288,27 @@ msgstr "Uttrycket innehåller felaktiga tecken "
 msgid "Could not parse expression"
 msgstr "Uttrycket kunde inte tolkas."
 
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:254
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:256
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:258
-msgid "The answer does not have the correct dimensions."
-msgstr "Svaret har inte rätt dimensionalitet (skalär/vektor/matris)."
-
-#: exercises/questiontypes/linear_algebra/linear_algebra.py:279
-msgid ""
-"There seems to be a vector or matrix operation with incompatible dimensions."
-msgstr ""
-
-#: exercises/questiontypes/multiple_choice/__init__.py:77
+#: exercises/questiontypes/multiple_choice/__init__.py:76
 msgid "There are more correct alternatives."
 msgstr "Det finns fler korrekta alternativ."
 
-#: exercises/views/api.py:203
+#: exercises/views/api.py:70
+msgid "Permission denied"
+msgstr ""
+
+#: exercises/views/api.py:210
 msgid "Exercise not activated."
 msgstr "Uppgiften är inte aktiverad."
 
-#: exercises/views/api.py:206
+#: exercises/views/api.py:213
 msgid "You are limited to "
 msgstr "Max "
 
-#: exercises/views/api.py:206
+#: exercises/views/api.py:213
 msgid " tries per minute."
 msgstr " försök per minut."
 
-#: exercises/views/api.py:227
+#: exercises/views/api.py:234
 msgid ""
 "File larger than 10mb, please try to reduce the size and upload again. (For "
 "images try to reduce the resolution and for pdf files it is most likely "
@@ -285,7 +318,7 @@ msgstr ""
 "du testa att minska upplösning, för pdf är det förmodligen stora bilder i "
 "dokumentet)"
 
-#: exercises/views/api.py:312
+#: exercises/views/api.py:319
 msgid "You cannot delete after the deadline has passed."
 msgstr ""
 
@@ -345,11 +378,24 @@ msgstr ""
 msgid "Send email to users"
 msgstr ""
 
+#: templates/hijack/notifications.html:11
+#, python-format
+msgid "release %(user)s"
+msgstr ""
+
+#: templates/hijack/notifications.html:15
+msgid "hide"
+msgstr ""
+
 #: templates/rate_limit.html:10
 msgid "You can only access this page "
 msgstr "Du kan bara använda denna sidan "
 
-#: templates/register.html:24 templates/registration/login.html:39
+#: templates/register.html:11
+msgid "Valid domains: "
+msgstr "Godkända domäner: "
+
+#: templates/register.html:30 templates/registration/login.html:39
 #: templates/registration/set_password.html:25
 msgid "Register"
 msgstr "Registrera"
@@ -361,6 +407,10 @@ msgstr "Logga in"
 #: templates/registration/login.html:36
 msgid "Lost password?"
 msgstr "Glömt lösenord?"
+
+#: templates/registration/login.html:42
+msgid "Register by email"
+msgstr "Registrera med email"
 
 #: templates/registration/password_reset_confirm.html:23
 msgid "Set password"
