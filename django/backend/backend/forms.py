@@ -5,6 +5,7 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from django.forms import ModelForm
 from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy
 from .user_utilities import create_activation_link, send_activation_mail
 from course.models import Course
 
@@ -36,8 +37,8 @@ class UserCreateFormDomain(ModelForm):
     """
 
     email = forms.EmailField(required=True)
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
+    first_name = forms.CharField(required=True, label=ugettext_lazy('First name'))
+    last_name = forms.CharField(required=True, label=ugettext_lazy('Last name'))
 
     class Meta:
         model = User

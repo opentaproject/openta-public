@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-15 13:12+0200\n"
+"POT-Creation-Date: 2017-08-15 17:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,19 +18,27 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: backend/forms.py:47
+#: backend/forms.py:35
+msgid "First name"
+msgstr "Förnamn"
+
+#: backend/forms.py:36
+msgid "Last name"
+msgstr "Efternamn"
+
+#: backend/forms.py:48
 msgid "Email domain must be "
 msgstr "Email domän måste vara "
 
-#: backend/forms.py:49
+#: backend/forms.py:50
 msgid "A user with username"
 msgstr ""
 
-#: backend/forms.py:84 course/forms.py:6 course/models.py:33
+#: backend/forms.py:85 course/forms.py:6 course/models.py:33
 msgid "Registration password"
 msgstr "Registreringslösenord"
 
-#: backend/forms.py:90
+#: backend/forms.py:91
 msgid "Batch CSV file"
 msgstr ""
 
@@ -395,7 +403,7 @@ msgstr "Du kan bara använda denna sidan "
 msgid "Valid domains: "
 msgstr "Godkända domäner: "
 
-#: templates/register.html:30 templates/registration/login.html:39
+#: templates/register.html:30 templates/registration/login.html:42
 #: templates/registration/set_password.html:25
 msgid "Register"
 msgstr "Registrera"
@@ -404,13 +412,17 @@ msgstr "Registrera"
 msgid "Log in"
 msgstr "Logga in"
 
-#: templates/registration/login.html:36
+#: templates/registration/login.html:37
+msgid "Register by email"
+msgstr "Registrera med email"
+
+#: templates/registration/login.html:39
 msgid "Lost password?"
 msgstr "Glömt lösenord?"
 
-#: templates/registration/login.html:42
-msgid "Register by email"
-msgstr "Registrera med email"
+#: templates/registration/login.html:44
+msgid "Problem?"
+msgstr ""
 
 #: templates/registration/password_reset_confirm.html:23
 msgid "Set password"
