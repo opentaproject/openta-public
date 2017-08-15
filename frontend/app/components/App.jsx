@@ -1,6 +1,5 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-import Counter from './Counter';
 import ExerciseList from './ExerciseList';
 import StudentExercise from './StudentExercise';
 import AuthorExercise from './AuthorExercise';
