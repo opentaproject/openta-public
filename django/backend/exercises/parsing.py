@@ -224,7 +224,6 @@ def exercise_check_thumbnail(xmltree, path):
         try:
             figurepath = figure[0].text.strip()
         except (IndexError, NameError, AttributeError) as e:
-            messages.append(('warning', "No figure for exercise"))
             return messages
         full_figurepath = paths.EXERCISES_PATH + '/{path}/'.format(path=path) + figurepath
         _, ext = os.path.splitext(figurepath)
