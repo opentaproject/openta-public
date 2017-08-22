@@ -5,7 +5,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <title>compareNumeric &#8212; OpenTA  documentation</title>
+    <title>linearAlgebra &#8212; OpenTA  documentation</title>
     <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
@@ -24,8 +24,8 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="linearAlgebra" href="linearalgebra.html" />
-    <link rel="prev" title="Question types" href="index.html" />
+    <link rel="next" title="Documentation" href="../../documentation/index.html" />
+    <link rel="prev" title="compareNumeric" href="comparenumeric.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
@@ -44,7 +44,8 @@
 <li class="toctree-l2"><a class="reference internal" href="../intro.html">Introduction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../exercise_xml.html">Exercises</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="index.html">Question types</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">compareNumeric</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="comparenumeric.html">compareNumeric</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">linearAlgebra</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a><ul>
 <li class="toctree-l5"><a class="reference internal" href="#basic">Basic</a></li>
 <li class="toctree-l5"><a class="reference internal" href="#variables">Variables</a></li>
@@ -53,7 +54,6 @@
 </li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="linearalgebra.html">linearAlgebra</a></li>
 </ul>
 </li>
 </ul>
@@ -78,15 +78,28 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="comparenumeric">
-<span id="id1"></span><h1>compareNumeric<a class="headerlink" href="#comparenumeric" title="Permalink to this headline">¶</a></h1>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+  <div class="section" id="linearalgebra">
+<span id="id1"></span><h1>linearAlgebra<a class="headerlink" href="#linearalgebra" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;linearAlgebra&quot;</span><span class="nt">&gt;</span>
  ...
 <span class="nt">&lt;/question&gt;</span>
 </pre></div>
 </div>
-<p>The answer is a symbolic or numeric expression in a set of variables. Student answers are graded by comparing them with the correct expression by random numeric sampling.</p>
-<p>The following tags can be used inside a <strong>compareNumeric</strong> block.</p>
+<p>Can be used when the answer is a symbolic or numeric expression in a set of variables, possibly vector or matrix-valued. Student answers are graded by comparing them with the correct expression, optionally by random sampling. This questiontype should be thought of as a superset of compareNumeric, containing the same functionality but with greater flexibility, including vector and matrix support.</p>
+<p>Vectors and matrices are defined using square brackets and can be unitful. For example a 3-vector can be written as <strong>[1,2,3]</strong>. A matrix is similarly entered as <strong>[[1,0], [0,1]]</strong>, where the inner vectors corresponds to the rows of the matrix. There are a number of vector operators available (see the help button for a linearAlgebra question for the full list) such as <strong>cross(v1,v2)</strong>, <strong>dot(v1,v2)</strong> and <strong>norm(v)</strong>.</p>
+<p>Scalar variables can be defined as random sampled using the function <cite>sample(value1, value2, …)</cite>. The answer will be compared using random sampling in a neighbourhood around each value. <strong>Note that this is not automatic as with compareNumeric</strong>. For example to correctly grade an answer containing the absolute value function,</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;linearAlgebra&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;variables&gt;</span>
+    x = sample(1, -1)
+  <span class="nt">&lt;/variables&gt;</span>
+  <span class="nt">&lt;text&gt;</span>
+   What is $\sqrt(x^2)$?
+  <span class="nt">&lt;/text&gt;</span>
+  <span class="nt">&lt;expression&gt;</span>abs(x)<span class="nt">&lt;/expression&gt;</span>
+<span class="nt">&lt;/question&gt;</span>
+</pre></div>
+</div>
+<p>The following tags can be used inside a <strong>linearAlgebra</strong> block.</p>
 <table border="1" class="colwidths-given docutils">
 <colgroup>
 <col width="20%" />
@@ -112,13 +125,17 @@
 <td>&#160;</td>
 <td>Variables in semicolon separated list of var=value, e.g. “x=1;y=2;”</td>
 </tr>
+<tr class="row-odd"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;blacklist&gt;</span></span></code></td>
+<td>&#160;</td>
+<td>List of subtags <cite>&lt;token&gt;&lt;/token&gt;</cite> containing tokens (variables, functions or operators) that are not allowed in the answer.</td>
+</tr>
 </tbody>
 </table>
 <div class="section" id="examples">
 <h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="basic">
 <h3>Basic<a class="headerlink" href="#basic" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;linearAlgebra&quot;</span><span class="nt">&gt;</span>
   <span class="nt">&lt;text&gt;</span>What is 1+1?<span class="nt">&lt;/text&gt;</span>
   <span class="nt">&lt;expression&gt;</span>2<span class="nt">&lt;/expression&gt;</span>
 <span class="nt">&lt;/question&gt;</span>
@@ -127,15 +144,14 @@
 </div>
 <div class="section" id="variables">
 <h3>Variables<a class="headerlink" href="#variables" title="Permalink to this headline">¶</a></h3>
-<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;linearAlgebra&quot;</span><span class="nt">&gt;</span>
   <span class="nt">&lt;variables&gt;</span>
-    a=3; b=5;
+    omega=[1,0,0]; r=[0,1,0];
   <span class="nt">&lt;/variables&gt;</span>
   <span class="nt">&lt;text&gt;</span>
-    What is the length of the hypotenuse of a right angled
-    triangle with sides a and b?
+    What is the velocity of a particle at a point $\vec{r}$ rotating around the origin with angular velocity $\vec{omega}$?
   <span class="nt">&lt;/text&gt;</span>
-  <span class="nt">&lt;expression&gt;</span>sqrt(a^2+b^2)<span class="nt">&lt;/expression&gt;</span>
+  <span class="nt">&lt;expression&gt;</span>cross(omega, r)<span class="nt">&lt;/expression&gt;</span>
 <span class="nt">&lt;/question&gt;</span>
 </pre></div>
 </div>
@@ -145,25 +161,26 @@
 <div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;exercise&gt;</span>
   <span class="nt">&lt;exercisename&gt;</span>Momentum and energy<span class="nt">&lt;/exercisename&gt;</span>
   <span class="nt">&lt;text&gt;</span>
-    A particle with mass $m$ is moving with velocity $v$.
+    A particle with mass $m$ is moving with velocity $\vec{v}$.
   <span class="nt">&lt;/text&gt;</span>
 
-  <span class="nt">&lt;global</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
-    m = kg; v = meter / second;
+  <span class="nt">&lt;global</span> <span class="na">type=</span><span class="s">&quot;linearAlgebra&quot;</span><span class="nt">&gt;</span>
+    x = sample(1)
+    m = kg; v = [x, 0, 0] meter / second;
   <span class="nt">&lt;/global&gt;</span>
 
-  <span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;linearAlgebra&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;text&gt;</span>
       What is the linear momentum of the particle?
     <span class="nt">&lt;/text&gt;</span>
     <span class="nt">&lt;expression&gt;</span>m*v<span class="nt">&lt;/expression&gt;</span>
   <span class="nt">&lt;/question&gt;</span>
 
-  <span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;compareNumeric&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;linearAlgebra&quot;</span><span class="nt">&gt;</span>
     <span class="nt">&lt;text&gt;</span>
       What is the kinetic energy of the particle?
     <span class="nt">&lt;/text&gt;</span>
-    <span class="nt">&lt;expression&gt;</span>m*v^2/2<span class="nt">&lt;/expression&gt;</span>
+    <span class="nt">&lt;expression&gt;</span>m*dot(v, v)/2<span class="nt">&lt;/expression&gt;</span>
   <span class="nt">&lt;/question&gt;</span>
 <span class="nt">&lt;/exercise&gt;</span>
 </pre></div>
@@ -186,7 +203,7 @@
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |
-      <a href="../../_sources/author/questiontypes/comparenumeric.rst.txt"
+      <a href="../../_sources/author/questiontypes/linearalgebra.rst.txt"
           rel="nofollow">Page source</a>
     </div>
 
