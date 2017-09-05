@@ -68,9 +68,11 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
     var modified = exerciseState.get('modified');
+    var no_xml_error = exerciseState.get('xmlError') == null;
+    var can_save = modified && no_xml_error;
 
     var savereset = (
-      <Tools showsave={modified} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(activeExercise)}/>
+      <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(activeExercise)}/>
     );
 
   var renderGroupIcons = groups.map( group => {
