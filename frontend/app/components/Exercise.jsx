@@ -43,6 +43,8 @@ class BaseExercise extends Component {
       'h3': this.renderHTMLElement(),
       'h2': this.renderHTMLElement(),
       'h1': this.renderHTMLElement(),
+      'hr': this.renderHTMLElementHR(),
+      'br': this.renderHTMLElementBR(),
       'ul': this.renderHTMLElement("uk-list"),
       'li': this.renderHTMLElement(),
       'a': this.renderHTMLElementA(),
@@ -161,6 +163,14 @@ class BaseExercise extends Component {
         var children = itemjson.get('$children$', immutable.List([]))
                                .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toList();
         return (<a href={itemjson.getIn(['@attr', 'href'])} target="_blank" key={nextUnstableKey()}>{children}</a>)
+    }
+
+    renderHTMLElementHR = () =>  (itemjson, json, meta, exerciseKey) => {
+        return (<hr/>)
+    }
+
+    renderHTMLElementBR = () =>  (itemjson, json, meta, exerciseKey) => {
+        return (<br/>)
     }
 
     renderHTMLElement = (className="", extraAttrs=[]) => (itemjson, json, meta, exerciseKey) => {
