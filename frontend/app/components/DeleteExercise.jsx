@@ -20,7 +20,8 @@ const BaseDeleteExercise = ({onDelete, pendingDelete, exerciseKey, author}) => {
         if(!author)
             return (<span/>);
   return (
-    <span className="uk-button uk-button-small uk-button-danger" onClick={() => onDelete(exerciseKey)}>Delete
+    <span className="uk-button uk-button-small uk-button-danger" title="Move exercise to trash." data-uk-tooltip onClick={() => onDelete(exerciseKey)}>
+      <i className="uk-icon uk-icon-trash"/>
             { pendingDelete &&
               <Spinner/>
             }
