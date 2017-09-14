@@ -3,7 +3,7 @@ from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.decorators import permission_required
-from exercises.models import Exercise
+from exercises.models import Exercise, ExerciseMeta
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from exercises.parsing import list_history
@@ -39,6 +39,7 @@ def exercise_delete(request, exercise):
         logger.error('Tried to delete invalid exercise ' + exercise)
         return Response({'error': 'Invalid exercise'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     res = parsing.exercise_delete(dbexercise.path)
+    ExerciseMeta.objects.filter(exercise=dbexercise).update(published=False)
     if 'error' in res:
         return Response(res, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     logger.info('Deleted exercise at ' + dbexercise.name)

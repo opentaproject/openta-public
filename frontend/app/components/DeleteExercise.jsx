@@ -8,7 +8,8 @@ import {navigateMenuArray} from '../menu.js';
 
 import {
   fetchDeleteExercise,
-  fetchExerciseTree
+  fetchExerciseTree,
+  fetchExercises
 } from '../fetchers.js';
 
 import {
@@ -38,6 +39,7 @@ const mapDispatchToProps = dispatch => {
             dispatch(updatePendingStateIn(['exercise', exerciseKey, 'delete'], true))
             dispatch(fetchDeleteExercise(exerciseKey))
                 .then(() => dispatch(fetchExerciseTree()))
+                .then(() => dispatch(fetchExercises()))
                 .then( () => dispatch(updatePendingStateIn(['exercise', exerciseKey, 'delete'], false)))
                 .then( () => dispatch(updateActiveExercise("")))
                 .then( () =>dispatch(navigateMenuArray([])))
