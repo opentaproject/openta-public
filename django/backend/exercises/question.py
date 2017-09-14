@@ -137,7 +137,7 @@ def question_json_hook(safe_question, full_question, question_id, user_id):
     type = deep_get(safe_question, '@attr', 'type')
     if type is not None and type in question_json_hooks:
         return question_json_hooks[type](safe_question, full_question, question_id, user_id)
-    return question
+    return safe_question
 
 
 def get_sensitive_tags():
