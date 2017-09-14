@@ -1,0 +1,187 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>multipleChoice &#8212; OpenTA  documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Documentation" href="../../documentation/index.html" />
+    <link rel="prev" title="linearAlgebra" href="linearalgebra.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3><a class="reference internal" href="../../index.html">Home</a></h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation/index.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Authoring</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../intro.html">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../intro.html#mathematics-typesetting">Mathematics typesetting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../exercise_xml.html">Exercises</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Question types</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="comparenumeric.html">compareNumeric</a></li>
+<li class="toctree-l3"><a class="reference internal" href="linearalgebra.html">linearAlgebra</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">multipleChoice</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l5"><a class="reference internal" href="#basic-with-math">Basic (with math)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../documentation/index.html">Documentation</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="multiplechoice">
+<span id="id1"></span><h1>multipleChoice<a class="headerlink" href="#multiplechoice" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;multipleChoice&quot;</span><span class="nt">&gt;</span>
+ ...
+<span class="nt">&lt;/question&gt;</span>
+</pre></div>
+</div>
+<p>Multiple choice questions contains different alternatives where one or more can
+be correct. They are answered by marking the correct alternatives and then
+submitting. The content of the alternatives can be text, math or elements such
+as figures.</p>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;multipleChoice&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;text&gt;</span>Pick the correct alternatives below.<span class="nt">&lt;/text&gt;</span>
+  <span class="nt">&lt;choice</span> <span class="na">key=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>The first choice<span class="nt">&lt;/choice&gt;</span>
+  <span class="nt">&lt;choice</span> <span class="na">key=</span><span class="s">&quot;1&quot;</span> <span class="na">correct=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>The second choice<span class="nt">&lt;/choice&gt;</span>
+  <span class="nt">&lt;choice</span> <span class="na">key=</span><span class="s">&quot;2&quot;</span><span class="nt">&gt;</span>The third choice<span class="nt">&lt;/choice&gt;</span>
+  <span class="nt">&lt;choice</span> <span class="na">key=</span><span class="s">&quot;3&quot;</span> <span class="na">correct=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>The fourth choice<span class="nt">&lt;/choice&gt;</span>
+<span class="nt">&lt;/question&gt;</span>
+</pre></div>
+</div>
+<p>The following tags can be used inside a <strong>multipleChoice</strong> block.</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="20%" />
+<col width="10%" />
+<col width="70%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Tag</th>
+<th class="head">Attributes</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;text&gt;</span></span></code></td>
+<td>&#160;</td>
+<td>Question text.</td>
+</tr>
+<tr class="row-odd"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;choice&gt;</span></span></code></td>
+<td><ul class="first last simple">
+<li><code class="docutils literal"><span class="pre">key</span></code> = [string] unique id (within question)</li>
+<li><code class="docutils literal"><span class="pre">correct</span></code> = [“true”] marks this alternative as correct.</li>
+</ul>
+</td>
+<td>An alternative for the answer.</td>
+</tr>
+<tr class="row-even"><td><table class="first last docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">xml:</th><td class="field-body"><cite>&lt;hint&gt;</cite></td>
+</tr>
+</tbody>
+</table>
+</td>
+<td>&#160;</td>
+<td>Shows a hint if the student answers incorrectly.</td>
+</tr>
+<tr class="row-odd"><td><code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;rate&gt;</span></span></code></td>
+<td>&#160;</td>
+<td>Specifies how many tries a student can make per length of time. The time
+is specified as “number/unit” where unit is s (second) or h (hour). For
+example <code class="code xml docutils literal"><span class="name tag"><span class="pre">&lt;rate&gt;</span></span><span class="pre">3/h</span><span class="name tag"><span class="pre">&lt;/rate&gt;</span></span></code> permits three tries per hour. See <a class="reference external" href="https://django-ratelimit.readthedocs.io/en/v1.0.0/rates.html">rates</a> for the
+detailed syntax description.</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="basic-with-math">
+<h3>Basic (with math)<a class="headerlink" href="#basic-with-math" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-xml"><div class="highlight"><pre><span></span><span class="nt">&lt;question</span> <span class="na">type=</span><span class="s">&quot;multipleChoice&quot;</span><span class="nt">&gt;</span>
+  <span class="nt">&lt;text&gt;</span>How many people live of planet earth?<span class="nt">&lt;/text&gt;</span>
+  <span class="nt">&lt;choice</span> <span class="na">key=</span><span class="s">&quot;0&quot;</span><span class="nt">&gt;</span>$9\ctimes 10^9$<span class="nt">&lt;/choice&gt;</span>
+  <span class="nt">&lt;choice</span> <span class="na">key=</span><span class="s">&quot;1&quot;</span> <span class="na">correct=</span><span class="s">&quot;true&quot;</span><span class="nt">&gt;</span>$9\ctimes 10^10$<span class="nt">&lt;/choice&gt;</span>
+  <span class="nt">&lt;choice</span> <span class="na">key=</span><span class="s">&quot;2&quot;</span><span class="nt">&gt;</span>$9\ctimes 10^11$<span class="nt">&lt;/choice&gt;</span>
+<span class="nt">&lt;/question&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2017, Hampus Linander, Stellan Östlund.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../../_sources/author/questiontypes/multiplechoice.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

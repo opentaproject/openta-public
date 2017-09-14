@@ -22,6 +22,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Exercises" href="exercise_xml.html" />
@@ -42,6 +43,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Authoring</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mathematics-typesetting">Mathematics typesetting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exercise_xml.html">Exercises</a></li>
 <li class="toctree-l2"><a class="reference internal" href="questiontypes/index.html">Question types</a></li>
 </ul>
@@ -86,6 +88,12 @@
 </pre></div>
 </div>
 <p>In this example the question type <a class="reference internal" href="questiontypes/comparenumeric.html#comparenumeric"><span class="std std-ref">compareNumeric</span></a> is used which compares the student answer with the correct answer by random sampling.</p>
+</div>
+<div class="section" id="mathematics-typesetting">
+<h1>Mathematics typesetting<a class="headerlink" href="#mathematics-typesetting" title="Permalink to this headline">¶</a></h1>
+<p>OpenTA supports typesetting mathematical expressions in text through <a class="reference external" href="https://khan.github.io/KaTeX/">KaTeX</a>. This means that whenever you want to show some mathematics, for example <span class="math">\(\frac{1+x^2}{\sqrt{1-x}}\)</span>, you write the corresponding <a class="reference external" href="https://en.wikipedia.org/wiki/LaTeX">LaTeX</a> syntax within dollar signs: <code class="code docutils literal"><span class="pre">$\frac{1+x^2}{\sqrt{1-x}}$</span></code>.</p>
+<p>See <a class="reference external" href="https://en.wikibooks.org/wiki/LaTeX/Mathematics">the LaTeX wiki</a> for a syntax reference.</p>
+<p>For some more hands-on examples see <a class="reference external" href="https://math.meta.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference">this stackexchange collection</a> (this is aimed at MathJax which also uses the same syntax).</p>
 </div>
 
 
