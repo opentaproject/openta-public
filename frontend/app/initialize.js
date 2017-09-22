@@ -3,27 +3,22 @@ import 'babel-polyfill';
 import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
-import counterApp from './reducers';
 import App from 'components/App';
-import { 
+import {
   fetchExercises,
-  fetchExerciseTree, 
-  fetchLoginStatus, 
+  fetchExerciseTree,
+  fetchLoginStatus,
   updatePendingStateIn,
   fetchExercise
 } from './fetchers';
-import { 
+import {
   updateActiveExercise,
 } from './actions.js';
 import { navigateMenuArray, menuPositionUnder } from './menu.js';
 import { SUBPATH } from './settings.js';
-import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js'
+import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js';
+import {store} from 'store.js';
 
-//const store = createStore(counterApp, module.hot && module.hot.data && module.hot.data.counter || { exercises: ['test'] });
-//const store = createStore(counterApp, applyMiddleware(thunk));
-const store = createStore(counterApp, compose(applyMiddleware(thunk), window.devToolsExtension ? window.devToolsExtension() : f => f));
 store.dispatch( fetchExercises() );
 store.dispatch( fetchExerciseTree() );
 store.dispatch( fetchLoginStatus() );
