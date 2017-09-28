@@ -33,7 +33,7 @@ urlpatterns = [
         views.exercise_asset_delete,
     ),
     url(
-        r'^exercise/(?P<exercise>[\w\.-]+)/question/(?P<question>[\w]+)/check$',
+        r'^exercise/(?P<exercise>[\w\.-]+)/question/(?P<question>[\w\.\-]+)/check$',
         views.exercise_check,
     ),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/save$', views.exercise_save),
