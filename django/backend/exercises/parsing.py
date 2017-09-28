@@ -421,8 +421,14 @@ def exercise_json_history(exercise_path, name):
     return exercise_xml_to_json(xml)
 
 
-def invalidate_caches():
-    pass
-    # exercise_json.cache_clear()
-    # exercise_xml.cache_clear()
-    # exercise_xmltree.cache_clear()
+def get_translations(xml):
+    """Find translation subtags.
+
+    Returns a dict with the translations corresponding to
+    the <alt lang=".."> tags.
+    """
+    ret_langs = dict()
+    alt_langs = xml.xpath('./alt[@lang]')
+    for lang in alt_langs:
+        ret_langs[lang.get('lang')] = lang.text
+    return ret_langs

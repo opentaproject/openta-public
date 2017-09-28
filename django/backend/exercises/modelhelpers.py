@@ -17,8 +17,6 @@ from django.test import RequestFactory
 import os
 from functools import reduce
 from collections import OrderedDict, defaultdict
-
-# import cProfile
 import pprofile
 from .util import nested_print
 import datetime
@@ -308,6 +306,7 @@ def exercise_folder_structure(manager, user):  # {{{
             {
                 exercise.exercise_key: {
                     'name': exercise.name,
+                    'translated_name': json.loads(exercise.translated_name),
                     'correct': allcorrect,
                     'meta': ExerciseMetaSerializer(exercise.meta).data
                     if hasattr(exercise, 'meta')

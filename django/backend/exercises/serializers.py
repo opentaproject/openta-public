@@ -43,7 +43,7 @@ class ExerciseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Exercise
-        fields = ('exercise_key', 'name', 'path', 'folder', 'meta')
+        fields = ('exercise_key', 'name', 'translated_name', 'path', 'folder', 'meta')
 
 
 class QuestionSerializer(serializers.ModelSerializer):

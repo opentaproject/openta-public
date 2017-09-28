@@ -2,18 +2,11 @@ from django.db import models
 import os
 from functools import reduce
 import exercises.paths as paths
-from exercises.parsing import (
-    exercise_validate_and_json,
-    question_validate,
-    ExerciseParseError,
-    exercise_key_get_or_create,
-    is_exercise,
-    ExerciseNotFound,
-    exercise_xmltree,
-    question_validate_xmltree,
-    exercise_check_thumbnail,
-    exercise_key_get,
-)
+from exercises.parsing import exercise_validate_and_json, question_validate
+from exercises.parsing import ExerciseParseError, exercise_key_get_or_create
+from exercises.parsing import is_exercise, ExerciseNotFound, exercise_xmltree
+from exercises.parsing import question_validate_xmltree, get_translations
+from exercises.parsing import exercise_check_thumbnail, exercise_key_get
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.utils.timezone import now
@@ -70,16 +63,24 @@ class ExerciseManager(models.Manager):  # {{{
         progress = []
         result = {}
         json = {}
+        translation_name = {}
         if not path.startswith("/"):
             raise ExerciseParseError("Exercise path does not start with a /")
         if not is_exercise(path):
             raise ExerciseNotFound(path)
         exercisetree = exercise_xmltree(path)
+        exercisename_xml = exercisetree.xpath('/exercise/exercisename')
+        if exercisename_xml:
+            translation_name = get_translations(exercisename_xml[0])
         name = (exercisetree.xpath('/exercise/exercisename/text()') or ['No name'])[0]
         key = exercise_key_get_or_create(path)
-        dbexercise, created = self.update_or_create(
-            exercise_key=key, defaults={'name': name, 'path': path, 'folder': os.path.dirname(path)}
+        defaults = dict(
+            name=name,
+            translated_name=JSON.dumps(translation_name),
+            path=path,
+            folder=os.path.dirname(path),
         )
+        dbexercise, created = self.update_or_create(exercise_key=key, defaults=defaults)
         dbmeta, created_meta = ExerciseMeta.objects.get_or_create(
             exercise=dbexercise, defaults={'sort_key': os.path.basename(path)}
         )
@@ -303,6 +304,7 @@ class ExerciseManager(models.Manager):  # {{{
 class Exercise(models.Model):
     exercise_key = models.CharField(primary_key=True, max_length=255)
     name = models.CharField(max_length=255, default="")
+    translated_name = models.CharField(max_length=512, default="{}")
     path = models.TextField()
     folder = models.TextField(default="")
     objects = ExerciseManager()

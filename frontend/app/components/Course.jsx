@@ -21,6 +21,7 @@ import SafeImg from './SafeImg.jsx';
 import AddExercise from './AddExercise.jsx';
 import ExerciseHoverMenu from './ExerciseHoverMenu.jsx';
 import FolderHoverMenu from './FolderHoverMenu.jsx';
+import T from './Translation.jsx';
 
 import immutable from 'immutable';
 import moment from 'moment';
@@ -54,6 +55,7 @@ function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, f
   }
   var imageUploaded = exerciseState.getIn([exercise, 'image_answers'], immutable.List([])).size > 0;
   var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
+  var nameDict = folder.getIn(['exercises', exercise, 'translated_name']);
 return (
   <li key={exercise} id={exercise} className="course-exercise-item ">
     <div className="uk-position-relative" data-uk-dropdown="{hoverDelayIdle: 0, delay: 300}">
@@ -71,7 +73,7 @@ return (
             </div>
         </div>
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
-      {folder.getIn(['exercises',exercise, 'name'])}
+        <T dict={nameDict}>{folder.getIn(['exercises', exercise, 'name'])}</T>
       </div>
       { showStatistics && !meta.deadline_date &&
         <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-warning" title="blue: correct, orange: tried">
@@ -228,7 +230,7 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
     </ul>
   </div>
 );
-  } 
+  }
   else {
       return (<Spinner/>);
   }
