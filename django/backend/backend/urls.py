@@ -15,16 +15,11 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
 from backend import views as backendviews
-from django.views.generic.edit import CreateView
-from .forms import UserCreateForm, UserCreateFormNoPassword
 from .settings import SUBPATH, DEBUG
 
 internalurlpatterns = [
     url(r'^administration/', admin.site.urls),
-    # url(r'^register/$', backendviews.RegisterUser.as_view(), name='register'),
-    # url(r'^register_nopw/$', backendviews.RegisterUserNoPassword.as_view(), name='register-no-password'),
     url(
         r'^activateandreset/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$',
         backendviews.activate_and_reset,
@@ -59,6 +54,7 @@ internalurlpatterns = [
     url(r'^batch_add_users$', backendviews.BatchAddUserView.as_view()),
     url(r'^$', backendviews.main),
     url(r'^', include('workqueue.urls')),
+    url(r'^', include('course.urls')),
 ]
 
 urlpatterns = [

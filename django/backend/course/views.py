@@ -1,9 +1,11 @@
-from django.shortcuts import render
-from course.models import Course
+from rest_framework.decorators import api_view
 from django.views.generic.edit import UpdateView
-from course.forms import CourseForm
-from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import permission_required
+from rest_framework.response import Response
+
+from course.serializers import CourseSerializer, CourseStudentSerializer
+from course.models import Course
+from course.forms import CourseForm
 
 
 class CourseUpdate(UpdateView):
@@ -21,3 +23,13 @@ def CourseUpdateView(request, course):
     else:
         result.set_cookie('course-submitted', 'false')
     return result
+
+
+@api_view(['GET'])
+def get_current_course(request):
+    course = Course.objects.first()
+    if request.user.is_staff:
+        scourse = CourseSerializer(course)
+    else:
+        scourse = CourseStudentSerializer(course)
+    return Response(scourse.data)

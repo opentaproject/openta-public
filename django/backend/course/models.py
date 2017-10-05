@@ -40,6 +40,7 @@ class Course(models.Model):
     url = models.CharField(max_length=255, blank=True, null=True, default=None)
     registration_domains = models.CharField(max_length=255, blank=True, null=True, default=None)
     registration_by_domain = models.BooleanField(default=False, blank=True)
+    languages = models.CharField(max_length=255, blank=True, null=True, default=None)
     objects = CourseManager()
 
     def __str__(self):
