@@ -21,7 +21,7 @@ BaseTranslation.defaultProps = {
 };
 
 const mapStateToProps = (state) => {
-  const defaultLanguage = state.getIn(['login', 'language'], 'en')
+  const defaultLanguage = state.getIn(['course', 'languages', 0], 'en')
     return {
       language: state.get('lang', defaultLanguage)
     };

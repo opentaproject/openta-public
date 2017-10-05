@@ -29,6 +29,7 @@ import Spinner from './Spinner.jsx';
 import Menu from './Menu.jsx';
 import ExerciseHistory from './ExerciseHistory.jsx';
 import DeleteExercise from './DeleteExercise.jsx';
+import LanguageSelect from './LanguageSelect.jsx';
 import { throttleParseXML } from './AuthorExercise.jsx';
 import { menuPositionAt, menuPositionUnder } from '../menu.js';
 
@@ -108,6 +109,9 @@ return (
   </div>
   }
   <ul className="uk-navbar-nav">
+    <li>
+      <LanguageSelect/>
+    </li>
       <li >
         <a href={"mailto:" + course.toLowerCase() + "@openta.se"} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}><span className="uk-text-primary">Problem?</span></a>
       </li> 

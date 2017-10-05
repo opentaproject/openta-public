@@ -5,11 +5,12 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import App from 'components/App';
 import {
-  fetchExercises,
-  fetchExerciseTree,
-  fetchLoginStatus,
-  updatePendingStateIn,
-  fetchExercise
+    fetchExercises,
+    fetchExerciseTree,
+    fetchLoginStatus,
+    updatePendingStateIn,
+    fetchExercise,
+    fetchCourse,
 } from './fetchers';
 import {
   updateActiveExercise,
@@ -22,6 +23,7 @@ import {store} from 'store.js';
 store.dispatch( fetchExercises() );
 store.dispatch( fetchExerciseTree() );
 store.dispatch( fetchLoginStatus() );
+store.dispatch( fetchCourse() );
 store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
 
 if (module.hot) {

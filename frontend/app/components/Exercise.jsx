@@ -89,12 +89,12 @@ class BaseExercise extends Component {
   }
 
   filterLanguage = (children) => {
-    var filtered = children.filter(item => item.getIn(['@attr', 'lang'], "") === this.props.language);
+    var filtered = children.filter(item => item.getIn(['@attr', 'lang'], undefined) === this.props.language);
     if(filtered.size > 0) {
       return filtered;
     }
     else {
-      return children;
+      return children.filter(item => !item.hasIn(['@attr', 'lang']));
     }
   }
 
@@ -108,7 +108,7 @@ class BaseExercise extends Component {
                     .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
     return (
       <div className="uk-clearfix" key={"text" + nextUnstableKey()}>
-        {children} 
+        {children}
       </div>
     );
   }
@@ -262,7 +262,7 @@ class BaseExercise extends Component {
 
 const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
-  const defaultLanguage = state.getIn(['login', 'language'], 'en');
+  const defaultLanguage = state.getIn(['course', 'languages', 0], 'en');
   return (
   {
     author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),

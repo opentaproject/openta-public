@@ -54,42 +54,42 @@ function notify(messages, levels) {
     }
 }
 
-function fetchLoginStatus() {//{{{
-  return dispatch => {
-    return jsonfetch('/loggedin')
-    .then(response => response.json() )
-    .then(json => {
-      if(!json.username) {
-        window.location.href="/login";
-      }
-      return json;
-    })
-          .then(json => ({
-              username: json.username,
-              user_pk: json.user_pk,
-              groups: json.groups,
-              course: json.course
-          }))
-    .then(data => {
-      dispatch(updateLoginStatus(data))
-      if(data.groups.indexOf('Author') > -1)
-        dispatch(updateMenuLeafDefaults(['activeExercise'], 'student'));
-        //dispatch(updateMenuLeafDefaults(['activeExercise'], 'xmleditor'));
-        //dispatch(updateActiveAdminTool('xml-editor'));
-      if(data.groups.indexOf('Admin') > -1) 
-        dispatch(updateMenuLeafDefaults(['activeExercise'], 'student'));
-        //dispatch(updateMenuLeafDefaults(['activeExercise'], 'options'));
-        //dispatch(updateActiveAdminTool('options'));
-      if(data.groups.indexOf('View') > -1) {
-        dispatch(updateMenuLeafDefaults(['activeExercise'], 'student'));
-        //dispatch(updateMenuLeafDefaults(['activeExercise'], 'statistics'));
-        //dispatch(updateActiveAdminTool('statistics'));
-        dispatch(fetchAllExerciseStatistics());
-      }
-      }
-         );
-  };
-}//}}}
+function fetchLoginStatus() {
+    return dispatch => {
+        return jsonfetch('/loggedin')
+            .then(response => response.json() )
+            .then(json => {
+                if(!json.username) {
+                    window.location.href="/login";
+                }
+                return json;
+            })
+            .then(json => ({
+                username: json.username,
+                user_pk: json.user_pk,
+                groups: json.groups,
+                course: json.course
+            }))
+            .then(data => {
+                dispatch(updateLoginStatus(data));
+                if(data.groups.indexOf('Author') > -1)
+                    dispatch(updateMenuLeafDefaults(['activeExercise'], 'student'));
+                //dispatch(updateMenuLeafDefaults(['activeExercise'], 'xmleditor'));
+                //dispatch(updateActiveAdminTool('xml-editor'));
+                if(data.groups.indexOf('Admin') > -1)
+                    dispatch(updateMenuLeafDefaults(['activeExercise'], 'student'));
+                //dispatch(updateMenuLeafDefaults(['activeExercise'], 'options'));
+                //dispatch(updateActiveAdminTool('options'));
+                if(data.groups.indexOf('View') > -1) {
+                    dispatch(updateMenuLeafDefaults(['activeExercise'], 'student'));
+                    //dispatch(updateMenuLeafDefaults(['activeExercise'], 'statistics'));
+                    //dispatch(updateActiveAdminTool('statistics'));
+                    dispatch(fetchAllExerciseStatistics());
+                }
+            }
+                 );
+    };
+}
 
 function fetchExercises() {//{{{
   return dispatch => {
@@ -497,3 +497,4 @@ export * from './fetchers/audit.js'
 export * from './fetchers/exercise.js'
 export * from './fetchers/assets.js'
 export * from './fetchers/tasks.js'
+export * from './fetchers/course.js'
