@@ -18,6 +18,7 @@ import moment from 'moment';
 import Spinner from './Spinner.jsx'
 import Badge from './Badge.jsx';
 import SafeImg from './SafeImg.jsx';
+import T from './Translation.jsx';
 import {SUBPATH} from '../settings.js';
 
 var difficulties = {
@@ -49,6 +50,7 @@ function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta
   }
   var imageUploaded = exerciseState.getIn([exercise.get('exercise_key'), 'image_answers'], immutable.List([])).size > 0;
   var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
+  var nameDict = exercise.get('translated_name');
 return (
       <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
         <a className={ meta.get('published', false) ? "" : "exercise-unpublished" } onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
@@ -69,7 +71,9 @@ return (
               </div>
               </div>
             </li>
-            <li className="uk-text-break">{exercise.get('name')}</li>
+            <li className="uk-text-break">
+              <T dict={nameDict}>{exercise.get('name')}</T>
+            </li>
             { showStatistics &&
               <li>
               <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-success">
