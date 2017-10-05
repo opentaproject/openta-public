@@ -7,6 +7,7 @@ from exercises.models import AuditExercise
 from exercises.models import AuditResponseFile
 from course.models import Course
 from django.contrib.auth.models import User
+import json
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -40,10 +41,14 @@ class ExerciseMetaSerializer(serializers.ModelSerializer):
 
 class ExerciseSerializer(serializers.ModelSerializer):
     meta = ExerciseMetaSerializer()
+    translated_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Exercise
         fields = ('exercise_key', 'name', 'translated_name', 'path', 'folder', 'meta')
+
+    def get_translated_name(self, instance):
+        return json.loads(instance.translated_name)
 
 
 class QuestionSerializer(serializers.ModelSerializer):
