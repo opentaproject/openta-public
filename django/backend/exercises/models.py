@@ -2,21 +2,17 @@ from django.db import models
 import os
 from functools import reduce
 import exercises.paths as paths
-from exercises.parsing import exercise_validate_and_json, question_validate
 from exercises.parsing import ExerciseParseError, exercise_key_get_or_create
 from exercises.parsing import is_exercise, ExerciseNotFound, exercise_xmltree
 from exercises.parsing import question_validate_xmltree, get_translations
 from exercises.parsing import exercise_check_thumbnail, exercise_key_get
 from django.contrib.auth.models import User
-from django.contrib import messages
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.translation import ugettext as _
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
-from exercises.util import deep_get, nested_print
-from functools import partial
-from datetime import timedelta
+from exercises.util import nested_print
 import json as JSON
 import uuid
 import logging
@@ -24,7 +20,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class ExerciseManager(models.Manager):  # {{{
+class ExerciseManager(models.Manager):
     def mend_answers_and_audits(self):
         '''
         Tries to match orphan answers with an exercise and question.
@@ -61,8 +57,6 @@ class ExerciseManager(models.Manager):  # {{{
 
     def add_exercise(self, path):
         progress = []
-        result = {}
-        json = {}
         translation_name = {}
         if not path.startswith("/"):
             raise ExerciseParseError("Exercise path does not start with a /")
@@ -81,8 +75,9 @@ class ExerciseManager(models.Manager):  # {{{
             folder=os.path.dirname(path),
         )
         dbexercise, created = self.update_or_create(exercise_key=key, defaults=defaults)
+        defaults_meta = {'sort_key': os.path.basename(path)}
         dbmeta, created_meta = ExerciseMeta.objects.get_or_create(
-            exercise=dbexercise, defaults={'sort_key': os.path.basename(path)}
+            exercise=dbexercise, defaults=defaults_meta
         )
         if created:
             progress.append(('success', _("Added exercise ") + path))
@@ -106,19 +101,23 @@ class ExerciseManager(models.Manager):  # {{{
             )
             if created:
                 logger.info(
-                    name
-                    + ': Adding question '
-                    + question.get('key')
-                    + ' of type '
-                    + question.get('type')
+                    (
+                        name
+                        + ': Adding question '
+                        + question.get('key')
+                        + ' of type '
+                        + question.get('type')
+                    )
                 )
             else:
                 logger.info(
-                    name
-                    + ': Updating question '
-                    + question.get('key')
-                    + ' of type '
-                    + question.get('type')
+                    (
+                        name
+                        + ': Updating question '
+                        + question.get('key')
+                        + ' of type '
+                        + question.get('type')
+                    )
                 )
 
         for question in Question.objects.filter(exercise=dbexercise):
@@ -163,7 +162,11 @@ class ExerciseManager(models.Manager):  # {{{
                         (
                             'warning',
                             _(
-                                "You will need to fix this before a reload is possible. (Perhaps you copied an exercise? Then please remove the key file from the new exercise to generate a new one on reload)"
+                                (
+                                    "You will need to fix this before a reload is possible."
+                                    "(Perhaps you copied an exercise? Then please remove the"
+                                    " key file from the new exercise to generate a new one on reload)"
+                                )
                             ),
                         )
                     )
@@ -221,7 +224,8 @@ class ExerciseManager(models.Manager):  # {{{
                             _("The exercise with path ")
                             + path
                             + _(
-                                " changed exercise key, this will result in a new exercise being added and the old one deleted."
+                                " changed exercise key, this will result in a new exercise "
+                                "being added and the old one deleted."
                             ),
                         )
                     )
@@ -238,7 +242,8 @@ class ExerciseManager(models.Manager):  # {{{
                 (
                     'error',
                     _(
-                        "Something will prevent a reload from being carried out, please review messages above."
+                        "Something will prevent a reload from being carried out, "
+                        "please review messages above."
                     ),
                 )
             )
@@ -253,7 +258,8 @@ class ExerciseManager(models.Manager):  # {{{
                 (
                     'info',
                     _(
-                        "Do you want to do a reload? This will update all existing exercises and perform any additional actions listed above."
+                        "Do you want to do a reload? This will update all existing exercises and perform "
+                        "any additional actions listed above."
                     ),
                 )
             )
@@ -291,12 +297,13 @@ class ExerciseManager(models.Manager):  # {{{
                             _("Deleted an entry for ")
                             + exercise.path
                             + _(
-                                " since the stored exercise key did not correspond to the exercisekey in the folder."
+                                " since the stored exercise key did not correspond to the "
+                                "exercisekey in the folder."
                             ),
                         )
                     )
 
-        self.mend_answers_and_audits()  # }}}
+        self.mend_answers_and_audits()
         progress.append(('success', _("Finished syncing exercises.")))
         yield progress
 
@@ -323,7 +330,7 @@ class Exercise(models.Model):
     def __str__(self):
         return self.name + ': ' + self.path
 
-    def user_is_correct(self, user):  # {{{
+    def user_is_correct(self, user):
         allcorrect = True
         questions = Question.objects.filter(exercise=self)
         for question in questions:
@@ -333,10 +340,10 @@ class Exercise(models.Model):
                     allcorrect = False
             except ObjectDoesNotExist:
                 allcorrect = False
-        return allcorrect  # }}}
+        return allcorrect
 
 
-class Question(models.Model):  # {{{
+class Question(models.Model):
     class Meta:
         unique_together = ('question_key', 'exercise')
         permissions = (("log_question", "Answers are logged"),)
@@ -346,10 +353,10 @@ class Question(models.Model):  # {{{
     type = models.CharField(max_length=255, default='none')
 
     def __str__(self):
-        return self.exercise.name + ": " + self.question_key  # }}}
+        return self.exercise.name + ": " + self.question_key
 
 
-class Answer(models.Model):  # {{{
+class Answer(models.Model):
     user = models.ForeignKey(User)
     question = models.ForeignKey(
         Question, on_delete=models.SET_NULL, null=True, related_name='answer'
@@ -369,10 +376,10 @@ class Answer(models.Model):  # {{{
             + self.answer
             + "} which is "
             + ("correct" if self.correct else "incorrect")
-        )  # }}}
+        )
 
 
-def answer_image_filename(instance, filename):  # {{{
+def answer_image_filename(instance, filename):
     return '/'.join(
         [
             'answerimages',
@@ -380,10 +387,10 @@ def answer_image_filename(instance, filename):  # {{{
             instance.exercise.exercise_key,
             str(uuid.uuid4()) + os.path.splitext(filename)[1],
         ]
-    )  # }}}
+    )
 
 
-class ImageAnswer(models.Model):  # {{{
+class ImageAnswer(models.Model):
     IMAGE = 'IMG'
     PDF = 'PDF'
     FILETYPE_CHOICES = ((IMAGE, 'Image'), (PDF, 'Pdf'))
@@ -402,12 +409,12 @@ class ImageAnswer(models.Model):  # {{{
 
     def __str__(self):
         try:
-            return self.user.username + " image for " + self.exercise.name  # }}}
+            return self.user.username + " image for " + self.exercise.name
         except AttributeError:
             return "__Orphan__"
 
 
-class ExerciseMeta(models.Model):  # {{{
+class ExerciseMeta(models.Model):
     DIFFICULTIES = ((1, 'Easy'), (2, 'Medium'), (3, 'Hard'))
     exercise = models.OneToOneField(Exercise, related_name='meta')
     exercise_key = models.CharField(max_length=255, default='')
@@ -424,8 +431,6 @@ class ExerciseMeta(models.Model):  # {{{
 
     def __str__(self):
         return self.exercise.name
-
-    # }}}
 
 
 class AuditManager(models.Manager):
@@ -444,7 +449,7 @@ def audit_fileresponse_filename(instance, filename):
             instance.exercise.exercise_key,
             str(uuid.uuid4()) + os.path.splitext(filename)[1],
         ]
-    )  # }}}
+    )
 
 
 class AuditExercise(models.Model):
@@ -470,7 +475,7 @@ class AuditExercise(models.Model):
         unique_together = (("student", "exercise"),)  # Only one audit per student and exercise
 
 
-def audit_response_filename(instance, filename):  # {{{
+def audit_response_filename(instance, filename):
     return '/'.join(
         [
             'auditresponses',
@@ -478,7 +483,7 @@ def audit_response_filename(instance, filename):  # {{{
             instance.audit.exercise.exercise_key,
             str(uuid.uuid4()) + os.path.splitext(filename)[1],
         ]
-    )  # }}}
+    )
 
 
 class AuditResponseFile(models.Model):
@@ -496,9 +501,3 @@ class AuditResponseFile(models.Model):
     image_thumb = ImageSpecField(
         source='image', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60}
     )
-
-
-# class Folder(models.Model):
-#    name = models.CharField(max_length=255)
-#    parent = models.ForeignKey('self', null=True, default=None, on_delete=models.CASCADE)
-#    exercises = models.ManyToManyField(Exercise)
