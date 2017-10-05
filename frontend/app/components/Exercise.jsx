@@ -11,8 +11,8 @@ import DOMPurify from 'dompurify';
 import ExerciseImageUpload from './ExerciseImageUpload.jsx';
 import {SUBPATH} from '../settings.js';
 
-import { 
-  updateExerciseXML, 
+import {
+  updateExerciseXML,
   updateExerciseJSON,
   setExerciseModifiedState
 } from '../actions.js';
@@ -50,16 +50,17 @@ class BaseExercise extends Component {
       'a': this.renderHTMLElementA(),
       'right': this.renderRight,
       '__text__': this.renderBareText,
+      'alt': this.renderText,
     };
-  } 
+  }
 
   static propTypes = {
     admin: PropTypes.bool,
-  exerciseKey: PropTypes.string.isRequired,
-  onQuestionInputKeyUp: PropTypes.func,
-  exerciseState: PropTypes.object,
-  pendingState: PropTypes.object
-};
+    exerciseKey: PropTypes.string.isRequired,
+    onQuestionInputKeyUp: PropTypes.func,
+    exerciseState: PropTypes.object,
+    pendingState: PropTypes.object
+  };
 
   renderQuestion = (itemjson, json, meta, exerciseKey) => {
     var questions = json.getIn(['exercise', 'question'], immutable.List([]));
@@ -87,8 +88,18 @@ class BaseExercise extends Component {
     );
   }
 
+  filterLanguage = (children) => {
+    var filtered = children.filter(item => item.getIn(['@attr', 'lang'], "") === this.props.language);
+    if(filtered.size > 0) {
+      return filtered;
+    }
+    else {
+      return children;
+    }
+  }
+
   renderText = (itemjson, json, meta, exerciseKey) => {
-    var childrenList = itemjson.get('$children$', immutable.List([]));
+    var childrenList = this.filterLanguage(itemjson.get('$children$', immutable.List([])));
 
     if(childrenList.filter( item => item.get('#name','') === 'figure').size == 1 &&
         childrenList.size == 2)
@@ -143,10 +154,14 @@ class BaseExercise extends Component {
     }
     var obligatorisk = meta.get('required', false);
     var bonus = meta.get('bonus', false);
-    
+    var translations = this.filterLanguage(itemjson.get('$children$', immutable.List([])));
+    var name = itemjson.get('$');
+    if(translations.size > 0)
+      name = translations.first().get('$');
+
     return (
           <div key="name">
-          <h1 className="uk-article-title">{itemjson.get('$')}
+          <h1 className="uk-article-title">{name}
           { deadlineDate && <div className="uk-badge uk-badge-danger">
             <a data-uk-tooltip title="Du kan fortfarande kontrollera svar efter deadline men de kommer inte räknas mot obligatorisk/bonus.">
             Deadline: {deadlineDateFormat}
@@ -247,11 +262,13 @@ class BaseExercise extends Component {
 
 const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
+  const defaultLanguage = state.getIn(['login', 'language'], 'en');
   return (
   {
     author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
     admin: state.getIn(['login', 'groups'],immutable.List([])).includes('Admin'),
     view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
+    language: state.get('language', defaultLanguage),
     exerciseKey: state.get('activeExercise'),
     exerciseState: activeExerciseState,
     pendingState: state.get('pendingState')
