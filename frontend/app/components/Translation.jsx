@@ -1,20 +1,10 @@
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
-import translationDict from '../translations.js';
+import t from '../translations.js';
 import immutable from 'immutable';
 
 const BaseTranslation = ({children, dict, language}) => {
-  var languageVersions = immutable.Map({});
-  if(translationDict.has(children)) {
-    languageVersions = translationDict.get(children);
-  }
-  if(dict !== undefined)
-    languageVersions = dict;
-  if(languageVersions.has(language)) {
-    return <span>{languageVersions.get(language)}</span>;
-  } else {
-    return <span>{children}</span>;
-  }
+ return <span>{t(children, dict, language)}</span>;
 }
 
 BaseTranslation.defaultProps = {

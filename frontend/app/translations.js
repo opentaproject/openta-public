@@ -1,6 +1,7 @@
 import immutable from 'immutable';
+import {store} from 'store.js';
 
-export default immutable.fromJS({
+const translationDict = immutable.fromJS({
     'Language': {
         'en': 'Language',
         'sv': 'Språk'
@@ -8,5 +9,44 @@ export default immutable.fromJS({
     'in terms of': {
         'en': 'in terms of',
         'sv': 'i termer av'
+    },
+    'Exercise name': {
+        'en': 'Exercise name',
+        'sv': 'Uppgiftsnamn'
+    },
+    ' is correct.': {
+        'en': ' is correct.',
+        'sv': ' är korrekt.'
+    },
+    ' is not correct.': {
+        'en': ' is incorrect.',
+        'sv': ' är inte korrekt.'
     }
 });
+
+/**
+ * Translates a string using global translationDict or the provided optional dict. If language is not specified it is read for the redux store.
+ * @param {string} string String to be translated.
+ * @param {immutable.Map} dict Override global translations.
+ * @param {string} language Override store language.
+ * @return {string} Translated string.
+ */
+function t(string, dict=undefined, language=undefined) {
+    if(language === undefined) {
+        const state = store.getState();
+        language = state.get('lang', state.getIn(['course', 'languages', 0], 'en'));
+    }
+    var languageVersions = immutable.Map({});
+    if(translationDict.has(string)) {
+        languageVersions = translationDict.get(string);
+    }
+    if(dict !== undefined)
+        languageVersions = dict;
+    if(languageVersions.has(language)) {
+        return languageVersions.get(language);
+    } else {
+        return string;
+    }
+}
+
+export default t;

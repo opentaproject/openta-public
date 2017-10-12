@@ -14,9 +14,9 @@ const BaseLanguageSelect = ({languages, lang, onLanguageChange}) => {
   if(languages == null)
     return (<span/>);
   var langChoices = languages.map(language =>
-    <li key={language}>
-      <a style={{padding:"0px 5px"}} onClick={() => onLanguageChange(language)}>
-        {language}
+    <li className="uk-text-center" key={language}>
+      <a className="uk-dropdown-close" style={{padding:"0px 5px"}} onClick={() => onLanguageChange(language)}>
+        <span className={language == lang ? 'uk-text-bold' : ''}>{language}</span>
       </a>
     </li>);
   return <div className="uk-button-dropdown" data-uk-dropdown="{mode:'click'}">
