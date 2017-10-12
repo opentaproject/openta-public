@@ -1,8 +1,12 @@
 import immutable from 'immutable';
 
 export default immutable.fromJS({
-    'test': {
-        'en': 'the test',
-        'sv': 'testet'
+    'Language': {
+        'en': 'Language',
+        'sv': 'Språk'
+    },
+    'in terms of': {
+        'en': 'in terms of',
+        'sv': 'i termer av'
     }
 });

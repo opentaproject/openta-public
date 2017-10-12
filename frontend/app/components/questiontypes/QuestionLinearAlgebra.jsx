@@ -11,6 +11,7 @@ import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful fo
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
 import HelpLinearAlgebra from './HelpLinearAlgebra.jsx';
 import MathSpan from '../MathSpan.jsx';
+import T from '../Translation.jsx';
 import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
@@ -271,7 +272,7 @@ export default class QuestionLinearAlgebra extends Component {
   var availableVariables = [];
       if(this.varsList) {
           this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
-          availableVariables.push( (<span key="s">(i termer av </span>) );
+        availableVariables.push( (<span key="s">(<T>in terms of</T> </span>) );
               var filteredVars = this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
               for(const [i, v] of filteredVars.entries()) {
                   availableVariables.push((<span key={"v"+i}>{v}</span>));
