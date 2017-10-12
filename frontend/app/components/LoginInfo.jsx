@@ -110,7 +110,9 @@ return (
   }
   <ul className="uk-navbar-nav">
     <li>
+      <div className="uk-navbar-content">
       <LanguageSelect/>
+      </div>
     </li>
       <li >
         <a href={"mailto:" + course.toLowerCase() + "@openta.se"} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}><span className="uk-text-primary">Problem?</span></a>
