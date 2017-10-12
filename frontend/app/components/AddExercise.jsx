@@ -2,6 +2,8 @@ import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import immutable from 'immutable';
 import Spinner from './Spinner.jsx';
+import T from './Translation.jsx';
+import t from '../translations.js';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import _ from 'lodash';
@@ -51,7 +53,7 @@ class BaseAddExercise extends Component {
                       </a>
                           </div>
                           <div>
-                              <input type="text" placeholder="Exercise name" className="uk-form-small uk-form-width-small" style={{height: 'auto', width:'80px'}} value={this.state.name} onChange={this.handleNameChange} onKeyPress={this.handleKeypress}/>
+                              <input type="text" placeholder={t("Exercise name")} className="uk-form-small uk-form-width-small" style={{height: 'auto', width:'80px'}} value={this.state.name} onChange={this.handleNameChange} onKeyPress={this.handleKeypress}/>
                           </div>
                       </div>
                   </div>
@@ -86,7 +88,8 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = (state) => {
     return {
         pendingExerciseAdd: state.getIn(['pendingState', 'course', 'addExercise']),
-        author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author')
+      author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
+      lang: state.get('lang')
     };
 }
 
