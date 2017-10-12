@@ -27,13 +27,13 @@ class BaseQuestion extends Component {
         return q.getIn(['@attr','type']) === questionType || (!q.hasIn(['@attr', 'type']));
       });
       if(globals)question = question.set('global', globals);
-      var questionDOM = React.createElement(questionDispatch[questionType], { 
+      var questionDOM = React.createElement(questionDispatch[questionType], {
         key: questionKey,
         exerciseKey: exerciseKey,
-        questionData: question, 
-        questionState: questionState, 
+        questionData: question,
+        questionState: questionState,
         questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.getIn(['@attr','key']), 'waiting'], false),
-        isAuthor: this.props.author, 
+        isAuthor: this.props.author,
         canViewSolution: this.props.view,
         submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data),
           ref: (ref) => this.questionref = ref
@@ -73,7 +73,8 @@ const mapStateToProps = state => {
     author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
     view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
     exerciseState: activeExerciseState,
-    pendingState: state.get('pendingState')
+    pendingState: state.get('pendingState'),
+    lang: state.get('lang', state.getIn(['course', 'languages', 0], 'en'))
   })
 };
 

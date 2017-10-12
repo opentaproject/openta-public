@@ -12,6 +12,7 @@ import Badge from '../Badge.jsx'; // Another component useful for showing badges
 import HelpLinearAlgebra from './HelpLinearAlgebra.jsx';
 import MathSpan from '../MathSpan.jsx';
 import T from '../Translation.jsx';
+import t from '../../translations.js';
 import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
@@ -243,13 +244,13 @@ export default class QuestionLinearAlgebra extends Component {
   }
 
   /* render gets called every time the question is shown on screen */
-  render() {  
+  render() {
   // Some convenience definitions
   var question = this.props.questionData;
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
   var pending = this.props.questionPending;
-  
+
   /* Both the questionData and questionState are of type Map from immutable.js. They are nested dictionaries that are accessed via the get and getIn functions. For example question.get('text') retrieves <question> <text> * </text> </question>. Deeper structures can be accessed with getIn, for example question.getIn(['tag1', 'tag2']) would retrieve <question> <tag1> <tag2> * </tag2> </tag1> </question>. */
 
   // System state data
@@ -294,9 +295,9 @@ export default class QuestionLinearAlgebra extends Component {
   var renderedMath = renderedResult.out;
   if(input === lastAnswer && lastAnswer !== '' && !error) {
     if(correct)
-       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
+       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(" is correct.")} type="success" key="input" hasMath={true}/>);
     else
-      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
+      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(" is not correct.")} type="warning" key="input" hasMath={true}/>);
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
   }
