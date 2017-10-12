@@ -47,11 +47,13 @@ var defaultState = immutable.fromJS({
 });
 
 export default (state = defaultState, action) => {
-  switch (action.type) {
+    switch (action.type) {
     case 'UPDATE_LOGIN_STATUS':
       return state.set('login', immutable.fromJS(action.data));
-  case 'UPDATE_COURSE':
-      return state.set('course', immutable.fromJS(action.data));
+    case 'UPDATE_COURSE':
+        return state.set('course', immutable.fromJS(action.data));
+    case 'UPDATE_LANGUAGE':
+        return state.set('lang', action.language);
     case 'UPDATE_ACTIVE_EXERCISE':
       return state.set('activeExercise', action.activeExercise);
     case 'UPDATE_EXERCISE_JSON':
