@@ -268,7 +268,7 @@ const mapStateToProps = state => {
     author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
     admin: state.getIn(['login', 'groups'],immutable.List([])).includes('Admin'),
     view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
-    language: state.get('language', defaultLanguage),
+    language: state.get('lang', defaultLanguage),
     exerciseKey: state.get('activeExercise'),
     exerciseState: activeExerciseState,
     pendingState: state.get('pendingState')
