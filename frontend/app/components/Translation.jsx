@@ -1,9 +1,10 @@
 import React, { PropTypes, Component } from 'react';
 import { connect } from 'react-redux';
 import translationDict from '../translations.js';
+import immutable from 'immutable';
 
 const BaseTranslation = ({children, dict, language}) => {
-  var languageVersions = {}
+  var languageVersions = immutable.Map({});
   if(translationDict.has(children)) {
     languageVersions = translationDict.get(children);
   }
