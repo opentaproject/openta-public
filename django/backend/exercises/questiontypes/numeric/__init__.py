@@ -164,6 +164,12 @@ def numeric_json_hook(safe_question, full_question, question_id, user_id):
         # print("Ncaretless = ", caretless )
         lis = re.findall(r'([A-Z,a-z]+\w*)', caretless)
         # print("Nlis = ", lis )
+        if full_question.get('@attr').get('exposeglobals', False):
+            print("EXPOSE GLOBALS WAS SET")
+            safe_question['exposeglobals'] = True
+        else:
+            safe_question['exposeglobals'] = False
+        print("EXPOSE GLOBALS WAS NOT  SET")
         used_variable_list = []
         [
             used_variable_list.append(item) for item in lis if item not in used_variable_list

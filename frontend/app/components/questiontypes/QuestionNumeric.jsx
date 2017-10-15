@@ -11,12 +11,16 @@ import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful fo
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
 import MathSpan from '../MathSpan.jsx';
 import HelpNumeric from './HelpNumeric.jsx';
+import T from '../Translation.jsx';
+import t from '../../translations.js';
 import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
-import {uniquecat, parseVariableString , parseVariables } from './mathexpressionparser.js'
+import { parseBlacklist, uniquecat, parseVariableString , parseVariables , AvailableVariables} from './mathexpressionparser.js'
+import {units} from '../units.js'
+
 
 
 //Returns a new string where the character at pos in str is replaced with newstring
@@ -165,9 +169,9 @@ export default class QuestionNumeric extends Component {
       cursor: 0,
     };
     this.lastParsable = '';
-    this.varProps = {};
+    this.varProps = {}
     this.varsList = [];
-    this.validSymbols = ['pi'];
+    this.validSymbols = ['pi','meter'];
     this.blacklist = [];
     if(this.props.canViewSolution)
       this.state.value = this.props.questionData.getIn(['expression','$'], '').replace(/;/g,'');
@@ -266,7 +270,7 @@ export default class QuestionNumeric extends Component {
       const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : latex.toSymbol(node.name,false);//node._toTex(options);
       if(this.blacklist.indexOf(node.name) !== -1) 
         return '\\color{orange}{' + texSymbol + '}';
-      if(this.varsList.indexOf(node.name) !== -1 || this.validSymbols.indexOf(node.name) !== -1)
+      if(this.varsList.indexOf(node.name) !== -1 || this.validSymbols.indexOf(node.name) !== -1  || this.varProps.hasIn([origVar]) )
         return '\\color{green}{' + texSymbol + '}';
       else 
         return '\\color{red}{' + texSymbol + '}';
@@ -426,6 +430,7 @@ arrayUnique = (array) =>  {
   // Custom state data
   var latex = state.getIn(['response','latex'], ''); // Custom field containing the latex code obtained from SymPy.
   var error = state.getIn(['response','error']); // Custom field containing error information
+  console.log("ERROR = ", error )
   var author_error = state.getIn(['response','author_error']); // Custom field containing error information
   var warning = state.getIn(['response','warning']); // Custom field containing error information
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
@@ -446,11 +451,12 @@ arrayUnique = (array) =>  {
   var res = parseVariables(question);
   this.varsList = res['varsList'];
   this.varProps = res['varProps'];
+  console.log("varProps = ", ( this.varProps ).toJS() );
   var varsUsed = res['varsUsed'];
 
   var mathjsEvalVars = {}
-  var availableVariables = [];
   //console.log("this.varsList = ", this.varsList )
+/*
       if(varsUsed && !hidevariables ) {
           varsUsed.map( v => {mathjsEvalVars[v] = 1;} );
           availableVariables.push( (<span key="s">(i termer av </span>) );
@@ -463,10 +469,13 @@ arrayUnique = (array) =>  {
                       availableVariables.push((<span key={"c"+i}>, </span>));
               }
           availableVariables.push((<span key={"e"}>)</span>));
+*/
           /* availableVariables = this.varsList.length ? "(i termer av " + varsUsed.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : ""; */
-      }
+     /* }
+    */
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
+  var availableVariables =  AvailableVariables(question,'sv')
   var graderResponse = null;
   var input = this.state.value.trim();
   var hasChanged = input !== lastAnswer;
@@ -475,9 +484,9 @@ arrayUnique = (array) =>  {
   var renderedMath = renderedResult.out;
   if(input === lastAnswer && lastAnswer !== '' && !error) {
     if(correct)
-       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
+       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is correct.') } type="success" key="input" hasMath={true}/>);
     else
-      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  +  " är inte korrekt"} type="warning" key="input" hasMath={true}/>);
+      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + t(' is not correct.') } type="warning" key="input" hasMath={true}/>);
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
   }
@@ -503,8 +512,8 @@ arrayUnique = (array) =>  {
   }
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">  {availableVariables} NUMERISK: {precision}</span><HelpNumeric/></label>
-{ hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
+          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">  {availableVariables} <T>NUMERICAL</T> {precision}</span><HelpNumeric/></label>
+{ hasChanged && lastAnswer !== '' && (<Badge message={t('previous') + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">
           <div className="uk-width-1-1">

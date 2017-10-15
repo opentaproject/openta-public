@@ -107,13 +107,13 @@ def check_units(expression, correct, variables):
     # all_units = {bar:foo for bar,foo in u.__dict__.items() if isinstance(foo, type(u.m))}
     # print("allunits = ", all_units)
     # print("CHECK UNITS" )
-    print("CHECK UNITS variables = ", variables)
+    # print("CHECK UNITS variables = ", variables )
     evaluated = sympy.simplify(expression.subs(variables))
-    print("evaluated ", evaluated)
+    # print("evaluated ", evaluated)
     evaluatedn = sympy.simplify(expression.subs(variables))
-    print("evaluatedn ", evaluatedn)
-    print("correct", correct)
-    print("correct", sympy.simplify(correct.subs(variables)))
+    # print("evaluatedn ", evaluatedn)
+    # print("correct", correct)
+    # print("correct", sympy.simplify(correct.subs(variables)) )
     # evaluatedp = convert_to( sympy.simplify(expression.subs(variables)), [kg,m,s] )
     # print("evaluatedp ", evaluatedp)
     unitsok = False
@@ -126,13 +126,13 @@ def check_units(expression, correct, variables):
     # print("u.__dict__",u.__dict__.items())
     # print("quotient", quotient )
     # print("quotient", quotient.subs(u.__dict__) )
-    print("quotient = ", quotient)
-    print("NUMERIC len = ", len(list(quotient.free_symbols)))
+    # print("quotient = ", quotient )
+    # print("NUMERIC len = ",  len(list(quotient.free_symbols)) )
     unitsok = int(len(list(quotient.free_symbols))) == 0
-    print("NUMERIC unitsok = ", unitsok)
+    # print("NUMERIC unitsok = ", unitsok )
     if not (unitsok):
         raise NumericUnitError(_("Seems like the expression does not have the correct units."))
-    print("NUMERIC unitsok = ", unitsok)
+    # print("NUMERIC unitsok = ", unitsok )
     return unitsok
 
 
@@ -179,7 +179,7 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
     )  # strip trailing decimal to force integer
     number_of_points = 10
     response = {}
-    print("NUMERIC_INTERRNA variables = ", variables)
+    # print("NUMERIC_INTERRNA variables = ", variables )
     # print("INTERNAL: precision = ", precision )
     try:
         sexpression1 = asciiToSympy(expression1)
@@ -208,9 +208,9 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
         # Let sympy parse the expressions and substitute the variables together with the units and then evaluate to a sympy float.
         sympy1 = sympy.sympify(sexpression1, ns).subs(derivedunits)
         sympy2 = sympy.sympify(sexpression2, ns).subs(derivedunits)
-        print("sympy1=", sympy1)
-        print("sympy2=", sympy2)
-        print("variables =", variables)
+        # print("sympy1=",sympy1 )
+        # print("sympy2=",sympy2 )
+        # print("variables =",variables)
         # intpart = re.sub(r"([0-9])*\.([0-9]*).*",r"BEGIN#\1\2#END",expression2)
         # intpart = re.sub(r"^[^#]*#",r"",intpart)
         # intpart = re.sub(r"#.*$",r"",intpart)
@@ -239,31 +239,44 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
         # numfunc2 = sympy.lambdify(tvars, sympy2, modules=lambdifymodules)
         value1 = sympy1.subs(varsubs).subs(baseunits).evalf()
         value2 = sympy2.subs(varsubs).subs(baseunits).evalf()
+        unassigned = value2.free_symbols
+        # print("unassigned = ", unassigned )
+        for x in unassigned:
+            x = sympy.Symbol(str(x))
+        varsubs2 = {x: random.random() for x in unassigned}
+        # print("varsubs2 = ", varsubs2 )
+        # print("joined = ",   varsubs + varsubs2)
         # print("sympy1, value1 = ", sympy1, value1)
         # print("sympy2, value2 = ", sympy2, value2.subs(baseunits) )
         # diff = sympy.Abs( ( value1/value2 - 1.0 ) * floatpart * .999)
-        diff = sympy.Abs((value1 / value2 - 1.0))
-        print("diff = ", diff)
-        print("precision = ", precision)
+        # print("value1 = ", value1 )
+        # print("value1.num = ", value1.subs( varsubs2)  )
+        value1num = value1.subs(varsubs2)
+        value2num = value2.subs(varsubs2)
+        diff = sympy.Abs((value1num / value2num - 1.0))
+        # print("diff = ", diff )
+        # print("precision = ", precision )
         # print("baseunits = ", baseunits)
         # print("value1 = ", value1)
         # print("value2 = ", value2)
-        print("varsubs = ", varsubs)
+        # print("varsubs = ", varsubs)
+        varsubs3 = {x: varsubs.get(x, 0) + varsubs2.get(x, 0) for x in set(varsubs).union(varsubs2)}
+        # print("varsubs3= ", varsubs3)
         unitsok = False
         if diff.is_constant():
-            print("NUMERIC2 unitsok ", unitsok)
+            # print("NUMERIC2 unitsok ", unitsok)
             try:
-                unitsok = check_units(sympy1, sympy2, varsubs)
-                print("NUMERIC5 unitsok ", unitsok)
+                unitsok = check_units(sympy1, sympy2, varsubs3)
+                # print("NUMERIC5 unitsok ", unitsok)
             except NumericUnitError as e:
-                print("NUMERIC6 unitsok ", unitsok)
+                # print("NUMERIC6 unitsok ", unitsok)
                 unitsok = False
                 response['warning'] = str(e)
             except ZeroDivisionError as e:
                 unitsok = False
-                print("NUMERIC7 unitsok ", unitsok)
+                # print("NUMERIC7 unitsok ", unitsok)
                 response['zerodivision'] = True
-            print("NUMERIC3 unitsok ", unitsok)
+            # print("NUMERIC3 unitsok ", unitsok)
             # diffs = []
             # for point in neighbours:
             #    nvalue1 = numfunc1(*point)#sympy1.subs(point).subs(baseunits).evalf()
@@ -280,9 +293,24 @@ def numeric_internal(variables, e1, e2, precision):  # {{{
             else:
                 response['correct'] = False
         else:
-            unrecognised = ', '.join(list(map(str, diff.free_symbols)))
-            response['error'] = _("Failed to evaluate expression")
+            # print("NUMERIC.PY diff.free_symbols = ", diff.free_symbols )
+            # print("NUMERIC.PY value1.free_symbols = ", value1.free_symbols )
+            # print("NUMERIC.PY value2.free_symbols = ", value2.free_symbols )
+            # print("NUMERIC.PY variables ", variables )
+            disallowed = [x for x in diff.free_symbols if x not in value2.free_symbols]
+            disallowed = [x for x in disallowed if x not in variables]
+            # print("NUMERIC.PY disallowed = ", disallowed )
+            unrecognised = ', '.join(list(map(str, disallowed)))
+            missing = [x for x in value2.free_symbols if x not in value1.free_symbols]
+            # print("NUMERIC.PY missing = ", missing )
+            wanted = ', '.join(list(map(str, missing)))
+            # print("NUMERIC.PY wanted = ", wanted )
+            if len(missing) > 0:
+                response['error'] = _("Incorrect: variables missing: ") + wanted
+            else:
+                response['error'] = _("Failed to evaluate expression")
             if len(unrecognised) > 0:
+                print("NUMERIC:", 'are not valid variables', _(' are not valid variables'))
                 response['error'] = (
                     response['error'] + ': ' + unrecognised + _(' are not valid variables.')
                 )
