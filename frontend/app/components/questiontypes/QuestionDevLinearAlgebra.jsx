@@ -270,11 +270,11 @@ export default class QuestionLinearAlgebra extends Component {
     if(correct)
      //  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + 
-                t('is correct') } type="success" key="input" hasMath={true}/>);
+                t(' is correct.') } type="success" key="input" hasMath={true}/>);
 
     else
       // graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
-    graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t('is not correct') } type="warning" key="input" hasMath={true}/>);
+    graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') } type="warning" key="input" hasMath={true}/>);
 
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
