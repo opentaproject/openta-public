@@ -221,10 +221,16 @@ class BaseExercise extends Component {
       return null;
   }
 
+basename = (path) =>  {
+      return path.split('/').reverse()[0];
+}
+ 
+
   render() {
     var key = this.props.exerciseKey;
     var state = this.props.exerciseState;
     var pendingState = this.props.pendingState;
+    var filename =  this.props.author   ? this.basename(state.get('path') ) : '';
     var json = state.get('json', immutable.Map({}));
     var meta = state.get('meta', immutable.Map({}));
     if(meta === null)meta = immutable.Map({});
@@ -232,6 +238,7 @@ class BaseExercise extends Component {
               .map( child => this.dispatchElement(child, json, meta, key) ).toSeq();
     var exerciseDOM = (
         <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
+ 	<span className="uk-text-bold uk-text-primary">  {filename}  </span>
         { meta.get('image', false) && <div className="uk-float-right uk-margin-small-right"><ExerciseImageUpload/></div> }
           {items}
         </article>
