@@ -11,12 +11,17 @@ import SafeMathAlert from '../SafeMathAlert.jsx'; // Another component useful fo
 import Badge from '../Badge.jsx'; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
 import HelpLinearAlgebra from './HelpDevLinearAlgebra.jsx';
 import MathSpan from '../MathSpan.jsx';
+// import BaseLang from '../BaseLang.jsx';
+// import {alttextfunc} from '../BaseLang.jsx';
+// import { alttext, translations ,_} from '../alttext.js';
+import T from '../Translation.jsx';
+import t from '../../translations.js';
 import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
-import {uniquecat, parseVariableString , parseVariables } from './mathexpressionparser.js'
+import { usethesevariables, parseBlacklist, uniquecat, parseVariableString , parseVariables , AvailableVariables} from './mathexpressionparser.js'
 import { asciiMathToMathJS, insertCursor, braketify, absify, insertImplicitMultiply, insertImplicitSubscript, fixDelimiters } from '../mathrender/string_parse.js'
 
 export default class QuestionLinearAlgebra extends Component {
@@ -135,10 +140,13 @@ export default class QuestionLinearAlgebra extends Component {
     // Render green if allowed variable otherwise red
     else if(node.type === 'SymbolNode') {
       const origVar = node.name.replace(/\_/g, '');
-      const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : latex.toSymbol(node.name,false);//node._toTex(options);
-      if(this.blacklist.indexOf(node.name) !== -1) 
+      // console.log("origVar = ", origVar );
+      const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : 
+			latex.toSymbol( insertImplicitSubscript( origVar),false);//node._toTex(options);
+      // console.log("texSymbol = ", texSymbol , insertImplicitSubscript( origVar )  );
+      if(this.blacklist.indexOf(origVar) !== -1) 
         return '\\color{orange}{' + texSymbol + '}';
-      if(this.varsList.indexOf(node.name) !== -1 || this.validSymbols.indexOf(node.name) !== -1)
+      if(this.varsList.indexOf(origVar) !== -1 || this.validSymbols.indexOf(origVar) !== -1)
         return '\\color{green}{' + texSymbol + '}';
       else 
         return '\\color{red}{' + texSymbol + '}';
@@ -180,6 +188,7 @@ export default class QuestionLinearAlgebra extends Component {
       var cursorPos = this.state.cursor;
       if(cursorPos > asciitext.length)cursorPos = asciitext.length;
       var preParsed = asciiMathToMathJS(insertCursor(asciitext, cursorPos));
+      // console.log("preParsed = ", preParsed );
       // parsed = insertImplicitMultiply(parsed);
       // parsed = insertImplicitSubscript(parsed);
       // parsed = braketify(parsed);
@@ -191,6 +200,7 @@ export default class QuestionLinearAlgebra extends Component {
           parenthesis: 'keep', // The keep options keeps parenthesis from input expression, seems to work best.
           handler: this.customLatex, // Custom latex node handler
         });
+        // console.log("mParsed = ", mParsed )
         if(typeof mParsed === 'string' && mParsed !== 'undefined') {
           this.lastParsable = mParsed.replace(/\\\\end{bmatrix}/g,'end{bmatrix}'); // MathJS outputs an extra \\ which KaTeX interprets as a new line
         }
@@ -201,108 +211,6 @@ export default class QuestionLinearAlgebra extends Component {
       }
   }
 
-  //Parse the shorthand semicolor separated variable string
-  /*
-  parseVariableString = (variableString) => {
-    var vars = variableString.trim()
-      .split(';')
-      .filter(str => str !== "")
-      .map( str => str.split('=') )
-      .map( entry => insertImplicitSubscript(entry[0].trim()) );
-      return vars;
-  }
- */
- 
-  /*uniquecat = (a,b) => {
-	var c = a.concat(b.filter(function (item) {
-    		return a.indexOf(item) < 0;
-	})) 
-    return c
-     };
-*/
-
-  //Parse variables and their optional properties
-/*
- parseVariables = (question) => {
-    var varsList = parseVariableString(question.getIn(['global','$'], ''));
-    var varsListGlobal1 = parseVariableString(question.getIn(['global','$'], ''));
-    console.log("DEV varsListGlobal=", varsListGlobal1 )
-    var varsListGlobal2 =   enforceList( question.getIn(['global','var'], List([]))  ).map(
-	item =>  ( item.getIn(['token','$']).trim() ) ).toJS()
-    console.log("DEV varsListGlobal2=", varsListGlobal2 )
-    var varsListLocal1 = parseVariableString(question.getIn(['variables','$'], ''));
-    console.log("DEV varsListLocal1=", varsListLocal1)
-    var varsListLocal2 = enforceList( question.getIn(['var','token','$'], List([]))).map(
-	item => item.trim() ).toJS();
-    console.log("DEV varsListLocal2=", varsListLocal2)
-    var  varsListUsed = question.get('usedvariablelist',List([])).toJS() ;
-    if( varsListUsed.length == 0 ){
-	console.log("Length is zero ");
-	var correct_answer =  question.getIn(['expression','$'], '').replace(/;/g,'').trim();
- 	var caretless = correct_answer;
-	console.log("correct_answer = ", correct_answer )
-    	caretless = caretless.replace(/[A-Z,a-z,0-9]+\(/g,'(' )
- 	console.log("caretless = ", caretless )
-	var rx = new RegExp("([A-Z,a-z]+\w*)","g")
-	var lis = [];
-	var match ;
-	while((match = rx.exec(caretless)) !== null){
-    		lis.push(match[0] );
-		}
-	console.log("lis = ", lis )
-	varsListUsed = lis;
-   	}	
-    var baseunits = immutable.fromJS( {
-			coulomb:{"tex":"C"},
-			meter:{"tex":"m"},
-			})
-    console.log("DEV: baseunits = ", JSON.stringify( baseunits ,'null','\t') )
-    console.log("DEV varsListUsed =", varsListUsed)
-    var varPropsList = enforceList(question.getIn(['global', 'var'], List([])));
-    var localVars = enforceList(question.get('var', List([])));
-    var allVars = localVars.concat(varPropsList);
-    var usethese = uniquecat( uniquecat( varsListUsed, varsListLocal1 ), varsListLocal2 )
-    console.log("usethese = ", usethese )
-    varsList = usethese;
-    for(let v of allVars) {
-      if(v.hasIn('token','$')) {
-        var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 
-        if( varsList.indexOf(parsedVar) == -1) {
-          varsList.push(parsedVar);
-        }
-      }
-    }
-    console.log("varsList = ", varsList );
-    console.log("allVars= ", JSON.stringify( allVars ));
-    var varProps = allVars.map( item => ({
-      //The token is the key, the other items that are not the token or the special $children$ are added as a map.
-      [item.getIn(['token', '$'], '').trim()]: item.filterNot( (val, key) => key === 'token' || key === '$children$' || key === '$').map( val => val.get('$') )
-    }) )
-    .reduce( (prev, next) => prev.merge(next), immutable.Map({}));
-    //varProps = immutable.fromJS({"f":{},"c":{"tex":" C "},"h":{}} )
-    console.log("DEV: varProps = ",  varProps  )
-    // var addprops = immutable.fromJS({"f":{},"q":{"tex":" Q "},"h":{}} )
-    console.log("DEV: baseunits = ",  JSON.stringify( baseunits ) )
-   // varProps = varProps.concat( baseunits )
-   varProps = baseunits.concat( varProps );
-   */
-   /* this.varsList = varsList;
-   this.varProps = varProps;
-   return {'varsList': varsList,'varProps': varProps}
-  }
- */
-
-  parseBlacklist = () => {
-    var question = this.props.questionData;
-    var blacklist = immutable.List([]);
-    var globalBlacklistObject =  question.getIn(['global','blacklist','token']);
-    var blacklistObject =  question.getIn(['blacklist','token']);
-    if( globalBlacklistObject )blacklist = blacklist.concat(enforceList(globalBlacklistObject));
-    if( blacklistObject )blacklist = blacklist.concat(enforceList(blacklistObject));
-    this.blacklist = blacklist.map( item => insertImplicitSubscript(item.get('$','').trim()) ).toJS();
-  }
-
-
   /* render gets called every time the question is shown on screen */
   render() {  
   // Some convenience definitions
@@ -310,70 +218,64 @@ export default class QuestionLinearAlgebra extends Component {
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
   var pending = this.props.questionPending;
+  // var lang = this.props.lang;
+
   
   /* Both the questionData and questionState are of type Map from immutable.js. They are nested dictionaries that are accessed via the get and getIn functions. For example question.get('text') retrieves <question> <text> * </text> </question>. Deeper structures can be accessed with getIn, for example question.getIn(['tag1', 'tag2']) would retrieve <question> <tag1> <tag2> * </tag2> </tag1> </question>. */
 
   // System state data
   var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
   var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
-
   // Custom state data
+  //console.log(" ASTATE ", JSON.stringify( state ) );
+  //console.log(" B QUESTION", JSON.stringify( question) );
+  var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts']) ) 
+  var previous_answers = state.getIn(['response','previous_answers'] , question.getIn(['previous_answers']) );
+
+	
+
+  
+
+  //console.log("N_ATTEMPTS = ", n_attempts)
+  // console.log(" E user ", state.getIn(['user'],"DEF"));
+  // console.log(" F question ", state.getIn(['question'],"DEF"));
+
   var latex = state.getIn(['response','latex'], ''); // Custom field containing the latex code obtained from SymPy.
   var error = state.getIn(['response','error']); // Custom field containing error information
   var author_error = state.getIn(['response','author_error']); // Custom field containing error information
   var warning = state.getIn(['response','warning']); // Custom field containing error information
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
-  if(state.getIn(['response','detail']))
+    if(state.getIn(['response','detail']))
     error = "Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)";
 
-  this.parseBlacklist();
+  //console.log(" E question  n_attempts = ", question.getIn(['n_attempts'],97) );
+  //console.log("usedvariablelist = ", JSON.stringify( question.getIn(['usedvariablelist'] ,[]) ));
+  //console.log("F username = ", question.getIn(['username'],'NOUSERSET') )
+
+  this.blacklist = parseBlacklist( question)
   var res = parseVariables( question );
   this.varsList = res['varsList'];
   this.varProps = res['varProps'];
-  var varsUsed = res['varsUsed'];
-  var allVars = res['allVars'];
-  var  exposeglobals =  this.props.questionData.get('exposeglobals');
-  var localVars = parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
-  //console.log("QUESTION DEV localVars = ", localVars )
-  //console.log("QUESTION DEV exposeglobals = ", exposeglobals )
-  //console.log("QUESTION_DEF this.varsList : ", this.varsList);
-  var mathjsEvalVars = {}
-  var availableVariables = [];
- if( exposeglobals ){
-  	var usethesevars = allVars; // THIS WAS THE ORIGINAL; ALL VARIABLE NAMES ARE EXPOSED UNLESS BLACKLISTED
- 	} else {
- 	usethesevars = varsUsed;
- 	}
-  // console.log("DEV usethesevars", usethesevars )
-   if(usethesevars) {
-          usethesevars.map( v => {mathjsEvalVars[v] = 1;} );
-          availableVariables.push( (<span key="s">(i termer av </span>) );
-              var filteredVars = usethesevars.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
-              for(const [i, v] of filteredVars.entries()) {
-                  availableVariables.push((<span key={"v"+i}>{v}</span>));
-                  if(this.varProps.hasIn([v, 'tex']))
-                      availableVariables.push((<span key={"tex"+i}> (<MathSpan message={"$" + this.varProps.getIn([v,'tex']) + "$"}></MathSpan>)</span>));
-                  if(i < filteredVars.length - 1)
-                      availableVariables.push((<span key={"c"+i}>, </span>));
-              }
-              availableVariables.push((<span key={"e"}>)</span>));
-          /*availableVariables = usethesevars.length ? "(i termer av " + usethesevars.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
-	*/
-      }
-  // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
-  // The styling classes are from UIKit, see getuikit.com for available elements.
-  // console.log("availableVariables = ", availableVariables )
+  this.varsList = usethesevariables( question)
+  // console.log("QUESTION_DEV this.varsList = ", this.varsList )
+  var availableVariables = AvailableVariables( question)
   var graderResponse = null;
   var input = this.state.value.trim();
   var hasChanged = input !== lastAnswer;
   var nonEmpty = input !== "";
   var renderedResult = this.renderAsciiMath(this.state.value);
+  // console.log("renderedResult = ", renderedResult )
   var renderedMath = renderedResult.out;
   if(input === lastAnswer && lastAnswer !== '' && !error) {
     if(correct)
-       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
+     //  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
+ graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + 
+                t('is correct') } type="success" key="input" hasMath={true}/>);
+
     else
-      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
+      // graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
+    graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t('is not correct') } type="warning" key="input" hasMath={true}/>);
+
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
   }
@@ -387,13 +289,17 @@ export default class QuestionLinearAlgebra extends Component {
     case 'large':
       mathSizeClass = 'uk-text-large'; break;
   }
+  var textjson = question.getIn(['text'],undefined)
+  var itemjson = question.getIn(['text'],undefined)
+  var questiontext = itemjson.getIn(['$'],'') 
+  var msg1 = "Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span>
-          <span data-uk-tooltip title="Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."></span>
+		<span className="uk-text-small uk-text-primary">{availableVariables}</span>
+  	  <span className="uk-text-small uk-text-primary"> [  {n_attempts } <T>attempts</T> ] </span>
           <HelpLinearAlgebra/>
-          </label>
-{ hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
+	   <span data-uk-tooltip title={msg1}></span>
+{ hasChanged && lastAnswer !== '' && (<Badge message={t('previous') + '  '  + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">
           <div className="uk-width-1-1">
@@ -424,7 +330,7 @@ export default class QuestionLinearAlgebra extends Component {
             <a onClick={() => this.setMathSize('large')}>A</a>
           </div>
         </div>
-        { renderedResult.error && <span className="uk-text-danger">Kontrollera syntax. (Visar senaste fungerande ovan.)</span>}
+         { renderedResult.error && <span className="uk-text-danger"> {t('check syntax') } </span> }
         { /*mathjsError*/ }
         { renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning"/>}
         </div>

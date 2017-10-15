@@ -17,11 +17,14 @@ function insertBefore(str, pos, newString) {
 
 //Parse Bra,Ket,BraKet and KetBra expressions for QM.
 var braketify = (sstr) => { 
+ if( sstr != undefined ){
   var snew = sstr.replace(/\<([^<|]+)\|([^|>]+)\>/g, 'Braket($1, $2)');
-  var snew = snew.replace(/\<([^<|]+)\|([^|]+)\|([^|>]+)\>/g, 'Braket($1, $2,$3)');
-  var snew = snew.replace(/\|([^>]+)\>([\S^\<]+)\<([^|]+)\|/g,'KetBra($1,$2,$3)'); 
-  var snew = snew.replace(/\|([^>]+)\>\S*<([^|]+)\|/g,'KetBra($1,$2)');
+  snew = snew.replace(/\<([^<|]+)\|([^|]+)\|([^|>]+)\>/g, 'Braket($1, $2,$3)');
+  snew = snew.replace(/\|([^>]+)\>([^\<]+)\<([^|]+)\|/g,'KetBra($1,$2,$3)'); 
+  snew = snew.replace(/\|([^>]+)\>\S*<([^|]+)\|/g,'KetBra($1,$2)');
   return snew;
+ }
+  else return "UNDEFINED PASSED TO braketify"
 }
 
 var absify = (expression) => {//{{{
@@ -160,10 +163,14 @@ const insertCursor = (str, pos) => {//{{{
 * @return {object} {out: {string} - Parsed output, warnings: {string} - Warnings}
 */
 const asciiMathToMathJS = (str) => {
-    var parsed = insertImplicitMultiply(str);
-    parsed = insertImplicitSubscript(parsed);
+	
+    var parsed = str;
+    parsed = insertImplicitMultiply(parsed);
+    // parsed = insertImplicitSubscript(parsed);  // DELETED THIS
     parsed = braketify(parsed);
-    return fixDelimiters(parsed);
+    parsed = fixDelimiters(parsed);
+    // console.log("DEV_LINEAR_ALGEBRA parsed = ", parsed )
+    return parsed
 }
 
 export {asciiMathToMathJS, insertCursor, braketify, absify, insertImplicitMultiply, insertImplicitSubscript, fixDelimiters}

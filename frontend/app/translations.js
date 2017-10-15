@@ -6,6 +6,15 @@ const translationDict = immutable.fromJS({
         'en': 'Language',
         'sv': 'Språk'
     },
+    'attempts': {
+        'en': 'attempts',
+        'sv': 'försök'
+    },
+    'previous': {
+        'en': 'previous',
+        'sv': 'föregående'
+    },
+
     'in terms of': {
         'en': 'in terms of',
         'sv': 'i termer av'
