@@ -45,132 +45,90 @@ def parse_variables(variables):  # {{{
         raise QuestionError("Cannot parse variables")
 
 
-# def parse_xml_variables(node):
-#    '''
-#    Parses variables defined through the XML syntax <var>...</var>
-#    '''
-#    variables = node.xpath('./var')
-#    res = []
-#    if variables is None:
-#        return res
-#    for var in variables:
-#        token = var.find('token')
-#        value = var.find('val')
-#        if token is not None and value is not None:
-#            res.append({'name': token.text, 'value': value})
-#    return res
-
-# def parse_blacklist(node):
-#    tokens = node.xpath('./blacklist/token')
-#    ret = []
-#    for token in tokens:
-#        if hasattr(token,'text'):
-#            ret.append(token.text.strip(' \t\n\r'))
-#    return ret
-
-# The function below is the core of the server interface and the only mandatory component.
 def question_check_linear_algebra(question_json, question_xmltree, answer_data, global_xmltree):
-    '''Checks a symbolic answer by numeric evaluation.
-
-    Args:
-        question_json (dictionary): The JSON representation of the <question> XML content
-        question_xmltree (etree.Element): The XML ETree representation of the <question> XML content
-        answer_data (dynamic): The answer provided by the frontend
-    Returns:
-        (dictionary)
-        {
-            correct: true/false
-            error: (optional)
-            status: correct/incorrect/error
-            latex: latex representation of answer_data by sympy
-        }
-    Notes:
-    Expects the XML format:
-        <question type=compareNumeric>
-            <variables>
-                var1=value1; var2=value2; ...
-            </variables>
-            <expression>
-                f(var1,var2,...)
-            </expression>
-        </question>
-    '''
-    # getallvariables( global_xmltree, question_xmltree )
-    # variables = []
-    # blacklist = set([])
-    # check_units = True
-    #
-    #    variables += parse_xml_variables(question_xmltree)
-    #    if global_xmltree is not None:
-    #        variables += parse_xml_variables(global_xmltree)
-    #
-    #    variables_element = question_xmltree.find('variables')
-    #    if variables_element is not None:
-    #        variables += parse_variables(variables_element.text)
-    #    if global_xmltree is not None and global_xmltree.text is not None:
-    #        global_variables = parse_variables(global_xmltree.text)
-    #        variables += global_variables
-    #
-    #    unique_vars = OrderedDict( (var['name'], var) for var in variables)
-    #    variables = list(unique_vars.values())
-    #    print("variables = ", variables )
-    #    correct_answer = question_xmltree.find('expression').text.split(';')[0]
-    #
-    #    if global_xmltree is not None:
-    #        blacklist.update(parse_blacklist(global_xmltree))
-    #    blacklist.update(parse_blacklist(question_xmltree))
+    # print("QUESTION_CHECK_LINEAR_ALGEBRA");
     check_units = True
     ret = getallvariables(global_xmltree, question_xmltree)
     variables = ret['variables']
-    print("getallvariables: ", variables)
     blacklist = ret['blacklist']
-    print("blacklist: ", blacklist)
     correct_answer = ret['correct_answer']
-    print("correct_anwer: ", correct_answer)
+    equality = question_xmltree.find('equality')
+    negate = False
+    if equality is not None:
+        # print("EQUALITTY = ", equality.text)
+        correct_answer = equality.text
 
-    # Disable unit check if the answer contains an equality
-    if '==' in answer_data:
+    istrue = question_xmltree.find('istrue')
+    if istrue is not None:
+        correct_answer = istrue.text
+        if '==' not in istrue.text:
+            correct_answer = istrue.text + "== 1 "
         check_units = False
 
+    isfalse = question_xmltree.find('isfalse')
+    if isfalse is not None:
+        negate = True
+        correct_answer = isfalse.text
+        if '==' not in isfalse.text:
+            correct_answer = isfalse.text + "== 1 "
+        check_units = False
+
+    if '==' in answer_data:
+        check_units = False
     result = {}
+    precision = question_json.get('@attr').get('precision', '1e-6')
+    precision = float(precision)
     result = linear_algebra_expression(
-        variables, answer_data, correct_answer, check_units=check_units, blacklist=list(blacklist)
+        precision,
+        variables,
+        answer_data,
+        correct_answer,
+        check_units=check_units,
+        blacklist=list(blacklist),
     )
-    if 'correct' in result:
-        result['status'] = 'correct' if result['correct'] else 'incorrect'
-    elif 'error' in result:
-        result['status'] = 'error'
+    print("NEGATE = ", negate)
+    if negate:
+        print("WILL NEGATE ", result)
+        if 'correct' in result:
+            result['status'] = 'incorrect' if result['correct'] else 'correct'
+        elif 'error' in result:
+            result['status'] = 'error'
+    else:
+        if 'correct' in result:
+            result['status'] = 'correct' if result['correct'] else 'incorrect'
+        elif 'error' in result:
+            result['status'] = 'error'
+
     return result
 
 
 def linear_algebra_json_hook(safe_question, full_question, question_id, user_id):
-    print("DEV INIT.PY full_question", full_question)
     correct_answer = full_question.get('expression').get('$', 'NO TEXT IN EXPRESSION').split(';')[0]
     caretless = re.sub(r"\^", ' ', correct_answer)
-    caretless = re.sub(r"[A-Z,a-z,0-9]+\(", '(', caretless)
-    lis = re.findall(r'([A-Z,a-z]+\w*)', caretless)
+    caretless = re.sub(r"[A-Za-z0-9]+\(", '(', caretless)
+    lis = re.findall(r'([A-Za-z]+\w*)', caretless)
     if full_question.get('@attr').get('exposeglobals', False):
-        print("EXPOSE GLOBALS WAS SET")
         safe_question['exposeglobals'] = True
     else:
         safe_question['exposeglobals'] = False
-        print("EXPOSE GLOBALS WAS NOT  SET")
-    print("Nlis = ", lis)
+    # print("Nlis = ", lis )
     used_variable_list = []
     [
         used_variable_list.append(item) for item in lis if item not in used_variable_list
     ]  # SELECT UNIQUE ITEMS
-    print("usedvariablelist=", used_variable_list)
+    # print("usedvariablelist=", used_variable_list)
+    # print("question_id, user_id", question_id, user_id)
+    # print("nattemts = ", get_number_of_attempts(question_id, user_id) )
     safe_question['username'] = user_id
     safe_question['usedvariablelist'] = used_variable_list
     safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)
-    safe_question['last_attempts'] = get_previous_answers(question_id, user_id, 5)
+    safe_question['previous_answers'] = get_previous_answers(question_id, user_id, 5)
     return safe_question
 
 
 # This function call registers the question type with the system
 register_question_type(
-    'devLinearAlgebra',
+    'linearAlgebra',
     question_check_linear_algebra,
     linear_algebra_json_hook,
     hide_tags=['expression'],

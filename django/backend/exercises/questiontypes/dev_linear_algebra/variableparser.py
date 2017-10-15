@@ -41,7 +41,7 @@ def parse_xml_variables(node):
         token = var.find('token')
         value = var.find('val')
         if token is not None and value is not None:
-            res.append({'name': token.text, 'value': value})
+            res.append({'name': token.text, 'value': value.text})
     return res
 
 
@@ -55,22 +55,41 @@ def parse_blacklist(node):
 
 
 def getallvariables(global_xmltree, question_xmltree):
+    '''
+    allowglobals='True' (default) determines whether or not student 
+        is permitted to use the globally defined variables
+    exposeglobals='False' (default) determines whether or not the
+        variables are exposed explicitly in the list of allowed variables
+    blacklist allows cherrypicking of variables from the globals list,
+        both disallowing use and exposure.
+        '''
     variables = []
     blacklist = set([])
     correct_answer = ''
     print("GETALLVARIABLES")
+    if 'allowglobals' in question_xmltree.attrib:
+        allowglobals = question_xmltree.attrib['allowglobals']
+        if (
+            allowglobals == 'False'
+            or allowglobals == 'false'
+            or allowglobals == 'no'
+            or allowglobals == 'No'
+        ):
+            allowglobals = False
+    else:
+        allowglobals = True
+    print("ALLOWGLOBALS = ", allowglobals)
     ret = {}
     try:
         variables += parse_xml_variables(question_xmltree)
-        if global_xmltree is not None:
+        if allowglobals and global_xmltree is not None:
             variables += parse_xml_variables(global_xmltree)
         variables_element = question_xmltree.find('variables')
         if variables_element is not None:
             variables += new_parse_variables(variables_element.text)
-        if global_xmltree is not None and global_xmltree.text is not None:
+        if allowglobals and global_xmltree is not None and global_xmltree.text is not None:
             global_variables = new_parse_variables(global_xmltree.text)
             variables += global_variables
-
         unique_vars = OrderedDict((var['name'], var) for var in variables)
         variables = list(unique_vars.values())
         print("variables = ", variables)

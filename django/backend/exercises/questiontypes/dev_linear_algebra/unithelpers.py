@@ -29,7 +29,7 @@ ns.update(
 baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
 derivedunits = {
     'joule': kg * meter ** 2 / second ** 2,
-    'N': kg * meter ** 2 / second ** 2,
+    'Newton': kg * meter ** 2 / second ** 2,
     'coulomb': sympy.sympify(ampere * second),
     'volt': sympy.sympify(kg * meter ** 2 / second ** 3 / ampere),
 }

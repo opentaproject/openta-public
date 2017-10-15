@@ -19,10 +19,18 @@ def ascii_to_sympy(expression):  # {{{
     result = resub.sub(r"([^=]+)==([^=]+)", r"(\1) - (\2)", result)
     dict = {'^': '**'}
 
-    result = resub.sub(r"\|([^>]+)>\s*<([^|]+)\|", r" KetBra(\1,\2) ", result)
-    result = resub.sub(r"\|([^>]+)>([^<]+)<([^|]+)\|", r" KetBra(\1,\2,\3) ", result)
-    result = absify(matrixify(braketify(result)))
+    result = resub.sub(r"\|([^>]+)>\s*<([^|]+)\|", r" ( KetBra(\1,\2)  ) ", result)
+    result = resub.sub(r"\|([^>]+)>([^<]+)<([^|]+)\|", r" ( KetBra(\1,\2,\3) ) ", result)
+    # print("BRAKETIFY FOLLOWING ", result );
+    result = braketify(result)
+    # print("MATRIXIFY FOLLOWING ", result );
+    if "Matrix" not in result:
+        result = matrixify(result)
+    # print("ABSIFY FOLLOWING ",  result);
+    result = absify(result)
+    # result = absify(matrixify(braketify(result)))
     result = insert_implicit_multiply(result)
+    # print("STRING_FORMATTING result = ", result)
     # result = resub.sub(r"cross", r"Cross", result)
     # result = resub.sub(r"norm", r"Norm", result)
     # result = resub.sub(r"dot", r"Dot", result)
@@ -32,12 +40,15 @@ def ascii_to_sympy(expression):  # {{{
     result = resub.sub(
         r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result
     )  # PUT IN IMPLICITY MULTIPLY IN VARIABLE DEFS WITH UNITS
+    # print("ASCII_TO_SYMPY result = ", result )
     return result  # }}}
 
 
 def matrixify(expression):  # # {{{
     """PUT A MATRIX( ) around outer square brackets
     """
+    # print("VVVVVVVVVVVVVVVVVVVVVVVVVVVVV");
+    # print("MATRIXIFY expression = ", expression )
     l = len(expression)
     i = 0
     s = ''
@@ -54,6 +65,8 @@ def matrixify(expression):  # # {{{
         if c == ']' and depth == 0:
             s += ")"
         i += 1
+    # print("MATRIXIFY, s = ", s )
+    # print("^^^^^^^^^^^^^^^^^^^^^^^");
     return s  # }}}
 
 
