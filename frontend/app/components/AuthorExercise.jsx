@@ -111,12 +111,11 @@ class BaseAuthorExercise extends Component {
           !this.props.atMenu(['activeExercise', 'assets']) &&
           <div key="xml" className="xmleditor">
           { loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && <Spinner/> }
-          { !loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && this.props.author && <XMLEditor  xmlCode={this.state.xml} 
-		onChange={ (xml) => this.xmlUpdate(xml, key)}/> }
+          { !loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && this.props.author && <XMLEditor xmlCode={this.state.xml} onChange={ (xml) => this.xmlUpdate(xml, key)}/> }
           { xmlError && this.props.atMenu(['activeExercise','xmlEditorSplit']) && <Alert type="error">{xmlError}</Alert>}
-          { this.props.atMenu(['activeExercise','options']) && this.props.admin && 
+          { this.props.atMenu(['activeExercise','options']) && this.props.admin &&
             <div className="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-top">
-              <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/> 
+              <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/>
               </div>
           }
           { this.props.atMenu(['activeExercise','statistics']) && this.props.view && <Statistics/> }
@@ -124,11 +123,11 @@ class BaseAuthorExercise extends Component {
           </div>
         }
         { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }
-        { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && this.props.author && 
+        { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && this.props.author &&
           <div className="uk-width-1-1 uk-padding-remove">
               <div className="uk-flex">
                   <div style={{flex: '1'}}>
-                  <XMLEditor  xmlCode={this.state.xml} onChange={ (xml) => this.xmlUpdate(xml, key)}/> 
+                  <XMLEditor xmlCode={this.state.xml} onChange={ (xml) => this.xmlUpdate(xml, key)}/>
                   { xmlError && this.props.atMenu(['activeExercise','xmlEditor']) &&
                     <Alert type="error">{xmlError}</Alert>
                   }
@@ -163,7 +162,6 @@ class BaseAuthorExercise extends Component {
   }
 
   xmlUpdate = (xml, exercise) => {
-   //  console.log("AUTHOR EXERCISES: xmlUpdate");
     this.setState({xml: xml});
     this.props.onXMLChange(xml, exercise);
   }
@@ -178,16 +176,7 @@ class BaseAuthorExercise extends Component {
   }
 }
 
-
-function xmlUpdate(xml, exercise) {
- //   console.log("AUTHOR EXERCISES: xmlUpdate");
-    this.setState({xml: xml});
-    this.props.onXMLChange(xml, exercise);
-  }
-
-
 function handleXMLChange(xml, exercise, flagModified=true) {
- //  console.log("AUTHOR EXERCISE: exercise = ", exercise )
   return dispatch => {
     throttleParseXML(xml, (err, result) => {
       dispatch(updateExerciseActiveXML(exercise, xml));

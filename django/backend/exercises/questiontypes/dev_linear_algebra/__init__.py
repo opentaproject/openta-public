@@ -128,7 +128,7 @@ def linear_algebra_json_hook(safe_question, full_question, question_id, user_id)
 
 # This function call registers the question type with the system
 register_question_type(
-    'linearAlgebra',
+    'devLinearAlgebra',
     question_check_linear_algebra,
     linear_algebra_json_hook,
     hide_tags=['expression'],

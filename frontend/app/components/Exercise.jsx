@@ -221,24 +221,27 @@ class BaseExercise extends Component {
       return null;
   }
 
-basename = (path) =>  {
-      return path.split('/').reverse()[0];
-}
- 
+  basename = (path) =>  {
+    return path.split('/').reverse()[0];
+  }
 
   render() {
     var key = this.props.exerciseKey;
     var state = this.props.exerciseState;
     var pendingState = this.props.pendingState;
-    var filename =  this.props.author   ? this.basename(state.get('path') ) : '';
+    var filename = this.basename(state.get('path') );
     var json = state.get('json', immutable.Map({}));
     var meta = state.get('meta', immutable.Map({}));
     if(meta === null)meta = immutable.Map({});
     var items = json.getIn(['exercise','$children$'], immutable.List([]))
-              .map( child => this.dispatchElement(child, json, meta, key) ).toSeq();
+                    .map( child => this.dispatchElement(child, json, meta, key) ).toSeq();
+    var filenameDOM = (
+      <span className="uk-text-bold uk-text-primary">
+        Exercise file path: {filename}
+      </span>);
     var exerciseDOM = (
         <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
- 	<span className="uk-text-bold uk-text-primary">  {filename}  </span>
+        { this.props.author && filenameDOM }
         { meta.get('image', false) && <div className="uk-float-right uk-margin-small-right"><ExerciseImageUpload/></div> }
           {items}
         </article>
