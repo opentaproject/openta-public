@@ -22,7 +22,7 @@ export default class Badge extends Component {
     }
     var typeClass = this.props.type ? typeToClass[this.props.type] : "";
     return (
-      <div className={"uk-badge " + typeClass + " " + this.props.className} title={this.props.title}>{this.props.message}{this.props.children}</div>
+      <div className={"uk-badge " + typeClass + " " + this.props.className} title={this.props.title} data-uk-tooltip>{this.props.message}{this.props.children}</div>
     );
   }
 
