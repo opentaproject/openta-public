@@ -1,5 +1,6 @@
 from django.test import TestCase
 from .linear_algebra import linear_algebra_compare_expressions
+from .linear_algebra import linear_algebra_check_if_true
 from .string_formatting import insert_implicit_multiply as iim
 from .string_formatting import ascii_to_sympy
 
@@ -51,6 +52,29 @@ class DevLinearAlgebraTest(TestCase):
                 precision, variables, ' IsHermitian([[1,I],[-I,1]]) ', ' 1 '
             )['correct'],
             True,
+        )
+        self.assertEqual(
+            linear_algebra_check_if_true(
+                precision, variables, ' IsHermitian( $$ ) ', '[[1,I],[-I,1]]'
+            )['correct'],
+            True,
+        )
+        self.assertEqual(
+            linear_algebra_check_if_true(
+                precision,
+                variables,
+                'And(Ge(RankOf($$),2),Not(IsDiagonal($$)),IsUnitary($$),IsNotEqual($$,Transpose($$)))',
+                '[[0,1],[-I,0]]',
+            )['correct'],
+            True,
+            msg='Test4',
+        )
+        self.assertEqual(
+            linear_algebra_check_if_true(
+                precision, variables, 'Not( IsDiagonalizable( $$ ) )  ', '[[0,1],[0,0]]'
+            )['correct'],
+            True,
+            'Test5',
         )
         self.assertEqual(
             linear_algebra_compare_expressions(precision, variables, 'v1', '[1,1,0]')['correct'],

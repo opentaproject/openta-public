@@ -739,6 +739,15 @@ def check_units_new(expression, correct, sample_variables):
             raise LinearAlgebraUnitError(_("Incorrect units"))
 
 
+def linear_algebra_check_if_true(
+    precision, variables, correct, expression, check_units=False, blacklist=[]
+):
+    shouldbetrue = correct + '== 1'
+    return linear_algebra_compare_expressions(
+        precision, variables, expression, shouldbetrue, check_units=True, blacklist=[]
+    )
+
+
 def linear_algebra_compare_expressions(
     precision, variables, student_answer, correct, check_units=True, blacklist=[]
 ):
