@@ -11,7 +11,7 @@ import {
 } from '../actions.js';
 
 const BaseLanguageSelect = ({languages, lang, onLanguageChange}) => {
-  if(languages == null)
+  if(languages == null || (languages.size == 1 && languages.first() == ''))
     return (<span/>);
   var langChoices = languages.map(language =>
     <li className="uk-text-center" key={language}>
