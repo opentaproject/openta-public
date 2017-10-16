@@ -339,6 +339,6 @@ export default class QuestionLinearAlgebra extends Component {
 }
 
 //Register the question component with the system
-registerQuestionType('linearAlgebra', QuestionLinearAlgebra);
+registerQuestionType('devLinearAlgebra', QuestionLinearAlgebra);
 
 export {absify}
