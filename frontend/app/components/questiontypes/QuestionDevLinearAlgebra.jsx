@@ -296,7 +296,8 @@ export default class QuestionLinearAlgebra extends Component {
   return (
         <div className="">
 		<span className="uk-text-small uk-text-primary">{availableVariables}</span>
-  	  <span className="uk-text-small uk-text-primary"> [  {n_attempts } <T>attempts</T> ] </span>
+  	  <span className="uk-text-small uk-text-primary"> [  {n_attempts } <T>attempts</T> ]  </span>
+          
           <HelpLinearAlgebra/>
 	   <span data-uk-tooltip title={msg1}></span>
 { hasChanged && lastAnswer !== '' && (<Badge message={t('previous') + '  '  + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}

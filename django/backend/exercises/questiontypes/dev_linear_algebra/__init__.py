@@ -57,7 +57,6 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     if equality is not None:
         # print("EQUALITTY = ", equality.text)
         correct_answer = equality.text
-
     istrue = question_xmltree.find('istrue')
     if istrue is not None:
         correct_answer = istrue.text
