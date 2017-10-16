@@ -9,6 +9,8 @@ import immutable from 'immutable';
 import moment from 'moment';
 import DOMPurify from 'dompurify';
 import ExerciseImageUpload from './ExerciseImageUpload.jsx';
+import T from './Translation.jsx';
+import Badge from './Badge.jsx';
 import {SUBPATH} from '../settings.js';
 
 import {
@@ -160,15 +162,16 @@ class BaseExercise extends Component {
       name = translations.first().get('$');
 
     return (
-          <div key="name">
-          <h1 className="uk-article-title">{name}
-          { deadlineDate && <div className="uk-badge uk-badge-danger">
-            <a data-uk-tooltip title="Du kan fortfarande kontrollera svar efter deadline men de kommer inte räknas mot obligatorisk/bonus.">
-            Deadline: {deadlineDateFormat}
-            <i className="uk-icon uk-icon-small uk-icon-question-circle-o uk-margin-small-left"/></a>
-            </div>}
-          { deadlineDate && obligatorisk && <div className="uk-badge uk-margin-small-left">Obligatorisk</div>}
-          { deadlineDate && bonus && <div className="uk-badge uk-badge-warning uk-margin-small-left">Bonus</div>}
+      <div key="name">
+      <h1 className="uk-article-title">{name}
+      { deadlineDate && <div className="uk-badge uk-badge-danger uk-margin-small-left">
+        <a data-uk-tooltip title="Du kan fortfarande kontrollera svar efter deadline men de kommer inte räknas mot obligatorisk/bonus.">
+          Deadline: {deadlineDateFormat}
+          <i className="uk-icon uk-icon-small uk-icon-question-circle-o uk-margin-small-left"/></a>
+      </div>}
+      { deadlineDate && obligatorisk && <div className="uk-badge uk-margin-small-left">Obligatorisk</div>}
+      { deadlineDate && bonus && <div className="uk-badge uk-badge-warning uk-margin-small-left">Bonus</div>}
+      { this.props.author && !meta.get('published') && <div className="uk-badge uk-badge-danger uk-margin-small-left"><T>Unpublished</T></div> }
           </h1>
           </div>
     );

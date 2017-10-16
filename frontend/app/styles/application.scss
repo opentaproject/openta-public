@@ -116,6 +116,7 @@ $exerciselist: 0.1;
   display: inline-block;
   position: relative;
   width: 100%;
+  min-height: 1em;
   left: 0;
   top: 0;
 }
@@ -131,14 +132,13 @@ $exerciselist: 0.1;
   top: 0;
   left: 0;
   -webkit-backface-visibility: hidden;
-  height: 80px;
   max-width: 100px;
 }
 
 .exercise-thumb-badge {
-  position: absolute;
-  left: -15%;
-  top: -15%;
+  position: relative;
+  width: 100%;
+  text-align: left;
 }
 
 .exercise-thumb-nav-caption {

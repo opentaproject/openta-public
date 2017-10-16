@@ -57,7 +57,6 @@ return (
           <ul >
             <li>
               <div className="exercise-list-thumb-wrap">
-              <SafeImg className="" style={{maxHeight: '40px', height:'40px'}} src={SUBPATH + '/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}><i className="uk-icon uk-icon-question-circle uk-icon-medium"/></SafeImg>
               <div className="exercise-thumb-badge">
               { meta.get('difficulty', false) && <Badge className="uk-badge-notification">{difficulties[meta.get('difficulty','none')]}</Badge> }
               { /*meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */}
@@ -68,7 +67,9 @@ return (
               {exerciseState.getIn([exercise.get('exercise_key'), 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
               {exerciseState.getIn([exercise.get('exercise_key'), 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
               {exerciseState.getIn([exercise.get('exercise_key'), 'audit', 'published'], false) && <Badge type={exerciseState.getIn([exercise.get('exercise_key'), 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
+              { !meta.get('published') && <Badge type='error' className={"uk-badge-notification"} title="Unpublished"><i className="uk-icon uk-icon-ban"/></Badge> }
               </div>
+              <SafeImg className="" style={{maxHeight: '40px', height:'40px'}} src={SUBPATH + '/exercise/' + exercise.get('exercise_key') + '/asset/thumbnail.png'}></SafeImg>
               </div>
             </li>
             <li className="uk-text-break">

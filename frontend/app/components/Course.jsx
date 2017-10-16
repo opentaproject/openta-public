@@ -60,8 +60,7 @@ return (
   <li key={exercise} id={exercise} className="course-exercise-item ">
     <div className="uk-position-relative" data-uk-dropdown="{hoverDelayIdle: 0, delay: 300}">
     <a className={"uk-thumbnail exercise-a " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
-        <div className="exercise-thumb-wrap" style={{minWidth: '80px'}}>
-            <SafeImg className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}></SafeImg>
+        <div className="exercise-thumb-wrap" style={{minWidth: '80px', maxWidth: '100px'}}>
             <div className="exercise-thumb-badge">
                 { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
                 { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>{moment(meta.deadline_date).format('D MMM')}</Badge> }
@@ -70,10 +69,12 @@ return (
                 {exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success "><i className="uk-icon uk-icon-check"/></span> }
                 {exerciseState.getIn([exercise, 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
                 {exerciseState.getIn([exercise, 'audit', 'published'], false) && <Badge type={exerciseState.getIn([exercise, 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
+  { !meta.published && <Badge type='error' title="Unpublished" className={"uk-badge-notification uk-float-right"}><T>Unpublished</T></Badge> }
             </div>
+            <SafeImg className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}></SafeImg>
         </div>
       <div className={"uk-thumbnail-caption exercise-thumb-nav-caption "}>
-        <T dict={nameDict}>{folder.getIn(['exercises', exercise, 'name'])}</T>
+        <h4 className="uk-margin-remove"><T dict={nameDict}>{folder.getIn(['exercises', exercise, 'name'])}</T></h4>
       </div>
       { showStatistics && !meta.deadline_date &&
         <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-warning" title="blue: correct, orange: tried">
