@@ -84,7 +84,8 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise
   });
   var renderPending = pendingPaths.map( item => {
     return (pendingState.getIn(item.path, false) && (<span key={item.path}>{item.name}<Spinner icon="uk-icon-bar-chart" size="" className="uk-margin-small-left"/></span>))
-  }) 
+  });
+var studentViewDOM = author ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open("./hijack/username/student" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
   <div className="uk-container uk-container-center">
@@ -109,6 +110,11 @@ return (
   </div>
   }
   <ul className="uk-navbar-nav">
+    <li>
+      <div className="uk-navbar-content">
+        {studentViewDOM}
+      </div>
+    </li>
     <li>
       <div className="uk-navbar-content">
       <LanguageSelect/>
