@@ -12,8 +12,9 @@ Clone the repository to a local folder
 git clone https://github.com/hlinander/openta.git
 ```
 
-and configure backend and frontend settings from the template files (```settings_dev.py``` and ```settings_example.js```), for a simple single site installation you can copy the templates to ```settings.py``` and ```settings.js``` (for details see installation instructions above). 
+and configure backend and frontend settings from the template files (```settings_dev.py``` and ```settings_example.js```), for a simple single site installation you can copy the templates to ```settings.py``` and ```settings.js``` (for details see installation instructions above).
 
+Copy the example database from ```django/backend/db.sqlite3.example``` to ```django/backend/db.sqlite3```.
 
 Change workdirectory ```cd docker```. To build the Docker image run (grab a coffee)
 ```
