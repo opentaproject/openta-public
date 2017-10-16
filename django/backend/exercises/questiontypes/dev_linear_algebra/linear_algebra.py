@@ -303,31 +303,31 @@ class neq(sympy.Function):
 
 
 class logicaland(sympy.Function):
-    nargs = 2
-
     @classmethod
-    def eval(cls, x, y):
-        if isinstance(x, sympy.Integer) and isinstance(y, sympy.Integer):
-            if And(x, y):
-                return sympy.sympify('1')
-            else:
-                return sympy.sympify('0')
+    def eval(cls, *x):
+        tot = 1
+        for tval in x:
+            if Not(isinstance(tval, sympy.Integer)):
+                return None
+            tot = And(tot, tval)
+        if tot:
+            return sympy.sympify('1')
         else:
-            return None
+            return sympy.sympify('0')
 
 
 class logicalor(sympy.Function):
-    nargs = 2
-
     @classmethod
-    def eval(cls, x, y):
-        if isinstance(x, sympy.Integer) and isinstance(y, sympy.Integer):
-            if x + y > 0:
-                return sympy.sympify('1')
-            else:
-                return sympy.sympify('0')
+    def eval(cls, *x):
+        tot = 0
+        for tval in x:
+            if Not(isinstance(tval, sympy.Integer)):
+                return None
+            tot = Or(tot, tval)
+        if tot:
+            return sympy.sympify('1')
         else:
-            return None
+            return sympy.sympify('0')
 
 
 class logicalnot(sympy.Function):
