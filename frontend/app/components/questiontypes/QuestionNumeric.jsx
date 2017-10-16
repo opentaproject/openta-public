@@ -18,8 +18,8 @@ import latex from './latex.js';
 import immutable, { List } from 'immutable';
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
-import { parseBlacklist, uniquecat, parseVariableString , parseVariables , AvailableVariables} from './mathexpressionparser.js'
-import {units} from '../units.js'
+import { parseBlacklist, uniquecat, parseVariableString , parseVariables , AvailableVariables} from './mathexpressionparser.js';
+import {units} from './units.js';
 
 
 

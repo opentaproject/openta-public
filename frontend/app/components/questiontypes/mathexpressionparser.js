@@ -2,7 +2,7 @@ import React, { PropTypes, Component } from 'react'; // React specific import
 import { insertImplicitSubscript } from '../mathrender/string_parse.js'
 import { enforceList } from '../../immutablehelpers.js';
 import immutable, { List } from 'immutable';
-import {units} from '../units.js';
+import {units} from './units.js';
 import MathSpan from '../MathSpan.jsx';
 import T from '../Translation.jsx';
 import t from '../../translations.js';
