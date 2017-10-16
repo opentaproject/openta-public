@@ -74,7 +74,11 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     except ObjectDoesNotExist:
         return {
             'error': 'Invalid question',
-            'author_error': 'You must save the exercise (save button in toolbar) before the question can be evaluated.',
+            'author_error': (
+                'You must save the exercise (save '
+                'button in toolbar) before the question '
+                'can be evaluated.'
+            ),
         }
     question_json = question_json_get(dbexercise.path, question_key)
     if dbquestion.type in question_json_hooks:
@@ -83,14 +87,8 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         )
     xmltree = exercise_xmltree(dbexercise.path)
     question_xmltree = question_xmltree_get(xmltree, question_key)
-    global_xmltree = (
-        xmltree.xpath(
-            '/exercise/global[@type="{type}"] | /exercise/global[not(@type)]'.format(
-                type=dbquestion.type
-            )
-        )
-        or [None]
-    )[0]
+    global_xpath = '/exercise/global[@type="{type}"] | /exercise/global[not(@type)]'
+    global_xmltree = (xmltree.xpath(global_xpath.format(type=dbquestion.type)) or [None])[0]
     rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
     if rate_limit is not None and rate_limit.text is not None and not user.is_staff:
         rate = rate_limit.text.strip()
@@ -98,11 +96,8 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         if is_ratelimited(
             request, group='question_custom_rate', key='user', rate=rate, increment=True
         ):
-            return {
-                'error': _('Answer rate exceeded, please wait before trying again. (Rate: ')
-                + rate
-                + ')'
-            }
+            error_msg = _('Answer rate exceeded, ' 'please wait before trying again. (Rate: ')
+            return {'error': error_msg + rate + ')'}
 
     if dbquestion.type in question_check_dispatch:
         result = {}
