@@ -12,8 +12,7 @@ export default class SafeImg extends Component {
   }
 
   onError = (event) => {
-    this.setState({error: false});
-    // SET THIS TO AVOID ERROR MESSAGES FOR MISSING THUMBNAILS
+    this.setState({error: true});
   }
 
   render() {

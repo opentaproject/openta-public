@@ -61,7 +61,7 @@ return (
     <div className="uk-position-relative" data-uk-dropdown="{hoverDelayIdle: 0, delay: 300}">
     <a className={"uk-thumbnail exercise-a " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
         <div className="exercise-thumb-wrap" style={{minWidth: '80px'}}>
-            <SafeImg className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}><i className="uk-icon uk-icon-question-circle uk-icon-large"/></SafeImg>
+            <SafeImg className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}></SafeImg>
             <div className="exercise-thumb-badge">
                 { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
                 { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>{moment(meta.deadline_date).format('D MMM')}</Badge> }
