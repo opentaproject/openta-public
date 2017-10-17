@@ -2,6 +2,16 @@ import immutable from 'immutable';
 import {store} from 'store.js';
 
 const translationDict = immutable.fromJS({
+    
+    ' STOP GUESSING!': {
+        'en': ' STOP GUESSING!',
+        'sv': ' SLUTA GISSA!'
+    },
+    
+    'CORRECT FIRST TIME!': {
+        'en': 'CORRECT ON THE FIRST ATTEMPT!',
+        'sv': 'KORREKT PÅ FÖRSTA FÖRSÖKET!'
+    },
     'Language': {
         'en': 'Language',
         'sv': 'Språk'

@@ -267,14 +267,25 @@ export default class QuestionLinearAlgebra extends Component {
   // console.log("renderedResult = ", renderedResult )
   var renderedMath = renderedResult.out;
   if(input === lastAnswer && lastAnswer !== '' && !error) {
-    if(correct)
+    if(correct) {
      //  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + 
                 t(' is correct.') } type="success" key="input" hasMath={true}/>);
-
-    else
+    if( n_attempts < 2 ){
+            graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + 
+                t('CORRECT FIRST TIME!') } type="success" key="input" hasMath={true}/>);
+            }
+            
+    } 
+    else {
       // graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
     graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') } type="warning" key="input" hasMath={true}/>);
+    if( n_attempts > 4  && ( n_attempts % 2 ) == 0 ){
+        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(' STOP GUESSING!') } type="warning" key="input" hasMath={true}/>);
+        
+        }
+            
+    }
 
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
@@ -295,6 +306,7 @@ export default class QuestionLinearAlgebra extends Component {
   var msg1 = "Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."
   return (
         <div className="">
+        {questiontext}
 		<span className="uk-text-small uk-text-primary">{availableVariables}</span>
   	  <span className="uk-text-small uk-text-primary"> [  {n_attempts } <T>attempts</T> ]  </span>
           
