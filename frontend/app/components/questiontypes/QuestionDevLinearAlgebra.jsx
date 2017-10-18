@@ -217,6 +217,7 @@ export default class QuestionLinearAlgebra extends Component {
 
   /* render gets called every time the question is shown on screen */
   render() {  
+  console.log("CALL RENDER IN QUESTION_DEV_LINEAR_ALGEBRA")
   // Some convenience definitions
   var question = this.props.questionData;
   var state = this.props.questionState;

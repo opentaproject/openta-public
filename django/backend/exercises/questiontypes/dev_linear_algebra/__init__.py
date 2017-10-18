@@ -20,6 +20,7 @@ import re
 from .linear_algebra import linear_algebra_expression
 from .linear_algebra import linear_algebra_expression_blocking
 from .variableparser import getallvariables
+from .parsehints import parsehints
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +48,9 @@ def parse_variables(variables):  # {{{
 
 def question_check_linear_algebra(question_json, question_xmltree, answer_data, global_xmltree):
     # print("QUESTION_CHECK_LINEAR_ALGEBRA");
+    hintfail = parsehints(question_xmltree, global_xmltree, answer_data)
+    if hintfail is not None:
+        return hintfail
     check_units = True
     ret = getallvariables(global_xmltree, question_xmltree)
     variables = ret['variables']
