@@ -127,14 +127,18 @@ export default class QuestionLinearAlgebra extends Component {
         }
       }
       else {
+        var ret =  node._toTex(options);
+        if( node.name == 'erf'){
+            ret = ret.replace(/^erf/,'\\mathrm{erf}') 
+            }
         var isUnclosed = false;
         node.traverse( (node, path, parent) => {
           if(node.type === 'FunctionNode' && node.name === 'unclosed')isUnclosed = true;
         });
         if(isUnclosed)
-          return '\\color{orange}{' + node._toTex(options) + '}';
+          return '\\color{orange}{' +  ret + '}';
         else
-          return node._toTex(options);
+          return ' '+ ret;
       }
     }
     // Render green if allowed variable otherwise red
@@ -161,7 +165,7 @@ export default class QuestionLinearAlgebra extends Component {
         return '\\color{red}{(} ' + node.content.toTex(options) + '';
       }
       else 
-        return node._toTex(options);
+        return ' '+node._toTex(options);
     }
     // Cursor handling by hooking into the bitwise not operator that has a very high precedence.
     else if(node.type === 'OperatorNode') {

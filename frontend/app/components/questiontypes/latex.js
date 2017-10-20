@@ -41,6 +41,7 @@ exports.symbols = {
   Infinity: '\\infty',
   oo: '\\infty',
   lim: '\\lim',
+  erf: '\\mathrm{erf}',
   'undefined': '\\mathbf{?}'
 };
 
