@@ -23,6 +23,22 @@ from .parsers import *
 from .functions import *
 
 
+def lambdifymodules():
+    [
+        {
+            'cot': lambda x: 1.0 / numpy.tan(x),
+            'norm': numpy.linalg.norm,
+            'Norm': numpy.linalg.norm,
+            'abs': numpy.linalg.norm,
+            'cross': lambda x, y: numpy.cross(x, y, axis=0),
+            'dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
+            'zoo': numpy.inf,
+            'I': numpy.complex(0, 1),
+        },
+        "numpy",
+    ]
+
+
 class LinearAlgebraUnitError(Exception):
     """
     Can be raised from check_units_new
@@ -71,10 +87,10 @@ def check_units_new(expression, correct, sample_variables):
         # print("unit_values = ", unit_values )
         allvalues = nsubs_values + unit_values
         vale = numpy.linalg.norm(
-            sympy.lambdify([], nexpression.subs(allvalues).doit(), modules=lambdifymodules)()
+            sympy.lambdify([], nexpression.subs(allvalues).doit(), modules=lambdifymodules())()
         )
         valc = numpy.linalg.norm(
-            sympy.lambdify([], ncorrect.subs(allvalues).doit(), modules=lambdifymodules)()
+            sympy.lambdify([], ncorrect.subs(allvalues).doit(), modules=lambdifymodules())()
         )
         if valc != 0:
             results.append(vale / valc)
