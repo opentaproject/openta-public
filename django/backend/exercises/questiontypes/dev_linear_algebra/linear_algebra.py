@@ -79,7 +79,7 @@ class eigenvaluesof(sympy.Function):
             evt = list(map(lambda key: [key] * evdict[key], evdict.keys()))
             evlist = [val for sublist in evt for val in sublist]
             ev = sorted(evlist, key=default_sort_key)
-            print("EV = ", ev)
+            # print("EV = ", ev )
             return sympy.Matrix(ev)
         else:
             return None
@@ -95,12 +95,12 @@ class AreEigenvaluesOf(sympy.Function):
             evt = list(map(lambda key: [key] * evdict[key], evdict.keys()))
             evlist = [val for sublist in evt for val in sublist]
             ev = Matrix(sorted(evlist, key=default_sort_key))
-            print("ev = ", ev)
-            print("x = ", x)
+            # print("ev = ", ev )
+            # print("x = ", x )
             diff = ev - Sort(x)
-            print("diff = ", diff)
+            # print("diff = ", diff )
             mag = conjugate(diff).dot(diff)
-            print("mag = ", mag)
+            # print("mag = ", mag )
             if mag <= 1e-6:
                 return sympy.sympify('1')
             else:
@@ -152,7 +152,7 @@ class isunitary(sympy.Function):
         if isinstance(x, sympy.MatrixBase):
             sp = x.shape
             target = eye(sp[1])
-            print("target = ", target)
+            # print("target = ", target )
             if ((x * conjugate(x.T)) - target).is_zero:
                 return sympy.sympify('1')
             else:
@@ -770,7 +770,7 @@ def linear_algebra_compare_expressions(
         precheck = check_for_legal_answer(
             precision, variables, student_answer, correct, check_units, blacklist
         )
-        print("precheck = ", precheck)
+        # print("precheck = ", precheck)
         if precheck is not None:
             return precheck
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
@@ -783,7 +783,7 @@ def linear_algebra_compare_expressions(
         try:
             unparsedstudentanswer = sympy.sympify(ascii_to_sympy(student_answer), varsubs_sympify)
         except Exception as e:
-            print("DEV ERROR = ", e)
+            # print("DEV ERROR = ", e );
             return {'error': 'Error: ' + str(e)}
         try:
             prelhs = sympify_with_custom(student_answer, varsubs_sympify)
@@ -805,7 +805,7 @@ def linear_algebra_compare_expressions(
         except Exception as e:
             response = dict(error=_("ERROR IN AUTHOR EXPRESSION"))
             return response
-        # print("DEV_LINEAR_ALGEGEBRA lhs = ", lhs );
+        ##print("DEV_LINEAR_ALGEGEBRA lhs = ", lhs );
         # print("DEV_LINEAR_ALGEGEBRA rhs = ", rhs );
         if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
             if lhs.shape != rhs.shape:
@@ -836,7 +836,7 @@ def linear_algebra_compare_expressions(
                 if special[0] in blacklist and (special[0] in str(unparsedstudentanswer)):
                     return {'error': _('Forbidden token: ') + special[0]}
             atoms = prelhs.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
-            print("atoms = ", atoms)
+            # print("atoms = ", atoms)
             for atom in atoms:
                 strrep = str(atom)
                 funcstr = str(atom.func)
@@ -870,19 +870,19 @@ def check_for_legal_answer(
     precision, variables, student_answer, expression, check_units=True, blacklist=[]
 ):
     varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
-    print("varsubs = ", varsubs)
-    print("varsubs_sympify = ", varsubs_sympify)
-    print("sample_variables", sample_variables)
+    # print("varsubs = ", varsubs)
+    # print("varsubs_sympify = ", varsubs_sympify)
+    # print("sample_variables", sample_variables)
     response = {}
-    print("check for legal answer of ", student_answer)
+    # print("check for legal answer of ", student_answer)
     student_answer = declash(student_answer)
-    print("check for legal answer of ", student_answer)
+    # print("check for legal answer of ", student_answer)
     try:
         try:
             unparsedstudentanswer = sympy.sympify(ascii_to_sympy(student_answer), varsubs_sympify)
             sympy1 = unparsedstudentanswer.subs(baseunits)
         except Exception as e:
-            print("DEV ERROR = ", e)
+            # print("DEV ERROR = ", e );
             return {'error': 'Error: ' + str(e)}
         try:
             prelhs = sympify_with_custom(student_answer, varsubs_sympify)
@@ -919,7 +919,7 @@ def check_for_legal_answer(
                 if special[0] in blacklist and (special[0] in str(unparsedstudentanswer)):
                     return {'error': _('Forbidden token: ') + special[0]}
             atoms = prelhs.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
-            print("atoms = ", atoms)
+            # print("atoms = ", atoms )
             for atom in atoms:
                 strrep = str(atom)
                 funcstr = str(atom.func)
@@ -932,13 +932,13 @@ def check_for_legal_answer(
             for var in variables:
                 name = declash(var['name'])
                 varlist.append(name)
-            print('varlist = ', varlist)
+            # print('varlist = ', varlist )
             symbolatoms = list(prelhs.atoms(sympy.Symbol))
-            print('symbolatoms = ', type(symbolatoms), symbolatoms)
+            # print('symbolatoms = ', type( symbolatoms), symbolatoms)
             for item in symbolatoms:
-                print("check item ", item)
+                # print("check item ", item )
                 if str(item) not in varlist:
-                    print("item ", item, "not in ", varlist)
+                    # print("item ", item, "not in ", varlist )
                     response['correct'] = False
                     response['error'] = _('Forbidden token: ') + (str(item)).replace('variable', '')
                     return response

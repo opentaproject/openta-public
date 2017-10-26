@@ -46,8 +46,8 @@ const translationDict = immutable.fromJS({
         'sv': ' är inte korrekt.'
     },
     'Unpublished': {
-        'en': 'X',
-        'sv': 'X'
+        'en': 'Unpublished',
+        'sv': 'Opublicerad'
     }
 });
 

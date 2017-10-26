@@ -85,9 +85,9 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
         check_units=check_units,
         blacklist=list(blacklist),
     )
-    print("NEGATE = ", negate)
+    # print("NEGATE = ", negate )
     if negate:
-        print("WILL NEGATE ", result)
+        # print("WILL NEGATE ", result )
         if 'correct' in result:
             result['status'] = 'incorrect' if result['correct'] else 'correct'
         elif 'error' in result:
