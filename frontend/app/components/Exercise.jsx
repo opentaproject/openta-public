@@ -232,7 +232,7 @@ class BaseExercise extends Component {
     var key = this.props.exerciseKey;
     var state = this.props.exerciseState;
     var pendingState = this.props.pendingState;
-    var filename = this.basename(state.get('path') );
+    var filename = this.basename(state.get('path', '') );
     var json = state.get('json', immutable.Map({}));
     var meta = state.get('meta', immutable.Map({}));
     if(meta === null)meta = immutable.Map({});

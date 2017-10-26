@@ -263,7 +263,7 @@ def exercise_add(folder, name):
     if not os.path.isdir(os.path.join(paths.EXERCISES_PATH, folder)):
         return {'error': 'There is no such folder!'}
     if os.path.isdir(path):
-        return {'error': 'There is already a folder in the filetree with this name.'}
+        return {'error': 'There is already a folder in the file tree with this name.'}
     if is_exercise(path):
         return {'error': 'There is already an exercise with that name in the file tree'}
     os.makedirs(path, exist_ok=True)

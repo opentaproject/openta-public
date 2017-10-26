@@ -24,6 +24,10 @@ function fetchAddExercise(path, name) {
         };
         return jsonfetch('/exercises/add/', fetchconfig)
             .then( res => res.json() )
+            .then( json => {
+                if('error' in json)
+                        UIkit.notify(json.error, {timeout: 10000, status: 'danger'});
+            })
             .catch(err => console.dir(err));
     };
 }
