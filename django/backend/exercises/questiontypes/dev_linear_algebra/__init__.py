@@ -48,6 +48,8 @@ def parse_variables(variables):  # {{{
 
 def question_check_linear_algebra(question_json, question_xmltree, answer_data, global_xmltree):
     # print("QUESTION_CHECK_LINEAR_ALGEBRA");
+    # print("question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
+    # print("global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
     hintfail = parsehints(question_xmltree, global_xmltree, answer_data)
     if hintfail is not None:
         return hintfail

@@ -5,45 +5,53 @@ from lxml import etree
 import logging
 import re
 import json
-import xmltodict
+
+# def parse_xml_variables(node):
+#    '''
+#    Parses variables defined through the XML syntax <var>...</var>
+#    '''
+#    variables = node.xpath('./var')
+#    res = []
+#    if variables is None:
+#        return res
+#    for var in variables:
+#        token = var.find('token')
+#        value = var.find('val')
+#        if token is not None and value is not None:
+#            res.append({'name': token.text, 'value': value.text})
+#    return res
 
 
 def parsehints(question_xmltree, global_xmltree, answer_data):
+    # print("in parsehints question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
+    # print("in parsehints global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
     xmllist = [question_xmltree, global_xmltree]
     # hintstruc = [];
     result = {}
     for xmlentry in xmllist:
         # print("XML ENTRY = ", xmlentry )
+        # print("in xmlentry ",  etree.tostring(xmlentry, pretty_print=True) )
         if xmlentry is not None:
             # print("xmlentry = ", xmlentry)
             # print("xmlentry.tag", xmlentry.tag)
-            tag = xmlentry.tag
-            parsed = (xmltodict.parse(etree.tostring(xmlentry))).get(tag)
-            # print("parsed = ", parsed )
-            # print("type = ", type( parsed))
-            if parsed is None:
-                continue
-            try:
-                qjson = parsed.get('hint', False)
-            except:
-                continue
-            # print("qjson = ", qjson)
-            # print("qjson type = ", type( qjson) );
-            # print("qsjon isinstance( list) ", isinstance( qjson, list) )
-            if qjson:
-                if not isinstance(qjson, list):
-                    qjson = [qjson]
+            hints = xmlentry.findall('hint')
+            # print('hints= ', hints)
+            if hints:
+                if not isinstance(hints, list):
+                    hints = [hints]
                 try:
-                    for item in qjson:
-                        # print("ITEM = ", item )
-                        p = item.get('regex', False)
-                        r = item.get('warning', False)
+                    for item in hints:
+                        # print("iTEM = ", item )
+                        p = item.find('regex').text
+                        r = item.find('warning').text
+                        # print("p,r = ", p,r)
                         if p and r:
                             if re.search(p, answer_data):
                                 # print("CAUGHT THE STRING" , p , " IN ", answer_data , "REPLY WITH ", r )
                                 result['status'] = 'hint'
                                 result['correct'] = False
                                 result['warning'] = r
+                                # print("result = ", result)
                                 return result
                     # print("QSON ITEM regex",  item.get('regex') )
                     # print("QSON ITEM warning",  item.get('warning') )

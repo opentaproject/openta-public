@@ -63,10 +63,11 @@ def linear_algebra_compare_expressions(
         }
     """
     try:
+        print("DO A PRECHECK")
         precheck = check_for_legal_answer(
             precision, variables, student_answer, correct, check_units, blacklist
         )
-        # print("precheck = ", precheck)
+        print("precheck = ", precheck)
         if precheck is not None:
             return precheck
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
