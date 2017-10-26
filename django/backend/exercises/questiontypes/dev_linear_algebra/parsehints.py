@@ -19,10 +19,14 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
             # print("xmlentry.tag", xmlentry.tag)
             tag = xmlentry.tag
             parsed = (xmltodict.parse(etree.tostring(xmlentry))).get(tag)
-            # print("parsed.get(tag) = ", parsed.get(tag) )
+            # print("parsed = ", parsed )
+            # print("type = ", type( parsed))
             if parsed is None:
                 continue
-            qjson = parsed.get('hint', False)
+            try:
+                qjson = parsed.get('hint', False)
+            except:
+                continue
             # print("qjson = ", qjson)
             # print("qjson type = ", type( qjson) );
             # print("qsjon isinstance( list) ", isinstance( qjson, list) )
