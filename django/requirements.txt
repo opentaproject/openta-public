@@ -62,3 +62,4 @@ wcwidth==0.1.7
 widgetsnbextension==1.2.6
 XlsxWriter==0.9.4
 xmljson==0.1.6
+xmltodict==0.11.0
