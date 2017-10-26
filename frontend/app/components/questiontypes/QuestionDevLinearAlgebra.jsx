@@ -217,7 +217,7 @@ export default class QuestionLinearAlgebra extends Component {
 
   /* render gets called every time the question is shown on screen */
   render() {  
-  console.log("CALL RENDER IN QUESTION_DEV_LINEAR_ALGEBRA")
+  //console.log("CALL RENDER IN QUESTION_DEV_LINEAR_ALGEBRA")
   // Some convenience definitions
   var question = this.props.questionData;
   var state = this.props.questionState;
@@ -231,22 +231,22 @@ export default class QuestionLinearAlgebra extends Component {
   // System state data
   var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
   var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
-  console.log("state = ", state)
-  console.log("question = ", question)
+  //console.log("state = ", state)
+  //console.log("question = ", question)
   // Custom state data
   //console.log(" ASTATE ", JSON.stringify( state ) );
   //console.log(" B QUESTION", JSON.stringify( question) );
   var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts']) ) 
   var feedback =  state.getIn(['response','feedback'] , question.getIn(['feedback'],true) ) 
   var previous_answers = state.getIn(['response','previous_answers'] , question.getIn(['previous_answers']) );
-  console.log("feedback = ", feedback, typeof( feedback) )
-  console.log("correct = ", correct)
+  //console.log("feedback = ", feedback, typeof( feedback) )
+  //console.log("correct = ", correct)
   if( feedback == 'true' ){
-        console.log("feedback will be set to true ");
+        //console.log("feedback will be set to true ");
         feedback = true;
         }
   if( feedback == 'false' ){
-        console.log("feedback will be set to false ");
+        //console.log("feedback will be set to false ");
         feedback  = false;
         }
 
@@ -284,7 +284,7 @@ export default class QuestionLinearAlgebra extends Component {
   var renderedResult = this.renderAsciiMath(this.state.value);
   // console.log("renderedResult = ", renderedResult )
   var renderedMath = renderedResult.out;
-  var unchecked = '(unchecked)';
+  var unchecked = '('+t('unchecked')+')';
   if(input === lastAnswer && lastAnswer !== '' && !error) {
    if( feedback ){
     if(correct) {

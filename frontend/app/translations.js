@@ -3,6 +3,11 @@ import {store} from 'store.js';
 
 const translationDict = immutable.fromJS({
     
+    'unchecked': {
+        'en': 'unhchecked',
+        'sv': 'ej rättad'
+    },
+    
     ' STOP GUESSING!': {
         'en': ' STOP GUESSING!',
         'sv': ' SLUTA GISSA!'

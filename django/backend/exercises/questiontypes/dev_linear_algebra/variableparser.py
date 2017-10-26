@@ -66,7 +66,7 @@ def getallvariables(global_xmltree, question_xmltree):
     variables = []
     blacklist = set([])
     correct_answer = ''
-    print("GETALLVARIABLES")
+    # print("GETALLVARIABLES")
     if 'allowglobals' in question_xmltree.attrib:
         allowglobals = question_xmltree.attrib['allowglobals']
         if (
@@ -78,7 +78,7 @@ def getallvariables(global_xmltree, question_xmltree):
             allowglobals = False
     else:
         allowglobals = True
-    print("ALLOWGLOBALS = ", allowglobals)
+    # print("ALLOWGLOBALS = ", allowglobals)
     ret = {}
     try:
         variables += parse_xml_variables(question_xmltree)
@@ -92,16 +92,17 @@ def getallvariables(global_xmltree, question_xmltree):
             variables += global_variables
         unique_vars = OrderedDict((var['name'], var) for var in variables)
         variables = list(unique_vars.values())
-        print("variables = ", variables)
+        # print("variables = ", variables )
         correct_answer = question_xmltree.find('expression').text.split(';')[0]
         if global_xmltree is not None:
             blacklist.update(parse_blacklist(global_xmltree))
         blacklist.update(parse_blacklist(question_xmltree))
     except:
-        print("GETALLVARIABLES ERROR")
-    print("blacklist: ", blacklist)
-    print("getallvariables: ", variables)
-    print("correct_anwer: ", correct_answer)
+        raise QuestionError("CANNOT PARSE VARIABLES")
+        # print("GETALLVARIABLES ERROR")
+    # print("blacklist: ", blacklist)
+    # print("getallvariables: ", variables )
+    # print("correct_anwer: ", correct_answer )
     ret['variables'] = variables
     ret['blacklist'] = blacklist
     ret['correct_answer'] = correct_answer
