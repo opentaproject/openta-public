@@ -37,7 +37,7 @@ export default class ImageCollection extends Component {
           </a>
         </h5>
           <div className="uk-width-1-1" style={{height: '80vh'}}>
-            <embed src={this.props.srcs[this.state.activeImage]} width="100%" height="100%"/>
+            <embed key={this.state.activeImage} src={this.props.srcs[this.state.activeImage]} width="100%" height="100%" type="application/pdf"/>
           </div>
         </div>
       );
