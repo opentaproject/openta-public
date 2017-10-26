@@ -6,7 +6,6 @@ import traceback
 import random
 import itertools
 from sympy.core import S
-from exercises.question import QuestionError
 
 from exercises.questiontypes.safe_run import safe_run
 import logging
@@ -24,8 +23,7 @@ from .functions import *
 
 
 def parse_sample_variables(variables):
-    try:
-        """
+    """
     Parses a list of asciimath defined variables into correct sympy representations.
 
     Args:
@@ -40,33 +38,31 @@ def parse_sample_variables(variables):
                               }, ... ]
 
     """
-        sym = {}
-        vars = variables
-        subs_rules = []
-        sympify_rules = {}
-        sample_variables = []
-        matrix_symbols = {}
-        for var in vars:
-            expr = sympify_with_custom(ascii_to_sympy(var['value']), matrix_symbols)
-            if hasattr(expr, 'shape'):
-                sym[var['name']] = sympy.MatrixSymbol(var['name'], *expr.shape)
-                matrix_symbols[var['name']] = sym[var['name']]
-            else:
-                sym[var['name']] = sympy.Symbol(var['name'])
-            sympify_rules[var['name']] = sym[var['name']]
-            if expr.has(sympy.Function('sample')):
-                [sample] = expr.find(sympy.Function('sample'))
-                sample_points = list(sample.args)
-                sample_around = [
-                    expr.replace(sympy.Function('sample'), lambda *args: point).doit()
-                    for point in sample_points
-                ]
-                sample_variables.append({'symbol': sym[var['name']], 'around': sample_around})
-            else:
-                subs_rules.append((sym[var['name']], expr))
-        return (list(reversed(subs_rules)), sympify_rules, sample_variables)
-    except Exception as e:
-        raise QuestionError("parse_sample_variables error")
+    sym = {}
+    vars = variables
+    subs_rules = []
+    sympify_rules = {}
+    sample_variables = []
+    matrix_symbols = {}
+    for var in vars:
+        expr = sympify_with_custom(ascii_to_sympy(var['value']), matrix_symbols)
+        if hasattr(expr, 'shape'):
+            sym[var['name']] = sympy.MatrixSymbol(var['name'], *expr.shape)
+            matrix_symbols[var['name']] = sym[var['name']]
+        else:
+            sym[var['name']] = sympy.Symbol(var['name'])
+        sympify_rules[var['name']] = sym[var['name']]
+        if expr.has(sympy.Function('sample')):
+            [sample] = expr.find(sympy.Function('sample'))
+            sample_points = list(sample.args)
+            sample_around = [
+                expr.replace(sympy.Function('sample'), lambda *args: point).doit()
+                for point in sample_points
+            ]
+            sample_variables.append({'symbol': sym[var['name']], 'around': sample_around})
+        else:
+            subs_rules.append((sym[var['name']], expr))
+    return (list(reversed(subs_rules)), sympify_rules, sample_variables)
 
 
 def sympify_with_custom(expression, varsubs):

@@ -228,7 +228,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
                 sympy.lambdify(
                     [],
                     (sympy1.subs(eval_point).doit() - sympy2.subs(eval_point).doit()),
-                    modules=lambdifymodules(),
+                    modules=lambdifymodules,
                 )()
             )
             if numpy.absolute(test_evaluation) < precision:
@@ -241,7 +241,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
             sympy.lambdify(
                 [],
                 (sympy1.subs(eval_point).doit() - sympy2.subs(eval_point).doit()),
-                modules=lambdifymodules(),
+                modules=lambdifymodules,
             )()
         )
         # print("TEST EVALUATION = ", test_evaluation)
@@ -262,11 +262,11 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         for sample_point in subs_neighbours:
             inner = inner + 'C'
             nvalue1 = sympy.lambdify(
-                [], sympy1.subs(sample_point).doit(), modules=lambdifymodules()
+                [], sympy1.subs(sample_point).doit(), modules=lambdifymodules
             )()
             inner = inner + 'D'
             nvalue2 = sympy.lambdify(
-                [], sympy2.subs(sample_point).doit(), modules=lambdifymodules()
+                [], sympy2.subs(sample_point).doit(), modules=lambdifymodules
             )()
             inner = inner + 'E'
             ndiff = numpy.absolute(nvalue2 - nvalue1)
