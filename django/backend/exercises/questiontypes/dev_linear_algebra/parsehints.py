@@ -30,7 +30,7 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
     # print("in parsehints question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
     # print("in parsehints global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
     lang = translation.get_language()
-    print("CURRENT LANGUAGE = ", lang)
+    # print( "CURRENT LANGUAGE = ", lang)
     xmllist = [question_xmltree, global_xmltree]
     # hintstruc = [];
     result = {}
@@ -50,11 +50,12 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                         # print("iTEM = ", item )
                         regex = item.find('regex').text
                         reply = item.find('comment').text
-                        alts = item.find('comment').findall('alt')
+                        # alts = item.find('comment').findall('alt')
                         # alts2  = get_translations( item.find('comment'))
                         # print('alt2 = ', alts2)
                         # print('translation', alts2.get(lang, reply) )
-                        reply = get_translations(item.find('comment')).get(lang, reply)
+                        tdict = get_translations(item.find('comment'))
+                        reply = tdict.get(lang, reply)
                         # print("newreply = ", newreply)
                         # if alts:
                         #    print("alts = ", alts)
@@ -73,20 +74,23 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                             if presence == 'forbidden' and found:
                                 result['correct'] = False
                                 result['comment'] = reply
+                                result['dict'] = tdict
                                 return result
                             elif presence == 'allowed' and found:
                                 result['comment'] = reply
+                                result['dict'] = tdict
                                 return result
                             elif presence == 'necessary' and not found:
                                 result['correct'] = False
                                 result['comment'] = reply
+                                result['dict'] = tdict
                                 return result
                     # print("QSON ITEM regex",  item.get('regex') )
                     # print("QSON ITEM comment",  item.get('comment') )
                 except:
                     # print("SHOULD NOT GET HERE ANY MORE; qjson is not a list; see parsehints")
                     result['correct'] = False
-                    result['comment'] = "HINT PARSING ERROR"
+                    result['comment'] = 'HINT PARSING ERROR; perhaps tags are wrong'
                     return result
     #
     return None

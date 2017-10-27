@@ -264,6 +264,8 @@ export default class QuestionLinearAlgebra extends Component {
   var warning = state.getIn(['response','warning']); // Custom field containing error information
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   var comment = state.getIn(['response','comment'],'');
+  var tdict = state.getIn(['response','dict'],'');
+  // console.log("dict = ", tdict )
   //console.log("COMMENT = ", comment)
     if(state.getIn(['response','detail']))
     error = "Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)";
@@ -292,24 +294,24 @@ export default class QuestionLinearAlgebra extends Component {
     if(correct) {
      //  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + 
-                t(' is correct.') + comment } type="success" key="input" hasMath={true}/>);
+                t(' is correct.') + t(comment,tdict) } type="success" key="input" hasMath={true}/>);
     if( n_attempts < 2 ){
             graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + 
-                t('CORRECT FIRST TIME!')  + comment } type="success" key="input" hasMath={true}/>);
+                t('CORRECT FIRST TIME!')  + t(comment,tdict) } type="success" key="input" hasMath={true}/>);
             }
             
     } 
     else {
       // graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
-    graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + comment } type="warning" key="input" hasMath={true}/>);
+    graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict) } type="warning" key="input" hasMath={true}/>);
     if( n_attempts > 4  && ( n_attempts % 2 ) == 0 ){
-        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + comment  + t(' STOP GUESSING!') } type="warning" key="input" hasMath={true}/>);
+        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict)  + t(' STOP GUESSING!') } type="warning" key="input" hasMath={true}/>);
         
         }
             
        }
      } else {
-        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + unchecked + comment } type="text" key="input" hasMath={true} /> );
+        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + unchecked + t(comment,tdict) } type="text" key="input" hasMath={true} /> );
 
      
     }

@@ -79,7 +79,7 @@ def getallvariables(global_xmltree, question_xmltree):
             blacklist.update(parse_blacklist(global_xmltree))
         blacklist.update(parse_blacklist(question_xmltree))
     except:
-        print("GETALLVARIABLES ERROR")
+        print("NUMERIC GETALLVARIABLES ERROR")
     # print("blacklist: ", blacklist)
     # print("getallvariables: ", variables )
     # print("correct_anwer: ", correct_answer )

@@ -430,7 +430,7 @@ arrayUnique = (array) =>  {
   // Custom state data
   var latex = state.getIn(['response','latex'], ''); // Custom field containing the latex code obtained from SymPy.
   var error = state.getIn(['response','error']); // Custom field containing error information
-  console.log("ERROR = ", error )
+  // console.log("ERROR = ", error )
   var author_error = state.getIn(['response','author_error']); // Custom field containing error information
   var warning = state.getIn(['response','warning']); // Custom field containing error information
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above

@@ -72,13 +72,16 @@ function t(string, dict=undefined, language=undefined) {
     if(translationDict.has(string)) {
         languageVersions = translationDict.get(string);
     }
-    if(dict !== undefined)
+    //console.log("languageversions=", languageVersions)
+    //console.log("dict = ", dict )
+    // THIS SECTION WAS NOT PROPERLY WORKING WITH AN EMPTY alternative dict
+    if(dict){
         languageVersions = dict;
-    if(languageVersions.has(language)) {
-        return languageVersions.get(language);
-    } else {
-        return string;
-    }
+        if(languageVersions.has(language)) {
+             string = languageVersions.get(language);
+        }
+       }
+    return string;
 }
 
 export default t;
