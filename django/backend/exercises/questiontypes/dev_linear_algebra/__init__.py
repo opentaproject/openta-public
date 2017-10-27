@@ -50,9 +50,12 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     # print("QUESTION_CHECK_LINEAR_ALGEBRA");
     # print("question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
     # print("global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
-    hintfail = parsehints(question_xmltree, global_xmltree, answer_data)
-    if hintfail is not None:
-        return hintfail
+    hints = parsehints(question_xmltree, global_xmltree, answer_data)
+    # print("hints = ", hints)
+    result = {}
+    if hints is not None:
+        if hints.get('correct', None) is not None:
+            return hints
     check_units = True
     ret = getallvariables(global_xmltree, question_xmltree)
     variables = ret['variables']
@@ -80,7 +83,6 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
 
     if '==' in answer_data:
         check_units = False
-    result = {}
     precision = question_json.get('@attr').get('precision', '1e-6')
     precision = float(precision)
     result = linear_algebra_expression(
@@ -103,7 +105,9 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
             result['status'] = 'correct' if result['correct'] else 'incorrect'
         elif 'error' in result:
             result['status'] = 'error'
-
+    if hints is not None:
+        result.update(hints)
+    # print("final result = ", result)
     return result
 
 
