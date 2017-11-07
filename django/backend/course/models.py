@@ -14,6 +14,13 @@ class CourseManager(models.Manager):
         else:
             return "OpenTA"
 
+    def course_url(self):
+        course = self.first()
+        if course is not None:
+            return course.url
+        else:
+            return ""
+
     def deadline_time(self):
         course = self.first()
         if course is not None and course.deadline_time is not None:

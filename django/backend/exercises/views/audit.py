@@ -1,29 +1,18 @@
-from rest_framework.decorators import api_view, parser_classes
+from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from rest_framework import status
-from exercises.modelhelpers import (
-    serialize_exercise_with_question_data,
-    exercise_folder_structure,
-    student_attempts_exercises,
-    exercise_test,
-    get_passed_students,
-)
-from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
-from exercises.serializers import AuditExerciseSerializer, ImageAnswerSerializer
+from exercises.modelhelpers import get_passed_students
+from exercises.models import Exercise, AuditExercise
+from exercises.serializers import AuditExerciseSerializer
 from course.models import Course
 from django.contrib.auth.models import User
-from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
+from django.db.models import Count
 from django.db import IntegrityError
 from django.core.mail import EmailMessage
-import datetime
-from django.utils import timezone
-from django.utils.six import BytesIO
 from django.template.loader import get_template
 from django.template import Context
 from django.utils.timezone import now
-from rest_framework.parsers import JSONParser
-import pytz
 from random import choice
 import logging
 
@@ -124,7 +113,7 @@ def get_new_audit(request, exercise):
 def delete_audit(request, pk):
     try:
         audit = AuditExercise.objects.get(pk=pk)
-    except ObjectDoesNotExist:
+    except AuditExercise.DoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     if (audit.auditor != request.user) and not request.user.is_superuser:
         return Response(
@@ -140,7 +129,7 @@ def delete_audit(request, pk):
 def update_audit(request, pk):
     try:
         audit = AuditExercise.objects.get(pk=pk)
-    except ObjectDoesNotExist:
+    except AuditExercise.DoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     saudit = AuditExerciseSerializer(audit, data=request.data['audit'], partial=True)
@@ -158,12 +147,23 @@ def update_audit(request, pk):
 def send_audit(request, pk):
     try:
         audit = AuditExercise.objects.get(pk=pk)
-    except ObjectDoesNotExist:
+    except AuditExercise.DoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    course_url = Course.objects.course_url()
+    mail_message_template = (
+        "{message}"
+        "\n\n"
+        "---------------------------------\n"
+        "This message is sent from OpenTA."
+        "\n"
+        "{url}"
+    )
+    mail_message = mail_message_template.format(message=audit.message, url=course_url)
 
     email = EmailMessage(
         subject=audit.subject,
-        body=audit.message,
+        body=mail_message,
         from_email=Course.objects.course_name().lower() + "@openta.se",
         to=[audit.student.email],
         reply_to=[request.user.email],
@@ -220,7 +220,7 @@ def add_audit(request):
 def student_audit_update(request, pk):
     try:
         audit = AuditExercise.objects.get(pk=pk)
-    except ObjectDoesNotExist:
+    except AuditExercise.DoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     if (audit.student != request.user) and not request.user.is_superuser:
         return Response(
