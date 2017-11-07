@@ -18,9 +18,11 @@ RUNNING_DEVSERVER = len(sys.argv) > 1 and sys.argv[1] == 'runserver'
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# If the installation is available at a suburl this should be set to the url path. (Also needs to be set in frontend/app/settings.js (see settings_example.js)
-# Example: If the site is available at http://domain.com/subpath/ this variable should be set to (note trailing slash)
-# SUBPATH = 'subpath/'
+# If the installation is available at a suburl this should be set to the url
+# path. (Also needs to be set in frontend/app/settings.js (see
+# settings_example.js) Example: If the site is available at
+# http://domain.com/subpath/ this variable should be set to (note trailing
+# slash) SUBPATH = 'subpath/'
 SUBPATH = ''
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -115,7 +117,6 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-# LANGUAGE_CODE = 'sv'
 
 TIME_ZONE = 'UTC'
 # TIME_ZONE = 'Europe/Stockholm'
@@ -126,11 +127,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
-# STATIC_URL = '/static/'
 STATIC_URL = '/' + SUBPATH + 'static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 STATIC_ROOT = os.path.join(BASE_DIR, "deploystatic")
@@ -183,6 +182,7 @@ CACHES = {
 
 # Enable the user hijack app for get requests for it to integrate with the frontend.
 HIJACK_ALLOW_GET_REQUESTS = True
+HIJACK_AUTHORIZE_STAFF = True
 
 # Redis information
 RQ_QUEUES = {
