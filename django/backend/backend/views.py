@@ -229,7 +229,10 @@ def main(request):
     Returns:
         The frontend app in base_main.html if authorized, otherwise login screen.
     """
-    return render(request, "base_main.html")
+    course = Course.objects.first()
+    course_data = CourseSerializer(course).data
+    extra = dict(course=course_data)
+    return render(request, "base_main.html", context=extra)
 
 
 class RegisterByPassword(RatelimitMixin, FormView):  # {{{
