@@ -1,18 +1,12 @@
-from rest_framework.decorators import api_view, parser_classes
+from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from rest_framework import status
-from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
-from exercises.modelhelpers import get_passed_exercises_with_image_data, get_passed_exercises
-from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
+from exercises.models import Exercise, Question, Answer
+from exercises.serializers import AnswerSerializer
 from exercises.aggregation import calculate_user_results
-
-from course.models import Course
 from django.contrib.auth.models import User
-from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
 from itertools import groupby
-import datetime
-import pytz
 
 
 @permission_required('exercises.view_statistics')
@@ -77,7 +71,7 @@ def get_recent_results(request, exercise):
                 dict(pk=user, username=dbuser.username, answers=unique[:5], n_answers=n_answers)
             )
 
-    return Response(results)  # }}}
+    return Response(results)
 
 
 @api_view(['GET'])
@@ -86,51 +80,3 @@ def get_user_results(request, userpk):
     if not request.user == user and not request.user.is_staff:
         return Response({'error': 'Permission denied'})
     return Response(calculate_user_results(userpk))
-
-
-@api_view(['GET'])
-def get_user_results_old(request, userpk):
-    user = User.objects.get(pk=userpk)  # {{{
-    if not request.user == user and not request.user.is_staff:
-        return Response({'error': 'Permission denied'})
-    deadline = request.GET.get('deadline', 'true') == 'true'
-    image_deadline = request.GET.get('imagedeadline', 'true') == 'true'
-    exercises = Exercise.objects.filter(meta__published=True)
-    passed = get_passed_exercises_with_image_data(exercises, user, deadline, image_deadline)
-    correct = get_passed_exercises(exercises, user)
-    exercises_with_answers = exercises.prefetch_related(
-        Prefetch(
-            'question__answer',
-            queryset=Answer.objects.filter(user=user).order_by('-date'),
-            # to_attr='answers'
-        ),
-        Prefetch(
-            'imageanswer',
-            queryset=ImageAnswer.objects.filter(user=user).order_by('-date'),
-            # to_attr='imageanswers'
-        ),
-    )
-    exercises_render = {}
-    for exercise in exercises_with_answers:
-        sexercise = ExerciseSerializer(exercise)
-        exercises_render[exercise.exercise_key] = sexercise.data
-        exercises_render[exercise.exercise_key]['questions'] = {}
-        for question in exercise.question.all():
-            answers = AnswerSerializer(question.answer.all(), many=True)
-            exercises_render[exercise.exercise_key]['questions'][
-                question.question_key
-            ] = answers.data
-        imageanswers = ImageAnswerSerializer(exercise.imageanswer, many=True)
-        exercises_render[exercise.exercise_key]['imageanswers'] = imageanswers.data
-        # else:
-        #     exercises_render[exercise.exercise_key]['questions'][question.question_key] = []
-    return Response(
-        {
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'username': user.username,
-            'exercises': exercises_render,
-            'passed_exercises': passed,
-            'correct_exercises': correct,
-        }
-    )  # }}}

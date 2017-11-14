@@ -3,19 +3,18 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.decorators import api_view, parser_classes
 from django.contrib.auth.decorators import permission_required
-from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
+from exercises.models import Exercise
 from exercises.views.file_handling import serve_file
 import backend.settings as settings
 import exercises.paths as paths
 from exercises.parsing import list_assets, add_asset, delete_asset, exercise_xmltree
-import os
 
 asset_types = ('.pdf', '.jpg', '.jpeg', '.svg', '.tiff', '.tif', '.png', '.gif')
 
 
 @permission_required('exercises.edit_exercise')
 @api_view(['DELETE'])
-def exercise_asset_delete(request, exercise, asset):  # {{{
+def exercise_asset_delete(request, exercise, asset):
     if not asset.lower().endswith(asset_types):
         return Response({}, status.HTTP_403_FORBIDDEN)
     dbexercise = Exercise.objects.get(exercise_key=exercise)
@@ -27,7 +26,7 @@ def exercise_asset_delete(request, exercise, asset):  # {{{
 
 
 @api_view(['GET'])
-def exercise_asset(request, exercise, asset):  # {{{
+def exercise_asset(request, exercise, asset):
     if not asset.lower().endswith(asset_types):
         return Response({}, status.HTTP_403_FORBIDDEN)
     content_type = ''
@@ -46,16 +45,17 @@ def exercise_asset(request, exercise, asset):  # {{{
         content_type = 'image'
 
     return serve_file(
-        "/"
-        + settings.SUBPATH
-        + "exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset),
+        (
+            "/"
+            + settings.SUBPATH
+            + "exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset)
+        ),
         asset,
         dev_path='{root}/{path}/{asset}'.format(
             root=paths.EXERCISES_PATH, path=dbexercise.path, asset=asset
         ),
         content_type=content_type,
     )
-    # }}}
 
 
 @permission_required('exercises.edit_exercise')

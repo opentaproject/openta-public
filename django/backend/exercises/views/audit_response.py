@@ -2,15 +2,12 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth.decorators import permission_required
 from exercises.models import AuditResponseFile, AuditExercise
-from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from .api import serve_file
 import backend.settings as settings
 import PyPDF2
 from PIL import Image
-import sys
 import os
 import logging
 
@@ -52,7 +49,7 @@ def upload_audit_response_file(request, pk):
 
 
 @api_view(['GET'])
-def audit_response_file_view(request, pk):  # {{{
+def audit_response_file_view(request, pk):
     try:
         audit_response = AuditResponseFile.objects.get(pk=pk)
         if (
@@ -78,11 +75,10 @@ def audit_response_file_view(request, pk):  # {{{
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
     except ObjectDoesNotExist:
         return Response("Invalid audit response file id", status.HTTP_500_INTERNAL_SERVER_ERROR)
-        # }}}
 
 
 @api_view(['GET'])
-def audit_response_file_thumb_view(request, pk):  # {{{
+def audit_response_file_thumb_view(request, pk):
     try:
         audit_response = AuditResponseFile.objects.get(pk=pk)
         if (
@@ -100,7 +96,6 @@ def audit_response_file_thumb_view(request, pk):  # {{{
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
     except ObjectDoesNotExist:
         return Response("invalid answer image id", status.HTTP_500_INTERNAL_SERVER_ERROR)
-        # }}}
 
 
 @api_view(['POST'])

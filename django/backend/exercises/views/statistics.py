@@ -1,31 +1,14 @@
-from rest_framework.decorators import api_view, parser_classes
+from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
-from django.http import FileResponse, HttpResponse
-from exercises.modelhelpers import (
-    serialize_exercise_with_question_data,
-    exercise_folder_structure,
-    student_attempts_exercises,
-    exercise_test,
-)
-from exercises.models import Exercise, Question, Answer, ImageAnswer
-from exercises.aggregation import (
-    student_statistics_exercises,
-    students_results,
-    create_xlsx_from_results_list,
-    calculate_students_results_subset,
-    excel_custom_results_pipeline,
-    students_results_async_pipeline,
-)
-from course.models import Course
+from django.http import HttpResponse
+from exercises.modelhelpers import student_attempts_exercises
+from exercises.models import Exercise, Answer
+from exercises.aggregation import student_statistics_exercises, students_results
+from exercises.aggregation import create_xlsx_from_results_list, calculate_students_results_subset
+from exercises.aggregation import excel_custom_results_pipeline, students_results_async_pipeline
 from workqueue.models import QueueTask
 import workqueue.util as workqueue
-from django.contrib.auth.models import User
-from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
-from django.views.decorators.cache import cache_page
-import django_rq
-from io import StringIO
-from .results import get_user_results
 from datetime import datetime
 import numpy
 
@@ -52,8 +35,6 @@ def get_results(request):
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
 def get_results_async(request):
-    # task = QueueTask.objects.create(name="student_results", owner=None)
-    # job = django_rq.enqueue(students_results_async_pipeline, task, job_id=str(task.pk))
     task_id = workqueue.enqueue_task("student_results", students_results_async_pipeline)
     return Response({'task_id': task_id})
 
@@ -63,9 +44,8 @@ def get_results_async(request):
 def get_results_excel(request):
     results = students_results()
     xlsx_data = create_xlsx_from_results_list(results)
-    response = HttpResponse(
-        xlsx_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
+    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    response = HttpResponse(xlsx_data, content_type=content_type)
     response['Content-Disposition'] = 'attachment; filename=results.xlsx'
     return response
 
@@ -78,9 +58,8 @@ def get_custom_result_excel(request):
     dbexercises = Exercise.objects.filter(pk__in=exercises)
     results = calculate_students_results_subset(dbexercises)
     xlsx_data = create_xlsx_from_results_list(results)
-    response = HttpResponse(
-        xlsx_data, content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
+    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    response = HttpResponse(xlsx_data, content_type=content_type)
     response['Content-Disposition'] = 'attachment; filename=results.xlsx'
     return response
 
@@ -97,8 +76,6 @@ def enqueue_custom_result_excel(request):
         return Response({})
 
     dbexercises = Exercise.objects.filter(pk__in=exercises)
-    # task = QueueTask.objects.create(name="Custom results", owner=request.user)
-    # result = django_rq.enqueue(excel_custom_results_pipeline, dbexercises, task)
     task_id = workqueue.enqueue_task("Custom results", excel_custom_results_pipeline, dbexercises)
     return Response({'task_id': task_id})
 
@@ -114,28 +91,16 @@ def progress_custom_result_excel(request, task):
 @api_view(['GET'])
 def get_activity_exercise(request, exercise):
     answers = Answer.objects.filter(question__exercise__pk=exercise)
-    # correct_answers = Answer.objects.filter(question__exercise__pk=exercise, correct=True)
 
     answer_list = answers.values_list('date', flat=True)
     if not answer_list:
         return Response({'answers_histogram': [], 'bins': []})
-    # correct_answer_list = correct_answers.values_list('date', flat=True)
-    dformat = '%Y-%m-%dT%H:%M:%S.%fZ'
-    epoch = datetime(1970, 1, 1)
 
     to_timestamp = numpy.vectorize(lambda x: x.timestamp())
-    # answer_ts_list = [time.timestamp() for time in answer_list]
     answer_ts_array = to_timestamp(answer_list)
-    # correct_answer_ts_array = to_timestamp(correct_answer_list)
     nbins = int((numpy.max(answer_ts_array) - numpy.min(answer_ts_array)) / (2 * 60 * 60)) + 1
     bins = []
     histogram = []
     if nbins > 0:
         histogram, bins = numpy.histogram(answer_ts_array, bins=nbins)
-    return Response(
-        {
-            'answers_histogram': histogram,
-            'bins': bins,
-            #'correct_answers': correct_answer_list,
-        }
-    )
+    return Response({'answers_histogram': histogram, 'bins': bins})

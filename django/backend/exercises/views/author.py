@@ -1,11 +1,6 @@
-from django.http import FileResponse, HttpResponse
-from django.core.exceptions import ObjectDoesNotExist
-from django.urls import reverse_lazy
 from django.contrib.auth.decorators import permission_required
 import backend.settings as settings
-
 from exercises.models import ExerciseMeta, Exercise
-
 from django.views.generic.edit import UpdateView
 
 
@@ -22,9 +17,7 @@ class ExerciseMetaUpdate(UpdateView):
         'published',
         'sort_key',
     ]
-    success_url = (
-        '/' + settings.SUBPATH + 'exercisemeta/{id}'
-    )  # reverse_lazy('exercise-meta-update')
+    success_url = '/' + settings.SUBPATH + 'exercisemeta/{id}'
 
 
 @permission_required('exercises.administer_exercise')

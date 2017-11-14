@@ -117,7 +117,7 @@ def delete_audit(request, pk):
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     if (audit.auditor != request.user) and not request.user.is_superuser:
         return Response(
-            {'error': 'You are not the auditor of this audit and you are not a superuser.'},
+            {'error': ('You are not the auditor of this ' 'audit and you are not a superuser.')},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
     n_deleted = audit.delete()
@@ -224,7 +224,7 @@ def student_audit_update(request, pk):
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     if (audit.student != request.user) and not request.user.is_superuser:
         return Response(
-            {'error': 'You are not the student of this audit and you are not a superuser.'},
+            {'error': ('You are not the student of this' ' audit and you are not a superuser.')},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 

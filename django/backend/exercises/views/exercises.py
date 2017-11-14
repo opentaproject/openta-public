@@ -1,15 +1,10 @@
-from rest_framework.decorators import api_view, parser_classes
-from rest_framework.parsers import MultiPartParser
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.decorators import permission_required
 from exercises.models import Exercise, ExerciseMeta
-from django.contrib.auth.models import User
-from django.core.exceptions import ObjectDoesNotExist
 from exercises.parsing import list_history
 import exercises.parsing as parsing
-import backend.settings as settings
-import sys
 import os
 import logging
 

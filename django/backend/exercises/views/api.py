@@ -5,26 +5,18 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.exceptions import PermissionDenied
 from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
-from exercises.serializers import (
-    ExerciseSerializer,
-    AnswerSerializer,
-    ImageAnswerSerializer,
-    AuditExerciseSerializer,
-)
+from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
+from exercises.serializers import AuditExerciseSerializer
 from exercises import parsing
 import exercises.question as question_module
-from exercises.modelhelpers import (
-    serialize_exercise_with_question_data,
-    exercise_folder_structure,
-    student_attempts_exercises,
-    exercise_test,
-)
+from exercises.modelhelpers import serialize_exercise_with_question_data
+from exercises.modelhelpers import exercise_folder_structure, exercise_test
 from exercises.views.file_handling import serve_file
 from exercises.time import before_deadline
 from exercises.util import deep_get
 from utils import response_from_messages
 from django.utils.translation import ugettext as _
-from django.http import FileResponse, HttpResponse, StreamingHttpResponse
+from django.http import StreamingHttpResponse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import permission_required
 from django.template.response import TemplateResponse
@@ -48,10 +40,9 @@ logger = logging.getLogger(__name__)
 
 @permission_required('exercises.reload_exercise')
 @api_view(['POST', 'GET'])
-def exercises_reload_streaming(request):  # {{{
+def exercises_reload_streaming(request):
     exercises = Exercise.objects.sync_with_disc()
     base = loader.get_template('base_streaming.html')
-    template = loader.get_template('messages.html')
 
     def next_exercise():
         yield base.render()
@@ -62,12 +53,9 @@ def exercises_reload_streaming(request):  # {{{
     return StreamingHttpResponse(next_exercise())
 
 
-# }}}
-
-
 @permission_required('exercises.reload_exercise')
 @api_view(['POST', 'GET'])
-def exercises_reload(request):  # {{{
+def exercises_reload(request):
     i_am_sure = request.data.get('i_am_sure', False)
 
     @transaction.atomic
@@ -82,11 +70,8 @@ def exercises_reload(request):  # {{{
     return render(request._request, "exercises_reload.html", {'progress': mess})
 
 
-# }}}
-
-
 @api_view(['POST', 'GET'])
-def exercises_reload_json(request):  # {{{
+def exercises_reload_json(request):
     if not request.user.has_perm('exercises.reload_exercise'):
         raise PermissionDenied(_("Permission denied"))
     i_am_sure = request.data.get('i_am_sure', False)
@@ -100,25 +85,24 @@ def exercises_reload_json(request):  # {{{
         return mess
 
     mess = sync()
-    return Response(mess)  # }}}
+    return Response(mess)
 
 
 @never_cache
 @api_view(['GET'])
-def exercise(request, exercise):  # {{{
+def exercise(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     data = serialize_exercise_with_question_data(dbexercise, request.user)
-    return Response(data)  # }}}
+    return Response(data)
 
 
 @never_cache
 @api_view(['GET'])
-def exercise_list(request):  # {{{
+def exercise_list(request):
     """
     List all exercises
     """
     responselist = {}
-    # exercises = Exercise.objects.all()
     exercises = Exercise.objects.prefetch_related(
         Prefetch(
             'question__answer',
@@ -160,21 +144,21 @@ def exercise_list(request):  # {{{
                     allcorrect = False
             data['correct'] = allcorrect
             responselist[exercise.exercise_key] = data
-    return Response(responselist)  # }}}
+    return Response(responselist)
 
 
 @never_cache
 @api_view(['GET'])
-def exercise_tree(request):  # {{{
+def exercise_tree(request):
     """
     Get exercise tree
     """
-    return Response(exercise_folder_structure(Exercise.objects, request.user))  # }}}
+    return Response(exercise_folder_structure(Exercise.objects, request.user))
 
 
 @never_cache
 @api_view(['GET'])
-def other_exercises_from_folder(request, exercise):  # {{{
+def other_exercises_from_folder(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     other = []
     if request.user.has_perm('exercises.edit_exercise'):
@@ -185,21 +169,18 @@ def other_exercises_from_folder(request, exercise):  # {{{
         ).prefetch_related('meta')
 
     serializer = ExerciseSerializer(other, many=True)
-    inorder = sorted(
-        serializer.data,
-        key=lambda item: "".join(
-            [
-                func(item['meta'][key])
-                for (key, func) in [('published', lambda x: str(not x)), ('sort_key', str)]
-            ]
-        ),
-    )
-    return Response(inorder)  # }}}
+    actions_for_key = [('published', lambda x: str(not x)), ('sort_key', str)]
+
+    def sort_key_func(item):
+        return "".join([func(item['meta'][key]) for (key, func) in actions_for_key])
+
+    inorder = sorted(serializer.data, key=sort_key_func)
+    return Response(inorder)
 
 
 @never_cache
 @api_view(['GET'])
-def exercise_json(request, exercise):  # {{{
+def exercise_json(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
         hide_answers = not request.user.has_perm("exercises.view_solution")
@@ -228,7 +209,7 @@ def exercise_json(request, exercise):  # {{{
                 safe_exercisejson['exercise']['question'].append(modified_question)
         return Response(safe_exercisejson)
     except parsing.ExerciseParseError as e:
-        return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)  # }}}
+        return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @permission_required('exercises.edit_exercise')
@@ -245,7 +226,6 @@ def exercise_save(request, exercise):
     messages = []
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"
-    combined_results = dict(errors=[])
     try:
         messages += parsing.exercise_save(dbexercise.path, request.data['xml'], backup_name)
     except IOError as e:
@@ -260,7 +240,7 @@ def exercise_save(request, exercise):
 
 @ratelimit(key='user', rate='5/1m')
 @api_view(['POST'])
-def exercise_check(request, exercise, question):  # {{{
+def exercise_check(request, exercise, question):
     answer_data = request.data['answerData']
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     if not dbexercise.meta.published and not request.user.has_perm('exercises.edit_exercise'):
@@ -273,29 +253,30 @@ def exercise_check(request, exercise, question):  # {{{
     result = question_module.question_check(
         request, request.user, agent, exercise, question, answer_data
     )
-    return Response(result)  # }}}
+    return Response(result)
 
 
 @never_cache
 @api_view(['GET'])
-def question_last_answer(request, exercise, question):  # {{{
+def question_last_answer(request, exercise, question):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     dbquestion = Question.objects.get(exercise=dbexercise, question_key=question)
     dbanswer = Answer.objects.filter(user=request.user, question=dbquestion).latest('date')
     serializer = AnswerSerializer(dbanswer)
-    return Response(serializer.data)  # }}}
+    return Response(serializer.data)
 
 
 @api_view(['POST'])
 @parser_classes((MultiPartParser,))
 def upload_answer_image(request, exercise):
-    # print(request.FILES['file'])
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     if request.FILES['file'].size > 10e6:
         return Response(
             {
                 'error': _(
-                    "File larger than 10mb, please try to reduce the size and upload again. (For images try to reduce the resolution and for pdf files it is most likely large embedded images)"
+                    "File larger than 10mb, please try to reduce the size "
+                    "and upload again. (For images try to reduce the resolution"
+                    " and for pdf files it is most likely large embedded images)"
                 )
             },
             status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -333,7 +314,7 @@ def upload_answer_image(request, exercise):
 
 
 @api_view(['GET'])
-def answer_image_view(request, image_id):  # {{{
+def answer_image_view(request, image_id):
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
         print(image_answer.image.name)
@@ -356,11 +337,10 @@ def answer_image_view(request, image_id):  # {{{
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
     except ObjectDoesNotExist:
         return Response("invalid answer image id", status.HTTP_500_INTERNAL_SERVER_ERROR)
-        # }}}
 
 
 @api_view(['GET'])
-def answer_image_thumb_view(request, image_id):  # {{{
+def answer_image_thumb_view(request, image_id):
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
         if image_answer.user == request.user or request.user.is_staff:
@@ -374,7 +354,6 @@ def answer_image_thumb_view(request, image_id):  # {{{
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
     except ObjectDoesNotExist:
         return Response("invalid answer image id", status.HTTP_500_INTERNAL_SERVER_ERROR)
-        # }}}
 
 
 @permission_required('exercises.administer_exercise')
