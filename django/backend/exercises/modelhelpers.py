@@ -319,9 +319,11 @@ def serialize_exercise_with_question_data(exercise, user):
     """
     questions = Question.objects.filter(exercise=exercise)
     correct = exercise.user_is_correct(user)
+    triedall = exercise.user_tried_all(user)
     serializer = ExerciseSerializer(exercise)
     data = serializer.data
     data['question'] = {}
+    data['triedall'] = triedall
     data['correct'] = correct
     image_answers = ImageAnswer.objects.filter(user=user, exercise=exercise)
     image_answers_serialized = ImageAnswerSerializer(image_answers, many=True)

@@ -90,7 +90,7 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                 except:
                     # print("SHOULD NOT GET HERE ANY MORE; qjson is not a list; see parsehints")
                     result['correct'] = False
-                    result['comment'] = 'HINT PARSING ERROR; perhaps tags are wrong'
+                    result['comment'] = 'PROGRAMMING ERROR; please inform admin HINT TAGS ARE WRONG'
                     return result
     #
     return None

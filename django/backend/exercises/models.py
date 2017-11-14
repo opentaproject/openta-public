@@ -342,6 +342,19 @@ class Exercise(models.Model):
                 allcorrect = False
         return allcorrect
 
+    def user_tried_all(self, user):
+        tried_all = True
+        questions = Question.objects.filter(exercise=self)
+        for question in questions:
+            try:
+                answer = Answer.objects.filter(user=user, question=question).latest('date')
+                if answer.correct is None:
+                    tried_all = False
+            except ObjectDoesNotExist:
+                tried_all = False
+        print("TRIED ALL = ", tried_all)
+        return tried_all
+
 
 class Question(models.Model):
     class Meta:
