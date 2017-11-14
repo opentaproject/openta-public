@@ -1,34 +1,15 @@
-from exercises.modelhelpers import (
-    serialize_exercise_with_question_data,
-    exercise_folder_structure,
-    student_attempts_exercises,
-    exercise_test,
-    get_passed_exercises_with_image_data,
-    get_passed_exercises,
-)
+from exercises.modelhelpers import get_passed_exercises_with_image_data, get_passed_exercises
 from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
 from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
 from course.models import Course
 from django.contrib.auth.models import User
-from django.db.models import Prefetch, Max, F, Count, Sum, Value, Q
-
-# from datetime import datetime
+from django.db.models import Prefetch
 import datetime
-import numpy
-from django.db import connection
 from django.core.cache import cache
-from exercises.modelhelpers import (
-    exercise_list_data,
-    e_name,
-    e_path,
-    e_student_tried,
-    e_student_percent_complete,
-    e_student_attempts_mean,
-    e_student_attempts_median,
-    e_student_activity,
-    post_process_list,
-    p_student_activity,
-)
+from exercises.modelhelpers import exercise_list_data, e_name, e_path, e_student_tried
+from exercises.modelhelpers import e_student_percent_complete, e_student_attempts_mean
+from exercises.modelhelpers import e_student_attempts_median, e_student_activity, post_process_list
+from exercises.modelhelpers import p_student_activity
 import pytz
 import logging
 
@@ -53,11 +34,11 @@ def student_statistics_exercises(cache_seconds=1 * 60 * 60, force=False):
     return result
 
 
-def calculate_students_results(task=None):  # {{{
+def calculate_students_results(task=None):
     return calculate_students_results_subset(Exercise.objects.all(), task)
 
 
-def calculate_student_statistics_exercises():  # {{{
+def calculate_student_statistics_exercises():
     data = exercise_list_data(
         [
             e_name,
@@ -71,7 +52,6 @@ def calculate_student_statistics_exercises():  # {{{
     )
     aggregates = post_process_list(data, [p_student_activity])
     return {'exercises': data, 'aggregates': aggregates}
-    # }}}
 
 
 def calculate_user_results(userpk):
@@ -82,7 +62,7 @@ def calculate_user_results(userpk):
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
     exercises = Exercise.objects.filter(meta__published=True)
-    exercises_with_answers = exercises.prefetch_related(  # {{{
+    exercises_with_answers = exercises.prefetch_related(
         Prefetch(
             'question',
             queryset=Question.objects.all().prefetch_related(
@@ -107,14 +87,13 @@ def calculate_user_results(userpk):
         Prefetch(
             'audits', queryset=AuditExercise.objects.filter(student=user), to_attr='student_audits'
         ),
-    )  # }}}
+    )
     exercises_render = {}
 
     for exercise in exercises_with_answers:
-        sexercise = ExerciseSerializer(exercise)  # {{{
+        sexercise = ExerciseSerializer(exercise)
         exercises_render[exercise.exercise_key] = sexercise.data
         exercises_render[exercise.exercise_key]['questions'] = {}
-        # if exercise.student_audits:
         exercises_render[exercise.exercise_key]['force_passed'] = (
             exercise.student_audits[0].force_passed if exercise.student_audits else False
         )
@@ -170,7 +149,7 @@ def calculate_user_results(userpk):
             ] = answers.data
             n_tries += len(question.allanswers)
         exercises_render[exercise.exercise_key]['correct'] = n_correct == len(exercise.questions)
-        exercises_render[exercise.exercise_key]['tries'] = n_tries  # }}}
+        exercises_render[exercise.exercise_key]['tries'] = n_tries
 
     n_passed_required = 0
     n_passed_required_d = 0
@@ -196,7 +175,8 @@ def calculate_user_results(userpk):
                     n_passed_required_d += 1
                     if (exercise['image_deadline'] and not exercise['revision_needed']) or exercise[
                         'force_passed'
-                    ]:  # Here d_id refers to both answer and image answer before deadline
+                    ]:
+                        # Here d_id refers to both answer and image answer before deadline
                         n_passed_required_d_id += 1
         elif exercise['meta']['bonus']:
             if (exercise['correct'] and not exercise['revision_needed']) or exercise[
@@ -210,7 +190,8 @@ def calculate_user_results(userpk):
                     n_passed_bonus_d += 1
                     if (exercise['image_deadline'] and not exercise['revision_needed']) or exercise[
                         'force_passed'
-                    ]:  # Here d_id refers to both answer and image answer before deadline
+                    ]:
+                        # Here d_id refers to both answer and image answer before deadline
                         n_passed_bonus_d_id += 1
         else:
             if exercise['correct'] or exercise['force_passed']:
@@ -311,5 +292,4 @@ def calculate_students_results_subset(exercise_query, task=None):
         )
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Adding result for " + student.username)
-
-    return results  # }}}
+    return results
