@@ -1,10 +1,7 @@
-from io import StringIO
 from django.core.files.base import ContentFile
-from django.db import transaction
 import logging
 from .excel import create_xlsx_from_results_list
 from .results import calculate_students_results_subset, students_results
-import json
 
 logger = logging.getLogger(__name__)
 

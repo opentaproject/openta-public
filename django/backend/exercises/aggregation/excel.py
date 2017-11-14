@@ -38,10 +38,12 @@ def create_xlsx_from_results_list(results):
         worksheet.write(
             index + 1,
             8,
-            student['required']['n_correct']
-            - student['required']['n_image_deadline']
-            + student['bonus']['n_correct']
-            - student['bonus']['n_image_deadline'],
+            (
+                student['required']['n_correct']
+                - student['required']['n_image_deadline']
+                + student['bonus']['n_correct']
+                - student['bonus']['n_image_deadline']
+            ),
         )
         worksheet.write(index + 1, 9, student['failed_by_audits'])
         worksheet.write(index + 1, 10, student['passed_audits'])
