@@ -78,9 +78,7 @@ class AuditResponseFileSerializer(serializers.ModelSerializer):
 class AuditExerciseSerializer(serializers.ModelSerializer):
     student_username = serializers.SerializerMethodField()
     auditor_data = UserSerializer(source="auditor", read_only=True)
-    responsefiles = AuditResponseFileSerializer(
-        many=True
-    )  # serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    responsefiles = AuditResponseFileSerializer(many=True)
 
     class Meta:
         model = AuditExercise

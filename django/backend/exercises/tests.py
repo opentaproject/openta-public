@@ -1,29 +1,24 @@
-from django.test import TestCase, LiveServerTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.remote.remote_connection import LOGGER
 from tempfile import TemporaryDirectory
-import time
 import random
-import os
 import logging
-
-LOGGER.setLevel(logging.WARNING)
-
 import exercises.paths as paths
 from exercises.setup_tests import create_exercise, create_database
-from .models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer, AuditExercise
+from .models import Exercise
+
+LOGGER.setLevel(logging.WARNING)
 
 
 class CourseListTest(StaticLiveServerTestCase):
     def setUp(self):
         create_database()
         self.dir = TemporaryDirectory()
-        exercise_path = create_exercise(self.dir, 'exercise1')
+        create_exercise(self.dir, 'exercise1')
         paths.EXERCISES_PATH = self.dir.name
         Exercise.objects.add_exercise('/exercise1')
         self.selenium = webdriver.Chrome()
@@ -64,9 +59,6 @@ class CourseListTest(StaticLiveServerTestCase):
         sel = self.selenium
         wait = WebDriverWait(sel, 2)
         back = sel.find_element_by_css_selector('a.uk-navbar-brand')
-        # back = sel.find_element_by_css_selector('a.exercise-list-off-canvas')
-        # back.click()
-        # back = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'ul.uk-nav-offcanvas > li.uk-nav-header > a')))
         back.click()
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'li.course-exercise-item')))
 

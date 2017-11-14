@@ -9,7 +9,7 @@ def nested_print(d):
 
 def deep_get(dictionary, *keys, default=None):
     result = functools.reduce(lambda d, key: d.get(key) if d else None, keys, dictionary)
-    if result == None:
+    if result is None:
         return default
     else:
         return result

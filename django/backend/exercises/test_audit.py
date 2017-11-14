@@ -1,24 +1,19 @@
-from django.test import TestCase, LiveServerTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.remote.remote_connection import LOGGER
 from tempfile import TemporaryDirectory
-import time
-import random
 import os
 import logging
 import datetime
-
-LOGGER.setLevel(logging.WARNING)
-
 import exercises.paths as paths
 from exercises.setup_tests import create_exercise, create_database
-from .models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer, AuditExercise
+from .models import Exercise
 from django.utils import timezone
+
+LOGGER.setLevel(logging.WARNING)
 
 
 class AuditTest(StaticLiveServerTestCase):
@@ -26,7 +21,7 @@ class AuditTest(StaticLiveServerTestCase):
         super().setUp()
         create_database()
         self.dir = TemporaryDirectory()
-        exercise_path = create_exercise(self.dir, 'exercise1')
+        create_exercise(self.dir, 'exercise1')
         paths.EXERCISES_PATH = self.dir.name
         for msg in Exercise.objects.sync_with_disc(True):
             print(msg)
@@ -82,7 +77,6 @@ class AuditTest(StaticLiveServerTestCase):
         wait = WebDriverWait(sel, 2)
         input_box = sel.find_elements_by_css_selector('textarea')[0]
         input_box.send_keys('sin(2)')
-        # send_button = sel.find_elements_by_css_selector('a.uk-button')[0]
         send_button = sel.find_elements_by_xpath('//a[.//i[contains(@class, \'uk-icon-send\')]]')[0]
         send_button.click()
         wait.until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, 'form'), "korrekt"))
@@ -112,7 +106,6 @@ class AuditTest(StaticLiveServerTestCase):
 
     def audit_goto_my_audits(self):
         sel = self.selenium
-        wait = WebDriverWait(sel, 2)
         sel.find_element_by_xpath('//a[contains(text(), \'Audit\')]').click()
         sel.find_element_by_xpath('//a[contains(text(), \'My audits\')]').click()
 
@@ -137,20 +130,20 @@ class AuditTest(StaticLiveServerTestCase):
                 (By.XPATH, '//div[@id="unfinished-audits"]/a[text()[contains(., \'1\')]]')
             )
         )
-        sel.find_element_by_xpath(
-            '//div[@id="unfinished-audits"]/a[text()[contains(., \'1\')]]'
-        ).click()
+        (
+            sel.find_element_by_xpath(
+                '//div[@id="unfinished-audits"]/a[text()[contains(., \'1\')]]'
+            ).click()
+        )
         wait.until(EC.presence_of_element_located((By.XPATH, '//textarea[@id="audit-message"]')))
 
     def audit_add_message(self):
         sel = self.selenium
-        wait = WebDriverWait(sel, 2)
         input_box = sel.find_elements_by_xpath('//textarea[@id="audit-message"]')[0]
         input_box.send_keys('test message')
 
     def audit_revision_needed(self):
         sel = self.selenium
-        wait = WebDriverWait(sel, 2)
         sel.find_element_by_xpath('//a[@id="revision-needed"]').click()
 
     def audit_publish(self):
@@ -192,9 +185,11 @@ class AuditTest(StaticLiveServerTestCase):
     def audit_goto_published(self):
         sel = self.selenium
         wait = WebDriverWait(sel, 2)
-        sel.find_element_by_xpath(
-            '//div[@id="published-audits"]/a[text()[contains(., \'1\')]]'
-        ).click()
+        (
+            sel.find_element_by_xpath(
+                '//div[@id="published-audits"]/a[text()[contains(., \'1\')]]'
+            ).click()
+        )
         wait.until(EC.presence_of_element_located((By.XPATH, '//textarea[@id="audit-message"]')))
 
     def audit_check_updated(self):

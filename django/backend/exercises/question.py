@@ -1,9 +1,8 @@
 from django.core.exceptions import ObjectDoesNotExist
 from exercises.models import Exercise, Question, Answer
-from exercises.serializers import AnswerSerializer, UserSerializer
+from exercises.serializers import AnswerSerializer
 from exercises.parsing import question_json_get, question_xmltree_get, exercise_xmltree
 from exercises.util import deep_get
-from lxml import etree
 from ratelimit.utils import is_ratelimited
 from django.utils.translation import ugettext as _
 import json

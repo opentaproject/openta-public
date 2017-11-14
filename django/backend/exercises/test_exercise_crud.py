@@ -1,16 +1,10 @@
-from django.test import TestCase, LiveServerTestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.utils import timezone
 from tempfile import TemporaryDirectory
-import time
-import random
 import os
-import logging
-import datetime
 
 import exercises.paths as paths
 from exercises.setup_tests import create_exercise, create_database
-from .models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer, AuditExercise
+from .models import Exercise
 from .parsing import exercise_delete
 
 
@@ -22,7 +16,7 @@ class ExerciseCrudTest(StaticLiveServerTestCase):
         paths.EXERCISES_PATH = self.dir.name
 
     def test_add(self):
-        exercise_path = create_exercise(self.dir, 'exercise1')
+        create_exercise(self.dir, 'exercise1')
         for msg in Exercise.objects.sync_with_disc(True):
             print(msg)
 

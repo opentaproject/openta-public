@@ -1,9 +1,6 @@
 import os
-from .models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer, AuditExercise
 from course.models import Course
 from django.contrib.auth.models import User, Group, Permission
-from django.contrib.contenttypes.models import ContentType
-import exercises.paths as paths
 from PIL import Image
 
 

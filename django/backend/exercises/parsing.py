@@ -1,6 +1,5 @@
 from xml.etree.ElementTree import fromstring, ParseError
 from lxml import etree
-from functools import reduce, lru_cache
 from PIL import Image
 from django.utils.timezone import now
 import os.path
@@ -10,7 +9,7 @@ import logging
 from subprocess import check_output, CalledProcessError
 
 import exercises.paths as paths
-from exercises.util import deep_get, nested_print
+from exercises.util import deep_get
 from exercises.xmljson import BadgerFish
 
 logger = logging.getLogger(__name__)
@@ -71,8 +70,7 @@ def exercise_key_get_or_create(path):
         return key
 
 
-# @lru_cache(maxsize=128)
-def exercise_json(path, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):  # {{{
+def exercise_json(path, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):
     xmlfile = open(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
     return exercise_xml_to_json(xml, hide_answers, sensitive_tags, sensitive_attrs)
@@ -80,14 +78,17 @@ def exercise_json(path, hide_answers=False, sensitive_tags={}, sensitive_attrs={
 
 def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):
     """
-    Converts exercise xml to json using the custom xmljson module. Enforces list structure of question and global tags.
+    Converts exercise xml to json using the custom xmljson module. Enforces
+    list structure of question and global tags.
 
     Args:
         xml: xml data (string)
         hide_answers: Removes sensitive tags/attributes (i.e. if student)
         sensitive_tags: { question_type: [tag1, tag2, ...], ... }
         sensitive_attrs: { question_type: [attr1, attr2, ...], ... }
-        without_layout: Discard layout information (normally the children of each node is added in layout order in __children__ for convenience, this is a possible source for stray sensitive tags/attributes)
+        without_layout: Discard layout information (normally the children of
+            each node is added in layout order in __children__ for convenience,
+            this is a possible source for stray sensitive tags/attributes)
 
     Returns:
         Dictionary corresponding to the JSON representation.
@@ -124,18 +125,17 @@ def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_a
         if not isinstance(globals_, list):
             globals_ = [globals_]
             obj['exercise']['global'] = globals_
-    return obj  # }}}
+    return obj
 
 
 def exercise_validate_and_json(path):
     return exercise_json(path)
 
 
-# @lru_cache(maxsize=128)
-def exercise_xml(path):  # {{{
+def exercise_xml(path):
     xmlfile = open(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
-    return xml  # }}}
+    return xml
 
 
 def exercise_save(exercise, xml, backup=None):
@@ -158,18 +158,17 @@ def exercise_save(exercise, xml, backup=None):
 
 
 def question_validate(question):
-    if not '@attr' in question or not 'key' in question['@attr']:
+    if '@attr' not in question or 'key' not in question['@attr']:
         return False
     return True
 
 
 def question_validate_xmltree(question):
-    if question.get('key') == None or question.get('type') == None:
+    if question.get('key') is None or question.get('type') is None:
         return False
     return True
 
 
-# @lru_cache(maxsize=128)
 def exercise_xmltree(exercise_path):
     xmlfile = paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise_path)
     parser = etree.XMLParser(remove_blank_text=True)
@@ -192,7 +191,7 @@ def question_json_get(exercise_path, question_key):
     questions = deep_get(json, 'exercise', 'question')
     found = list(
         filter(
-            lambda q: '@attr' in q and 'key' in q['@attr'] and q['@attr']['key'] == question_key,
+            lambda q: ('@attr' in q and 'key' in q['@attr'] and q['@attr']['key'] == question_key),
             questions,
         )
     )
@@ -203,9 +202,11 @@ def question_json_get(exercise_path, question_key):
                 global_data = [global_data]
             global_for_type = list(
                 filter(
-                    lambda g: '@attr' in g
-                    and 'type' in g['@attr']
-                    and g['@attr']['type'] == found[0]['@attr']['type'],
+                    lambda g: (
+                        '@attr' in g
+                        and 'type' in g['@attr']
+                        and g['@attr']['type'] == found[0]['@attr']['type']
+                    ),
                     global_data,
                 )
             )
@@ -232,9 +233,7 @@ def exercise_check_thumbnail(xmltree, path):
         if iext == '.pdf':
             messages.append(('info', 'Trying to create thumbnail from pdf...'))
             try:
-                res = check_output(
-                    ['convert', '-thumbnail', "100x100", full_figurepath, thumbnail_path]
-                )
+                check_output(['convert', '-thumbnail', "100x100", full_figurepath, thumbnail_path])
             except (CalledProcessError, IOError) as e:
                 messages.append(('warning', "Thumbnail creation failed for pdf"))
                 messages.append(('warning', str(e)))
@@ -281,13 +280,12 @@ def exercise_add(folder, name):
             file.write(template_data)
     except IOError:
         return {'error': 'Could not write exercise xml file.'}
-    return {'success': True, 'path': os.path.join(folder, name)}  # }}}
+    return {'success': True, 'path': os.path.join(folder, name)}
 
 
 def exercise_delete(path):
     exercise_path = os.path.join(paths.EXERCISES_PATH, *path.split('/'))
     exercise_folder_name = os.path.basename(os.path.normpath(exercise_path))
-    xml_path = os.path.join(exercise_path, "exercise.xml")
     date_now = "{:%Y%m%d_%H:%M:%S_%f}".format(now())
     deleted_relative_path = os.path.join(paths.TRASH_PATH, exercise_folder_name + "." + date_now)
     deleted_path = os.path.join(paths.EXERCISES_PATH, deleted_relative_path)
@@ -299,14 +297,13 @@ def exercise_delete(path):
         os.renames(exercise_path, deleted_path)
     except OSError:
         return {'error': 'Could not rename exercise to deleted spec.'}
-    return {'success': True, 'path': deleted_relative_path}  # }}}
+    return {'success': True, 'path': deleted_relative_path}
 
 
 def exercise_move(path, newfolder):
     exercise_path = os.path.join(paths.EXERCISES_PATH, *path.split('/'))
     exercise_folder_name = os.path.basename(os.path.normpath(exercise_path))
     exercise_old_folder = os.path.dirname(os.path.normpath(path.strip('/')))
-    xml_path = os.path.join(exercise_path, "exercise.xml")
     moved_relative_folder = os.path.join(*newfolder.split('/'))
     moved_exercise_path = os.path.join(moved_relative_folder, exercise_folder_name)
     moved_full_path = os.path.join(paths.EXERCISES_PATH, moved_exercise_path)
@@ -325,7 +322,7 @@ def exercise_move(path, newfolder):
         os.renames(exercise_path, moved_full_path)
     except OSError:
         return {'error': 'Could not move exercise folder.'}
-    return {'success': True, 'path': moved_exercise_path}  # }}}
+    return {'success': True, 'path': moved_exercise_path}
 
 
 def exercises_move_folder(oldfolder, newfolder):
@@ -407,7 +404,7 @@ def exercise_xml_history(exercise_path, name):
         return {'error': 'No such file.'}
     xmlfile = open(fullpath)
     xml = xmlfile.read()
-    return {'success': 'Ok', 'xml': xml}  # }}}
+    return {'success': 'Ok', 'xml': xml}
 
 
 def exercise_json_history(exercise_path, name):

@@ -5,9 +5,7 @@ from django.contrib.auth.models import User, Group
 import datetime
 from django.utils import timezone
 from exercises.aggregation.results import calculate_students_results, calculate_user_results
-from exercises.views.api import exercise_list
 from django.core.files.uploadedfile import SimpleUploadedFile
-import pprint
 
 
 def create_exercise(key, name, path):
@@ -79,21 +77,17 @@ def create_answers_and_imageanswers(user, deadline, q1, q2, q3, q4, e1, e2, e3, 
     now = deadline
     after = deadline + datetime.timedelta(seconds=1)
     before = deadline - datetime.timedelta(seconds=1)
-    midnight = timezone.make_aware(datetime.datetime(year=now.year, month=now.month, day=now.day))
     create_answer_at(user, q1, before)  # Just before deadline
-    create_incorrect_at(
-        user, q1, after
-    )  # An incorrect answer after a correct one should still register as passed
+    # An incorrect answer after a correct one should still register as passed
+    create_incorrect_at(user, q1, after)
     create_answer_at(user, q2, after)  # Just after deadline
     create_answer_at(user, q3, now - datetime.timedelta(days=1))  # Well before deadline
-    create_incorrect_at(
-        user, q3, now - datetime.timedelta(days=1) + datetime.timedelta(hours=2)
-    )  # An incorrect answer after a correct one should still register as passed
+    # An incorrect answer after a correct one should still register as passed
+    create_incorrect_at(user, q3, now - datetime.timedelta(days=1) + datetime.timedelta(hours=2))
     # 3 images, 1 before deadline, 2 after deadline
     create_image_answer_at(user, e1, before)  # Just before deadline
-    create_image_answer_at(
-        user, e2, timezone.now() + datetime.timedelta(days=1)
-    )  # Well after deadline
+    # Well after deadline
+    create_image_answer_at(user, e2, timezone.now() + datetime.timedelta(days=1))
     create_image_answer_at(user, e3, after)  # Just after deadline
 
     # Both after deadline
@@ -112,13 +106,13 @@ def create_audit_revision_tests(user, admin, deadline, q1, q2, q3, e1, e2, e3):
 
     create_audit(admin, user, e1, revision_needed=True, published=True)
     create_audit(admin, user, e2, revision_needed=False, published=True)
-    create_audit(
-        admin, user, e3, revision_needed=True, published=False
-    )  # Revision is needed but not published yet, this means that the audit should not impact the student in any way yet
+    # Revision is needed but not published yet, this means that the audit
+    # should not impact the student in any way yet
+    create_audit(admin, user, e3, revision_needed=True, published=False)
 
 
 def create_database():
-    course = create_course("A course", datetime.time(8, 0, 0))
+    create_course("A course", datetime.time(8, 0, 0))
     e1 = create_exercise('r1', 'Required Exercise 1', 'path1')
     e2 = create_exercise('r2', 'Required Exercise 2', 'path2')
     e3 = create_exercise('r3', 'Required Exercise 3', 'path3')
@@ -139,7 +133,6 @@ def create_database():
     deadline = timezone.make_aware(
         datetime.datetime(year=now.year, month=now.month, day=now.day, hour=8, minute=0, second=0)
     )
-    midnight = timezone.make_aware(datetime.datetime(year=now.year, month=now.month, day=now.day))
     set_meta(e1, published=True, required=True, deadline_date=now)
     set_meta(e2, published=True, required=True, deadline_date=now)
     set_meta(e3, published=True, required=True, deadline_date=now)
@@ -179,7 +172,11 @@ class QuestionMethodTests(TestCase):
 
     def test_results(self):
         """
-        Tests the aggregated results. First tests the calculate_students_results and then calculate_user_results. In both cases the database consists of required and bonus exercise with answers and image answers at different times. The audit force_passed is also tested.
+        Tests the aggregated results. First tests the
+        calculate_students_results and then calculate_user_results. In both
+        cases the database consists of required and bonus exercise with answers
+        and image answers at different times. The audit force_passed is also
+        tested.
         """
         results = calculate_students_results()
         ru1 = list(filter(lambda user: user['username'] == 'student1', results))
@@ -287,9 +284,7 @@ class QuestionMethodTests(TestCase):
         self.assertEqual(u3detailed['exercises']['r3']['image'], True)
         self.assertEqual(u3detailed['exercises']['r3']['correct_deadline'], True)
         self.assertEqual(u3detailed['exercises']['r3']['image_deadline'], True)
-        self.assertEqual(
-            u3detailed['exercises']['r3']['audited'], False
-        )  # Audit exists but not published
-        self.assertEqual(
-            u3detailed['exercises']['r3']['revision_needed'], False
-        )  # Revision is needed but not published yet so shouldn't affect the student
+        # Audit exists but not published
+        self.assertEqual(u3detailed['exercises']['r3']['audited'], False)
+        # Revision is needed but not published yet so shouldn't affect the student
+        self.assertEqual(u3detailed['exercises']['r3']['revision_needed'], False)
