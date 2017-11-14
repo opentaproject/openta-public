@@ -1,28 +1,20 @@
-from exercises.models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer, AuditExercise
+from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
 from course.models import Course
 from exercises.parsing import exercise_xmltree, question_xmltree_get
 from exercises.question import question_check
 from django.contrib.auth.models import User
-from exercises.serializers import (
-    ExerciseSerializer,
-    ExerciseMetaSerializer,
-    AnswerSerializer,
-    ImageAnswerSerializer,
-    AuditExerciseSerializer,
-)
+from exercises.serializers import ExerciseSerializer, ExerciseMetaSerializer, AnswerSerializer
+from exercises.serializers import ImageAnswerSerializer, AuditExerciseSerializer
 import json
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Prefetch, Count, Case, When, Avg, Q, F
+from django.db.models import Prefetch, Count, Avg, Q, F
 from django.test import RequestFactory
 import os
 from functools import reduce
 from collections import OrderedDict, defaultdict
-import pprofile
-from .util import nested_print
 import datetime
 from django.utils import timezone
 import pytz
-import pprint
 
 
 def e_name(exercise):
@@ -49,33 +41,30 @@ def e_student_activity(exercise):
     if n_questions == 0:
         return {'activity': {'1h': 0, '24h': 0, '1w': 0, 'all': 0}}
 
+    activity_1h = round(
+        Answer.objects.filter(
+            date__gt=t1h, question__exercise=exercise, user__groups__name="Student"
+        ).count()
+        / n_questions
+    )
+    activity_24h = round(
+        Answer.objects.filter(
+            date__gt=t24h, question__exercise=exercise, user__groups__name="Student"
+        ).count()
+        / n_questions
+    )
+    activity_1w = round(
+        Answer.objects.filter(
+            date__gt=t1w, question__exercise=exercise, user__groups__name="Student"
+        ).count()
+        / n_questions
+    )
+    activity_all = round(
+        Answer.objects.filter(question__exercise=exercise, user__groups__name="Student").count()
+        / n_questions
+    )
     return {
-        'activity': {
-            '1h': round(
-                Answer.objects.filter(
-                    date__gt=t1h, question__exercise=exercise, user__groups__name="Student"
-                ).count()
-                / n_questions
-            ),
-            '24h': round(
-                Answer.objects.filter(
-                    date__gt=t24h, question__exercise=exercise, user__groups__name="Student"
-                ).count()
-                / n_questions
-            ),
-            '1w': round(
-                Answer.objects.filter(
-                    date__gt=t1w, question__exercise=exercise, user__groups__name="Student"
-                ).count()
-                / n_questions
-            ),
-            'all': round(
-                Answer.objects.filter(
-                    question__exercise=exercise, user__groups__name="Student"
-                ).count()
-                / n_questions
-            ),
-        }
+        'activity': {'1h': activity_1h, '24h': activity_24h, '1w': activity_1w, 'all': activity_all}
     }
 
 
@@ -87,8 +76,6 @@ def p_student_activity(data):
         max_all = max(data.values(), key=lambda exercise: exercise['activity']['all'])
     except ValueError:
         return {'max_1h': 0, 'max_24h': 0, 'max_1w': 0, 'max_all': 0}
-    # for item in data.:
-    #    print(item)
     return {
         'max_1h': max_1h['activity']['1h'],
         'max_24h': max_24h['activity']['24h'],
@@ -97,28 +84,21 @@ def p_student_activity(data):
     }
 
 
-def e_student_attempts_mean(exercise):  # {{{
+def e_student_attempts_mean(exercise):
     users = User.objects.filter(groups__name='Student', is_active=True)
-    attempts = users.filter(answer__question__exercise=exercise).annotate(
-        attempts=Count('answer')
-    )  # .values_list('username', 'attempts')
+    attempts = users.filter(answer__question__exercise=exercise).annotate(attempts=Count('answer'))
     n_questions = Question.objects.filter(exercise=exercise).count()
     mean_attempts = attempts.aggregate(Avg('attempts'))
     if mean_attempts['attempts__avg'] is not None:
         avg = mean_attempts['attempts__avg'] / n_questions
     else:
         avg = 0
-    return {
-        'attempts_mean': avg,
-        #'attempts': attempts.values_list('username', 'attempts')
-    }  # }}}
+    return {'attempts_mean': avg}
 
 
-def e_student_attempts_median(exercise):  # {{{
+def e_student_attempts_median(exercise):
     users = User.objects.filter(groups__name='Student', is_active=True)
-    attempts = users.filter(answer__question__exercise=exercise).annotate(
-        attempts=Count('answer')
-    )  # .values_list('username', 'attempts')
+    attempts = users.filter(answer__question__exercise=exercise).annotate(attempts=Count('answer'))
     n_questions = Question.objects.filter(exercise=exercise).count()
     count = attempts.count()
     median = 0
@@ -129,34 +109,25 @@ def e_student_attempts_median(exercise):  # {{{
         median = values[int(round(count / 2))]
     else:
         median = sum(values[count / 2 - 1 : count / 2 + 1]) / 2.0
-    # mean_attempts = attempts.aggregate(Avg('attempts'))
-    return {
-        'attempts_median': median / n_questions,
-        #'attempts': attempts.values_list('username', 'attempts')
-    }  # }}}
+    return {'attempts_median': median / n_questions}
 
 
-def e_student_tried(exercise):  # {{{
+def e_student_tried(exercise):
     users = User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
     ntried = users.filter(answer__question__exercise=exercise).distinct().count()
     n_students = users.count()
-    return {'ntried': ntried, 'percent_tried': ntried / n_students}  # }}}
+    return {'ntried': ntried, 'percent_tried': ntried / n_students}
 
 
-def e_student_percent_complete(exercise):  # {{{
+def e_student_percent_complete(exercise):
     users = User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
     n_students = users.count()
-    # userdata = users.prefetch_related(
-    #        Prefetch(
-    #            'answer_set',
-    #            queryset = Answer.objects.filter(question__exercise=exercise).filter(correct=True).filter(date__lt=datetime.datetime.combine(exercise.meta.deadline_date, datetime.time(8,0,0, tzinfo=pytz.UTC))).order_by('-date'),
-    #            to_attr = 'answers'
-    #            ))
     tz = pytz.timezone('Europe/Stockholm')
     deadline_time = datetime.time(23, 59, 59)
     course = Course.objects.first()
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
+    deadline_date_time = datetime.datetime.combine(exercise.meta.deadline_date, deadline_time)
     questions = Question.objects.filter(exercise=exercise)
     complete = []
     correct_answer = []
@@ -174,9 +145,7 @@ def e_student_percent_complete(exercise):  # {{{
                     users.filter(
                         answer__correct=True,
                         answer__question=question,
-                        answer__date__lt=tz.localize(
-                            datetime.datetime.combine(exercise.meta.deadline_date, deadline_time)
-                        ),
+                        answer__date__lt=tz.localize(deadline_date_time),
                         imageanswer__exercise=question.exercise,
                     )
                     .values_list('username', flat=True)
@@ -201,10 +170,10 @@ def e_student_percent_complete(exercise):  # {{{
         'ncorrect': len(allcorrect_answer),
         'nstudents': n_students,
         'deadline': exercise.meta.deadline_date,
-    }  # }}}
+    }
 
 
-def exercise_list_data(exercise_data_func_list):  # {{{
+def exercise_list_data(exercise_data_func_list):
     exercises = Exercise.objects.all()
     result = {}
     for exercise in exercises:
@@ -215,19 +184,19 @@ def exercise_list_data(exercise_data_func_list):  # {{{
 
         data = reduce(reduce_data_func, exercise_data_func_list, {})
         result[exercise.exercise_key] = data
-    return result  # }}}
+    return result
 
 
-def post_process_list(data, data_func_list):  # {{{
+def post_process_list(data, data_func_list):
     def reduce_data_func(prev, next):
         prev.update(next(data))
         return prev
 
     result = reduce(reduce_data_func, data_func_list, {})
-    return result  # }}}
+    return result
 
 
-def folder_structure(exercise_data_func_list):  # {{{
+def folder_structure(exercise_data_func_list):
     folders = {}
     exercises = Exercise.objects.all()
     paths = map(lambda x: os.path.dirname(x.path), exercises)
@@ -242,7 +211,6 @@ def folder_structure(exercise_data_func_list):  # {{{
             else:
                 traverse['folders'][folder] = {'content': {}}
     ordered_folders = OrderedDict(sorted(folders.items(), key=lambda t: t[0]))
-    # print(ordered_folders)
     for exercise in exercises:
 
         def reduce_data_func(prev, next):
@@ -255,10 +223,10 @@ def folder_structure(exercise_data_func_list):  # {{{
         if 'exercises' not in root:
             root['exercises'] = {}
         root['exercises'].update({exercise.exercise_key: data})
-    return ordered_folders  # }}}
+    return ordered_folders
 
 
-def exercise_folder_structure(manager, user):  # {{{
+def exercise_folder_structure(manager, user):
     def recursive_dict():
         return defaultdict(recursive_dict)
 
@@ -289,7 +257,7 @@ def exercise_folder_structure(manager, user):  # {{{
 
     for exercise in exercises:
         allcorrect = True
-        for question in exercise.question.all():  # questions:
+        for question in exercise.question.all():
             try:
                 if hasattr(question, 'useranswers') and question.useranswers:
                     if not question.useranswers[0].correct:
@@ -302,39 +270,40 @@ def exercise_folder_structure(manager, user):  # {{{
         if 'exercises' not in root:
             root['exercises'] = {}
             root['order'] = []
+        exercise_meta = (
+            ExerciseMetaSerializer(exercise.meta).data if hasattr(exercise, 'meta') else {}
+        )
         root['exercises'].update(
             {
                 exercise.exercise_key: {
                     'name': exercise.name,
                     'translated_name': json.loads(exercise.translated_name),
                     'correct': allcorrect,
-                    'meta': ExerciseMetaSerializer(exercise.meta).data
-                    if hasattr(exercise, 'meta')
-                    else {},
+                    'meta': exercise_meta,
                 }
             }
         )
 
     def add_sort_order(node):
+        key_func = [('published', lambda x: str(not x)), ('sort_key', str)]
+
+        def sort_key_func(exercisekey):
+            return "".join(
+                [func(node['exercises'][exercisekey]['meta'][key]) for (key, func) in key_func]
+            )
+
         if 'exercises' in node:
             node['order'] = list(node['exercises'].keys())
-            node['order'].sort(
-                key=lambda exercisekey: "".join(
-                    [
-                        func(node['exercises'][exercisekey]['meta'][key])
-                        for (key, func) in [('published', lambda x: str(not x)), ('sort_key', str)]
-                    ]
-                )
-            )
+            node['order'].sort(key=sort_key_func)
         if 'folders' in node:
             for key, value in node['folders'].items():
                 add_sort_order(value['content'])
 
     add_sort_order(folders)
-    return folders  # }}}
+    return folders
 
 
-def serialize_exercise_with_question_data(exercise, user):  # {{{
+def serialize_exercise_with_question_data(exercise, user):
     """
     Serialize an exercise together with question and image answer data for the specified user.
 
@@ -373,17 +342,15 @@ def serialize_exercise_with_question_data(exercise, user):  # {{{
             data['question'][question.question_key]['response'] = response
         except ObjectDoesNotExist:
             pass
-    return data  # }}}
+    return data
 
 
-def student_attempts_exercises():  # {{{
-    exercises = Exercise.objects.all()
-    allattempts = []
+def student_attempts_exercises():
     folders = folder_structure([e_name, e_path, e_student_attempt_count])
-    return folders  # }}}
+    return folders
 
 
-def exercise_test(exercise_key):  # {{{
+def exercise_test(exercise_key):
     requests = RequestFactory()
     request = requests.get('/test')
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
@@ -407,7 +374,7 @@ def exercise_test(exercise_key):  # {{{
                     result['exception'] = str(e)
                 result.update({'answer': answer})
                 results.append(result)
-    return results  # }}}
+    return results
 
 
 def get_passed_exercises(exercise_queryset, user):
@@ -430,14 +397,15 @@ def get_passed_exercises(exercise_queryset, user):
                 'deadline': passed.meta.deadline_date,
             }
         )
-    return passed_rendered  # }}}
+    return passed_rendered
 
 
 def get_passed_exercises_with_image_data(
     exercise_queryset, user, deadline=True, image_deadline=True
-):  # {{{
+):
     """
-    Generate data containing which exercises from the queryset that user have passed and uploaded image for before the deadline.
+    Generate data containing which exercises from the queryset that user have
+    passed and uploaded image for before the deadline.
 
     Args:
         user: Django User instance
@@ -448,7 +416,7 @@ def get_passed_exercises_with_image_data(
         [
             {
                 'exercise_name':
-                'answers': [ 
+                'answers': [
                     {
                         'answer':
                         'date':
@@ -496,7 +464,7 @@ def get_passed_exercises_with_image_data(
 
     passed_exercises = exercise_queryset.exclude(pk__in=all_failed_pk_list).select_related('meta')
     force_passed_exercises = exercise_queryset.filter(
-        pk__in=AuditExercise.objects.get_force_passed_exercises_pk(user)
+        pk__in=(AuditExercise.objects.get_force_passed_exercises_pk(user))
     )
     total_passed = passed_exercises | force_passed_exercises
     total_passed = total_passed.distinct()
@@ -506,11 +474,10 @@ def get_passed_exercises_with_image_data(
             {
                 'exercise_name': passed.name,
                 'exercise_key': passed.exercise_key,
-                #'answers': question_data,
                 'deadline': passed.meta.deadline_date,
             }
         )
-    return passed_rendered  # }}}
+    return passed_rendered
 
 
 def get_passed_students(exercise):
