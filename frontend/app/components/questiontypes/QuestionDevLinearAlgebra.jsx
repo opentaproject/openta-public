@@ -230,7 +230,9 @@ export default class QuestionLinearAlgebra extends Component {
 
   // System state data
   var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
-  var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
+  //var correct = state.getIn(['response','correct'], Null) || state.getIn(['correct'], Null); // Boolean indicating if the grader reported correct answer
+ var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
+  console.log("correct = ", correct );
   //console.log("state = ", state)
   //console.log("question = ", question)
   // Custom state data
