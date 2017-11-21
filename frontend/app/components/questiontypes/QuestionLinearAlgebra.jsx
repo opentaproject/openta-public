@@ -271,20 +271,22 @@ export default class QuestionLinearAlgebra extends Component {
 
   var mathjsEvalVars = {}
   var availableVariables = [];
-      if(this.varsList) {
-          this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
+    if(this.varsList) {
+      this.varsList.map( v => {mathjsEvalVars[v] = 1;} );
+      var filteredVars = this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
+      if(filteredVars.length > 0) {
         availableVariables.push( (<span key="s">(<T>in terms of</T> </span>) );
-              var filteredVars = this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
-              for(const [i, v] of filteredVars.entries()) {
-                  availableVariables.push((<span key={"v"+i}>{v}</span>));
-                  if(this.varProps.hasIn([v, 'tex']))
-                      availableVariables.push((<span key={"tex"+i}> (<MathSpan message={"$" + this.varProps.getIn([v,'tex']) + "$"}></MathSpan>)</span>));
-                  if(i < filteredVars.length - 1)
-                      availableVariables.push((<span key={"c"+i}>, </span>));
-              }
-              availableVariables.push((<span key={"e"}>)</span>));
-          //availableVariables = this.varsList.length ? "(i termer av " + this.varsList.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : "";
       }
+          for(const [i, v] of filteredVars.entries()) {
+            availableVariables.push((<span key={"v"+i}>{v}</span>));
+            if(this.varProps.hasIn([v, 'tex']))
+              availableVariables.push((<span key={"tex"+i}> (<MathSpan message={"$" + this.varProps.getIn([v,'tex']) + "$"}></MathSpan>)</span>));
+            if(i < filteredVars.length - 1)
+              availableVariables.push((<span key={"c"+i}>, </span>));
+          }
+          if(filteredVars.length > 0)
+            availableVariables.push((<span key={"e"}>)</span>));
+    }
   // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
   // The styling classes are from UIKit, see getuikit.com for available elements.
   var graderResponse = null;
