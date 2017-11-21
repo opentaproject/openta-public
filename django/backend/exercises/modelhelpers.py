@@ -127,7 +127,6 @@ def e_student_percent_complete(exercise):
     course = Course.objects.first()
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
-    deadline_date_time = datetime.datetime.combine(exercise.meta.deadline_date, deadline_time)
     questions = Question.objects.filter(exercise=exercise)
     complete = []
     correct_answer = []
@@ -140,6 +139,9 @@ def e_student_percent_complete(exercise):
             )
         )
         if exercise.meta.deadline_date:
+            deadline_date_time = datetime.datetime.combine(
+                exercise.meta.deadline_date, deadline_time
+            )
             complete.append(
                 set(
                     users.filter(
