@@ -163,14 +163,12 @@ const insertCursor = (str, pos) => {//{{{
 * @return {object} {out: {string} - Parsed output, warnings: {string} - Warnings}
 */
 const asciiMathToMathJS = (str) => {
-	
     var parsed = str;
     parsed = insertImplicitMultiply(parsed);
-    // parsed = insertImplicitSubscript(parsed);  // DELETED THIS
+    parsed = insertImplicitSubscript(parsed);
     parsed = braketify(parsed);
     parsed = fixDelimiters(parsed);
-    // console.log("DEV_LINEAR_ALGEBRA parsed = ", parsed )
-    return parsed
+    return parsed;
 }
 
 export {asciiMathToMathJS, insertCursor, braketify, absify, insertImplicitMultiply, insertImplicitSubscript, fixDelimiters}
