@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from rest_framework import status
-from exercises.modelhelpers import get_passed_students
+from exercises.modelhelpers import get_students_to_be_audited
 from exercises.models import Exercise, AuditExercise
 from exercises.serializers import AuditExerciseSerializer
 from course.models import Course
@@ -40,7 +40,7 @@ def get_current_audits_exercise(request, exercise):
 def get_current_audits_stats(request, exercise):
     dbexercise = Exercise.objects.get(pk=exercise)
     audits = AuditExercise.objects.filter(exercise__pk=exercise)
-    passed_students = get_passed_students(dbexercise)
+    passed_students = get_students_to_be_audited(dbexercise)
     passed_audited = passed_students.filter(audits__exercise=dbexercise)
     passed_audited_pks = passed_audited.values_list('pk', flat=True)
     n_passed_unaudited = passed_students.exclude(pk__in=passed_audited_pks).count()
@@ -76,7 +76,7 @@ def get_new_audit(request, exercise):
         .distinct()
     )
     students_audits = (
-        get_passed_students(dbexercise)
+        get_students_to_be_audited(dbexercise)
         .exclude(pk__in=students_audited_here)
         .annotate(n_audits=Count('audits'))
     )

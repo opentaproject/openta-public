@@ -381,10 +381,11 @@ def exercise_test(exercise_key):
     return results
 
 
-def get_passed_exercises(exercise_queryset, user):
+def get_passed_exercises(exercise_queryset, user):  # ONLY USED IN aggration/results.py
+    print("MODELHELPERS get_passed_exercises")
     questions = Question.objects.filter(exercise__in=exercise_queryset)
     passed_questions_pk_list = questions.filter(
-        answer__user=user, answer__correct=True
+        answer__user=user, answer__correct=True  # THIS IS ONLY USED IN aggregation/results.py
     ).values_list('pk', flat=True)
 
     failed_questions = questions.exclude(pk__in=passed_questions_pk_list)
@@ -433,6 +434,7 @@ def get_passed_exercises_with_image_data(
     """
     extra_question_filters = []
     deadline_time = Course.objects.deadline_time()
+    print("MODELHELPERS.py: get_passed_exercises_with_image_data")
     if deadline:
         extra_question_filters.append(
             Q(answer__date__date__lt=F('exercise__meta__deadline_date'))
@@ -453,7 +455,7 @@ def get_passed_exercises_with_image_data(
     questions = Question.objects.filter(exercise__in=exercise_queryset)
     passed_questions_pk_list = questions.filter(
         answer__user=user,
-        answer__correct=True,
+        # answer__correct=True,  # DONT REQUIRE CORRECT
         exercise__imageanswer__user=user,
         *extra_question_filters
     ).values_list('pk', flat=True)
@@ -484,7 +486,8 @@ def get_passed_exercises_with_image_data(
     return passed_rendered
 
 
-def get_passed_students(exercise):
+def get_students_to_be_audited(exercise):
+    print("MODELHELPERS: get_students_to_be_audited")
     students = User.objects.filter(groups__name='Student')
     tz = pytz.timezone('Europe/Stockholm')
     deadline_time = datetime.time(8, 0, 0)
@@ -497,21 +500,45 @@ def get_passed_students(exercise):
     users = []
     for question in questions:
         deadline_date = datetime.datetime.now(tz) + datetime.timedelta(days=2)
+        image_required = False
         if question.exercise.meta.deadline_date:
             deadline_date = question.exercise.meta.deadline_date
-        users.append(
-            set(
-                students.filter(
-                    imageanswer__exercise=question.exercise,
-                    answer__question=question,
-                    answer__correct=True,
-                    answer__date__lt=tz.localize(
-                        datetime.datetime.combine(deadline_date, deadline_time)
-                    ),
+            print('question.exercise.meta.deadline_date', question.exercise.meta.deadline_date)
+        if question.exercise.meta.image:
+            image_required = question.exercise.meta.image
+            print('question.exercise.meta.image', question.exercise.meta.image)
+        # THIS FILTER SHOULD BE FIXED UP WITH lambda but will have to do for now
+        # students to be audited requires image only when required in meta
+        if image_required:
+            users.append(
+                set(
+                    students.filter(
+                        imageanswer__exercise=question.exercise,  # DONT DEMAND IMAGE ANSER
+                        answer__question=question,
+                        # answer__correct=True,
+                        answer__date__lt=tz.localize(
+                            datetime.datetime.combine(deadline_date, deadline_time)
+                        ),
+                    )
+                    .values_list('pk', flat=True)
+                    .distinct()
                 )
-                .values_list('pk', flat=True)
-                .distinct()
             )
-        )
+        else:
+            users.append(
+                set(
+                    students.filter(
+                        # imageanswer__exercise=question.exercise, # DONT DEMAND IMAGE ANSER
+                        answer__question=question,
+                        # answer__correct=True,
+                        answer__date__lt=tz.localize(
+                            datetime.datetime.combine(deadline_date, deadline_time)
+                        ),
+                    )
+                    .values_list('pk', flat=True)
+                    .distinct()
+                )
+            )
+
     passed = set.intersection(*map(set, users))
     return students.filter(pk__in=passed)
