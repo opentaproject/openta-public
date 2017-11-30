@@ -53,6 +53,12 @@
           <label class="uk-form-label" for={{ form.bonus.id_for_label }}>{{ form.bonus.label }}</label>
           <div class="uk-form-controls">{{ form.bonus }}</div>
         </div>
+         <div class="uk-form-row">
+          {{ form.feedback.errors }}
+          <label class="uk-form-label" for={{ form.bonus.id_for_label }}>{{ form.feedback.label }}</label>
+          <div class="uk-form-controls">{{ form.feedback}} (Uncheck only with devLinearAlgebra)</div>
+        </div>
+
         <div class="uk-form-row">
           {{ form.solution.errors }}
           <label class="uk-form-label" for={{ form.solution.id_for_label }}>{{ form.solution.label }}</label>

@@ -317,14 +317,24 @@ def serialize_exercise_with_question_data(exercise, user):
         Dictionary corresponding to a JSON representation of the exercise together with user data.
 
     """
+    # print("MODELHELPERS, EXERCISE = ", exercise )
     questions = Question.objects.filter(exercise=exercise)
     correct = exercise.user_is_correct(user)
     triedall = exercise.user_tried_all(user)
     serializer = ExerciseSerializer(exercise)
     data = serializer.data
+    # print("MODELHELPERS data = ", data )
+    meta = data['meta']
+    # print("MODELHELPERS meta = ", meta )
+
     data['question'] = {}
     data['triedall'] = triedall
     data['correct'] = correct
+    # print("sort_key= ", meta['sort_key'])
+    feedback = meta['feedback']
+    # print("feedback = ", feedback )
+    if not feedback:
+        data['correct'] = None
     image_answers = ImageAnswer.objects.filter(user=user, exercise=exercise)
     image_answers_serialized = ImageAnswerSerializer(image_answers, many=True)
     image_answers_ids = [image_answer.pk for image_answer in image_answers]
@@ -344,6 +354,9 @@ def serialize_exercise_with_question_data(exercise, user):
             response = json.loads(dbanswer.grader_response)
             data['question'][question.question_key] = serializer.data
             data['question'][question.question_key]['response'] = response
+            if not feedback:
+                data['question'][question.question_key]['correct'] = None
+                data['question'][question.question_key]['response']['correct'] = None
         except ObjectDoesNotExist:
             pass
     return data
@@ -382,7 +395,7 @@ def exercise_test(exercise_key):
 
 
 def get_passed_exercises(exercise_queryset, user):  # ONLY USED IN aggration/results.py
-    print("MODELHELPERS get_passed_exercises")
+    # print("MODELHELPERS get_passed_exercises")
     questions = Question.objects.filter(exercise__in=exercise_queryset)
     passed_questions_pk_list = questions.filter(
         answer__user=user, answer__correct=True  # THIS IS ONLY USED IN aggregation/results.py
@@ -434,7 +447,7 @@ def get_passed_exercises_with_image_data(
     """
     extra_question_filters = []
     deadline_time = Course.objects.deadline_time()
-    print("MODELHELPERS.py: get_passed_exercises_with_image_data")
+    # print("MODELHELPERS.py: get_passed_exercises_with_image_data")
     if deadline:
         extra_question_filters.append(
             Q(answer__date__date__lt=F('exercise__meta__deadline_date'))
@@ -487,7 +500,7 @@ def get_passed_exercises_with_image_data(
 
 
 def get_students_to_be_audited(exercise):
-    print("MODELHELPERS: get_students_to_be_audited")
+    # print("MODELHELPERS: get_students_to_be_audited")
     students = User.objects.filter(groups__name='Student')
     tz = pytz.timezone('Europe/Stockholm')
     deadline_time = datetime.time(8, 0, 0)
@@ -503,10 +516,10 @@ def get_students_to_be_audited(exercise):
         image_required = False
         if question.exercise.meta.deadline_date:
             deadline_date = question.exercise.meta.deadline_date
-            print('question.exercise.meta.deadline_date', question.exercise.meta.deadline_date)
+            # print('question.exercise.meta.deadline_date', question.exercise.meta.deadline_date )
         if question.exercise.meta.image:
             image_required = question.exercise.meta.image
-            print('question.exercise.meta.image', question.exercise.meta.image)
+            # print('question.exercise.meta.image', question.exercise.meta.image )
         # THIS FILTER SHOULD BE FIXED UP WITH lambda but will have to do for now
         # students to be audited requires image only when required in meta
         if image_required:

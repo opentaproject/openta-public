@@ -231,30 +231,37 @@ export default class QuestionLinearAlgebra extends Component {
   // System state data
   var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
   //var correct = state.getIn(['response','correct'], Null) || state.getIn(['correct'], Null); // Boolean indicating if the grader reported correct answer
+ // console.log("state correct = ",  state.getIn(['correct'], null )  )
+ // console.log("response correct = ",  state.getIn(['response','correct'], null ) ) 
+ var correct = state.getIn(['response','correct'], null ) || state.getIn(['correct'], null ); // Boolean indicating if the grader reported correct answer
  var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
-  console.log("correct = ", correct );
+  // console.log("correct = ", correct );
   //console.log("state = ", state)
   //console.log("question = ", question)
   // Custom state data
   //console.log(" ASTATE ", JSON.stringify( state ) );
   //console.log(" B QUESTION", JSON.stringify( question) );
   var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts']) ) 
-  var feedback =  state.getIn(['response','feedback'] , question.getIn(['feedback'],true) ) 
   var previous_answers = state.getIn(['response','previous_answers'] , question.getIn(['previous_answers']) );
   //console.log("feedback = ", feedback, typeof( feedback) )
   //console.log("correct = ", correct)
-  if( feedback == 'true' ){
-        //console.log("feedback will be set to true ");
-        feedback = true;
-        }
-  if( feedback == 'false' ){
-        //console.log("feedback will be set to false ");
-        feedback  = false;
-        }
-
-	
-
-  
+  // THIS ENTIRE SECTION WAS CUT OUT TO DISABLE THE XML TAG FEEDBACK
+  // var feedback =  state.getIn(['response','feedback'] , question.getIn(['feedback'],true) ) 
+  // if( feedback == 'true' ){
+  //       //console.log("feedback will be set to true ");
+  //       feedback = true;
+  //       }
+  // if( feedback == 'false' ){
+  //       //console.log("feedback will be set to false ");
+  //       feedback  = false;
+  //       }
+  // override default true xml of feedback with options
+  if( state.getIn(['correct'], null ) == null ){
+       var feedback = false
+        } else {
+       var feedback = true
+     }
+  // console.log("feedback = ", feedback)
 
   //console.log("N_ATTEMPTS = ", n_attempts)
   // console.log(" E user ", state.getIn(['user'],"DEF"));

@@ -16,6 +16,7 @@ class ExerciseMetaUpdate(UpdateView):
         'allow_pdf',
         'published',
         'sort_key',
+        'feedback',
     ]
     success_url = '/' + settings.SUBPATH + 'exercisemeta/{id}'
 

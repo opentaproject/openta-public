@@ -445,6 +445,7 @@ class ExerciseMeta(models.Model):
     server_reply_time = models.DurationField(default=None, null=True, blank=True)
     published = models.BooleanField(default=False)
     sort_key = models.CharField(max_length=255, default='', verbose_name='Sort order key')
+    feedback = models.BooleanField(default=True, verbose_name='Feedback to student')
 
     def __str__(self):
         return self.exercise.name

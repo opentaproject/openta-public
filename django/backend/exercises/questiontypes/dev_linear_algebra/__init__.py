@@ -121,15 +121,16 @@ def linear_algebra_json_hook(safe_question, full_question, question_id, user_id)
     else:
         safe_question['exposeglobals'] = False
 
-    feedback = full_question.get('@attr').get('feedback', True)
-    safe_question['feedback'] = feedback
+    # DISABLE feedback XML in quesiton
+    # feedback = full_question.get('@attr').get('feedback',True)
+    # safe_question['feedback'] = feedback
     # print("DEV/ININIT FEEDBACK",  full_question.get('@attr').get('feedback',None) )
     # print("DEV/ININIT FEEDBACK",  safe_question['feedback'] )
-    if feedback is False:
-        # print("SETTING RESPONS TO None")
-        # print("feedback is false? = ", feedback)
-        safe_question['correct'] = None
-        feedback = False
+    # if feedback is False:
+    #        #print("SETTING RESPONS TO None")
+    #        #print("feedback is false? = ", feedback)
+    #        safe_question['correct'] = None
+    #        feedback = False
     # else:
     # print("feedback is true? = ", feedback)
     # print("Nlis = ", lis )

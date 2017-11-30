@@ -68,14 +68,24 @@ class BaseExercise extends Component {
   renderQuestion = (itemjson, json, meta, exerciseKey) => {
     var questions = json.getIn(['exercise', 'question'], immutable.List([]));
     var question = itemjson;
+    //console.log("meta = ", meta )
+    //console.log("question = ", question)
+    // console.log("EXERCISE feedback meta ", meta.getIn(['feedback']) )
+    // console.log("EXERCISE type ", question.getIn(['@attr','type']) )
+    var type =  question.getIn(['@attr','type'])
+    var feedback =  meta.getIn(['feedback']); 
+    // MAKE A LIST OF QUESTION TYPES THAT respect no feedback
+    var warning = ! feedback &&  type != 'devLinearAlgebra' ;
     return (
           <div key={"q" + question.getIn(['@attr', 'key'])}>
+          { warning && <Badge className='uk-badge uk-text-large uk-badge-danger'>  WARNING!!!  NO FEEDBACK is not implemented for question type {type}.  
+    Change questiontype or go to Options and check Feedback to student.  </Badge> }
           { questions.filter( q => q.getIn(['@attr','key']) == question.getIn(['@attr','key']) ).count() > 1 && this.props.admin && <Alert message="Duplicate question keys! (If you copied a question please change the key attribute)" type="error"/> } 
           <form key={question.getIn(['@attr','key'])} className="uk-form" onSubmit={(event) => event.preventDefault()}>
           {<Question exerciseKey={exerciseKey} questionKey={question.getIn(['@attr','key'])}/>}
           </form>
           </div>
-    );
+            );
   }
 
 

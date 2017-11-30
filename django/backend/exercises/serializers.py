@@ -33,6 +33,7 @@ class ExerciseMetaSerializer(serializers.ModelSerializer):
             'server_reply_time',
             'sort_key',
             'allow_pdf',
+            'feedback',
         )
 
     def get_deadline_time(self, obj):

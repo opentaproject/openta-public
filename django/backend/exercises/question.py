@@ -125,8 +125,9 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
 
         n_attempts = get_number_of_attempts(dbquestion.pk, user.pk)
         previous_answers = get_previous_answers(dbquestion.pk, user.pk)
-        result['n_attempts'] = n_attempts
         result['previous_answers'] = previous_answers
+        result = {}
+        result['n_attempts'] = n_attempts
         return result
     else:
         return {'error': 'No grading function for question type ' + dbquestion.type}
