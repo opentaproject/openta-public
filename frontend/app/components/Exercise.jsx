@@ -12,6 +12,7 @@ import ExerciseImageUpload from './ExerciseImageUpload.jsx';
 import T from './Translation.jsx';
 import Badge from './Badge.jsx';
 import {SUBPATH} from '../settings.js';
+import classNames from 'classnames';
 
 import {
   updateExerciseXML,
@@ -116,13 +117,24 @@ class BaseExercise extends Component {
   }
 
   renderFigure = (itemjson, json, meta, exerciseKey) => {
-      var figure = itemjson.get('$', '');
-    return (
-              <a className="uk-thumbnail uk-thumbnail-small" key={"figure"+figure} href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + figure.trim()} data-uk-lightbox data-lightbox-type="image">
-                <img src={SUBPATH + '/exercise/' + this.props.exerciseKey + '/asset/' + figure.trim()} alt=""/>
-                { itemjson.has('caption') && <div className="uk-thumbnail-caption">{itemjson.getIn(['caption', '$'])}</div> }
-              </a>
-    );
+    var figure = itemjson.get('$', '');
+    var size = itemjson.getIn(['@attr', 'size'], 'small');
+    var sizeClass = {
+      "uk-thumbnail": true,
+      "uk-thumbnail-small": size == 'small' || !(size in ['small', 'medium', 'large']),
+      "uk-thumbnail-medium": size == 'medium',
+      "uk-thumbnail-large": size == 'large',
+    }
+
+    console.log(size);
+    console.dir(sizeClass);
+    console.log(classNames(sizeClass));
+      return (
+        <a className={classNames(sizeClass)} key={"figure"+figure} href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + figure.trim()} data-uk-lightbox data-lightbox-type="image">
+          <img src={SUBPATH + '/exercise/' + this.props.exerciseKey + '/asset/' + figure.trim()} alt=""/>
+          { itemjson.has('caption') && <div className="uk-thumbnail-caption">{itemjson.getIn(['caption', '$'])}</div> }
+        </a>
+      );
   }
 
   renderSolution = (itemjson, json, meta, exerciseKey) => {

@@ -21,6 +21,7 @@
   "dependencies": {
     "after-brunch": "0.0.5",
     "babel-plugin-transform-object-rest-spread": "^6.8.0",
+    "classnames": "^2.2.5",
     "codemirror": "^5.18.2",
     "dompurify": "^0.8.3",
     "fabric": "^1.7.1",

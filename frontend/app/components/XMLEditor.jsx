@@ -56,6 +56,11 @@ var tags = {
     },
     children: ["text", "expression", "choice", "variables"]
   },
+  figure: {
+    attrs: {
+      size: ["small", "medium", "large"]
+    }
+  }
 }
 
 function completeAfter(cm, pred) {
