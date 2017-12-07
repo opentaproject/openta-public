@@ -187,7 +187,7 @@ RQ_QUEUES = {
         'HOST': 'localhost',
         'PORT': 6379,
         'DB': 0,
-        'PASSWORD': 'theredisqueue',
+        # 'PASSWORD': 'password_for_open_networks',
         'DEFAULT_TIMEOUT': 360,
     }
 }
