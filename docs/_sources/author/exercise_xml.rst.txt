@@ -67,3 +67,6 @@ Specifications
   * - :xml:`<global>`
     - - ``type`` = [string] question type (optional, if not specified all questions will recieve this data.)
     - Data that will be passed to all questions in this exercise. For example variables for multiple symbolic questions.
+  * - :xml:`<figure>`
+    - - ``size`` = [string] Optional size specification. Choices are "small", "medium" or "large".
+    - Image figure. Specify filename of image file that has been added to the exercise folder or uploaded via the assets browser in "XML & Assets" when editing an exercise.

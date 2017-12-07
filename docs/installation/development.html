@@ -101,6 +101,7 @@ with two users (user:password):</p>
 <p>Install <a class="reference external" href="https://docs.docker.com/engine/installation/">Docker</a> and
 configure backend and frontend settings from the template files
 (<code class="docutils literal"><span class="pre">settings_dev.py</span></code> and <code class="docutils literal"><span class="pre">settings_example.js</span></code>) as shown below.</p>
+<p>Copy the example database from <code class="docutils literal"><span class="pre">django/backend/db.sqlite3.example</span></code> to <code class="docutils literal"><span class="pre">django/backend/db.sqlite3</span></code>.</p>
 <p>Change workdirectory <code class="docutils literal"><span class="pre">cd</span> <span class="pre">docker</span></code>. To build the Docker image run (grab
 a coffee)</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="n">image</span>
@@ -175,6 +176,7 @@ the choosen file to <code class="docutils literal"><span class="pre">settings.py
 <span class="n">cp</span> <span class="n">settings_dev</span><span class="o">.</span><span class="n">py</span> <span class="n">settings</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
+<p>Copy the example database from <code class="docutils literal"><span class="pre">django/backend/db.sqlite3.example</span></code> to <code class="docutils literal"><span class="pre">django/backend/db.sqlite3</span></code>.</p>
 <p>Start development server with</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">..</span>
 <span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">runserver</span>
@@ -243,7 +245,7 @@ copies the files whenever something changes</p>
       &copy;2017, Hampus Linander, Stellan Östlund.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.5</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
       
       |

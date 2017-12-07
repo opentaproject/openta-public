@@ -22,6 +22,8 @@ Install `Docker <https://docs.docker.com/engine/installation/>`__ and
 configure backend and frontend settings from the template files
 (``settings_dev.py`` and ``settings_example.js``) as shown below.
 
+Copy the example database from ``django/backend/db.sqlite3.example`` to ``django/backend/db.sqlite3``.
+
 Change workdirectory ``cd docker``. To build the Docker image run (grab
 a coffee)
 
@@ -120,6 +122,8 @@ the choosen file to ``settings.py``, for example
 
     cd backend/backend/
     cp settings_dev.py settings.py
+
+Copy the example database from ``django/backend/db.sqlite3.example`` to ``django/backend/db.sqlite3``.
 
 Start development server with
 
