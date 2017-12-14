@@ -67,7 +67,7 @@ return (
                 { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>{moment(meta.deadline_date).format('D MMM')}</Badge> }
                 { meta.image && <span className={"uk-badge uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></span> }
                 { meta.solution && <Badge className={"uk-badge-notification"}>lösning</Badge> }
-                { ! meta.feedback  && exerciseState.getIn([exercise, 'triedall'], false) && <span className="uk-badge uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-check"/></span> }
+                { ! meta.feedback  && exerciseState.getIn([exercise, 'tried_all'], false) && <span className="uk-badge uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-check"/></span> }
                 {  meta.feedback  && exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success"><i className="uk-icon uk-icon-check"/></span> }
                 {exerciseState.getIn([exercise, 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
                 {exerciseState.getIn([exercise, 'audit', 'published'], false) && <Badge type={exerciseState.getIn([exercise, 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
