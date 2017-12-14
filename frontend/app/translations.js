@@ -2,17 +2,18 @@ import immutable from 'immutable';
 import {store} from 'store.js';
 
 const translationDict = immutable.fromJS({
-    
+    'Reviewed': {
+        'en': 'Audited',
+        'sv': 'Granskad'
+    },
     'unchecked': {
-        'en': 'unhchecked',
+        'en': 'not graded',
         'sv': 'ej rättad'
     },
-    
     ' STOP GUESSING!': {
         'en': ' STOP GUESSING!',
         'sv': ' SLUTA GISSA!'
     },
-    
     'CORRECT FIRST TIME!': {
         'en': 'CORRECT ON THE FIRST ATTEMPT!',
         'sv': 'KORREKT PÅ FÖRSTA FÖRSÖKET!'
@@ -72,15 +73,12 @@ function t(string, dict=undefined, language=undefined) {
     if(translationDict.has(string)) {
         languageVersions = translationDict.get(string);
     }
-    //console.log("languageversions=", languageVersions)
-    //console.log("dict = ", dict )
-    // THIS SECTION WAS NOT PROPERLY WORKING WITH AN EMPTY alternative dict
-    if(dict){
+    if(dict !== undefined && Object.keys(dict).length !== 0){
         languageVersions = dict;
-        if(languageVersions.has(language)) {
-             string = languageVersions.get(language);
-        }
-       }
+    }
+    if(languageVersions.has(language)) {
+        string = languageVersions.get(language);
+    }
     return string;
 }
 
