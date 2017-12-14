@@ -98,7 +98,8 @@ export default class QuestionMultipleChoice extends Component {
   // System state data
   var lastAnswer = JSON.parse(state.getIn(['answer'], "{}")); // Last saved answer in database, same format as passed to the submitFunction
   var correctAnswers = state.getIn(['response', 'choices'], immutable.Map({}));
-  var correct = state.getIn(['response', 'correct'], false);
+  var correct = state.getIn(['response', 'correct']);
+  var feedback = correct !== null;
 
   var choicesElements = question.get('choice',immutable.List([]));
   if( !immutable.List.isList(choicesElements) )choicesElements = immutable.List([choicesElements]);
@@ -116,8 +117,8 @@ export default class QuestionMultipleChoice extends Component {
         <div className="uk-panel-badge">
         { this.props.canViewSolution && item.getIn(['@attr', 'correct']) === 'true' && <div className="uk-margin-small-left uk-margin-small-right uk-badge">correct</div> }
         { this.props.isAuthor && <div className="uk-badge">{choiceKey}</div> }
-        { correctAnswers.get(choiceKey) && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-success">Rätt!</div> }
-        { correctAnswers.get(choiceKey) === false && lastAnswer[choiceKey] === true && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-danger">Fel</div> }
+        { feedback && correctAnswers.get(choiceKey) && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-success">Rätt!</div> }
+        { feedback && correctAnswers.get(choiceKey) === false && lastAnswer[choiceKey] === true && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-danger">Fel</div> }
         { item.hasIn(['@attr', 'key']) && duplicateKey && <div className="uk-margin-small-right uk-badge uk-badge-danger">Duplicate choice key!</div> }
         { !item.hasIn(['@attr', 'key']) && <div className="uk-margin-small-left uk-margin-small-right uk-badge uk-badge-warning">No choice key, please add an attribute key="..." </div>}
         { this.state.choices.get(choiceKey) && <div className="uk-margin-small-left uk-display-inline-block"><i className="uk-margin-small-top uk-icon uk-icon-medium uk-icon-check-square-o"/></div>}

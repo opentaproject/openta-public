@@ -296,10 +296,15 @@ export default class QuestionLinearAlgebra extends Component {
   var renderedResult = this.renderAsciiMath(this.state.value);
   var renderedMath = renderedResult.out;
   if(input === lastAnswer && lastAnswer !== '' && !error) {
-    if(correct)
-       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(" is correct.")} type="success" key="input" hasMath={true}/>);
-    else
+    if(correct) {
+      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(" is correct.")} type="success" key="input" hasMath={true}/>);
+    }
+    else if(correct === null) {
+      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$ " + t("unchecked")} key="input" hasMath={true}/>);
+    }
+    else {
       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(" is not correct.")} type="warning" key="input" hasMath={true}/>);
+    }
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
   }

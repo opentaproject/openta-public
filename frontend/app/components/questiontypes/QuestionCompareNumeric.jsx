@@ -16,6 +16,8 @@ import latex from './latex.js';
 import immutable, { List } from 'immutable';
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
+import T from '../Translation.jsx';
+import t from '../../translations.js';
 
 //Returns a new string where the character at pos in str is replaced with newstring
 function replaceAt(str, pos, newString) {
@@ -421,10 +423,15 @@ export default class QuestionCompareNumeric extends Component {
   var renderedResult = this.renderAsciiMath(this.state.value);
   var renderedMath = renderedResult.out;
   if(input === lastAnswer && lastAnswer !== '' && !error) {
-    if(correct)
-       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
-    else
+    if(correct) {
+      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
+    }
+    else if(correct === null) {
+      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$ " + t("unchecked")} key="input" hasMath={true}/>);
+    }
+    else {
       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
+    }
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
   }
