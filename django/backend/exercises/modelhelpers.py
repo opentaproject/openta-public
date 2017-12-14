@@ -317,23 +317,16 @@ def serialize_exercise_with_question_data(exercise, user):
         Dictionary corresponding to a JSON representation of the exercise together with user data.
 
     """
-    # print("MODELHELPERS, EXERCISE = ", exercise )
     questions = Question.objects.filter(exercise=exercise)
     correct = exercise.user_is_correct(user)
-    triedall = exercise.user_tried_all(user)
+    tried_all = exercise.user_tried_all(user)
     serializer = ExerciseSerializer(exercise)
     data = serializer.data
-    # print("MODELHELPERS data = ", data )
-    meta = data['meta']
-    # print("MODELHELPERS meta = ", meta )
 
     data['question'] = {}
-    data['triedall'] = triedall
+    data['tried_all'] = tried_all
     data['correct'] = correct
-    # print("sort_key= ", meta['sort_key'])
-    feedback = meta['feedback']
-    # print("feedback = ", feedback )
-    if not feedback:
+    if not exercise.meta.feedback:
         data['correct'] = None
     image_answers = ImageAnswer.objects.filter(user=user, exercise=exercise)
     image_answers_serialized = ImageAnswerSerializer(image_answers, many=True)
@@ -354,7 +347,7 @@ def serialize_exercise_with_question_data(exercise, user):
             response = json.loads(dbanswer.grader_response)
             data['question'][question.question_key] = serializer.data
             data['question'][question.question_key]['response'] = response
-            if not feedback:
+            if not exercise.meta.feedback:
                 data['question'][question.question_key]['correct'] = None
                 data['question'][question.question_key]['response']['correct'] = None
         except ObjectDoesNotExist:
@@ -394,11 +387,23 @@ def exercise_test(exercise_key):
     return results
 
 
-def get_passed_exercises(exercise_queryset, user):  # ONLY USED IN aggration/results.py
-    # print("MODELHELPERS get_passed_exercises")
+def get_passed_exercises(exercise_queryset, user):
+    """Get exercises with correct answer by user.
+
+    Args:
+        exercise_queryset (django queryset): Exercises to be checked
+        user (django user): User to check for
+    Returns:
+    (list of dict): List with dictionaries containing the structure
+        {
+            'exercise_name': ...
+            'exercise_key': ...
+            'deadline': ...
+        }
+    """
     questions = Question.objects.filter(exercise__in=exercise_queryset)
     passed_questions_pk_list = questions.filter(
-        answer__user=user, answer__correct=True  # THIS IS ONLY USED IN aggregation/results.py
+        answer__user=user, answer__correct=True
     ).values_list('pk', flat=True)
 
     failed_questions = questions.exclude(pk__in=passed_questions_pk_list)
@@ -447,7 +452,6 @@ def get_passed_exercises_with_image_data(
     """
     extra_question_filters = []
     deadline_time = Course.objects.deadline_time()
-    # print("MODELHELPERS.py: get_passed_exercises_with_image_data")
     if deadline:
         extra_question_filters.append(
             Q(answer__date__date__lt=F('exercise__meta__deadline_date'))
@@ -468,7 +472,7 @@ def get_passed_exercises_with_image_data(
     questions = Question.objects.filter(exercise__in=exercise_queryset)
     passed_questions_pk_list = questions.filter(
         answer__user=user,
-        # answer__correct=True,  # DONT REQUIRE CORRECT
+        answer__correct=True,
         exercise__imageanswer__user=user,
         *extra_question_filters
     ).values_list('pk', flat=True)
@@ -500,10 +504,16 @@ def get_passed_exercises_with_image_data(
 
 
 def get_students_to_be_audited(exercise):
-    # print("MODELHELPERS: get_students_to_be_audited")
+    """Get students to be audited.
+
+    If exercise feedback is enabled this returns all student that have answered
+    correctly and submitted an image answer.
+    If exercise feedback is disabled this returns all students that have uploaded
+    an image before deadline.
+    """
     students = User.objects.filter(groups__name='Student')
     tz = pytz.timezone('Europe/Stockholm')
-    deadline_time = datetime.time(8, 0, 0)
+    deadline_time = datetime.time(23, 59, 59)
     course = Course.objects.first()
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
@@ -513,22 +523,16 @@ def get_students_to_be_audited(exercise):
     users = []
     for question in questions:
         deadline_date = datetime.datetime.now(tz) + datetime.timedelta(days=2)
-        image_required = False
         if question.exercise.meta.deadline_date:
             deadline_date = question.exercise.meta.deadline_date
-            # print('question.exercise.meta.deadline_date', question.exercise.meta.deadline_date )
-        if question.exercise.meta.image:
-            image_required = question.exercise.meta.image
-            # print('question.exercise.meta.image', question.exercise.meta.image )
-        # THIS FILTER SHOULD BE FIXED UP WITH lambda but will have to do for now
-        # students to be audited requires image only when required in meta
-        if image_required:
+
+        if exercise.meta.feedback:
             users.append(
                 set(
                     students.filter(
-                        imageanswer__exercise=question.exercise,  # DONT DEMAND IMAGE ANSER
+                        imageanswer__exercise=question.exercise,
                         answer__question=question,
-                        # answer__correct=True,
+                        answer__correct=True,
                         answer__date__lt=tz.localize(
                             datetime.datetime.combine(deadline_date, deadline_time)
                         ),
@@ -541,10 +545,8 @@ def get_students_to_be_audited(exercise):
             users.append(
                 set(
                     students.filter(
-                        # imageanswer__exercise=question.exercise, # DONT DEMAND IMAGE ANSER
-                        answer__question=question,
-                        # answer__correct=True,
-                        answer__date__lt=tz.localize(
+                        imageanswer__exercise=question.exercise,
+                        imageanswer__date__lt=tz.localize(
                             datetime.datetime.combine(deadline_date, deadline_time)
                         ),
                     )

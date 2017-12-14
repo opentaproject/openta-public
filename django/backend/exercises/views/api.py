@@ -129,7 +129,7 @@ def exercise_list(request):
             except AuditExercise.DoesNotExist:
                 pass
             allcorrect = True
-            for question in exercise.question.all():  # questions:
+            for question in exercise.question.all():
                 try:
                     if hasattr(question, 'useranswers') and question.useranswers:
                         if not question.useranswers[0].correct:
@@ -138,11 +138,15 @@ def exercise_list(request):
                         response = json.loads(question.useranswers[0].grader_response)
                         data['question'][question.question_key] = answerserializer.data
                         data['question'][question.question_key]['response'] = response
+                        if not exercise.meta.feedback:
+                            data['question'][question.question_key]['correct'] = None
+                            data['question'][question.question_key]['response']['correct'] = None
                     else:
                         allcorrect = False
                 except ObjectDoesNotExist:
                     allcorrect = False
-            data['correct'] = allcorrect
+            if exercise.meta.feedback:
+                data['correct'] = allcorrect
             responselist[exercise.exercise_key] = data
     return Response(responselist)
 

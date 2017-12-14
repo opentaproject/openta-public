@@ -345,18 +345,13 @@ class Exercise(models.Model):
     def user_tried_all(self, user):
         tried_all = True
         questions = Question.objects.filter(exercise=self)
-        count = 0
+        if questions is None:
+            return False
         for question in questions:
-            count = count + 1
             try:
-                answer = Answer.objects.filter(user=user, question=question).latest('date')
-                if answer.correct is None:
-                    tried_all = False
-            except ObjectDoesNotExist:
+                Answer.objects.filter(user=user, question=question).latest('date')
+            except Answer.DoesNotExist:
                 tried_all = False
-        # print("TRIED ALL = ", tried_all)
-        if count is 0:
-            tried_all = False
         return tried_all
 
 

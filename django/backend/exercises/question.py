@@ -112,7 +112,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         if 'correct' in result:
             correct = result['correct']
         if user.has_perm('exercises.log_question'):
-            dbanswer = Answer.objects.create(
+            Answer.objects.create(
                 user=user,
                 question=dbquestion,
                 question_key=dbquestion.question_key,
@@ -126,8 +126,9 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         n_attempts = get_number_of_attempts(dbquestion.pk, user.pk)
         previous_answers = get_previous_answers(dbquestion.pk, user.pk)
         result['previous_answers'] = previous_answers
-        result = {}
         result['n_attempts'] = n_attempts
+        if not dbexercise.meta.feedback:
+            result['correct'] = None
         return result
     else:
         return {'error': 'No grading function for question type ' + dbquestion.type}
