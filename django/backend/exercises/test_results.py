@@ -73,7 +73,7 @@ def create_audit(auditor, user, exercise, **kwargs):
     return audit
 
 
-def create_answers_and_imageanswers(user, deadline, q1, q2, q3, q4, e1, e2, e3, e4):
+def create_answers_and_imageanswers(user, deadline, q1, q2, q3, q4, q5, e1, e2, e3, e4, e5):
     now = deadline
     after = deadline + datetime.timedelta(seconds=1)
     before = deadline - datetime.timedelta(seconds=1)
@@ -93,6 +93,10 @@ def create_answers_and_imageanswers(user, deadline, q1, q2, q3, q4, e1, e2, e3, 
     # Both after deadline
     create_answer_at(user, q4, now + datetime.timedelta(days=1))
     create_image_answer_at(user, e4, now + datetime.timedelta(days=1))
+
+    # Incorrect before deadline
+    create_incorrect_at(user, q5, before)
+    create_image_answer_at(user, e5, before)
 
 
 def create_audit_revision_tests(user, admin, deadline, q1, q2, q3, e1, e2, e3):
@@ -117,6 +121,7 @@ def create_database():
     e2 = create_exercise('r2', 'Required Exercise 2', 'path2')
     e3 = create_exercise('r3', 'Required Exercise 3', 'path3')
     e4 = create_exercise('r4', 'Required Exercise 4', 'path4')
+    e5 = create_exercise('r5', 'Required Exercise 5', 'path5')
     b1 = create_exercise('b1', 'Bonus Exercise 1', 'path1')
     b2 = create_exercise('b2', 'Bonus Exercise 2', 'path2')
     b3 = create_exercise('b3', 'Bonus Exercise 3', 'path3')
@@ -125,6 +130,7 @@ def create_database():
     q2 = create_question(e2, 'q2')
     q3 = create_question(e3, 'q3')
     q4 = create_question(e4, 'q4')
+    q5 = create_question(e5, 'q5')
     bq1 = create_question(b1, 'q1')
     bq2 = create_question(b2, 'q2')
     bq3 = create_question(b3, 'q3')
@@ -137,6 +143,7 @@ def create_database():
     set_meta(e2, published=True, required=True, deadline_date=now)
     set_meta(e3, published=True, required=True, deadline_date=now)
     set_meta(e4, published=True, required=True, deadline_date=now)
+    set_meta(e5, published=True, required=True, deadline_date=now)
     set_meta(b1, published=True, bonus=True, deadline_date=now)
     set_meta(b2, published=True, bonus=True, deadline_date=now)
     set_meta(b3, published=True, bonus=True, deadline_date=now)
@@ -155,8 +162,8 @@ def create_database():
     admin.user_set.add(uadmin)
     # 3 correct, 2 before deadline, 1 after deadline
     # 1 force passed by audit
-    create_answers_and_imageanswers(u1, deadline, q1, q2, q3, q4, e1, e2, e3, e4)
-    create_answers_and_imageanswers(u2, deadline, bq1, bq2, bq3, bq4, b1, b2, b3, b4)
+    create_answers_and_imageanswers(u1, deadline, q1, q2, q3, q4, q5, e1, e2, e3, e4, e5)
+    create_answers_and_imageanswers(u2, deadline, bq1, bq2, bq3, bq4, q5, b1, b2, b3, b4, e5)
 
     # Test force_passed with two exercises that are after deadline being passed
     create_audit(uadmin, u1, e4, force_passed=True)
