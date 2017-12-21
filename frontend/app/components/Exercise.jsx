@@ -127,9 +127,6 @@ class BaseExercise extends Component {
       "uk-thumbnail-large": size == 'large',
     }
 
-    console.log(size);
-    console.dir(sizeClass);
-    console.log(classNames(sizeClass));
       return (
         <a className={classNames(sizeClass)} key={"figure"+figure} href={SUBPATH + '/exercise/' + exerciseKey + '/asset/' + figure.trim()} data-uk-lightbox data-lightbox-type="image">
           <img src={SUBPATH + '/exercise/' + this.props.exerciseKey + '/asset/' + figure.trim()} alt=""/>
