@@ -4,6 +4,8 @@ import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import Alert from './Alert.jsx';
 import Question from './Question.jsx';
+import QMath from './QMath.jsx';
+import AsciiMath from './AsciiMath.jsx';
 import Spinner from './Spinner.jsx';
 import immutable from 'immutable';
 import moment from 'moment';
@@ -36,6 +38,8 @@ class BaseExercise extends Component {
       'text': this.renderText,
       'figure': this.renderFigure,
       'question': this.renderQuestion,
+      'qmath': this.renderQuestionMath,
+      'asciimath': this.renderAsciiMath,
       'solution': this.renderSolution,
       'asset': this.renderAsset,
       'p': this.renderHTMLElement(),
@@ -79,6 +83,23 @@ class BaseExercise extends Component {
             );
   }
 
+  renderQuestionMath = (itemjson, json, meta, exerciseKey) => {
+    var question = itemjson;
+    var type =  question.getIn(['@attr','type'], 'linearAlgebra')
+    return (
+      <span key={"qmath" + nextUnstableKey()}>
+        <QMath exerciseKey={exerciseKey} questionType={type} expression={itemjson.get('$', '')}/>
+      </span>
+    );
+  }
+
+  renderAsciiMath = (itemjson, json, meta, exerciseKey) => {
+    return (
+      <span key={"asciimath" + nextUnstableKey()}>
+        <AsciiMath>{itemjson.get('$', '')}</AsciiMath>
+      </span>
+    );
+  }
 
   renderLegacyText = (itemjson, json, meta, exerciseKey) => {
     var children = itemjson.get('$children$', immutable.List([]))
