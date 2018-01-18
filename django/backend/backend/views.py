@@ -1,41 +1,48 @@
+import csv
+import logging
+from io import StringIO
+from smtplib import SMTPException
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.models import Group, User
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail import EmailMessage
+from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.template.response import TemplateResponse
+from django.utils.translation import ugettext as _
+from django.views.generic.edit import CreateView, FormView
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from django.shortcuts import render, redirect
-from django.core.urlresolvers import reverse, reverse_lazy
-from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.models import User
-from django.contrib.auth import views as auth_views
-from django.contrib.auth.forms import SetPasswordForm
-from django.views.generic.edit import FormView
-from django.contrib import messages
-from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
-from course.models import Course
-from course.serializers import CourseSerializer
-from backend.forms import RegisterWithPasswordForm, BatchAddUsersForm
-from backend.forms import UserCreateForm, UserCreateFormNoPassword
-from backend.forms import EmailUsersForm, UserCreateFormDomain
-from django.views.generic.edit import CreateView
 from ratelimit.decorators import ratelimit
 from ratelimit.mixins import RatelimitMixin
-from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.mixins import PermissionRequiredMixin, AccessMixin
-from django.contrib.auth.models import Group
-from django.template.response import TemplateResponse
-from backend.user_utilities import send_activation_mail
-from django.core.mail import EmailMessage
-from django.conf import settings
-from smtplib import SMTPException
-import logging
-import csv
-from io import StringIO
-import chardet
+
+from backend.forms import (
+    BatchAddUsersForm,
+    EmailUsersForm,
+    RegisterWithPasswordForm,
+    UserCreateForm,
+    UserCreateFormDomain,
+    UserCreateFormNoPassword,
+)
+from backend.forms import CustomPasswordResetForm
+from backend.user_utilities import send_activation_mail, send_email_object
+from course.models import Course
+from course.serializers import CourseSerializer
+from exercises.views.file_handling import serve_file
 
 logger = logging.getLogger(__name__)
 
 
-class ActivateAndReset(FormView):  # {{{
+class ActivateAndReset(FormView):
     """
     View for user activation and password reset. Adds user to group Student.
     """
@@ -61,10 +68,10 @@ class ActivateAndReset(FormView):  # {{{
         messages.add_message(
             self.request, messages.SUCCESS, _('Password is now set, please login.')
         )
-        return redirect(reverse('login'))  # }}}
+        return redirect(reverse('login'))
 
 
-class RegisterUser(CreateView):  # {{{
+class RegisterUser(CreateView):
     """
     View for registering user where password is supplied at registration
     """
@@ -78,12 +85,12 @@ class RegisterUser(CreateView):  # {{{
         messages.add_message(
             self.request,
             messages.SUCCESS,
-            _('Registration complete, check inbox for activation mail (possibly spam folder).'),
+            _('Registration complete, check inbox for ' 'activation mail (possibly spam folder).'),
         )
-        return redirect(reverse('login'))  # }}}
+        return redirect(reverse('login'))
 
 
-class RegisterUserNoPassword(CreateView):  # {{{
+class RegisterUserNoPassword(CreateView):
     """
     View for user registration where password is given at activation time.
     """
@@ -97,14 +104,16 @@ class RegisterUserNoPassword(CreateView):  # {{{
         messages.add_message(
             self.request,
             messages.SUCCESS,
-            _('Registration complete, check inbox for activation mail (possibly spam folder).'),
+            _('Registration complete, check inbox ' 'for activation mail (possibly spam folder).'),
         )
-        return redirect(reverse('login'))  # }}}
+        return redirect(reverse('login'))
 
 
-class RegisterUserDomain(CreateView):  # {{{
-    """
-    View for user registration where password is given at activation time and the email is locked to specific domains.
+class RegisterUserDomain(CreateView):
+    """View for user registration by domain.
+
+    Password is given at activation time and the email is locked to specific domains.
+
     """
 
     template_name = 'register.html'
@@ -121,15 +130,14 @@ class RegisterUserDomain(CreateView):  # {{{
         messages.add_message(
             self.request,
             messages.SUCCESS,
-            _('Registration complete, check inbox for activation mail (possibly spam folder).'),
+            _('Registration complete, check inbox for ' 'activation mail (possibly spam folder).'),
         )
-        return redirect(reverse('login'))  # }}}
+        return redirect(reverse('login'))
 
 
 @api_view(['GET'])
-def login_status(request):  # {{{
-    """
-    Get login information for current user.
+def login_status(request):
+    """Get login information for current user.
 
     Returns:
         JSON {
@@ -154,33 +162,27 @@ def login_status(request):  # {{{
     else:
         response.update({'course': 'OpenTA'})
         logger.error('No course found')
-    return Response(response)  # }}}
+    return Response(response)
 
 
-# @api_view(['GET'])
 @ratelimit(key='ip', rate='5/30s')
-def login(request):  # {{{
-    """
-    Login view
+def login(request):
+    """Login view.
 
     Returns:
         Login view unless rate limited in which case rate_limit.html
     """
     course = Course.objects.first()
     course_data = CourseSerializer(course).data
-    extra = {'course': course_data}
+    extra = {'course': course_data, 'openta_version': settings.VERSION}
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
         return auth_views.login(request, extra_context=extra)
     else:
-        return render(
-            request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')}
-        )  # }}}
+        return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
 
 
-# @api_view(['GET'])
-def activate(request, username, token):  # {{{
-    """
-    User activation where the password was supplied at registration time.
+def activate(request, username, token):
+    """User activation where the password was supplied at registration time.
 
     Returns:
         Login view if successful, otherwise activation_failed.html.
@@ -195,13 +197,11 @@ def activate(request, username, token):  # {{{
     except (BadSignature, SignatureExpired):
         return render(request, "activation_failed.html")
     messages.add_message(request, messages.SUCCESS, _('Activation successful, please login.'))
-    return auth_views.login(request, 'registration/login.html')  # }}}
+    return auth_views.login(request, 'registration/login.html')
 
 
-# @api_view(['GET', 'POST'])
-def activate_and_reset(request, username, token):  # {{{
-    """
-    User activation with a form for choosing a password.
+def activate_and_reset(request, username, token):
+    """User activation with a form for choosing a password.
 
     Returns:
         Password form if successful, otherwise activation_failed.html.
@@ -216,15 +216,13 @@ def activate_and_reset(request, username, token):  # {{{
     if user.is_active:
         messages.add_message(request, messages.WARNING, _("User is already activated"))
         return render(request, "activation_failed.html")
-    # user.is_active = True
-    # user.save()
-    return ActivateAndReset.as_view()(request, user=user)  # }}}
+
+    return ActivateAndReset.as_view()(request, user=user)
 
 
 @login_required
 def main(request):
-    """
-    The main frontend view.
+    """The main frontend view.
 
     Returns:
         The frontend app in base_main.html if authorized, otherwise login screen.
@@ -235,7 +233,7 @@ def main(request):
     return render(request, "base_main.html", context=extra)
 
 
-class RegisterByPassword(RatelimitMixin, FormView):  # {{{
+class RegisterByPassword(RatelimitMixin, FormView):
     template_name = 'registration/register_with_password.html'
     form_class = RegisterWithPasswordForm
     ratelimit_key = 'ip'
@@ -254,30 +252,34 @@ class RegisterByPassword(RatelimitMixin, FormView):  # {{{
             return redirect(
                 reverse('register-with-password') + 'register/' + course.registration_password
             )
-        return redirect(reverse('register-with-password'))  # }}}
+        return redirect(reverse('register-with-password'))
 
 
 @ratelimit(key='ip', rate='5/30s')
-def validate_and_show_registration(request, password):  # {{{
-    """
-    Register user with password view that handles the form submission of the register with password form.
+def validate_and_show_registration(request, password):
+    """Register with password.
+
+    Register user with password view that handles the form submission
+    of the register with password form.
     """
     if getattr(request, 'limited', False):
         return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
     course = Course.objects.first()
     if course.registration_by_password and course.registration_password == password:
-        return RegisterUserNoPassword.as_view()(request)  # }}}
+        return RegisterUserNoPassword.as_view()(request)
 
 
-class BatchAddUserView(PermissionRequiredMixin, FormView):  # {{{
-    """
-    Add many users with a CSV file with format:
+class BatchAddUserView(PermissionRequiredMixin, FormView):
+    """Add many users from a CSV file.
+    
+    With a CSV file with format:
         "First name" "Last name" "E-mail address" "Username"
         "..." "..." "..." "..."
         ...
 
     Returns:
-        A view with 3 steps: a CSV file upload that then gets parsed and shown before a confirmation of add is asked and then finally adds users.
+        A view with 3 steps: a CSV file upload that then gets parsed and shown before a
+        confirmation of add is asked and then finally adds users.
     """
 
     permission_required = "auth.add_user"
@@ -287,8 +289,7 @@ class BatchAddUserView(PermissionRequiredMixin, FormView):  # {{{
     def form_valid(self, form):
         if 'batch_file' in form.cleaned_data and form.cleaned_data['batch_file'] is not None:
             raw = form.cleaned_data['batch_file'].read()
-            encoding = chardet.detect(raw)
-            uni = raw.decode('latin-1')  # encoding['encoding'])
+            uni = raw.decode('latin-1')
             dialect = csv.Sniffer().sniff(uni)
             data = list(csv.reader(StringIO(uni), dialect=dialect))
             labels = data[0]
@@ -304,14 +305,12 @@ class BatchAddUserView(PermissionRequiredMixin, FormView):  # {{{
                     tmp.update(res)
                     tmp.update(item)
                     res = tmp
-                    # res = {**res, **item}
+
                 users.append(res)
             self.request.session['users'] = users
             return render(self.request, 'batch_add_users.html', {'form': form, 'users': users})
         if 'adduser' in self.request.POST:
             for user in self.request.session['users']:
-                # regform = UserCreateFormNoPassword({'username':user['Username'], 'email': user['E_mail_address']})
-                # regform.save()
                 dbuser, created = User.objects.get_or_create(
                     username=user['Username'],
                     defaults={
@@ -331,7 +330,7 @@ class BatchAddUserView(PermissionRequiredMixin, FormView):  # {{{
                     messages.add_message(
                         self.request,
                         messages.WARNING,
-                        "User " + user['Username'] + " already added!",
+                        ("User " + user['Username'] + " already added!"),
                     )
                 try:
                     activation_url = send_activation_mail(
@@ -355,40 +354,41 @@ class BatchAddUserView(PermissionRequiredMixin, FormView):  # {{{
                         "Activation mail send error for " + user['Username'],
                     )
 
-        return render(self.request, 'batch_add_users.html', {'form': form})  # }}}
+        return render(self.request, 'batch_add_users.html', {'form': form})
 
 
-# @ratelimit(key='ip', rate='1/1m')
 def password_reset_done(request):
-    """
-    Wrapper view that adds a success message to the login screen indicating that a password reset mail was sent.
+    """Add sent success message.
+
+    Wrapper view that adds a success message to the login screen indicating
+    that a password reset mail was sent.
     """
     messages.add_message(
         request,
         messages.INFO,
-        _("Password reset link sent to your email (check your spam folder as well)."),
+        _("Password reset link sent to your email " "(check your spam folder as well)."),
     )
     return redirect(reverse('login'))
 
 
 @ratelimit(key='ip', rate='3/1m')
 def password_reset(request):
-    """
-    Password reset view asking for an email.
-    """
+    """Password reset view asking for an email."""
+    from_email = Course.objects.course_email()
+
     if getattr(request, 'limited', False):
         return render(request, 'rate_limit.html', context={'rate': "3 " + _('times per minute.')})
-    from_email = "openta@openta.se"
-    try:
-        course = Course.objects.first()
-        from_email = course.course_name.lower() + "@openta.se"
-    except ObjectDoesNotExist:
-        pass
-    return auth_views.password_reset(request, from_email=from_email)
+
+    ret = auth_views.password_reset(
+        request, from_email=from_email, password_reset_form=CustomPasswordResetForm
+    )
+
+    return ret
 
 
 def password_reset_complete(request):
-    """
+    """Add success and login message.
+
     Wrapper view that adds a success message to the login screen after password was reset.
     """
     messages.add_message(request, messages.INFO, _("Password reset successful, please login."))
@@ -396,6 +396,16 @@ def password_reset_complete(request):
 
 
 def email_users(request, context):
+    """Email multiple users.
+    
+    Args:
+        request: request
+        context: extra context
+    
+    Returns:
+        HttpResponse: Email template response
+    """
+
     if request.POST.get('post-send-emails'):
         form = EmailUsersForm(request.POST)
         if form.is_valid():
@@ -407,10 +417,9 @@ def email_users(request, context):
                 from_email=Course.objects.course_name().lower() + "@openta.se",
                 to=addresses,
             )
-            email.send()
+            send_email_object(email)
             messages.info(request, "Emailed " + str(users.count()) + " students")
     else:
-        # form = EmailUsersForm(initial={'subject': context['subject']})
         form = EmailUsersForm()
         users = User.objects.filter(pk__in=request.session['email_users'])
         context.update(
@@ -421,3 +430,24 @@ def email_users(request, context):
             }
         )
         return TemplateResponse(request, 'email_users.html', context)
+
+
+def serve_media(request, asset):
+    """Serve public media.
+    
+    Args:
+        request (HttpRequest): request
+        asset (str): Asset path
+    
+    Raises:
+        Http404: If unauthorized
+    
+    Returns:
+        HttpResponse: Asset response
+
+    """
+
+    if not asset.startswith('public'):
+        raise Http404('Not authorized')
+    path = "media/{}".format(asset)
+    return serve_file(path, asset)

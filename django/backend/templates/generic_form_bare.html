@@ -23,5 +23,6 @@
       {% for key, item in hidden.items %}
       <input type="hidden" name="{{ key }}" value="{{item}}" />
       {% endfor %}
+      <input type="hidden" name="do_action" value="true" />
       <input class="uk-button uk-margin-small-top" type="submit" value="{{ submit_text }}" />
     </form>

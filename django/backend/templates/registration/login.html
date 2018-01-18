@@ -1,12 +1,28 @@
 {% extends "base.html" %}
 {% load widget_tweaks %}
 {% load i18n %}
+{% load static %}
 
 {% block content %}
 
 <div id="content" class="uk-vertical-align uk-text-center">
 <div class="uk-vertical-align-middle uk-container-center">
 
+{% if course.icon %}
+  <div class="uk-position-top uk-margin-top" >
+      <img class="uk-width-1-1 uk-width-large-1-5" src="{{ course.icon }}"/>
+  </div>
+{% endif %}
+
+{% if form.errors %}
+<div class="uk-alert uk-alert-danger">
+  {% if '@' in form.username.value %}
+    {% trans 'Your username is probably the part before the @ sign' %}
+  {% else %}
+    {% trans 'Login failed' %}
+  {% endif %}
+</div>
+{% endif %}
 {% if messages %}
   {% for message in messages %}
   {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
@@ -19,10 +35,15 @@
 
 <form method="post" class="uk-form" action="{% url 'login' %}">
 {% csrf_token %}
-<legend><i class="uk-icon uk-icon-medium uk-icon-circle-o uk-text-success"></i><span class="uk-text-small uk-text-middle"> {{ course.course_name }} </span></legend>
+<legend><i class="uk-icon uk-icon-medium uk-icon-circle-o uk-text-primary"></i><span class="uk-text-small uk-text-middle"> {{ course.course_name }} </span></legend>
+{% if course.motd %}
+  <p class="uk-ikon uk-icon-info uk-text uk-text-primary uk-padding-large">
+      {{course.motd}}
+  </p>
+{% endif %}
     <div class="uk-form-row">
       {% render_field form.username placeholder=form.username.label %}
-    </div>
+      </div>
     <div class="uk-form-row">
       {% render_field form.password placeholder=form.password.label %}
     </div>
@@ -41,9 +62,18 @@
 {% if course.registration_by_password %}
 <a href="{% url 'register-with-password' %}" class="uk-button uk-button-mini uk-margin-small-bottom">{% trans "Register" %}</a>
 {% endif %}
-<a class="uk-button uk-button-mini uk-margin-small-bottom" href="mailto:{{course.course_name|lower}}@openta.se">{% trans "Problem?" %}</a>
+{% if True %}
+<a class="uk-button uk-button-mini uk-margin-small-bottom" href="mailto:{{replyto}}">{% trans "Problem?" %}</a>
+
+
+{% endif %}
+
+
+
 {# Assumes you setup the password_reset view in your URLconf #}
 {# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
+
+<p class="uk-text uk-text-primary uk-text-muted uk-text-small"> Version: {{ openta_version }} </p>
 </div>
 </div>
 

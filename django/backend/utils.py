@@ -1,3 +1,41 @@
+import logging
+from django.core.mail import get_connection
+from django.conf import settings
+from django.template.loader import get_template
+from django.template import TemplateDoesNotExist
+
+from course.models import Course
+
+logger = logging.getLogger(__name__)
+
+
+def send_email_object(email):
+    if hasattr(settings, 'USE_CUSTOM_SMTP_EMAIL') and settings.USE_CUSTOM_SMTP_EMAIL:
+        course = Course.objects.first()
+        with get_connection(
+            host=course.email_host,
+            port='587',
+            username=course.email_host_user,
+            password=course.email_host_password,
+            use_tls=True,
+        ) as connection:
+            email.connection = connection
+        try:
+            n_sent = email.send()
+            logger.info('send_email_object success' + " (" + str(n_sent) + " delivered)")
+        except Exception as e:
+            logger.error(str(e))
+            raise e
+    else:
+        try:
+            n_sent = email.send()
+            logger.info('send_email_object success' + " (" + str(n_sent) + " delivered)")
+        except Exception as e:
+            logger.error('send_email_object fail' + str(e))
+            raise e
+    return n_sent
+
+
 def response_from_messages(messages):
     result = dict(status=set())
     result['messages'] = messages
@@ -6,3 +44,15 @@ def response_from_messages(messages):
     if 'error' not in result['status']:
         result['success'] = True
     return result
+
+
+def get_localized_template(template_name):
+    """Get major language version of template."""
+    course = Course.objects.first()
+    try:
+        first_language = course.languages.split(',')[0]
+        template = get_template(template_name + '.' + first_language)
+    except TemplateDoesNotExist as exception:
+        logger.error(template_name + '.' + first_language + " does not exist")
+        raise exception
+    return template

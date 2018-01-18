@@ -9,10 +9,12 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = (
             'course_name',
+            'icon',
             'registration_password',
             'registration_by_password',
             'registration_by_domain',
             'languages',
+            'motd',
         )
 
     def get_languages(self, instance):

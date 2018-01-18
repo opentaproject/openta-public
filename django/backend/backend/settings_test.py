@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import sys
+import backend.version as version
+
+VERSION = version.get_version_string()
 
 RUNNING_DEVSERVER = (
     True

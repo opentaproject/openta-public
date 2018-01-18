@@ -1,13 +1,26 @@
 from django import forms
 from course.models import Course
-from django.utils.translation import ugettext as _
 
 
 class CourseForm(forms.ModelForm):
-    registration_password = forms.CharField(
-        label=_('Registration password')
-    )  # ,widget=forms.PasswordInput)
-
     class Meta:
         model = Course
+        exclude = []
         fields = '__all__'
+        widgets = {'registration_password': forms.PasswordInput(render_value=True)}
+        help_texts = {
+            'url': "The course url, including http:// or https://",
+            'registration_domains': (
+                'Comma separated list of email domains' ' that are permitted to self-register'
+            ),
+            'email_host_password': (
+                'Password for your email account (Please use SSO,'
+                ' the password is stored in cleartext on the server)'
+            ),
+            'email_host': 'Uses port 587/TLS',
+            'email_reply_to': 'Email of the course admin',
+            'languages': (
+                'Languages for translations in the course:'
+                ' the first language is dominant and used in emails.'
+            ),
+        }

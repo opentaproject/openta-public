@@ -14,6 +14,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django.utils.timezone import now
 from random import choice
+from backend.user_utilities import send_email_object
 import logging
 
 logger = logging.getLogger(__name__)
@@ -164,17 +165,21 @@ def send_audit(request, pk):
     email = EmailMessage(
         subject=audit.subject,
         body=mail_message,
-        from_email=Course.objects.course_name().lower() + "@openta.se",
+        from_email=Course.objects.course_email(),
         to=[audit.student.email],
         reply_to=[request.user.email],
     )
     # Send bcc to auditor (and current user if not auditor)
+    # print("request.user.eail = ", request.user.email)
+    # print("audit.auditor.email= ", audit.auditor.email)
     bcc = request.data.get('bcc')
-    if bcc:
+    bcclist = []
+    if bcc and audit.auditor.email:
+        bcclist = list(set([audit.auditor.email, request.user.email]))
         logger.info("Sending with bcc.")
-        email.bcc = list(set([audit.auditor.email, request.user.email]))
+        email.bcc = bcclist
     try:
-        n_sent = email.send()
+        n_sent = send_email_object(email)
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

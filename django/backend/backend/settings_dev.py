@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 
 import os
 import sys
+import backend.version as version
 
 RUNNING_DEVSERVER = len(sys.argv) > 1 and sys.argv[1] == 'runserver'
 
@@ -24,21 +25,16 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # http://domain.com/subpath/ this variable should be set to (note trailing
 # slash) SUBPATH = 'subpath/'
 SUBPATH = ''
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+VERSION = version.get_version_string()
+
 SECRET_KEY = '$$uo0799i74g3oci-wy4_31mmly-nhlzj+qwi@cgr!@ynqmv=('
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
 
 LOGIN_URL = '/' + SUBPATH + 'login/'
 LOGIN_REDIRECT_URL = '/' + SUBPATH
-
-# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -91,10 +87,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -103,8 +95,6 @@ DATABASES = {
 }
 
 LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale')]
-# Password validation
-# https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -113,10 +103,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/1.10/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
 # LANGUAGE_CODE = 'sv'
 
@@ -124,20 +110,14 @@ TIME_ZONE = 'UTC'
 # TIME_ZONE = 'Europe/Stockholm'
 
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.10/howto/static-files/
-
-# STATIC_URL = '/static/'
 STATIC_URL = '/' + SUBPATH + 'static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 STATIC_ROOT = os.path.join(BASE_DIR, "deploystatic")
 
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 REST_FRAMEWORK = {
@@ -148,9 +128,6 @@ REST_FRAMEWORK = {
 if RUNNING_DEVSERVER:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'localhost'
-EMAIL_PORT = 25
 
 LOGGING = {
     'version': 1,

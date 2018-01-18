@@ -1,19 +1,47 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
-from django.http.response import HttpResponse
-from backend.user_utilities import create_activation_link, send_activation_mail
+from django.core.mail import EmailMessage
+from django.template.response import TemplateResponse
 
+from backend.user_utilities import create_activation_link, send_activation_mail
+from backend.forms import EmailUsersForm
+from utils import send_email_object
+
+from .forms import CourseForm
 from .models import Course
 
 
 class CustomUserAdmin(UserAdmin):
-    actions = ['resend_activation', 'show_activation']
+    actions = ['resend_activation', 'show_activation', 'send_an_email']
 
     def resend_activation(self, request, queryset):
         for user in queryset:
-            send_activation_mail(user.username, user.email, 'user-activation-and-reset')
-            self.message_user(request, "Email sent for " + user.username)
+            try:
+                send_activation_mail(user.username, user.email, 'user-activation-and-reset')
+                self.message_user(request, "Email sent for " + user.username)
+            except Exception as e:
+                self.message_user(request, "Email to " + user.username + ' failed with ' + str(e))
+
+    def send_an_email(self, request, queryset):
+        form = None
+        if 'do_action' in request.POST:
+            form = EmailUsersForm(request.POST)
+            if form.is_valid():
+                form.send_email(request, queryset)
+                return None
+        else:
+            form = EmailUsersForm()
+
+        context = dict(
+            self.admin_site.each_context(request),
+            queryset=queryset,
+            action='send_an_email',
+            action_checkbox_name=admin.helpers.ACTION_CHECKBOX_NAME,
+            submit_text='Send',
+            form=form,
+        )
+        return TemplateResponse(request, 'generic_form.html', context)
 
     def show_activation(self, request, queryset):
         for user in queryset:
@@ -21,8 +49,13 @@ class CustomUserAdmin(UserAdmin):
 
     resend_activation.short_description = "Resend the activation email"
     show_activation.short_description = "Show activation link"
+    send_an_email.short_description = "Send an email"
 
 
-admin.site.register(Course)
+class CourseAdmin(admin.ModelAdmin):
+    form = CourseForm
+
+
+admin.site.register(Course, CourseAdmin)
 admin.site.unregister(User)
 admin.site.register(User, CustomUserAdmin)

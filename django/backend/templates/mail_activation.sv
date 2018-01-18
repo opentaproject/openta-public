@@ -1,4 +1,4 @@
-Välkommen till OpenTA för {{course_name}}!
+Välkommen till uppgiftssystemet för {{course_name}}!
 
 Ditt konto har användarnamn {{ username }} men är inte aktiverat än. Använd länken nedan för att aktivera och välja lösenord.
 {{ activate_url }}

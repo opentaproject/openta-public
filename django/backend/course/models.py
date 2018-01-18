@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 import datetime
 import pytz
+from django.conf import settings
 
 
 class CourseManager(models.Manager):
@@ -11,6 +12,13 @@ class CourseManager(models.Manager):
             return course.course_name
         else:
             return "OpenTA"
+
+    def course_email(self):
+        course = self.first()
+        if bool(course.email_reply_to.strip()):
+            return course.email_reply_to.strip()
+        else:
+            return course.email_host_user
 
     def course_url(self):
         course = self.first()
@@ -34,11 +42,16 @@ class CourseManager(models.Manager):
             return None
 
 
+# https://stackoverflow.com/questions/13590518/emailbackend-for-sending-email-through-multiple-smtp-in-django
+
+
 class Course(models.Model):
     course_name = models.CharField(max_length=255)
+    icon = models.ImageField(default=None, null=True, blank=True, upload_to='public')
+    motd = models.CharField(max_length=1024, default='', blank=True)
     course_long_name = models.CharField(max_length=255, default='')
     registration_password = models.CharField(
-        _('Registration password'), max_length=255, null=True, default=None, blank=True
+        verbose_name='Registration password', max_length=255, null=True, default=None, blank=True
     )
     registration_by_password = models.BooleanField(default=False, blank=True)
     deadline_time = models.TimeField(null=True, default=None, blank=True)
@@ -46,6 +59,19 @@ class Course(models.Model):
     registration_domains = models.CharField(max_length=255, blank=True, null=True, default=None)
     registration_by_domain = models.BooleanField(default=False, blank=True)
     languages = models.CharField(max_length=255, blank=True, null=True, default=None)
+    email_reply_to = models.CharField(
+        max_length=255, blank=True, null=True, default=settings.EMAIL_HOST
+    )
+    email_host = models.CharField(
+        max_length=255, blank=True, null=True, default=settings.EMAIL_HOST
+    )
+    email_host_user = models.CharField(
+        max_length=255, blank=True, null=True, default=settings.EMAIL_HOST_USER
+    )
+    email_host_password = models.CharField(
+        max_length=255, blank=True, null=True, default=settings.EMAIL_HOST_PASSWORD
+    )
+
     objects = CourseManager()
 
     def __str__(self):
