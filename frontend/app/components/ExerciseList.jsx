@@ -51,6 +51,7 @@ function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta
   var imageUploaded = exerciseState.getIn([exercise.get('exercise_key'), 'image_answers'], immutable.List([])).size > 0;
   var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
   var nameDict = exercise.get('translated_name');
+  var showcheck  = exerciseState.getIn([exercise.get('exercise_key'), 'tried_all'], false) 
 return (
       <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
         <a className={ meta.get('published', false) ? "" : "exercise-unpublished" } onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
@@ -76,7 +77,7 @@ return (
                   exerciseState.getIn([exercise.get('exercise_key'), 'tried_all'], false) &&
                   <span className="uk-badge uk-badge-notification uk-badge-warning">
                     <i className="uk-icon uk-icon-check"/></span> }
-                { ( meta.get('feedback',true) ) &&
+                { showcheck && ( meta.get('feedback',true) ) &&
                   exerciseState.getIn([exercise.get('exercise_key'), 'correct'], false) &&
                   <span className="uk-badge uk-badge-notification uk-badge-success">
                     <i className="uk-icon uk-icon-check"/></span> }

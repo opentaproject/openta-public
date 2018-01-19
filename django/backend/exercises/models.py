@@ -345,7 +345,7 @@ class Exercise(models.Model):
     def user_tried_all(self, user):
         tried_all = True
         questions = Question.objects.filter(exercise=self)
-        if questions is None:
+        if questions is None or len(questions) == 0:
             return False
         for question in questions:
             try:

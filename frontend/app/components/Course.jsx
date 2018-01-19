@@ -57,6 +57,7 @@ function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, f
   var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
   var nameDict = folder.getIn(['exercises', exercise, 'translated_name']);
 // false below disables checkmarks for course for ffm770
+  var showcheck = exerciseState.getIn([exercise, 'tried_all'], false)
 return (
   <li key={exercise} id={exercise} className="course-exercise-item ">
     <div className="uk-position-relative" data-uk-dropdown="{hoverDelayIdle: 0, delay: 300}">
@@ -67,8 +68,8 @@ return (
                 { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>{moment(meta.deadline_date).format('D MMM')}</Badge> }
                 { meta.image && <span className={"uk-badge uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></span> }
                 { meta.solution && <Badge className={"uk-badge-notification"}>lösning</Badge> }
-                { ! meta.feedback  && exerciseState.getIn([exercise, 'tried_all'], false) && <span className="uk-badge uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-check"/></span> }
-                {  meta.feedback  && exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success"><i className="uk-icon uk-icon-check"/></span> }
+                { showcheck && ! meta.feedback  && <span className="uk-badge uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-check"/></span> }
+                {  showcheck && meta.feedback  && exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success"><i className="uk-icon uk-icon-check"/></span> }
                 {exerciseState.getIn([exercise, 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
                 {exerciseState.getIn([exercise, 'audit', 'published'], false) && <Badge type={exerciseState.getIn([exercise, 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
   { !meta.published && <Badge type='error' title="Unpublished" className={"uk-badge-notification uk-float-right"}><T>Unpublished</T></Badge> }
