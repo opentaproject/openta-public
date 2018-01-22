@@ -173,12 +173,13 @@ function fetchExercise(exercise, empty) {//{{{
     const groups = state.getIn(['login','groups'], immutable.List([]));
     const json = state.getIn(['exerciseState', exercise, 'json']);
     //Only fetch XML if user is an Author and there is no XML already loaded
-    if(groups.includes('Author') && state.getIn(['exerciseState', exercise, 'xml']) === undefined) {
+    var canViewXML = groups.includes('Author') || groups.includes('View');
+    if( canViewXML && state.getIn(['exerciseState', exercise, 'xml']) === undefined) {
       dispatch(fetchExerciseXML(exercise));
       dispatch(fetchAssets(exercise));
     }
     //Do not fetch new JSON if user is Author and JSON has already been loaded (This ensures that unsaved changes will be rendered when returning to an exercise
-    if( !( json !== undefined && groups.includes('Author'))) {
+    if( !( json !== undefined &&  canViewXML)) {
       dispatch(updatePendingStateIn( ['exercises', exercise, 'loadingJSON'], true));
       return jsonfetch('/exercise/' + exercise + '/json')
       .then( res => {

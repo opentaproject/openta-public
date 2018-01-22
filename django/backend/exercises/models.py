@@ -325,6 +325,8 @@ class Exercise(models.Model):
             ("view_solution", "Can view exercise solution (even if not published)"),
             ("view_statistics", "Can view student progress statistics"),
             ("view_student_id", "Can view student identity"),
+            ("view_unpublished", "Can view unpublished exercises"),
+            ("view_xml", "Can view exercise XML"),
         )
 
     def __str__(self):
@@ -345,7 +347,7 @@ class Exercise(models.Model):
     def user_tried_all(self, user):
         tried_all = True
         questions = Question.objects.filter(exercise=self)
-        if questions is None or len(questions) == 0:
+        if not questions:
             return False
         for question in questions:
             try:

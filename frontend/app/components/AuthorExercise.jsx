@@ -96,6 +96,7 @@ class BaseAuthorExercise extends Component {
     var modified = exerciseState.get('modified');
     var loadingXML = pendingState.getIn(['exercises', key, 'loadingXML'],false);
     var gridClass = this.props.atMenu(['activeExercise', 'assets']) ? '' : 'admin';
+    var canViewXML = this.props.author || this.props.view;
     var authorDOM = (
       <div className={"uk-grid admin"}>
         { !this.props.underMenu(['activeExercise', 'audit']) &&
@@ -111,7 +112,7 @@ class BaseAuthorExercise extends Component {
           !this.props.atMenu(['activeExercise', 'assets']) &&
           <div key="xml" className="xmleditor">
           { loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && <Spinner/> }
-          { !loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && this.props.author && <XMLEditor xmlCode={this.state.xml} onChange={ (xml) => this.xmlUpdate(xml, key)}/> }
+          { !loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) &&  canViewXML && <XMLEditor xmlCode={this.state.xml} onChange={ (xml) => this.xmlUpdate(xml, key)}/> }
           { xmlError && this.props.atMenu(['activeExercise','xmlEditorSplit']) && <Alert type="error">{xmlError}</Alert>}
           { this.props.atMenu(['activeExercise','options']) && this.props.admin &&
             <div className="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-top">
@@ -123,7 +124,7 @@ class BaseAuthorExercise extends Component {
           </div>
         }
         { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }
-        { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && this.props.author &&
+        { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) &&  canViewXML && 
           <div className="uk-width-1-1 uk-padding-remove">
               <div className="uk-flex">
                   <div style={{flex: '1'}}>
@@ -145,7 +146,7 @@ class BaseAuthorExercise extends Component {
       }
       { this.props.underMenu(['activeExercise','audit','myaudits']) && this.props.admin && <Audit/> }
       { this.props.underMenu(['activeExercise','audit','overview']) && this.props.admin && <AuditOverview/> }
-        { this.props.atMenu(['activeExercise','assets']) && this.props.author &&
+        { this.props.atMenu(['activeExercise','assets']) && canViewXML &&
           <div className="uk-margin-top">
               <Assets/>
           </div>

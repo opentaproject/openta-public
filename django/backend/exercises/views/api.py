@@ -171,7 +171,9 @@ def exercise_tree(request):
 def other_exercises_from_folder(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     other = []
-    if request.user.has_perm('exercises.edit_exercise'):
+    if request.user.has_perm('exercises.edit_exercise') or request.user.has_perm(
+        'exercises.view_unpublished'
+    ):
         other = Exercise.objects.filter(folder=dbexercise.folder).prefetch_related('meta')
     else:
         other = Exercise.objects.filter(
@@ -222,7 +224,7 @@ def exercise_json(request, exercise):
         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-@permission_required('exercises.edit_exercise')
+@permission_required('exercises.view_xml')
 @never_cache
 @api_view(['GET'])
 def exercise_xml(request, exercise):

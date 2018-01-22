@@ -17,4 +17,4 @@ django/backend/static
 django/backend/logfile
 django/backend/db.sqlite3
 docs_src/_build_html
-exercises/
+/exercises/

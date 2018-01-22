@@ -1,7 +1,7 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import {
-  fetchExercises, 
+  fetchExercises,
   fetchExerciseXML,
   fetchExerciseJSON,
   fetchExercise,
@@ -64,7 +64,9 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
     </div>
 );
 
-const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise, exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onStatisticsClick, onSave, onReset, onHome, pendingState, menuPath}) => {
+const BaseLoginInfo = ({ username, groups, course, admin, author, viewer, activeExercise,
+      exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onStatisticsClick, onSave,
+      onReset, onHome, pendingState, menuPath}) => {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
@@ -86,6 +88,7 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, activeExercise
     return (pendingState.getIn(item.path, false) && (<span key={item.path}>{item.name}<Spinner icon="uk-icon-bar-chart" size="" className="uk-margin-small-left"/></span>))
   });
 var studentViewDOM = author ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open("./hijack/username/student" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
+var canViewXML = author || viewer || admin
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
   <div className="uk-container uk-container-center">
@@ -122,7 +125,7 @@ return (
     </li>
       <li >
         <a href={"mailto:" + course.toLowerCase() + "@openta.se"} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}><span className="uk-text-primary">Problem?</span></a>
-      </li> 
+      </li>
       <li >
       <a title="Logga ut" href={SUBPATH + "/logout/?next=" + SUBPATH + "/login"}><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
       </li>
@@ -130,7 +133,7 @@ return (
   </div>
   <div className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap" style={{height: 'auto'}}>
   { renderPending }
-  { admin && <Menu/>}
+  { canViewXML && <Menu/> }
 </div>
   </div>
   </nav>
@@ -187,7 +190,8 @@ const mapStateToProps = state => {
   groups: state.getIn(['login', 'groups'], immutable.List([])),
   course: state.getIn(['login', 'course'], 'OpenTA'),
   admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
-  author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
+  viewer: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
+  author: state.getIn(['login', 'groups'], immutable.List([])).includes('Author'),
   activeExercise: state.get('activeExercise'),
   exerciseState: activeExerciseState,
   activeAdminTool: state.get('activeAdminTool'),

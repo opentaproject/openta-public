@@ -35,7 +35,8 @@ var difficulties = {
   'none': ''
 };
 
-function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, folder, foldername, showStatistics, statistics, activityRange, author) {
+function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, folder, foldername,
+    showStatistics, statistics, activityRange, author) {
   var meta = metaImmutable.toJS();
   var deadlineClass = "uk-badge-primary";
   var legend = 'Obligatorisk';
@@ -58,8 +59,8 @@ function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, f
   var imageUploaded = exerciseState.getIn([exercise, 'image_answers'], immutable.List([])).size > 0;
   var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
   var nameDict = folder.getIn(['exercises', exercise, 'translated_name']);
+  var showCheck = exerciseState.getIn([exercise, 'tried_all'], false)
 // false below disables checkmarks for course for ffm770
-  var showcheck = exerciseState.getIn([exercise, 'tried_all'], false)
 return (
   <li key={exercise} id={exercise} className="course-exercise-item ">
     <div className="uk-position-relative" data-uk-dropdown="{hoverDelayIdle: 0, delay: 300}">
@@ -70,8 +71,8 @@ return (
                 { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>{moment(meta.deadline_date).format('D MMM')}</Badge> }
                 { meta.image && <span className={"uk-badge uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></span> }
                 { meta.solution && <Badge className={"uk-badge-notification"}>lösning</Badge> }
-                { showcheck && ! meta.feedback  && <span className="uk-badge uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-check"/></span> }
-                {  showcheck && meta.feedback  && exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success"><i className="uk-icon uk-icon-check"/></span> }
+                { showCheck && ! meta.feedback  && <span className="uk-badge uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-check"/></span> }
+                { showCheck && meta.feedback  && exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success"><i className="uk-icon uk-icon-check"/></span> }
                 {exerciseState.getIn([exercise, 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
                 {exerciseState.getIn([exercise, 'audit', 'published'], false) && <Badge type={exerciseState.getIn([exercise, 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
   { !meta.published && <Badge type='error' title="Unpublished" className={"uk-badge-notification uk-float-right"}><T>Unpublished</T></Badge> }
@@ -104,7 +105,7 @@ return (
       </div>
       }
     </a>
-      { author && 
+      { author &&
     <div className="uk-dropdown uk-dropdown-small uk-margin-remove" style={{minWidth: 0}}>
       <ExerciseHoverMenu exerciseKey={exercise}/>
     </div>
@@ -114,7 +115,9 @@ return (
 }
 
 
-const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState, currentpath, onExerciseClick, showStatistics, statistics, activityRange, onFolderClick, student, onExerciseAdd, pendingExerciseAdd, author }) => {
+const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState, currentpath,
+    onExerciseClick, showStatistics, statistics, activityRange, onFolderClick,
+    student, onExerciseAdd, pendingExerciseAdd, author }) => {
   function flatten(arr) {
     return arr.reduce( (flat, toFlat) => flat.concat( Array.isArray(toFlat) ? flatten(toFlat) : toFlat), [])
   }
@@ -138,20 +141,21 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
     if(folder.has('exercises')) {
       exercises = folder.get('order').map( exercise => {
         var meta = folder.getIn(['exercises', exercise, 'meta']);
-        return generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername, showStatistics, statistics, activityRange, author);
+        return generateItem(onExerciseClick, exercise, exerciseState, meta, folder, foldername,
+          showStatistics, statistics, activityRange, author);
       })
     }
     exercises = exercises.push(( <AddExercise key="addExercise" path={folder.get('path')}/>));
     if(folder.has('folders'))
-      children = folder.get('folders', immutable.Map({})).keySeq().sort().map ( childfolder => 
-                                                          ({
-                                                            name: childfolder, 
-                                                            folder: folder.getIn(['folders', childfolder, 'content']), 
-                                                            content: parseFolder( folder.getIn(['folders', childfolder, 'content']), childfolder, level + 1), 
-                                                            path: folder.getIn(['folders', childfolder, 'content', 'path']),
-                                                            folded: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$folded$'), true),
-                                                            pending: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$pending$'), false)
-                                                          }) );
+      children = folder.get('folders', immutable.Map({})).keySeq().sort().map ( childfolder =>
+              ({
+                name: childfolder,
+                folder: folder.getIn(['folders', childfolder, 'content']),
+                content: parseFolder( folder.getIn(['folders', childfolder, 'content']), childfolder, level + 1),
+                path: folder.getIn(['folders', childfolder, 'content', 'path']),
+                folded: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$folded$'), true),
+                pending: exerciseTreeUI.getIn(folder.getIn(['folders', childfolder, 'content', 'path']).push('$pending$'), false)
+              }) );
     var levelClass = "";
     switch(level) {
       case 1:
@@ -171,7 +175,7 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
         var folderName = folderPrename[folderPrename.length - 1]
         var folderClass = child.folded ? 'uk-icon-folder' : 'uk-icon-folder-open';
         var summaryReq = countFinished(child.folder, child.name, 'required');
-        if(summaryReq.total > 0) 
+        if(summaryReq.total > 0)
           var percentReq = 100 * summaryReq.correct / summaryReq.total;
         var summaryBonus = countFinished(child.folder, child.name, 'bonus');
         if(summaryBonus.total > 0)
@@ -205,14 +209,14 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
                   </div>
                   }
             </a>
-              { author && 
+              { author &&
             <div className="uk-dropdown uk-dropdown-small uk-margin-small" style={{minWidth: 0, paddingLeft: '5px', paddingRight:'5px', paddingTop: 0, paddingBottom: 0}}>
                 <FolderHoverMenu folderPath={child.path}/>
             </div>
               }
             </div>
             </dt>)];
-        if(!child.folded) 
+        if(!child.folded)
           rendered.push((<dd className="uk-margin-left" key={"dd"+child.name}> {child.content} </dd>));
         return rendered;
       }

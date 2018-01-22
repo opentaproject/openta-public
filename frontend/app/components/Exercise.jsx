@@ -159,11 +159,16 @@ class BaseExercise extends Component {
   renderSolution = (itemjson, json, meta, exerciseKey) => {
     var children = itemjson.get('$children$', immutable.List([]))
                     .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
+    var canViewXML =  this.props.author || this.props.view
     return (
       <div className="uk-margin-bottom uk-text-center" key={"solution"}>
       { meta.get('solution', false) && children }
 
-      {!meta.get('solution', false) && this.props.view && <div className="uk-block uk-block-muted uk-padding-remove uk-text-warning">Dold för studenter. {this.props.author && <span>Visa för studenter genom att klicka i "solution" i inställningarna.</span>}</div> }
+      {!meta.get('solution', false) && this.props.view &&
+        <div className="uk-block uk-block-muted uk-padding-remove uk-text-warning">
+          Dold för studenter.
+          { canViewXML && <span>Visa för studenter genom att klicka i "solution" i inställningarna.</span>}
+        </div> }
       {!meta.get('solution', false) && this.props.view && <div className="uk-block uk-block-muted uk-padding-remove">{children}</div>}
       </div>
     );
@@ -189,6 +194,7 @@ class BaseExercise extends Component {
     var bonus = meta.get('bonus', false);
     var translations = this.filterLanguage(itemjson.get('$children$', immutable.List([])));
     var name = itemjson.get('$');
+    var canViewXML =  this.props.author || this.props.view
     if(translations.size > 0)
       name = translations.first().get('$');
 
@@ -202,7 +208,7 @@ class BaseExercise extends Component {
       </div>}
       { deadlineDate && obligatorisk && <div className="uk-badge uk-margin-small-left">Obligatorisk</div>}
       { deadlineDate && bonus && <div className="uk-badge uk-badge-warning uk-margin-small-left">Bonus</div>}
-      { this.props.author && !meta.get('published') && <div className="uk-badge uk-badge-danger uk-margin-small-left"><T>Unpublished</T></div> }
+      { canViewXML && !meta.get('published') && <div className="uk-badge uk-badge-danger uk-margin-small-left"><T>Unpublished</T></div> }
           </h1>
           </div>
     );
@@ -269,14 +275,16 @@ class BaseExercise extends Component {
     if(meta === null)meta = immutable.Map({});
     var items = json.getIn(['exercise','$children$'], immutable.List([]))
                     .map( child => this.dispatchElement(child, json, meta, key) ).toSeq();
+    var canViewXML =  this.props.author || this.props.view
+    var canUpload = ( ! this.props.view ) || this.props.admin || this.props.author
     var filenameDOM = (
       <span className="uk-text-bold uk-text-primary">
         Exercise file path: {filename}
       </span>);
     var exerciseDOM = (
         <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
-        { this.props.author && filenameDOM }
-        { meta.get('image', false) && <div className="uk-float-right uk-margin-small-right"><ExerciseImageUpload/></div> }
+        { canViewXML && filenameDOM }
+        { canUpload &&  meta.get('image', false) && <div className="uk-float-right uk-margin-small-right"><ExerciseImageUpload/></div> }
           {items}
         </article>
     );

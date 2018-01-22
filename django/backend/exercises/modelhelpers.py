@@ -234,7 +234,14 @@ def exercise_folder_structure(manager, user):
 
     folders = recursive_dict()
     exercises = []
-    if user.has_perm('exercises.edit_exercise'):
+    groups = User.objects.get(username=user).groups.all()
+    can_see_unpublished = (
+        groups.filter(name='Admin').exists()
+        or groups.filter(name='Author').exists()
+        or user.has_perm('exercises.view_unpublished')
+    )
+
+    if can_see_unpublished:
         exercises = manager.prefetch_related(
             Prefetch(
                 'question__answer',

@@ -1,14 +1,14 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import {
-  fetchExercises, 
+  fetchExercises,
   fetchExerciseXML,
   fetchExerciseTree,
   fetchExercise,
   fetchExerciseRemoteState,
 } from '../fetchers.js';
 
-import { 
+import {
   updateActiveExercise,
   updateMenuPathArray,
 } from '../actions.js';
@@ -34,11 +34,11 @@ function listClass(item, active) {
   else return "";
 }
 
-function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta, showStatistics) {
+function generateItem(onClickFunc,  exercise, activeExercise, exerciseState, meta, showStatistics) {
   var onExerciseClick = (key, loaded) => {
     UIkit.offcanvas.hide();
     onClickFunc(key, loaded);
-  }; 
+  };
   var deadlineClass = "uk-badge-primary";
   var legend = 'Obligatorisk';
   if( meta.get('bonus', false) ) {
@@ -52,7 +52,7 @@ function generateItem(onClickFunc, exercise, activeExercise, exerciseState, meta
   var imageUploaded = exerciseState.getIn([exercise.get('exercise_key'), 'image_answers'], immutable.List([])).size > 0;
   var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
   var nameDict = exercise.get('translated_name');
-  var showcheck  = exerciseState.getIn([exercise.get('exercise_key'), 'tried_all'], false) 
+  var showcheck  = exerciseState.getIn([exercise.get('exercise_key'), 'tried_all'], false)
 return (
       <li className={exercise.get('exercise_key') === activeExercise ? "uk-active" : ""} key={exercise.get('exercise_key')}>
         <a className={ meta.get('published', false) ? "" : "exercise-unpublished" } onClick={() => onExerciseClick(exercise.get('exercise_key'), exerciseState.getIn([exercise.get('exercise_key'),'json'], immutable.Map({})).isEmpty())}>
@@ -115,15 +115,20 @@ return (
 );
 }
 
-const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick, onBack, pendingState, showStatistics, showOnCanvas}) => (
+const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick,
+    onBack, pendingState, showStatistics, showOnCanvas }) => (
   <div className="uk-text-center " id="exercises-menu">
     <div id="offcanvas-exercise-list" className="uk-offcanvas">
       <div className="uk-offcanvas-bar">
         <ul className="uk-nav uk-nav-offcanvas">
           <li className="uk-nav-header" key="header">
-            <a onClick={(ev) => { UIkit.offcanvas.hide(); onBack() } }><i className="uk-icon uk-icon-arrow-left uk-margin-small-right"></i><span className="uk-text-small">{folder.split('.')[0]}</span></a> 
+            <a onClick={(ev) => { UIkit.offcanvas.hide(); onBack() } }>
+              <i className="uk-icon uk-icon-arrow-left uk-margin-small-right"></i>
+              <span className="uk-text-small">{folder.split('.')[0]}</span>
+            </a>
           </li>
-          { exerciselist.map( exercise => generateItem(onExerciseClick, exercise, activeExercise, exerciseState, exercise.get('meta') || immutable.Map({}), showStatistics)) }
+          { exerciselist.map( exercise =>
+              generateItem(onExerciseClick, exercise, activeExercise, exerciseState, exercise.get('meta') || immutable.Map({}), showStatistics)) }
         </ul>
       </div>
     </div>

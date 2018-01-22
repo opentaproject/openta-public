@@ -21,13 +21,13 @@ var menuTree = immutable.fromJS({
     exercises: {
       name: 'Exercises',
       key: 'exercises',
-      reqGroup: [],
+      reqGroup: ['Admin','View','Author'],
       menuItems: {
         reload: {
           name: 'Reload exercises',
           key: 'reload',
           onLoad: reloadExercises(),
-          reqGroup: 'Author',
+          reqGroup: ['Admin'],
         },
         activity: {
           name: 'Activity',
@@ -38,25 +38,25 @@ var menuTree = immutable.fromJS({
               name: 'hour',
               key: 'hour',
               onLoad: setActivityRange('1h'),
-              reqGroup: 'View',
+              reqGroup: ['View'],
             },
             day: {
               name: 'day',
               key: 'day',
               onLoad: setActivityRange('24h'),
-              reqGroup: 'View',
+              reqGroup: ['View'],
             },
             week: {
               name: 'week',
               key: 'week',
               onLoad: setActivityRange('1w'),
-              reqGroup: 'View',
+              reqGroup: ['View'],
             },
             all: {
               name: 'all',
               key: 'all',
               onLoad: setActivityRange('all'),
-              reqGroup: 'View',
+              reqGroup: ['View'],
             },
           },
         },
@@ -109,52 +109,52 @@ var menuTree = immutable.fromJS({
         student: {
           name: 'Exercise',
           key: 'student',
-          reqGroup: 'Author'
+          reqGroup: ['Author','View']
         },
         xmlEditor: {
           name: 'XML & Assets',
           key: 'xmlEditor',
-          reqGroup: 'Author'
+          reqGroup: ['Author']
         },
         xmlEditorSplit: {
           name: 'Live edit',
           key: 'xmlEditorSplit',
-          reqGroup: 'Author'
+          reqGroup: ['View','Author']
         },
         options: {
           name: 'Options',
           key: 'options',
-          reqGroup: 'Admin'
+          reqGroup: ['Admin']
         },
         statistics: {
           name: 'Statistics',
           key: 'statistics',
-          reqGroup: 'View',
+          reqGroup: ['View'],
           onLoad: fetchExerciseStatistics(),
         },
         recent: {
           name: 'Recent',
           key: 'recent',
-          reqGroup: 'View',
+          reqGroup: ['View'],
           onLoad: fetchExerciseRecentResults(),
         },
         audit: {
           name: 'Audit',
           key: 'audit',
-          reqGroup: 'Admin',
+          reqGroup: ['Admin'],
           onLoad: fetchCurrentAuditsExercise(),
             rememberChoice: true,
             menuItems: {
                 overview: {
                     name: 'Overview',
                     key: 'overview',
-                    reqGroup: 'Admin'
+                    reqGroup: ['Admin']
                 },
                 myaudits: {
                     name: 'My audits',
                     key: 'myaudits',
                     onLoad: setActiveAudit(""),
-                    reqGroup: 'Admin'
+                    reqGroup: ['Admin']
                 }
             }
         }

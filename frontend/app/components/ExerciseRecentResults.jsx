@@ -38,7 +38,7 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
   return (
     <div className="uk-panel uk-panel-box uk-margin-top">
         <h3 className="uk-panel-title">
-          Recent answers
+          Recent answers by students
         </h3>
         <div className="uk-scrollable-box uk-margin-bottom" style={{height:'70vh'}}>
           <table className="uk-table uk-table-condensed">
