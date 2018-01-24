@@ -17,7 +17,9 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.template.response import TemplateResponse
+from django.template import loader
 from django.utils.translation import ugettext as _
+from django.utils.translation import get_language
 from django.views.generic.edit import CreateView, FormView
 
 from rest_framework.decorators import api_view
@@ -374,13 +376,23 @@ def password_reset_done(request):
     return redirect(reverse('login'))
 
 
-@ratelimit(key='ip', rate='3/1m')
+@ratelimit(key='ip', rate='5/1h')
 def password_reset(request):
     """Password reset view asking for an email."""
     from_email = Course.objects.course_email()
-
+    template_name = 'registration/password_reset_subject.txt'
+    subject = loader.render_to_string(template_name)
     if getattr(request, 'limited', False):
-        return render(request, 'rate_limit.html', context={'rate': "3 " + _('times per minute.')})
+        message = (
+            "If you are not receiving an reset link by email, check your"
+            "spam filter or junk mail. The email was sent from [{from_email}] with the subject [{subject}]"
+        )
+        message_format = message.format(from_email=from_email, subject=subject)
+        return render(
+            request,
+            'rate_limit.html',
+            context=dict(rate="5 " + _('times per hour.'), extra_message=message_format),
+        )
 
     ret = auth_views.password_reset(
         request, from_email=from_email, password_reset_form=CustomPasswordResetForm

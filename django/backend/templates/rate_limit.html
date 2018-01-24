@@ -10,6 +10,11 @@
     {% trans "You can only access this page " %}
     {{ rate }}
   </div>
+  {% if extra_message %}
+  <div class="uk-alert uk-text-large">
+    {{ extra_message }}
+  </div>
+  {% endif %}
 </div>
 </div>
 

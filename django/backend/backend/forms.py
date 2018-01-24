@@ -54,7 +54,7 @@ class UserCreateFormDomain(ModelForm):
         if User.objects.filter(username=username).exists():
             message = (
                 "{} {} already exists! \n If it is not you, "
-                "contact admin to register another username on your email email"
+                "contact admin to register another username on your email."
             )
             formatted = message.format(_("A user with username"), username)
             raise forms.ValidationError(formatted)
@@ -127,8 +127,10 @@ class EmailUsersForm(forms.Form):
 class CustomPasswordResetForm(PasswordResetForm):
     def clean_email(self):
         email = self.cleaned_data['email']
-        if not User.objects.filter(email__iexact=email, is_active=True).exists():
-            raise ValidationError("Email not registered (or the account is not activated).")
+        if not User.objects.filter(email__iexact=email).exists():
+            raise ValidationError("Email is not registered")
+        if User.objects.filter(email__iexact=email, is_active=False).exists():
+            raise ValidationError("Account not activated, please look for your activation mail.")
         return email
 
     def send_mail(
