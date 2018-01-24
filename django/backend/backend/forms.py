@@ -128,7 +128,7 @@ class CustomPasswordResetForm(PasswordResetForm):
     def clean_email(self):
         email = self.cleaned_data['email']
         if not User.objects.filter(email__iexact=email, is_active=True).exists():
-            raise ValidationError("That email is not registered.")
+            raise ValidationError("Email not registered (or the account is not activated).")
         return email
 
     def send_email(

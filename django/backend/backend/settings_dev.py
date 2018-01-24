@@ -128,6 +128,14 @@ REST_FRAMEWORK = {
 if RUNNING_DEVSERVER:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Use this for local smtp
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'localhost'
+# EMAIL_PORT = 25
+
+# Or this for custom smtp config through admin interface (per course)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# USE_CUSTOM_SMTP_EMAIL = True
 
 LOGGING = {
     'version': 1,
