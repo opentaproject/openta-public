@@ -7,6 +7,7 @@ from django.forms import ModelForm
 from django.template import loader
 from django.utils.translation import ugettext as _
 from django.utils.translation import ugettext_lazy
+from django.core.exceptions import ValidationError
 
 from backend.user_utilities import send_activation_mail
 from course.models import Course
@@ -124,6 +125,12 @@ class EmailUsersForm(forms.Form):
 
 
 class CustomPasswordResetForm(PasswordResetForm):
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not User.objects.filter(email__iexact=email, is_active=True).exists():
+            raise ValidationError("That email is not registered.")
+        return email
+
     def send_email(
         self,
         subject_template_name,
