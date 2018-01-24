@@ -131,7 +131,7 @@ class CustomPasswordResetForm(PasswordResetForm):
             raise ValidationError("Email not registered (or the account is not activated).")
         return email
 
-    def send_email(
+    def send_mail(
         self,
         subject_template_name,
         email_template_name,
