@@ -174,7 +174,10 @@ def login(request):
     """
     course = Course.objects.first()
     course_data = CourseSerializer(course).data
-    extra = {'course': course_data, 'openta_version': settings.VERSION}
+    extra = {
+        'course': course_data,
+        'openta_version': settings.VERSION if hasattr(settings, 'VERSION') else "",
+    }
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
         return auth_views.login(request, extra_context=extra)
     else:
