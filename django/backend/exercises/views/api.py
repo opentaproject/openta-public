@@ -129,6 +129,10 @@ def exercise_list(request):
             except AuditExercise.DoesNotExist:
                 pass
             allcorrect = True
+            questions = exercise.question.all()
+            tried_all = True
+            if not questions:
+                tried_all = False
             for question in exercise.question.all():
                 try:
                     if hasattr(question, 'useranswers') and question.useranswers:
@@ -143,10 +147,12 @@ def exercise_list(request):
                             data['question'][question.question_key]['response']['correct'] = None
                     else:
                         allcorrect = False
+                        tried_all = False
                 except ObjectDoesNotExist:
                     allcorrect = False
             if exercise.meta.feedback:
                 data['correct'] = allcorrect
+            data['tried_all'] = tried_all
             responselist[exercise.exercise_key] = data
     return Response(responselist)
 
@@ -352,7 +358,7 @@ def answer_image_thumb_view(request, image_id):
                 '/' + settings.SUBPATH + image_answer.image_thumb.url,
                 os.path.basename(image_answer.image.name),
                 content_type="image/jpeg",
-                dev_path='.' + image_answer.image_thumb.url,
+                dev_path='./media/' + image_answer.image_thumb.url,
             )
         else:
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
