@@ -37,7 +37,7 @@ class BaseFolderHoverMenu extends Component {
       e.preventDefault();
       var id = this.props.folderPath.join('/').replace(/\W/g,'_');
       UIkit.modal("#rename-folder-modal" + id).hide();
-      this.props.onFolderRename(this.props.folderPath, e.target.value);
+      this.props.onFolderRename(this.props.folderPath, e.target.value, this.props.coursePk);
     }
   }
 
@@ -66,12 +66,12 @@ class BaseFolderHoverMenu extends Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onFolderRename: (path, newName) => {
+    onFolderRename: (path, newName, coursePk) => {
       var fullPath = path.push('$pending$')
       var updated = immutable.Map({}).setIn(fullPath, true)
       dispatch(updateExerciseTreeUI(updated))
       dispatch(fetchRenameFolder(path, newName))
-                             .then(() => dispatch(fetchExerciseTree()))
+                             .then(() => dispatch(fetchExerciseTree(coursePk)))
                              .then( () => {
                                var updated = immutable.Map({}).setIn(fullPath, false);
                                return dispatch(updateExerciseTreeUI(updated));
@@ -89,7 +89,8 @@ const mapStateToProps = (state, ownProps) => {
   const exerciseKey = ownProps.exerciseKey;
   return {
     exerciseTree: state.getIn(['exerciseTree']),
-    author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author')
+    author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
+    coursePk: state.getIn(['login', 'course_pk'])
   };
 }
 

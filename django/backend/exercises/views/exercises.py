@@ -4,6 +4,7 @@ from rest_framework import status
 from django.contrib.auth.decorators import permission_required
 from exercises.models import Exercise, ExerciseMeta
 from exercises.parsing import list_history
+from course.models import Course
 import exercises.parsing as parsing
 import os
 import logging
@@ -14,12 +15,18 @@ logger = logging.getLogger(__name__)
 @api_view(['POST'])
 @permission_required('exercises.edit_exercise')
 def exercises_add(request):
+    try:
+        course_pk = request.data.get('course_pk')
+        dbcourse = Course.objects.get(pk=course_pk)
+    except Course.DoesNotExist:
+        logger.error('Requested course does not exist pk: %d', course_pk)
+        return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     path = os.path.join(*request.data.get('path').split('/'))
     name = request.data.get('name')
     res = parsing.exercise_add(path, name)
     if 'error' in res:
         return Response(res, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    msg = Exercise.objects.add_exercise('/' + res['path'])
+    msg = Exercise.objects.add_exercise('/' + res['path'], dbcourse)
     logger.info('Added exercise at ' + res['path'])
     logger.info(msg)
     return Response({'success': 'Added exercise', 'messages': msg})

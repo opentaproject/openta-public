@@ -27,7 +27,7 @@ class BaseAddExercise extends Component {
 
     handleAdd = () => {
         if(this.state.name.trim() !== '')
-            this.props.onExerciseAdd(this.props.path, this.state.name)
+            this.props.onExerciseAdd(this.props.path, this.state.name, this.props.coursePk)
     }
     handleKeypress = (e) => {
         if(e.key == 'Enter'){
@@ -73,10 +73,10 @@ class BaseAddExercise extends Component {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onExerciseAdd: (path, name) => {
+        onExerciseAdd: (path, name, coursePk) => {
             dispatch(updatePendingStateIn(['course', 'addExercise'], true))
-            dispatch(fetchAddExercise(path, name))
-                .then(() => dispatch(fetchExerciseTree()))
+            dispatch(fetchAddExercise(path, name, coursePk))
+                .then(() => dispatch(fetchExerciseTree(coursePk)))
                 .then( () => dispatch(updatePendingStateIn(['course', 'addExercise'], false)))
                 .catch( err => {
                     console.dir(err);
@@ -89,8 +89,9 @@ const mapDispatchToProps = dispatch => {
 const mapStateToProps = (state) => {
     return {
         pendingExerciseAdd: state.getIn(['pendingState', 'course', 'addExercise']),
-      author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
-      lang: state.get('lang')
+        author: state.getIn(['login', 'groups'], immutable.List([])).includes('Author'),
+        lang: state.get('lang'),
+        coursePk: state.getIn(['login', 'course_pk'])
     };
 }
 

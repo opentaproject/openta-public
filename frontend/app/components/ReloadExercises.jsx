@@ -12,7 +12,7 @@ import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 
-const BaseReloadExercises = ({ messages, pendingReload, onPerformReload }) => {
+const BaseReloadExercises = ({ messages, pendingReload, onPerformReload, coursePk }) => {
   var classDispatch = {
     error: 'uk-text-danger',
     info: 'uk-text-primary',
@@ -33,7 +33,7 @@ const BaseReloadExercises = ({ messages, pendingReload, onPerformReload }) => {
     </ul>
     }
     { !pendingReload &&
-    <a className="uk-button" onClick={onPerformReload}>Perform reload</a>
+    <a className="uk-button" onClick={() => onPerformReload(coursePk)}>Perform reload</a>
     }
     </div>
   );
@@ -42,10 +42,11 @@ const BaseReloadExercises = ({ messages, pendingReload, onPerformReload }) => {
 const mapStateToProps = state => ({
   messages: state.get('exercisesReloadMessages', immutable.List([])),
   pendingReload: state.getIn(['pendingState', 'exercisesReload'], false),
+  coursePk: state.getIn(['login', 'course_pk'])
 });
 
 const mapDispatchToProps = dispatch => ({
-    onPerformReload: () => dispatch(reloadExercises(true))
+    onPerformReload: (coursePk) => dispatch(reloadExercises(true, coursePk))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseReloadExercises)

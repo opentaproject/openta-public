@@ -33,7 +33,7 @@ class BaseExerciseHoverMenu extends Component {
         }
     }
 
-    renderFolder = (exercise, folderName, content) => {
+    renderFolder = (exercise, folderName, content, coursePk) => {
         var subfolders = []
         if (content.has("folders")) {
           subfolders = content
@@ -57,7 +57,7 @@ class BaseExerciseHoverMenu extends Component {
             <li key={folderName}>
               <a onClick={() => {
                   UIkit.modal("#move-modal" + this.props.exerciseKey).hide();
-                  this.props.onExerciseMove(exercise, content.get('path').join('/'));
+                  this.props.onExerciseMove(exercise, content.get('path').join('/'), coursePk);
                 }} className="uk-modal-close">
                     {folderNameRender}
                 </a>
@@ -72,7 +72,7 @@ class BaseExerciseHoverMenu extends Component {
         const onExerciseMove = this.props.onExerciseMove;
         const pendingExerciseMove = this.props.pendingExerciseMove;
         const exercise = this.props.exerciseKey;
-        const allFolders = this.renderFolder(exercise, "", this.props.exerciseTree);
+        const allFolders = this.renderFolder(exercise, "", this.props.exerciseTree, this.props.coursePk);
 
         if(!this.props.author)
             return (<span/>);
@@ -95,10 +95,10 @@ class BaseExerciseHoverMenu extends Component {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onExerciseMove: (exercise, path) => {
+        onExerciseMove: (exercise, path, coursePk) => {
             dispatch(updatePendingStateIn(['course', 'move'], true))
             dispatch(fetchMoveExercise(exercise, path))
-                .then(() => dispatch(fetchExerciseTree()))
+                .then(() => dispatch(fetchExerciseTree(coursePk)))
                 .then( () => dispatch(updatePendingStateIn(['course', 'move'], false)))
                 .catch( err => {
                     console.dir(err);
@@ -113,7 +113,8 @@ const mapStateToProps = (state, ownProps) => {
     return {
         exerciseTree: state.getIn(['exerciseTree']),
         pendingExerciseMove: state.getIn(['pendingState', 'course', 'addExercise']),
-        author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author')
+        author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
+        coursePk: state.getIn(['login', 'course_pk'])
     };
 }
 

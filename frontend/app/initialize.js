@@ -30,8 +30,8 @@ if( getcookie('lang') !== undefined ){
           store.dispatch(updateLanguage( cookielang ) )
       }
    }
-store.dispatch( fetchExercises() );
-store.dispatch( fetchExerciseTree() );
+store.dispatch( fetchExercises(1) );
+store.dispatch( fetchExerciseTree(1) );
 store.dispatch( fetchLoginStatus() );
 store.dispatch( fetchCourse() );
 store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));

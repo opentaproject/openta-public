@@ -68,7 +68,8 @@ function fetchLoginStatus() {
                 username: json.username,
                 user_pk: json.user_pk,
                 groups: json.groups,
-                course: json.course
+                course: json.course,
+                course_pk: json.course_pk
             }))
             .then(data => {
                 dispatch(updateLoginStatus(data));
@@ -91,9 +92,9 @@ function fetchLoginStatus() {
     };
 }
 
-function fetchExercises() {//{{{
+function fetchExercises(coursePk) {//{{{
   return dispatch => {
-    return jsonfetch('/exercises/')
+    return jsonfetch('/course/' + coursePk + '/exercises/')
       .then(response => response.json())
       .then(json => {
          dispatch(updatePendingStateIn( ['course', 'loadingExercises'], false));
@@ -104,9 +105,9 @@ function fetchExercises() {//{{{
   };
 }//}}}
 
-function fetchExerciseTree() {//{{{
+function fetchExerciseTree(coursePk) {//{{{
   return dispatch => {
-    return jsonfetch('/exercises/tree/')
+    return jsonfetch('/course/' + coursePk + '/exercises/tree/')
       .then(response => response.json())
       .then(json => dispatch(setExerciseTree(json)))
       .catch( err => console.log(err) );
@@ -427,7 +428,7 @@ function fetchExerciseStatistics() {
   }
 }
 
-function reloadExercises(iAmSure = false) {
+function reloadExercises(iAmSure = false, coursePk) {
     return dispatch => {
         var payload = {
             i_am_sure: iAmSure
@@ -451,8 +452,8 @@ function reloadExercises(iAmSure = false) {
             })
             .then(json => dispatch(updateExercisesReloadMessages(json)))
             .then( () => dispatch(updatePendingStateIn( ['exercisesReload'], false)))
-            .then( () => dispatch( fetchExercises() ))
-            .then( () => dispatch( fetchExerciseTree() )) 
+            .then( () => dispatch( fetchExercises(coursePk) ))
+            .then( () => dispatch( fetchExerciseTree(coursePk) ))
             .catch( err => console.log(err) );
     };
 }

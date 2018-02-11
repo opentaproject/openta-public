@@ -161,6 +161,7 @@ def login_status(request):
     course = Course.objects.first()
     if course is not None:
         response.update({'course': course.course_name})
+        response.update({'course_pk': course.pk})
     else:
         response.update({'course': 'OpenTA'})
         logger.error('No course found')

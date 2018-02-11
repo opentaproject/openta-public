@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.exceptions import PermissionDenied
+from course.models import Course
 from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
 from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
 from exercises.serializers import AuditExerciseSerializer
@@ -98,12 +99,12 @@ def exercise(request, exercise):
 
 @never_cache
 @api_view(['GET'])
-def exercise_list(request):
+def exercise_list(request, course_pk):
     """
     List all exercises
     """
     responselist = {}
-    exercises = Exercise.objects.prefetch_related(
+    exercises = Exercise.objects.filter(course__pk=course_pk).prefetch_related(
         Prefetch(
             'question__answer',
             queryset=Answer.objects.filter(user=request.user).order_by('-date'),
@@ -159,11 +160,16 @@ def exercise_list(request):
 
 @never_cache
 @api_view(['GET'])
-def exercise_tree(request):
+def exercise_tree(request, course_pk):
     """
     Get exercise tree
     """
-    return Response(exercise_folder_structure(Exercise.objects, request.user))
+    try:
+        dbcourse = Course.objects.get(pk=course_pk)
+    except Course.DoesNotExist:
+        logger.error('Requested course does not exist pk: %d', course_pk)
+        return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    return Response(exercise_folder_structure(Exercise.objects, request.user, dbcourse))
 
 
 @never_cache

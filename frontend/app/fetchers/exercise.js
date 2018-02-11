@@ -11,10 +11,12 @@ import {
     updateExerciseXML
 } from '../actions.js';
 
-function fetchAddExercise(path, name) {
+function fetchAddExercise(path, name, course_pk) {
+    console.dir(course_pk)
     return dispatch => {
         var payload = {
             path: '/' + path.join('/'),
+            course_pk: course_pk,
             name: name
         };
         var fetchconfig = {

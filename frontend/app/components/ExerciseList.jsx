@@ -117,13 +117,13 @@ return (
 }
 
 const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, onExerciseClick,
-    onBack, pendingState, showStatistics, showOnCanvas }) => (
+    onBack, pendingState, showStatistics, showOnCanvas, coursePk }) => (
   <div className="uk-text-center " id="exercises-menu">
     <div id="offcanvas-exercise-list" className="uk-offcanvas">
       <div className="uk-offcanvas-bar">
         <ul className="uk-nav uk-nav-offcanvas">
           <li className="uk-nav-header" key="header">
-            <a onClick={(ev) => { UIkit.offcanvas.hide(); onBack() } }>
+            <a onClick={(ev) => { UIkit.offcanvas.hide(); onBack(coursePk) } }>
               <i className="uk-icon uk-icon-arrow-left uk-margin-small-right"></i>
               <span className="uk-text-small">{folder.split('.')[0]}</span>
             </a>
@@ -136,7 +136,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
     { showOnCanvas &&
     <ul className="uk-nav uk-nav-side uk-list-space exercise-menu exercise-list-on-canvas">
     <li className="uk-nav-header" key="header">
-      <a onClick={(ev) => onBack()}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
+      <a onClick={(ev) => onBack(coursePk)}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
     </li>
     { pendingState.get('exerciseList', false) && (<Spinner/>) }
     {exerciselist.map( exercise => {
@@ -171,13 +171,14 @@ const mapStateToProps = state => {
     exerciseState: exerciseState,
     pendingState: state.get('pendingState'),
     showStatistics: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
+    coursePk: state.getIn(['login', 'coursePk']),
   }
   )
 };
 
-function handleBack() {
+function handleBack(coursePk) {
   return dispatch => {
-    dispatch(fetchExerciseTree());
+    dispatch(fetchExerciseTree(coursePk));
     dispatch(updateActiveExercise(""));
     dispatch(navigateMenuArray([]));
   }
@@ -190,7 +191,7 @@ const mapDispatchToProps = dispatch => {
       dispatch(fetchExerciseRemoteState(exercise))
       dispatch(navigateAgain());
     },
-    onBack: () => dispatch(handleBack())
+    onBack: (coursePk) => dispatch(handleBack(coursePk))
   };
 };
 

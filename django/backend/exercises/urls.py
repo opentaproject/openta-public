@@ -3,10 +3,10 @@ from django.conf.urls import url
 from exercises import views
 
 urlpatterns = [
-    url(r'^exercises/$', views.exercise_list),
+    url(r'^course/(?P<course_pk>[0-9]+)/exercises/$', views.exercise_list),
     url(r'^exercises/reload/$', views.exercises_reload),
     url(r'^exercises/reload/json/$', views.exercises_reload_json),
-    url(r'^exercises/tree/$', views.exercise_tree),
+    url(r'^course/(?P<course_pk>[0-9]+)/exercises/tree/$', views.exercise_tree),
     url(r'^exercises/test/$', views.exercises_test),
     url(r'^exercises/add/$', views.exercises_add),
     url(r'^exercises/movefolder/$', views.exercises_move_folder),

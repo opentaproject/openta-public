@@ -6,6 +6,7 @@ from exercises.parsing import ExerciseParseError, exercise_key_get_or_create
 from exercises.parsing import is_exercise, ExerciseNotFound, exercise_xmltree
 from exercises.parsing import question_validate_xmltree, get_translations
 from exercises.parsing import exercise_check_thumbnail, exercise_key_get
+from course.models import Course
 from django.contrib.auth.models import User
 from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
@@ -55,7 +56,7 @@ class ExerciseManager(models.Manager):
             except ObjectDoesNotExist:
                 pass
 
-    def add_exercise(self, path):
+    def add_exercise(self, path, course):
         progress = []
         translation_name = {}
         if not path.startswith("/"):
@@ -74,7 +75,9 @@ class ExerciseManager(models.Manager):
             path=path,
             folder=os.path.dirname(path),
         )
-        dbexercise, created = self.update_or_create(exercise_key=key, defaults=defaults)
+        dbexercise, created = self.update_or_create(
+            exercise_key=key, course=course, defaults=defaults
+        )
         defaults_meta = {'sort_key': os.path.basename(path)}
         dbmeta, created_meta = ExerciseMeta.objects.get_or_create(
             exercise=dbexercise, defaults=defaults_meta
@@ -314,6 +317,7 @@ class Exercise(models.Model):
     translated_name = models.CharField(max_length=512, default="{}")
     path = models.TextField()
     folder = models.TextField(default="")
+    course = models.ForeignKey(Course, related_name="exercises", null=True)
     objects = ExerciseManager()
 
     class Meta:

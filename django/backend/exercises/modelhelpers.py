@@ -228,7 +228,7 @@ def folder_structure(exercise_data_func_list):
     return ordered_folders
 
 
-def exercise_folder_structure(manager, user):
+def exercise_folder_structure(manager, user, course):
     def recursive_dict():
         return defaultdict(recursive_dict)
 
@@ -242,7 +242,7 @@ def exercise_folder_structure(manager, user):
     )
 
     if can_see_unpublished:
-        exercises = manager.prefetch_related(
+        exercises = manager.filter(course=course).prefetch_related(
             Prefetch(
                 'question__answer',
                 queryset=Answer.objects.filter(user=user).order_by('-date'),
@@ -251,7 +251,7 @@ def exercise_folder_structure(manager, user):
             'meta',
         )
     else:
-        exercises = manager.filter(meta__published=True).select_related('meta')
+        exercises = manager.filter(meta__published=True, course=course).select_related('meta')
     paths = map(lambda x: os.path.dirname(x.path), exercises)
     unique_paths = filter(lambda x: x != '/', set(paths))
     folders['path'] = ['']
