@@ -33,3 +33,13 @@ def get_current_course(request):
     else:
         scourse = CourseStudentSerializer(course)
     return Response(scourse.data)
+
+
+@api_view(['GET'])
+def get_courses(request):
+    courses = Course.objects.all()
+    if request.user.is_staff:
+        scourse = CourseSerializer(courses, many=True)
+    else:
+        scourse = CourseStudentSerializer(courses, many=True)
+    return Response(scourse.data)

@@ -24,7 +24,7 @@ def exercise_asset_delete(request, exercise, asset):
         return Response({}, status.HTTP_403_FORBIDDEN)
     dbexercise = Exercise.objects.get(exercise_key=exercise)
 
-    res = delete_asset(dbexercise.path, asset)
+    res = delete_asset(dbexercise.course.get_exercises_path(), dbexercise.path, asset)
     if 'error' in res:
         return Response(res, status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response(res)
@@ -36,7 +36,7 @@ def exercise_asset(request, exercise, asset):
         return Response({}, status.HTTP_403_FORBIDDEN)
     content_type = ''
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    xmltree = exercise_xmltree(dbexercise.path)
+    xmltree = exercise_xmltree(dbexercise.course.get_exercises_path(), dbexercise.path)
     solution_assets = xmltree.xpath('//solution/asset')
     for asset_node in solution_assets:
         if hasattr(asset_node, "text") and asset_node.text.strip() == asset:
@@ -50,7 +50,7 @@ def exercise_asset(request, exercise, asset):
         content_type = 'image'
 
     if asset == THUMBNAIL_FILENAME:
-        if not has_asset(dbexercise.path, asset):
+        if not has_asset(dbexercise.course.get_exercises_path(), dbexercise.path, asset):
             image = Image.new(
                 "RGBA", (DEFAULT_THUMBNAIL_SIZE, DEFAULT_THUMBNAIL_SIZE), (255, 255, 255, 0)
             )
@@ -62,11 +62,15 @@ def exercise_asset(request, exercise, asset):
         (
             "/"
             + settings.SUBPATH
-            + "exerciseasset/{path}/{asset}".format(path=dbexercise.path, asset=asset)
+            + "exerciseasset/{course_folder}/{path}/{asset}".format(
+                course_folder=dbexercise.course.get_exercises_folder(),
+                path=dbexercise.path,
+                asset=asset,
+            )
         ),
         asset,
         dev_path='{root}/{path}/{asset}'.format(
-            root=paths.EXERCISES_PATH, path=dbexercise.path, asset=asset
+            root=dbexercise.course.get_exercises_path(), path=dbexercise.path, asset=asset
         ),
         content_type=content_type,
     )
@@ -76,7 +80,7 @@ def exercise_asset(request, exercise, asset):
 @api_view(['GET'])
 def exercise_list_assets(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    assets = list_assets(dbexercise.path, asset_types)
+    assets = list_assets(dbexercise.course.get_exercises_path(), dbexercise.path, asset_types)
     return Response(assets)
 
 
@@ -88,7 +92,12 @@ def exercise_upload_asset(request, exercise):
         return Response("File larger than 10mb", status.HTTP_500_INTERNAL_SERVER_ERROR)
     try:
         dbexercise = Exercise.objects.get(exercise_key=exercise)
-        res = add_asset(dbexercise.path, request.FILES['file'], asset_types)
+        res = add_asset(
+            dbexercise.course.get_exercises_path(),
+            dbexercise.path,
+            request.FILES['file'],
+            asset_types,
+        )
         if 'error' in res:
             return Response(res, status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:

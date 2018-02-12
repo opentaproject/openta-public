@@ -23,7 +23,7 @@ def exercises_add(request):
         return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     path = os.path.join(*request.data.get('path').split('/'))
     name = request.data.get('name')
-    res = parsing.exercise_add(path, name)
+    res = parsing.exercise_add(dbcourse.get_exercises_path(), path, name)
     if 'error' in res:
         return Response(res, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     msg = Exercise.objects.add_exercise('/' + res['path'], dbcourse)
@@ -40,12 +40,12 @@ def exercise_delete(request, exercise):
     except Exercise.DoesNotExist:
         logger.error('Tried to delete invalid exercise ' + exercise)
         return Response({'error': 'Invalid exercise'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    res = parsing.exercise_delete(dbexercise.path)
+    res = parsing.exercise_delete(dbexercise.course.get_exercises_path(), dbexercise.path)
     ExerciseMeta.objects.filter(exercise=dbexercise).update(published=False)
     if 'error' in res:
         return Response(res, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     logger.info('Deleted exercise at ' + dbexercise.name)
-    Exercise.objects.add_exercise('/' + res['path'])
+    Exercise.objects.add_exercise('/' + res['path'], dbexercise.course)
     return Response({'success': 'Deleted exercise'})
 
 
@@ -58,10 +58,10 @@ def exercise_move(request, exercise):
     except Exercise.DoesNotExist:
         logger.error('Tried to move invalid exercise ' + exercise)
         return Response({'error': 'Invalid exercise'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    res = parsing.exercise_move(dbexercise.path, new_folder)
+    res = parsing.exercise_move(dbexercise.course.get_exercises_path(), dbexercise.path, new_folder)
     if 'error' in res:
         return Response(res, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    Exercise.objects.add_exercise('/' + res['path'])
+    Exercise.objects.add_exercise('/' + res['path'], dbexercise.course)
     logger.info('Moved exercise ' + dbexercise.name + " to " + res['path'])
     return Response({'success': 'Moved exercise'})
 
@@ -80,11 +80,13 @@ def exercises_move_folder(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    res = parsing.exercises_move_folder(old_folder, new_folder)
+    res = parsing.exercises_move_folder(
+        dbexercises[0].course.get_exercises_path(), old_folder, new_folder
+    )
     if 'error' in res:
         return Response(res, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     for exercise_data in res['exercises']:
-        Exercise.objects.add_exercise('/' + exercise_data['relpath'])
+        Exercise.objects.add_exercise('/' + exercise_data['relpath'], dbexercises[0].course)
         logger.info('Moved exercise ' + exercise_data['name'] + " to " + exercise_data['relpath'])
     return Response({'success': 'Moved exercise'})
 
@@ -105,11 +107,13 @@ def exercises_rename_folder(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
-    res = parsing.exercises_move_folder(old_folder, new_folder)
+    res = parsing.exercises_move_folder(
+        dbexercises[0].course.get_exercises_path(), old_folder, new_folder
+    )
     if 'error' in res:
         return Response(res, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     for exercise_data in res['exercises']:
-        Exercise.objects.add_exercise(exercise_data['relpath'])
+        Exercise.objects.add_exercise(exercise_data['relpath'], dbexercises[0].course)
         logger.info('Moved exercise ' + exercise_data['name'] + " to " + exercise_data['relpath'])
     return Response({'success': 'Moved exercise'})
 
@@ -122,7 +126,7 @@ def exercise_history(request, exercise):
     except Exercise.DoesNotExist:
         logger.error('Tried to access history for invalid exercise ' + exercise)
         return Response({'error': 'Invalid exercise'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response(list_history(dbexercise.path))
+    return Response(list_history(dbexercise.course.get_exercises_path(), dbexercise.path))
 
 
 @api_view(['GET'])
@@ -133,7 +137,9 @@ def exercise_xml_history(request, exercise, name):
     except Exercise.DoesNotExist:
         logger.error('Tried to access history for invalid exercise ' + exercise)
         return Response({'error': 'Invalid exercise'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response(parsing.exercise_xml_history(dbexercise.path, name))
+    return Response(
+        parsing.exercise_xml_history(dbexercise.course.get_exercises_path(), dbexercise.path, name)
+    )
 
 
 @api_view(['GET'])
@@ -144,4 +150,6 @@ def exercise_json_history(request, exercise, name):
     except Exercise.DoesNotExist:
         logger.error('Tried to access history for invalid exercise ' + exercise)
         return Response({'error': 'Invalid exercise'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response(parsing.exercise_json_history(dbexercise.path, name))
+    return Response(
+        parsing.exercise_json_history(dbexercise.course.get_exercises_path(), dbexercise.path, name)
+    )

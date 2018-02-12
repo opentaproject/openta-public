@@ -428,8 +428,12 @@ function fetchExerciseStatistics() {
   }
 }
 
-function reloadExercises(iAmSure = false, coursePk) {
-    return dispatch => {
+function reloadExercises(iAmSure = false, coursePk=null) {
+    return (dispatch, getState) => {
+        if(coursePk==null){
+          var state = getState();
+          coursePk = state.get('activeCourse');
+        }
         var payload = {
             i_am_sure: iAmSure
         };
@@ -440,7 +444,7 @@ function reloadExercises(iAmSure = false, coursePk) {
             body: data
         };
         dispatch(updatePendingStateIn( ['exercisesReload'], true));
-        return jsonfetch('/exercises/reload/json/', fetchconfig)
+        return jsonfetch('/course/' + coursePk + '/exercises/reload/json/', fetchconfig)
             .then(response => response.json())
             .then(json => {
                 if('detail' in json) {

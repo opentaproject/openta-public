@@ -6,6 +6,7 @@ import {SUBPATH} from '../settings.js';
 
 import {
     updateCourse,
+    updateCourses,
 } from '../actions.js';
 
 function fetchCourse() {
@@ -16,4 +17,13 @@ function fetchCourse() {
     };
 }
 
-export { fetchCourse };
+function fetchCourses() {
+    return dispatch => {
+        return jsonfetch('/courses/')
+            .then(res => res.json())
+            .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({}))) 
+            .then(json => dispatch(updateCourses(json)));
+    };
+}
+
+export { fetchCourse, fetchCourses };

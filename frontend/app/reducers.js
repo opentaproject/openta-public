@@ -50,8 +50,12 @@ export default (state = defaultState, action) => {
     switch (action.type) {
     case 'UPDATE_LOGIN_STATUS':
       return state.set('login', immutable.fromJS(action.data));
+    case 'SET_ACTIVE_COURSE':
+        return state.set('activeCourse', action.data);
     case 'UPDATE_COURSE':
         return state.set('course', immutable.fromJS(action.data));
+    case 'UPDATE_COURSES':
+        return state.set('courses', immutable.fromJS(action.data));
     case 'UPDATE_LANGUAGE':
        return state.setIn(['lang'], action.language);
     case 'UPDATE_ACTIVE_EXERCISE':

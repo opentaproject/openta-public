@@ -17,6 +17,11 @@
   <link rel="icon" href="{% static "icons/favicon.ico" %}"/>
   <link rel="apple-touch-icon-precomposed" href="{% static "icons/apple.png" %}" />
 
+  <script>
+    var globalInit = {
+      coursePk: parseInt("{{ course.pk }}")
+    };
+  </script>
   <script src="{% static "js/jquery.js" %}"></script>
   <script src="{% static "js/uikit.js" %}"></script>
   <script src="{% static "js/components/lightbox.js" %}"></script>

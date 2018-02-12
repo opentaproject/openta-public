@@ -56,7 +56,7 @@ const mapStateToProps = (state) => {
         pendingExerciseAdd: state.getIn(['pendingState', 'course', 'addExercise']),
         author: state.getIn(['login', 'groups'], immutable.List([])).includes('Author'),
         exerciseKey: state.get('activeExercise'),
-        coursePk: state.getIn(['login', 'course_pk'])
+        coursePk: state.get('activeCourse')
     };
 }
 

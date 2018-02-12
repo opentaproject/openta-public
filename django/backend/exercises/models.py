@@ -56,45 +56,46 @@ class ExerciseManager(models.Manager):
             except ObjectDoesNotExist:
                 pass
 
-    def add_exercise(self, path, course):
+    def add_exercise(self, exercise_path, course):
         progress = []
         translation_name = {}
-        if not path.startswith("/"):
+        fullpath = os.path.join(course.get_exercises_path(), exercise_path)
+        if not exercise_path.startswith("/"):
             raise ExerciseParseError("Exercise path does not start with a /")
-        if not is_exercise(path):
-            raise ExerciseNotFound(path)
-        exercisetree = exercise_xmltree(path)
+        if not is_exercise(course.get_exercises_path(), exercise_path):
+            raise ExerciseNotFound(fullpath)
+        exercisetree = exercise_xmltree(course.get_exercises_path(), exercise_path)
         exercisename_xml = exercisetree.xpath('/exercise/exercisename')
         if exercisename_xml:
             translation_name = get_translations(exercisename_xml[0])
         name = (exercisetree.xpath('/exercise/exercisename/text()') or ['No name'])[0]
-        key = exercise_key_get_or_create(path)
+        key = exercise_key_get_or_create(course.get_exercises_path(), exercise_path)
         defaults = dict(
             name=name,
             translated_name=JSON.dumps(translation_name),
-            path=path,
-            folder=os.path.dirname(path),
+            path=exercise_path,
+            folder=os.path.dirname(exercise_path),
         )
         dbexercise, created = self.update_or_create(
             exercise_key=key, course=course, defaults=defaults
         )
-        defaults_meta = {'sort_key': os.path.basename(path)}
+        defaults_meta = {'sort_key': os.path.basename(exercise_path)}
         dbmeta, created_meta = ExerciseMeta.objects.get_or_create(
             exercise=dbexercise, defaults=defaults_meta
         )
         if created:
-            progress.append(('success', _("Added exercise ") + path))
-            logger.info('Adding ' + path + '/' + name + ' to database.')
+            progress.append(('success', _("Added exercise ") + exercise_path))
+            logger.info('Adding ' + exercise_path + '/' + name + ' to database.')
         else:
-            progress.append(('info', _("Updated exercise ") + path))
-            logger.info('Updated ' + path + '/' + name)
+            progress.append(('info', _("Updated exercise ") + exercise_path))
+            logger.info('Updated ' + exercise_path + '/' + name)
         questions = exercisetree.xpath('/exercise/question[@key and @type]')
         keys = [x.get('key') for x in questions]
         if len(keys) > len(set(keys)):
             raise ExerciseParseError("Duplicate question keys!")
         for question in questions:
             if not question_validate_xmltree(question):
-                logger.info(path + " contains invalid question: ")
+                logger.info(exercise_path + " contains invalid question: ")
                 nested_print(question)
                 raise ExerciseParseError("Invalid question in " + name)
             dbquestion, created = Question.objects.update_or_create(
@@ -128,10 +129,12 @@ class ExerciseManager(models.Manager):
             exists = reduce(lambda a, b: a or b, bool_list, False)
             if not exists:
                 question.delete()
-        progress.extend(exercise_check_thumbnail(exercisetree, path))
+        progress.extend(
+            exercise_check_thumbnail(course.get_exercises_path(), exercisetree, exercise_path)
+        )
         return progress
 
-    def sync_with_disc(self, i_am_sure=False):
+    def sync_with_disc(self, course, i_am_sure=False):
         need_to_be_sure = False
         prevent_reload = False
         logger.info("Starting sync with disc of exercises.")
@@ -139,16 +142,17 @@ class ExerciseManager(models.Manager):
         exerciselist = []
         exercises_without_keys = []
         keys = {}
-        for root, directories, filenames in os.walk(paths.EXERCISES_PATH, followlinks=True):
+        exercises_path = course.get_exercises_path()
+        for root, directories, filenames in os.walk(course.get_exercises_path(), followlinks=True):
             for filename in filenames:
                 if filename == 'exercise.xml':
                     name = os.path.basename(os.path.normpath(root))
-                    relpath = root[len(paths.EXERCISES_PATH) :]
+                    relpath = root[len(exercises_path) :]
                     exerciselist.append((name, relpath))
 
         for name, path in exerciselist:
             try:
-                key = exercise_key_get(path)
+                key = exercise_key_get(exercises_path, path)
                 if key in keys:
                     progress.append(('error', _("Duplicate exercise keys!")))
                     progress.append(
@@ -180,7 +184,7 @@ class ExerciseManager(models.Manager):
             except IOError:
                 exercises_without_keys.append(path)
 
-        existing_exercises = set(self.all().values_list('pk', flat=True))
+        existing_exercises = set(self.filter(course=course).values_list('pk', flat=True))
         file_tree_exercises = set(keys.keys())
         new_exercises = file_tree_exercises - existing_exercises
         for new_exercise in new_exercises:
@@ -188,8 +192,8 @@ class ExerciseManager(models.Manager):
         for exercise_path in exercises_without_keys:
             progress.append(('success', 'A reload would add the exercise at ' + exercise_path))
 
-        for exercise in self.all():
-            if not is_exercise(exercise.path):
+        for exercise in self.filter(course=course):
+            if not is_exercise(exercises_path, exercise.path):
                 if exercise.exercise_key in keys:
                     progress.append(
                         (
@@ -216,7 +220,7 @@ class ExerciseManager(models.Manager):
             try:
                 dbexercise = Exercise.objects.get(path=path)
                 try:
-                    key = exercise_key_get(path)
+                    key = exercise_key_get(exercises_path, path)
                 except IOError:
                     key = None
                 if dbexercise.exercise_key != key:
@@ -271,15 +275,15 @@ class ExerciseManager(models.Manager):
         progress.append(('info', 'Ok, starting reload...'))
         for name, path in exerciselist:
             try:
-                msgs = self.add_exercise(path)
+                msgs = self.add_exercise(path, course)
                 progress.extend(msgs)
                 yield progress
                 progress.clear()
             except (ExerciseParseError, IOError) as e:
                 progress.append(('error', "Failed to add " + path + " because " + str(e)))
-        for exercise in self.all():
+        for exercise in self.filter(course=course):
             fullpath = exercise.path + '/exercise.xml'
-            if not is_exercise(exercise.path):
+            if not is_exercise(exercises_path, exercise.path):
                 exercise.delete()
                 progress.append(
                     (
@@ -291,7 +295,7 @@ class ExerciseManager(models.Manager):
                 )
                 print('Deleting non existing ' + fullpath + ' from database.')
             else:
-                key = exercise_key_get_or_create(exercise.path)
+                key = exercise_key_get_or_create(exercises_path, exercise.path)
                 if key != exercise.exercise_key:
                     exercise.delete()
                     progress.append(

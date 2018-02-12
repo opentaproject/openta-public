@@ -79,12 +79,14 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
                 'can be evaluated.'
             ),
         }
-    question_json = question_json_get(dbexercise.path, question_key)
+    question_json = question_json_get(
+        dbexercise.course.get_exercises_path(), dbexercise.path, question_key
+    )
     if dbquestion.type in question_json_hooks:
         question_json = question_json_hooks[dbquestion.type](
             question_json, question_json, dbquestion.pk, user.pk
         )
-    xmltree = exercise_xmltree(dbexercise.path)
+    xmltree = exercise_xmltree(dbexercise.course.get_exercises_path(), dbexercise.path)
     question_xmltree = question_xmltree_get(xmltree, question_key)
     global_xpath = '/exercise/global[@type="{type}"] | /exercise/global[not(@type)]'
     global_xmltree = (xmltree.xpath(global_xpath.format(type=dbquestion.type)) or [None])[0]

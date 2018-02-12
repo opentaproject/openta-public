@@ -12,12 +12,14 @@ import {
     updatePendingStateIn,
     fetchExercise,
     fetchCourse,
+    fetchCourses,
 } from './fetchers';
 import { 
     updateLanguage
     } from './actions.js'
 import {
   updateActiveExercise,
+  setActiveCourse,
 } from './actions.js';
 import { navigateMenuArray, menuPositionUnder } from './menu.js';
 import { SUBPATH } from './settings.js';
@@ -32,8 +34,12 @@ if( getcookie('lang') !== undefined ){
    }
 store.dispatch( fetchExercises(1) );
 store.dispatch( fetchExerciseTree(1) );
+store.dispatch( setActiveCourse(globalInit.coursePk) )
+store.dispatch( fetchExercises(globalInit.coursePk) );
+store.dispatch( fetchExerciseTree(globalInit.coursePk) );
 store.dispatch( fetchLoginStatus() );
 store.dispatch( fetchCourse() );
+store.dispatch( fetchCourses() );
 store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
 
 if (module.hot) {

@@ -42,7 +42,7 @@ const BaseReloadExercises = ({ messages, pendingReload, onPerformReload, courseP
 const mapStateToProps = state => ({
   messages: state.get('exercisesReloadMessages', immutable.List([])),
   pendingReload: state.getIn(['pendingState', 'exercisesReload'], false),
-  coursePk: state.getIn(['login', 'course_pk'])
+  coursePk: state.get('activeCourse')
 });
 
 const mapDispatchToProps = dispatch => ({

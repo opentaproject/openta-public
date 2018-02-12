@@ -41,8 +41,13 @@ logger = logging.getLogger(__name__)
 
 @permission_required('exercises.reload_exercise')
 @api_view(['POST', 'GET'])
-def exercises_reload_streaming(request):
-    exercises = Exercise.objects.sync_with_disc()
+def exercises_reload_streaming(request, course_pk):
+    try:
+        dbcourse = Course.objects.get(pk=course_pk)
+    except Course.DoesNotExist:
+        logger.error('Requested course does not exist pk: %d', course_pk)
+        return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    exercises = Exercise.objects.sync_with_disc(dbcourse)
     base = loader.get_template('base_streaming.html')
 
     def next_exercise():
@@ -56,13 +61,18 @@ def exercises_reload_streaming(request):
 
 @permission_required('exercises.reload_exercise')
 @api_view(['POST', 'GET'])
-def exercises_reload(request):
+def exercises_reload(request, course_pk):
     i_am_sure = request.data.get('i_am_sure', False)
+    try:
+        dbcourse = Course.objects.get(pk=course_pk)
+    except Course.DoesNotExist:
+        logger.error('Requested course does not exist pk: %d', course_pk)
+        return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @transaction.atomic
     def sync():
         mess = []
-        exercises = Exercise.objects.sync_with_disc(i_am_sure)
+        exercises = Exercise.objects.sync_with_disc(dbcourse, i_am_sure)
         for progress in exercises:
             mess = mess + progress
         return mess
@@ -72,15 +82,20 @@ def exercises_reload(request):
 
 
 @api_view(['POST', 'GET'])
-def exercises_reload_json(request):
+def exercises_reload_json(request, course_pk):
     if not request.user.has_perm('exercises.reload_exercise'):
         raise PermissionDenied(_("Permission denied"))
     i_am_sure = request.data.get('i_am_sure', False)
+    try:
+        dbcourse = Course.objects.get(pk=course_pk)
+    except Course.DoesNotExist:
+        logger.error('Requested course does not exist pk: %d', course_pk)
+        return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @transaction.atomic
     def sync():
         mess = []
-        exercises = Exercise.objects.sync_with_disc(i_am_sure)
+        exercises = Exercise.objects.sync_with_disc(dbcourse, i_am_sure)
         for progress in exercises:
             mess = mess + progress
         return mess
@@ -202,10 +217,13 @@ def exercise_json(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
         hide_answers = not request.user.has_perm("exercises.view_solution")
-        full_exercisejson = parsing.exercise_json(dbexercise.path, hide_answers=False)
+        full_exercisejson = parsing.exercise_json(
+            dbexercise.course.get_exercises_path(), dbexercise.path, hide_answers=False
+        )
         hide_tags = question_module.get_sensitive_tags()
         hide_attrs = question_module.get_sensitive_attrs()
         safe_exercisejson = parsing.exercise_json(
+            dbexercise.course.get_exercises_path(),
             dbexercise.path,
             hide_answers=hide_answers,
             sensitive_attrs=hide_attrs,
@@ -235,7 +253,9 @@ def exercise_json(request, exercise):
 @api_view(['GET'])
 def exercise_xml(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    return Response({'xml': parsing.exercise_xml(dbexercise.path)})
+    return Response(
+        {'xml': parsing.exercise_xml(dbexercise.course.get_exercises_path(), dbexercise.path)}
+    )
 
 
 @permission_required('exercises.edit_exercise')
@@ -245,11 +265,16 @@ def exercise_save(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"
     try:
-        messages += parsing.exercise_save(dbexercise.path, request.data['xml'], backup_name)
+        messages += parsing.exercise_save(
+            dbexercise.course.get_exercises_path(),
+            dbexercise.path,
+            request.data['xml'],
+            backup_name,
+        )
     except IOError as e:
         messages.append(('error', str(e)))
     try:
-        messages += Exercise.objects.add_exercise(dbexercise.path)
+        messages += Exercise.objects.add_exercise(dbexercise.path, dbexercise.course)
     except parsing.ExerciseParseError as e:
         messages.append(('warning', str(e)))
     result = response_from_messages(messages)

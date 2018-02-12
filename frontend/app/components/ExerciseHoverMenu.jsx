@@ -29,7 +29,7 @@ class BaseExerciseHoverMenu extends Component {
         if(e.key == 'Enter'){
             e.preventDefault();
             UIkit.modal("#move-modal" + this.props.exerciseKey).hide();
-            this.props.onExerciseMove(this.props.exerciseKey, e.target.value);
+            this.props.onExerciseMove(this.props.exerciseKey, e.target.value, this.props.coursePk);
         }
     }
 
@@ -114,7 +114,7 @@ const mapStateToProps = (state, ownProps) => {
         exerciseTree: state.getIn(['exerciseTree']),
         pendingExerciseMove: state.getIn(['pendingState', 'course', 'addExercise']),
         author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
-        coursePk: state.getIn(['login', 'course_pk'])
+        coursePk: state.get('activeCourse')
     };
 }
 

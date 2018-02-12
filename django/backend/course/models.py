@@ -1,8 +1,11 @@
+import os
+import datetime
+
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-import datetime
 import pytz
 from django.conf import settings
+import exercises.paths as paths
 
 
 class CourseManager(models.Manager):
@@ -76,3 +79,9 @@ class Course(models.Model):
 
     def __str__(self):
         return self.course_name + ' - ' + self.course_long_name
+
+    def get_exercises_path(self):
+        return os.path.join(paths.EXERCISES_PATH, self.get_exercises_folder())
+
+    def get_exercises_folder(self):
+        return str(self.pk)

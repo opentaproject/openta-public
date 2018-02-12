@@ -31,6 +31,7 @@ import Menu from './Menu.jsx';
 import ExerciseHistory from './ExerciseHistory.jsx';
 import DeleteExercise from './DeleteExercise.jsx';
 import LanguageSelect from './LanguageSelect.jsx';
+import CourseSelect from './CourseSelect.jsx';
 import { throttleParseXML } from './AuthorExercise.jsx';
 import { menuPositionAt, menuPositionUnder } from '../menu.js';
 
@@ -99,7 +100,9 @@ return (
     <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas uk-padding-remove" data-uk-offcanvas/>
   </div> }
   <ul className="uk-navbar-nav exercise-list-on-canvas"><li>
-  <a className="uk-navbar-brand" onClick={onHome}><i className="uk-icon uk-icon-medium uk-icon-circle-o"></i><span className="uk-text-small uk-text-middle"> {course}</span></a>
+  <a className="uk-navbar-brand" onClick={onHome}>
+    <i className="uk-icon uk-icon-medium uk-icon-circle-o"></i>
+  </a>
   </li></ul>
   <div className="uk-vertical-align">
   <span className="uk-vertical-align-middle">
@@ -122,6 +125,11 @@ return (
     <li>
       <div className="uk-navbar-content">
       <LanguageSelect/>
+      </div>
+    </li>
+    <li>
+      <div className="uk-navbar-content">
+      <CourseSelect/>
       </div>
     </li>
       <li >
@@ -186,10 +194,11 @@ function handleReset(exercise) {
 
 const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
+  var activeCourse = state.get('activeCourse')
   return ({
   username: state.getIn(['login', 'username']),
+  course: state.getIn(['courses', activeCourse, 'course_name'], ""),
   groups: state.getIn(['login', 'groups'], immutable.List([])),
-  course: state.getIn(['login', 'course'], 'OpenTA'),
   admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
   viewer: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
   author: state.getIn(['login', 'groups'], immutable.List([])).includes('Author'),

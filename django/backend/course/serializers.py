@@ -9,6 +9,7 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = (
             'course_name',
+            'pk',
             'icon',
             'registration_password',
             'registration_by_password',
@@ -30,7 +31,7 @@ class CourseStudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ('course_name', 'languages')
+        fields = ('course_name', 'pk', 'languages')
 
     def get_languages(self, instance):
         if instance.languages is not None:

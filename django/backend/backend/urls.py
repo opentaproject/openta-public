@@ -53,6 +53,7 @@ internalurlpatterns = [
         backendviews.validate_and_show_registration,
     ),
     url(r'^batch_add_users$', backendviews.BatchAddUserView.as_view()),
+    url(r'^(?P<course_pk>[0-9]+)$', backendviews.main),
     url(r'^$', backendviews.main),
     url(r'^', include('workqueue.urls')),
     url(r'^', include('course.urls')),

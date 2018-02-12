@@ -33,45 +33,45 @@ class ExerciseNotFound(Exception):
         return repr(self.value)
 
 
-def is_exercise(path):
-    return os.path.isfile(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
+def is_exercise(base_path, path):
+    return os.path.isfile(base_path + '/{path}/exercise.xml'.format(path=path))
 
 
-def list_exercises_in_folder(path):
-    full_path = os.path.join(paths.EXERCISES_PATH, *path.split('/'))
+def list_exercises_in_folder(base_path, path):
+    full_path = os.path.join(base_path, *path.split('/'))
     exerciselist = []
     for root, directories, filenames in os.walk(full_path, followlinks=True):
         for filename in filenames:
             if filename == 'exercise.xml':
                 name = os.path.basename(os.path.normpath(root))
-                relpath = root[len(paths.EXERCISES_PATH) :]
+                relpath = root[len(base_path) :]
                 exerciselist.append({'name': name, 'relpath': relpath})
     return exerciselist
 
 
-def exercise_key_get(path):
-    with open(paths.EXERCISES_PATH + '/{path}/exercisekey'.format(path=path)) as keyfile:
+def exercise_key_get(base_path, path):
+    with open(base_path + '/{path}/exercisekey'.format(path=path)) as keyfile:
         exercisekey = keyfile.read().strip(" \n")
         return exercisekey
 
 
-def exercise_key_set(path, key):
-    with open(paths.EXERCISES_PATH + '/{path}/exercisekey'.format(path=path), 'w') as keyfile:
+def exercise_key_set(base_path, path, key):
+    with open(base_path + '/{path}/exercisekey'.format(path=path), 'w') as keyfile:
         keyfile.write(key)
     return key
 
 
-def exercise_key_get_or_create(path):
+def exercise_key_get_or_create(base_path, path):
     try:
-        key = exercise_key_get(path)
+        key = exercise_key_get(base_path, path)
         return key
     except IOError:
-        key = exercise_key_set(path, str(uuid.uuid4()))
+        key = exercise_key_set(base_path, path, str(uuid.uuid4()))
         return key
 
 
-def exercise_json(path, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):
-    xmlfile = open(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
+def exercise_json(base_path, path, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):
+    xmlfile = open(base_path + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
     return exercise_xml_to_json(xml, hide_answers, sensitive_tags, sensitive_attrs)
 
@@ -132,17 +132,17 @@ def exercise_validate_and_json(path):
     return exercise_json(path)
 
 
-def exercise_xml(path):
-    xmlfile = open(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=path))
+def exercise_xml(base_path, path):
+    xmlfile = open(base_path + '/{path}/exercise.xml'.format(path=path))
     xml = xmlfile.read()
     return xml
 
 
-def exercise_save(exercise, xml, backup=None):
+def exercise_save(base_path, exercise, xml, backup=None):
     messages = []
     logger.info('Saving ' + exercise)
     if backup is not None:
-        exercise_path = os.path.join(paths.EXERCISES_PATH, *exercise.split('/'))
+        exercise_path = os.path.join(base_path, *exercise.split('/'))
         backup_path = os.path.join(exercise_path, 'history')
         backup_file = os.path.join(backup_path, backup)
         os.makedirs(backup_path, exist_ok=True)
@@ -151,7 +151,7 @@ def exercise_save(exercise, xml, backup=None):
                 file.write(xml)
         except IOError:
             messages.append(('warning', "Couldn't write backup file"))
-    with open(paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise), 'w') as file:
+    with open(base_path + '/{path}/exercise.xml'.format(path=exercise), 'w') as file:
         file.write(xml)
     messages.append(('success', 'Saved exercise'))
     return messages
@@ -169,8 +169,8 @@ def question_validate_xmltree(question):
     return True
 
 
-def exercise_xmltree(exercise_path):
-    xmlfile = paths.EXERCISES_PATH + '/{path}/exercise.xml'.format(path=exercise_path)
+def exercise_xmltree(base_path, exercise_path):
+    xmlfile = base_path + '/{path}/exercise.xml'.format(path=exercise_path)
     parser = etree.XMLParser(remove_blank_text=True)
     try:
         root = etree.parse(xmlfile, parser)
@@ -186,8 +186,8 @@ def question_xmltree_get(exercise_xmltree, question_key):
     return question
 
 
-def question_json_get(exercise_path, question_key):
-    json = exercise_json(exercise_path)
+def question_json_get(base_path, exercise_path, question_key):
+    json = exercise_json(base_path, exercise_path)
     questions = deep_get(json, 'exercise', 'question')
     found = list(
         filter(
@@ -217,16 +217,16 @@ def question_json_get(exercise_path, question_key):
         return "{}"
 
 
-def exercise_check_thumbnail(xmltree, path):
+def exercise_check_thumbnail(base_path, xmltree, path):
     messages = []
-    thumbnail_path = paths.EXERCISES_PATH + '/{path}/thumbnail.png'.format(path=path)
+    thumbnail_path = base_path + '/{path}/thumbnail.png'.format(path=path)
     if not os.path.isfile(thumbnail_path):
         figure = xmltree.xpath('/exercise//figure')
         try:
             figurepath = figure[0].text.strip()
         except (IndexError, NameError, AttributeError) as e:
             return messages
-        full_figurepath = paths.EXERCISES_PATH + '/{path}/'.format(path=path) + figurepath
+        full_figurepath = base_path + '/{path}/'.format(path=path) + figurepath
         _, ext = os.path.splitext(figurepath)
         iext = ext.lower()
         size = (100, 100)
@@ -254,16 +254,16 @@ def exercise_check_thumbnail(xmltree, path):
     return messages
 
 
-def exercise_add(folder, name):
-    path = os.path.join(paths.EXERCISES_PATH, folder, name)
+def exercise_add(base_path, folder, name):
+    path = os.path.join(base_path, folder, name)
     template_path = os.path.join(paths.TEMPLATE_EXERCISE_PATH, "exercise.xml")
-    if not os.path.isdir(paths.EXERCISES_PATH):
+    if not os.path.isdir(base_path):
         os.makedirs(path, exist_ok=True)
-    if not os.path.isdir(os.path.join(paths.EXERCISES_PATH, folder)):
-        return {'error': 'There is no such folder!'}
+    # if not os.path.isdir(os.path.join(base_path, folder)):
+    #    return {'error': 'There is no such folder!'}
     if os.path.isdir(path):
         return {'error': 'There is already a folder in the file tree with this name.'}
-    if is_exercise(path):
+    if is_exercise(base_path, path):
         return {'error': 'There is already an exercise with that name in the file tree'}
     os.makedirs(path, exist_ok=True)
     xmlpath = os.path.join(path, "exercise.xml")
@@ -283,12 +283,12 @@ def exercise_add(folder, name):
     return {'success': True, 'path': os.path.join(folder, name)}
 
 
-def exercise_delete(path):
-    exercise_path = os.path.join(paths.EXERCISES_PATH, *path.split('/'))
+def exercise_delete(base_path, path):
+    exercise_path = os.path.join(base_path, *path.split('/'))
     exercise_folder_name = os.path.basename(os.path.normpath(exercise_path))
     date_now = "{:%Y%m%d_%H:%M:%S_%f}".format(now())
     deleted_relative_path = os.path.join(paths.TRASH_PATH, exercise_folder_name + "." + date_now)
-    deleted_path = os.path.join(paths.EXERCISES_PATH, deleted_relative_path)
+    deleted_path = os.path.join(base_path, deleted_relative_path)
     if not os.path.isdir(exercise_path):
         return {'error': 'There is no such exercise folder!'}
     if not is_exercise(path):
@@ -300,24 +300,25 @@ def exercise_delete(path):
     return {'success': True, 'path': deleted_relative_path}
 
 
-def exercise_move(path, newfolder):
-    exercise_path = os.path.join(paths.EXERCISES_PATH, *path.split('/'))
+def exercise_move(base_path, path, newfolder):
+    exercise_path = os.path.join(base_path, *path.split('/'))
     exercise_folder_name = os.path.basename(os.path.normpath(exercise_path))
     exercise_old_folder = os.path.dirname(os.path.normpath(path.strip('/')))
     moved_relative_folder = os.path.join(*newfolder.split('/'))
     moved_exercise_path = os.path.join(moved_relative_folder, exercise_folder_name)
-    moved_full_path = os.path.join(paths.EXERCISES_PATH, moved_exercise_path)
+    moved_full_path = os.path.join(base_path, moved_exercise_path)
     date_now = "{:_%Y%m%d_%H:%M:%S_%f}".format(now())
 
     if exercise_old_folder == moved_relative_folder:
         return {'error': 'Same folder'}
+    print(exercise_path)
     if not os.path.isdir(exercise_path):
         return {'error': 'There is no such exercise folder!'}
-    if not is_exercise(path):
+    if not is_exercise(base_path, path):
         return {'error': 'The folder does not seem to be an exercise'}
     if os.path.isdir(moved_full_path):
         moved_exercise_path += "." + date_now
-        moved_full_path = os.path.join(paths.EXERCISES_PATH, moved_exercise_path)
+        moved_full_path = os.path.join(base_path, moved_exercise_path)
     try:
         os.renames(exercise_path, moved_full_path)
     except OSError:
@@ -325,9 +326,9 @@ def exercise_move(path, newfolder):
     return {'success': True, 'path': moved_exercise_path}
 
 
-def exercises_move_folder(oldfolder, newfolder):
-    full_oldfolder = os.path.join(paths.EXERCISES_PATH, *oldfolder.split('/'))
-    full_newfolder = os.path.join(paths.EXERCISES_PATH, *newfolder.split('/'))
+def exercises_move_folder(base_path, oldfolder, newfolder):
+    full_oldfolder = os.path.join(base_path, *oldfolder.split('/'))
+    full_newfolder = os.path.join(base_path, *newfolder.split('/'))
 
     if os.path.isdir(full_newfolder):
         return {'error': 'Folder already exists'}
@@ -336,27 +337,27 @@ def exercises_move_folder(oldfolder, newfolder):
 
     try:
         os.rename(full_oldfolder, full_newfolder)
-        exercises = list_exercises_in_folder(newfolder)
+        exercises = list_exercises_in_folder(base_path, newfolder)
     except OSError:
         return {'error': 'Could not move folder'}
     return {'success': True, 'exercises': exercises}
 
 
-def list_assets(exercise_path, types):
-    path = os.path.join(paths.EXERCISES_PATH, *exercise_path.split('/'))
+def list_assets(base_path, exercise_path, types):
+    path = os.path.join(base_path, *exercise_path.split('/'))
     all_files = os.listdir(path)
     assets = [{'filename': asset} for asset in all_files if asset.lower().endswith(types)]
     return assets
 
 
-def has_asset(exercise_path, asset):
-    full_path = os.path.join(paths.EXERCISES_PATH, *exercise_path.split('/'))
+def has_asset(base_path, exercise_path, asset):
+    full_path = os.path.join(base_path, *exercise_path.split('/'))
     file_path = os.path.join(full_path, asset)
     return os.path.isfile(file_path)
 
 
-def add_asset(exercise_path, asset_file, types):
-    full_path = os.path.join(paths.EXERCISES_PATH, *exercise_path.split('/'))
+def add_asset(base_path, exercise_path, asset_file, types):
+    full_path = os.path.join(base_path, *exercise_path.split('/'))
     file_path = os.path.join(full_path, asset_file.name)
     if not asset_file.name.lower().endswith(types):
         return {'error': 'File type not allowed, valid filetypes are: ' + ', '.join(types)}
@@ -371,8 +372,8 @@ def add_asset(exercise_path, asset_file, types):
     return {'success': 'Wrote file'}
 
 
-def delete_asset(exercise_path, asset_file):
-    full_path = os.path.join(paths.EXERCISES_PATH, *exercise_path.split('/'))
+def delete_asset(base_path, exercise_path, asset_file):
+    full_path = os.path.join(base_path, *exercise_path.split('/'))
     file_path = os.path.join(full_path, asset_file)
     if not os.path.isfile(file_path):
         return {'error': 'No such file!'}
@@ -386,8 +387,8 @@ def delete_asset(exercise_path, asset_file):
     return {'success': 'Deleted file'}
 
 
-def list_history(exercise_path):
-    exercise_full_path = os.path.join(paths.EXERCISES_PATH, *exercise_path.split('/'))
+def list_history(base_path, exercise_path):
+    exercise_full_path = os.path.join(base_path, *exercise_path.split('/'))
     backup_path = os.path.join(exercise_full_path, 'history')
     history = []
     if not os.path.isdir(backup_path):
@@ -402,8 +403,8 @@ def list_history(exercise_path):
     return history
 
 
-def exercise_xml_history(exercise_path, name):
-    exercise_full_path = os.path.join(paths.EXERCISES_PATH, *exercise_path.split('/'))
+def exercise_xml_history(base_path, exercise_path, name):
+    exercise_full_path = os.path.join(base_path, *exercise_path.split('/'))
     backup_path = os.path.join(exercise_full_path, 'history')
     fullpath = os.path.join(backup_path, name)
     if not os.path.isfile(fullpath):
@@ -413,8 +414,8 @@ def exercise_xml_history(exercise_path, name):
     return {'success': 'Ok', 'xml': xml}
 
 
-def exercise_json_history(exercise_path, name):
-    exercise_full_path = os.path.join(paths.EXERCISES_PATH, *exercise_path.split('/'))
+def exercise_json_history(base_path, exercise_path, name):
+    exercise_full_path = os.path.join(base_path, *exercise_path.split('/'))
     backup_path = os.path.join(exercise_full_path, 'history')
     fullpath = os.path.join(backup_path, name)
     if not os.path.isfile(fullpath):

@@ -159,9 +159,14 @@ def login_status(request):
         'groups': groups,
     }
     course = Course.objects.first()
-    if course is not None:
+    courses = Course.objects.all()
+    courses_data = CourseSerializer(courses, many=True).data
+    courses_dict = {course['pk']: course for course in courses_data}
+
+    if courses is not None:
         response.update({'course': course.course_name})
         response.update({'course_pk': course.pk})
+        response.update({'courses': courses_dict})
     else:
         response.update({'course': 'OpenTA'})
         logger.error('No course found')
@@ -227,13 +232,17 @@ def activate_and_reset(request, username, token):
 
 
 @login_required
-def main(request):
+def main(request, course_pk=None):
     """The main frontend view.
 
     Returns:
         The frontend app in base_main.html if authorized, otherwise login screen.
     """
-    course = Course.objects.first()
+    print(course_pk)
+    if course_pk is not None:
+        course = Course.objects.get(pk=course_pk)
+    else:
+        course = Course.objects.first()
     course_data = CourseSerializer(course).data
     extra = dict(course=course_data)
     response = render(request, "base_main.html", context=extra)
