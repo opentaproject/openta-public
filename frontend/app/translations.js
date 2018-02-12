@@ -54,7 +54,34 @@ const translationDict = immutable.fromJS({
     'Unpublished': {
         'en': 'Unpublished',
         'sv': 'Opublicerad'
-    }
+    },
+    'Hidden': {
+        'en': 'Hidden for for students.',
+        'sv': 'Dold för studenter. '
+        },
+    
+    'To show': {
+        'en': 'Show to students by selecting "Publish Solution" in Options',
+        'sv': 'Visa för studenter genom att klicka i "Publish Solution" i "Options" '
+        },
+
+    
+    'Easy': {
+        'en': 'Easy',
+        'sv': 'Lätt'
+        },
+    
+    'Medium': {
+        'en': 'Medium',
+        'sv': 'Mellan'
+        },
+    
+    'Hard': {
+        'en': 'Hard',
+        'sv': 'Svår'
+        },
+
+
 });
 
 /**

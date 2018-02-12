@@ -5,6 +5,7 @@ import Spinner from './Spinner.jsx';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import T from './Translation.jsx';
+import Cookies from 'universal-cookie';
 
 import {
   updateLanguage
@@ -36,6 +37,8 @@ const BaseLanguageSelect = ({languages, lang, onLanguageChange}) => {
 const mapDispatchToProps = dispatch => {
     return {
         onLanguageChange: (language) => {
+            var cookies = new Cookies()
+            cookies.set('lang',language)
             dispatch(updateLanguage(language));
         }
     }

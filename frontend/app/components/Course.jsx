@@ -22,15 +22,17 @@ import AddExercise from './AddExercise.jsx';
 import ExerciseHoverMenu from './ExerciseHoverMenu.jsx';
 import FolderHoverMenu from './FolderHoverMenu.jsx';
 import T from './Translation.jsx';
+import t from '../translations.js';
 
 import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 
 var difficulties = {
-  '1': 'Lätt',
-  '2': 'Medel',
-  '3': 'Svår',
+  '1': 'Easy',
+  '2': 'Medium',
+  '3': 'Hard',
+  'none': ''
 };
 
 function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, folder, foldername, showStatistics, statistics, activityRange, author) {
@@ -64,7 +66,7 @@ return (
     <a className={"uk-thumbnail exercise-a " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
         <div className="exercise-thumb-wrap" style={{minWidth: '80px', maxWidth: '100px'}}>
             <div className="exercise-thumb-badge">
-                { meta.difficulty && <Badge className="uk-badge-notification">{difficulties[meta.difficulty]}</Badge> }
+                { meta.difficulty && <Badge className="uk-badge-notification">{t(difficulties[meta.difficulty])}</Badge> }
                 { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>{moment(meta.deadline_date).format('D MMM')}</Badge> }
                 { meta.image && <span className={"uk-badge uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></span> }
                 { meta.solution && <Badge className={"uk-badge-notification"}>lösning</Badge> }

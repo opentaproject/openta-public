@@ -19,12 +19,13 @@ import Spinner from './Spinner.jsx'
 import Badge from './Badge.jsx';
 import SafeImg from './SafeImg.jsx';
 import T from './Translation.jsx';
+import t from '../translations.js'
 import {SUBPATH} from '../settings.js';
 
 var difficulties = {
-  '1': 'Lätt',
-  '2': 'Medel',
-  '3': 'Svår',
+  '1': 'Easy',
+  '2': 'Medium',
+  '3': 'Hard',
   'none': ''
 };
 
@@ -60,7 +61,7 @@ return (
               <div className="exercise-list-thumb-wrap">
               <div className="exercise-thumb-badge">
                 { meta.get('difficulty', false) &&
-                  <Badge className="uk-badge-notification">{difficulties[meta.get('difficulty','none')]}</Badge> }
+                  <Badge className="uk-badge-notification">{t(difficulties[meta.get('difficulty','none')])}</Badge> }
               { /*meta.get('required', false) && <Badge className="uk-badge-notification"><i className="uk-icon uk-icon-asterisk" title="Obligatorisk"/></Badge> */}
               { /*meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
                 { meta.get('solution', false) &&

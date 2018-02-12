@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
 import App from 'components/App';
+import {getcookie} from 'cookies.js'
 import {
     fetchExercises,
     fetchExerciseTree,
@@ -12,6 +13,9 @@ import {
     fetchExercise,
     fetchCourse,
 } from './fetchers';
+import { 
+    updateLanguage
+    } from './actions.js'
 import {
   updateActiveExercise,
 } from './actions.js';
@@ -20,6 +24,12 @@ import { SUBPATH } from './settings.js';
 import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js';
 import {store} from 'store.js';
 
+if( getcookie('lang') !== undefined ){
+    if( getcookie('lang')[0] !== '""'  ){
+          var cookielang = getcookie('lang')[0]
+          store.dispatch(updateLanguage( cookielang ) )
+      }
+   }
 store.dispatch( fetchExercises() );
 store.dispatch( fetchExerciseTree() );
 store.dispatch( fetchLoginStatus() );
