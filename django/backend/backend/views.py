@@ -174,13 +174,17 @@ def login_status(request):
 
 
 @ratelimit(key='ip', rate='5/30s')
-def login(request):
+def login(request, course_name=None):
     """Login view.
 
     Returns:
         Login view unless rate limited in which case rate_limit.html
     """
-    course = Course.objects.first()
+    subpath = '/' + settings.SUBPATH.strip('/')
+    try:
+        course = Course.objects.get(course_name__iexact=course_name)
+    except Course.DoesNotExist:
+        course = Course.objects.first()
     course_data = CourseSerializer(course).data
     if course_data['icon'] is not None:
         course_data['icon'] = '/' + settings.SUBPATH + course_data['icon'].lstrip('/')

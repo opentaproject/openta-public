@@ -56,11 +56,11 @@ function notify(messages, levels) {
 
 function fetchLoginStatus() {
     return dispatch => {
-        return jsonfetch('/loggedin')
+        return jsonfetch('/loggedin/')
             .then(response => response.json() )
             .then(json => {
                 if(!json.username) {
-                    window.location.href="/login";
+                    window.location.href="/login/";
                 }
                 return json;
             })
@@ -88,7 +88,8 @@ function fetchLoginStatus() {
                     dispatch(fetchAllExerciseStatistics());
                 }
             }
-                 );
+                 )
+                 .catch(error => console.dir(error));
     };
 }
 

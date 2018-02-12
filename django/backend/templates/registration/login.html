@@ -51,7 +51,7 @@
     <div class="uk-form-row">
       <input type="submit" class="uk-button" value="{% trans "Log in" %}" />
     </div>
-    <input type="hidden" name="next" value="{{ next }}" />
+    <input type="hidden" name="next" value="/{{ course.pk }}" />
 </form>
 
 {% if course.registration_by_domain %}
