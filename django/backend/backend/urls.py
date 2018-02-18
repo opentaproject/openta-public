@@ -16,7 +16,8 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 from backend import views as backendviews
-from .settings import SUBPATH
+from django.conf import settings
+from django.conf.urls.static import static
 
 internalurlpatterns = [
     url(r'^administration/', admin.site.urls),
@@ -55,12 +56,12 @@ internalurlpatterns = [
     url(r'^$', backendviews.main),
     url(r'^', include('workqueue.urls')),
     url(r'^', include('course.urls')),
-    url(r'^media/(?P<asset>[\w\.\-\ \/]+)$', backendviews.serve_media),
+    url(r'^' + settings.MEDIA_URL + '(?P<asset>[\w\.\-\ \/]+)$', backendviews.serve_media),
 ]
 
 urlpatterns = [
-    url(r'^' + SUBPATH, include(internalurlpatterns)),
+    url(r'^' + settings.SUBPATH, include(internalurlpatterns)),
     url(r'^hijack/', include('hijack.urls')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 admin.site.site_header = 'OpenTA Admin'

@@ -174,8 +174,11 @@ def login(request):
     Returns:
         Login view unless rate limited in which case rate_limit.html
     """
+    subpath = '/' + settings.SUBPATH.strip('/')
     course = Course.objects.first()
     course_data = CourseSerializer(course).data
+    if course_data['icon'] is not None:
+        course_data['icon'] = '/' + settings.SUBPATH + 'media/' + course_data['icon']
     extra = {
         'course': course_data,
         'openta_version': settings.VERSION if hasattr(settings, 'VERSION') else "",
@@ -194,7 +197,6 @@ def activate(request, username, token):
     """
     try:
         key = '%s:%s' % (username, token)
-        print(key)
         TimestampSigner().unsign(key, max_age=60 * 60 * 24 * 10)  # Valid for 2 days
         user = User.objects.get(username=username)
         user.is_active = True
@@ -213,7 +215,6 @@ def activate_and_reset(request, username, token):
     """
     try:
         key = '%s:%s' % (username, token)
-        print(key)
         TimestampSigner().unsign(key, max_age=60 * 60 * 24 * 10)  # Valid for 2 days
     except (BadSignature, SignatureExpired):
         return render(request, "activation_failed.html")
@@ -235,7 +236,12 @@ def main(request):
     course = Course.objects.first()
     course_data = CourseSerializer(course).data
     extra = dict(course=course_data)
-    return render(request, "base_main.html", context=extra)
+    response = render(request, "base_main.html", context=extra)
+    if settings.CSRF_COOKIE_NAME:
+        response.set_cookie(key='csrf_cookie_name', value=settings.CSRF_COOKIE_NAME)
+        subpath = (settings.SUBPATH).strip('/')
+        response.set_cookie(key='subpath', value=subpath)
+    return response
 
 
 class RegisterByPassword(RatelimitMixin, FormView):
@@ -449,20 +455,19 @@ def email_users(request, context):
 
 def serve_media(request, asset):
     """Serve public media.
-    
+
     Args:
         request (HttpRequest): request
         asset (str): Asset path
-    
+
     Raises:
         Http404: If unauthorized
-    
+
     Returns:
         HttpResponse: Asset response
 
     """
-
-    if not asset.startswith('public'):
+    if not asset.startswith(settings.MEDIA_URL + 'public'):
         raise Http404('Not authorized')
-    path = "media/{}".format(asset)
-    return serve_file(path, asset)
+
+    return serve_file(asset, asset.split('/')[-1])

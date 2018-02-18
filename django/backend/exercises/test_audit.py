@@ -12,6 +12,7 @@ import exercises.paths as paths
 from exercises.setup_tests import create_exercise, create_database
 from .models import Exercise
 from django.utils import timezone
+from django.conf import settings
 
 LOGGER.setLevel(logging.WARNING)
 
