@@ -92,6 +92,8 @@ def check_units(expression, correct, variables):
 
 
 def check_units_new(expression, correct, variables):
+    if numpy.absolute(correct) == 0.0:
+        return
     nvarsubs = {}
     nvalues = []
 

@@ -201,6 +201,8 @@ def check_units_new(expression, correct, sample_variables):
     Raises:
         LinearAlgebraUnitError if the units do not match
     """
+    if numpy.all(numpy.array(correct) == 0.0):
+        return
     nvarsubs = {}
     nsubs_values = []
 
