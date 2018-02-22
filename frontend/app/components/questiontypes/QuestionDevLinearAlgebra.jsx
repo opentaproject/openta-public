@@ -310,6 +310,9 @@ export default class QuestionLinearAlgebra extends Component {
             }
             
     } 
+    else if( correct === null ){
+              graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$ " + t("unchecked")} key="input" hasMath={true}/>);
+        }
     else {
       // graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
     graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict) } type="warning" key="input" hasMath={true}/>);
