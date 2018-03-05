@@ -357,7 +357,7 @@ def answer_image_thumb_view(request, image_id):
         image_answer = ImageAnswer.objects.get(pk=image_id)
         if image_answer.user == request.user or request.user.is_staff:
             return serve_file(
-                settings.SUBPATH + image_answer.image_thumb.url,
+                "/" + settings.SUBPATH + image_answer.image_thumb.url,
                 os.path.basename(image_answer.image.name),
                 content_type="image/jpeg",
                 dev_path='./' + image_answer.image_thumb.url,
