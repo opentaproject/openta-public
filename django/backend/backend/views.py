@@ -174,11 +174,10 @@ def login(request):
     Returns:
         Login view unless rate limited in which case rate_limit.html
     """
-    subpath = '/' + settings.SUBPATH.strip('/')
     course = Course.objects.first()
     course_data = CourseSerializer(course).data
     if course_data['icon'] is not None:
-        course_data['icon'] = '/' + settings.SUBPATH + 'media/' + course_data['icon']
+        course_data['icon'] = '/' + settings.SUBPATH + course_data['icon'].lstrip('/')
     extra = {
         'course': course_data,
         'openta_version': settings.VERSION if hasattr(settings, 'VERSION') else "",
@@ -453,7 +452,7 @@ def email_users(request, context):
         return TemplateResponse(request, 'email_users.html', context)
 
 
-def serve_media(request, asset):
+def serve_public_media(request, asset):
     """Serve public media.
 
     Args:
@@ -467,7 +466,7 @@ def serve_media(request, asset):
         HttpResponse: Asset response
 
     """
-    if not asset.startswith(settings.MEDIA_URL + 'public'):
+    if not asset.startswith('public/'):
         raise Http404('Not authorized')
 
-    return serve_file(asset, asset.split('/')[-1])
+    return serve_file(settings.MEDIA_URL + asset, asset.split('/')[-1])

@@ -56,7 +56,7 @@ internalurlpatterns = [
     url(r'^$', backendviews.main),
     url(r'^', include('workqueue.urls')),
     url(r'^', include('course.urls')),
-    url(r'^' + settings.MEDIA_URL + '(?P<asset>[\w\.\-\ \/]+)$', backendviews.serve_media),
+    url(r'^' + settings.MEDIA_TAG + '/(?P<asset>[\w\.\-\ \/]+)$', backendviews.serve_public_media),
 ]
 
 urlpatterns = [

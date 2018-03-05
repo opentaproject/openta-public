@@ -113,7 +113,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 STATIC_ROOT = os.path.join(BASE_DIR, "deploystatic")
 
 MEDIA_TAG = 'media'
-MEDIA_URL = MEDIA_TAG + '/'
+MEDIA_URL = '/' + MEDIA_TAG + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_TAG)
 
 REST_FRAMEWORK = {
