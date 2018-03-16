@@ -37,19 +37,19 @@ class BaseAssets extends Component {
                 </a>
             }
             </td>
-                    <td>
-                        <a href={"/exercise/" + this.props.activeExercise + "/asset/" + asset.get('filename')} target="_blank">
-                            {asset.get('filename')}
-                        </a>
-                    </td>
-                    {
-                        this.state.preview &&
-                        <td>
-                            <div className="uk-thumbnail uk-thumbnail-mini" style={{maxWidth: '80px'}}>
-                                <SafeImg src={"/exercise/" + this.props.activeExercise + "/asset/" + asset.get('filename')}/>
-                            </div>
-                        </td>
-                    }
+            <td>
+                <a href={SUBPATH + "/exercise/" + this.props.activeExercise + "/asset/" + asset.get('filename')} target="_blank">
+                    {asset.get('filename')}
+                </a>
+            </td>
+            {
+                this.state.preview &&
+                <td>
+                    <div className="uk-thumbnail uk-thumbnail-mini" style={{maxWidth: '80px'}}>
+                        <SafeImg src={SUBPATH + "/exercise/" + this.props.activeExercise + "/asset/" + asset.get('filename')}/>
+                    </div>
+                </td>
+            }
             </tr>
         )
     }
