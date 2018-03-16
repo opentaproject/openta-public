@@ -14,6 +14,7 @@ class CourseSerializer(serializers.ModelSerializer):
             'registration_by_password',
             'registration_by_domain',
             'languages',
+            'email_reply_to',
             'motd',
         )
 
