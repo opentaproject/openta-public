@@ -3,8 +3,8 @@
  * If the installation is available at a subpath. (Also needs to be set in django settings.py)
  * Example: If site is available at http://domain.com/subpath
  * (Note preceding slash below!)
- * var SUBPATH = "/subpath" 
+ * var SUBPATH = "/subpath"
  */
 import {getcookie} from 'cookies.js';
-const SUBPATH =  getcookie('subpath')[0] !== '""' ?  '/'+getcookie('subpath')[0]  : ''
+const SUBPATH =  getcookie('subpath')[0] !== '' ?  '/' + getcookie('subpath')[0]  : ''
 export {SUBPATH};
