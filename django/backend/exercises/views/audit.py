@@ -91,8 +91,7 @@ def get_new_audit(request, exercise):
     course = Course.objects.first()
     template = get_template('audit/subject.txt')
     data = {'course': course, 'exercise': dbexercise}
-    context = Context(data)
-    subject = template.render(context).strip()
+    subject = template.render(data).strip()
     audit = AuditExercise(
         auditor=request.user,
         student=auditee,
