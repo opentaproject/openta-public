@@ -1,4 +1,5 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import ReactDOM from 'react-dom';
 import Alert from './Alert.jsx';
@@ -19,10 +20,10 @@ import { menuPositionAt, menuPositionUnder } from '../menu.js';
 import {getcookie} from '../cookies.js';
 import {SUBPATH} from '../settings.js';
 
-import { 
-  updateQuestionResponse, 
-  updateExerciseXML, 
-  updateExerciseActiveXML, 
+import {
+  updateQuestionResponse,
+  updateExerciseXML,
+  updateExerciseActiveXML,
   updateExerciseJSON,
   updatePendingStateIn,
   setExerciseModifiedState,

@@ -3,7 +3,8 @@
  * It consists of a React component (see documentation on github for more details).
  */
 "use strict"; // It is recommended to use strict javascript for easier debugging
-import React, { PropTypes, Component } from 'react'; // React specific import
+import React, { Component } from 'react'; // React specific import
+import PropTypes from 'prop-types';
 
 import { registerQuestionType } from './question_type_dispatch.js' // Register function used at the bottom of this file to let the system know of the question type
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.

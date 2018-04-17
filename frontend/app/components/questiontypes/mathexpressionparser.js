@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react'; // React specific import
+import React, { Component } from 'react'; // React specific import
 import { insertImplicitSubscript } from '../mathrender/string_parse.js'
 import { enforceList } from '../../immutablehelpers.js';
 import immutable, { List } from 'immutable';

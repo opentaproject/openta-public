@@ -1,4 +1,4 @@
-import React, { PropTypes, Component } from 'react';
+import React, { Component } from 'react';
 import uniqueId from 'lodash/uniqueId';
 import HelpCompareNumeric from './HelpCompareNumeric.jsx'
 import MathSpan from '../MathSpan'
