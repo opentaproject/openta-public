@@ -51,9 +51,11 @@ def exercise_asset(request, exercise, asset):
 
     if asset == THUMBNAIL_FILENAME:
         if not has_asset(dbexercise.path, asset):
-            image = Image.new("RGB", (DEFAULT_THUMBNAIL_SIZE, DEFAULT_THUMBNAIL_SIZE), "white")
+            image = Image.new(
+                "RGBA", (DEFAULT_THUMBNAIL_SIZE, DEFAULT_THUMBNAIL_SIZE), (255, 255, 255, 0)
+            )
             response = HttpResponse(content_type="image/png")
-            image.save(response, format='png')
+            image.save(response, format='PNG')
             return response
 
     return serve_file(
