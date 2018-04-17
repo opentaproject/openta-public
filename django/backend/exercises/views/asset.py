@@ -3,13 +3,18 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.decorators import api_view, parser_classes
 from django.contrib.auth.decorators import permission_required
+from django.http import HttpResponse
 from exercises.models import Exercise
 from exercises.views.file_handling import serve_file
 import backend.settings as settings
 import exercises.paths as paths
-from exercises.parsing import list_assets, add_asset, delete_asset, exercise_xmltree
+from exercises.parsing import list_assets, add_asset, delete_asset, exercise_xmltree, has_asset
+from PIL import Image
 
 asset_types = ('.pdf', '.jpg', '.jpeg', '.svg', '.tiff', '.tif', '.png', '.gif')
+
+THUMBNAIL_FILENAME = 'thumbnail.png'
+DEFAULT_THUMBNAIL_SIZE = 10
 
 
 @permission_required('exercises.edit_exercise')
@@ -43,6 +48,13 @@ def exercise_asset(request, exercise, asset):
         content_type = 'application/pdf'
     if asset.lower().endswith(('.png', '.jpg', '.jpeg', '.svg', '.tiff', '.tif')):
         content_type = 'image'
+
+    if asset == THUMBNAIL_FILENAME:
+        if not has_asset(dbexercise.path, asset):
+            image = Image.new("RGB", (DEFAULT_THUMBNAIL_SIZE, DEFAULT_THUMBNAIL_SIZE), "white")
+            response = HttpResponse(content_type="image/png")
+            image.save(response, format='png')
+            return response
 
     return serve_file(
         (

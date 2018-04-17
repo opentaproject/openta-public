@@ -349,6 +349,12 @@ def list_assets(exercise_path, types):
     return assets
 
 
+def has_asset(exercise_path, asset):
+    full_path = os.path.join(paths.EXERCISES_PATH, *exercise_path.split('/'))
+    file_path = os.path.join(full_path, asset)
+    return os.path.isfile(file_path)
+
+
 def add_asset(exercise_path, asset_file, types):
     full_path = os.path.join(paths.EXERCISES_PATH, *exercise_path.split('/'))
     file_path = os.path.join(full_path, asset_file.name)
