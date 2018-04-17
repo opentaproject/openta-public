@@ -72,8 +72,7 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
                 'course_url': course_url,
             }
         )
-    context = Context(pcontext)
-    rendered_email = template.render(context)
+    rendered_email = template.render(pcontext)
 
     email_object = EmailMessage(
         subject=subject + _(" account activation"),

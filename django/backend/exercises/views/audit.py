@@ -11,7 +11,6 @@ from django.db.models import Count
 from django.db import IntegrityError
 from django.core.mail import EmailMessage
 from django.template.loader import get_template
-from django.template import Context
 from django.utils.timezone import now
 from random import choice
 from backend.user_utilities import send_email_object
@@ -169,8 +168,6 @@ def send_audit(request, pk):
         reply_to=[request.user.email],
     )
     # Send bcc to auditor (and current user if not auditor)
-    # print("request.user.eail = ", request.user.email)
-    # print("audit.auditor.email= ", audit.auditor.email)
     bcc = request.data.get('bcc')
     bcclist = []
     if bcc and audit.auditor.email:
@@ -207,8 +204,7 @@ def add_audit(request):
         course = Course.objects.first()
         template = get_template('audit/subject.txt')
         data = {'course': course, 'exercise': exercise}
-        context = Context(data)
-        subject = template.render(context).strip()
+        subject = template.render(data).strip()
         audit = AuditExercise(
             auditor=auditor,
             exercise=exercise,

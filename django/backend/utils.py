@@ -51,6 +51,9 @@ def get_localized_template(template_name):
     course = Course.objects.first()
     try:
         first_language = course.languages.split(',')[0]
+    except AttributeError:
+        first_language = 'en'
+    try:
         template = get_template(template_name + '.' + first_language)
     except TemplateDoesNotExist as exception:
         logger.error(template_name + '.' + first_language + " does not exist")
