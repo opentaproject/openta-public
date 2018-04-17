@@ -3,6 +3,18 @@ from course.models import Course
 from django.contrib.auth.models import User, Group, Permission
 from PIL import Image
 
+DEFAULT_EXERCISE = """
+                <exercise>\n
+                <exercisename>Exercise1</exercisename>\n
+                <text>Test exercise text</text>\n
+                <figure>figure.png</figure>\n
+                <question type="compareNumeric" key="1">\n
+                <text>compareNumeric</text>\n
+                <expression>sin(2)</expression>\n
+                </question>\n
+                </exercise>\n
+                """
+
 
 def create_database(password="pw"):
     perm_edit_exercise = Permission.objects.get(codename="edit_exercise")
@@ -33,26 +45,14 @@ def create_database(password="pw"):
     course, created = Course.objects.get_or_create(course_name="Test course")
 
 
-def create_exercise(directory, name):
+def create_exercise(directory, name, content=DEFAULT_EXERCISE):
     path = os.path.join(directory.name, name)
     os.makedirs(path)
     exercise_path = os.path.join(path, "exercise.xml")
     image_path = os.path.join(path, "figure.png")
     print(exercise_path)
     with open(exercise_path, "w") as f:
-        f.write(
-            """
-                <exercise>\n
-                <exercisename>Exercise1</exercisename>\n
-                <text>Test exercise text</text>\n
-                <figure>figure.png</figure>\n
-                <question type="compareNumeric" key="1">\n
-                <text>compareNumeric</text>\n
-                <expression>sin(2)</expression>\n
-                </question>\n
-                </exercise>\n
-                """
-        )
+        f.write(content)
     image = Image.new('RGBA', size=(100, 100), color=(0, 255, 0))
     with open(image_path, 'wb') as f:
         image.save(f, 'PNG')

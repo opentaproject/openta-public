@@ -114,7 +114,7 @@ export default class QuestionMultipleChoice extends Component {
     var reactKey = duplicateKey ? (choiceKey + key) : choiceKey;
     return (
     <div className="uk-width-1-1" key={reactKey}>
-      <div style={style} className={"uk-panel uk-panel-box uk-margin-bottom pointer " + divClass} onClick={() => this.toggleChoice(choiceKey)}>
+      <div style={style} className={"uk-panel uk-panel-box uk-margin-bottom pointer mc-item " + divClass} onClick={() => this.toggleChoice(choiceKey)}>
         <div className="uk-panel-badge">
         { this.props.canViewSolution && item.getIn(['@attr', 'correct']) === 'true' && <div className="uk-margin-small-left uk-margin-small-right uk-badge">correct</div> }
         { this.props.isAuthor && <div className="uk-badge">{choiceKey}</div> }
