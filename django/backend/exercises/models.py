@@ -363,7 +363,7 @@ class Question(models.Model):
         permissions = (("log_question", "Answers are logged"),)
 
     question_key = models.CharField(max_length=255)
-    exercise = models.ForeignKey(Exercise, related_name='question')
+    exercise = models.ForeignKey(Exercise, related_name='question', on_delete=models.CASCADE)
     type = models.CharField(max_length=255, default='none')
 
     def __str__(self):
@@ -371,7 +371,7 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     question = models.ForeignKey(
         Question, on_delete=models.SET_NULL, null=True, related_name='answer'
     )
@@ -408,7 +408,7 @@ class ImageAnswer(models.Model):
     IMAGE = 'IMG'
     PDF = 'PDF'
     FILETYPE_CHOICES = ((IMAGE, 'Image'), (PDF, 'Pdf'))
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     exercise = models.ForeignKey(
         Exercise, on_delete=models.SET_NULL, null=True, related_name="imageanswer"
     )
@@ -468,8 +468,8 @@ def audit_fileresponse_filename(instance, filename):
 
 
 class AuditExercise(models.Model):
-    student = models.ForeignKey(User, related_name='audits')
-    auditor = models.ForeignKey(User, related_name='studentaudits')
+    student = models.ForeignKey(User, related_name='audits', on_delete=models.CASCADE)
+    auditor = models.ForeignKey(User, related_name='studentaudits', on_delete=models.CASCADE)
     exercise = models.ForeignKey(
         Exercise, on_delete=models.SET_NULL, null=True, related_name='audits'
     )
@@ -505,8 +505,8 @@ class AuditResponseFile(models.Model):
     IMAGE = 'IMG'
     PDF = 'PDF'
     FILETYPE_CHOICES = ((IMAGE, 'Image'), (PDF, 'Pdf'))
-    audit = models.ForeignKey(AuditExercise, related_name='responsefiles')
-    auditor = models.ForeignKey(User)
+    audit = models.ForeignKey(AuditExercise, related_name='responsefiles', on_delete=models.CASCADE)
+    auditor = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(default=now)
     filetype = models.CharField(max_length=3, choices=FILETYPE_CHOICES, default=IMAGE)
     image = models.ImageField(
