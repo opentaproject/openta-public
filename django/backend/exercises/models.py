@@ -430,7 +430,7 @@ class ImageAnswer(models.Model):
 
 class ExerciseMeta(models.Model):
     DIFFICULTIES = ((1, 'Easy'), (2, 'Medium'), (3, 'Hard'))
-    exercise = models.OneToOneField(Exercise, related_name='meta')
+    exercise = models.OneToOneField(Exercise, related_name='meta', on_delete=models.CASCADE)
     exercise_key = models.CharField(max_length=255, default='')
     deadline_date = models.DateField(default=None, null=True, blank=True)
     solution = models.BooleanField(default=False, verbose_name='Publish solution')

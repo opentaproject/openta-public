@@ -17,7 +17,7 @@ def result_file_name(instance, filename):  # {{{
 
 
 class QueueTask(models.Model):
-    owner = models.ForeignKey(User, default=None, null=True)
+    owner = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255)
     progress = models.PositiveIntegerField(default=0)
