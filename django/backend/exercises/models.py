@@ -359,7 +359,9 @@ class Exercise(models.Model):
     translated_name = models.CharField(max_length=512, default="{}")
     path = models.TextField()
     folder = models.TextField(default="")
-    course = models.ForeignKey(Course, related_name="exercises", null=True)
+    course = models.ForeignKey(
+        Course, related_name="exercises", null=True, on_delete=models.CASCADE
+    )
     objects = ExerciseManager()
 
     class Meta:

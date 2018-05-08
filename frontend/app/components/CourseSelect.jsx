@@ -17,17 +17,33 @@ import {
 import { navigateMenuArray } from '../menu.js';
 
 const BaseCourseSelect = ({courses, activeCourse, onCourseChange}) => {
+  var courseColor = course => {
+    if (course.get('published'))
+      return "#0F0";
+    else
+      return "#F00";
+  }
+  var courseClass = course => {
+    if (course.get('published'))
+      return "uk-button-success";
+    else
+      return "uk-button-danger";
+  }
   if(courses == null || (courses.size == 1 && courses.first() == ''))
     return (<span/>);
   var courseChoices = courses.map(course =>
-    <li className="uk-text-center" key={course.get('pk')}>
+    <li className="uk-text-left" key={course.get('pk')}>
       <a className="uk-dropdown-close" style={{padding:"0px 5px"}} onClick={() => onCourseChange(course.get('pk'))}>
+        <i className="uk-icon uk-icon-circle uk-margin-small-right" style={{color: courseColor(course)}}/>
         <span className={course.pk == activeCourse ? 'uk-text-bold' : ''}>{course.get('course_name')}</span>
       </a>
     </li>).toList();
+  var course = courses.getIn([activeCourse], immutable.Map({}));
   return <div className="uk-button-dropdown" data-uk-dropdown="{mode:'click'}">
-    <button className="uk-button uk-button-mini uk-button-success">
-      {courses.getIn([activeCourse, 'course_name'])}
+    <button className={"uk-button uk-button-mini " + courseClass(course)}>
+      {!course.get('published') &&
+        <span className="uk-margin-small-right"><T>Unpublished:</T></span>}
+      {course.get('course_name')}
       <i className="uk-margin-small-left uk-icon-caret-down"></i>
     </button>
     <div className="uk-dropdown uk-dropdown-small uk-dropdown-bottom" style={{minWidth:'0'}}>

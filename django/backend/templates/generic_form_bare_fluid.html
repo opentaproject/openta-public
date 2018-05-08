@@ -1,19 +1,24 @@
-{% load i18n l10n admin_urls static %}
+{% load i18n l10n admin_urls static widget_tweaks %}
 
     <form method="post" class="uk-form uk-form-stacked">
       {% csrf_token %}
+      <ul class="uk-grid uk-grid-match" data-uk-grid-margin="">
+
       {% for field in form %}
-      <div class="uk-form-row">
+      <li class="uk-width" style="width:300px">
+      <div class="uk-form-row uk-panel uk-panel-box">
         {% for error in field.errors %}
         <div class="uk-alert uk-alert-danger">{{ error | escape }}</div>
         {% endfor %}
+        <label class="uk-form-label" for={{ field.id_for_label }}> {{ field.label }} </label>
+        <div class="uk-form-controls"> {{ field |add_class:"uk-width-1-1"}}</div>
         {% if field.help_text %}
         <div class="uk-alert uk-text-left"><p class="help">{{ field.help_text|safe }}</p></div>
         {% endif %}
-        <label class="uk-form-label" for={{ field.id_for_label }}> {{ field.label }} </label>
-        <div class="uk-form-controls"> {{ field }}</div>
       </div>
+      </li>
       {% endfor %}
+      </ul>
       {% for obj in queryset %}
       <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
       {% endfor %}

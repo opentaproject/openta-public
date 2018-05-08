@@ -9,6 +9,7 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         fields = (
             'course_name',
+            'published',
             'pk',
             'icon',
             'registration_password',

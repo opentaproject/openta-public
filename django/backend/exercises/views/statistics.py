@@ -54,7 +54,6 @@ def get_results_excel(request):
 @api_view(['GET'])
 def get_custom_result_excel(request):
     exercises = request.query_params.get('exercises').split(',')
-    print(exercises)
     dbexercises = Exercise.objects.filter(pk__in=exercises)
     results = calculate_students_results_subset(dbexercises)
     xlsx_data = create_xlsx_from_results_list(results)

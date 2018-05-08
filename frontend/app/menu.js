@@ -18,6 +18,11 @@ import {
 
 var menuTree = immutable.fromJS({
   menuItems: {
+    course: {
+      name: 'Course',
+      key: 'course',
+      reqGroup: ['Author']
+    },
     exercises: {
       name: 'Exercises',
       key: 'exercises',

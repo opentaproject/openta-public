@@ -191,13 +191,14 @@ def exercise_tree(request, course_pk):
 @api_view(['GET'])
 def other_exercises_from_folder(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
+    course_exercises = Exercise.objects.filter(course=dbexercise.course)
     other = []
     if request.user.has_perm('exercises.edit_exercise') or request.user.has_perm(
         'exercises.view_unpublished'
     ):
-        other = Exercise.objects.filter(folder=dbexercise.folder).prefetch_related('meta')
+        other = course_exercises.filter(folder=dbexercise.folder).prefetch_related('meta')
     else:
-        other = Exercise.objects.filter(
+        other = course_exercises.filter(
             folder=dbexercise.folder, meta__published=True
         ).prefetch_related('meta')
 
@@ -360,7 +361,6 @@ def upload_answer_image(request, exercise):
 def answer_image_view(request, image_id):
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
-        print(image_answer.image.name)
         if image_answer.user == request.user or request.user.is_staff:
             if image_answer.filetype == 'IMG':
                 return serve_file(
@@ -416,7 +416,6 @@ def exercises_test(request):
 
     exercises = Exercise.objects.all()
     results = [format_test(exercise) for exercise in exercises]
-    print(results)
     return TemplateResponse(request, 'exercises_test.html', {'results': results})
 
 

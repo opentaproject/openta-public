@@ -291,7 +291,7 @@ def exercise_delete(base_path, path):
     deleted_path = os.path.join(base_path, deleted_relative_path)
     if not os.path.isdir(exercise_path):
         return {'error': 'There is no such exercise folder!'}
-    if not is_exercise(path):
+    if not is_exercise(base_path, path):
         return {'error': 'The folder does not seem to be an exercise'}
     try:
         os.renames(exercise_path, deleted_path)
@@ -311,7 +311,6 @@ def exercise_move(base_path, path, newfolder):
 
     if exercise_old_folder == moved_relative_folder:
         return {'error': 'Same folder'}
-    print(exercise_path)
     if not os.path.isdir(exercise_path):
         return {'error': 'There is no such exercise folder!'}
     if not is_exercise(base_path, path):

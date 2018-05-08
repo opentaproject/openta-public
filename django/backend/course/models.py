@@ -3,6 +3,7 @@ import datetime
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 import pytz
 from django.conf import settings
 import exercises.paths as paths
@@ -74,6 +75,8 @@ class Course(models.Model):
     email_host_password = models.CharField(
         max_length=255, blank=True, null=True, default=settings.EMAIL_HOST_PASSWORD
     )
+    published = models.BooleanField(default=False)
+    owners = models.ManyToManyField(User)
 
     objects = CourseManager()
 

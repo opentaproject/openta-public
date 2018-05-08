@@ -171,7 +171,7 @@ const mapStateToProps = state => {
     exerciseState: exerciseState,
     pendingState: state.get('pendingState'),
     showStatistics: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
-    coursePk: state.getIn(['login', 'coursePk']),
+    coursePk: state.getIn(['activeCourse']),
   }
   )
 };

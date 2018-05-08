@@ -160,6 +160,8 @@ def login_status(request):
     }
     course = Course.objects.first()
     courses = Course.objects.all()
+    if not request.user.is_staff:
+        courses = courses.filter(published=True)
     courses_data = CourseSerializer(courses, many=True).data
     courses_dict = {course['pk']: course for course in courses_data}
 
@@ -180,7 +182,6 @@ def login(request, course_name=None):
     Returns:
         Login view unless rate limited in which case rate_limit.html
     """
-    subpath = '/' + settings.SUBPATH.strip('/')
     try:
         course = Course.objects.get(course_name__iexact=course_name)
     except Course.DoesNotExist:
@@ -242,7 +243,6 @@ def main(request, course_pk=None):
     Returns:
         The frontend app in base_main.html if authorized, otherwise login screen.
     """
-    print(course_pk)
     if course_pk is not None:
         course = Course.objects.get(pk=course_pk)
     else:

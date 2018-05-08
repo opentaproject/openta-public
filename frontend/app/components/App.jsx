@@ -6,6 +6,7 @@ import StudentExercise from './StudentExercise';
 import AuthorExercise from './AuthorExercise';
 import LoginInfo from './LoginInfo';
 import Course from './Course';
+import CourseOptions from './CourseOptions';
 import Results from './Results';
 import ReloadExercises from './ReloadExercises';
 import immutable from 'immutable';
@@ -28,11 +29,12 @@ class BaseApp extends React.Component {
             <div className="uk-container-center uk-flex uk-flex-center uk-width-1-1">
               { /*this.props.activeExercise === "" && <div className="uk-width-medium-1-6"/>*/ }
               { (
-                menuPositionUnder(this.props.menuPath, ['exercises', 'activity']) || 
-                menuPositionAt(this.props.menuPath, ['exercises']) || 
+                menuPositionUnder(this.props.menuPath, ['exercises', 'activity']) ||
+                menuPositionAt(this.props.menuPath, ['exercises']) ||
                 menuPositionAt(this.props.menuPath, [])) &&
-                <div className="uk-width-medium-2-3 uk-margin-small-left"><Course/></div> }  
-              { menuPositionUnder(this.props.menuPath, ['results']) && <div className="uk-width-1-1 uk-margin-small-left"><Results/></div> }  
+                <div className="uk-width-medium-2-3 uk-margin-small-left"><Course/></div> }
+              { menuPositionUnder(this.props.menuPath, ['results']) && <div className="uk-width-1-1 uk-margin-small-left"><Results/></div> }
+              { menuPositionUnder(this.props.menuPath, ['course']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseOptions/></div> }
               { menuPositionAt(this.props.menuPath, ['exercises', 'reload']) && <div className="uk-width-medium-2-3 uk-margin-small-left"><ReloadExercises/></div> }  
               { /*(this.props.admin || this.props.author) ? <span/> : <div className="exercise-spacing"></div> */ }
               { menuPositionUnder(this.props.menuPath, ['activeExercise']) &&
