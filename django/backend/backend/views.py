@@ -192,6 +192,7 @@ def login(request, course_name=None):
     extra = {
         'course': course_data,
         'openta_version': settings.VERSION if hasattr(settings, 'VERSION') else "",
+        'subpath': '/' + settings.SUBPATH,
     }
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
         return auth_views.login(request, extra_context=extra)
