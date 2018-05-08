@@ -125,7 +125,7 @@ class BaseAuthorExercise extends Component {
           </div>
         }
         { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }
-        { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) &&  canViewXML && 
+        { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) &&  canViewXML &&
           <div className="uk-width-1-1 uk-padding-remove">
               <div className="uk-flex">
                   <div style={{flex: '1'}}>

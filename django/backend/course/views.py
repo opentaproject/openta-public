@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from django.views.generic.edit import UpdateView
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
+import backend.settings as settings
 
 from course.serializers import CourseSerializer, CourseStudentSerializer
 from course.models import Course
@@ -10,9 +11,9 @@ from course.forms import CourseForm
 
 class CourseUpdate(UpdateView):
     model = Course
-    form_class = CourseForm
+    #    form_class = CourseForm
     fields = ['course_name', 'registration_password', 'registration_by_password']
-    success_url = '/course/{id}'
+    success_url = '/' + settings.SUBPATH + 'course/{id}/updateoptions'
 
 
 @permission_required('course.administer_course')

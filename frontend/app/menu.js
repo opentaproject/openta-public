@@ -26,7 +26,7 @@ var menuTree = immutable.fromJS({
         reload: {
           name: 'Reload exercises',
           key: 'reload',
-          onLoad: reloadExercises(),
+          onLoad: reloadExercises(false, null),
           reqGroup: ['Admin'],
         },
         activity: {

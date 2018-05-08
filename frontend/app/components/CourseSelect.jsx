@@ -14,6 +14,7 @@ import {
   fetchExercises,
   fetchExerciseTree
 } from '../fetchers.js';
+import { navigateMenuArray } from '../menu.js';
 
 const BaseCourseSelect = ({courses, activeCourse, onCourseChange}) => {
   if(courses == null || (courses.size == 1 && courses.first() == ''))
@@ -44,6 +45,7 @@ const mapDispatchToProps = dispatch => {
             dispatch(setActiveCourse(course));
             dispatch(fetchExercises(course));
             dispatch(fetchExerciseTree(course));
+            dispatch(navigateMenuArray([]));
         }
     }
 }

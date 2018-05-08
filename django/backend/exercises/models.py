@@ -1,22 +1,31 @@
-from django.db import models
+import json as JSON
+import logging
 import os
+import uuid
 from functools import reduce
-import exercises.paths as paths
-from exercises.parsing import ExerciseParseError, exercise_key_get_or_create
-from exercises.parsing import is_exercise, ExerciseNotFound, exercise_xmltree
-from exercises.parsing import question_validate_xmltree, get_translations
-from exercises.parsing import exercise_check_thumbnail, exercise_key_get
-from course.models import Course
+
 from django.contrib.auth.models import User
-from django.utils.timezone import now
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
+
+import exercises.paths as paths
+from course.models import Course
+from exercises.parsing import (
+    ExerciseNotFound,
+    ExerciseParseError,
+    exercise_check_thumbnail,
+    exercise_key_get,
+    exercise_key_get_or_create,
+    exercise_xmltree,
+    get_translations,
+    is_exercise,
+    question_validate_xmltree,
+)
 from exercises.util import nested_print
-import json as JSON
-import uuid
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -142,7 +151,9 @@ class ExerciseManager(models.Manager):
         exerciselist = []
         exercises_without_keys = []
         keys = {}
+        other_courses_keys = self.exclude(course=course).values_list('exercise_key', flat=True)
         exercises_path = course.get_exercises_path()
+        progress.append(('success', "Checking in" + exercises_path))
         for root, directories, filenames in os.walk(course.get_exercises_path(), followlinks=True):
             for filename in filenames:
                 if filename == 'exercise.xml':
@@ -153,7 +164,34 @@ class ExerciseManager(models.Manager):
         for name, path in exerciselist:
             try:
                 key = exercise_key_get(exercises_path, path)
-                if key in keys:
+                if key in other_courses_keys:
+                    duplicate_exercise = self.get(exercise_key=key)
+                    progress.append(('error', _("Duplicate exercise keys!")))
+                    progress.append(
+                        (
+                            'error',
+                            _("Exercise at [")
+                            + path
+                            + _(
+                                "] has the same key as exercise in other course:"
+                                + str(duplicate_exercise)
+                            ),
+                        )
+                    )
+                    progress.append(
+                        (
+                            'warning',
+                            _(
+                                (
+                                    "You will need to fix this before a reload is possible."
+                                    "(Perhaps you copied an exercise? Then please remove the"
+                                    " key file from the new exercise to generate a new one on reload)"
+                                )
+                            ),
+                        )
+                    )
+                    prevent_reload = True
+                elif key in keys:
                     progress.append(('error', _("Duplicate exercise keys!")))
                     progress.append(
                         (

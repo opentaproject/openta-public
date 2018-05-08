@@ -429,38 +429,42 @@ function fetchExerciseStatistics() {
   }
 }
 
-function reloadExercises(iAmSure = false, coursePk=null) {
-    return (dispatch, getState) => {
-        if(coursePk==null){
-          var state = getState();
-          coursePk = state.get('activeCourse');
-        }
-        var payload = {
-            i_am_sure: iAmSure
-        };
-        var data = JSON.stringify(payload);
-        var fetchconfig = {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: data
-        };
-        dispatch(updatePendingStateIn( ['exercisesReload'], true));
-        return jsonfetch('/course/' + coursePk + '/exercises/reload/json/', fetchconfig)
-            .then(response => response.json())
-            .then(json => {
-                if('detail' in json) {
-                    UIkit.notify(json.detail, {timeout: 10000, status: 'danger'});
-                    dispatch(updatePendingStateIn( ['exercisesReload'], false));
-                    throw json.detail;
-                }
-                return json;
-            })
-            .then(json => dispatch(updateExercisesReloadMessages(json)))
-            .then( () => dispatch(updatePendingStateIn( ['exercisesReload'], false)))
-            .then( () => dispatch( fetchExercises(coursePk) ))
-            .then( () => dispatch( fetchExerciseTree(coursePk) ))
-            .catch( err => console.log(err) );
+function reloadExercises(iAmSure = false, coursePkIn=null) {
+  return (dispatch, getState) => {
+    var coursePk = null;
+    if (coursePkIn == null) {
+      var state = getState();
+      coursePk = state.get('activeCourse');
+    }
+    else {
+      coursePk = coursePkIn;
+    }
+    var payload = {
+      i_am_sure: iAmSure
     };
+    var data = JSON.stringify(payload);
+    var fetchconfig = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: data
+    };
+    dispatch(updatePendingStateIn(['exercisesReload'], true));
+    return jsonfetch('/course/' + coursePk + '/exercises/reload/json/', fetchconfig)
+      .then(response => response.json())
+      .then(json => {
+        if ('detail' in json) {
+          UIkit.notify(json.detail, { timeout: 10000, status: 'danger' });
+          dispatch(updatePendingStateIn(['exercisesReload'], false));
+          throw json.detail;
+        }
+        return json;
+      })
+      .then(json => dispatch(updateExercisesReloadMessages(json)))
+      .then(() => dispatch(updatePendingStateIn(['exercisesReload'], false)))
+      .then(() => dispatch(fetchExercises(coursePk)))
+      .then(() => dispatch(fetchExerciseTree(coursePk)))
+      .catch(err => console.log(err));
+  };
 }
 
 
