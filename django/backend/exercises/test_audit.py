@@ -11,6 +11,7 @@ import datetime
 import exercises.paths as paths
 from exercises.setup_tests import create_exercise, create_database
 from .models import Exercise
+from course.models import Course
 from django.utils import timezone
 from django.conf import settings
 
@@ -22,9 +23,10 @@ class AuditTest(StaticLiveServerTestCase):
         super().setUp()
         create_database()
         self.dir = TemporaryDirectory()
-        create_exercise(self.dir, 'exercise1')
+        course = Course.objects.first()
+        create_exercise(course, self.dir.name, 'exercise1')
         paths.EXERCISES_PATH = self.dir.name
-        for msg in Exercise.objects.sync_with_disc(True):
+        for msg in Exercise.objects.sync_with_disc(course, True):
             print(msg)
         self.selenium = webdriver.Chrome()
         self.selenium.implicitly_wait(0)

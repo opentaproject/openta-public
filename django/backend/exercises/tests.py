@@ -10,6 +10,7 @@ import logging
 import exercises.paths as paths
 from exercises.setup_tests import create_exercise, create_database
 from .models import Exercise
+from course.models import Course
 from django.conf import settings
 
 LOGGER.setLevel(logging.WARNING)
@@ -18,10 +19,11 @@ LOGGER.setLevel(logging.WARNING)
 class CourseListTest(StaticLiveServerTestCase):
     def setUp(self):
         create_database()
+        course = Course.objects.first()
         self.dir = TemporaryDirectory()
-        create_exercise(self.dir, 'exercise1')
+        create_exercise(course, self.dir.name, 'exercise1')
         paths.EXERCISES_PATH = self.dir.name
-        Exercise.objects.add_exercise('/exercise1')
+        Exercise.objects.add_exercise('/exercise1', course=course)
         self.selenium = webdriver.Chrome()
         self.selenium.implicitly_wait(0)
         super().setUp()

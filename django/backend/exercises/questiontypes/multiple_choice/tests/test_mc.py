@@ -11,6 +11,7 @@ import datetime
 import exercises.paths as paths
 from exercises.setup_tests import create_exercise, create_database
 from exercises.models import Exercise
+from course.models import Course
 from django.utils import timezone
 from django.conf import settings
 
@@ -34,10 +35,11 @@ class MCTest(StaticLiveServerTestCase):
     def setUp(self):
         super().setUp()
         create_database()
+        course = Course.objects.first()
         self.dir = TemporaryDirectory()
-        create_exercise(self.dir, 'exercise1', content=EXERCISE_CODE)
+        create_exercise(course, self.dir.name, 'exercise1', content=EXERCISE_CODE)
         paths.EXERCISES_PATH = self.dir.name
-        for msg in Exercise.objects.sync_with_disc(True):
+        for msg in Exercise.objects.sync_with_disc(course, i_am_sure=True):
             print(msg)
         self.selenium = webdriver.Chrome()
         self.selenium.implicitly_wait(0)
@@ -60,7 +62,7 @@ class MCTest(StaticLiveServerTestCase):
 
     def login(self, username="student1", pw="pw", assert_role="student"):
         sel = self.selenium
-        wait = WebDriverWait(sel, 2)
+        wait = WebDriverWait(sel, 2000)
         input_username = sel.find_element_by_css_selector('input[id=id_username]')
         input_password = sel.find_element_by_css_selector('input[id=id_password]')
         login = sel.find_element_by_css_selector('input[type=submit]')

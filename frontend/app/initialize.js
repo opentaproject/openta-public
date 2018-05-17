@@ -32,8 +32,6 @@ if( getcookie('lang') !== undefined ){
           store.dispatch(updateLanguage( cookielang ) )
       }
    }
-store.dispatch( fetchExercises(1) );
-store.dispatch( fetchExerciseTree(1) );
 store.dispatch( setActiveCourse(globalInit.coursePk) )
 store.dispatch( fetchExercises(globalInit.coursePk) );
 store.dispatch( fetchExerciseTree(globalInit.coursePk) );

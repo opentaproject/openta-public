@@ -45,8 +45,8 @@ def create_database(password="pw"):
     course, created = Course.objects.get_or_create(course_name="Test course")
 
 
-def create_exercise(directory, name, content=DEFAULT_EXERCISE):
-    path = os.path.join(directory.name, name)
+def create_exercise(course, directory, name, content=DEFAULT_EXERCISE):
+    path = os.path.join(directory, course.get_exercises_folder(), name)
     os.makedirs(path)
     exercise_path = os.path.join(path, "exercise.xml")
     image_path = os.path.join(path, "figure.png")
