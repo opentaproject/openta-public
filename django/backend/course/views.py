@@ -45,9 +45,13 @@ def get_current_course(request):
 @api_view(['GET'])
 def get_courses(request):
     courses = Course.objects.all()
-    if request.user.is_staff:
+    if request.user.is_superuser:
         scourse = CourseSerializer(courses, many=True)
+    elif request.user.is_staff:
+        courses_owned = Course.objects.filter(owners=request.user)
+        scourse = CourseSerializer(courses_owned, many=True)
     else:
         courses = courses.filter(published=True)
         scourse = CourseStudentSerializer(courses, many=True)
+
     return Response(scourse.data)
