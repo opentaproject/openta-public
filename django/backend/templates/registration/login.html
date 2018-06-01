@@ -68,10 +68,14 @@
 
 {% endif %}
 
-
-
-{# Assumes you setup the password_reset view in your URLconf #}
-{# <p><a href="{% url 'password_reset' %}">Lost password?</a></p> #}
+<div style="position: relative">
+<div data-uk-dropdown="{mode:'click', justify:'content'}">
+<button class="uk-button uk-button-mini uk-margin-small-bottom">Privacy</button>
+<div id="privacy" class="uk-dropdown uk-text-small uk-text-left" >
+  {% include 'privacy.html' %}
+</div>
+</div>
+</div>
 
 <p class="uk-text uk-text-primary uk-text-muted uk-text-small"> {{ openta_version }} </p>
 </div>
