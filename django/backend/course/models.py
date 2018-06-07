@@ -40,10 +40,7 @@ class CourseManager(models.Manager):
 
     def registration_domains(self):
         course = self.first()
-        if course is not None and course.registration_domains is not None:
-            return list(map(lambda s: s.strip(), course.registration_domains.split(',')))
-        else:
-            return None
+        return course.get_registration_domains()
 
 
 # https://stackoverflow.com/questions/13590518/emailbackend-for-sending-email-through-multiple-smtp-in-django
@@ -88,3 +85,9 @@ class Course(models.Model):
 
     def get_exercises_folder(self):
         return str(self.pk)
+
+    def get_registration_domains(self):
+        if self.registration_domains is not None:
+            return list(map(lambda s: s.strip(), self.registration_domains.split(',')))
+        else:
+            return None

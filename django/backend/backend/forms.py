@@ -5,12 +5,13 @@ from django.contrib.auth.models import User
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.forms import ModelForm
 from django.template import loader
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext
 from django.utils.translation import ugettext_lazy
 from django.core.exceptions import ValidationError
 
 from backend.user_utilities import send_activation_mail
 from course.models import Course
+from users.models import OpenTAUser
 from utils import send_email_object
 
 
@@ -37,36 +38,65 @@ class UserCreateFormDomain(ModelForm):
     """Form used for user registration where the password is set after the activation mail is sent."""
 
     email = forms.EmailField(required=True)
-    first_name = forms.CharField(required=True, label=ugettext_lazy('First name'))
-    last_name = forms.CharField(required=True, label=ugettext_lazy('Last name'))
+    # first_name = forms.CharField(required=True, label=ugettext_lazy('First name'))
+    # last_name = forms.CharField(required=True, label=ugettext_lazy('Last name'))
 
     class Meta:
         model = User
-        fields = ("email", "first_name", "last_name")
+        fields = ("email",)
+
+    def __init__(self, *args, **kwargs):
+        self._course_pk = kwargs.pop('course_pk')
+        self._request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
 
     def clean_email(self):
-        domains = Course.objects.registration_domains()
+        course = Course.objects.get(pk=self._course_pk)
+        domains = course.get_registration_domains()
         user_domain = self.cleaned_data["email"].split('@')[-1]
-        username = self.cleaned_data["email"].split('@')[0]
+        # username = self.cleaned_data["email"]
         if domains is not None:
             if user_domain not in domains:
-                raise forms.ValidationError(_("Email domain must be ") + " or ".join(domains))
-        if User.objects.filter(username=username).exists():
-            message = (
-                "{} {} already exists! \n If it is not you, "
-                "contact admin to register another username on your email."
-            )
-            formatted = message.format(_("A user with username"), username)
-            raise forms.ValidationError(formatted)
+                raise forms.ValidationError(
+                    ugettext("Email domain must be ") + " or ".join(domains)
+                )
+        # if User.objects.filter(username=username).exists():
+        #    message = ("{} {} already exists! \n If it is not you, "
+        #               "contact admin to register another username on your email.")
+        #    formatted = message.format(_("A user with username"), username)
+        #    raise forms.ValidationError(formatted)
         return self.cleaned_data["email"]
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.username = self.cleaned_data["email"].split("@")[0]
-        user.is_active = False
-        user.save()
-        send_activation_mail(user.username, self.cleaned_data["email"], 'user-activation-and-reset')
-        return user
+        course = Course.objects.get(pk=self._course_pk)
+        try:
+            user = User.objects.get(username=self.cleaned_data['email'])
+            user.opentauser.courses.add(course)
+            messages.add_message(
+                self._request,
+                messages.SUCCESS,
+                ugettext('User already exists, added you to the course.'),
+            )
+            return user
+        except User.DoesNotExist:
+            user = super().save(commit=False)
+            user.username = self.cleaned_data["email"]
+            user.is_active = False
+            user.save()
+            openta_user, _ = OpenTAUser.objects.get_or_create(user=user)
+            openta_user.courses.add(course)
+            send_activation_mail(
+                user.username, self.cleaned_data["email"], 'user-activation-and-reset'
+            )
+            messages.add_message(
+                self._request,
+                messages.SUCCESS,
+                ugettext(
+                    'Registration complete, check inbox for '
+                    'activation mail (possibly spam folder).'
+                ),
+            )
+            return user
 
 
 class UserCreateForm(UserCreationForm):
@@ -91,13 +121,15 @@ class UserCreateForm(UserCreationForm):
 class RegisterWithPasswordForm(forms.Form):
     """Form for supplying the password to enter user registration."""
 
-    password = forms.CharField(label=_('Registration password'), widget=forms.PasswordInput())
+    password = forms.CharField(
+        label=ugettext('Registration password'), widget=forms.PasswordInput()
+    )
 
 
 class BatchAddUsersForm(forms.Form):
     """Form to upload CSV file for batch user registration."""
 
-    batch_file = forms.FileField(label=_("Batch CSV file"), required=False)
+    batch_file = forms.FileField(label=ugettext("Batch CSV file"), required=False)
 
 
 class EmailUsersForm(forms.Form):

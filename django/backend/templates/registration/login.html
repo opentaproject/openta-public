@@ -51,11 +51,11 @@
     <div class="uk-form-row">
       <input type="submit" class="uk-button" value="{% trans "Log in" %}" />
     </div>
-    <input type="hidden" name="next" value="{{subpath}}/{{ course.pk }}" />
+    <input type="hidden" name="next" value="{{subpath}}{{ course.pk }}" />
 </form>
 
 {% if course.registration_by_domain %}
-<a href="{% url 'register-with-domain' %}" class="uk-button uk-button-mini uk-margin-small-bottom">{% trans "Register by email" %}</a>
+<a href="{% url 'register-with-domain' course_pk=course.pk %}" class="uk-button uk-button-mini uk-margin-small-bottom">{% trans "Register by email" %}</a>
 {% endif %}
 <a class="uk-button uk-button-mini uk-margin-small-bottom" href="{% url 'password_reset' %}">{% trans "Lost password?" %}</a>
 

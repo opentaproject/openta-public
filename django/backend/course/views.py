@@ -51,7 +51,8 @@ def get_courses(request):
         courses_owned = Course.objects.filter(owners=request.user)
         scourse = CourseSerializer(courses_owned, many=True)
     else:
-        courses = courses.filter(published=True)
+        courses = request.user.opentauser.courses.filter(published=True)
+        print(courses)
         scourse = CourseStudentSerializer(courses, many=True)
 
     return Response(scourse.data)

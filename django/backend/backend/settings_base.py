@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'exercises.apps.ExercisesConfig',
     'course.apps.CourseConfig',
+    'users.apps.UsersConfig',
     'workqueue.apps.WorkqueueConfig',
     'widget_tweaks',
     'django_extensions',

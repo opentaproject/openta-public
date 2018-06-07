@@ -124,17 +124,22 @@ class RegisterUserDomain(CreateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['domains'] = Course.objects.registration_domains()
+        course = Course.objects.get(pk=self.kwargs['course_pk'])
+        ctx['domains'] = course.get_registration_domains()
+        ctx['course'] = CourseSerializer(course).data
         return ctx
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update(self.kwargs)
+        kwargs['request'] = self.request
+        return kwargs
 
     def form_valid(self, form):
         super().form_valid(form)
-        messages.add_message(
-            self.request,
-            messages.SUCCESS,
-            _('Registration complete, check inbox for ' 'activation mail (possibly spam folder).'),
-        )
-        return redirect(reverse('login'))
+        course = Course.objects.get(pk=self.kwargs['course_pk'])
+        print(course)
+        return redirect(reverse('login', kwargs=dict(course_name=course.course_name)))
 
 
 @api_view(['GET'])
@@ -158,20 +163,6 @@ def login_status(request):
         'admin': request.user.is_staff,
         'groups': groups,
     }
-    course = Course.objects.first()
-    courses = Course.objects.all()
-    if not request.user.is_staff:
-        courses = courses.filter(published=True)
-    courses_data = CourseSerializer(courses, many=True).data
-    courses_dict = {course['pk']: course for course in courses_data}
-
-    if courses is not None:
-        response.update({'course': course.course_name})
-        response.update({'course_pk': course.pk})
-        response.update({'courses': courses_dict})
-    else:
-        response.update({'course': 'OpenTA'})
-        logger.error('No course found')
     return Response(response)
 
 
@@ -184,6 +175,8 @@ def login(request, course_name=None):
     """
     try:
         course = Course.objects.get(course_name__iexact=course_name)
+        if request.user.is_authenticated:
+            return main(request, course_pk=course.pk)
     except Course.DoesNotExist:
         course = Course.objects.first()
     course_data = CourseSerializer(course).data
@@ -248,6 +241,10 @@ def main(request, course_pk=None):
         course = Course.objects.get(pk=course_pk)
     else:
         course = Course.objects.first()
+    if request.user.groups.filter(name='Student').exists() and not course.published:
+        messages.add_message(request, messages.WARNING, _("Course not published yet."))
+        return redirect(reverse('login'))
+
     course_data = CourseSerializer(course).data
     extra = dict(course=course_data)
     response = render(request, "base_main.html", context=extra)
