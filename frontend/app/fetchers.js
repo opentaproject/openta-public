@@ -54,7 +54,7 @@ function notify(messages, levels) {
     }
 }
 
-function fetchLoginStatus() {
+function fetchLoginStatus(coursePk) {
     return dispatch => {
         return jsonfetch('/loggedin/')
             .then(response => response.json() )
@@ -85,7 +85,7 @@ function fetchLoginStatus() {
                     dispatch(updateMenuLeafDefaults(['activeExercise'], 'student'));
                     //dispatch(updateMenuLeafDefaults(['activeExercise'], 'statistics'));
                     //dispatch(updateActiveAdminTool('statistics'));
-                    dispatch(fetchAllExerciseStatistics());
+                    dispatch(fetchAllExerciseStatistics(coursePk));
                 }
             }
                  )
@@ -108,9 +108,14 @@ function fetchExercises(coursePk) {//{{{
 
 function fetchExerciseTree(coursePk) {//{{{
   return dispatch => {
+    dispatch(updatePendingStateIn( ['course', 'loadingExerciseTree'], true));
     return jsonfetch('/course/' + coursePk + '/exercises/tree/')
       .then(response => response.json())
-      .then(json => dispatch(setExerciseTree(json)))
+      .then(json => {
+         dispatch(updatePendingStateIn( ['course', 'loadingExerciseTree'], false));
+         return json;
+      })
+      .then(json => dispatch(setExerciseTree(json, coursePk)))
       .catch( err => console.log(err) );
   };
 }//}}}
@@ -369,10 +374,10 @@ function fetchImageAnswers(exerciseKey) {//{{{
   };
 }//}}}
 
-function fetchAllExerciseStatistics() {//{{{
+function fetchAllExerciseStatistics(coursePk) {//{{{
   return dispatch => {
     dispatch(updatePendingStateIn( ['exercises_statistics'], true));
-    return jsonfetch('/statistics/statsperexercise')
+    return jsonfetch('/course/' + coursePk + '/statistics/statsperexercise')
       .then(response => response.json())
       .then(json =>  { 
           dispatch(updateExerciseStatistics(json.exercises));
@@ -383,29 +388,28 @@ function fetchAllExerciseStatistics() {//{{{
   };
 }//}}}
 
-function fetchStudentResults() {
-    return dispatch => {
-        dispatch(updatePendingStateIn( ['studentResults'], true));
-        var taskOptions = {
-            progressAction: (progress) => dispatch => dispatch(updatePendingStateIn( ['studentResults'], progress)),
-            completeAction: (data) => dispatch => {
-                dispatch(updateStudentResults(data));
-                dispatch(updatePendingStateIn( ['studentResults'], false));
-            }
-        };
-        return dispatch(enqueueTask('/statistics/resultsasync', taskOptions));
-    //return jsonfetch('/statistics/results')
-    //  .then(response => response.json())
-    //  .then(json => dispatch(updateStudentResults(json)))
-    //  .then( () => dispatch(updatePendingStateIn( ['studentResults'], false)))
-    //  .catch( err => console.log(err) );
+function fetchStudentResults(coursePk) {
+  return (dispatch, getState) => {
+    var state = getState();
+    var coursePk = state.get('activeCourse');
+    dispatch(updatePendingStateIn(['studentResults'], true));
+    var taskOptions = {
+      progressAction: (progress) => dispatch => dispatch(updatePendingStateIn(['studentResults'], progress)),
+      completeAction: (data) => dispatch => {
+        dispatch(updateStudentResults(data));
+        dispatch(updatePendingStateIn(['studentResults'], false));
+      }
+    };
+    return dispatch(enqueueTask('/course/' + coursePk + '/statistics/resultsasync', taskOptions));
   };
 }
 
-function fetchStudentDetailResults(userPk) {
-  return dispatch => {
+function fetchStudentDetailResults(userPk, coursePk) {
+  return (dispatch, getState) => {
+    var state = getState();
+    var coursePk = state.get('activeCourse');
     dispatch(updatePendingStateIn( ['detailedResults', userPk], true));
-    return jsonfetch('/results/user/' + userPk + '/')
+    return jsonfetch('/course/' + coursePk + '/results/user/' + userPk + '/')
       .then(response => response.json())
       .then(json => dispatch(updateStudentDetailResults(userPk, json)))
       .then( () => dispatch(updatePendingStateIn( ['detailedResults', userPk], false)))

@@ -59,7 +59,7 @@ function deleteAuditResponseFile(auditResponseId) {
 
 function fetchUnsentAudits() {
   return dispatch => {
-    dispatch(updatePendingStateIn( ['audit', 'fetchUnsertAudits'], true));
+    dispatch(updatePendingStateIn( ['audit', 'fetchUnsentAudits'], true));
     return jsonfetch('/audit/unsent/')
       .then(response => response.json())
       .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({}))) 

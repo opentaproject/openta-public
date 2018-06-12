@@ -2,47 +2,39 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from django.http import HttpResponse
-from exercises.modelhelpers import student_attempts_exercises
 from exercises.models import Exercise, Answer
 from exercises.aggregation import student_statistics_exercises, students_results
 from exercises.aggregation import create_xlsx_from_results_list, calculate_students_results_subset
 from exercises.aggregation import excel_custom_results_pipeline, students_results_async_pipeline
+from course.models import Course
 from workqueue.models import QueueTask
 import workqueue.util as workqueue
 from datetime import datetime
 import numpy
 
 
-@permission_required('exercises.administer_exercise')
+@permission_required('exercises.view_statistics')
 @api_view(['GET'])
-def get_student_attempts_per_exercise(request):
-    return Response(student_attempts_exercises())
+def get_statistics_per_exercise(request, course_pk):
+    dbcourse = Course.objects.get(pk=course_pk)
+    return Response(student_statistics_exercises(course=dbcourse))
 
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
-def get_statistics_per_exercise(request):
-    return Response(student_statistics_exercises())
-
-
-@permission_required('exercises.view_statistics')
-@api_view(['GET'])
-def get_results(request):
-    results = students_results()
-    return Response(results)
-
-
-@permission_required('exercises.view_statistics')
-@api_view(['GET'])
-def get_results_async(request):
-    task_id = workqueue.enqueue_task("student_results", students_results_async_pipeline)
+def get_results_async(request, course_pk):
+    dbcourse = Course.objects.get(pk=course_pk)
+    task_id = workqueue.enqueue_task(
+        "student_results", students_results_async_pipeline, course=dbcourse
+    )
     return Response({'task_id': task_id})
 
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
-def get_results_excel(request):
-    results = students_results()
+def get_results_excel(request, course_pk):
+    dbcourse = Course.objects.get(pk=course_pk)
+    results = students_results(course=dbcourse)
     xlsx_data = create_xlsx_from_results_list(results)
     content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     response = HttpResponse(xlsx_data, content_type=content_type)
@@ -65,7 +57,7 @@ def get_custom_result_excel(request):
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET', 'POST'])
-def enqueue_custom_result_excel(request):
+def enqueue_custom_result_excel(request, course_pk):
     exercises = None
     if request.method == 'GET':
         exercises = request.query_params.get('exercises').split(',')
@@ -74,8 +66,11 @@ def enqueue_custom_result_excel(request):
     if exercises is None:
         return Response({})
 
+    dbcourse = Course.objects.get(pk=course_pk)
     dbexercises = Exercise.objects.filter(pk__in=exercises)
-    task_id = workqueue.enqueue_task("Custom results", excel_custom_results_pipeline, dbexercises)
+    task_id = workqueue.enqueue_task(
+        "Custom results", excel_custom_results_pipeline, dbexercises, course=dbcourse
+    )
     return Response({'task_id': task_id})
 
 

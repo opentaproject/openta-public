@@ -19,10 +19,11 @@ function updateExercises(exercises, folder) {//{{{
   };
 }//}}}
 
-function setExerciseTree(exercisetree) {//{{{
+function setExerciseTree(exercisetree, coursePk) {//{{{
   return {
     type: 'SET_EXERCISE_TREE',
-    exercisetree: exercisetree
+    exercisetree: exercisetree,
+    coursePk: coursePk
   };
 }//}}}
 

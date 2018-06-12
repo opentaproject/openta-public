@@ -185,19 +185,20 @@ const renderFilter = ({filteredUsers, onFilterChange, onFilterKeypress, filter, 
       </div>
 )//}}}
 
-const BaseResults = ({menuPath, 
-                     userResults, 
-                     pendingResults, 
-                     onFilterChange, 
+const BaseResults = ({menuPath,
+                     userResults,
+                     pendingResults,
+                     onFilterChange,
                      onFilterKeypress,
                      onRequiredDeadline,
                      onBonusDeadline,
-                     filter, 
-                     requiredFilter, 
+                     filter,
+                     requiredFilter,
                      bonusFilter,
                      onUserClick,
                      selectedUser,
                      activeDetailExercise,
+                     activeCourse,
                      }) => {
   var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
     .map( user => (immutable.Map({
@@ -274,7 +275,7 @@ const BaseResults = ({menuPath,
     }
       { menuPositionUnder(menuPath, ['results', 'download']) && !pendingResults && 
       <div className="uk-width-1-1 uk-text-center">
-        <h1><a href={SUBPATH + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a></h1> 
+        <h1><a href={SUBPATH + "/course/" + activeCourse + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a></h1> 
       </div>
       }
       { !activeDetailExercise &&
@@ -336,6 +337,7 @@ const mapStateToProps = state => ({
   bonusFilter: state.getIn(['results', 'filters', 'bonusKey'], 'n_correct'),
   pendingResults: state.getIn(['pendingState', 'studentResults'], false),
   activeDetailExercise: state.getIn(['results', 'detailResultExercise'], false),
+  activeCourse: state.get('activeCourse')
 });
 
 const handleRequiredDeadline = (value) => (dispatch) => {

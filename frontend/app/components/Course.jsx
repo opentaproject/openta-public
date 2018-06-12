@@ -231,18 +231,21 @@ const BaseCourse = ({ exercisetree, exerciseTreeUI, exerciseState, pendingState,
   if(pendingState.getIn(['course', 'loadingExercises'], false)) {
       return (<Spinner/>);
   }
-  if(exercisetree) {
-  var top = parseFolder(exercisetree, "/");
-  return (
-  <div className="uk-content-center">
-    <ul className="uk-list">
-      {top}
-    </ul>
-  </div>
-);
+  if (pendingState.getIn(['course', 'loadingExerciseTree'], false)) {
+      return (<Spinner/>);
+  }
+  if (exercisetree) {
+    var top = parseFolder(exercisetree, "/");
+    return (
+      <div className="uk-content-center">
+        <ul className="uk-list">
+          {top}
+        </ul>
+      </div>
+    );
   }
   else {
-      return (<Spinner/>);
+    return (<Spinner />);
   }
 }
 

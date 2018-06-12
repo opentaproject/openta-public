@@ -175,8 +175,8 @@ def e_student_percent_complete(exercise):
     }
 
 
-def exercise_list_data(exercise_data_func_list):
-    exercises = Exercise.objects.all()
+def exercise_list_data(exercise_data_func_list, course):
+    exercises = Exercise.objects.filter(course=course)
     result = {}
     for exercise in exercises:
 
@@ -360,11 +360,6 @@ def serialize_exercise_with_question_data(exercise, user):
         except ObjectDoesNotExist:
             pass
     return data
-
-
-def student_attempts_exercises():
-    folders = folder_structure([e_name, e_path, e_student_attempt_count])
-    return folders
 
 
 def exercise_test(exercise_key):

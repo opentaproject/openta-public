@@ -43,9 +43,6 @@ class CourseManager(models.Manager):
         return course.get_registration_domains()
 
 
-# https://stackoverflow.com/questions/13590518/emailbackend-for-sending-email-through-multiple-smtp-in-django
-
-
 class Course(models.Model):
     course_name = models.CharField(max_length=255)
     icon = models.ImageField(default=None, null=True, blank=True, upload_to='public')

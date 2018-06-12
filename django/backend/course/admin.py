@@ -1,3 +1,4 @@
+from django.contrib import admin
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
@@ -10,10 +11,26 @@ from utils import send_email_object
 
 from .forms import CourseForm
 from .models import Course
+from users.models import OpenTAUser
+
+
+class OpenTAUserInline(admin.StackedInline):
+    model = OpenTAUser
+    can_delete = False
+    verbose_name_plural = 'OpenTAUser'
 
 
 class CustomUserAdmin(UserAdmin):
     actions = ['resend_activation', 'show_activation', 'send_an_email']
+    inlines = (OpenTAUserInline,)
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'get_courses')
+    list_select_related = ('opentauser',)
+    list_filter = ('opentauser__courses', 'is_staff', 'is_superuser', 'is_active', 'groups')
+
+    def get_courses(self, instance):
+        return list(instance.opentauser.courses.values_list('course_name', flat=True))
+
+    get_courses.short_description = 'Courses'
 
     def resend_activation(self, request, queryset):
         for user in queryset:

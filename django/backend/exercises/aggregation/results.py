@@ -16,29 +16,33 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def students_results(cache_seconds=1 * 60 * 60, force=False, task=None):
-    result = cache.get('exercises.aggregation.results')
+def students_results(cache_seconds=1 * 60 * 60, force=False, task=None, course=None):
+    cache_url = 'course.{course_pk}.exercises.aggregation.results'.format(course_pk=course.pk)
+    result = cache.get(cache_url)
     if result is not None and not force:
         return result
-    result = calculate_students_results(task)
-    cache.set('exercises.aggregation.results', result, cache_seconds)
+    result = calculate_students_results(task, course=course)
+    cache.set(cache_url, result, cache_seconds)
     return result
 
 
-def student_statistics_exercises(cache_seconds=1 * 60 * 60, force=False):
-    result = cache.get('exercises.aggregation.statistics')
+def student_statistics_exercises(cache_seconds=1 * 60 * 60, force=False, course=None):
+    cache_url = 'course.{course_pk}.exercises.aggregation.statistics'.format(course_pk=course.pk)
+    result = cache.get(cache_url)
     if result is not None and not force:
         return result
-    result = calculate_student_statistics_exercises()
-    cache.set('exercises.aggregation.statistics', result, cache_seconds)
+    result = calculate_student_statistics_exercises(course=course)
+    cache.set(cache_url, result, cache_seconds)
     return result
 
 
-def calculate_students_results(task=None):
-    return calculate_students_results_subset(Exercise.objects.all(), task)
+def calculate_students_results(task=None, course=None):
+    return calculate_students_results_subset(
+        Exercise.objects.filter(course=course), task, course=course
+    )
 
 
-def calculate_student_statistics_exercises():
+def calculate_student_statistics_exercises(course):
     data = exercise_list_data(
         [
             e_name,
@@ -48,20 +52,21 @@ def calculate_student_statistics_exercises():
             e_student_attempts_mean,
             e_student_attempts_median,
             e_student_activity,
-        ]
+        ],
+        course=course,
     )
     aggregates = post_process_list(data, [p_student_activity])
     return {'exercises': data, 'aggregates': aggregates}
 
 
-def calculate_user_results(userpk):
-    user = User.objects.get(pk=userpk)
+def calculate_user_results(user_pk, course_pk):
+    user = User.objects.get(pk=user_pk)
+    course = Course.objects.get(pk=course_pk)
     tz = pytz.timezone('Europe/Stockholm')
     deadline_time = datetime.time(23, 59, 59)
-    course = Course.objects.first()
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
-    exercises = Exercise.objects.filter(meta__published=True)
+    exercises = Exercise.objects.filter(meta__published=True, course=course)
     exercises_with_answers = exercises.prefetch_related(
         Prefetch(
             'question',
@@ -220,11 +225,11 @@ def calculate_user_results(userpk):
     }
 
 
-def calculate_students_results_subset(exercise_query, task=None):
+def calculate_students_results_subset(exercise_query, task=None, course=None):
     required = exercise_query.filter(meta__required=True).select_related('meta')
     bonus = exercise_query.filter(meta__bonus=True).select_related('meta')
     students = (
-        User.objects.filter(groups__name='Student')
+        User.objects.filter(groups__name='Student', opentauser__courses=course)
         .exclude(username='student')
         .order_by('first_name')
     )

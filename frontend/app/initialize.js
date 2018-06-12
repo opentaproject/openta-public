@@ -14,7 +14,7 @@ import {
     fetchCourse,
     fetchCourses,
 } from './fetchers';
-import { 
+import {
     updateLanguage
     } from './actions.js'
 import {
@@ -35,7 +35,7 @@ if( getcookie('lang') !== undefined ){
 store.dispatch( setActiveCourse(globalInit.coursePk) )
 store.dispatch( fetchExercises(globalInit.coursePk) );
 store.dispatch( fetchExerciseTree(globalInit.coursePk) );
-store.dispatch( fetchLoginStatus() );
+store.dispatch( fetchLoginStatus(globalInit.coursePk) );
 store.dispatch( fetchCourse() );
 store.dispatch( fetchCourses() );
 store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
@@ -59,7 +59,7 @@ const load = () => {
     var larray = location.split('/');
     if(larray[0] == 'exercise' && larray.length >= 1) {
       store.dispatch(navigateMenuArray(['activeExercise', 'student']));
-      store.dispatch( fetchLoginStatus() )
+      store.dispatch( fetchLoginStatus(globalInit.coursePk) )
         .then(() => store.dispatch(fetchExercise(larray[1], true)));
     }
   }

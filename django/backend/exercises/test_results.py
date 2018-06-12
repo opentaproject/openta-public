@@ -6,10 +6,11 @@ import datetime
 from django.utils import timezone
 from exercises.aggregation.results import calculate_students_results, calculate_user_results
 from django.core.files.uploadedfile import SimpleUploadedFile
+from exercises.setup_tests import create_user
 
 
-def create_exercise(key, name, path):
-    e = Exercise(exercise_key=key, name=name, path=path)
+def create_exercise(key, name, path, course):
+    e = Exercise(exercise_key=key, name=name, path=path, course=course)
     e.save()
     return e
 
@@ -62,7 +63,7 @@ def create_image_answer_at(user, exercise, date):
 
 
 def create_course(name, deadline_time):
-    course = Course(course_name=name, deadline_time=deadline_time)
+    course = Course(course_name=name, deadline_time=deadline_time, published=True)
     course.save()
     return course
 
@@ -116,16 +117,16 @@ def create_audit_revision_tests(user, admin, deadline, q1, q2, q3, e1, e2, e3):
 
 
 def create_database():
-    create_course("A course", datetime.time(8, 0, 0))
-    e1 = create_exercise('r1', 'Required Exercise 1', 'path1')
-    e2 = create_exercise('r2', 'Required Exercise 2', 'path2')
-    e3 = create_exercise('r3', 'Required Exercise 3', 'path3')
-    e4 = create_exercise('r4', 'Required Exercise 4', 'path4')
-    e5 = create_exercise('r5', 'Required Exercise 5', 'path5')
-    b1 = create_exercise('b1', 'Bonus Exercise 1', 'path1')
-    b2 = create_exercise('b2', 'Bonus Exercise 2', 'path2')
-    b3 = create_exercise('b3', 'Bonus Exercise 3', 'path3')
-    b4 = create_exercise('b4', 'Bonus Exercise 4', 'path4')
+    course = create_course("A course", datetime.time(8, 0, 0))
+    e1 = create_exercise('r1', 'Required Exercise 1', 'path1', course=course)
+    e2 = create_exercise('r2', 'Required Exercise 2', 'path2', course=course)
+    e3 = create_exercise('r3', 'Required Exercise 3', 'path3', course=course)
+    e4 = create_exercise('r4', 'Required Exercise 4', 'path4', course=course)
+    e5 = create_exercise('r5', 'Required Exercise 5', 'path5', course=course)
+    b1 = create_exercise('b1', 'Bonus Exercise 1', 'path1', course=course)
+    b2 = create_exercise('b2', 'Bonus Exercise 2', 'path2', course=course)
+    b3 = create_exercise('b3', 'Bonus Exercise 3', 'path3', course=course)
+    b4 = create_exercise('b4', 'Bonus Exercise 4', 'path4', course=course)
     q1 = create_question(e1, 'q1')
     q2 = create_question(e2, 'q2')
     q3 = create_question(e3, 'q3')
@@ -152,9 +153,10 @@ def create_database():
     student.save()
     admin = Group(name="Admin")
     admin.save()
-    u1 = User.objects.create_user('student1', 'student1@test.se', 'pw1')
-    u2 = User.objects.create_user('student2', 'student2@test.se', 'pw2')
-    u3 = User.objects.create_user('student3', 'student3@test.se', 'pw3')
+    u1 = create_user('student1', 'student1@test.se', 'pw1', course)
+    u2 = create_user('student2', 'student2@test.se', 'pw2', course)
+    u3 = create_user('student3', 'student3@test.se', 'pw3', course)
+
     uadmin = User.objects.create_user('admin1', 'admin1@test.se', 'pw3')
     student.user_set.add(u1)
     student.user_set.add(u2)
@@ -171,11 +173,12 @@ def create_database():
 
     # Create audits both with and without need for revision
     create_audit_revision_tests(u3, uadmin, now, q1, q2, q3, e1, e2, e3)
+    return course
 
 
 class QuestionMethodTests(TestCase):
     def setUp(self):
-        create_database()
+        self._course = create_database()
 
     def test_results(self):
         """
@@ -185,7 +188,7 @@ class QuestionMethodTests(TestCase):
         and image answers at different times. The audit force_passed is also
         tested.
         """
-        results = calculate_students_results()
+        results = calculate_students_results(course=self._course)
         ru1 = list(filter(lambda user: user['username'] == 'student1', results))
         self.assertEqual(ru1[0]['required']['n_correct'], 4)
         self.assertEqual(ru1[0]['required']['n_deadline'], 3)
@@ -207,11 +210,11 @@ class QuestionMethodTests(TestCase):
         self.assertEqual(ru3[0]['failed_by_audits'], 1)
 
         u1 = User.objects.get(username='student1')
-        u1detailed = calculate_user_results(u1.pk)
+        u1detailed = calculate_user_results(u1.pk, course_pk=self._course.pk)
         u2 = User.objects.get(username='student2')
-        u2detailed = calculate_user_results(u2.pk)
+        u2detailed = calculate_user_results(u2.pk, course_pk=self._course.pk)
         u3 = User.objects.get(username='student3')
-        u3detailed = calculate_user_results(u3.pk)
+        u3detailed = calculate_user_results(u3.pk, course_pk=self._course.pk)
 
         self.assertEqual(u1detailed['summary']['required']['n_correct'], 4)
         self.assertEqual(u1detailed['summary']['required']['n_deadline'], 3)

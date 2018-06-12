@@ -54,13 +54,14 @@ urlpatterns = [
         views.ExerciseMetaUpdate.as_view(),
         name='exercise-meta-update',
     ),
-    url(r'^statistics/allstudentattempts', views.get_student_attempts_per_exercise),
-    url(r'^statistics/statsperexercise', views.get_statistics_per_exercise),
-    url(r'^statistics/results$', views.get_results),
-    url(r'^statistics/resultsasync$', views.get_results_async),
+    url(
+        r'^course/(?P<course_pk>[0-9]+)/statistics/statsperexercise',
+        views.get_statistics_per_exercise,
+    ),
+    url(r'^course/(?P<course_pk>[0-9]+)/statistics/resultsasync/$', views.get_results_async),
     url(r'^statistics/customresult$', views.enqueue_custom_result_excel),
     url(r'^statistics/customresult/(?P<task>[0-9]+)$', views.progress_custom_result_excel),
-    url(r'^statistics/results/excel$', views.get_results_excel),
+    url(r'^course/(?P<course_pk>[0-9]+)/statistics/results/excel$', views.get_results_excel),
     url(r'^statistics/exercise/(?P<exercise>[\w\.-]+)/activity', views.get_activity_exercise),
     url(r'^audit/unsent/$', views.get_current_unsent_audits),
     url(r'^audit/new/exercise/(?P<exercise>[\w\.-]+)$', views.get_new_audit),
@@ -75,7 +76,9 @@ urlpatterns = [
     url(r'^auditresponsefile/view/(?P<pk>[0-9]+)/$', views.audit_response_file_view),
     url(r'^auditresponsefile/view/(?P<pk>[0-9]+)/thumb$', views.audit_response_file_thumb_view),
     url(r'^auditresponsefile/delete/(?P<pk>[0-9]+)/$', views.delete_audit_response_file),
-    url(r'^results/user/(?P<userpk>[0-9]+)/$', views.get_user_results),
+    url(
+        r'^course/(?P<course_pk>[0-9]+)/results/user/(?P<user_pk>[0-9]+)/$', views.get_user_results
+    ),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/recentresults', views.get_recent_results),
 ]
 

@@ -1,5 +1,6 @@
 import os
 from course.models import Course
+from users.models import OpenTAUser
 from django.contrib.auth.models import User, Group, Permission
 from PIL import Image
 
@@ -17,6 +18,7 @@ DEFAULT_EXERCISE = """
 
 
 def create_database(password="pw"):
+    course, created = Course.objects.get_or_create(course_name="Test course", published=True)
     perm_edit_exercise = Permission.objects.get(codename="edit_exercise")
     perm_admin_exercise = Permission.objects.get(codename="administer_exercise")
     perm_log_answer = Permission.objects.get(codename="log_question")
@@ -31,8 +33,8 @@ def create_database(password="pw"):
     author.save()
     view, created = Group.objects.get_or_create(name="View")
     view.save()
-    u1 = User.objects.create_user('student1', 'student1@test.se', 'pw')
-    u2 = User.objects.create_user('student2', 'student2@test.se', 'pw')
+    u1 = create_user('student1', 'student1@test.se', 'pw', course=course)
+    u2 = create_user('student2', 'student2@test.se', 'pw', course=course)
     uadmin = User.objects.create_superuser('admin1', 'admin1@test.se', 'pw')
     usuper = User.objects.create_superuser('super', 'admin1@test.se', 'pw')
     student.user_set.add(u1)
@@ -42,7 +44,6 @@ def create_database(password="pw"):
     admin.user_set.add(usuper)
     author.user_set.add(usuper)
     view.user_set.add(usuper)
-    course, created = Course.objects.get_or_create(course_name="Test course")
 
 
 def create_exercise(course, directory, name, content=DEFAULT_EXERCISE):
@@ -57,3 +58,10 @@ def create_exercise(course, directory, name, content=DEFAULT_EXERCISE):
     with open(image_path, 'wb') as f:
         image.save(f, 'PNG')
     return os.path.join(name)
+
+
+def create_user(name, email, pw, course):
+    user = User.objects.create_user(name, email, pw)
+    opentauser, _ = OpenTAUser.objects.get_or_create(user=user)
+    opentauser.courses.add(course)
+    return user

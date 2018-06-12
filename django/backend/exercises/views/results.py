@@ -75,8 +75,8 @@ def get_recent_results(request, exercise):
 
 
 @api_view(['GET'])
-def get_user_results(request, userpk):
-    user = User.objects.get(pk=userpk)
+def get_user_results(request, user_pk, course_pk):
+    user = User.objects.get(pk=user_pk)
     if not request.user == user and not request.user.is_staff:
         return Response({'error': 'Permission denied'})
-    return Response(calculate_user_results(userpk))
+    return Response(calculate_user_results(user_pk, course_pk=course_pk))

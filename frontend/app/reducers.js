@@ -79,7 +79,10 @@ export default (state = defaultState, action) => {
         'folder': action.folder
       });
     case 'SET_EXERCISE_TREE':
-      return state.set('exerciseTree', immutable.fromJS(action.exercisetree));
+      if(action.coursePk === state.get('activeCourse'))
+        return state.set('exerciseTree', immutable.fromJS(action.exercisetree));
+      else
+        return state
     case 'UPDATE_QUESTION_RESPONSE':
       return state.setIn(['exerciseState', action.exercise, 'question', action.question, 'response'], immutable.fromJS(action.response));
       //return state.mergeDeep(action.data);

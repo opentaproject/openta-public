@@ -6,8 +6,8 @@ from .results import calculate_students_results_subset, students_results
 logger = logging.getLogger(__name__)
 
 
-def excel_custom_results_pipeline(dbexercises, task):
-    results = calculate_students_results_subset(dbexercises, task)
+def excel_custom_results_pipeline(dbexercises, task, course):
+    results = calculate_students_results_subset(dbexercises, task, course=course)
     xlsx_data = create_xlsx_from_results_list(results)
     in_memory_file = ContentFile(xlsx_data)
     in_memory_file.name = ".xlsx"
@@ -17,10 +17,10 @@ def excel_custom_results_pipeline(dbexercises, task):
     task.save()
 
 
-def students_results_async_pipeline(task):
+def students_results_async_pipeline(task, course):
     task.status = "Working"
     task.save()
-    result = students_results(task=task)
+    result = students_results(task=task, course=course)
     task.done = True
     task.status = "Working"
     task.progress = 100
