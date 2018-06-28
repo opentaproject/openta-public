@@ -41,7 +41,7 @@ const BaseCourseSelect = ({courses, activeCourse, onCourseChange}) => {
   var course = courses.getIn([activeCourse], immutable.Map({}));
   return <div className="uk-button-dropdown" data-uk-dropdown="{mode:'click'}">
     <button className={"uk-button uk-button-mini " + courseClass(course)}>
-      {!course.get('published') &&
+      {!course.get('published') && course.has('published') &&
         <span className="uk-margin-small-right"><T>Unpublished:</T></span>}
       {course.get('course_name')}
       <i className="uk-margin-small-left uk-icon-caret-down"></i>
