@@ -18,7 +18,7 @@ import {
 class BaseExerciseHoverMenu extends Component {
     constructor() {
         super();
-        this.state = { 
+        this.state = {
         }
     }
 
@@ -35,9 +35,20 @@ class BaseExerciseHoverMenu extends Component {
 
     renderFolder = (exercise, folderName, content) => {
         var subfolders = []
-        if(content.has('folders')) {
-            subfolders = content.getIn(['folders'], immutable.Map({})).keySeq().sort()
-                                      .map( name => this.renderFolder(exercise, name, content.getIn(['folders', name, 'content'])) ).toList();
+        if (content.has("folders")) {
+          subfolders = content
+            .getIn(["folders"], immutable.Map({}))
+            .keySeq()
+            .sort()
+            .map(name =>
+              this.renderFolder(
+                exercise,
+                name,
+                content.getIn(["folders", name, "content"]),
+                coursePk
+              )
+            )
+            .toList();
         }
 
         var folderPrename = folderName.split('.')[0].split(':');
@@ -65,24 +76,20 @@ class BaseExerciseHoverMenu extends Component {
 
         if(!this.props.author)
             return (<span/>);
-        return (
-            <span>
-                <a href={"#move-modal" + exercise} data-uk-modal>
-                    <i className="uk-icon uk-icon-arrows uk-margin-small-right"/>Move
-                </a>
-                <div id={"move-modal" + exercise} className="uk-modal">
-                    <div className="uk-modal-dialog" style={{width: '300px'}}>
-                        <a className="uk-modal-close uk-close"></a>
-                        <div className="uk-flex uk-flex-column uk-flex-center">
-                            <ul className="uk-list">
-                                { allFolders }
-                            </ul>
-                            <input className="uk-form-small" type="text" onKeyPress={this.onCustomFolderKeyPress}/>
-                        </div>
-                    </div>
+        return <span>
+            <a href={"#move-modal" + exercise} data-uk-modal>
+              <i className="uk-icon uk-icon-arrows uk-margin-small-right" />Move
+            </a>
+            <div id={"move-modal" + exercise} className="uk-modal">
+              <div className="uk-modal-dialog" style={{ width: "300px" }}>
+                <a className="uk-modal-close uk-close" />
+                <div className="uk-flex uk-flex-column uk-flex-center">
+                  <ul className="uk-list">{allFolders}</ul>
+                  <input className="uk-form-small" type="text" onKeyPress={this.onCustomFolderKeyPress} />
                 </div>
-            </span>
-        );
+              </div>
+            </div>
+          </span>;
     }
 }
 
