@@ -66,7 +66,6 @@ def exercise_move(request, exercise):
     res = parsing.exercise_move(dbexercise.get_full_path(), new_full_path)
     if 'error' in res:
         return Response(res, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    print(res['path'])
     Exercise.objects.add_exercise_full_path(res['path'], dbexercise.course)
     logger.info('Moved exercise ' + dbexercise.name + " to " + res['path'])
     return Response({'success': 'Moved exercise'})

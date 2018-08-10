@@ -138,7 +138,6 @@ class RegisterUserDomain(CreateView):
     def form_valid(self, form):
         super().form_valid(form)
         course = Course.objects.get(pk=self.kwargs['course_pk'])
-        print(course)
         return redirect(reverse('login', kwargs=dict(course_name=course.course_name)))
 
 

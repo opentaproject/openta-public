@@ -51,7 +51,6 @@ def create_exercise(course, directory, name, content=DEFAULT_EXERCISE):
     os.makedirs(path)
     exercise_path = os.path.join(path, "exercise.xml")
     image_path = os.path.join(path, "figure.png")
-    print(exercise_path)
     with open(exercise_path, "w") as f:
         f.write(content)
     image = Image.new('RGBA', size=(100, 100), color=(0, 255, 0))

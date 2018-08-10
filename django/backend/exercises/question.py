@@ -91,7 +91,6 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
     if rate_limit is not None and rate_limit.text is not None and not user.is_staff:
         rate = rate_limit.text.strip()
-        print(rate)
         if is_ratelimited(
             request, group='question_custom_rate', key='user', rate=rate, increment=True
         ):

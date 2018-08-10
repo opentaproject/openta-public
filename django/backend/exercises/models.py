@@ -98,8 +98,6 @@ class ExerciseManager(models.Manager):
             exercise_path = exercise_path[1:]
         full_path = os.path.join(course.get_exercises_path(), exercise_path)
         if not is_exercise(full_path):
-            print(exercise_path)
-            print(course.get_exercises_path())
             raise ExerciseNotFound(full_path)
         exercisetree = exercise_xmltree(os.path.join(course.get_exercises_path(), exercise_path))
         exercisename_xml = exercisetree.xpath('/exercise/exercisename')
@@ -361,7 +359,6 @@ class ExerciseManager(models.Manager):
                         + _(" since it is not present on disc anymore"),
                     )
                 )
-                print('Deleting non existing ' + fullpath + ' from database.')
             else:
                 key = exercise_key_get_or_create(os.path.join(exercises_path, exercise.path))
                 if key != exercise.exercise_key:
