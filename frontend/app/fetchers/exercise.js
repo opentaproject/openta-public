@@ -53,7 +53,7 @@ function fetchMoveExercise(exercise, path) {
 function fetchRenameFolder(path, newName) {
     return dispatch => {
         var payload = {
-            old_folder: '/' + path.join('/'),
+            old_folder: path.join('/'),
             new_name: newName
         };
         var fetchconfig = {

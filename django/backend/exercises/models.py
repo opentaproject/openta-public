@@ -65,20 +65,48 @@ class ExerciseManager(models.Manager):
             except ObjectDoesNotExist:
                 pass
 
+    def add_exercise_full_path(self, path, course):
+        """Add exercise from full path.
+
+        Verifies that the folder structure corresponds to the specified course.
+
+        Args:
+            path (str): Full path to exercise.
+            course (Course): Course model object.
+
+        """
+        course_path = course.get_exercises_path()
+        if not path.startswith(course_path):
+            raise ExerciseParseError('Exercise does not reside in the specified course')
+
+        relative_path = path[len(course_path) :]
+        if relative_path.startswith('/'):
+            relative_path = relative_path[1:]
+        return self.add_exercise(relative_path, course)
+
     def add_exercise(self, exercise_path, course):
+        """Add exercise by relative path.
+
+        Args:
+            exercise_path (str): Path relative to course base.
+            course (Course): Course model object.
+
+        """
         progress = []
         translation_name = {}
-        fullpath = os.path.join(course.get_exercises_path(), exercise_path)
-        if not exercise_path.startswith("/"):
-            raise ExerciseParseError("Exercise path does not start with a /")
-        if not is_exercise(course.get_exercises_path(), exercise_path):
-            raise ExerciseNotFound(fullpath)
-        exercisetree = exercise_xmltree(course.get_exercises_path(), exercise_path)
+        if exercise_path.startswith("/"):
+            exercise_path = exercise_path[1:]
+        full_path = os.path.join(course.get_exercises_path(), exercise_path)
+        if not is_exercise(full_path):
+            print(exercise_path)
+            print(course.get_exercises_path())
+            raise ExerciseNotFound(full_path)
+        exercisetree = exercise_xmltree(os.path.join(course.get_exercises_path(), exercise_path))
         exercisename_xml = exercisetree.xpath('/exercise/exercisename')
         if exercisename_xml:
             translation_name = get_translations(exercisename_xml[0])
         name = (exercisetree.xpath('/exercise/exercisename/text()') or ['No name'])[0]
-        key = exercise_key_get_or_create(course.get_exercises_path(), exercise_path)
+        key = exercise_key_get_or_create(os.path.join(course.get_exercises_path(), exercise_path))
         defaults = dict(
             name=name,
             translated_name=JSON.dumps(translation_name),
@@ -139,7 +167,9 @@ class ExerciseManager(models.Manager):
             if not exists:
                 question.delete()
         progress.extend(
-            exercise_check_thumbnail(course.get_exercises_path(), exercisetree, exercise_path)
+            exercise_check_thumbnail(
+                exercisetree, os.path.join(course.get_exercises_path(), exercise_path)
+            )
         )
         return progress
 
@@ -163,7 +193,7 @@ class ExerciseManager(models.Manager):
 
         for name, path in exerciselist:
             try:
-                key = exercise_key_get(exercises_path, path)
+                key = exercise_key_get(os.path.join(exercises_path, path))
                 if key in other_courses_keys:
                     duplicate_exercise = self.get(exercise_key=key)
                     progress.append(('error', _("Duplicate exercise keys!")))
@@ -231,7 +261,7 @@ class ExerciseManager(models.Manager):
             progress.append(('success', 'A reload would add the exercise at ' + exercise_path))
 
         for exercise in self.filter(course=course):
-            if not is_exercise(exercises_path, exercise.path):
+            if not is_exercise(exercise.get_full_path()):
                 if exercise.exercise_key in keys:
                     progress.append(
                         (
@@ -258,7 +288,7 @@ class ExerciseManager(models.Manager):
             try:
                 dbexercise = Exercise.objects.get(path=path)
                 try:
-                    key = exercise_key_get(exercises_path, path)
+                    key = exercise_key_get(os.path.join(exercises_path, path))
                 except IOError:
                     key = None
                 if dbexercise.exercise_key != key:
@@ -321,7 +351,7 @@ class ExerciseManager(models.Manager):
                 progress.append(('error', "Failed to add " + path + " because " + str(e)))
         for exercise in self.filter(course=course):
             fullpath = exercise.path + '/exercise.xml'
-            if not is_exercise(exercises_path, exercise.path):
+            if not is_exercise(exercise.get_full_path()):
                 exercise.delete()
                 progress.append(
                     (
@@ -333,7 +363,7 @@ class ExerciseManager(models.Manager):
                 )
                 print('Deleting non existing ' + fullpath + ' from database.')
             else:
-                key = exercise_key_get_or_create(exercises_path, exercise.path)
+                key = exercise_key_get_or_create(os.path.join(exercises_path, exercise.path))
                 if key != exercise.exercise_key:
                     exercise.delete()
                     progress.append(
@@ -379,6 +409,9 @@ class Exercise(models.Model):
 
     def __str__(self):
         return self.name + ': ' + self.path
+
+    def get_full_path(self):
+        return os.path.join(self.course.get_exercises_path(), *self.path.split('/'))
 
     def user_is_correct(self, user):
         allcorrect = True

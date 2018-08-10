@@ -90,7 +90,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     exerciseTree: state.getIn(['exerciseTree']),
     author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
-    coursePk: state.getIn(['login', 'course_pk'])
+    coursePk: state.get('activeCourse')
   };
 }
 

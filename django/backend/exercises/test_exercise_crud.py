@@ -30,7 +30,9 @@ class ExerciseCrudTest(StaticLiveServerTestCase):
         exercise_path = create_exercise(course, self.dir.name, 'exercise1')
         for msg in Exercise.objects.sync_with_disc(course=course, i_am_sure=True):
             print(msg)
-        exercise_delete(course.get_exercises_path(), exercise_path)
+        exercise_delete(
+            course.get_exercises_path(), os.path.join(course.get_exercises_path(), exercise_path)
+        )
         trashed_exercises = os.listdir(
             os.path.join(self.dir.name, course.get_exercises_folder(), paths.TRASH_PATH)
         )

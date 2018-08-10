@@ -253,9 +253,9 @@ def exercise_folder_structure(manager, user, course):
     else:
         exercises = manager.filter(meta__published=True, course=course).select_related('meta')
     paths = map(lambda x: os.path.dirname(x.path), exercises)
-    unique_paths = filter(lambda x: x != '/', set(paths))
+    unique_paths = filter(lambda x: x != '', set(paths))
     folders['path'] = ['']
-    for path in list(map(lambda x: x.split('/')[1:], unique_paths)):
+    for path in list(map(lambda x: x.split('/'), unique_paths)):
         root = folders
         fullpath = []
         for item in path:
@@ -273,7 +273,7 @@ def exercise_folder_structure(manager, user, course):
                         allcorrect = False
             except ObjectDoesNotExist:
                 allcorrect = False
-        paths = list(filter(lambda x: x != '', exercise.path.split('/')[1:-1]))
+        paths = list(filter(lambda x: x != '', exercise.path.split('/')[:-1]))
         root = reduce(lambda a, b: a['folders'].get(b)['content'], paths, folders)
 
         if 'exercises' not in root:
@@ -367,7 +367,7 @@ def exercise_test(exercise_key):
     request = requests.get('/test')
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     dbquestions = Question.objects.filter(exercise=dbexercise)
-    xmltree = exercise_xmltree(dbexercise.path)
+    xmltree = exercise_xmltree(dbexercise.get_full_path())
     user = User.objects.get(username='tester')
     results = []
     for dbquestion in dbquestions:

@@ -218,14 +218,11 @@ def exercise_json(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     try:
         hide_answers = not request.user.has_perm("exercises.view_solution")
-        full_exercisejson = parsing.exercise_json(
-            dbexercise.course.get_exercises_path(), dbexercise.path, hide_answers=False
-        )
+        full_exercisejson = parsing.exercise_json(dbexercise.get_full_path(), hide_answers=False)
         hide_tags = question_module.get_sensitive_tags()
         hide_attrs = question_module.get_sensitive_attrs()
         safe_exercisejson = parsing.exercise_json(
-            dbexercise.course.get_exercises_path(),
-            dbexercise.path,
+            dbexercise.get_full_path(),
             hide_answers=hide_answers,
             sensitive_attrs=hide_attrs,
             sensitive_tags=hide_tags,
@@ -254,9 +251,7 @@ def exercise_json(request, exercise):
 @api_view(['GET'])
 def exercise_xml(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    return Response(
-        {'xml': parsing.exercise_xml(dbexercise.course.get_exercises_path(), dbexercise.path)}
-    )
+    return Response({'xml': parsing.exercise_xml(dbexercise.get_full_path())})
 
 
 @permission_required('exercises.edit_exercise')
@@ -267,10 +262,7 @@ def exercise_save(request, exercise):
     backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"
     try:
         messages += parsing.exercise_save(
-            dbexercise.course.get_exercises_path(),
-            dbexercise.path,
-            request.data['xml'],
-            backup_name,
+            dbexercise.get_full_path(), request.data['xml'], backup_name
         )
     except IOError as e:
         messages.append(('error', str(e)))
