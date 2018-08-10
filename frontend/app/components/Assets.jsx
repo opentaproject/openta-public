@@ -17,7 +17,7 @@ import {
 class BaseAssets extends Component {
     constructor() {
         super();
-        this.state = { 
+        this.state = {
             preview: false
         }
     }
@@ -39,7 +39,7 @@ class BaseAssets extends Component {
             }
             </td>
             <td>
-                <a href={SUBPATH + "/exercise/" + this.props.activeExercise + "/asset/" + asset.get('filename')} target="_blank">
+                <a href={SUBPATH + "/exercise/" + this.props.activeExercise + this.props.assetViewer + asset.get('filename')} target="_blank">
                     {asset.get('filename')}
                 </a>
             </td>
@@ -47,7 +47,7 @@ class BaseAssets extends Component {
                 this.state.preview &&
                 <td>
                     <div className="uk-thumbnail uk-thumbnail-mini" style={{maxWidth: '80px'}}>
-                        <SafeImg src={SUBPATH + "/exercise/" + this.props.activeExercise + "/asset/" + asset.get('filename')}/>
+                        <SafeImg src={SUBPATH + "/exercise/" + this.props.activeExercise + this.props.assetViewer + asset.get('filename')}/>
                     </div>
                 </td>
             }
@@ -131,17 +131,21 @@ const mapDispatchToProps = dispatch => {
     }
 }
 
-const mapStateToProps = (state) => {
-  var activeExercise = state.get('activeExercise');
-  var activeExerciseState = state.getIn(['exerciseState', state.get('activeExercise')], immutable.Map({}));
-  var pendingState = state.getIn(['pendingState','exercise',state.get('activeExercise')], immutable.Map({}));
+const mapStateToProps = state => {
+  var activeExercise = state.get("activeExercise");
+  var activeExerciseState = state.getIn(["exerciseState", state.get("activeExercise")], immutable.Map({}));
+  var pendingState = state.getIn(["pendingState", "exercise", state.get("activeExercise")], immutable.Map({}));
+  var assetViewer = '/asset/';
+  if(state.getIn(["login", "groups"], immutable.List([])).includes("Student"))
+    var assetViewer = '/studentasset/';
   return {
-      activeExercise: activeExercise,
-      assets: activeExerciseState.get('assets', immutable.List([])),
-      pendingState: pendingState,
-      pendingUpload: pendingState.getIn(['assetUploadPending']),
-      uploadProgress: pendingState.getIn(['assetUploadProgress'])
-  }
+    activeExercise: activeExercise,
+    assets: activeExerciseState.get("assets", immutable.List([])),
+    pendingState: pendingState,
+    pendingUpload: pendingState.getIn(["assetUploadPending"]),
+    uploadProgress: pendingState.getIn(["assetUploadProgress"]),
+    assetViewer: assetViewer
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseAssets);

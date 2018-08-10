@@ -33,6 +33,8 @@ def add_asset(path, asset_file, types):
         return {'error': 'File type not allowed, valid filetypes are: ' + ', '.join(types)}
     if os.path.isfile(file_path):
         return {'error': 'File already exists.'}
+    if not os.path.isdir(path):
+        os.makedirs(path, exist_ok=True)
     try:
         with open(file_path, 'wb') as asset:
             for chunk in asset_file.chunks():

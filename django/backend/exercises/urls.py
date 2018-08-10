@@ -27,9 +27,15 @@ urlpatterns = [
         r'^exercise/(?P<exercise>[\w\.-]+)/history/(?P<name>[\w\.\ :]+)/json$',
         views.exercise_json_history,
     ),
-    url(r'^exercise/(?P<exercise>[\w\.-]+)/asset/(?P<asset>[\w\.\-\ ]+)$', views.exercise_asset),
     url(
-        r'^exercise/(?P<exercise>[\w\.-]+)/asset/(?P<asset>[\w\.\-\ ]+)/delete$',
+        r'^exercise/(?P<exercise>[\w\.-]+)/asset/(?P<asset>[\w\.\-\ \(\)]+)$', views.exercise_asset
+    ),
+    url(
+        r'^exercise/(?P<exercise>[\w\.-]+)/studentasset/(?P<asset>[\w\.\-\ \(\)]+)$',
+        views.exercise_student_asset,
+    ),
+    url(
+        r'^exercise/(?P<exercise>[\w\.-]+)/asset/(?P<asset>[\w\.\-\ \(\)]+)/delete$',
         views.exercise_asset_delete,
     ),
     url(

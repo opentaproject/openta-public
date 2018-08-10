@@ -34,6 +34,7 @@ class ExerciseMetaSerializer(serializers.ModelSerializer):
             'sort_key',
             'allow_pdf',
             'feedback',
+            'student_assets',
         )
 
     def get_deadline_time(self, obj):

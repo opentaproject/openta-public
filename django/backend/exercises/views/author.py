@@ -17,6 +17,7 @@ class ExerciseMetaUpdate(UpdateView):
         'published',
         'sort_key',
         'feedback',
+        'student_assets',
     ]
     success_url = '/' + settings.SUBPATH + 'exercisemeta/{id}'
 

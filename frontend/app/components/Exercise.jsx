@@ -14,6 +14,7 @@ import DOMPurify from 'dompurify';
 import ExerciseImageUpload from './ExerciseImageUpload.jsx';
 import T from './Translation.jsx';
 import Badge from './Badge.jsx';
+import Assets from './Assets.jsx';
 import {SUBPATH} from '../settings.js';
 import classNames from 'classnames';
 
@@ -25,7 +26,8 @@ import {
 import {
   saveExercise,
   fetchExercise,
-  checkQuestion
+  checkQuestion,
+  fetchAssets
 } from '../fetchers.js';
 
 var unstableKey = 0;
@@ -285,6 +287,7 @@ class BaseExercise extends Component {
     var exerciseDOM = (
         <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
         { canViewXML && filenameDOM }
+        { meta.get('student_assets') && <Assets/> }
         { canUpload &&  meta.get('image', false) && <div className="uk-float-right uk-margin-small-right"><ExerciseImageUpload/></div> }
           {items}
         </article>
@@ -298,6 +301,7 @@ class BaseExercise extends Component {
   }
 
   componentDidMount(props, state, root) {
+    this.props.getAssets();
     this.componentDidUpdate(props, state, root);
   }
   componentDidUpdate(props,state,root) {
@@ -331,6 +335,7 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question),
+    getAssets: () => dispatch(fetchAssets())
   }
 }
 
