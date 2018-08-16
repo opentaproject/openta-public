@@ -1,7 +1,7 @@
 import React, { Component} from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import Codemirror from 'react-codemirror';
+import { Controlled as Codemirror } from 'react-codemirror2';
 import immutable from 'immutable';
 
 require('codemirror/addon/fold/foldcode');
@@ -129,7 +129,7 @@ class XMLEditor extends Component {
     };
     return(
       <div className="uk-panel uk-panel-box uk-margin-small-top uk-margin-small-right" style={{height:"80vh"}}>
-        <Codemirror value={xmlCode} options={options} onChange={onChange}/>
+        <Codemirror value={xmlCode} options={options} onBeforeChange={onChange}/>
       </div>
     )
   }
