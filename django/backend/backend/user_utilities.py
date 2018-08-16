@@ -7,6 +7,7 @@ from django.core.mail import EmailMessage
 
 from utils import send_email_object
 from utils import get_localized_template
+from django.conf import settings
 
 from course.models import Course
 
@@ -49,6 +50,14 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
         course.url if course.url is not None else 'https://openta.se/' + course.course_name.lower()
     )
     base_url = course.url if course.url is not None else 'https://openta.se'
+    # Since both course.url and create_activation_link includes the SUBPATH
+    # it needs to be stripped from one of them.
+    if getattr(settings, 'SUBPATH', '') is not '':
+        subpath_name = settings.SUBPATH.strip('/')
+        if base_url.endswith(subpath_name):
+            base_url = base_url[: -len(settings.SUBPATH)]
+        if base_url.endswith(subpath_name + '/'):
+            base_url = base_url[: -(len(settings.SUBPATH) + 1)]
     activate_url = create_activation_link(username, reverse_name)
     course_email = Course.objects.course_email()
     template = get_localized_template('mail_activation')
