@@ -58,7 +58,7 @@ var pendingPaths = [
 ];
 
 var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => (
-    <div className="uk-button-group"> 
+    <div className="uk-button-group">
         { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
         { showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary" title="Reset to last saved version." data-uk-tooltip onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a> }
       <ExerciseHistory/>
@@ -89,7 +89,7 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, viewer, active
   var renderPending = pendingPaths.map( item => {
     return (pendingState.getIn(item.path, false) && (<span key={item.path}>{item.name}<Spinner icon="uk-icon-bar-chart" size="" className="uk-margin-small-left"/></span>))
   });
-var studentViewDOM = author ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open("./hijack/username/student" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
+var studentViewDOM = author ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open(SUBPATH + "/hijack/username/student" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
 var canViewXML = author || viewer || admin
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
