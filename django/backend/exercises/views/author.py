@@ -25,9 +25,7 @@ class ExerciseMetaUpdate(UpdateView):
 @permission_required('exercises.administer_exercise')
 def ExerciseMetaUpdateView(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    meta, created = ExerciseMeta.objects.get_or_create(
-        exercise=dbexercise, defaults={'exercise_key': exercise}
-    )
+    meta, created = ExerciseMeta.objects.get_or_create(exercise=dbexercise)
     result = ExerciseMetaUpdate.as_view()(request, pk=meta.id)
     if request.method == 'POST':
         result.set_cookie('submitted', 'true')

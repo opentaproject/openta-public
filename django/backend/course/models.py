@@ -1,5 +1,6 @@
 import os
 import datetime
+import uuid
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -14,6 +15,7 @@ EMAIL_VALIDATOR = EmailValidator()
 
 
 class Course(models.Model):
+    course_key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     course_name = models.CharField(max_length=255)
     icon = models.ImageField(default=None, null=True, blank=True, upload_to='public')
     motd = models.CharField(max_length=1024, default='', blank=True)
@@ -50,7 +52,7 @@ class Course(models.Model):
         return os.path.join(paths.EXERCISES_PATH, self.get_exercises_folder())
 
     def get_exercises_folder(self):
-        return str(self.pk)
+        return str(self.course_key)
 
     def get_registration_domains(self):
         if self.registration_domains is not None:

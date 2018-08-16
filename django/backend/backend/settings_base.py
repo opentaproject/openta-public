@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django_rq',
     'hijack',
     'compat',
+    'import_export',
 ]
 
 MIDDLEWARE = [
@@ -116,6 +117,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, "deploystatic")
 MEDIA_TAG = 'media'
 MEDIA_URL = '/' + MEDIA_TAG + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_TAG)
+
+FILE_UPLOAD_HANDLERS = ['django.core.files.uploadhandler.TemporaryFileUploadHandler']
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework.authentication.SessionAuthentication',),

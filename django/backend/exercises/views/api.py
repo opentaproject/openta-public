@@ -324,7 +324,6 @@ def upload_answer_image(request, exercise):
         image_answer = ImageAnswer(
             user=request.user,
             exercise=dbexercise,
-            exercise_key=exercise,
             image=request.FILES['file'],
             filetype=ImageAnswer.IMAGE,
         )
@@ -338,7 +337,6 @@ def upload_answer_image(request, exercise):
             image_answer = ImageAnswer(
                 user=request.user,
                 exercise=dbexercise,
-                exercise_key=exercise,
                 pdf=request.FILES['file'],
                 filetype=ImageAnswer.PDF,
             )

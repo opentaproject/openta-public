@@ -12,6 +12,17 @@ import django_rq
 from .util import task_result
 
 
+def content_type_dispatch(name):
+    content_types = {
+        'xlsx': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        'zip': "application/zip",
+    }
+    for ending, content_type in content_types.items():
+        if name.endswith(ending):
+            return content_type
+    return None
+
+
 @api_view(['GET'])
 def get_task_result_file(request, task):
     dbtask = QueueTask.objects.get(pk=task)
@@ -21,10 +32,11 @@ def get_task_result_file(request, task):
         return Response({'error': 'Not done'})
     if dbtask.result_file is None:
         return Response({'error': 'There is no result file for this task'})
+
     return serve_file(
         '/' + settings.SUBPATH + dbtask.result_file.name,
         os.path.basename(dbtask.result_file.name),
-        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        content_type=content_type_dispatch(dbtask.result_file.name),
         dev_path=dbtask.result_file.path,
     )
 

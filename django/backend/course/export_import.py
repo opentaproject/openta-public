@@ -1,0 +1,295 @@
+import os
+from exercises.models import Exercise, Answer, Question, ExerciseMeta
+from course.models import Course
+from django.contrib.auth.models import User, Group
+
+from import_export import resources, fields
+from import_export.widgets import ForeignKeyWidget
+import tablib
+import zipfile
+from pathlib import Path
+import exercises.paths as paths
+
+import logging
+import tempfile
+
+SERVER_EXERCISES_EXPORT_FILENAME = 'exercises.zip'
+SERVER_EXPORT_FILENAME = 'server.zip'
+
+LOGGER = logging.getLogger(__file__)
+
+
+class ExportError(Exception):
+    """Export error"""
+
+
+class ImportError(Exception):
+    """Import error"""
+
+
+class QuestionForeignKeyWidget(ForeignKeyWidget):
+    def get_queryset(self, value, row):
+        return self.model.objects.filter(
+            question_key__iexact=row["question_key"],
+            exercise__exercise_key__iexact=row["exercise_key"],
+        )
+
+
+class CourseResource(resources.ModelResource):
+    def __init__(self, *args, **kwargs):
+        self._override_name = None
+        if 'override_name' in kwargs:
+            self._override_name = kwargs.pop('override_name')
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = Course
+        fields = (
+            'course_key',
+            'course_name',
+            'registration_domains',
+            'registration_by_domain',
+            'languages',
+        )
+        import_id_fields = ('course_key',)
+
+    def before_import_row(self, row, **kwargs):
+        if self._override_name is not None:
+            row['course_name'] = self._override_name
+
+
+class ExerciseResource(resources.ModelResource):
+    class Meta:
+        model = Exercise
+        exclude = ('id',)
+        import_id_fields = ('exercise_key',)
+
+
+class ExerciseMetaResource(resources.ModelResource):
+    exercise = fields.Field(
+        column_name='exercise',
+        attribute='exercise',
+        widget=ForeignKeyWidget(Exercise, field='exercise_key'),
+    )
+
+    class Meta:
+        model = ExerciseMeta
+        exclude = ('id',)
+        import_id_fields = ('exercise',)
+
+
+class AnswerResource(resources.ModelResource):
+    user = fields.Field(
+        column_name='user', attribute='user', widget=ForeignKeyWidget(User, field='username')
+    )
+    question = fields.Field(
+        column_name='Question', attribute='question', widget=QuestionForeignKeyWidget(Question)
+    )
+
+    class Meta:
+        model = Answer
+        import_id_fields = ('exercise_key', 'question_key', 'user', 'date')
+        exclude = ('id',)
+
+
+class QuestionResource(resources.ModelResource):
+    class Meta:
+        model = Question
+        import_id_fields = ('exercise', 'question_key')
+        exclude = ('id',)
+
+
+class UserResource(resources.ModelResource):
+    class Meta:
+        model = User
+        exclude = ('id',)
+        import_id_fields = ('username',)
+
+
+class GroupResource(resources.ModelResource):
+    class Meta:
+        model = Group
+        exclude = ('id',)
+        import_id_fields = ('username',)
+
+
+def export_server(output_path='export'):
+    """Export server to zip file.
+
+    Exports all supported models to a portable CSV format.
+    Saves the full exercise file tree for all courses.
+
+    .. note::
+
+        The provided export path needs to be empty.
+
+    Args:
+        output_path (str, optional): Where to save the server export. Defaults to 'export'.
+
+    Yields:
+        float: Fraction complete
+
+    """
+    resources = [
+        CourseResource,
+        UserResource,
+        ExerciseResource,
+        ExerciseMetaResource,
+        QuestionResource,
+        AnswerResource,
+    ]
+    subpath = "server"
+    full_path = os.path.join(output_path, subpath)
+    os.makedirs(full_path, exist_ok=True)
+    if os.listdir(full_path):
+        raise ExportError('Export path is not empty')
+    n_resources = len(resources)
+    for index, resource in enumerate(resources):
+        dataset = resource().export()
+        filename = "{index}_{name}.{ext}".format(
+            index=index, name=resource.Meta.model.__name__, ext="csv"
+        )
+        path = os.path.join(full_path, filename)
+        with open(path, 'w') as output_file:
+            output_file.write(dataset.csv)
+        yield "Database", index / n_resources
+    exercises_zip_path = os.path.join(full_path, SERVER_EXERCISES_EXPORT_FILENAME)
+    for _, progress in _zip_recursively(
+        output_filepath=exercises_zip_path, input_path=paths.EXERCISES_PATH
+    ):
+        yield "Exercises", progress
+    total_zip_path = os.path.join(output_path, SERVER_EXPORT_FILENAME)
+    for _, progress in _zip_recursively(output_filepath=total_zip_path, input_path=full_path):
+        yield "Output zip", progress
+
+
+def import_server(import_zip_path):
+    """Import server zip file.
+
+    Import a full server zip file containing possibly many courses.
+
+    .. note::
+
+        Will only run if exercise file tree is empty.
+
+    Args:
+        import_zip_path (str): Full path to server zip file (generated by
+            export_server).
+
+    """
+    if os.listdir(paths.EXERCISES_PATH):
+        error_msg = "Exercises directory not empty, will only import into clean server."
+        LOGGER.error(error_msg)
+        raise ImportError(error_msg)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        server_zip = zipfile.ZipFile(import_zip_path, 'r')
+        server_zip.extractall(path=tmpdir)
+        _import_databases(tmpdir)
+        try:
+            exercises_zip_path = os.path.join(tmpdir, SERVER_EXERCISES_EXPORT_FILENAME)
+            exercises_zip = zipfile.ZipFile(exercises_zip_path, 'r')
+            exercises_zip.extractall(paths.EXERCISES_PATH)
+        except Exception as e:
+            LOGGER.error(str(e))
+            raise e
+
+
+def export_course_exercises(course, output_path):
+    """Export exercises from course as zip.
+
+    Saves a zip with all exercises in course. The resulting file will be
+    named as the course.
+
+    Args:
+        course (course.models.Course): Course to export.
+        output_path (str): Path where course zip will be placed.
+
+    Yields:
+        tuple: (output_path, fraction_complete)
+
+    """
+    filename = "{name}.{ext}".format(name=course.course_name, ext="zip")
+    filepath = os.path.join(output_path, filename)
+    for result in _zip_recursively(filepath, course.get_exercises_path()):
+        yield result
+
+
+def import_course_exercises(course, zip_file_path):
+    """Import exercise zip into course.
+
+    Extracts exercises into file tree and performs a reload on the specified
+    course.
+
+    Args:
+        courase (course.models.Course): Course to import into.
+        zip_file_path (str): Full path to exercises zip file.
+
+    Returns:
+        list: List of reload messages.
+
+    """
+    archive = zipfile.ZipFile(zip_file_path, 'r')
+    archive.extractall(course.get_exercises_path())
+    messages = []
+    for progress in Exercise.objects.sync_with_disc(course, i_am_sure=True):
+        messages = messages + progress
+    return messages
+
+
+def _import_databases(import_path):
+    """Import databases.
+
+    Looks for database export CSV's and tries to import them into the current
+    database.
+
+    Args:
+        import_path (str): Path to folder containing database exports.
+
+    """
+    import_lookup = {
+        "Question": QuestionResource(),
+        "Answer": AnswerResource(),
+        "Exercise": ExerciseResource(),
+        "ExerciseMeta": ExerciseMetaResource(),
+        "User": UserResource(),
+        "Course": CourseResource(),
+    }
+    files = sorted(os.listdir(import_path))
+    for csv in files:
+        if csv.endswith('.csv'):
+            parts = csv.split('_')
+            class_name = parts[1].split('.')[0]
+            LOGGER.info("Importing %s", class_name)
+            with open(os.path.join(import_path, csv)) as csv_file:
+                csv_contents = csv_file.read()
+                dataset = tablib.Dataset().load(csv_contents)
+                if class_name in import_lookup:
+                    resource = import_lookup[class_name]
+                    res = resource.import_data(dataset, dry_run=True)
+                    if not res.has_errors():
+                        resource.import_data(dataset, dry_run=False)
+                    else:
+                        LOGGER.error(res)
+
+
+def _zip_recursively(output_filepath, input_path, report_steps=10):
+    """Zip path recursively with progress report.
+
+    Args:
+        output_filepath (str): Path to output folder.
+        input_path (str): Path to input folder.
+        report_steps (int, optional): Number of steps to report progress in.
+
+    Yields:
+        tuple (output_filepath, fraction_complete)
+
+    """
+    archive = zipfile.ZipFile(output_filepath, 'w')
+    files = list(Path(input_path).glob("**/*"))
+    num_files = len(files)
+    for index, f in enumerate(files):
+        archive.write(str(f.resolve()), str(f.relative_to(input_path)))
+        if index % (num_files // report_steps + 1) == 0:
+            yield output_filepath, (index / num_files)
+    archive.close()

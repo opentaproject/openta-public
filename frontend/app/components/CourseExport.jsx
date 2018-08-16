@@ -1,0 +1,51 @@
+import React from 'react';
+import { connect } from 'react-redux';
+
+import { SUBPATH } from "../settings.js";
+import { fetchExportExercises, enqueueTask } from "../fetchers.js";
+import { updatePendingStateIn, updatePendingState } from "../actions.js";
+
+const BaseCourseExport = ({onExportExercises, coursePk, taskId, progress, done}) => {
+  return <div className="uk-flex uk-flex-wrap uk-margin-top">
+      <div className="uk-flex uk-flex-column uk-flex-middle uk-margin-left uk-panel uk-panel-box">
+        <div>Export a zip file containing the exercises of this course.</div>
+        <div>
+          <a className="uk-button" onClick={() => onExportExercises(coursePk)}>
+            Export exercises
+          </a>
+        </div>
+        <div className="uk-width-1-1 uk-margin-top">
+          {progress >= 0 && done !== true && <div className="uk-progress">
+                <div className="uk-progress-bar" style={{ width: progress + "%" }}>
+                  {progress}%
+                </div>
+              </div>}
+        </div>
+        {done && <div>
+            <a href={SUBPATH + "/queuetask/" + taskId + "/resultfile"}>Download exercises zip file</a>
+          </div>}
+      </div>
+    </div>;
+}
+
+const mapDispatchToProps = (dispatch) => ({
+  onExportExercises: (coursePk) => {
+    dispatch(enqueueTask("/course/" + coursePk + "/exportexercisesasync")).then(taskId =>
+      dispatch(updatePendingStateIn(["course", coursePk, "exportExercises", "task"], taskId))
+    );
+  }
+})
+
+const mapStateToProps = (state) => {
+  var pendingState = state.get('pendingState');
+  var coursePk = state.get('activeCourse');
+  var taskId = pendingState.getIn(["course", coursePk, "exportExercises", "task"]);
+  return {
+    taskId: taskId,
+    coursePk: coursePk,
+    progress: state.getIn(['tasks', taskId, 'progress']),
+    done: state.getIn(['tasks', taskId, 'done']),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(BaseCourseExport)

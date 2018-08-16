@@ -4,9 +4,10 @@ from users.models import OpenTAUser
 from django.contrib.auth.models import User, Group, Permission
 from PIL import Image
 
+DEFAULT_EXERCISE_NAME = "Exercise1"
 DEFAULT_EXERCISE = """
                 <exercise>\n
-                <exercisename>Exercise1</exercisename>\n
+                <exercisename>{name}</exercisename>\n
                 <text>Test exercise text</text>\n
                 <figure>figure.png</figure>\n
                 <question type="compareNumeric" key="1">\n
@@ -14,7 +15,9 @@ DEFAULT_EXERCISE = """
                 <expression>sin(2)</expression>\n
                 </question>\n
                 </exercise>\n
-                """
+                """.format(
+    name=DEFAULT_EXERCISE_NAME
+)
 
 
 def create_database(password="pw"):

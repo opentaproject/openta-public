@@ -21,7 +21,25 @@ var menuTree = immutable.fromJS({
     course: {
       name: 'Course',
       key: 'course',
-      reqGroup: ['Author']
+      reqGroup: ['Author'],
+      menuItems: {
+        options: {
+          name: 'Options',
+          key: 'options',
+        },
+        upload: {
+          name: 'Upload',
+          key: 'upload',
+        },
+        export: {
+          name: 'Export',
+          key: 'export',
+        },
+        duplicate: {
+          name: 'Duplicate',
+          key: 'duplicate',
+        }
+      }
     },
     exercises: {
       name: 'Exercises',

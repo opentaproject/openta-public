@@ -55,6 +55,11 @@ function enqueueTask(url, {data, method="GET", completeAction, progressAction} =
             .then( res => res.json() )
             .then( json => handleMessages(json) )
             .then( json => {
+                dispatch(updateTask(json.task_id, {
+                    progress: 0,
+                    done: false
+                }));
+                //setTimeout(() => {dispatch(fetchTaskProgress(json.task_id, completeAction, progressAction));}, 1000);
                 dispatch(fetchTaskProgress(json.task_id, completeAction, progressAction));
                 return json.task_id;
             });

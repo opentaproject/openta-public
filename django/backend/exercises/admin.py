@@ -104,6 +104,7 @@ class ExerciseAdmin(admin.ModelAdmin):
     list_per_page = 10
     search_fields = ['name', 'path', 'meta__deadline_date']
     ordering = ['meta__deadline_date']
+    readonly_fields = ('exercise_key',)
 
     def get_queryset(self, request):
         qs = super(ExerciseAdmin, self).get_queryset(request)

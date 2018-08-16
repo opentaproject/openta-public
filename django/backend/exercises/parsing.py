@@ -67,6 +67,11 @@ def _exercise_key_set(path, key):
     return key
 
 
+def _exercise_key_delete(path):
+    key_path = os.path.join(path, EXERCISE_KEY)
+    os.remove(key_path)
+
+
 def exercise_key_get_or_create(path):
     try:
         key = exercise_key_get(path)

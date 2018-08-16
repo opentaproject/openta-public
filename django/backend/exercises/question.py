@@ -114,8 +114,6 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             Answer.objects.create(
                 user=user,
                 question=dbquestion,
-                question_key=dbquestion.question_key,
-                exercise_key=dbexercise.exercise_key,
                 answer=answer_data,
                 grader_response=json.dumps(result),
                 correct=correct,

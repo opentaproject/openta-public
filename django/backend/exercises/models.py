@@ -31,40 +31,6 @@ logger = logging.getLogger(__name__)
 
 
 class ExerciseManager(models.Manager):
-    def mend_answers_and_audits(self):
-        '''
-        Tries to match orphan answers with an exercise and question.
-        '''
-        answers = Answer.objects.filter(question__isnull=True)
-        for answer in answers:
-            try:
-                question = Question.objects.get(
-                    exercise__exercise_key=answer.exercise_key, question_key=answer.question_key
-                )
-                answer.question = question
-                answer.save()
-                logger.info("Found question for orphan answer")
-            except ObjectDoesNotExist:
-                pass
-        imageanswers = ImageAnswer.objects.filter(exercise__isnull=True)
-        for imageanswer in imageanswers:
-            try:
-                exercise = Exercise.objects.get(exercise_key=imageanswer.exercise_key)
-                imageanswer.exercise = exercise
-                imageanswer.save()
-                logger.info("Found exercise for orphan imageanswer")
-            except ObjectDoesNotExist:
-                pass
-        audits = AuditExercise.objects.filter(exercise__isnull=True)
-        for audit in audits:
-            try:
-                exercise = Exercise.objects.get(exercise_key=audit.exercise_key)
-                audit.exercise = exercise
-                audit.save()
-                logger.info("Found exercise for orphan audit")
-            except ObjectDoesNotExist:
-                pass
-
     def add_exercise_full_path(self, path, course):
         """Add exercise from full path.
 
@@ -375,7 +341,6 @@ class ExerciseManager(models.Manager):
                         )
                     )
 
-        self.mend_answers_and_audits()
         progress.append(('success', _("Finished syncing exercises.")))
         yield progress
 
@@ -453,8 +418,6 @@ class Answer(models.Model):
     question = models.ForeignKey(
         Question, on_delete=models.SET_NULL, null=True, related_name='answer'
     )
-    question_key = models.CharField(max_length=255, default='')
-    exercise_key = models.CharField(max_length=255, default='')
     answer = models.TextField()
     grader_response = models.TextField(default='')
     correct = models.BooleanField()
@@ -490,7 +453,6 @@ class ImageAnswer(models.Model):
     exercise = models.ForeignKey(
         Exercise, on_delete=models.SET_NULL, null=True, related_name="imageanswer"
     )
-    exercise_key = models.CharField(max_length=255, default='')
     date = models.DateTimeField(default=now)
     filetype = models.CharField(max_length=3, choices=FILETYPE_CHOICES, default=IMAGE)
     image = models.ImageField(default=None, blank=True, null=True, upload_to=answer_image_filename)
@@ -509,7 +471,6 @@ class ImageAnswer(models.Model):
 class ExerciseMeta(models.Model):
     DIFFICULTIES = ((1, 'Easy'), (2, 'Medium'), (3, 'Hard'))
     exercise = models.OneToOneField(Exercise, related_name='meta', on_delete=models.CASCADE)
-    exercise_key = models.CharField(max_length=255, default='')
     deadline_date = models.DateField(default=None, null=True, blank=True)
     solution = models.BooleanField(default=False, verbose_name='Publish solution')
     difficulty = models.IntegerField(null=True, blank=True, choices=DIFFICULTIES, default=None)
@@ -552,7 +513,6 @@ class AuditExercise(models.Model):
     exercise = models.ForeignKey(
         Exercise, on_delete=models.SET_NULL, null=True, related_name='audits'
     )
-    exercise_key = models.CharField(max_length=255, default='')
     subject = models.CharField(max_length=255, default='', blank=True)
     message = models.TextField(default="", blank=True)
     published = models.BooleanField(default=False)  # Audit shown to student
