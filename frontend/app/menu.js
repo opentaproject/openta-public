@@ -21,7 +21,7 @@ var menuTree = immutable.fromJS({
     exercises: {
       name: 'Exercises',
       key: 'exercises',
-      reqGroup: ['Admin','View','Author'],
+      reqGroup: ['Admin','View'],
       menuItems: {
         reload: {
           name: 'Reload exercises',
@@ -32,6 +32,7 @@ var menuTree = immutable.fromJS({
         activity: {
           name: 'Activity',
           key: 'activity',
+          reqGroup: ['View'],
           rememberChoice: true,
           menuItems: {
             hour: {
@@ -66,7 +67,7 @@ var menuTree = immutable.fromJS({
       name: 'Results',
       key: 'results',
       onLoad: fetchStudentResults(),
-      reqGroup: [],
+      reqGroup: ['Admin'],
       rememberChoice: true,
       menuItems: {
         list: {
