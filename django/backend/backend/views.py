@@ -101,6 +101,18 @@ class RegisterUserNoPassword(CreateView):
     form_class = UserCreateFormNoPassword
     success_url = reverse_lazy('login')
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        course = Course.objects.get(pk=self.kwargs['course_pk'])
+        ctx['course'] = CourseSerializer(course).data
+        return ctx
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs.update(self.kwargs)
+        kwargs['request'] = self.request
+        return kwargs
+
     def form_valid(self, form):
         super().form_valid(form)
         messages.add_message(
@@ -108,7 +120,8 @@ class RegisterUserNoPassword(CreateView):
             messages.SUCCESS,
             _('Registration complete, check inbox ' 'for activation mail (possibly spam folder).'),
         )
-        return redirect(reverse('login'))
+        course = Course.objects.get(pk=self.kwargs['course_pk'])
+        return redirect(reverse('login') + course.course_name)
 
 
 class RegisterUserDomain(CreateView):
@@ -264,24 +277,36 @@ class RegisterByPassword(RatelimitMixin, FormView):
     ratelimit_key = 'ip'
     ratelimit_rate = '5/30s'
 
+    def get_context_data(self, **kwargs):
+        # course_pk = kwargs.pop('course_pk')
+        print(kwargs)
+        ctx = super().get_context_data(**kwargs)
+        course = Course.objects.get(pk=self.kwargs['course_pk'])
+        ctx['domains'] = course.get_registration_domains()
+        ctx['course'] = CourseSerializer(course).data
+        return ctx
+
     def form_valid(self, form):
         if getattr(self.request, 'limited', False):
             return render(
                 self.request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')}
             )
-        course = Course.objects.first()
+        course = Course.objects.get(pk=self.kwargs['course_pk'])
+        kwargs = {'course_pk': self.kwargs['course_pk']}
         if (
             course.registration_by_password
             and course.registration_password == form.cleaned_data['password']
         ):
             return redirect(
-                reverse('register-with-password') + 'register/' + course.registration_password
+                reverse('register-with-password', kwargs=kwargs)
+                + 'register/'
+                + course.registration_password
             )
-        return redirect(reverse('register-with-password'))
+        return redirect(reverse('register-with-password', kwargs=kwargs))
 
 
 @ratelimit(key='ip', rate='5/30s')
-def validate_and_show_registration(request, password):
+def validate_and_show_registration(request, course_pk, password):
     """Register with password.
 
     Register user with password view that handles the form submission
@@ -289,9 +314,11 @@ def validate_and_show_registration(request, password):
     """
     if getattr(request, 'limited', False):
         return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
-    course = Course.objects.first()
+    course = Course.objects.get(pk=course_pk)
     if course.registration_by_password and course.registration_password == password:
-        return RegisterUserNoPassword.as_view()(request)
+        return RegisterUserNoPassword.as_view()(request, course_pk=course_pk)
+    else:
+        return redirect(reverse('register-with-password', kwargs={'course_pk': course_pk}))
 
 
 class BatchAddUserView(PermissionRequiredMixin, FormView):

@@ -60,7 +60,7 @@
 <a class="uk-button uk-button-mini uk-margin-small-bottom" href="{% url 'password_reset' %}">{% trans "Lost password?" %}</a>
 
 {% if course.registration_by_password %}
-<a href="{% url 'register-with-password' %}" class="uk-button uk-button-mini uk-margin-small-bottom">{% trans "Register" %}</a>
+<a href="{% url 'register-with-password' course_pk=course.pk %}" class="uk-button uk-button-mini uk-margin-small-bottom">{% trans "Register" %}</a>
 {% endif %}
 {% if True %}
 <a class="uk-button uk-button-mini uk-margin-small-bottom" href="mailto:{{course.email_reply_to}}">{% trans "Problem?" %}</a>

@@ -22,16 +22,43 @@ class UserCreateFormNoPassword(ModelForm):
 
     class Meta:
         model = User
-        fields = ("username", "email")
+        fields = ("email",)
+
+    def __init__(self, *args, **kwargs):
+        self._course_pk = kwargs.pop('course_pk')
+        self._request = kwargs.pop('request')
+        super().__init__(*args, **kwargs)
 
     def save(self, commit=True):
-        user = super().save(commit=False)
-        user.is_active = False
-        user.save()
-        send_activation_mail(
-            self.cleaned_data["username"], self.cleaned_data["email"], 'user-activation-and-reset'
-        )
-        return user
+        course = Course.objects.get(pk=self._course_pk)
+        try:
+            user = User.objects.get(username=self.cleaned_data['email'])
+            user.opentauser.courses.add(course)
+            messages.add_message(
+                self._request,
+                messages.SUCCESS,
+                ugettext('User already exists, added you to the course.'),
+            )
+            return user
+        except User.DoesNotExist:
+            user = super().save(commit=False)
+            user.username = self.cleaned_data["email"]
+            user.is_active = False
+            user.save()
+            openta_user, _ = OpenTAUser.objects.get_or_create(user=user)
+            openta_user.courses.add(course)
+            send_activation_mail(
+                user.username, self.cleaned_data["email"], 'user-activation-and-reset'
+            )
+            messages.add_message(
+                self._request,
+                messages.SUCCESS,
+                ugettext(
+                    'Registration complete, check inbox for '
+                    'activation mail (possibly spam folder).'
+                ),
+            )
+            return user
 
 
 class UserCreateFormDomain(ModelForm):
@@ -54,17 +81,11 @@ class UserCreateFormDomain(ModelForm):
         course = Course.objects.get(pk=self._course_pk)
         domains = course.get_registration_domains()
         user_domain = self.cleaned_data["email"].split('@')[-1]
-        # username = self.cleaned_data["email"]
         if domains is not None:
             if user_domain not in domains:
                 raise forms.ValidationError(
                     ugettext("Email domain must be ") + " or ".join(domains)
                 )
-        # if User.objects.filter(username=username).exists():
-        #    message = ("{} {} already exists! \n If it is not you, "
-        #               "contact admin to register another username on your email.")
-        #    formatted = message.format(_("A user with username"), username)
-        #    raise forms.ValidationError(formatted)
         return self.cleaned_data["email"]
 
     def save(self, commit=True):
