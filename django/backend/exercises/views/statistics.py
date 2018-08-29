@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
+from rest_framework import status
 from django.http import HttpResponse
 from exercises.models import Exercise, Answer
 from exercises.aggregation import student_statistics_exercises, students_results
@@ -9,8 +10,10 @@ from exercises.aggregation import excel_custom_results_pipeline, students_result
 from course.models import Course
 from workqueue.models import QueueTask
 import workqueue.util as workqueue
+from workqueue.exceptions import WorkQueueError
 from datetime import datetime
 import numpy
+from messages import error, embed_messages
 
 
 @permission_required('exercises.view_statistics')
@@ -24,10 +27,14 @@ def get_statistics_per_exercise(request, course_pk):
 @api_view(['GET'])
 def get_results_async(request, course_pk):
     dbcourse = Course.objects.get(pk=course_pk)
-    task_id = workqueue.enqueue_task(
-        "student_results", students_results_async_pipeline, course=dbcourse
-    )
-    return Response({'task_id': task_id})
+    try:
+        task_id = workqueue.enqueue_task(
+            "student_results", students_results_async_pipeline, course=dbcourse
+        )
+        return Response({'task_id': task_id})
+    except WorkQueueError as e:
+        messages = embed_messages([error(str(e))])
+        return Response(messages)
 
 
 @permission_required('exercises.view_statistics')

@@ -7,6 +7,7 @@ import {SUBPATH} from '../settings.js';
 import {
     updateTask,
 } from '../actions.js';
+import { handleMessages } from '../fetchers';
 
 function fetchTaskProgress(taskId, completeAction, progressAction) {
     return dispatch => {
@@ -52,12 +53,11 @@ function enqueueTask(url, {data, method="GET", completeAction, progressAction} =
         }
         return jsonfetch(url, fetchconfig)
             .then( res => res.json() )
+            .then( json => handleMessages(json) )
             .then( json => {
-                //setTimeout(() => {dispatch(fetchTaskProgress(json.task_id, completeAction, progressAction));}, 1000);
                 dispatch(fetchTaskProgress(json.task_id, completeAction, progressAction));
                 return json.task_id;
-            })
-            .catch(err => console.dir(err));
+            });
     };
 }
 

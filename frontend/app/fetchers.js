@@ -54,6 +54,19 @@ function notify(messages, levels) {
     }
 }
 
+function handleMessages(json) {
+  var messages = []
+  if('messages' in json)
+    messages = json.messages;
+  if('error' in json)
+    messages.append(['error', json.error]);
+  notify(messages, ['error', 'warning', 'info', 'success']);
+  var errors = messages.filter(message => message[0] == 'error');
+  if(errors.length > 0)
+    throw errors;
+  return json;
+}
+
 function fetchLoginStatus(coursePk) {
     return dispatch => {
         return jsonfetch('/loggedin/')
@@ -400,7 +413,8 @@ function fetchStudentResults(coursePk) {
         dispatch(updatePendingStateIn(['studentResults'], false));
       }
     };
-    return dispatch(enqueueTask('/course/' + coursePk + '/statistics/resultsasync', taskOptions));
+    return dispatch(enqueueTask('/course/' + coursePk + '/statistics/resultsasync', taskOptions))
+      .catch(err => dispatch(updatePendingStateIn(['studentResults'], false)));
   };
 }
 
@@ -486,10 +500,12 @@ function fetchExerciseRecentResults() {
 }
 
 export {
+  notify,
+  handleMessages,
   fetchLoginStatus,
-  fetchExercises, 
+  fetchExercises,
   fetchSameFolder,
-  fetchExerciseTree, 
+  fetchExerciseTree,
   fetchExerciseXML,
   fetchExerciseJSON,
   fetchExercise,
