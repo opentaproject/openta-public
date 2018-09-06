@@ -75,9 +75,6 @@ def exercise_asset(request, exercise, asset):
         return Response({}, status.HTTP_403_FORBIDDEN)
     dbexercise = Exercise.objects.get(exercise_key=exercise)
 
-    if not request.user.has_perm('exercises.edit_exercise') and not dbexercise.meta.student_assets:
-        return Response({}, status.HTTP_403_FORBIDDEN)
-
     xmltree = exercise_xmltree(dbexercise.get_full_path())
     solution_assets = xmltree.xpath('//solution/asset')
     for asset_node in solution_assets:
