@@ -68,7 +68,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
 
 const BaseLoginInfo = ({ username, groups, course, admin, author, viewer, activeExercise,
       exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onStatisticsClick, onSave,
-      onReset, onHome, pendingState, menuPath}) => {
+      onReset, onHome, pendingState, menuPath, motd}) => {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
@@ -106,7 +106,10 @@ return (
   </li></ul>
   <div className="uk-vertical-align">
   <span className="uk-vertical-align-middle">
-  {renderGroupIcons} <span className="uk-text-middle">{username}</span>{ admin ? ( <span className="uk-text-small uk-text-middle"> (admin)</span> ) : "" }
+    {renderGroupIcons}
+    <span className="uk-text-middle">{username}</span>
+    { admin && <span className="uk-text-small uk-text-middle"> (admin)</span> }
+    <span className="uk-text-middle uk-text-warning"> {motd} </span>
   </span>
   </div>
   </div>
@@ -198,6 +201,7 @@ const mapStateToProps = state => {
   return ({
   username: state.getIn(['login', 'username']),
   course: state.getIn(['courses', activeCourse, 'course_name'], ""),
+  motd: state.getIn(['course','motd'], ""),
   groups: state.getIn(['login', 'groups'], immutable.List([])),
   admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
   viewer: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),

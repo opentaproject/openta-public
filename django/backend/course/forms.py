@@ -36,6 +36,7 @@ class CourseFormFrontend(forms.ModelForm):
             'published',
             'course_name',
             'course_long_name',
+            'motd',
             'deadline_time',
             'url',
             'registration_by_domain',
@@ -45,5 +46,8 @@ class CourseFormFrontend(forms.ModelForm):
             'registration_by_password',
             'owners',
         ]
-        widgets = {'owners': forms.CheckboxSelectMultiple()}
+        widgets = {
+            'owners': forms.CheckboxSelectMultiple(),
+            'motd': forms.Textarea(attrs={'cols': 80, 'rows': 10}),
+        }
         help_texts = HELP_TEXTS
