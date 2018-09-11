@@ -142,13 +142,16 @@ def e_student_percent_complete(exercise):
             deadline_date_time = datetime.datetime.combine(
                 exercise.meta.deadline_date, deadline_time
             )
+            extra_filters = []
+            if exercise.meta.image:
+                extra_filters.append(Q(imageanswer__exercise=question.exercise))
             complete.append(
                 set(
                     users.filter(
                         answer__correct=True,
                         answer__question=question,
                         answer__date__lt=tz.localize(deadline_date_time),
-                        imageanswer__exercise=question.exercise,
+                        *extra_filters
                     )
                     .values_list('username', flat=True)
                     .distinct()
@@ -426,7 +429,7 @@ def get_passed_exercises(exercise_queryset, user):
 
 
 def get_passed_exercises_with_image_data(
-    exercise_queryset, user, deadline=True, image_deadline=True
+    exercise_queryset, user, deadline=True, image_deadline=True, require_image=True
 ):
     """
     Generate data containing which exercises from the queryset that user have
@@ -471,12 +474,12 @@ def get_passed_exercises_with_image_data(
             )
         )
 
+    if require_image:
+        extra_question_filters.append(Q(exercise__imageanswer__user=user))
+
     questions = Question.objects.filter(exercise__in=exercise_queryset)
     passed_questions_pk_list = questions.filter(
-        answer__user=user,
-        answer__correct=True,
-        exercise__imageanswer__user=user,
-        *extra_question_filters
+        answer__user=user, answer__correct=True, *extra_question_filters
     ).values_list('pk', flat=True)
 
     failed_questions = questions.exclude(pk__in=passed_questions_pk_list)

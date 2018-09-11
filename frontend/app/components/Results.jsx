@@ -144,40 +144,28 @@ const renderFilter = ({filteredUsers, onFilterChange, onFilterKeypress, filter, 
             <span className="uk-form-label uk-margin-top">Obligatory deadline</span>
             <div className="uk-form-row uk-margin-small-top">
               <label>
-              <input type="radio" name="required" className={"uk-width-1-1 uk-margin-small-right" } onChange={() => onRequiredDeadline('n_correct')} checked={requiredFilter === 'n_correct'}/>        
+              <input type="radio" name="required" className={"uk-width-1-1 uk-margin-small-right" } onChange={() => onRequiredDeadline('n_complete_no_deadline')} checked={requiredFilter === 'n_complete_no_deadline'}/>        
               No deadline
               </label>
             </div>
             <div className="uk-form-row uk-margin-small-top">
               <label>
-              <input type="radio" name="required" className="uk-width-1-1 uk-margin-small-right" onChange={() => onRequiredDeadline('n_deadline')} checked={requiredFilter === 'n_deadline'}/>        
-              Answer
-              </label>
-            </div>
-            <div className="uk-form-row uk-margin-small-top">
-              <label>
-              <input type="radio" name="required" className="uk-width-1-1 uk-margin-small-right" onChange={() => onRequiredDeadline('n_image_deadline')} checked={requiredFilter === 'n_image_deadline'}/>        
-              Answer & Image
+              <input type="radio" name="required" className="uk-width-1-1 uk-margin-small-right" onChange={() => onRequiredDeadline('n_complete')} checked={requiredFilter === 'n_complete'}/>        
+              Enforce deadline
               </label>
             </div>
 
             <span className="uk-form-label uk-margin-top">Bonus deadline</span>
             <div className="uk-form-row uk-margin-small-top">
               <label>
-              <input type="radio" name="bonus" className="uk-width-1-1 uk-margin-small-right" onChange={() => onBonusDeadline('n_correct')} checked={bonusFilter === 'n_correct'}/>        
+              <input type="radio" name="bonus" className="uk-width-1-1 uk-margin-small-right" onChange={() => onBonusDeadline('n_complete_no_deadline')} checked={bonusFilter === 'n_complete_no_deadline'}/>        
               No deadline
               </label>
             </div>
             <div className="uk-form-row uk-margin-small-top">
               <label>
-              <input type="radio" name="bonus" className="uk-width-1-1 uk-margin-small-right" onChange={() => onBonusDeadline('n_deadline')} checked={bonusFilter === 'n_deadline'}/>        
-              Answer
-              </label>
-            </div>
-            <div className="uk-form-row uk-margin-small-top">
-              <label>
-              <input type="radio" name="bonus" className="uk-width-1-1 uk-margin-small-right" onChange={() => onBonusDeadline('n_image_deadline')} checked={bonusFilter === 'n_image_deadline'}/>        
-              Answer & Image
+              <input type="radio" name="bonus" className="uk-width-1-1 uk-margin-small-right" onChange={() => onBonusDeadline('n_complete')} checked={bonusFilter === 'n_complete'}/>        
+              Enforce deadline
               </label>
             </div>
           </form>
@@ -333,8 +321,8 @@ const mapStateToProps = state => ({
   userResults: state.getIn(['results', 'studentResults']),
   selectedUser: state.getIn(['results', 'selectedUser']),
   filter: state.getIn(['results', 'filters', 'text']),
-  requiredFilter: state.getIn(['results', 'filters', 'requiredKey'], 'n_correct'),
-  bonusFilter: state.getIn(['results', 'filters', 'bonusKey'], 'n_correct'),
+  requiredFilter: state.getIn(['results', 'filters', 'requiredKey'], 'n_complete'),
+  bonusFilter: state.getIn(['results', 'filters', 'bonusKey'], 'n_complete'),
   pendingResults: state.getIn(['pendingState', 'studentResults'], false),
   activeDetailExercise: state.getIn(['results', 'detailResultExercise'], false),
   activeCourse: state.get('activeCourse')

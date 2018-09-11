@@ -5,7 +5,7 @@ import ExerciseSelect from './ExerciseSelect.jsx';
 import { fetchCustomResults, enqueueTask } from '../fetchers.js';
 import { updateCustomResults } from '../actions.js';
 
-const BaseCustomResult = ({onGenerateResults, exerciseState, taskId, progress, done}) => {
+const BaseCustomResult = ({onGenerateResults, exerciseState, taskId, progress, done, activeCourse}) => {
   var selected = exerciseState.filter( exercise => exercise.get('selected'));
   var keys = selected.keySeq().toJS();
   var urlkeys = keys.join(',');
@@ -16,10 +16,10 @@ const BaseCustomResult = ({onGenerateResults, exerciseState, taskId, progress, d
       <div className="uk-flex uk-flex-column uk-flex-middle uk-margin-left uk-panel uk-panel-box">
         <div><p>Select exercises on the left</p></div>
         { selected.size > 0 &&
-          <div><a className="uk-button" onClick={() => onGenerateResults(exerciseState)}>Generate results</a></div>
+          <div><a className="uk-button" onClick={() => onGenerateResults(exerciseState, activeCourse)}>Generate results</a></div>
         }
         <div className="uk-width-1-1 uk-margin-top">
-          { progress > 0 && done !== true &&
+          { progress >= 0 && done !== true &&
           <div className="uk-progress">
             <div className="uk-progress-bar" style={{width: progress + "%"}}>{progress}%</div>
           </div>
@@ -37,11 +37,11 @@ const BaseCustomResult = ({onGenerateResults, exerciseState, taskId, progress, d
 }
 
 const mapDispatchToProps = (dispatch) => ({
-  onGenerateResults: (exerciseState) => {
+  onGenerateResults: (exerciseState, activeCourse) => {
     var selected = exerciseState.filter( exercise => exercise.get('selected'));
     var exercises = selected.keySeq().toJS();
     //dispatch(fetchCustomResults(exercises));
-    dispatch(enqueueTask('/statistics/customresult', { data: {exercises: exercises}, method: "POST" } ))
+    dispatch(enqueueTask('/course/' + activeCourse + '/statistics/customresult', { data: {exercises: exercises}, method: "POST" } ))
      .then( taskId => dispatch(updateCustomResults({taskId: taskId})) );
   }
 })
@@ -53,6 +53,7 @@ const mapStateToProps = (state) => {
     exerciseState: state.get('exerciseState'),
     progress: state.getIn(['tasks', taskId, 'progress']),
     done: state.getIn(['tasks', taskId, 'done']),
+    activeCourse: state.get('activeCourse'),
   };
 }
 

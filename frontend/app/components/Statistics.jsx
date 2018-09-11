@@ -94,7 +94,7 @@ const BaseStatistics = ({ exerciseState, pendingState, statistics }) => {
           </div>
         </dd>
         }
-          
+
         <dt><span className="uk-text-large"><span className="uk-text-bold">{ nattempts_median }</span> attempts per question (median)</span></dt>
         <dd>
         </dd>

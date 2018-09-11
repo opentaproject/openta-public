@@ -3,13 +3,14 @@ from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExerc
 from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
 from course.models import Course
 from django.contrib.auth.models import User
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 import datetime
 from django.core.cache import cache
 from exercises.modelhelpers import exercise_list_data, e_name, e_path, e_student_tried
 from exercises.modelhelpers import e_student_percent_complete, e_student_attempts_mean
 from exercises.modelhelpers import e_student_attempts_median, e_student_activity, post_process_list
 from exercises.modelhelpers import p_student_activity
+from exercises.modelhelpers import get_passed_exercises_with_image_data
 import pytz
 import logging
 
@@ -67,6 +68,16 @@ def calculate_user_results(user_pk, course_pk):
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
     exercises = Exercise.objects.filter(meta__published=True, course=course)
+    required_exercises = exercises.filter(meta__required=True)
+    bonus_exercises = exercises.filter(meta__bonus=True)
+    n_complete_required = len(get_completed_exercises(required_exercises, user))
+    n_complete_required_no_deadline = len(
+        get_completed_exercises(required_exercises, user, enforce_deadline=False)
+    )
+    n_complete_bonus = len(get_completed_exercises(bonus_exercises, user))
+    n_complete_bonus_no_deadline = len(
+        get_completed_exercises(bonus_exercises, user, enforce_deadline=False)
+    )
     exercises_with_answers = exercises.prefetch_related(
         Prefetch(
             'question',
@@ -213,11 +224,15 @@ def calculate_user_results(user_pk, course_pk):
                 'n_correct': n_passed_required,
                 'n_deadline': n_passed_required_d,
                 'n_image_deadline': n_passed_required_d_id,
+                'n_complete': n_complete_required,
+                'n_complete_no_deadline': n_complete_required_no_deadline,
             },
             'bonus': {
                 'n_correct': n_passed_bonus,
                 'n_deadline': n_passed_bonus_d,
                 'n_image_deadline': n_passed_bonus_d_id,
+                'n_complete': n_complete_bonus,
+                'n_complete_no_deadline': n_complete_bonus_no_deadline,
             },
             'optional': n_optional,
             'total': n_total,
@@ -249,6 +264,11 @@ def calculate_students_results_subset(exercise_query, task=None, course=None):
         passed_required_d_id = get_passed_exercises_with_image_data(
             required, student, deadline=True, image_deadline=True
         )
+        completed_required = get_completed_exercises(required, student)
+        completed_required_no_deadline = get_completed_exercises(
+            required, student, enforce_deadline=False
+        )
+
         passed_bonus = get_passed_exercises_with_image_data(
             bonus, student, deadline=False, image_deadline=False
         )
@@ -258,6 +278,11 @@ def calculate_students_results_subset(exercise_query, task=None, course=None):
         passed_bonus_d_id = get_passed_exercises_with_image_data(
             bonus, student, deadline=True, image_deadline=True
         )
+        completed_bonus = get_completed_exercises(bonus, student)
+        completed_bonus_no_deadline = get_completed_exercises(
+            bonus, student, enforce_deadline=False
+        )
+
         total = get_passed_exercises(exercise_query.filter(meta__published=True), student)
         optional = get_passed_exercises(
             exercise_query.filter(meta__published=True, meta__required=False, meta__bonus=False),
@@ -281,11 +306,15 @@ def calculate_students_results_subset(exercise_query, task=None, course=None):
                     'n_correct': len(passed_required),
                     'n_deadline': len(passed_required_d),
                     'n_image_deadline': len(passed_required_d_id),
+                    'n_complete': len(completed_required),
+                    'n_complete_no_deadline': len(completed_required_no_deadline),
                 },
                 'bonus': {
                     'n_correct': len(passed_bonus),
                     'n_deadline': len(passed_bonus_d),
                     'n_image_deadline': len(passed_bonus_d_id),
+                    'n_complete': len(completed_bonus),
+                    'n_complete_no_deadline': len(completed_bonus_no_deadline),
                 },
                 'failed_by_audits': failed_by_audits.count(),
                 'passed_audits': passed_audits.count(),
@@ -298,3 +327,65 @@ def calculate_students_results_subset(exercise_query, task=None, course=None):
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug("Adding result for " + student.username)
     return results
+
+
+def get_completed_exercises(exercise_queryset, user, enforce_deadline=True):
+    """
+    Generate data containing which exercises from the queryset that user have
+    passed all required parts before deadline (if there is a deadline).
+
+    Args:
+        user: Django User instance
+        exercise_queryset: The exercises to be tested
+
+    Returns:
+        List
+        [
+            {
+                'exercise_name':
+                'answers': [
+                    {
+                        'answer':
+                        'date':
+                    }
+                    ]
+                'deadline':
+            }
+        ]
+
+    """
+    basic_exercises = exercise_queryset.filter(
+        meta__required=False, meta__bonus=False, meta__deadline_date__isnull=True
+    )
+
+    deadline_exercises = exercise_queryset.filter(
+        Q(meta__required=True) | Q(meta__bonus=True),
+        meta__deadline_date__isnull=False,
+        meta__image=False,
+    )
+
+    image_deadline_exercises = exercise_queryset.filter(
+        Q(meta__required=True) | Q(meta__bonus=True),
+        meta__deadline_date__isnull=False,
+        meta__image=True,
+    )
+
+    passed_basic = get_passed_exercises_with_image_data(
+        basic_exercises, user, deadline=False, image_deadline=False, require_image=False
+    )
+    passed_deadline = get_passed_exercises_with_image_data(
+        deadline_exercises,
+        user,
+        deadline=enforce_deadline,
+        image_deadline=False,
+        require_image=False,
+    )
+    passed_image_deadline = get_passed_exercises_with_image_data(
+        image_deadline_exercises,
+        user,
+        deadline=enforce_deadline,
+        image_deadline=enforce_deadline,
+        require_image=True,
+    )
+
+    return passed_basic + passed_deadline + passed_image_deadline

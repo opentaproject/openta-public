@@ -35,11 +35,11 @@ var defaultState = immutable.fromJS({
     studentResults: [],
     filters: {
       text: '',
-      requiredKey: 'n_image_deadline',
-      bonusKey: 'n_image_deadline',
+      requiredKey: 'n_complete',
+      bonusKey: 'n_complete',
     },
     detailResultsFilters: {
-      requiredKeys: ['correct_deadline', 'image_deadline'], 
+      requiredKeys: ['correct_deadline', 'image_deadline'],
       bonusKeys: ['correct_deadline','image_deadline']
     },
     detailResultsView: 'graded',

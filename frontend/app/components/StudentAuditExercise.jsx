@@ -52,7 +52,7 @@ const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, a
                             </MathSpan>
                           </td>
                         </tr>
-                      ))}          
+                      ))}
                 </tbody>
               </table>
             </div>
@@ -61,30 +61,40 @@ const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, a
   const srcs = imageAnswers.map( ia => SUBPATH + "/imageanswer/"+ia.get('pk')).toJS();
   const badges = imageAnswers.map( ia => moment(ia.get('date')).format('YYYY-MM-DD HH:mm')).toJS();
   const types = imageAnswers.map( ia => ia.get('filetype') ).toJS();
-  return (
-    <div className="uk-panel uk-panel-box">
-        <div className="uk-flex">
-          <div className="uk-width-2-3 uk-margin-small-right">
-            <ImageCollection srcs={srcs} badges={badges} types={types}/>
+  const imageRequired = exerciseState.getIn(['meta', 'image'], false);
+  const imageBeforeDeadline = userResults.getIn(["exercises", activeExercise, "image_deadline"], false);
+  const correctBeforeDeadline = userResults.getIn(["exercises", activeExercise, "correct_deadline"], false);
+  var beforeDeadline = null;
+  if(imageRequired)
+    if(imageBeforeDeadline && correctBeforeDeadline)
+      beforeDeadline = true;
+    else
+      beforeDeadline = false;
+  if(!imageRequired)
+    if(correctBeforeDeadline)
+      beforeDeadline = true;
+    else
+      beforeDeadline = false;
+  return <div className="uk-panel uk-panel-box">
+      <div className="uk-flex">
+        <div className="uk-width-2-3 uk-margin-small-right">
+          <ImageCollection srcs={srcs} badges={badges} types={types} />
+        </div>
+        <div className="uk-width-1-3">
+          <h3 className="uk-panel-title">
+            {!anonymous && userResults.get("first_name") + " " + userResults.get("last_name")}
+            {anonymous && userResults.get("username")}
+            <i className={"uk-margin-small-right uk-margin-small-left uk-icon " + (userResults.getIn(["exercises", activeExercise, "correct"], false) ? "uk-icon-check uk-text-success" : "uk-icon-close uk-text-danger")} title="Green: Correct answer" />
+            {imageRequired && <i className={"uk-margin-small-right uk-icon uk-icon-picture-o " + (userResults.getIn(["exercises", activeExercise, "imageanswers"], immutable.List([])).size > 0 ? "uk-text-success" : "uk-text-danger")} title="Green: Image uploaded" />}
+            {beforeDeadline !== null && <i className={"uk-margin-small-right uk-icon uk-icon-clock-o " + (beforeDeadline ? "uk-text-success" : "uk-text-danger")} title="Green: Answer (and image if required) submitted before deadline" />}
+            {userResults.getIn(["exercises", activeExercise, "force_passed"], false) && <i className="uk-margin-small-right uk-icon uk-icon-exclamation-circle uk-text-success" title="Manually passed" />}
+          </h3>
+          <div className="uk-panel uk-panel-box uk-flex uk-flex-wrap uk-overflow-container uk-margin-small-left" style={{ maxHeight: "80vh" }}>
+            {answers}
           </div>
-          <div className="uk-width-1-3">
-
-        <h3 className="uk-panel-title">
-        { !anonymous && userResults.get('first_name') + ' ' + userResults.get('last_name')}
-        { anonymous && userResults.get('username')}
-        <i className={'uk-margin-small-right uk-margin-small-left uk-icon ' + (userResults.getIn(['exercises', activeExercise, 'correct'], false) ? 'uk-icon-check uk-text-success' : 'uk-icon-close uk-text-danger')} title="Green: Correct answer"/>
-        <i className={'uk-margin-small-right uk-icon uk-icon-picture-o ' + (userResults.getIn(['exercises', activeExercise,'imageanswers'], immutable.List([])).size > 0 ? 'uk-text-success' : 'uk-text-danger')} title="Green: Image uploaded"/>
-        <i className={'uk-margin-small-right uk-icon uk-icon-clock-o ' + (userResults.getIn(['exercises', activeExercise,'image_deadline'], false) && userResults.getIn(['exercises', activeExercise,'correct_deadline'], false) ? 'uk-text-success' : 'uk-text-danger')} title="Green: Image and answer submitted before deadline"/> 
-        { userResults.getIn(['exercises', activeExercise,'force_passed'], false) &&
-          <i className='uk-margin-small-right uk-icon uk-icon-exclamation-circle uk-text-success' title="Manually passed"/> }
-        </h3>
-          <div className="uk-panel uk-panel-box uk-flex uk-flex-wrap uk-overflow-container uk-margin-small-left" style={{maxHeight: '80vh'}}> 
-            { answers }
         </div>
-        </div>
-    </div>
-    </div>
-  );
+      </div>
+    </div>;
 }
 
 const mapStateToProps = state => ({

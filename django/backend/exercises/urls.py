@@ -65,7 +65,9 @@ urlpatterns = [
         views.get_statistics_per_exercise,
     ),
     url(r'^course/(?P<course_pk>[0-9]+)/statistics/resultsasync/$', views.get_results_async),
-    url(r'^statistics/customresult$', views.enqueue_custom_result_excel),
+    url(
+        r'^course/(?P<course_pk>[0-9]+)/statistics/customresult$', views.enqueue_custom_result_excel
+    ),
     url(r'^statistics/customresult/(?P<task>[0-9]+)$', views.progress_custom_result_excel),
     url(r'^course/(?P<course_pk>[0-9]+)/statistics/results/excel$', views.get_results_excel),
     url(r'^statistics/exercise/(?P<exercise>[\w\.-]+)/activity', views.get_activity_exercise),
