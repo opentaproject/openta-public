@@ -28,7 +28,7 @@ class LinearAlgebraTest(TestCase):
         variables = [
             {'name': 'x', 'value': '2'},
             {'name': 'y', 'value': '2 kg'},
-            {'name': 'z', 'value': 'sample(3)'},
+            {'name': 'z', 'value': 'sample(3) kelvin'},
         ]
         res = linear_algebra_compare_expressions(
             variables, 'x*y*z*(1/(1+z)+z/(1+z))+1-sqrt(1)', 'x*y*z'
