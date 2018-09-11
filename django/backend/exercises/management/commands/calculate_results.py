@@ -2,6 +2,8 @@ from django.core.management.base import BaseCommand, CommandError
 from exercises.aggregation import student_statistics_exercises, students_results
 import logging
 
+from course.models import Course
+
 logger = logging.getLogger(__name__)
 
 
@@ -10,10 +12,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info('Started calculating results and statistics')
-        student_statistics_exercises(force=True)
-        logger.info('Statistics done, now doing results.')
-        students_results(force=True)
-        logger.info('Finished calculating results and statistics')
-
-        # raise CommandError('Poll "%s" does not exist' % poll_id)
-        # self.stdout.write(self.style.SUCCESS('Successfully closed poll "%s"' % poll_id))
+        for course in Course.objects.all():
+            logger.info("Calculating for course {}".format(course.course_name))
+            student_statistics_exercises(force=True, course=course)
+            logger.info('Statistics done, now doing results.')
+            students_results(force=True, course=course)
+            logger.info('Finished calculating results and statistics')
