@@ -1,11 +1,14 @@
+import logging
 from django.conf import settings
 from django.http import FileResponse, HttpResponse
+
+LOGGER = logging.getLogger(__name__)
 
 
 def serve_file(path, filename, **kwargs):
     content_type = kwargs['content_type'] if 'content_type' in kwargs else None
     dev_path = kwargs['dev_path'] if 'dev_path' in kwargs else "./" + path
-
+    LOGGER.debug("Serving path: %s", path)
     if settings.RUNNING_DEVSERVER:
         if content_type:
             response = FileResponse(open(dev_path, 'rb'), content_type)
