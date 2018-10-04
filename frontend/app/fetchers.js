@@ -59,7 +59,7 @@ function handleMessages(json) {
   if('messages' in json)
     messages = json.messages;
   if('error' in json)
-    messages.append(['error', json.error]);
+    messages.push(['error', json.error]);
   notify(messages, ['error', 'warning', 'info', 'success']);
   var errors = messages.filter(message => message[0] == 'error');
   if(errors.length > 0)

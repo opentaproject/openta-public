@@ -109,9 +109,12 @@ class BaseAssets extends Component {
 }
 
 const handleUpload = (event, exerciseKey) => dispatch => {
-  var file = event.target.files[0];
-  dispatch(uploadAsset(exerciseKey, file));
-}
+  if (event.target.value !== "") {
+    var file = event.target.files[0];
+    dispatch(uploadAsset(exerciseKey, file)).catch(err => console.log(err));
+    event.target.value = "";
+  }
+};
 
 const handleDeleteAsset = (exerciseKey, asset) => dispatch => {
     dispatch(updatePendingStateIn(['exercise', exerciseKey, 'asset', 'delete', asset], true))

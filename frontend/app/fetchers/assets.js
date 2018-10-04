@@ -9,6 +9,8 @@ import {
     updatePendingStateIn
 } from '../actions.js';
 
+import {handleMessages} from '../fetchers.js';
+
 function fetchAssets(exercise = null) {
     return (dispatch, getState) => {
         var state = getState();
@@ -36,26 +38,29 @@ function uploadProgress(dispatch, evt, exerciseKey) {//{{{
 
 var throttleUploadProgress = _.throttle(uploadProgress, 300);
 
-function uploadAsset(exerciseKey, file) { 
+function uploadAsset(exerciseKey, file) {
   return dispatch => {
-      if (!file ) return;
+    return new Promise((resolve, reject) => {
+      if (!file) return;
       var fd = new FormData();
-      fd.append('file', file);
+      fd.append("file", file);
       var xhr = new XMLHttpRequest();
-      xhr.open("POST", SUBPATH + "/exercise/" + exerciseKey + '/uploadasset');
-      xhr.setRequestHeader('X-CSRFToken', CSRF_TOKEN);
-      xhr.setRequestHeader('Accept', 'application/json');
-      if(xhr.upload)
-        xhr.upload.onprogress = (evt) => throttleUploadProgress(dispatch, evt, exerciseKey);
+      xhr.open("POST", SUBPATH + "/exercise/" + exerciseKey + "/uploadasset");
+      xhr.setRequestHeader("X-CSRFToken", CSRF_TOKEN);
+      xhr.setRequestHeader("Accept", "application/json");
+      if (xhr.upload) xhr.upload.onprogress = evt => throttleUploadProgress(dispatch, evt, exerciseKey);
       xhr.onload = () => {
-          dispatch(updatePendingStateIn(['exercise', exerciseKey, 'assetUploadPending'], false));
-          dispatch(updatePendingStateIn(['exercise', exerciseKey, 'assetUploadProgress'], 1.0));
-          dispatch(fetchAssets());
-      }
+        dispatch(updatePendingStateIn(["exercise", exerciseKey, "assetUploadPending"], false));
+        dispatch(updatePendingStateIn(["exercise", exerciseKey, "assetUploadProgress"], 1.0));
+        dispatch(fetchAssets());
+        resolve(handleMessages(JSON.parse(xhr.response)));
+      };
+      xhr.onerror = () => reject(handleMessages(JSON.parse(xhr.response)));
       xhr.send(fd);
-      dispatch(updatePendingStateIn(['exercise', exerciseKey, 'assetUploadPending'], true));
-    }
-} 
+      dispatch(updatePendingStateIn(["exercise", exerciseKey, "assetUploadPending"], true));
+    });
+  };
+}
 
 function deleteAsset(exerciseKey, asset) {
     return dispatch => {
