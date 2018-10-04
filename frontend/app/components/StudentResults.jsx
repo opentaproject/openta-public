@@ -115,6 +115,9 @@ const BaseStudentResults = ({userResults,
                             {item.get("force_passed") && <div style={{ lineHeight: "0" }}>
                                 <i className="uk-margin-small-right uk-icon uk-icon-exclamation-circle uk-text-success" title="Manually passed" />
                               </div>}
+                            {item.get("revision_needed") && <div style={{ lineHeight: "0" }}>
+                                <i className="uk-margin-small-right uk-icon uk-icon-exclamation-circle uk-text-danger" title="Revision needed" />
+                              </div>}
                           </div>}
                       </div>
                       <div style={{ position: "absolute", left: "-10px", top: "-10px" }}>

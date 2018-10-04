@@ -200,6 +200,7 @@ const BaseResults = ({menuPath,
                           user.getIn(['bonus', 'n_correct'])-user.getIn(['bonus', 'n_image_deadline'])) + ')',
       'n_passed_optional': user.getIn(['optional']),
       'n_passed_total': user.getIn(['optional']) + user.getIn(['required', requiredFilter]) + user.getIn(['bonus', bonusFilter])/*user.getIn(['total'])*/,
+      'n_failed_audits': user.getIn(['failed_by_audits'])
     })));
   var { data: hist2dData, layout: hist2dLayout } = generateHist2dPlot(renderResults);
   var { data: histData, layout: histLayout } = generateHistPlot(renderResults);
@@ -235,6 +236,10 @@ const BaseResults = ({menuPath,
     {
       name: 'Optional',
       index: 'n_passed_optional'
+    },
+    {
+      name: 'Failed audits',
+      index: 'n_failed_audits'
     },
     {
       name: 'Late',

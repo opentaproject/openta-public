@@ -235,7 +235,13 @@ def calculate_user_results(user_pk, course_pk):
                 'n_complete_no_deadline': n_complete_bonus_no_deadline,
             },
             'optional': n_optional,
+            # Note that 'total' is total number of exercises with correct answer
+            # (but otherwise no other requirements)
             'total': n_total,
+            'total_complete_before_deadline': n_complete_bonus + n_complete_required + n_optional,
+            'total_complete_no_deadline': n_complete_bonus_no_deadline
+            + n_complete_required_no_deadline
+            + n_optional,
         },
     }
 
@@ -321,7 +327,17 @@ def calculate_students_results_subset(exercise_query, task=None, course=None):
                 'total_audits': all_audits.count(),
                 'manually_passed': passed_manually.count(),
                 'optional': len(optional),
+                # Note that 'total' is total number of exercises with correct answer
+                # (but otherwise no other requirements)
                 'total': len(total),
+                'total_complete_before_deadline': (
+                    len(completed_bonus) + len(completed_required) + len(optional)
+                ),
+                'total_complete_no_deadline': (
+                    len(completed_bonus_no_deadline)
+                    + len(completed_required_no_deadline)
+                    + len(optional)
+                ),
             }
         )
         if logger.isEnabledFor(logging.DEBUG):
