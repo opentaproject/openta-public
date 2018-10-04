@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import ExerciseSelect from './ExerciseSelect.jsx';
+import {SUBPATH} from '../settings.js';
 
 import { fetchCustomResults, enqueueTask } from '../fetchers.js';
 import { updateCustomResults } from '../actions.js';
@@ -27,7 +28,7 @@ const BaseCustomResult = ({onGenerateResults, exerciseState, taskId, progress, d
         </div>
         { done &&
           <div>
-            <a href={"/queuetask/" + taskId + "/resultfile"}>Download excel file</a>
+            <a href={SUBPATH + "/queuetask/" + taskId + "/resultfile"}>Download excel file</a>
           </div>
         }
       </div>
