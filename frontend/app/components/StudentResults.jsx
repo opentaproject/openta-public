@@ -67,7 +67,7 @@ const BaseStudentResults = ({userResults,
       <div className="uk-flex uk-margin-bottom">
       { !pendingResults && !activeExercise &&
       <div className="uk-button-group uk-margin-right">
-        <a onClick={(e) => UIkit.modal.confirm("Log in as user " + userResults.get('username') + "?", () => window.open("./hijack/username/"+userResults.get('username') , "_self"))} className="uk-button uk-alert-warning" data-uk-tooltip title="Log in as user"> {userResults.get('username')} 
+        <a onClick={(e) => UIkit.modal.confirm("Log in as user " + userResults.get('username') + "?", () => window.open(SUBPATH + "/hijack/username/"+userResults.get('username') , "_self"))} className="uk-button uk-alert-warning" data-uk-tooltip title="Log in as user"> {userResults.get('username')} 
         </a>
       </div>
       }
