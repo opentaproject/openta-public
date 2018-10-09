@@ -26,7 +26,7 @@ function renderExpression(expression) {
 }
 
 
-const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers, pending}) => {
+const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers, pending, admin}) => {
   const getQuestionText = key => {
     const q = exerciseState.getIn([activeExercise, 'json', 'exercise', 'question'], immutable.List([])).find(q => q.getIn(['@attr', 'key']) === key, null);
     if (q) {
@@ -55,7 +55,7 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
                   <td key={question}>
                     { users.map( data => (
                     <div className="uk-panel uk-panel-box uk-margin-small-top" key={data.get('pk')}>
-                    <h3 className="uk-panel-title">{data.get('username')}</h3>
+                    { admin && <h3 className="uk-panel-title">{data.get('username')}</h3> }
                     <table className="uk-table uk-table-condensed" style={{ width: 'auto' }}>
                     <tbody>
                       {
@@ -96,6 +96,7 @@ const mapStateToProps = state => {
     pending: state.getIn(['pendingState', 'results', 'exercises', activeExercise, 'recent'], false),
     activeExercise: activeExercise,
     exerciseState: state.get('exerciseState'),
+    admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
   });
 }
 
