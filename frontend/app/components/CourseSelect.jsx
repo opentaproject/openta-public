@@ -12,7 +12,8 @@ import {
 
 import {
   fetchExercises,
-  fetchExerciseTree
+  fetchExerciseTree,
+  fetchAllExerciseStatistics
 } from '../fetchers.js';
 import { navigateMenuArray } from '../menu.js';
 
@@ -61,6 +62,7 @@ const mapDispatchToProps = dispatch => {
             dispatch(setActiveCourse(course));
             dispatch(fetchExercises(course));
             dispatch(fetchExerciseTree(course));
+            dispatch(fetchAllExerciseStatistics(course));
             dispatch(navigateMenuArray([]));
         }
     }
