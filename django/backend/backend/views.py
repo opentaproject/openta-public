@@ -190,7 +190,7 @@ def login(request, course_name=None):
         if request.user.is_authenticated:
             return main(request, course_pk=course.pk)
     except Course.DoesNotExist:
-        course = Course.objects.first()
+        course = Course.objects.order_by('-published', '-pk')[0]
     course_data = CourseSerializer(course).data
     if course_data['icon'] is not None:
         course_data['icon'] = '/' + settings.SUBPATH + course_data['icon'].lstrip('/')
@@ -252,7 +252,7 @@ def main(request, course_pk=None):
     if course_pk is not None:
         course = Course.objects.get(pk=course_pk)
     else:
-        course = Course.objects.first()
+        course = Course.objects.order_by('-published', '-pk')[0]
     if (
         request.user.groups.filter(name='Student').exists()
         and not course.published
