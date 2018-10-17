@@ -19,7 +19,8 @@
 
   <script>
     var globalInit = {
-      coursePk: parseInt("{{ course.pk }}")
+      coursePk: parseInt("{{ course.pk }}"),
+      timezone: "{{ timezone }}"
     };
   </script>
   <script src="{% static "js/jquery.js" %}"></script>

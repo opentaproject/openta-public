@@ -3,9 +3,9 @@ import { connect } from 'react-redux';
 import immutable from 'immutable';
 import Plot from './Plot.jsx';
 import Spinner from './Spinner.jsx';
-import moment from 'moment';
+import moment from 'moment-timezone';
 
-const BaseStatistics = ({ exerciseState, pendingState, statistics }) => {
+const BaseStatistics = ({ exerciseState, pendingState, statistics, timezone }) => {
   var percent_complete = (exerciseState.get('percent_complete', 0)*100).toFixed(1) + '%';
   var percent_correct = (exerciseState.get('percent_correct', 0)*100).toFixed(1) + '%';
   var percent_tried = (exerciseState.get('percent_tried', 0)*100).toFixed(1) + '%';
@@ -15,15 +15,14 @@ const BaseStatistics = ({ exerciseState, pendingState, statistics }) => {
   var nstudents  = exerciseState.get('nstudents', 0);
   var nattempts_mean  = exerciseState.get('attempts_mean', 0).toFixed(1);
   var nattempts_median  = exerciseState.get('attempts_median', 0).toFixed(1);
-  var deadline  = exerciseState.get('deadline', null);
+  var deadline_date  = exerciseState.getIn(['meta', 'deadline_date'], null);
+  var deadline_time  = exerciseState.getIn(['meta', 'deadline_time'], null);
 
   var formatDate = date => moment(date).format('YYYY-MM-DD HH:mm:ss');
-  var formatTimestamp = date => moment(date, 'X').format('YYYY-MM-DD HH:mm:ss');
+  var formatTimestamp = date => moment(date, 'X').tz(timezone).format('YYYY-MM-DD HH:mm:ss');
 
-  //var activityHistogram = exerciseState.getIn(['activity', 'answers'], immutable.List([])).map(formatDate).toArray();
-  //console.dir(activityHistogram)
   var y = exerciseState.getIn(['activity', 'answers_histogram'], immutable.List([])).toArray();
-  var x = exerciseState.getIn(['activity', 'bins'], immutable.List([])).butLast().map(formatTimestamp).toArray();
+  var x = exerciseState.getIn(['activity', 'bins'], immutable.List([])).rest().map(formatTimestamp).toArray();
 
   var plotData = [ {
     y: y,
@@ -31,8 +30,8 @@ const BaseStatistics = ({ exerciseState, pendingState, statistics }) => {
     type: "bar",
   },];
   var shapes = []
-  if(deadline) {
-    var deadlinePlotly = moment(deadline).format('YYYY-MM-DD HH:mm:ss');
+  if(deadline_date) {
+    var deadlinePlotly = moment(deadline_date + ' ' + deadline_time).format('YYYY-MM-DD HH:mm:ss');
     shapes.push(
     {
       type: 'line',
@@ -81,13 +80,13 @@ const BaseStatistics = ({ exerciseState, pendingState, statistics }) => {
           <div className="uk-progress-bar" style={{'width': percent_correct}}><span className="uk-text-bold">{percent_correct}</span></div>
           </div>
         </dd>
-        { deadline &&
+        { deadline_date &&
         <dt>
           <span className="uk-text-bold uk-text-large">{ncomplete}/{nstudents}</span>
-          <span> complete (correct before deadline and image).</span>
+          <span> complete (correct before deadline).</span>
         </dt>
         }
-        { deadline &&
+        { deadline_date &&
         <dd>
           <div className="uk-progress uk-progress-success">
           <div className="uk-progress-bar" style={{'width': percent_complete}}><span className="uk-text-bold">{percent_complete}</span></div>
@@ -116,6 +115,7 @@ const mapStateToProps = state => {
   exerciseState: activeExerciseState,
   pendingState: pendingState,
   statistics: state.get('statistics'),
+  timezone: state.get('timezone')
 };
 }
 

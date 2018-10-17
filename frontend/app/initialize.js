@@ -15,7 +15,8 @@ import {
     fetchCourses,
 } from './fetchers';
 import {
-    updateLanguage
+    updateLanguage,
+    setTimezone
     } from './actions.js'
 import {
   updateActiveExercise,
@@ -32,6 +33,8 @@ if( getcookie('lang') !== undefined ){
           store.dispatch(updateLanguage( cookielang ) )
       }
    }
+
+store.dispatch( setTimezone(globalInit.timezone) )
 store.dispatch( setActiveCourse(globalInit.coursePk) )
 store.dispatch( fetchExercises(globalInit.coursePk) );
 store.dispatch( fetchExerciseTree(globalInit.coursePk) );

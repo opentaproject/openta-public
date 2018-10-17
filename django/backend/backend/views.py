@@ -262,7 +262,7 @@ def main(request, course_pk=None):
         return redirect(reverse('login'))
 
     course_data = CourseSerializer(course).data
-    extra = dict(course=course_data)
+    extra = dict(course=course_data, timezone=settings.TIME_ZONE)
     response = render(request, "base_main.html", context=extra)
     if settings.CSRF_COOKIE_NAME:
         response.set_cookie(key='csrf_cookie_name', value=settings.CSRF_COOKIE_NAME)
