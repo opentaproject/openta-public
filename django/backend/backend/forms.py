@@ -32,7 +32,7 @@ class UserCreateFormNoPassword(ModelForm):
     def save(self, commit=True):
         course = Course.objects.get(pk=self._course_pk)
         try:
-            user = User.objects.get(username=self.cleaned_data['email'])
+            user = User.objects.get(email=self.cleaned_data['email'])
             user.opentauser.courses.add(course)
             messages.add_message(
                 self._request,
@@ -78,6 +78,7 @@ class UserCreateFormDomain(ModelForm):
         super().__init__(*args, **kwargs)
 
     def clean_email(self):
+        # Check for a valid email domain
         course = Course.objects.get(pk=self._course_pk)
         domains = course.get_registration_domains()
         user_domain = self.cleaned_data["email"].split('@')[-1]
@@ -91,7 +92,7 @@ class UserCreateFormDomain(ModelForm):
     def save(self, commit=True):
         course = Course.objects.get(pk=self._course_pk)
         try:
-            user = User.objects.get(username=self.cleaned_data['email'])
+            user = User.objects.get(email=self.cleaned_data['email'])
             user.opentauser.courses.add(course)
             messages.add_message(
                 self._request,
