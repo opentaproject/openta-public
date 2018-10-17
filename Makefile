@@ -60,6 +60,7 @@ frontend-watch:
 
 .PHONY: test
 test:
+	$(MAKE) frontend &&\
 	source django/env/bin/activate &&\
 	cd django/backend &&\
 	./runtests
