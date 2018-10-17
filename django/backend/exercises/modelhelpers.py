@@ -116,7 +116,7 @@ def e_student_tried(exercise):
     users = User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
     ntried = users.filter(answer__question__exercise=exercise).distinct().count()
     n_students = users.count()
-    return {'ntried': ntried, 'percent_tried': ntried / n_students}
+    return {'ntried': ntried, 'percent_tried': ntried / n_students if n_students > 0 else 0}
 
 
 def e_student_percent_complete(exercise):
@@ -169,8 +169,8 @@ def e_student_percent_complete(exercise):
     allcorrect_answer = set.intersection(*map(set, correct_answer)) if correct_answer else []
 
     return {
-        'percent_complete': len(allcomplete) / n_students,
-        'percent_correct': len(allcorrect_answer) / n_students,
+        'percent_complete': len(allcomplete) / n_students if n_students > 0 else 0,
+        'percent_correct': len(allcorrect_answer) / n_students if n_students > 0 else 0,
         'ncomplete': len(allcomplete),
         'ncorrect': len(allcorrect_answer),
         'nstudents': n_students,
