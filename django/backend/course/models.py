@@ -4,6 +4,7 @@ import datetime
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
+from django.core.validators import EmailValidator
 import pytz
 from django.conf import settings
 import exercises.paths as paths
@@ -43,6 +44,9 @@ class CourseManager(models.Manager):
         return course.get_registration_domains()
 
 
+EMAIL_VALIDATOR = EmailValidator()
+
+
 class Course(models.Model):
     course_name = models.CharField(max_length=255)
     icon = models.ImageField(default=None, null=True, blank=True, upload_to='public')
@@ -58,7 +62,7 @@ class Course(models.Model):
     registration_by_domain = models.BooleanField(default=False, blank=True)
     languages = models.CharField(max_length=255, blank=True, null=True, default=None)
     email_reply_to = models.CharField(
-        max_length=255, blank=True, null=True, default=settings.EMAIL_HOST
+        max_length=255, blank=True, null=True, default="", validators=[EMAIL_VALIDATOR]
     )
     email_host = models.CharField(
         max_length=255, blank=True, null=True, default=settings.EMAIL_HOST
