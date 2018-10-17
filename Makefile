@@ -26,6 +26,11 @@ migrate:
 	source django/env/bin/activate; \
 	python django/backend/manage.py migrate ;\
 
+.PHONY: manage
+manage:
+	source django/env/bin/activate; \
+	python django/backend/manage.py $(ARGS) ;\
+
 .PHONY: reset_database
 reset_database:
 	make _reset_db
@@ -45,6 +50,11 @@ _fixtures:
 
 .PHONY: frontend
 frontend:
+	cd frontend; \
+	brunch build; \
+
+.PHONY: frontend-watch
+frontend-watch:
 	cd frontend; \
 	brunch watch; \
 
