@@ -177,10 +177,10 @@ function updateAuditStudent(auditPk, updated) {
     }
 }
 
-function fetchNewAudit(exercise) {
+function fetchNewAudit(exercise, heap='fromReady') {
   return dispatch => {
     dispatch(updatePendingStateIn( ['audit', 'newAudit'], true));
-    return jsonfetch('/audit/new/exercise/' + exercise)
+    return jsonfetch('/audit/new/exercise/' + heap + '/' + exercise)
       .then( () => dispatch(fetchCurrentAuditsExercise()) )
       .then( () => dispatch(updatePendingStateIn( ['audit', 'newAudit'], false)))
       .catch( err => console.log(err) );

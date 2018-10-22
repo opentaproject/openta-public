@@ -40,42 +40,80 @@ function generateItem(onExerciseClick, exercise, exerciseState, metaImmutable, f
   var meta = metaImmutable.toJS();
   var deadlineClass = "uk-badge-primary";
   var legend = 'Obligatorisk';
-  if( meta.bonus ) {
+  if (meta.bonus) {
     deadlineClass = "uk-badge-warning";
-    legend = 'Bonus';
+    legend = "Bonus";
   }
-  if(showStatistics) {
-    var percent_complete = exerciseState.getIn([exercise, 'percent_complete'], 0);
-    var percent_correct = exerciseState.getIn([exercise, 'percent_correct'], 0);
-    var percent_tried = exerciseState.getIn([exercise, 'percent_tried'], 0);
-    var maxActivity = statistics.getIn(['aggregates', 'max_' + activityRange], 0);
+  var responseAwaits = 0
+  if (showStatistics) {
+    var percent_complete = exerciseState.getIn([exercise, "percent_complete"], 0);
+    var percent_correct = exerciseState.getIn([exercise, "percent_correct"], 0);
+    var percent_tried = exerciseState.getIn([exercise, "percent_tried"], 0);
+    var maxActivity = statistics.getIn(["aggregates", "max_" + activityRange], 0);
     var activity = 0;
-    if(maxActivity > 0)
-      activity = 100*exerciseState.getIn([exercise, 'activity', activityRange]) / maxActivity;
-    if(percent_complete === null)percent_complete = 0;
-    if(percent_correct === null)percent_correct = 0;
-    if(percent_tried === null)percent_tried = 0;
+    if (maxActivity > 0) activity = (100 * exerciseState.getIn([exercise, "activity", activityRange])) / maxActivity;
+    if (percent_complete === null) percent_complete = 0;
+    if (percent_correct === null) percent_correct = 0;
+    if (percent_tried === null) percent_tried = 0;
+    var responseAwaits = Number(exerciseState.getIn([exercise, "response_awaits"], 0));
   }
   var imageUploaded = exerciseState.getIn([exercise, 'image_answers'], immutable.List([])).size > 0;
   var imageUploadClass = imageUploaded ? "uk-badge-success" : "uk-badge-danger";
-  var nameDict = folder.getIn(['exercises', exercise, 'translated_name']);
-  var showCheck = exerciseState.getIn([exercise, 'tried_all'], false)
-// false below disables checkmarks for course for ffm770
-return (
-  <li key={exercise} id={exercise} className="course-exercise-item ">
-    <div className="uk-position-relative" data-uk-dropdown="{hoverDelayIdle: 0, delay: 300}">
-    <a className={"uk-thumbnail exercise-a " + (meta.published ? "" : "exercise-unpublished")} onClick={(ev) => onExerciseClick(exercise, foldername)}>
-        <div className="exercise-thumb-wrap" style={{minWidth: '80px', maxWidth: '100px'}}>
+  var nameDict = folder.getIn(["exercises", exercise, "translated_name"]);
+  var showCheck = exerciseState.getIn([exercise, "tried_all"], false);
+  var showResponseAwaits = responseAwaits > 0;
+  var ringClass = "uk-icon uk-text-primary uk-icon-tiny uk-icon-life-ring";
+  return (
+    <li key={exercise} id={exercise} className="course-exercise-item ">
+      <div className="uk-position-relative" data-uk-dropdown="{hoverDelayIdle: 0, delay: 300}">
+        <a
+          className={"uk-thumbnail exercise-a " + (meta.published ? "" : "exercise-unpublished")}
+          onClick={ev => onExerciseClick(exercise, foldername)}
+        >
+          <div className="exercise-thumb-wrap" style={{ minWidth: "80px", maxWidth: "100px" }}>
             <div className="exercise-thumb-badge">
-                { meta.difficulty && <Badge className="uk-badge-notification">{t(difficulties[meta.difficulty])}</Badge> }
-                { meta.deadline_date && <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>{moment(meta.deadline_date).format('D MMM')}</Badge> }
-                { meta.image && <span className={"uk-badge uk-badge-notification " + imageUploadClass}><i className="uk-icon uk-icon-camera"/></span> }
-                { meta.solution && <Badge className={"uk-badge-notification"}>lösning</Badge> }
-                { showCheck && ! meta.feedback  && <span className="uk-badge uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-check"/></span> }
-                { showCheck && meta.feedback  && exerciseState.getIn([exercise, 'correct'], false) && <span className="uk-badge uk-badge-notification uk-badge-success"><i className="uk-icon uk-icon-check"/></span> }
-                {exerciseState.getIn([exercise, 'modified']) && <Badge className={"uk-badge-notification uk-badge-danger"}><i className="uk-icon uk-icon-save"/></Badge>}
-                {exerciseState.getIn([exercise, 'audit', 'published'], false) && <Badge type={exerciseState.getIn([exercise, 'audit', 'revision_needed'], false) ? 'error' : 'success'} className={"uk-badge-notification"}>granskad</Badge> }
-  { !meta.published && <Badge type='error' title="Unpublished" className={"uk-badge-notification uk-float-right"}><T>Unpublished</T></Badge> }
+              {meta.difficulty && <Badge className="uk-badge-notification">{t(difficulties[meta.difficulty])}</Badge>}
+              {meta.deadline_date && (
+                <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>
+                  {moment(meta.deadline_date).format("D MMM")}
+                </Badge>
+              )}
+              {meta.image && (
+                <span className={"uk-badge uk-badge-notification " + imageUploadClass}>
+                  <i className="uk-icon uk-icon-camera" />
+                </span>
+              )}
+              {meta.solution && <i className={ringClass} />}
+              {showCheck &&
+                !meta.feedback && (
+                  <span className="uk-badge uk-badge-notification uk-badge-warning">
+                    <i className="uk-icon uk-icon-check" />
+                  </span>
+                )}
+              {showCheck &&
+                meta.feedback &&
+                exerciseState.getIn([exercise, "correct"], false) && (
+                  <span className="uk-badge uk-badge-notification uk-badge-success">
+                    <i className="uk-icon uk-icon-check" />
+                  </span>
+                )}
+              {showResponseAwaits && <i className="uk-text-danger uk-margin-small-left uk-icon uk-icon uk-icon-envelope"/>}
+              {exerciseState.getIn([exercise, "modified"]) && (
+                <Badge className={"uk-badge-notification uk-badge-danger"}>
+                  <i className="uk-icon uk-icon-save" />
+                </Badge>
+              )}
+              {exerciseState.getIn([exercise, "audit", "published"], false) && (
+                <Badge
+                  type={exerciseState.getIn([exercise, "audit", "revision_needed"], false) ? "error" : "success"}
+                  className={"uk-badge-notification"} >granskad
+                </Badge>
+              )}
+              {!meta.published && (
+                <Badge type="error" title="Unpublished" className={"uk-badge-notification uk-float-right"}>
+                  <T>Unpublished</T>
+                </Badge>
+              )}
             </div>
             <SafeImg className="exercise-thumb-nav" src={SUBPATH + "/exercise/" + exercise + "/asset/thumbnail.png"}></SafeImg>
         </div>

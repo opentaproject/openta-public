@@ -2,7 +2,13 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from rest_framework import status
-from exercises.modelhelpers import get_students_to_be_audited
+from exercises.modelhelpers import (
+    get_students_to_be_audited,
+    get_students_not_to_be_audited,
+    e_student_tried,
+    get_all_who_tried,
+    analyze_exercise_for_student,
+)
 from exercises.models import Exercise, AuditExercise
 from exercises.serializers import AuditExerciseSerializer
 from course.models import Course
@@ -17,6 +23,9 @@ from backend.user_utilities import send_email_object
 import logging
 
 logger = logging.getLogger(__name__)
+
+FROM_READY = 'fromReady'
+FROM_NOT_READY = 'fromNotReady'
 
 
 @permission_required('exercises.administer_exercise')
@@ -39,29 +48,53 @@ def get_current_audits_exercise(request, exercise):
 @api_view(['GET'])
 def get_current_audits_stats(request, exercise):
     dbexercise = Exercise.objects.get(pk=exercise)
-    audits = AuditExercise.objects.filter(exercise__pk=exercise)
+    audits = AuditExercise.objects.filter(exercise__pk=exercise).prefetch_related(
+        'student__username'
+    )
     passed_students = get_students_to_be_audited(dbexercise)
+    students_not_to_be_audited = get_students_not_to_be_audited(dbexercise)
+    student_audit_list = list(map(lambda student: student.username, passed_students))
+    student_not_audit_list = list(map(lambda student: student.username, students_not_to_be_audited))
+
+    n_tried = e_student_tried(exercise)['ntried']
+    n_not_to_be_audited = students_not_to_be_audited.count()
+    n_complete = passed_students.count()
     passed_audited = passed_students.filter(audits__exercise=dbexercise)
     passed_audited_pks = passed_audited.values_list('pk', flat=True)
     n_passed_unaudited = passed_students.exclude(pk__in=passed_audited_pks).count()
     your_audits = AuditExercise.objects.filter(exercise__pk=exercise, auditor=request.user)
     n_auditees = audits.count()
+
+    in_overview = set(audits.values_list('student__username', flat=True).distinct())
+    in_heap_for_audit = set(student_audit_list) - in_overview
+    not_ready_for_audit = (set(student_not_audit_list) - in_overview) - in_heap_for_audit
+    in_overview = list(in_overview)
+    in_heap_for_audit = list(in_heap_for_audit)
+    not_ready_for_audit = list(not_ready_for_audit)
+
     n_your_audits = your_audits.count()
-    n_complete = passed_students.count()
     n_total = User.objects.filter(groups__name='Student').exclude(username='student').count()
     data = {
         'n_auditees': n_auditees,
+        'n_not_to_be_audited': n_not_to_be_audited,
         'n_complete': n_complete,
+        'n_tried': n_tried,
         'n_unaudited': n_passed_unaudited,
         'n_your_audits': n_your_audits,
         'n_total': n_total,
+        'in_overview': in_overview,
+        'in_heap_for_audit': in_heap_for_audit,
+        'not_ready_for_audit': not_ready_for_audit,
     }
     return Response(data)
 
 
 @permission_required('exercises.administer_exercise')
 @api_view(['POST', 'GET'])
-def get_new_audit(request, exercise):
+def get_new_audit(request, exercise, heap):
+    audits = AuditExercise.objects.filter(exercise__pk=exercise).prefetch_related('student__pk')
+    in_overview_pk = list(set(audits.values_list('student__pk', flat=True).distinct()))
+
     try:
         dbexercise = Exercise.objects.get(pk=exercise)
     except Exercise.DoesNotExist:
@@ -75,19 +108,34 @@ def get_new_audit(request, exercise):
         .values_list('pk', flat=True)
         .distinct()
     )
-    students_audits = (
-        get_students_to_be_audited(dbexercise)
-        .exclude(pk__in=students_audited_here)
-        .annotate(n_audits=Count('audits'))
-    )
-    naudits_sorted = students_audits.order_by('n_audits').values_list('n_audits', flat=True)
-    try:
-        minimum = naudits_sorted[0]
-    except IndexError:
-        return Response({'error': 'No completed students available for audit.'})
-    targets = students_audits.filter(n_audits=minimum).values_list('pk', 'n_audits')
-    auditee = User.objects.get(pk=choice(targets)[0])
-    course = Course.objects.first()
+
+    if heap == FROM_READY:
+        students_audits = (
+            get_students_to_be_audited(dbexercise)
+            .exclude(pk__in=students_audited_here)
+            .annotate(n_audits=Count('audits'))
+        )
+        naudits_sorted = students_audits.order_by('n_audits').values_list('n_audits', flat=True)
+        try:
+            minimum = naudits_sorted[0]
+        except IndexError:
+            return Response({'error': 'No completed students available for audit.'})
+        targets = students_audits.filter(n_audits=minimum).values_list('pk', 'n_audits')
+        student_pk = choice(targets)[0]
+    elif heap == FROM_NOT_READY:
+        students_not_to_be_audited = get_students_not_to_be_audited(dbexercise)
+        student_not_audit_list = set(
+            students_not_to_be_audited.values_list('pk', flat=True).distinct()
+        )
+        diff = set(student_not_audit_list) - set(in_overview_pk)
+        if len(diff) == 0:
+            return Response({'error': 'The notReadyList has been emptied.'})
+        student_pk = list(diff)[0]
+    else:
+        return Response({'error': 'Invalid audit heap.'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    auditee = User.objects.get(pk=student_pk)
+    course = dbexercise.course
     template = get_template('audit/subject.txt')
     data = {'course': course, 'exercise': dbexercise}
     subject = template.render(data).strip()
@@ -98,11 +146,22 @@ def get_new_audit(request, exercise):
         subject=subject,
         exercise_key=dbexercise.exercise_key,
     )
+    pass_, message = analyze_exercise_for_student(dbexercise, student_pk)
+    if not pass_:
+        audit.revision_needed = True
+    audit.message = message
+    audit.subject = 'Your exercise ' + dbexercise.name
     try:
         audit.save()
     except IntegrityError:
-        logger.error("This would result in multiple audits for the same student on this exercise.")
-        return Response({'error': 'Duplicate audit for this student and exercise'})
+        logger.error(
+            "This would result in multiple audits for the same student "
+            + auditee.username
+            + "on this exercise."
+        )
+        return Response(
+            {'error': 'Duplicate audit for this student ' + auditee.username + ' and exercise'}
+        )
     saudit = AuditExerciseSerializer(audit)
     return Response(saudit.data)
 
@@ -149,7 +208,7 @@ def send_audit(request, pk):
     except AuditExercise.DoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    course_url = Course.objects.course_url()
+    course_url = audit.exercise.course.url
     mail_message_template = (
         "{message}"
         "\n\n"
@@ -201,7 +260,7 @@ def add_audit(request):
     except AuditExercise.DoesNotExist:
         exercise = Exercise.objects.get(pk=exercise_pk)
         student = User.objects.get(pk=student_pk)
-        course = Course.objects.first()
+        course = exercise.course
         template = get_template('audit/subject.txt')
         data = {'course': course, 'exercise': exercise}
         subject = template.render(data).strip()

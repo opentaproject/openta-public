@@ -6,7 +6,13 @@ from django.contrib.auth.models import User
 from django.db.models import Prefetch, Q
 import datetime
 from django.core.cache import cache
-from exercises.modelhelpers import exercise_list_data, e_name, e_path, e_student_tried
+from exercises.modelhelpers import (
+    exercise_list_data,
+    e_name,
+    e_path,
+    e_student_tried,
+    has_audit_response_waiting,
+)
 from exercises.modelhelpers import e_student_percent_complete, e_student_attempts_mean
 from exercises.modelhelpers import e_student_attempts_median, e_student_activity, post_process_list
 from exercises.modelhelpers import p_student_activity
@@ -50,6 +56,7 @@ def calculate_student_statistics_exercises(course):
             e_path,
             e_student_tried,
             e_student_percent_complete,
+            has_audit_response_waiting,
             e_student_attempts_mean,
             e_student_attempts_median,
             e_student_activity,

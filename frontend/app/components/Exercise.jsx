@@ -274,24 +274,29 @@ class BaseExercise extends Component {
     var pendingState = this.props.pendingState;
     var filename = this.basename(state.get('path', '') );
     var json = state.get('json', immutable.Map({}));
+    var error = json.get('error', null )
+    var response_awaits = Number(state.getIn(["response_awaits"], 0));
     var meta = state.get('meta', immutable.Map({}));
     if(meta === null)meta = immutable.Map({});
     var items = json.getIn(['exercise','$children$'], immutable.List([]))
                     .map( child => this.dispatchElement(child, json, meta, key) ).toSeq();
     var canViewXML =  this.props.author || this.props.view
     var canUpload = ( ! this.props.view ) || this.props.admin || this.props.author
+    var showResponseAwaits = response_awaits > 0;
     var filenameDOM = (
       <span className="uk-text-bold uk-text-primary">
         Exercise file path: {filename}
       </span>);
-    var exerciseDOM = (
-        <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
-        { canViewXML && filenameDOM }
-        { meta.get('student_assets') && <Assets/> }
-        { canUpload &&  meta.get('image', false) && <div className="uk-float-right uk-margin-small-right"><ExerciseImageUpload/></div> }
-          {items}
-        </article>
-    );
+    var exerciseDOM = <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
+        {canViewXML && showResponseAwaits && <i className="uk-text-danger uk-margin-small-left uk-icon uk-icon uk-icon-envelope" />}
+        {error && canViewXML && <Alert message={error} type="error" />}
+        {canViewXML && filenameDOM}
+        {meta.get("student_assets") && <Assets />}
+        {canUpload && meta.get("image", false) && <div className="uk-float-right uk-margin-small-right">
+              <ExerciseImageUpload />
+            </div>}
+        {items}
+      </article>;
 
     if(pendingState.getIn(['exercises', key, 'loadingJSON'], false)) {
       return (<Spinner/>);

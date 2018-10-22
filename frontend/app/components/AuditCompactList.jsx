@@ -81,35 +81,54 @@ const renderAuditCompactList = (
   var auditsRenderUnpublished = auditsUnfinished.map( (audit, key) => {
     return renderAuditListItem({activeExercise, activeAudit, audit, nInList: key, onAuditChange, pendingStateAudits});
   });
-  return  (
-          <div className="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top" style={{padding: '5px'}}>
-            <div className="uk-float-left"><div>Audits for <a href={"#exercise/"+activeExercise} target="_blank" className="uk-button" title="Click to open exercise in a new tab">{exerciseName}</a></div><div><AuditStatistics/></div></div>
-            <div className="uk-flex uk-flex-right">
-            <div>
-            <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top" id="published-audits">
-             <div className="uk-margin-right">Published:</div>
-             {auditsRenderPublished}
-            </div>
-            <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top" id="unfinished-audits">
-             { auditsRenderReady.size > 0 && <div className="uk-margin-small-right">Ready:</div>}
-             { auditsRenderReady.size > 0 && auditsRenderReady }
-             <div className="uk-margin-small-left uk-margin-small-right uk-padding-remove">Unfinished:</div>
-             {auditsRenderUnpublished}
-            </div>
-            </div>
-            <div className="uk-flex uk-flex-column">
-            <button className="uk-button uk-button-primary" type="button" onClick={ () => onAddAudit(activeExercise) }>Add student { pendingNewAudit && <Spinner size="uk-icon-small"/> }</button>
-            <button className={"uk-button uk-button-medium uk-margin-small-top " + (auditsRenderReady.size > 0 ? 'uk-button-success' : '')} type="button" onClick={ () => onPublishAndSend(auditsReady) } data-uk-tooltip title="Publish ready audits and send an email to students.">Publish ready ({auditsRenderReady.size})</button>
-            <div className="uk-margin-small-top"><input className="uk-form-width-small uk-form-small" type="text" placeholder="Username filter" value={filter} onChange={onFilterChange}/></div>
-            </div>
-            </div>
-          </div>);
+  return <div className="uk-panel uk-panel-box uk-panel-box-primary uk-margin-top" style={{ padding: "5px" }}>
+      <div className="uk-float-left">
+        <div>
+          Audits for <a href={"#exercise/" + activeExercise} target="_blank" className="uk-button" title="Click to open exercise in a new tab">
+            {exerciseName}
+          </a>
+        </div>
+        <div>
+          {" "}
+          <AuditStatistics />{" "}
+        </div>
+      </div>
+      <div className="uk-flex uk-flex-right">
+        <div>
+          <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top" id="published-audits">
+            <div className="uk-margin-right">Published:</div>
+            {auditsRenderPublished}
+          </div>
+          <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top" id="unfinished-audits">
+            {auditsRenderReady.size > 0 && <div className="uk-margin-small-right">Ready:</div>}
+            {auditsRenderReady.size > 0 && auditsRenderReady}
+            <div className="uk-margin-small-left uk-margin-small-right uk-padding-remove">Unfinished:</div>
+            {auditsRenderUnpublished}
+          </div>
+        </div>
+        <div className="uk-flex uk-flex-column">
+          <button className="uk-button uk-button-primary" type="button" onClick={() => onAddAudit(activeExercise, "fromReady")}>
+            Add student that is ready {pendingNewAudit && <Spinner size="uk-icon-small" />}
+          </button>
+          <button className="uk-button uk-button-primary" type="button" onClick={() => onAddAudit(activeExercise, "fromNotReady")}>
+            Add student that is not ready
+            {pendingNewAudit && <Spinner size="uk-icon-small" />}
+          </button>
+          <button className={"uk-button uk-button-medium uk-margin-small-top " + (auditsRenderReady.size > 0 ? "uk-button-success" : "")} type="button" onClick={() => onPublishAndSend(auditsReady)} data-uk-tooltip title="Publish ready audits and send an email to students.">
+            Publish ready ({auditsRenderReady.size})
+          </button>
+          <div className="uk-margin-small-top">
+            <input className="uk-form-width-small uk-form-small" type="text" placeholder="Username filter" value={filter} onChange={onFilterChange} />
+          </div>
+        </div>
+      </div>
+    </div>;
 }
 
 class BaseAuditCompactList extends Component {
   constructor() {
     super();
-    this.state = { 
+    this.state = {
       filter: ''
     }
   }
@@ -143,7 +162,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchStudentDetailResults(studentPk));
     dispatch(setSelectedStudentResults(studentPk));
   },
-  onAddAudit: (exercise) => dispatch(fetchNewAudit(exercise)),
+  onAddAudit: (exercise, heap) => dispatch(fetchNewAudit(exercise, heap)),
   onPublishAndSend: (audits) => dispatch(handlePublishAndSend(audits)),
 });
 

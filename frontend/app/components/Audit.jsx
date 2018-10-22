@@ -290,8 +290,8 @@ const mapDispatchToProps = dispatch => ({
 class BaseAudit extends Component {
   constructor() {
     super();
-    this.state = { 
-      bcc: false,
+    this.state = {
+      bcc: true, // Set default to true!
     }
   }
   handleBccClick = (e) => {
