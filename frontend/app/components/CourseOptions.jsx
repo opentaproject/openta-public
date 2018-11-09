@@ -37,7 +37,7 @@ const mapDispatchToProps = dispatch => {
     return {
         onCourseUpdate: (course) => {
             dispatch(fetchCourses());
-            dispatch(fetchCourse());
+            dispatch(fetchCourse(course));
         }
     }
 }

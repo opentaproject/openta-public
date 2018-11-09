@@ -33,8 +33,8 @@ def CourseUpdateView(request, course):
 
 
 @api_view(['GET'])
-def get_current_course(request):
-    course = Course.objects.first()
+def get_course(request, course_pk):
+    course = Course.objects.get(pk=course_pk)
     if request.user.is_staff:
         scourse = CourseSerializer(course)
     else:

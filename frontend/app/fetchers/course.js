@@ -9,9 +9,9 @@ import {
     updateCourses,
 } from '../actions.js';
 
-function fetchCourse() {
+function fetchCourse(coursePk) {
     return dispatch => {
-        return jsonfetch('/course/')
+        return jsonfetch('/course/' + coursePk + '/')
             .then(res => res.json())
             .then(json => dispatch(updateCourse(json)));
     };

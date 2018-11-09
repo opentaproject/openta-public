@@ -1,10 +1,10 @@
 from django.conf.urls import url, include
-from .views import get_current_course
-from .views import get_courses
-from .views import CourseUpdateView
+from course.views import get_course
+from course.views import get_courses
+from course.views import CourseUpdateView
 
 urlpatterns = [
-    url(r'^course/$', get_current_course),
+    url(r'^course/(?P<course_pk>[0-9]+)/$', get_course),
     url(r'^courses/', get_courses),
     url(r'^course/(?P<course>[\w\.-]+)/updateoptions/$', CourseUpdateView),
 ]

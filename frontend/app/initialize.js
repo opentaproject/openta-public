@@ -39,7 +39,7 @@ store.dispatch( setActiveCourse(globalInit.coursePk) )
 store.dispatch( fetchExercises(globalInit.coursePk) );
 store.dispatch( fetchExerciseTree(globalInit.coursePk) );
 store.dispatch( fetchLoginStatus(globalInit.coursePk) );
-store.dispatch( fetchCourse() );
+store.dispatch( fetchCourse(globalInit.coursePk) );
 store.dispatch( fetchCourses() );
 store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
 
