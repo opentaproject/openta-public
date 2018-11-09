@@ -488,14 +488,25 @@ def get_passed_exercises_with_image_data(
         ]
 
     """
+    if not exercise_queryset:
+        return []
+
     extra_question_filters = []
-    deadline_time = Course.objects.deadline_time()
+    courses = set()
+    for exercise in exercise_queryset:
+        courses.add(exercise.course.pk)
+
+    if len(courses) > 1:
+        raise Exception("Exercises must come from same course")
+
+    deadline_hour = exercise_queryset.first().course.get_deadline_time().hour
+
     if deadline:
         extra_question_filters.append(
             Q(answer__date__date__lt=F('exercise__meta__deadline_date'))
             | (
                 Q(answer__date__date=F('exercise__meta__deadline_date'))
-                & Q(answer__date__hour__lt=deadline_time.hour)
+                & Q(answer__date__hour__lt=deadline_hour)
             )
         )
     if image_deadline:
@@ -503,7 +514,7 @@ def get_passed_exercises_with_image_data(
             Q(exercise__imageanswer__date__date__lt=F('exercise__meta__deadline_date'))
             | (
                 Q(exercise__imageanswer__date__date=F('exercise__meta__deadline_date'))
-                & Q(exercise__imageanswer__date__hour__lt=deadline_time.hour)
+                & Q(exercise__imageanswer__date__hour__lt=deadline_hour)
             )
         )
 

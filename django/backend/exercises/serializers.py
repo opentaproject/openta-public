@@ -38,7 +38,7 @@ class ExerciseMetaSerializer(serializers.ModelSerializer):
         )
 
     def get_deadline_time(self, obj):
-        return Course.objects.deadline_time()
+        return obj.exercise.course.get_deadline_time()
 
 
 class ExerciseSerializer(serializers.ModelSerializer):

@@ -10,40 +10,6 @@ from django.conf import settings
 import exercises.paths as paths
 
 
-class CourseManager(models.Manager):
-    def course_name(self):
-        course = self.first()
-        if course is not None:
-            return course.course_name
-        else:
-            return "OpenTA"
-
-    def course_email(self):
-        course = self.first()
-        if bool(course.email_reply_to.strip()):
-            return course.email_reply_to.strip()
-        else:
-            return course.email_host_user
-
-    def course_url(self):
-        course = self.first()
-        if course is not None:
-            return course.url
-        else:
-            return ""
-
-    def deadline_time(self):
-        course = self.first()
-        if course is not None and course.deadline_time is not None:
-            return course.deadline_time
-        else:
-            return datetime.time(23, 59, 0, tzinfo=pytz.timezone('Europe/Stockholm'))
-
-    def registration_domains(self):
-        course = self.first()
-        return course.get_registration_domains()
-
-
 EMAIL_VALIDATOR = EmailValidator()
 
 
@@ -76,8 +42,6 @@ class Course(models.Model):
     published = models.BooleanField(default=False)
     owners = models.ManyToManyField(User)
 
-    objects = CourseManager()
-
     def __str__(self):
         return self.course_name + ' - ' + self.course_long_name
 
@@ -92,3 +56,9 @@ class Course(models.Model):
             return list(map(lambda s: s.strip(), self.registration_domains.split(',')))
         else:
             return None
+
+    def get_deadline_time(self):
+        if self.deadline_time is not None:
+            return self.deadline_time
+        else:
+            return datetime.time(23, 59, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
