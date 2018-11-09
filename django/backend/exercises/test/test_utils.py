@@ -76,7 +76,9 @@ def create_image_answer_after(user, exercise, deadline):
 
 
 def create_course(name, deadline_time):
-    course = Course(course_name=name, deadline_time=deadline_time, published=True)
+    course = Course(
+        course_name=name, course_long_name=name, deadline_time=deadline_time, published=True
+    )
     course.save()
     return course
 

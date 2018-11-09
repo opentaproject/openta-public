@@ -48,7 +48,7 @@ class UserCreateFormNoPassword(ModelForm):
             openta_user, _ = OpenTAUser.objects.get_or_create(user=user)
             openta_user.courses.add(course)
             send_activation_mail(
-                user.username, self.cleaned_data["email"], 'user-activation-and-reset'
+                course, user.username, self.cleaned_data["email"], 'user-activation-and-reset'
             )
             messages.add_message(
                 self._request,
@@ -108,7 +108,7 @@ class UserCreateFormDomain(ModelForm):
             openta_user, _ = OpenTAUser.objects.get_or_create(user=user)
             openta_user.courses.add(course)
             send_activation_mail(
-                user.username, self.cleaned_data["email"], 'user-activation-and-reset'
+                course, user.username, self.cleaned_data["email"], 'user-activation-and-reset'
             )
             messages.add_message(
                 self._request,
@@ -119,25 +119,6 @@ class UserCreateFormDomain(ModelForm):
                 ),
             )
             return user
-
-
-class UserCreateForm(UserCreationForm):
-    """Form used for user registration where a password is supplied at registration time."""
-
-    email = forms.EmailField(required=True)
-
-    class Meta:
-        model = User
-        fields = ("username", "email", "password1", "password2")
-
-    def save(self, commit=True):
-        user = super(UserCreateForm, self).save(commit=False)
-        user.email = self.cleaned_data["email"]
-        user.is_active = False
-        if commit:
-            user.save()
-        send_activation_mail(self.cleaned_data["username"], self.cleaned_data["email"])
-        return user
 
 
 class RegisterWithPasswordForm(forms.Form):

@@ -30,7 +30,6 @@ from ratelimit.mixins import RatelimitMixin
 from backend.forms import (
     EmailUsersForm,
     RegisterWithPasswordForm,
-    UserCreateForm,
     UserCreateFormDomain,
     UserCreateFormNoPassword,
 )
@@ -68,25 +67,6 @@ class ActivateAndReset(FormView):
         logger.info("Added and activated user " + str(self.kwargs['user']))
         messages.add_message(
             self.request, messages.SUCCESS, _('Password is now set, please login.')
-        )
-        return redirect(reverse('login'))
-
-
-class RegisterUser(CreateView):
-    """
-    View for registering user where password is supplied at registration
-    """
-
-    template_name = 'register.html'
-    form_class = UserCreateForm
-    success_url = reverse_lazy('login')
-
-    def form_valid(self, form):
-        super().form_valid(form)
-        messages.add_message(
-            self.request,
-            messages.SUCCESS,
-            _('Registration complete, check inbox for ' 'activation mail (possibly spam folder).'),
         )
         return redirect(reverse('login'))
 

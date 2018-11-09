@@ -1,0 +1,16 @@
+import datetime
+from django.test import TestCase
+from django.core import mail
+
+from exercises.test.test_utils import create_course
+from backend.user_utilities import send_activation_mail
+
+
+class TestMail(TestCase):
+    """Test mail functionality"""
+
+    def test_activation_mail(self):
+        course = create_course("course_name", datetime.time(0, 0, 0))
+        send_activation_mail(course, "username", "user@domain.com")
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("course_name", mail.outbox[0].subject)

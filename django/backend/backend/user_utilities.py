@@ -31,10 +31,11 @@ def create_activation_link(username, reverse_name='user-activation'):
     return reverse(reverse_name, kwargs={'username': username, 'token': token})
 
 
-def send_activation_mail(username, email, reverse_name='user-activation'):
+def send_activation_mail(course, username, email, reverse_name='user-activation'):
     """Sends an activation email after user registration.
 
     Args:
+        course (Course): The course for which the activation mail should be sent.
         username:
         email:
         reverse_name: Which url to append the activation token to.
@@ -45,7 +46,6 @@ def send_activation_mail(username, email, reverse_name='user-activation'):
         Activation url.
 
     """
-    course = Course.objects.first()
     course_url = (
         course.url if course.url is not None else 'https://openta.se/' + course.course_name.lower()
     )
