@@ -35,6 +35,7 @@ from backend.forms import (
 )
 from backend.forms import CustomPasswordResetForm
 from backend.user_utilities import send_activation_mail, send_email_object
+from backend.constants import DONT_REPLY_EMAIL
 from course.models import Course
 from course.serializers import CourseSerializer
 from exercises.views.file_handling import serve_file
@@ -317,7 +318,7 @@ def password_reset_done(request):
 @ratelimit(key='ip', rate='5/1h')
 def password_reset(request):
     """Password reset view asking for an email."""
-    from_email = Course.objects.course_email()
+    from_email = DONT_REPLY_EMAIL
     template_name = 'registration/password_reset_subject.txt'
     subject = loader.render_to_string(template_name)
     if getattr(request, 'limited', False):
