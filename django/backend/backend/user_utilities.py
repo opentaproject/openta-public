@@ -59,7 +59,7 @@ def send_activation_mail(course, username, email, reverse_name='user-activation'
         if base_url.endswith(subpath_name + '/'):
             base_url = base_url[: -(len(settings.SUBPATH) + 1)]
     activate_url = create_activation_link(username, reverse_name)
-    course_email = Course.objects.course_email()
+    course_email = course.email_reply_to.strip()
     template = get_localized_template('mail_activation')
     pcontext = {
         'course_name': 'OpenTA',

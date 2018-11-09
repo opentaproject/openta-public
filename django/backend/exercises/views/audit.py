@@ -222,7 +222,7 @@ def send_audit(request, pk):
     email = EmailMessage(
         subject=audit.subject,
         body=mail_message,
-        from_email=Course.objects.course_email(),
+        from_email=audit.exercise.course.email_reply_to.strip(),
         to=[audit.student.email],
         reply_to=[request.user.email],
     )
