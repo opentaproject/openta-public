@@ -89,7 +89,7 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, viewer, active
   var renderPending = pendingPaths.map( item => {
     return (pendingState.getIn(item.path, false) && (<span key={item.path}>{item.name}<Spinner icon="uk-icon-bar-chart" size="" className="uk-margin-small-left"/></span>))
   });
-var studentViewDOM = author ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open(SUBPATH + "/hijack/username/student" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
+var studentViewDOM = (author || viewer) ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open(SUBPATH + "/hijack/username/student" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
 var canViewXML = author || viewer || admin
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
