@@ -348,43 +348,6 @@ def password_reset_complete(request):
     return redirect(reverse('login'))
 
 
-def email_users(request, context):
-    """Email multiple users.
-    
-    Args:
-        request: request
-        context: extra context
-    
-    Returns:
-        HttpResponse: Email template response
-    """
-
-    if request.POST.get('post-send-emails'):
-        form = EmailUsersForm(request.POST)
-        if form.is_valid():
-            users = User.objects.filter(pk__in=request.session['email_users'])
-            addresses = users.values_list('email', flat=True)
-            email = EmailMessage(
-                subject=form.cleaned_data['subject'],
-                body=form.cleaned_data['message'],
-                from_email=Course.objects.course_name().lower() + "@openta.se",
-                to=addresses,
-            )
-            send_email_object(email)
-            messages.info(request, "Emailed " + str(users.count()) + " students")
-    else:
-        form = EmailUsersForm()
-        users = User.objects.filter(pk__in=request.session['email_users'])
-        context.update(
-            {
-                'form': form,
-                'users': users,
-                'show_users': request.user.has_perm('exercises.show_student_id'),
-            }
-        )
-        return TemplateResponse(request, 'email_users.html', context)
-
-
 def serve_public_media(request, asset):
     """Serve public media.
 
