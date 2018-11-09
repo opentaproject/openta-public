@@ -28,7 +28,6 @@ from ratelimit.decorators import ratelimit
 from ratelimit.mixins import RatelimitMixin
 
 from backend.forms import (
-    BatchAddUsersForm,
     EmailUsersForm,
     RegisterWithPasswordForm,
     UserCreateForm,
@@ -319,94 +318,6 @@ def validate_and_show_registration(request, course_pk, password):
         return RegisterUserNoPassword.as_view()(request, course_pk=course_pk)
     else:
         return redirect(reverse('register-with-password', kwargs={'course_pk': course_pk}))
-
-
-class BatchAddUserView(PermissionRequiredMixin, FormView):
-    """Add many users from a CSV file.
-    
-    With a CSV file with format:
-        "First name" "Last name" "E-mail address" "Username"
-        "..." "..." "..." "..."
-        ...
-
-    Returns:
-        A view with 3 steps: a CSV file upload that then gets parsed and shown before a
-        confirmation of add is asked and then finally adds users.
-    """
-
-    permission_required = "auth.add_user"
-    template_name = 'batch_add_users.html'
-    form_class = BatchAddUsersForm
-
-    def form_valid(self, form):
-        if 'batch_file' in form.cleaned_data and form.cleaned_data['batch_file'] is not None:
-            raw = form.cleaned_data['batch_file'].read()
-            uni = raw.decode('latin-1')
-            dialect = csv.Sniffer().sniff(uni)
-            data = list(csv.reader(StringIO(uni), dialect=dialect))
-            labels = data[0]
-            users = []
-            for row in data[1:]:
-                parsed_row = [
-                    {label.replace(' ', '_').replace('-', '_'): value}
-                    for label, value in zip(labels, row)
-                ]
-                res = {}
-                for item in parsed_row:
-                    tmp = {}
-                    tmp.update(res)
-                    tmp.update(item)
-                    res = tmp
-
-                users.append(res)
-            self.request.session['users'] = users
-            return render(self.request, 'batch_add_users.html', {'form': form, 'users': users})
-        if 'adduser' in self.request.POST:
-            for user in self.request.session['users']:
-                dbuser, created = User.objects.get_or_create(
-                    username=user['Username'],
-                    defaults={
-                        'email': user['E_mail_address'],
-                        'first_name': user['First_name'],
-                        'last_name': user['Last_name'],
-                    },
-                )
-                dbuser.is_active = False
-                dbuser.save()
-
-                if created:
-                    messages.add_message(
-                        self.request, messages.SUCCESS, "Added user " + user['Username']
-                    )
-                else:
-                    messages.add_message(
-                        self.request,
-                        messages.WARNING,
-                        ("User " + user['Username'] + " already added!"),
-                    )
-                try:
-                    activation_url = send_activation_mail(
-                        user['Username'], user['E_mail_address'], 'user-activation-and-reset'
-                    )
-                    logger.info(
-                        "Activation mail sent for "
-                        + user['Username']
-                        + ' with activation link '
-                        + activation_url
-                    )
-                    messages.add_message(
-                        self.request,
-                        messages.SUCCESS,
-                        "Activation mail sent for " + user['Username'],
-                    )
-                except SMTPException:
-                    messages.add_message(
-                        self.request,
-                        messages.ERROR,
-                        "Activation mail send error for " + user['Username'],
-                    )
-
-        return render(self.request, 'batch_add_users.html', {'form': form})
 
 
 def password_reset_done(request):

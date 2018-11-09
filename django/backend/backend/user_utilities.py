@@ -32,8 +32,8 @@ def create_activation_link(username, reverse_name='user-activation'):
 
 
 def send_activation_mail(username, email, reverse_name='user-activation'):
-    """Sends an activation email after user registration. 
-    
+    """Sends an activation email after user registration.
+
     Args:
         username:
         email:

@@ -148,12 +148,6 @@ class RegisterWithPasswordForm(forms.Form):
     )
 
 
-class BatchAddUsersForm(forms.Form):
-    """Form to upload CSV file for batch user registration."""
-
-    batch_file = forms.FileField(label=ugettext("Batch CSV file"), required=False)
-
-
 class EmailUsersForm(forms.Form):
     """Email multiple users."""
 
