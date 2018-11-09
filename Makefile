@@ -67,6 +67,13 @@ test:
 	cd django/backend &&\
 	./runtests $(ARGS)
 
+.PHONY: quick-test
+quick-test:
+	echo "Warning: Frontend not rebuilt, make sure you know what you are doing" &&\
+	source django/env/bin/activate &&\
+	cd django/backend &&\
+	./runtests $(ARGS)
+
 .PHONY: shell
 shell:
 	source django/env/bin/activate &&\
