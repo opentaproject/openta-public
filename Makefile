@@ -65,7 +65,7 @@ test:
 	$(MAKE) frontend &&\
 	source django/env/bin/activate &&\
 	cd django/backend &&\
-	./runtests
+	./runtests $(ARGS)
 
 .PHONY: shell
 shell:
