@@ -430,7 +430,7 @@ def image_answer_delete(request, pk):
     if not request.user == image_answer.user and not request.user.is_staff:
         return Response({'deleted': 0, 'error': 'Permission denied'})
     if image_answer.exercise.meta.deadline_date is not None and not before_deadline(
-        image_answer.date, image_answer.exercise.meta.deadline_date
+        image_answer.course, image_answer.date, image_answer.exercise.meta.deadline_date
     ):
         if now() > image_answer.date + datetime.timedelta(minutes=10):
             return Response(

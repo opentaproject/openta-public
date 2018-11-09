@@ -161,7 +161,7 @@ def e_student_percent_complete(exercise):
     n_students = users.count()
     tz = pytz.timezone('Europe/Stockholm')
     deadline_time = datetime.time(23, 59, 59)
-    course = Course.objects.first()
+    course = exercise.course
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
     deadline_date = exercise.meta.deadline_date
@@ -569,7 +569,7 @@ def analyze_exercise(exercise):
     students = get_all_who_tried(exercise)
     tz = pytz.timezone('Europe/Stockholm')
     deadline_time = datetime.time(23, 59, 59)
-    course = Course.objects.first()
+    course = exercise.course
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
 
@@ -665,7 +665,7 @@ def duration_to_string(sec):
 def analyze_exercise_for_student(exercise, student_pk):
     tz = pytz.timezone('Europe/Stockholm')
     deadline_time = datetime.time(23, 59, 59)
-    course = Course.objects.first()
+    course = exercise.course
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
     questions = Question.objects.filter(exercise=exercise).select_related(
