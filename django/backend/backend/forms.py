@@ -136,8 +136,7 @@ class EmailUsersForm(forms.Form):
     message = forms.CharField(widget=forms.Textarea)
 
     def send_email(self, request, users):
-        course = Course.objects.first()
-        sender = Course.objects.course_email()
+        sender = request.user.email
         subject = self.cleaned_data['subject']
         body = self.cleaned_data['message']
         for user in users:
