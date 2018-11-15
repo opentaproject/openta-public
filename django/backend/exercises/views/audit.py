@@ -8,6 +8,7 @@ from exercises.modelhelpers import (
     e_student_tried,
     get_all_who_tried,
     analyze_exercise_for_student,
+    get_students_not_active,
 )
 from exercises.models import Exercise, AuditExercise
 from exercises.serializers import AuditExerciseSerializer
@@ -47,14 +48,25 @@ def get_current_audits_exercise(request, exercise):
 @permission_required('exercises.administer_exercise')
 @api_view(['GET'])
 def get_current_audits_stats(request, exercise):
+    """Get statistics on current audits for an exercise.
+
+    Args:
+        exercise (Exercise): Exercise instance for audit stats.
+
+    Returns:
+        Response: JSON response with data.
+
+    """
     dbexercise = Exercise.objects.get(pk=exercise)
     audits = AuditExercise.objects.filter(exercise__pk=exercise).prefetch_related(
         'student__username'
     )
     passed_students = get_students_to_be_audited(dbexercise)
+    students_not_active = get_students_not_active(dbexercise)
     students_not_to_be_audited = get_students_not_to_be_audited(dbexercise)
     student_audit_list = list(map(lambda student: student.username, passed_students))
     student_not_audit_list = list(map(lambda student: student.username, students_not_to_be_audited))
+    student_not_active_list = list(map(lambda student: student.username, students_not_active))
 
     n_tried = e_student_tried(exercise)['ntried']
     n_not_to_be_audited = students_not_to_be_audited.count()
@@ -68,6 +80,7 @@ def get_current_audits_stats(request, exercise):
     in_overview = set(audits.values_list('student__username', flat=True).distinct())
     in_heap_for_audit = set(student_audit_list) - in_overview
     not_ready_for_audit = (set(student_not_audit_list) - in_overview) - in_heap_for_audit
+    not_active = list(set(student_not_active_list))
     in_overview = list(in_overview)
     in_heap_for_audit = list(in_heap_for_audit)
     not_ready_for_audit = list(not_ready_for_audit)
@@ -85,6 +98,7 @@ def get_current_audits_stats(request, exercise):
         'in_overview': in_overview,
         'in_heap_for_audit': in_heap_for_audit,
         'not_ready_for_audit': not_ready_for_audit,
+        'not_active': not_active,
     }
     return Response(data)
 

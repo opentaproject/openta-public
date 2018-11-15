@@ -759,6 +759,21 @@ def get_students_to_be_audited(exercise):
     return students.filter(pk__in=passed)
 
 
+def get_students_not_active(exercise):
+    """Get students that haven't answered the questions or uploaded an image."""
+    users = (
+        User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
+        .exclude(groups__name='View')
+        .exclude(groups__name='Admin')
+        .exclude(groups__name='Author')
+        .exclude(username='student')
+        .distinct()
+    )
+    active_students = get_all_who_tried(exercise)
+    students_not_active = users.exclude(pk__in=active_students)
+    return students_not_active
+
+
 def get_students_not_to_be_audited(exercise):
     """Get who are active but not scheduled for audit
     """
