@@ -1,11 +1,12 @@
 '''
-This is the server side implementation of the question type compareNumeric.
+This is the server side implementation of the question type multipleChoice.
 '''
 
-from exercises.question import (
-    register_question_type,
-)  # This function is used to register the question type
+# This function is used to register the question type
+from exercises.question import register_question_type
 from exercises.question import QuestionError
+from exercises.question import get_number_of_attempts
+import pprint
 
 # Below are imports that are specific to this question type
 from django.utils.translation import ugettext as _
@@ -16,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 # The function below is the core of the server interface and the only mandatory component.
 def question_check_multiple_choice(question_json, question_xmltree, answer_data, global_xmltree):
-    '''Checks a multiple choice question 
+    '''Checks a multiple choice question
 
     Args:
         question_json (dictionary): The JSON representation of the <question> XML content
@@ -31,7 +32,7 @@ def question_check_multiple_choice(question_json, question_xmltree, answer_data,
         {
             correct: true/false
             correctAnswers: A dictionary with entries corresponding to the answers in answer_data
-                { 
+                {
                 '[choice key]': boolean
                 ...
                 }
@@ -50,14 +51,12 @@ def question_check_multiple_choice(question_json, question_xmltree, answer_data,
             </text>
         </question>
     '''
-    choices = []
-    choices_element = question_xmltree.xpath('.//choice')
     correct_items = question_xmltree.xpath('.//choice[@correct="true"]')
+    show_errors = question_xmltree.attrib.get('showerrors', "true").lower() == "true"
     try:
         answer_json = json.loads(answer_data)
     except ValueError:
         return {'error': 'Not valid answer data.'}
-
     results = {'choices': {}}
     n_correct = 0
     n_incorrect = 0
@@ -65,18 +64,31 @@ def question_check_multiple_choice(question_json, question_xmltree, answer_data,
         if val:
             correct = next((True for item in correct_items if item.get('key') == question), None)
             if correct is not None:
-                results['choices'][question] = True
+                if show_errors:
+                    results['choices'][question] = True
                 n_correct += 1
             else:
-                results['choices'][question] = False
+                if show_errors:
+                    results['choices'][question] = False
                 n_incorrect += 1
 
     if n_incorrect == 0 and n_correct == len(correct_items):
         results['correct'] = True
-    if n_correct > 0 and n_correct < len(correct_items):
+    if n_correct > 0 and n_correct < len(correct_items) and show_errors:
         results['info'] = _('There are more correct alternatives.')
+        results['status'] = _('There are more correct alternatives.')
     return results
 
 
+def mutiple_choice_json_hook(safe_question, full_question, question_id, user_id):
+    safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)
+    return safe_question
+
+
 # This function call registers the question type with the system
-register_question_type('multipleChoice', question_check_multiple_choice, hide_attrs=['correct'])
+register_question_type(
+    'multipleChoice',
+    question_check_multiple_choice,
+    mutiple_choice_json_hook,
+    hide_attrs=['correct'],
+)
