@@ -35,7 +35,4 @@ class CourseStudentSerializer(serializers.ModelSerializer):
         fields = ('course_name', 'published', 'pk', 'languages')
 
     def get_languages(self, instance):
-        if instance.languages is not None:
-            return list(map(str.strip, instance.languages.split(',')))
-        else:
-            return None
+        return instance.get_languages()

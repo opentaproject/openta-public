@@ -62,3 +62,9 @@ class Course(models.Model):
             return self.deadline_time
         else:
             return datetime.time(23, 59, 0, tzinfo=pytz.timezone(settings.TIME_ZONE))
+
+    def get_languages(self):
+        if self.languages is not None:
+            return list(map(str.strip, self.languages.split(',')))
+        else:
+            return None

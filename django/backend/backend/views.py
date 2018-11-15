@@ -2,6 +2,7 @@ import csv
 import logging
 from io import StringIO
 from smtplib import SMTPException
+from django.utils import translation
 
 from django.conf import settings
 from django.contrib import messages
@@ -167,11 +168,15 @@ def login(request, course_name=None):
     """
     try:
         course = Course.objects.get(course_name__iexact=course_name)
-        if request.user.is_authenticated:
-            return main(request, course_pk=course.pk)
     except Course.DoesNotExist:
         course = Course.objects.order_by('-published', '-pk')[0]
     course_data = CourseSerializer(course).data
+
+    if request.user.is_authenticated:
+        return main(request, course_pk=course.pk)
+
+    set_persistent_lang(course, request)
+
     if course_data['icon'] is not None:
         course_data['icon'] = '/' + settings.SUBPATH + course_data['icon'].lstrip('/')
     extra = {
@@ -201,6 +206,18 @@ def activate(request, username, token):
         return render(request, "activation_failed.html")
     messages.add_message(request, messages.SUCCESS, _('Activation successful, please login.'))
     return auth_views.login(request, 'registration/login.html')
+
+
+def set_persistent_lang(course, request):
+    course_languages = course.get_languages()
+    if course_languages is None:
+        lang = 'en'
+    else:
+        lang = request.COOKIES.get('lang', course_languages[0])
+
+    translation.activate(lang)  # SEE https://docs.djangoproject.com/en/2.1/topics/i18n/translation/
+    request.session[translation.LANGUAGE_SESSION_KEY] = lang
+    return lang
 
 
 def activate_and_reset(request, username, token):
@@ -243,11 +260,14 @@ def main(request, course_pk=None):
 
     course_data = CourseSerializer(course).data
     extra = dict(course=course_data, timezone=settings.TIME_ZONE)
+    lang = set_persistent_lang(course, request)
     response = render(request, "base_main.html", context=extra)
     if settings.CSRF_COOKIE_NAME:
         response.set_cookie(key='csrf_cookie_name', value=settings.CSRF_COOKIE_NAME)
-        subpath = (settings.SUBPATH).strip('/')
-        response.set_cookie(key='subpath', value=subpath)
+
+    subpath = settings.SUBPATH.strip('/')
+    response.set_cookie(key='subpath', value=subpath)
+    response.set_cookie(key='lang', value=lang)
     return response
 
 
