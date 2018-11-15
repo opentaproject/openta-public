@@ -95,7 +95,7 @@ class MCTest(StaticLiveServerTestCase):
             '//div[contains(@class, \'mc-item\')]//span[contains(text(), \'c1\')]'
         ).click()
         sel.find_element_by_xpath('//a//i[contains(@class, \'uk-icon-send\')]').click()
-        wait.until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, 'form'), "Fel"))
+        wait.until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, 'form'), "Not correct"))
 
         sel.find_element_by_xpath(
             '//div[contains(@class, \'mc-item\')]//span[contains(text(), \'c1\')]'
@@ -107,7 +107,7 @@ class MCTest(StaticLiveServerTestCase):
             '//div[contains(@class, \'mc-item\')]//span[contains(text(), \'c4\')]'
         ).click()
         sel.find_element_by_xpath('//a//i[contains(@class, \'uk-icon-send\')]').click()
-        wait.until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, 'form'), "Rätt"))
+        wait.until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, 'form'), "Correct"))
         wait.until(
             EC.presence_of_element_located((By.XPATH, '//i[contains(@class, \'uk-icon-check\')]'))
         )

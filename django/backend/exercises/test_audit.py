@@ -119,7 +119,7 @@ class AuditTest(StaticLiveServerTestCase):
             EC.presence_of_element_located(
                 (
                     By.XPATH,
-                    '//span[text()[contains(., \'1\')] and text()[contains(.,\'ready for audit\')]]',
+                    '//span[text()[contains(., \'1\')] and text()[contains(.,\'Ready for audit\')]]',
                 )
             )
         )
