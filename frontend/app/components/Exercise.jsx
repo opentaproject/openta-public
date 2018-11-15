@@ -17,6 +17,8 @@ import Badge from './Badge.jsx';
 import Assets from './Assets.jsx';
 import {SUBPATH} from '../settings.js';
 import classNames from 'classnames';
+import uniqueId from 'lodash/uniqueId';
+
 
 import {
   updateExerciseXML,
@@ -44,6 +46,7 @@ class BaseExercise extends Component {
       'qmath': this.renderQuestionMath,
       'asciimath': this.renderAsciiMath,
       'solution': this.renderSolution,
+      'hidden': this.renderHidden,
       'asset': this.renderAsset,
       'p': this.renderHTMLElement(),
       'i': this.renderHTMLElement(),
@@ -176,6 +179,34 @@ class BaseExercise extends Component {
       </div>
     );
   }
+
+
+renderHidden = (itemjson, json, meta, exerciseKey) => {
+    var label = itemjson.getIn(['@attr','label'], "hidden")
+    var children = itemjson.get('$children$', immutable.List([]))
+                    .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
+    var style='uk-icon uk-icon-medium uk-text-primary uk-text-small uk-icon-life-ring uk-margin-small-left uk-text-middle'
+    var subClass = 'uk-hidden uk-text-muted uk-background-secondary uk-text-small'
+    var labelClass = 'uk-padding uk-padding-remove-vertical uk-text-danger'
+    var id = uniqueId('hiddenItem');
+    if(this.props.view) {
+      return <span key={id}>
+          <a className="uk-button  uk-button-link" data-uk-toggle={"{target:'#" + id + "'}"}>
+            <i className={style} />
+            <span className={labelClass}> {label} </span>{" "}
+          </a>
+          <div id={id} className={subClass}>
+            <div className="uk-margin-bottom uk-text-left uk-panel uk-panel-box uk-panel-box-primary" key={"hidden"}>
+              { children }
+            </div>
+          </div>
+        </span>;
+    }
+    else {
+      return <span/>;
+    }
+  }
+
 
   renderAsset = (itemjson, json, meta, exerciseKey) => {
     return (
