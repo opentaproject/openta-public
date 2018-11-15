@@ -7,7 +7,10 @@ from exercises.models import AuditExercise
 from exercises.models import AuditResponseFile
 from course.models import Course
 from django.contrib.auth.models import User
+from django.conf import settings
 import json
+import datetime
+import pytz
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -38,7 +41,11 @@ class ExerciseMetaSerializer(serializers.ModelSerializer):
         )
 
     def get_deadline_time(self, obj):
-        return obj.exercise.course.get_deadline_time()
+        course = obj.exercise.course
+        if course is not None and course.deadline_time is not None:
+            return course.deadline_time
+        else:
+            return datetime.time(23, 59, 59, tzinfo=pytz.timezone(settings.TIME_ZONE))
 
 
 class ExerciseSerializer(serializers.ModelSerializer):
