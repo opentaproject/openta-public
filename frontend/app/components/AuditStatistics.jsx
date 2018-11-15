@@ -22,7 +22,8 @@ const BaseAuditStatistics = ({
   nTried,
   inOverview,
   inHeapForAudit,
-  notReadyForAudit
+  notReadyForAudit,
+  notActive,
 }) => {
   if (inOverview) {
     var n_inOverview = inOverview.size;
@@ -36,6 +37,19 @@ const BaseAuditStatistics = ({
     var renderinOverview = "";
     var n_inOverview = 0;
   }
+ if (notActive) {
+   var n_notActive = notActive.size;
+   var rendernotActive = notActive.map((item, index) =>
+    <tr key={"r" + index}>
+      <td className="uk-text-right">{index + 1}</td>
+      <td className="uk-text-right">{item}</td>
+    </tr>);
+ } else {
+  var rendernotActive = "";
+  var n_notActive = 0;
+ }
+
+
   if (inHeapForAudit) {
     var n_inHeapForAudit = inHeapForAudit.size;
     var renderinHeapForAudit = inHeapForAudit.map((item, index) => (
@@ -68,7 +82,7 @@ const BaseAuditStatistics = ({
       <div className="uk-button-group">
         <span data-uk-dropdown="{mode:'click'}">
           <span className="uk-button uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
-            {n_inOverview} being audited{" "}
+            {n_inOverview} in Overview {" "}
           </span>
           <div className="uk-dropdown" style={{ width: "auto" }}>
             <table className="uk-table uk-table-condensed uk-margin-remove">
@@ -79,7 +93,7 @@ const BaseAuditStatistics = ({
 
         <span data-uk-dropdown="{mode:'click'}">
           <span className="uk-button uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
-            {n_inHeapForAudit} ready for audit{" "}
+            {n_inHeapForAudit} Ready for audit {" "}
           </span>
           <div className="uk-dropdown" style={{ width: "auto" }}>
             <table className="uk-table uk-table-condensed uk-margin-remove">
@@ -90,11 +104,22 @@ const BaseAuditStatistics = ({
 
         <span data-uk-dropdown="{mode:'click'}">
           <span className="uk-button uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
-            {n_notReadyForAudit} not ready for audit
+            {n_notReadyForAudit} Students who are late or incorrect
           </span>
           <div className="uk-dropdown" style={{ width: "auto" }}>
             <table className="uk-table uk-table-condensed uk-margin-remove">
               <tbody>{rendernotReadyForAudit}</tbody>
+            </table>
+          </div>
+        </span>
+
+        <span data-uk-dropdown="{mode:'click'}">
+          <span className="uk-button uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
+            {n_notActive} Students not active
+          </span>
+          <div className="uk-dropdown" style={{ width: "auto" }}>
+            <table className="uk-table uk-table-condensed uk-margin-remove">
+              <tbody>{rendernotActive}</tbody>
             </table>
           </div>
         </span>
@@ -108,19 +133,19 @@ const BaseAuditStatistics = ({
               <tbody>
                 <tr>
                   <td className="uk-text-right">Number of audits listed in Overview: </td>
-                  <td>{nAudits}</td>
+                  <td>{n_inOverview}</td>
                 </tr>
                 <tr>
-                  <td className="uk-text-right">Number of students eligible for audits who are without auditor: </td>
-                  <td>{nUnaudited}</td>
+                  <td className="uk-text-right">Number of ready students without auditor: </td>
+                  <td>{n_inHeapForAudit}</td>
                 </tr>
                 <tr>
-                  <td className="uk-text-right">Number who are not eligible for audit:</td>
+                  <td className="uk-text-right">Number who are late and unaudited:</td>
                   <td>{n_notReadyForAudit}</td>
                 </tr>
                 <tr>
-                  <td className="uk-text-right">Number of students who tried this problem : </td>
-                  <td>{nTried}</td>
+                  <td className="uk-text-right">Number of students who do not qualify for audit : </td>
+                  <td>{n_notActive}</td>
                 </tr>
                 <tr>
                   <td className="uk-text-right" colSpan="2" />
@@ -154,6 +179,7 @@ const mapStateToProps = (state, ownProps) => {
     inOverview: state.getIn(['exerciseState', activeExercise, 'auditStats', 'in_overview']),
     inHeapForAudit: state.getIn(['exerciseState', activeExercise, 'auditStats', 'in_heap_for_audit']),
     notReadyForAudit: state.getIn(['exerciseState', activeExercise, 'auditStats', 'not_ready_for_audit']),
+    notActive: state.getIn(['exerciseState', activeExercise, 'auditStats', 'not_active']),
   };
 }
 

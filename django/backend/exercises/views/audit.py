@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 FROM_READY = 'fromReady'
 FROM_NOT_READY = 'fromNotReady'
+FROM_NOT_ACTIVE = 'fromNotActive'
 
 
 @permission_required('exercises.administer_exercise')
@@ -144,6 +145,13 @@ def get_new_audit(request, exercise, heap):
         diff = set(student_not_audit_list) - set(in_overview_pk)
         if len(diff) == 0:
             return Response({'error': 'The notReadyList has been emptied.'})
+        student_pk = list(diff)[0]
+    elif heap == FROM_NOT_ACTIVE:
+        students_not_active = get_students_not_active(dbexercise)
+        student_not_active_list = set(students_not_active.values_list('pk', flat=True).distinct())
+        diff = set(student_not_active_list) - set(in_overview_pk)
+        if len(diff) == 0:
+            return Response({'error': 'The notActiveList has been emptied.'})
         student_pk = list(diff)[0]
     else:
         return Response({'error': 'Invalid audit heap.'}, status.HTTP_500_INTERNAL_SERVER_ERROR)

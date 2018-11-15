@@ -108,10 +108,14 @@ const renderAuditCompactList = (
         </div>
         <div className="uk-flex uk-flex-column">
           <button className="uk-button uk-button-primary" type="button" onClick={() => onAddAudit(activeExercise, "fromReady")}>
-            Add student that is ready {pendingNewAudit && <Spinner size="uk-icon-small" />}
+            Add student who is done {pendingNewAudit && <Spinner size="uk-icon-small" />}
           </button>
           <button className="uk-button uk-button-primary" type="button" onClick={() => onAddAudit(activeExercise, "fromNotReady")}>
-            Add student that is not ready
+            Add student who is late or incorrect
+            {pendingNewAudit && <Spinner size="uk-icon-small" />}
+          </button>
+          <button className="uk-button uk-button-primary" type="button" onClick={() => onAddAudit(activeExercise, "fromNotActive")}>
+            Add inactive student
             {pendingNewAudit && <Spinner size="uk-icon-small" />}
           </button>
           <button className={"uk-button uk-button-medium uk-margin-small-top " + (auditsRenderReady.size > 0 ? "uk-button-success" : "")} type="button" onClick={() => onPublishAndSend(auditsReady)} data-uk-tooltip title="Publish ready audits and send an email to students.">
