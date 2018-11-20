@@ -34,10 +34,11 @@ class BaseQuestion extends Component {
         questionState: questionState,
         questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.getIn(['@attr','key']), 'waiting'], false),
         isAuthor: this.props.author,
+        lang: this.props.lang,
         canViewSolution: this.props.view,
         submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data),
           ref: (ref) => this.questionref = ref
-      }); 
+      });
       var alerts = [];
       if(question.getIn(['@attr','key'], undefined) == undefined && this.props.admin) {
        alerts.push( (<Alert key={"alertkey"} message="No question key, please add an attribute key=..." type="error"/>));
@@ -45,11 +46,11 @@ class BaseQuestion extends Component {
       var topDOM = React.createElement('div', {
         className: "uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top",
         key: questionKey
-      }, [ 
+      }, [
         alerts,
         questionDOM]);
       return topDOM;
-    } 
+    }
     else {
       return (<div>Invalid question</div>);
     }

@@ -17,6 +17,7 @@ import t from '../../translations.js';
 import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
+import { renderText } from "./render_text.js";
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
 import { asciiMathToMathJS, insertCursor, braketify, absify, insertImplicitMultiply, insertImplicitSubscript, fixDelimiters } from '../mathrender/string_parse.js'
@@ -321,7 +322,7 @@ export default class QuestionLinearAlgebra extends Component {
   }
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span>
+          <label className="uk-form-row uk-display-inline-block">{renderText(question.getIn(['text']), null, this.props.lang)} <span className="uk-text-small uk-text-primary">{availableVariables}</span>
           <span data-uk-tooltip title="Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."></span>
           <HelpLinearAlgebra/>
           </label>

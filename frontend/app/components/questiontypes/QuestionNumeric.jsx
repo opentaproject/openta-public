@@ -17,6 +17,7 @@ import t from '../../translations.js';
 import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
+import { renderText } from "./render_text.js";
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
 import { parseBlacklist, uniquecat, parseVariableString , parseVariables , AvailableVariables} from './mathexpressionparser.js';
@@ -513,7 +514,7 @@ arrayUnique = (array) =>  {
   }
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">  {availableVariables} <T>NUMERICAL</T> {precision}</span><HelpNumeric/></label>
+          <label className="uk-form-row uk-display-inline-block">{renderText(question.getIn(['text']), null, this.props.lang)} <span className="uk-text-small uk-text-primary">  {availableVariables} <T>NUMERICAL</T> {precision}</span><HelpNumeric/></label>
 { hasChanged && lastAnswer !== '' && (<Badge message={t('previous') + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">

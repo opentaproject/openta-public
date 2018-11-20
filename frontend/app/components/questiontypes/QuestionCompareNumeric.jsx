@@ -16,7 +16,8 @@ import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
 import { enforceList } from '../../immutablehelpers.js';
-import { throttle } from 'lodash'
+import { throttle } from 'lodash';
+import { renderText } from "./render_text.js";
 import T from '../Translation.jsx';
 import t from '../../translations.js';
 
@@ -374,13 +375,13 @@ export default class QuestionCompareNumeric extends Component {
   }
 
   /* render gets called every time the question is shown on screen */
-  render() {  
+  render() {
   // Some convenience definitions
   var question = this.props.questionData;
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
   var pending = this.props.questionPending;
-  
+
   /* Both the questionData and questionState are of type Map from immutable.js. They are nested dictionaries that are accessed via the get and getIn functions. For example question.get('text') retrieves <question> <text> * </text> </question>. Deeper structures can be accessed with getIn, for example question.getIn(['tag1', 'tag2']) would retrieve <question> <tag1> <tag2> * </tag2> </tag1> </question>. */
 
   // System state data
@@ -458,7 +459,7 @@ export default class QuestionCompareNumeric extends Component {
   }
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block">{question.getIn(['text','$'],'')} <span className="uk-text-small uk-text-primary">{availableVariables}</span><HelpCompareNumeric/></label>
+          <label className="uk-form-row uk-display-inline-block">{ renderText(question.getIn(['text']), null, this.props.lang) } <span className="uk-text-small uk-text-primary">{availableVariables}</span><HelpCompareNumeric/></label>
 { hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">

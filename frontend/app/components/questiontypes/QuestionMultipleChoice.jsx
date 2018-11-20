@@ -16,6 +16,7 @@ import MathSpan from "../MathSpan.jsx";
 import immutable from "immutable";
 import { SUBPATH } from "../../settings.js";
 import DOMPurify from "dompurify";
+import { renderText } from "./render_text.js";
 
 export default class QuestionMultipleChoice extends Component {
   static propTypes = {
@@ -37,19 +38,6 @@ export default class QuestionMultipleChoice extends Component {
 
   toggleChoice = choice => {
     this.setState(({ choices }) => ({ choices: choices.update(choice, v => !v) }));
-  };
-
-  renderText = itemjson => {
-    var children = itemjson
-      .get("$children$", immutable.List([]))
-      .map(child => this.dispatchElement(child))
-      .toSeq();
-    return (
-      <div className="uk-clearfix" key={"text" + itemjson.get("$")}>
-        <div className="uk-align-medium-right">{children}</div>
-        <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(itemjson.get("$")) }} />
-      </div>
-    );
   };
 
   renderFigure = itemjson => {
@@ -82,7 +70,9 @@ export default class QuestionMultipleChoice extends Component {
 
   dispatchElement = element => {
     var itemDispatch = {
-      text: this.renderText,
+      text: itemjson => renderText(itemjson, self.dispatchElement, this.props.lang),
+      __text__: itemjson => renderText(itemjson, self.dispatchElement, this.props.lang),
+      alt: itemjson => renderText(itemjson, self.dispatchElement, this.props.lang),
       figure: this.renderFigure,
       asset: this.renderAsset
     };
@@ -104,7 +94,6 @@ export default class QuestionMultipleChoice extends Component {
     );
   };
 
-  /* render gets called every time the question is shown on screen */
   render() {
     // Some convenience definitions
     var question = this.props.questionData;
@@ -114,7 +103,6 @@ export default class QuestionMultipleChoice extends Component {
     if (state.getIn(["response", "question"])) {
       question = state.getIn(["response", "question"]);
     }
-
     /*
      * Both the questionData and questionState are of type Map from immutable.js.
      * They are nested dictionaries that are accessed via the get and getIn
@@ -208,7 +196,6 @@ export default class QuestionMultipleChoice extends Component {
                 </div>
               )}
             </div>
-            <MathSpan>{item.get("$")}</MathSpan>
             {children}
           </div>
         </div>
@@ -228,7 +215,7 @@ export default class QuestionMultipleChoice extends Component {
     return (
       <div className="">
         <label className="uk-form-row uk-display-inline-block uk-margin-bottom">
-          {question.getIn(["text", "$"], "")} <HelpMultipleChoice />
+          {renderText(question.getIn(["text"]), this.dispatchElement, this.props.lang)} <HelpMultipleChoice />
         </label>
         <a
           onClick={event => submit(JSON.stringify(this.state.choices))}
