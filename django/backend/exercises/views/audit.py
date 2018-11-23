@@ -69,7 +69,7 @@ def get_current_audits_stats(request, exercise):
     student_not_audit_list = list(map(lambda student: student.username, students_not_to_be_audited))
     student_not_active_list = list(map(lambda student: student.username, students_not_active))
 
-    n_tried = e_student_tried(exercise)['ntried']
+    n_tried = e_student_tried(dbexercise)['ntried']
     n_not_to_be_audited = students_not_to_be_audited.count()
     n_complete = passed_students.count()
     passed_audited = passed_students.filter(audits__exercise=dbexercise)

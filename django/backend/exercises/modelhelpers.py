@@ -14,6 +14,7 @@ from functools import reduce
 from collections import OrderedDict, defaultdict, namedtuple
 import datetime
 from django.utils import timezone
+from django.conf import settings
 import pytz
 
 
@@ -126,7 +127,12 @@ def get_all_who_tried(exercise):
 
 
 def e_student_tried(exercise):
-    users = User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
+    users = User.objects.filter(
+        opentauser__courses=exercise.course,
+        groups__name='Student',
+        is_active=True,
+        email__isnull=False,
+    )
     n_tried = get_all_who_tried(exercise).count()
     n_students = users.count()
     return {'ntried': n_tried, 'percent_tried': n_tried / n_students if n_students > 0 else 0}
@@ -157,9 +163,14 @@ def e_student_percent_complete(exercise):
             }
 
     """
-    users = User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
+    users = User.objects.filter(
+        opentauser__courses=exercise.course,
+        groups__name='Student',
+        is_active=True,
+        email__isnull=False,
+    )
     n_students = users.count()
-    tz = pytz.timezone('Europe/Stockholm')
+    tz = pytz.timezone(settings.TIME_ZONE)
     deadline_time = datetime.time(23, 59, 59)
     course = exercise.course
     if course is not None and course.deadline_time is not None:
@@ -215,8 +226,8 @@ def exercise_list_data(exercise_data_func_list, course):
     result = {}
     for exercise in exercises:
 
-        def reduce_data_func(prev, next):
-            prev.update(next(exercise))
+        def reduce_data_func(prev, next_func):
+            prev.update(next_func(exercise))
             return prev
 
         data = reduce(reduce_data_func, exercise_data_func_list, {})
@@ -225,8 +236,8 @@ def exercise_list_data(exercise_data_func_list, course):
 
 
 def post_process_list(data, data_func_list):
-    def reduce_data_func(prev, next):
-        prev.update(next(data))
+    def reduce_data_func(prev, next_func):
+        prev.update(next_func(data))
         return prev
 
     result = reduce(reduce_data_func, data_func_list, {})
