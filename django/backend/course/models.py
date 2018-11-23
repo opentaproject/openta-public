@@ -40,7 +40,7 @@ class Course(models.Model):
         max_length=255, blank=True, null=True, default=settings.EMAIL_HOST_PASSWORD
     )
     published = models.BooleanField(default=False)
-    owners = models.ManyToManyField(User)
+    owners = models.ManyToManyField(User, limit_choices_to={'is_staff': True})
 
     def __str__(self):
         return self.course_name + ' - ' + self.course_long_name
