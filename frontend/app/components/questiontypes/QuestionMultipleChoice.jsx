@@ -131,11 +131,14 @@ export default class QuestionMultipleChoice extends Component {
     var feedback = correct !== null;
     var n_attempts = state.getIn(["response", "n_attempts"], question.getIn(["n_attempts"]), 0);
 
-    var choicesElements = question.get("choice", immutable.List([])).sort((a, b) => {
-      var x = a.getIn(["@attr", "order"], 0);
-      var y = b.getIn(["@attr", "order"], 0);
-      return x < y ? -1 : x > y ? 1 : 0;
-    });
+    var choicesElements = question.get("choice", immutable.List([]));
+    if (choicesElements.length > 1) {
+      choicesElements = choicesElements.sort((a, b) => {
+        var x = a.getIn(["@attr", "order"], 0);
+        var y = b.getIn(["@attr", "order"], 0);
+        return x < y ? -1 : x > y ? 1 : 0;
+      });
+    }
 
     if (!immutable.List.isList(choicesElements))
       choicesElements = immutable.List([choicesElements]);
