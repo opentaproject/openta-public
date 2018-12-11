@@ -41,6 +41,7 @@ class Course(models.Model):
     )
     published = models.BooleanField(default=False)
     owners = models.ManyToManyField(User, limit_choices_to={'is_staff': True})
+    use_auto_translation = models.BooleanField(default=False)
 
     def __str__(self):
         return self.course_name + ' - ' + self.course_long_name
