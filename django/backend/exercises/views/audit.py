@@ -19,7 +19,7 @@ from django.db import IntegrityError
 from django.core.mail import EmailMessage
 from django.template.loader import get_template
 from django.utils.timezone import now
-from random import choice
+from random import choice, sample
 from backend.user_utilities import send_email_object
 import logging
 
@@ -106,7 +106,7 @@ def get_current_audits_stats(request, exercise):
 
 @permission_required('exercises.administer_exercise')
 @api_view(['POST', 'GET'])
-def get_new_audit(request, exercise, heap):
+def get_new_audit(request, exercise, heap, n_audits):
     audits = AuditExercise.objects.filter(exercise__pk=exercise).prefetch_related('student__pk')
     in_overview_pk = list(set(audits.values_list('student__pk', flat=True).distinct()))
 
@@ -135,8 +135,7 @@ def get_new_audit(request, exercise, heap):
             minimum = naudits_sorted[0]
         except IndexError:
             return Response({'error': 'No completed students available for audit.'})
-        targets = students_audits.filter(n_audits=minimum).values_list('pk', 'n_audits')
-        student_pk = choice(targets)[0]
+        targets = list(students_audits.filter(n_audits=minimum).values_list('pk', flat=True))
     elif heap == FROM_NOT_READY:
         students_not_to_be_audited = get_students_not_to_be_audited(dbexercise)
         student_not_audit_list = set(
@@ -145,46 +144,51 @@ def get_new_audit(request, exercise, heap):
         diff = set(student_not_audit_list) - set(in_overview_pk)
         if len(diff) == 0:
             return Response({'error': 'The notReadyList has been emptied.'})
-        student_pk = list(diff)[0]
+        targets = list(diff)
     elif heap == FROM_NOT_ACTIVE:
         students_not_active = get_students_not_active(dbexercise)
         student_not_active_list = set(students_not_active.values_list('pk', flat=True).distinct())
         diff = set(student_not_active_list) - set(in_overview_pk)
         if len(diff) == 0:
             return Response({'error': 'The notActiveList has been emptied.'})
-        student_pk = list(diff)[0]
+        targets = list(diff)
     else:
         return Response({'error': 'Invalid audit heap.'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    auditee = User.objects.get(pk=student_pk)
-    course = dbexercise.course
-    template = get_template('audit/subject.txt')
-    data = {'course': course, 'exercise': dbexercise}
-    subject = template.render(data).strip()
-    audit = AuditExercise(
-        auditor=request.user,
-        student=auditee,
-        exercise=dbexercise,
-        subject=subject,
-        exercise_key=dbexercise.exercise_key,
-    )
-    pass_, message = analyze_exercise_for_student(dbexercise, student_pk)
-    if not pass_:
-        audit.revision_needed = True
-    audit.message = message
-    audit.subject = 'Your exercise ' + dbexercise.name
-    try:
-        audit.save()
-    except IntegrityError:
-        logger.error(
-            "This would result in multiple audits for the same student "
-            + auditee.username
-            + "on this exercise."
+    # Take n_audits or the left over, what ever is smallest
+    student_pks = sample(targets, min(len(targets), int(n_audits)))
+    audits = []
+    for student_pk in student_pks:
+        auditee = User.objects.get(pk=student_pk)
+        course = dbexercise.course
+        template = get_template('audit/subject.txt')
+        data = {'course': course, 'exercise': dbexercise}
+        subject = template.render(data).strip()
+        audit = AuditExercise(
+            auditor=request.user,
+            student=auditee,
+            exercise=dbexercise,
+            subject=subject,
+            exercise_key=dbexercise.exercise_key,
         )
-        return Response(
-            {'error': 'Duplicate audit for this student ' + auditee.username + ' and exercise'}
-        )
-    saudit = AuditExerciseSerializer(audit)
+        pass_, message = analyze_exercise_for_student(dbexercise, student_pk)
+        if not pass_:
+            audit.revision_needed = True
+        audit.message = message
+        audit.subject = 'Your exercise ' + dbexercise.name
+        try:
+            audit.save()
+            audits.append(audit)
+        except IntegrityError:
+            logger.error(
+                "This would result in multiple audits for the same student "
+                + auditee.username
+                + "on this exercise."
+            )
+            return Response(
+                {'error': 'Duplicate audit for this student ' + auditee.username + ' and exercise'}
+            )
+    saudit = AuditExerciseSerializer(audits, many=True)
     return Response(saudit.data)
 
 

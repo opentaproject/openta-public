@@ -102,22 +102,39 @@ const renderAuditCompactList = (
           <div className="uk-grid uk-margin-small-left uk-margin-right uk-margin-small-top" id="unfinished-audits">
             {auditsRenderReady.size > 0 && <div className="uk-margin-small-right">Ready:</div>}
             {auditsRenderReady.size > 0 && auditsRenderReady}
-            <div className="uk-margin-small-left uk-margin-small-right uk-padding-remove">Unfinished:</div>
+            <div className="uk-margin-small-left uk-margin-small-right uk-padding-remove">
+              Unfinished:
+            </div>
             {auditsRenderUnpublished}
           </div>
         </div>
         <div className="uk-flex uk-flex-column">
-          <button className="uk-button uk-button-primary" type="button" onClick={() => onAddAudit(activeExercise, "fromReady")}>
-            Add student who is done {pendingNewAudit && <Spinner size="uk-icon-small" />}
-          </button>
-          <button className="uk-button uk-button-primary" type="button" onClick={() => onAddAudit(activeExercise, "fromNotReady")}>
-            Add student who is late or incorrect
-            {pendingNewAudit && <Spinner size="uk-icon-small" />}
-          </button>
-          <button className="uk-button uk-button-primary" type="button" onClick={() => onAddAudit(activeExercise, "fromNotActive")}>
-            Add inactive student
-            {pendingNewAudit && <Spinner size="uk-icon-small" />}
-          </button>
+          <div className="uk-button-group">
+            <button className="uk-button uk-button-primary uk-width-5-6" type="button" onClick={() => onAddAudit(activeExercise, "fromReady", 1)}>
+              Add student who is done {pendingNewAudit && <Spinner size="uk-icon-small" />}
+            </button>
+            <button className="uk-button uk-button-primary uk-width-1-6" type="button" onClick={() => onAddAudit(activeExercise, "fromReady", 10)}>
+              +10
+            </button>
+          </div>
+          <div className="uk-button-group">
+            <button className="uk-button uk-button-primary uk-width-5-6" type="button" onClick={() => onAddAudit(activeExercise, "fromNotReady", 1)}>
+              Add student who is late or incorrect
+              {pendingNewAudit && <Spinner size="uk-icon-small" />}
+            </button>
+            <button className="uk-button uk-button-primary uk-width-1-6" type="button" onClick={() => onAddAudit(activeExercise, "fromNotReady", 10)}>
+              +10
+            </button>
+          </div>
+          <div className="uk-button-group">
+            <button className="uk-button uk-button-primary uk-width-5-6" type="button" onClick={() => onAddAudit(activeExercise, "fromNotActive", 1)}>
+              Add inactive student
+              {pendingNewAudit && <Spinner size="uk-icon-small" />}
+            </button>
+            <button className="uk-button uk-button-primary uk-width-1-6" type="button" onClick={() => onAddAudit(activeExercise, "fromNotActive", 10)}>
+              +10
+            </button>
+          </div>
           <button className={"uk-button uk-button-medium uk-margin-small-top " + (auditsRenderReady.size > 0 ? "uk-button-success" : "")} type="button" onClick={() => onPublishAndSend(auditsReady)} data-uk-tooltip title="Publish ready audits and send an email to students.">
             Publish ready ({auditsRenderReady.size})
           </button>
@@ -166,7 +183,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch(fetchStudentDetailResults(studentPk));
     dispatch(setSelectedStudentResults(studentPk));
   },
-  onAddAudit: (exercise, heap) => dispatch(fetchNewAudit(exercise, heap)),
+  onAddAudit: (exercise, heap, n_audits) => dispatch(fetchNewAudit(exercise, heap, n_audits)),
   onPublishAndSend: (audits) => dispatch(handlePublishAndSend(audits)),
 });
 

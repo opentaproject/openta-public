@@ -13,7 +13,7 @@ import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import _ from 'lodash';
 
-import { 
+import {
   fetchStudentDetailResults,
   fetchCurrentAuditsExercise,
   fetchNewAudit,
@@ -21,7 +21,7 @@ import {
   deleteAudit,
   sendAudit,
 } from '../fetchers.js';
-import { 
+import {
   updateAudit,
   updatePendingStateIn,
 } from '../actions.js';
@@ -95,7 +95,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
                 <div className="uk-flex uk-flex-middle uk-flex-space-between uk-flex-wrap uk-margin-small-top">
                   { audits.getIn([activeAudit, 'revision_needed']) === null && <a className="uk-button uk-text-muted" title="Please select status before publishing." data-uk-tooltip id="publish-single">Publish</a> }
                   { audits.getIn([activeAudit, 'revision_needed']) !== null &&
-                  <a className={"uk-button uk-margin-small-top uk-position-relative " + publishClass} onClick={() => onPublishAudit(activeAudit, audits.getIn([activeAudit, 'published']), audits.getIn([activeAudit, 'sent']), bccStatus)} data-uk-tooltip title="The audit will become visible for the student and an email will be sent if first time." id="publish-single">{publishName} 
+                  <a className={"uk-button uk-margin-small-top uk-position-relative " + publishClass} onClick={() => onPublishAudit(activeAudit, audits.getIn([activeAudit, 'published']), audits.getIn([activeAudit, 'sent']), bccStatus)} data-uk-tooltip title="The audit will become visible for the student and an email will be sent if first time." id="publish-single">{publishName}
                   { pendingPublish && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   }
