@@ -773,7 +773,12 @@ def get_students_to_be_audited(exercise):
 def get_students_not_active(exercise):
     """Get students that haven't answered the questions or uploaded an image."""
     users = (
-        User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
+        User.objects.filter(
+            opentauser__courses=exercise.course,
+            groups__name='Student',
+            is_active=True,
+            email__isnull=False,
+        )
         .exclude(groups__name='View')
         .exclude(groups__name='Admin')
         .exclude(groups__name='Author')
