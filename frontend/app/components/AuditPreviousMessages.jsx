@@ -10,6 +10,8 @@ const AuditPreviousMessages = ({auditsList, onOldMessageClick, activeAudit, conf
               { auditsList.reverse().filter( audit => /*audit.get('sent') &&*/ audit.get('message','').length > 0)
                           .groupBy( audit => audit.get('message') )
                           .map( group => group.first() )
+                          .sortBy( audit => audit.get('modified') )
+                          .reverse()
                           .map( audit => (
                             <tr key={audit.get('pk')} >
                               <td>

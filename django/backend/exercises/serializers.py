@@ -108,6 +108,7 @@ class AuditExerciseSerializer(serializers.ModelSerializer):
             'revision_needed',
             'updated',
             'updated_date',
+            'modified',
         )
 
     def update(self, instance, validated_data):

@@ -562,6 +562,7 @@ class AuditExercise(models.Model):
     revision_needed = models.NullBooleanField(blank=True, default=None)
     updated = models.BooleanField(default=False)
     updated_date = models.DateTimeField(null=True, blank=True, default=None)
+    modified = models.DateTimeField(auto_now=True)
 
     objects = AuditManager()
 

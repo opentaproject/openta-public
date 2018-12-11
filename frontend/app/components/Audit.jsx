@@ -276,7 +276,7 @@ const mapDispatchToProps = dispatch => ({
   onSaveAudit: (auditPk) => dispatch(handleAuditSave(auditPk)),
   onMessageChange: (e, pk) =>  {
     dispatch(updatePendingStateIn(['audit', 'audits', pk, 'save'], true));
-    dispatch(updateAudit(pk, {'message': e.target.value}))
+    dispatch(updateAudit(pk, {'message': e.target.value, 'modified': moment().format()}))
     throttleSave(dispatch, pk);
   },
   onSubjectChange: (e, pk) =>  {
