@@ -1,5 +1,5 @@
 import os
-from exercises.models import Exercise, Answer, Question, ExerciseMeta
+from exercises.models import Exercise, Answer, Question, ExerciseMeta, ImageAnswer
 from course.models import Course
 from django.contrib.auth.models import User, Group
 
@@ -60,11 +60,24 @@ class TzDateTimeWidget(DateTimeWidget):
 
 
 class QuestionForeignKeyWidget(ForeignKeyWidget):
-    def get_queryset(self, value, row):
-        return self.model.objects.filter(
-            question_key__iexact=row["question__question_key"],
-            exercise__exercise_key__iexact=row["question__exercise__exercise_key"],
-        )
+    # def get_queryset(self, value, row):
+    #    return self.model.objects.filter(
+    #        question_key__iexact=row["question__question_key"],
+    #        exercise__exercise_key__iexact=row["question__exercise__exercise_key"]
+    #    )
+
+    def render(self, value, obj=None):
+        return ""
+
+    def clean(self, value, row=None, *args, **kwargs):
+        try:
+            self.get_queryset(value, row, *args, **kwargs).get(
+                question_key__iexact=row["question__question_key"],
+                exercise__exercise_key__iexact=row["question__exercise__exercise_key"],
+            )
+        except Exception as e:
+            print(str(e))
+            print(row)
 
 
 class CourseResource(resources.ModelResource):
@@ -142,7 +155,33 @@ class AnswerResource(resources.ModelResource):
             'question__exercise__exercise_key',
         )
         import_id_fields = ('user', 'date', 'question')
-        exclude = ('id',)
+        exclude = ('id', 'question')
+
+    def get_queryset(self):
+        return self._meta.model.objects.exclude(question__isnull=True)
+
+
+class ImageAnswerResource(resources.ModelResource):
+    user = fields.Field(
+        column_name='user', attribute='user', widget=ForeignKeyWidget(User, field='username')
+    )
+    exercise = fields.Field(
+        column_name='exercise',
+        attribute='exercise',
+        widget=ForeignKeyWidget(Exercise, field="exercise_key"),
+    )
+
+    date = fields.Field(
+        column_name='date', attribute='date', widget=TzDateTimeWidget(format=DATETIME_FORMAT)
+    )
+
+    class Meta:
+        model = ImageAnswer
+        import_id_fields = ('user', 'date', 'exercise')
+        exclude = ('id', 'image', 'pdf')
+
+    def get_queryset(self):
+        return self._meta.model.objects.exclude(exercise__isnull=True)
 
 
 class QuestionResource(resources.ModelResource):
@@ -186,6 +225,7 @@ def export_server(output_path='export'):
         ExerciseMetaResource,
         QuestionResource,
         AnswerResource,
+        ImageAnswerResource,
     ]
     subpath = "server"
     full_path = os.path.join(output_path, subpath)
@@ -301,6 +341,7 @@ def _import_databases(import_path):
     import_lookup = {
         "Question": QuestionResource(),
         "Answer": AnswerResource(),
+        "ImageAnswer": ImageAnswerResource(),
         "Exercise": ExerciseResource(),
         "ExerciseMeta": ExerciseMetaResource(),
         "User": UserResource(),
