@@ -23,6 +23,7 @@ class LinearAlgebraTest(TestCase):
         self.assertEqual(iim("(1+x)y"), "(1+x) * y ")
         self.assertEqual(iim("sin(x) y"), "sin(x) * y")
         self.assertEqual(iim("sin(x)y"), "sin(x) * y ")
+        self.assertEqual(iim("(1+x)(-2+x)"), "(1+x)*(-2+x)")
 
     def test_variable(self):
         variables = [

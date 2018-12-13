@@ -52,7 +52,7 @@ def asciiToSympy(expression):
     }
     result = re.sub(r"(?<=[\w)])\s+(?=[(\w])", r" * ", expression)
     result = re.sub(r"(\W*[0-9]+)([A-Za-z]+)", r"\1 * \2", result)
-    result = re.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)])", r"\1)*(\2", result)
+    result = re.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)\-])", r"\1)*(\2", result)
     result = re.sub(r"\)([A-Za-z0-9]+)", r") * \1 ", result)
     for old, new in dict.items():
         result = result.replace(old, new)

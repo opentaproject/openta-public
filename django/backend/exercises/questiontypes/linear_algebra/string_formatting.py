@@ -6,15 +6,15 @@ Various functions needed to convert input asciimath into something that sympy ca
 import re as resub
 
 
-def insert_implicit_multiply(expression):  # {{{
+def insert_implicit_multiply(expression):
     result = resub.sub(r"(?<=[\w)])\s+(?=[(\w])", r" * ", expression)
     result = resub.sub(r"((?:\W|^)[0-9]+)([a-zA-Z]+)", r"\1*\2", result)
-    result = resub.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)])", r"\1)*(\2", result)
+    result = resub.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)\-])", r"\1)*(\2", result)
     result = resub.sub("\)([A-Za-z0-9]+)", r") * \1 ", result)
-    return result  # }}}
+    return result
 
 
-def ascii_to_sympy(expression):  # {{{
+def ascii_to_sympy(expression):
     result = expression
     result = resub.sub(r"([^=]+)==([^=]+)", r"(\1) - (\2)", result)
     dict = {'^': '**'}
@@ -32,7 +32,7 @@ def ascii_to_sympy(expression):  # {{{
     result = resub.sub(
         r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result
     )  # PUT IN IMPLICITY MULTIPLY IN VARIABLE DEFS WITH UNITS
-    return result  # }}}
+    return result
 
 
 def matrixify(expression):  # # {{{
@@ -54,10 +54,10 @@ def matrixify(expression):  # # {{{
         if c == ']' and depth == 0:
             s += ")"
         i += 1
-    return s  # }}}
+    return s
 
 
-def absify(expression):  # {{{
+def absify(expression):
     l = len(expression)
     i = 0
     s = ''
@@ -78,10 +78,10 @@ def absify(expression):  # {{{
     if depth == 0:
         return s
     else:
-        return expression  # }}}
+        return expression
 
 
-def braketify(expression):  # {{{
+def braketify(expression):
     rep = {}
     rep['>'] = ''
     rep['<'] = ''
@@ -107,7 +107,7 @@ def braketify(expression):  # {{{
         if c == '>' and depth == 0:
             s += ")"
         i += 1
-    return s  # }}}
+    return s
 
 
 def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions# {{{
@@ -117,4 +117,4 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     result = resub.sub(r"ff", r"variableff", result)
     result = resub.sub(r"lambda", r"variablelambda", result)
 
-    return result  # }}}
+    return result

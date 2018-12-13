@@ -9,7 +9,7 @@ import re as resub
 def insert_implicit_multiply(expression):  # {{{
     result = resub.sub(r"(?<=[\w)])\s+(?=[(\w])", r" * ", expression)
     result = resub.sub(r"((?:\W|^)[0-9]+)([a-zA-Z]+)", r"\1*\2", result)
-    result = resub.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)])", r"\1)*(\2", result)
+    result = resub.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)\-])", r"\1)*(\2", result)
     result = resub.sub("\)([A-Za-z0-9]+)", r") * \1 ", result)
     return result  # }}}
 
