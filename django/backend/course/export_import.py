@@ -6,6 +6,7 @@ from django.contrib.auth.models import User, Group
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget
 from import_export.widgets import DateTimeWidget
+from import_export.widgets import ManyToManyWidget
 from import_export.instance_loaders import BaseInstanceLoader
 from django.utils.timezone import localtime, get_current_timezone, make_aware
 from django.conf import settings
@@ -192,15 +193,12 @@ class QuestionResource(resources.ModelResource):
 
 
 class UserResource(resources.ModelResource):
+    groups = fields.Field(
+        column_name='groups', attribute='groups', widget=ManyToManyWidget(Group, field="name")
+    )
+
     class Meta:
         model = User
-        exclude = ('id',)
-        import_id_fields = ('username',)
-
-
-class GroupResource(resources.ModelResource):
-    class Meta:
-        model = Group
         exclude = ('id',)
         import_id_fields = ('username',)
 
