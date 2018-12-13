@@ -72,7 +72,7 @@ class QuestionForeignKeyWidget(ForeignKeyWidget):
 
     def clean(self, value, row=None, *args, **kwargs):
         try:
-            self.get_queryset(value, row, *args, **kwargs).get(
+            return self.get_queryset(value, row, *args, **kwargs).get(
                 question_key__iexact=row["question__question_key"],
                 exercise__exercise_key__iexact=row["question__exercise__exercise_key"],
             )
