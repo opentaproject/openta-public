@@ -1,12 +1,14 @@
 import os
 from exercises.models import Exercise, Answer, Question, ExerciseMeta, ImageAnswer
 from course.models import Course
+from users.models import OpenTAUser
 from django.contrib.auth.models import User, Group
 
 from import_export import resources, fields
 from import_export.widgets import ForeignKeyWidget
 from import_export.widgets import DateTimeWidget
 from import_export.widgets import ManyToManyWidget
+from import_export.widgets import Widget
 from import_export.instance_loaders import BaseInstanceLoader
 from django.utils.timezone import localtime, get_current_timezone, make_aware
 from django.conf import settings
@@ -19,6 +21,7 @@ import exercises.paths as paths
 
 import logging
 import tempfile
+from django.utils.encoding import smart_text
 
 SERVER_EXERCISES_EXPORT_FILENAME = 'exercises.zip'
 SERVER_EXPORT_FILENAME = 'server.zip'
@@ -192,6 +195,33 @@ class QuestionResource(resources.ModelResource):
         exclude = ('id',)
 
 
+# Need to generate courses from the opentauser m2m coupling
+# Probably can be done via a Widget
+
+
+class UserCoursesWidget(ManyToManyWidget):
+    def render(self, value, obj=None):
+        ids = [smart_text(obj.course_key) for obj in value.all()]
+        return self.separator.join(ids)
+
+
+class OpenTAUserResource(resources.ModelResource):
+    user = fields.Field(
+        column_name='user', attribute='user', widget=ForeignKeyWidget(User, field='email')
+    )
+    courses = fields.Field(
+        column_name='courses',
+        attribute='courses',
+        widget=UserCoursesWidget(Course, field="course_key"),
+    )
+
+    class Meta:
+        model = OpenTAUser
+        exclude = ('id',)
+        fields = ('user', 'courses')
+        import_id_fields = ('user',)
+
+
 class UserResource(resources.ModelResource):
     groups = fields.Field(
         column_name='groups', attribute='groups', widget=ManyToManyWidget(Group, field="name")
@@ -200,7 +230,8 @@ class UserResource(resources.ModelResource):
     class Meta:
         model = User
         exclude = ('id',)
-        import_id_fields = ('username',)
+        # This returns multiple hits, write a clean that filters this out, or perhaps it was just a borked local database?
+        import_id_fields = ('email', 'username')
 
 
 def export_server(output_path='export'):
@@ -219,6 +250,7 @@ def export_server(output_path='export'):
     resources = [
         CourseResource,
         UserResource,
+        OpenTAUserResource,
         ExerciseResource,
         ExerciseMetaResource,
         QuestionResource,
@@ -343,6 +375,7 @@ def _import_databases(import_path):
         "Exercise": ExerciseResource(),
         "ExerciseMeta": ExerciseMetaResource(),
         "User": UserResource(),
+        "OpenTAUser": OpenTAUserResource(),
         "Course": CourseResource(),
     }
     files = sorted(os.listdir(import_path))
