@@ -88,7 +88,7 @@ def create_answers_and_imageanswers(user, deadline, q1, q2, q3, q4, q5, e1, e2, 
     # 3 images, 1 before deadline, 2 after deadline
     create_image_answer_at(user, e1, before)  # Just before deadline
     # Well after deadline
-    create_image_answer_at(user, e2, timezone.now() + datetime.timedelta(days=1))
+    create_image_answer_at(user, e2, now + datetime.timedelta(days=1))
     create_image_answer_at(user, e3, after)  # Just after deadline
 
     # Both after deadline
@@ -140,15 +140,15 @@ def create_database():
     deadline = timezone.make_aware(
         datetime.datetime(year=now.year, month=now.month, day=now.day, hour=8, minute=0, second=0)
     )
-    set_meta(e1, published=True, required=True, deadline_date=now)
-    set_meta(e2, published=True, required=True, deadline_date=now)
-    set_meta(e3, published=True, required=True, deadline_date=now)
-    set_meta(e4, published=True, required=True, deadline_date=now)
-    set_meta(e5, published=True, required=True, deadline_date=now)
-    set_meta(b1, published=True, bonus=True, deadline_date=now)
-    set_meta(b2, published=True, bonus=True, deadline_date=now)
-    set_meta(b3, published=True, bonus=True, deadline_date=now)
-    set_meta(b4, published=True, bonus=True, deadline_date=now)
+    set_meta(e1, published=True, required=True, deadline_date=deadline)
+    set_meta(e2, published=True, required=True, deadline_date=deadline)
+    set_meta(e3, published=True, required=True, deadline_date=deadline)
+    set_meta(e4, published=True, required=True, deadline_date=deadline)
+    set_meta(e5, published=True, required=True, deadline_date=deadline)
+    set_meta(b1, published=True, bonus=True, deadline_date=deadline)
+    set_meta(b2, published=True, bonus=True, deadline_date=deadline)
+    set_meta(b3, published=True, bonus=True, deadline_date=deadline)
+    set_meta(b4, published=True, bonus=True, deadline_date=deadline)
     student = Group(name="Student")
     student.save()
     admin = Group(name="Admin")
