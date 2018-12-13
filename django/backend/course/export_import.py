@@ -83,6 +83,7 @@ class CourseResource(resources.ModelResource):
             'registration_by_domain',
             'languages',
         )
+        exclude = ('id',)
         import_id_fields = ('course_key',)
 
     def before_import_row(self, row, **kwargs):
@@ -91,6 +92,12 @@ class CourseResource(resources.ModelResource):
 
 
 class ExerciseResource(resources.ModelResource):
+    course = fields.Field(
+        column_name='course',
+        attribute='course',
+        widget=ForeignKeyWidget(Course, field='course_key'),
+    )
+
     class Meta:
         model = Exercise
         exclude = ('id',)
