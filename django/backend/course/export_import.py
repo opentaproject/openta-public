@@ -1,5 +1,5 @@
 import os
-from exercises.models import Exercise, Answer, Question, ExerciseMeta, ImageAnswer
+from exercises.models import Exercise, Answer, Question, ExerciseMeta, ImageAnswer, AuditExercise
 from course.models import Course
 from users.models import OpenTAUser
 from django.contrib.auth.models import User, Group
@@ -238,6 +238,25 @@ class UserResource(resources.ModelResource):
         import_id_fields = ('username',)
 
 
+class AuditExerciseResource(resources.ModelResource):
+    student = fields.Field(
+        column_name='student', attribute='student', widget=ForeignKeyWidget(User, field='username')
+    )
+    auditor = fields.Field(
+        column_name='auditor', attribute='auditor', widget=ForeignKeyWidget(User, field='username')
+    )
+    exercise = fields.Field(
+        column_name='exercise',
+        attribute='exercise',
+        widget=ForeignKeyWidget(Exercise, field="exercise_key"),
+    )
+
+    class Meta:
+        model = AuditExercise
+        exclude = ('id',)
+        import_id_fields = ('student', 'exercise')
+
+
 def export_server(output_path='export'):
     """Export server to zip file.
 
@@ -260,6 +279,7 @@ def export_server(output_path='export'):
         QuestionResource,
         AnswerResource,
         ImageAnswerResource,
+        AuditExerciseResource,
     ]
     subpath = "server"
     full_path = os.path.join(output_path, subpath)
@@ -381,6 +401,7 @@ def _import_databases(import_path):
         "User": UserResource(),
         "OpenTAUser": OpenTAUserResource(),
         "Course": CourseResource(),
+        "AuditExercise": AuditExerciseResource(),
     }
     files = sorted(os.listdir(import_path))
     for csv in files:

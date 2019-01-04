@@ -165,11 +165,7 @@ def get_new_audit(request, exercise, heap, n_audits):
         data = {'course': course, 'exercise': dbexercise}
         subject = template.render(data).strip()
         audit = AuditExercise(
-            auditor=request.user,
-            student=auditee,
-            exercise=dbexercise,
-            subject=subject,
-            exercise_key=dbexercise.exercise_key,
+            auditor=request.user, student=auditee, exercise=dbexercise, subject=subject
         )
         pass_, message = analyze_exercise_for_student(dbexercise, student_pk)
         if not pass_:
