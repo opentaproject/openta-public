@@ -39,6 +39,15 @@ class ImportError(Exception):
 
 
 class TzDateTimeWidget(DateTimeWidget):
+    """Custom datetime handling to ensure timezone correctness.
+
+    The default behaviour of django-export-import DateTimeWidget is to
+    export and import in the locally defined timezone, i.e. what is defined
+    in settings.py. To be robust against importing in a different timezone this
+    class changes the behaviour to always export and import in UTC.
+
+    """
+
     def render(self, value, obj=None):
         """Render time in UTC."""
         render_value = value
@@ -64,13 +73,12 @@ class TzDateTimeWidget(DateTimeWidget):
 
 
 class QuestionForeignKeyWidget(ForeignKeyWidget):
-    # def get_queryset(self, value, row):
-    #    return self.model.objects.filter(
-    #        question_key__iexact=row["question__question_key"],
-    #        exercise__exercise_key__iexact=row["question__exercise__exercise_key"]
-    #    )
-
     def render(self, value, obj=None):
+        """Dummy render.
+
+        The question render is handled explicitly in the Answer resource.
+
+        """
         return ""
 
     def clean(self, value, row=None, *args, **kwargs):
@@ -96,6 +104,7 @@ class CourseResource(resources.ModelResource):
         fields = (
             'course_key',
             'course_name',
+            'course_long_name',
             'registration_domains',
             'registration_by_domain',
             'languages',
@@ -182,7 +191,7 @@ class ImageAnswerResource(resources.ModelResource):
     class Meta:
         model = ImageAnswer
         import_id_fields = ('user', 'date', 'exercise')
-        exclude = ('id', 'image', 'pdf')
+        exclude = ('id',)
 
     def get_queryset(self):
         return self._meta.model.objects.exclude(exercise__isnull=True)
@@ -195,10 +204,6 @@ class QuestionResource(resources.ModelResource):
         exclude = ('id',)
 
 
-# Need to generate courses from the opentauser m2m coupling
-# Probably can be done via a Widget
-
-
 class UserCoursesWidget(ManyToManyWidget):
     def render(self, value, obj=None):
         ids = [smart_text(obj.course_key) for obj in value.all()]
@@ -207,7 +212,7 @@ class UserCoursesWidget(ManyToManyWidget):
 
 class OpenTAUserResource(resources.ModelResource):
     user = fields.Field(
-        column_name='user', attribute='user', widget=ForeignKeyWidget(User, field='email')
+        column_name='user', attribute='user', widget=ForeignKeyWidget(User, field='username')
     )
     courses = fields.Field(
         column_name='courses',
@@ -230,8 +235,7 @@ class UserResource(resources.ModelResource):
     class Meta:
         model = User
         exclude = ('id',)
-        # This returns multiple hits, write a clean that filters this out, or perhaps it was just a borked local database?
-        import_id_fields = ('email', 'username')
+        import_id_fields = ('username',)
 
 
 def export_server(output_path='export'):
