@@ -11,7 +11,7 @@ import {
     uploadExercises,
 } from '../fetchers.js';
 
-class BaseCourseImport extends Component {
+class BaseCourseExercisesImport extends Component {
 
     renderProgress = () => (
             <span className="uk-button">
@@ -85,4 +85,4 @@ const mapStateToProps = state => {
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(BaseCourseImport);
+export default connect(mapStateToProps, mapDispatchToProps)(BaseCourseExercisesImport);

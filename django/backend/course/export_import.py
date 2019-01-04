@@ -94,9 +94,9 @@ class QuestionForeignKeyWidget(ForeignKeyWidget):
 
 class CourseResource(resources.ModelResource):
     def __init__(self, *args, **kwargs):
-        self._override_name = None
-        if 'override_name' in kwargs:
-            self._override_name = kwargs.pop('override_name')
+        self._course = None
+        if 'course' in kwargs:
+            self._course = kwargs.pop('course')
         super().__init__(*args, **kwargs)
 
     class Meta:
@@ -112,9 +112,11 @@ class CourseResource(resources.ModelResource):
         exclude = ('id',)
         import_id_fields = ('course_key',)
 
-    def before_import_row(self, row, **kwargs):
-        if self._override_name is not None:
-            row['course_name'] = self._override_name
+    def get_queryset(self):
+        if self._course is not None:
+            return self._meta.model.objects.filter(pk=self._course.pk)
+        else:
+            return self._meta.model.objects.all()
 
 
 class ExerciseResource(resources.ModelResource):
@@ -129,6 +131,18 @@ class ExerciseResource(resources.ModelResource):
         exclude = ('id',)
         import_id_fields = ('exercise_key',)
 
+    def __init__(self, *args, **kwargs):
+        self._course = None
+        if 'course' in kwargs:
+            self._course = kwargs.pop('course')
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        if self._course is not None:
+            return self._meta.model.objects.filter(course=self._course)
+        else:
+            return self._meta.model.objects.all()
+
 
 class ExerciseMetaResource(resources.ModelResource):
     exercise = fields.Field(
@@ -141,6 +155,18 @@ class ExerciseMetaResource(resources.ModelResource):
         model = ExerciseMeta
         exclude = ('id',)
         import_id_fields = ('exercise',)
+
+    def __init__(self, *args, **kwargs):
+        self._course = None
+        if 'course' in kwargs:
+            self._course = kwargs.pop('course')
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        if self._course is not None:
+            return self._meta.model.objects.filter(exercise__course=self._course)
+        else:
+            return self._meta.model.objects.all()
 
 
 class AnswerResource(resources.ModelResource):
@@ -170,8 +196,19 @@ class AnswerResource(resources.ModelResource):
         import_id_fields = ('user', 'date', 'question')
         exclude = ('id', 'question')
 
+    def __init__(self, *args, **kwargs):
+        self._course = None
+        if 'course' in kwargs:
+            self._course = kwargs.pop('course')
+        super().__init__(*args, **kwargs)
+
     def get_queryset(self):
-        return self._meta.model.objects.exclude(question__isnull=True)
+        if self._course is not None:
+            return self._meta.model.objects.filter(question__exercise__course=self._course).exclude(
+                question__isnull=True
+            )
+        else:
+            return self._meta.model.objects.all().exclude(question__isnull=True)
 
 
 class ImageAnswerResource(resources.ModelResource):
@@ -193,8 +230,19 @@ class ImageAnswerResource(resources.ModelResource):
         import_id_fields = ('user', 'date', 'exercise')
         exclude = ('id',)
 
+    def __init__(self, *args, **kwargs):
+        self._course = None
+        if 'course' in kwargs:
+            self._course = kwargs.pop('course')
+        super().__init__(*args, **kwargs)
+
     def get_queryset(self):
-        return self._meta.model.objects.exclude(exercise__isnull=True)
+        if self._course is not None:
+            return self._meta.model.objects.filter(exercise__course=self._course).exclude(
+                exercise__isnull=True
+            )
+        else:
+            return self._meta.model.objects.all().exclude(exercise__isnull=True)
 
 
 class QuestionResource(resources.ModelResource):
@@ -202,6 +250,18 @@ class QuestionResource(resources.ModelResource):
         model = Question
         import_id_fields = ('exercise', 'question_key')
         exclude = ('id',)
+
+    def __init__(self, *args, **kwargs):
+        self._course = None
+        if 'course' in kwargs:
+            self._course = kwargs.pop('course')
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        if self._course is not None:
+            return self._meta.model.objects.filter(exercise__course=self._course)
+        else:
+            return self._meta.model.objects.all()
 
 
 class UserCoursesWidget(ManyToManyWidget):
@@ -226,6 +286,18 @@ class OpenTAUserResource(resources.ModelResource):
         fields = ('user', 'courses')
         import_id_fields = ('user',)
 
+    def __init__(self, *args, **kwargs):
+        self._course = None
+        if 'course' in kwargs:
+            self._course = kwargs.pop('course')
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        if self._course is not None:
+            return self._meta.model.objects.filter(courses=self._course)
+        else:
+            return self._meta.model.objects.all()
+
 
 class UserResource(resources.ModelResource):
     groups = fields.Field(
@@ -236,6 +308,18 @@ class UserResource(resources.ModelResource):
         model = User
         exclude = ('id',)
         import_id_fields = ('username',)
+
+    def __init__(self, *args, **kwargs):
+        self._course = None
+        if 'course' in kwargs:
+            self._course = kwargs.pop('course')
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        if self._course is not None:
+            return self._meta.model.objects.filter(opentauser__courses=self._course)
+        else:
+            return self._meta.model.objects.all()
 
 
 class AuditExerciseResource(resources.ModelResource):
@@ -256,6 +340,18 @@ class AuditExerciseResource(resources.ModelResource):
         exclude = ('id',)
         import_id_fields = ('student', 'exercise')
 
+    def __init__(self, *args, **kwargs):
+        self._course = None
+        if 'course' in kwargs:
+            self._course = kwargs.pop('course')
+        super().__init__(*args, **kwargs)
+
+    def get_queryset(self):
+        if self._course is not None:
+            return self._meta.model.objects.filter(exercise__course=self._course)
+        else:
+            return self._meta.model.objects.all()
+
 
 def export_server(output_path='export'):
     """Export server to zip file.
@@ -270,6 +366,41 @@ def export_server(output_path='export'):
         float: Fraction complete
 
     """
+    subpath = "server"
+    full_path = os.path.join(output_path, subpath)
+
+    for progress in _export_databases(full_path):
+        yield progress
+
+    exercises_zip_path = os.path.join(full_path, SERVER_EXERCISES_EXPORT_FILENAME)
+    for _, progress in _zip_recursively(
+        output_filepath=exercises_zip_path, input_path=paths.EXERCISES_PATH
+    ):
+        yield "Exercises", progress
+    total_zip_path = os.path.join(output_path, SERVER_EXPORT_FILENAME)
+    for _, progress in _zip_recursively(output_filepath=total_zip_path, input_path=full_path):
+        yield "Output zip", progress
+
+
+def export_course(course, output_path='export'):
+    subpath = "server"
+    full_path = os.path.join(output_path, subpath)
+    for progress in _export_databases(full_path, course=course):
+        yield progress
+
+    exercises_zip_path = os.path.join(full_path, SERVER_EXERCISES_EXPORT_FILENAME)
+    for _, progress in _zip_recursively(
+        output_filepath=exercises_zip_path,
+        input_path=course.get_exercises_path(),
+        relative_base=paths.EXERCISES_PATH,
+    ):
+        yield "Exercises", progress
+    total_zip_path = os.path.join(output_path, SERVER_EXPORT_FILENAME)
+    for progress in _zip_recursively(output_filepath=total_zip_path, input_path=full_path):
+        yield progress
+
+
+def _export_databases(export_path, course=None):
     resources = [
         CourseResource,
         UserResource,
@@ -281,27 +412,17 @@ def export_server(output_path='export'):
         ImageAnswerResource,
         AuditExerciseResource,
     ]
-    subpath = "server"
-    full_path = os.path.join(output_path, subpath)
-    os.makedirs(full_path, exist_ok=True)
+    os.makedirs(export_path, exist_ok=True)
     n_resources = len(resources)
     for index, resource in enumerate(resources):
-        dataset = resource().export()
+        dataset = resource(course=course).export()
         filename = "{index}_{name}.{ext}".format(
             index=index, name=resource.Meta.model.__name__, ext="csv"
         )
-        path = os.path.join(full_path, filename)
+        path = os.path.join(export_path, filename)
         with open(path, 'w') as output_file:
             output_file.write(dataset.csv)
         yield "Database", index / n_resources
-    exercises_zip_path = os.path.join(full_path, SERVER_EXERCISES_EXPORT_FILENAME)
-    for _, progress in _zip_recursively(
-        output_filepath=exercises_zip_path, input_path=paths.EXERCISES_PATH
-    ):
-        yield "Exercises", progress
-    total_zip_path = os.path.join(output_path, SERVER_EXPORT_FILENAME)
-    for _, progress in _zip_recursively(output_filepath=total_zip_path, input_path=full_path):
-        yield "Output zip", progress
 
 
 def import_server(import_zip_path, merge=False):
@@ -330,7 +451,8 @@ def import_server(import_zip_path, merge=False):
     with tempfile.TemporaryDirectory() as tmpdir:
         server_zip = zipfile.ZipFile(import_zip_path, 'r')
         server_zip.extractall(path=tmpdir)
-        _import_databases(tmpdir)
+        for progress in _import_databases(tmpdir):
+            yield progress
         try:
             exercises_zip_path = os.path.join(tmpdir, SERVER_EXERCISES_EXPORT_FILENAME)
             exercises_zip = zipfile.ZipFile(exercises_zip_path, 'r')
@@ -404,11 +526,13 @@ def _import_databases(import_path):
         "AuditExercise": AuditExerciseResource(),
     }
     files = sorted(os.listdir(import_path))
-    for csv in files:
+    n_total = len(files)
+    for index, csv in enumerate(files):
         if csv.endswith('.csv'):
             parts = csv.split('_')
             class_name = parts[1].split('.')[0]
             LOGGER.info("Importing %s", class_name)
+            yield class_name, index / n_total
             with open(os.path.join(import_path, csv)) as csv_file:
                 csv_contents = csv_file.read()
                 dataset = tablib.Dataset().load(csv_contents)
@@ -421,7 +545,7 @@ def _import_databases(import_path):
                         LOGGER.error(res)
 
 
-def _zip_recursively(output_filepath, input_path, report_steps=10):
+def _zip_recursively(output_filepath, input_path, relative_base=None, report_steps=10):
     """Zip path recursively with progress report.
 
     Args:
@@ -433,11 +557,13 @@ def _zip_recursively(output_filepath, input_path, report_steps=10):
         tuple (output_filepath, fraction_complete)
 
     """
+    if relative_base is None:
+        relative_base = input_path
     archive = zipfile.ZipFile(output_filepath, 'w')
     files = list(Path(input_path).glob("**/*"))
     num_files = len(files)
     for index, f in enumerate(files):
-        archive.write(str(f.resolve()), str(f.relative_to(input_path)))
+        archive.write(str(f.resolve()), str(f.relative_to(relative_base)))
         if index % (num_files // report_steps + 1) == 0:
             yield output_filepath, (index / num_files)
     archive.close()

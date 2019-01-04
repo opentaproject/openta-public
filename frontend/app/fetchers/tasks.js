@@ -16,7 +16,8 @@ function fetchTaskProgress(taskId, completeAction, progressAction) {
             .then( json => {
                 dispatch(updateTask(taskId, {
                     progress: json.progress,
-                    done: json.done
+                    done: json.done,
+                    status: json.status
                 }));
                 if(progressAction !== undefined)
                     dispatch(progressAction(json.progress));
@@ -66,4 +67,4 @@ function enqueueTask(url, {data, method="GET", completeAction, progressAction} =
     };
 }
 
-export { enqueueTask };
+export { enqueueTask, fetchTaskProgress };

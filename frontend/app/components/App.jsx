@@ -7,9 +7,11 @@ import AuthorExercise from './AuthorExercise';
 import LoginInfo from './LoginInfo';
 import Course from './Course';
 import CourseOptions from './CourseOptions';
-import CourseImport from './CourseImport';
+import CourseExercisesImport from './CourseExercisesImport';
+import CourseExercisesExport from './CourseExercisesExport';
 import CourseExport from './CourseExport';
 import CourseDuplicate from './CourseDuplicate';
+import ServerImport from './ServerImport';
 import Results from './Results';
 import ReloadExercises from './ReloadExercises';
 import immutable from 'immutable';
@@ -38,9 +40,11 @@ class BaseApp extends React.Component {
                 <div className="uk-width-medium-2-3 uk-margin-small-left"><Course/></div> }
               { menuPositionUnder(this.props.menuPath, ['results']) && <div className="uk-width-1-1 uk-margin-small-left"><Results/></div> }
               { menuPositionUnder(this.props.menuPath, ['course', 'options']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseOptions/></div> }
-              { menuPositionUnder(this.props.menuPath, ['course', 'upload']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseImport/></div> }
+              { menuPositionUnder(this.props.menuPath, ['course', 'import_exercises']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseExercisesImport/></div> }
+              { menuPositionUnder(this.props.menuPath, ['course', 'export_exercises']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseExercisesExport/></div> }
               { menuPositionUnder(this.props.menuPath, ['course', 'export']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseExport/></div> }
               { menuPositionUnder(this.props.menuPath, ['course', 'duplicate']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseDuplicate/></div> }
+              { menuPositionUnder(this.props.menuPath, ['server', 'import']) && <div className="uk-width-1-1 uk-margin-small-left"><ServerImport/></div> }
               { menuPositionAt(this.props.menuPath, ['exercises', 'reload']) && <div className="uk-width-medium-2-3 uk-margin-small-left"><ReloadExercises/></div> }  
               { /*(this.props.admin || this.props.author) ? <span/> : <div className="exercise-spacing"></div> */ }
               { menuPositionUnder(this.props.menuPath, ['activeExercise']) &&

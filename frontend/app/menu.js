@@ -18,6 +18,17 @@ import {
 
 var menuTree = immutable.fromJS({
   menuItems: {
+    server: {
+      name: 'Server',
+      key: 'server',
+      reqGroup: ['Admin'],
+      menuItems: {
+        import: {
+          name: 'Import',
+          key: 'import'
+        }
+      }
+    },
     course: {
       name: 'Course',
       key: 'course',
@@ -27,13 +38,17 @@ var menuTree = immutable.fromJS({
           name: 'Options',
           key: 'options',
         },
-        upload: {
-          name: 'Upload',
-          key: 'upload',
-        },
         export: {
           name: 'Export',
           key: 'export',
+        },
+        import_exercises: {
+          name: 'Import exercises',
+          key: 'import_exercises',
+        },
+        export_exercises: {
+          name: 'Export exercises',
+          key: 'export_exercises',
         },
         duplicate: {
           name: 'Duplicate',
