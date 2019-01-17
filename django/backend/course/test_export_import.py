@@ -12,7 +12,12 @@ from exercises.models import Exercise
 import exercises.paths as paths
 from exercises.setup_tests import create_user
 from exercises.test.test_utils import create_course, create_question, set_meta
-from exercises.setup_tests import create_exercise, DEFAULT_EXERCISE, DEFAULT_EXERCISE_NAME
+from exercises.setup_tests import (
+    create_exercise,
+    DEFAULT_EXERCISE_TEMPLATE,
+    DEFAULT_EXERCISE_NAME,
+    DEFAULT_EXERCISE,
+)
 
 from course.export_import import (
     export_course_exercises,
@@ -111,7 +116,12 @@ class BasicCourse(TestCase):
         """Test server import."""
 
         # Create exercise
-        create_exercise(course=self._course, directory=paths.EXERCISES_PATH, name='r1')
+        create_exercise(
+            course=self._course,
+            directory=paths.EXERCISES_PATH,
+            name='r1',
+            content=DEFAULT_EXERCISE_TEMPLATE.format(name='r1'),
+        )
         for _ in Exercise.objects.sync_with_disc(course=self._course, i_am_sure=True):
             pass
         self._exercise = Exercise.objects.first()
@@ -132,7 +142,8 @@ class BasicCourse(TestCase):
             Exercise.objects.all().delete()
 
             # Import server
-            import_server(os.path.join(tmpdir, SERVER_EXPORT_FILENAME))
+            for _ in import_server(os.path.join(tmpdir, SERVER_EXPORT_FILENAME)):
+                pass
 
             # Verify exercise
             exercise = Exercise.objects.first()
