@@ -69,6 +69,7 @@ def export_course_pipeline(task, course):
         task.save()
     except Exception as e:
         task.status = str(e)
+        task.done = True
         task.save()
 
 
@@ -100,6 +101,7 @@ def import_server_pipeline(task, file_path):
 
     except Exception as e:
         task.status = str(e)
+        task.done = True
         task.save()
 
 

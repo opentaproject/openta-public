@@ -15,10 +15,10 @@ def duplicate_course(course: Course):
     course.course_name = "{old} (copy)".format(old=course.course_name)
     course.published = False
     course.save()
-
+    yield ("Copying exercises file tree, this could take some time...", 0)
     shutil.copytree(old_course_path, course.get_exercises_path())
     for key_file in Path(course.get_exercises_path()).glob("**/exercisekey"):
         key_file.unlink()
     for index, _ in enumerate(Exercise.objects.sync_with_disc(course, i_am_sure=True)):
         if index % (n_exercises // 20 + 1) == 0:
-            yield index / n_exercises
+            yield ("Updating database...", index / n_exercises)

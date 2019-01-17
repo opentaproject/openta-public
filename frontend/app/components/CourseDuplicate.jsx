@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { enqueueTask, fetchCourses } from '../fetchers.js';
 import { updatePendingStateIn, updatePendingState } from '../actions.js';
 
-const BaseCourseDuplicate = ({onCourseDuplicate, coursePk, taskId, progress, done}) => {
+const BaseCourseDuplicate = ({onCourseDuplicate, coursePk, taskId, status, progress, done}) => {
   return <div className="uk-flex uk-flex-wrap uk-margin-top">
       <div className="uk-flex uk-flex-column uk-flex-middle uk-margin-left uk-panel uk-panel-box">
         <div>Create a copy of the current course on this server, the exercises will get new keys.</div>
@@ -20,6 +20,7 @@ const BaseCourseDuplicate = ({onCourseDuplicate, coursePk, taskId, progress, don
                 </div>
               </div>}
         </div>
+        {status && <div className="uk-alert uk-alert-info">{status}</div>}
         {done && <div>
             <i className="uk-icon uk-icon-check" />
           </div>}
@@ -47,6 +48,7 @@ const mapStateToProps = (state) => {
     coursePk: coursePk,
     progress: state.getIn(['tasks', taskId, 'progress']),
     done: state.getIn(['tasks', taskId, 'done']),
+    status: state.getIn(['tasks', taskId, 'status']),
   };
 }
 
