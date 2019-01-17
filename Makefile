@@ -1,7 +1,7 @@
 SHELL=/bin/bash
 
 error:
-	@$(MAKE) list	
+	@$(MAKE) list
 
 .PHONY: list
 list:
@@ -79,3 +79,15 @@ shell:
 	source django/env/bin/activate &&\
 	cd django/backend &&\
 	python manage.py shell
+
+.PHONY: build-docker
+build-docker:
+	docker build -f docker/Dockerfile.formatpy -t openta/formatpy docker/
+
+.PHONY: format-python
+format-python:
+	@if [[ "$(shell docker images -q openta/formatpy 2> /dev/null)" == "" ]]; then\
+		echo "Please run \"make build-docker\" first";\
+	else\
+		docker run --rm -v $(PWD)/django/backend:/code/django/backend openta/formatpy django/backend/;\
+	fi;
