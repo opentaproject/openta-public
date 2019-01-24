@@ -22,7 +22,9 @@ exports.config = {
     },
     afterBrunch: [
 	    'mkdir -p ../django/backend/static/',
-      'cp -r public/* ../django/backend/static/'
+      'cp -r public/* ../django/backend/static/',
+      'mkdir -p last_build',
+      'touch last_build/`git rev-parse HEAD`'
     ]
   }
 };
