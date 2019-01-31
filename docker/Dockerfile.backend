@@ -1,0 +1,22 @@
+FROM python:3.5
+MAINTAINER Hampus Linander
+
+# Recommended method for installing nodejs with package manager on Debian (minus sudo)
+RUN apt-get update \
+    && apt-get install -y \
+    graphviz \
+    libcairo2 \
+    libcairo2-dev \
+    libgraphviz-dev \
+    libjpeg-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    libzmq3-dev
+
+COPY requirements.txt /tmp/openta/django/requirements.txt
+
+WORKDIR /tmp/openta/django
+RUN pip install -r requirements.txt
+
+EXPOSE 8000
+

@@ -83,6 +83,8 @@ shell:
 .PHONY: build-docker
 build-docker:
 	docker build -f docker/Dockerfile.formatpy -t openta/formatpy docker/
+	docker build -f ./docker/Dockerfile.backend -t openta/backend django/
+	docker build -f ./docker/Dockerfile.frontend -t openta/frontend frontend/
 
 .PHONY: format-python
 format-python:
@@ -91,3 +93,11 @@ format-python:
 	else\
 		docker run --rm -v $(PWD)/django/backend:/code/django/backend openta/formatpy django/backend/;\
 	fi;
+
+.PHONY: frontend-watch-docker
+frontend-watch-docker:
+	docker run --rm -t -P --interactive -v $(PWD):/openta -w /openta/frontend openta/frontend:latest brunch watch
+
+.PHONY: backend-docker
+backend-docker:
+	docker run --rm -t -p 8000:8000 --interactive -v $(PWD):/openta -w /openta/django/backend openta/backend:latest python -u manage.py runserver 0.0.0.0:8000
