@@ -40,9 +40,6 @@ class BaseServerImport extends Component {
             warning: 'uk-text-warning',
             success: 'uk-text-success',
         };
-        //var rows = this.props.uploadMessages.map( (item, index) => (
-        //    <li className={classDispatch[item.first()]} key={index}> {item.last()}</li>
-        //));
         return <div className="uk-flex uk-flex-wrap uk-margin-top">
             <div className="uk-flex uk-flex-column uk-flex-middle uk-margin-left uk-panel uk-panel-box">
               <div>
@@ -50,7 +47,7 @@ class BaseServerImport extends Component {
               </div>
               <div>{this.renderUpload()}</div>
               {this.props.pendingUpload && this.renderProgress()}
-              Processing: {this.props.processProgress}%
+              {this.props.processStatus}
             </div>
           </div>;
     }
@@ -75,7 +72,7 @@ const mapStateToProps = state => {
     pendingState: pendingState,
     pendingUpload: pendingState.getIn(["uploadPending"]),
     uploadProgress: pendingState.getIn(["uploadProgress"]),
-    processProgress: pendingState.getIn(["processProgress"], 0.0),
+    processStatus: pendingState.getIn(["processStatus"], ""),
   };
 };
 

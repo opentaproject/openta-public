@@ -91,7 +91,9 @@ def import_server_pipeline(task, file_path):
         # with transaction.atomic():
         for status, progress in import_server(file_path, merge=True):
             task.progress = progress * 100
-            task.status = status
+            task.status = "({percent}% of subtasks done) Importing {status}".format(
+                percent=task.progress, status=status
+            )
             task.save()
 
         task.done = True

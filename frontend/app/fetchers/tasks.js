@@ -20,7 +20,7 @@ function fetchTaskProgress(taskId, completeAction, progressAction) {
                     status: json.status
                 }));
                 if(progressAction !== undefined)
-                    dispatch(progressAction(json.progress));
+                    dispatch(progressAction(json.progress, json.status));
                 if(json.done) {
                     jsonfetch('/queuetask/' + taskId + '/result')
                         .then( res => res.json())

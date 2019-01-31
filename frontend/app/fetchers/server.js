@@ -46,7 +46,7 @@ function uploadServer(file) {
         //setTimeout(() => {dispatch(fetchTaskProgress(json.task_id, completeAction, progressAction));}, 1000);
         ;
         dispatch(fetchTaskProgress(xhr.response.task_id, undefined,
-            (progress) => updatePendingStateIn(["server", "processProgress"], progress)
+            (progress, status) => updatePendingStateIn(["server", "processStatus"], status)
         ));
       };
       xhr.send(fd);

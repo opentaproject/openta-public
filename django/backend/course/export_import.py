@@ -440,6 +440,7 @@ def import_server(import_zip_path, merge=False):
         merge (bool, optional): Attempts to merge servers if true.
 
     """
+    os.makedirs(paths.EXERCISES_PATH, exist_ok=True)
     if os.listdir(paths.EXERCISES_PATH) and not merge:
         error_msg = "Exercises directory not empty, will only import into clean server."
         LOGGER.error(error_msg)
@@ -539,10 +540,11 @@ def _import_databases(import_path):
                 if class_name in import_lookup:
                     resource = import_lookup[class_name]
                     res = resource.import_data(dataset, dry_run=True)
-                    if not res.has_errors():
-                        resource.import_data(dataset, dry_run=False)
-                    else:
+                    if res.has_errors():
                         LOGGER.error(res)
+                    else:
+                        res = resource.import_data(dataset, dry_run=False)
+            yield class_name, index / n_total
 
 
 def _zip_recursively(output_filepath, input_path, relative_base=None, report_steps=10):
