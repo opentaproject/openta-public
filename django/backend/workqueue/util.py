@@ -3,11 +3,15 @@ import django_rq
 from redis.exceptions import ResponseError
 from workqueue.exceptions import WorkQueueError
 
+DEFAULT_TIMEOUT = 20 * 60
+
 
 def enqueue_task(name, func, *args, owner=None, **kwargs):
     task = QueueTask.objects.create(name=name, owner=owner)
     try:
-        django_rq.enqueue(func, *args, task=task, job_id=str(task.pk), **kwargs)
+        django_rq.enqueue(
+            func, *args, task=task, job_id=str(task.pk), timeout=DEFAULT_TIMEOUT, **kwargs
+        )
     except ResponseError as e:
         raise WorkQueueError(
             'Could not connect to Redis server. (Please check that the authentication '
