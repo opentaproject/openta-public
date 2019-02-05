@@ -28,6 +28,10 @@ migrate:
 	source django/env/bin/activate; \
 	python django/backend/manage.py migrate ;\
 
+.PHONY: migrate-docker
+migrate-docker:
+	docker run --rm -t -p 8000:8000 --interactive -v $(PWD):/openta -w /openta/django/backend openta/backend:latest python -u manage.py migrate
+
 .PHONY: manage
 manage:
 	source django/env/bin/activate; \
@@ -96,8 +100,12 @@ format-python:
 
 .PHONY: frontend-watch-docker
 frontend-watch-docker:
-	docker run --rm -t -P --interactive -v $(PWD):/openta -w /openta/frontend openta/frontend:latest brunch watch
+	docker run --rm -t --network=host --interactive -v $(PWD):/openta -w /openta/frontend openta/frontend:latest brunch watch
 
 .PHONY: backend-docker
 backend-docker:
-	docker run --rm -t -p 8000:8000 --interactive -v $(PWD):/openta -w /openta/django/backend openta/backend:latest python -u manage.py runserver 0.0.0.0:8000
+	docker run --rm -t --network=host --interactive -v $(PWD):/openta -w /openta/django/backend openta/backend:latest python -u manage.py runserver 0.0.0.0:8000
+
+.PHONY: term-docker
+term-docker:
+	docker run --rm -t --network=host --interactive -v $(PWD):/openta -w /openta/django/backend openta/backend:latest /bin/bash
