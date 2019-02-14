@@ -104,6 +104,11 @@ format-python:
 frontend-watch-docker:
 	docker run --rm -t -u $(UID):$(GID) --network=host --interactive -v $(PWD):/openta -w /openta/frontend openta/frontend:latest brunch watch
 
+.PHONY: frontend-docker
+frontend-docker:
+	docker run --rm -t -u $(UID):$(GID) --network=host --interactive -v $(PWD):/openta -w /openta/frontend openta/frontend:latest brunch build -p
+	docker run --rm -t -u $(UID):$(GID) --network=host --interactive -v $(PWD):/openta -w /openta/django/backend openta/backend:latest python -u manage.py collectstatic --noinput --settings=backend.settings_base
+
 .PHONY: backend-docker
 backend-docker:
 	docker run --rm -t -u $(UID):$(GID) --network=host --interactive -v $(PWD):/openta -w /openta/django/backend openta/backend:latest python -u manage.py runserver 0.0.0.0:8000
@@ -111,3 +116,15 @@ backend-docker:
 .PHONY: term-docker
 term-docker:
 	docker run --rm -t -u $(UID):$(GID) --network=host --interactive -v $(PWD):/openta -w /openta/django/backend openta/backend:latest /bin/bash
+
+.PHONY: deploy-docker
+deploy-docker:
+	docker-compose -f docker/docker-compose.yml up
+
+.PHONY: deploy-docker-setup
+deploy-docker-setup:
+	docker-compose -f docker/docker-compose.yml run web python manage.py migrate
+	docker-compose -f docker/docker-compose.yml run web python manage.py loaddata fixtures/auth.json
+	docker-compose -f docker/docker-compose.yml run web python manage.py loaddata fixtures/course.json
+
+
