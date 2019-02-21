@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+  redis:
+    image: 'redis:3.2.0'
+    volumes:
+      - ../deploy/redis_data:/data
+  db:
+    image: 'postgres:9.5.3'
+    volumes:
+      - ../deploy/postgres_data:/var/lib/postgresql/data
+  nginx:
+    build:
+      context: ../
+      dockerfile: ./docker_deploy/Dockerfile.nginx
+    image: nginx
+    volumes:
+      - media:/srv/openta/django/backend/media
+    depends_on:
+      - web
+    ports:
+      - 80:80
+  web:
+    build:
+      context: ../
+      dockerfile: ./docker_deploy/Dockerfile.backendDeploy
+    image: web-image
+    working_dir: /srv/openta/django/backend/
+    command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --env DJANGO_SETTINGS_MODULE=backend.settings_production_docker
+    volumes:
+      - media:/srv/openta/django/backend/media
+    # volumes:
+      #- ../:/srv/openta
+      #- ../django/backend/backend/settings_production_docker.py:/srv/openta/django/backend/backend/settings.py
+    environment:
+      - WEB_CONCURRENCY=10
+    depends_on:
+      - db
+      - redis
+  rqworker:
+    image: web-image
+    working_dir: /srv/openta/django/backend/
+    command: python manage.py rqworker
+    volumes:
+      - media:/srv/openta/django/backend/media
+    depends_on:
+      - web
+      - redis
+
+volumes:
+  media:

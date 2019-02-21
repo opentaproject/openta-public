@@ -1,0 +1,25 @@
+FROM python:3.5
+MAINTAINER Hampus Linander
+
+# Recommended method for installing nodejs with package manager on Debian (minus sudo)
+RUN apt-get update \
+    && apt-get install -y \
+    graphviz \
+    libcairo2 \
+    libcairo2-dev \
+    libgraphviz-dev \
+    libjpeg-dev \
+    libxml2-dev \
+    libxslt1-dev \
+    libzmq3-dev
+
+COPY ./django/requirements.txt /tmp/openta/django/requirements.txt
+
+WORKDIR /tmp/openta/django
+RUN pip install -r requirements.txt
+RUN pip install gunicorn==19.9.0
+RUN pip uninstall --yes psycopg2
+RUN pip install psycopg2-binary==2.7.7
+
+COPY ./django /srv/openta/django
+COPY ./django/backend/backend/settings_production_docker.py /srv/openta/django/backend/backend/settings.py
