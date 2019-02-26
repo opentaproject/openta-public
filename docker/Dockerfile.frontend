@@ -11,10 +11,7 @@ RUN (curl -sL https://deb.nodesource.com/setup_8.x | bash -)\
 RUN npm i npm@latest -g
 RUN npm install -g brunch
 
-COPY package.json /tmp/openta/frontend/package.json
-
-WORKDIR /tmp/openta/frontend
-RUN npm -g install
+RUN apt-get update && apt-get install -y build-essential libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev
 
 EXPOSE 9485-9495
 

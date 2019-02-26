@@ -6,14 +6,15 @@ metadata:
     kompose.version: 1.17.0 (a74acad)
   creationTimestamp: null
   labels:
-    io.kompose.service: nginx
-  name: nginx
+    io.kompose.service: ${SUBPATH}
+  name: ${SUBPATH}
 spec:
   ports:
   - name: "80"
     port: 80
     targetPort: 80
   selector:
-    io.kompose.service: nginx
+    io.kompose.service: ${SUBPATH}
+  type: NodePort
 status:
   loadBalancer: {}

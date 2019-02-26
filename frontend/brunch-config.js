@@ -24,7 +24,7 @@ exports.config = {
 	    'mkdir -p ../django/backend/static/',
       'cp -r public/* ../django/backend/static/',
       'mkdir -p last_build',
-      'touch last_build/`git rev-parse HEAD`'
+      'touch last_build/`git rev-parse HEAD``git diff --no-color | md5sum`'
     ]
   }
 };

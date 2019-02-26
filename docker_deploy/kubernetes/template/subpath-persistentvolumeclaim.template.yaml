@@ -3,12 +3,12 @@ kind: PersistentVolumeClaim
 metadata:
   creationTimestamp: null
   labels:
-    io.kompose.service: media
-  name: media
+    io.kompose.service: ${SUBPATH}-data
+  name: ${SUBPATH}-data
 spec:
   accessModes:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 100Mi
+      storage: 5000Mi
 status: {}
