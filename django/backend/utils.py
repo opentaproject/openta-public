@@ -70,6 +70,7 @@ class OpenTAStaticLiveServerTestCase(StaticLiveServerTestCase):
     to live_server_url.
 
     """
+
     @property
     def live_server_url(self):
         return super().live_server_url + '/' + settings.SUBPATH

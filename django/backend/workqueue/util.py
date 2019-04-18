@@ -2,6 +2,7 @@ from .models import QueueTask
 import django_rq
 from redis.exceptions import ResponseError
 from workqueue.exceptions import WorkQueueError
+from collections import namedtuple
 
 DEFAULT_TIMEOUT = 20 * 60
 
@@ -24,3 +25,6 @@ def enqueue_task(name, func, *args, owner=None, **kwargs):
 def task_result(task_pk):
     queue = django_rq.get_queue()
     return queue.fetch_job(str(task_pk)).result
+
+
+TaskResult = namedtuple("TaskResult", ['status', 'progress', 'result'])

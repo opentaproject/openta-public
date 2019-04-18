@@ -18,7 +18,8 @@ class TestRegistration(TestCase):
         course.save()
         registration_data = dict(email="user@valid.ext")
         response = self.client.post(
-            '/' + settings.SUBPATH + 'register_by_domain/{course_pk}/'.format(course_pk=course.pk), data=registration_data
+            '/' + settings.SUBPATH + 'register_by_domain/{course_pk}/'.format(course_pk=course.pk),
+            data=registration_data,
         )
         self.assertEqual(OpenTAUser.objects.all().count(), 1)
         user = OpenTAUser.objects.first()
@@ -32,7 +33,8 @@ class TestRegistration(TestCase):
         course.save()
         registration_data = dict(email="user@invalid.ext")
         response = self.client.post(
-            '/' + settings.SUBPATH + 'register_by_domain/{course_pk}/'.format(course_pk=course.pk), data=registration_data
+            '/' + settings.SUBPATH + 'register_by_domain/{course_pk}/'.format(course_pk=course.pk),
+            data=registration_data,
         )
         self.assertEqual(OpenTAUser.objects.all().count(), 0)
         self.assertTrue("uk-alert-danger" in str(response.content))
@@ -45,7 +47,8 @@ class TestRegistration(TestCase):
         openta_user, _ = OpenTAUser.objects.get_or_create(user=user)
         registration_data = dict(email="user@valid.ext")
         response = self.client.post(
-            '/' + settings.SUBPATH + 'register_by_domain/{course_pk}/'.format(course_pk=course.pk), data=registration_data
+            '/' + settings.SUBPATH + 'register_by_domain/{course_pk}/'.format(course_pk=course.pk),
+            data=registration_data,
         )
         print(response.content)
         self.assertEqual(OpenTAUser.objects.all().count(), 1)

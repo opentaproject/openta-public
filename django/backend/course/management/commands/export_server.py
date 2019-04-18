@@ -13,5 +13,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         """Export full server."""
-        for phase, progress in export_server(kwargs['export_path']):
-            LOGGER.info("%s: %d %%", phase, int(progress * 100))
+        for task_result in export_server(kwargs['export_path']):
+            LOGGER.info("%s: %d %%", task_result.status, int(task_result.progress * 100))

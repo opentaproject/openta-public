@@ -14,6 +14,7 @@ from django.utils.timezone import localtime, get_current_timezone, make_aware
 from django.conf import settings
 import pytz
 from datetime import datetime
+import time
 import tablib
 import zipfile
 from pathlib import Path
@@ -22,6 +23,7 @@ import exercises.paths as paths
 import logging
 import tempfile
 from django.utils.encoding import smart_text
+from workqueue.util import TaskResult
 
 SERVER_EXERCISES_EXPORT_FILENAME = 'exercises.zip'
 SERVER_EXPORT_FILENAME = 'server.zip'
@@ -369,24 +371,24 @@ def export_server(output_path='export'):
     subpath = "server"
     full_path = os.path.join(output_path, subpath)
 
-    for progress in _export_databases(full_path):
-        yield progress
+    for status, progress in _export_databases(full_path):
+        yield TaskResult(status=status, progress=progress, result=None)
 
     exercises_zip_path = os.path.join(full_path, SERVER_EXERCISES_EXPORT_FILENAME)
     for _, progress in _zip_recursively(
         output_filepath=exercises_zip_path, input_path=paths.EXERCISES_PATH
     ):
-        yield "Exercises", progress
+        yield TaskResult(status="Compressing exercises", progress=progress, result=None)
     total_zip_path = os.path.join(output_path, SERVER_EXPORT_FILENAME)
     for _, progress in _zip_recursively(output_filepath=total_zip_path, input_path=full_path):
-        yield "Output zip", progress
+        yield TaskResult(status="Compiling output", progress=progress, result=total_zip_path)
 
 
 def export_course(course, output_path='export'):
     subpath = "server"
     full_path = os.path.join(output_path, subpath)
-    for progress in _export_databases(full_path, course=course):
-        yield progress
+    for status, progress in _export_databases(full_path, course=course):
+        yield TaskResult(status=status, progress=progress, result=None)
 
     exercises_zip_path = os.path.join(full_path, SERVER_EXERCISES_EXPORT_FILENAME)
     for _, progress in _zip_recursively(
@@ -394,10 +396,10 @@ def export_course(course, output_path='export'):
         input_path=course.get_exercises_path(),
         relative_base=paths.EXERCISES_PATH,
     ):
-        yield "Exercises", progress
+        yield TaskResult(status="Compressing exercises", progress=progress, result=None)
     total_zip_path = os.path.join(output_path, SERVER_EXPORT_FILENAME)
-    for progress in _zip_recursively(output_filepath=total_zip_path, input_path=full_path):
-        yield progress
+    for status, progress in _zip_recursively(output_filepath=total_zip_path, input_path=full_path):
+        yield TaskResult(status="Compiling output", progress=progress, result=status)
 
 
 def _export_databases(export_path, course=None):

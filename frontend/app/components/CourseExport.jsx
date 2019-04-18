@@ -19,7 +19,8 @@ const BaseCourseExport = ({onExport, coursePk, taskId, progress, done, status}) 
               <div className="uk-progress-bar" style={{ width: progress + "%" }}>
                 {progress}%
               </div>
-            </div>}
+            </div>
+          }
         </div>
         {done && <div>
             <a href={SUBPATH + "/queuetask/" + taskId + "/resultfile"}>

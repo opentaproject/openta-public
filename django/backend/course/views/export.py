@@ -57,11 +57,12 @@ def export_course_pipeline(task, course):
     dirpath = str(tempfile.mkdtemp())
     output_filename = None
     try:
-        for filename, progress in export_course(course=course, output_path=dirpath):
-            task.progress = progress * 100
-            task.status = filename
+        # for status, progress, filename in export_course(course=course, output_path=dirpath):
+        for task_result in export_course(course=course, output_path=dirpath):
+            task.progress = task_result.progress * 100
+            task.status = task_result.status
             task.save()
-            output_filename = filename
+            output_filename = task_result.result
         task.result_file = File(open(output_filename, 'rb'))
         task.done = True
         task.status = "Done"
