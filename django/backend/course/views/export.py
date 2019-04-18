@@ -121,7 +121,6 @@ def import_server_view(request):
         with open(tmp_filename, 'wb') as destination:
             for chunk in request.FILES['file'].chunks():
                 destination.write(chunk)
-
         task_id = workqueue.enqueue_task(
             "server_import", import_server_pipeline, file_path=tmp_filename
         )

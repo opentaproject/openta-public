@@ -11,7 +11,7 @@ def enqueue_task(name, func, *args, owner=None, **kwargs):
     task = QueueTask.objects.create(name=name, owner=owner)
     try:
         django_rq.enqueue(
-            func, *args, task=task, job_id=str(task.pk), timeout=DEFAULT_TIMEOUT, **kwargs
+            func, *args, task=task, job_id=str(task.pk), job_timeout=DEFAULT_TIMEOUT, **kwargs
         )
     except ResponseError as e:
         raise WorkQueueError(
