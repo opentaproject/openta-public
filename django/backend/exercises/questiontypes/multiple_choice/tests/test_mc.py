@@ -1,4 +1,3 @@
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -14,6 +13,7 @@ from exercises.models import Exercise
 from course.models import Course
 from django.utils import timezone
 from django.conf import settings
+from utils import OpenTAStaticLiveServerTestCase
 
 LOGGER.setLevel(logging.WARNING)
 
@@ -31,7 +31,7 @@ EXERCISE_CODE = """
                 """
 
 
-class MCTest(StaticLiveServerTestCase):
+class MCTest(OpenTAStaticLiveServerTestCase):
     def setUp(self):
         super().setUp()
         create_database()

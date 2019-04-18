@@ -1,4 +1,4 @@
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from utils import OpenTAStaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -16,7 +16,7 @@ from django.conf import settings
 LOGGER.setLevel(logging.WARNING)
 
 
-class CourseListTest(StaticLiveServerTestCase):
+class CourseListTest(OpenTAStaticLiveServerTestCase):
     def setUp(self):
         create_database()
         course = Course.objects.first()

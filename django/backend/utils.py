@@ -3,6 +3,7 @@ from django.core.mail import get_connection
 from django.conf import settings
 from django.template.loader import get_template
 from django.template import TemplateDoesNotExist
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from course.models import Course
 
@@ -59,3 +60,16 @@ def get_localized_template(template_name):
         logger.error(template_name + '.' + first_language + " does not exist")
         raise exception
     return template
+
+
+class OpenTAStaticLiveServerTestCase(StaticLiveServerTestCase):
+    """Override server url with subpath.
+
+    The standard test case class only gives the base URL to the server. To
+    enable testing of both normal and subpath usage this class adds /subpath
+    to live_server_url.
+
+    """
+    @property
+    def live_server_url(self):
+        return super().live_server_url + '/' + settings.SUBPATH

@@ -1,6 +1,6 @@
 """Test settings."""
 
-from backend.settings_base import *
+from backend.settings_subpath import *
 
 RUNNING_DEVSERVER = True
 

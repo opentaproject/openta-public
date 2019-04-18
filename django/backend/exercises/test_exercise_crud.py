@@ -1,4 +1,4 @@
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from utils import OpenTAStaticLiveServerTestCase
 from tempfile import TemporaryDirectory
 import os
 
@@ -9,7 +9,7 @@ from course.models import Course
 from .parsing import exercise_delete
 
 
-class ExerciseCrudTest(StaticLiveServerTestCase):
+class ExerciseCrudTest(OpenTAStaticLiveServerTestCase):
     def setUp(self):
         super().setUp()
         create_database()
