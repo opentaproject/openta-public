@@ -16,8 +16,8 @@
 
 {% if form.errors %}
 <div class="uk-alert uk-alert-danger">
-  {% if '@' in form.username.value %}
-    {% trans 'Your username is probably the part before the @ sign' %}
+  {% if not '@' in form.username.value %}
+    {% trans 'Your username is usually your email' %}
   {% else %}
     {% trans 'Login failed' %}
   {% endif %}
@@ -33,7 +33,7 @@
   {% endfor %}
 {% endif %}
 
-<form method="post" class="uk-form" action="{% url 'login' %}">
+<form method="post" class="uk-form" action="{% url  'login' course_name=course_name  %}">
 {% csrf_token %}
 <legend><i class="uk-icon uk-icon-medium uk-icon-circle-o uk-text-primary"></i><span class="uk-text-small uk-text-middle"> {{ course.course_name }} </span></legend>
 {% if course.motd %}
@@ -52,6 +52,7 @@
       <input type="submit" class="uk-button" value="{% trans "Log in" %}" />
     </div>
     <input type="hidden" name="next" value="{{subpath}}{{ course.pk }}" />
+    <input type="hidden" name="course_name" value="{{course_name}}" />
 </form>
 
 {% if course.registration_by_domain %}
@@ -70,7 +71,7 @@
 
 <div style="position: relative">
 <div data-uk-dropdown="{mode:'click', justify:'content'}">
-<button class="uk-button uk-button-mini uk-margin-small-bottom">Privacy</button>
+<button class="uk-button uk-button-mini uk-margin-small-bottom"> {% trans "Privacy" %} </button>
 <div id="privacy" class="uk-dropdown uk-text-small uk-text-left" >
   {% include 'privacy.html' %}
 </div>
@@ -80,5 +81,4 @@
 <p class="uk-text uk-text-primary uk-text-muted uk-text-small"> {{ openta_version }} </p>
 </div>
 </div>
-
 {% endblock %}

@@ -1,6 +1,7 @@
 import os
 import datetime
 import uuid
+from django.core.exceptions import ValidationError
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -9,6 +10,7 @@ from django.core.validators import EmailValidator
 import pytz
 from django.conf import settings
 import exercises.paths as paths
+from django.conf import settings
 
 
 EMAIL_VALIDATOR = EmailValidator()
@@ -17,6 +19,8 @@ EMAIL_VALIDATOR = EmailValidator()
 class Course(models.Model):
     course_key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     course_name = models.CharField(max_length=255)
+    lti_key = models.UUIDField(unique=True, default=uuid.uuid4)
+    lti_secret = models.UUIDField(unique=True, default=uuid.uuid4)
     icon = models.ImageField(default=None, null=True, blank=True, upload_to='public')
     motd = models.CharField(max_length=1024, default='', blank=True)
     course_long_name = models.CharField(max_length=255, default='')

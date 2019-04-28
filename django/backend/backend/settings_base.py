@@ -72,7 +72,10 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+            os.path.join(BASE_DIR, 'opentalti', 'templates'),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -143,7 +146,9 @@ LOGGING = {
         'stderr': {'level': 'DEBUG', 'class': 'logging.StreamHandler', 'formatter': 'middle'},
         'file': {
             'level': 'DEBUG',
-            'class': 'logging.FileHandler',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'backupCount': 4,
+            'maxBytes': 5242880,
             'filename': 'logfile',
             'formatter': 'middle',
         },
@@ -165,3 +170,13 @@ HIJACK_AUTHORIZE_STAFF = True
 
 # Default to handling queue tasks in main thread
 RQ_QUEUES = {'default': {'HOST': 'localhost', 'DB': 0, 'PORT': 6379, 'ASYNC': True}}
+
+
+TIME_ZONE = 'Europe/Copenhagen'
+INSTALLED_APPS = INSTALLED_APPS + ['opentalti']
+
+
+# Override needed settings here
+AUTHENTICATION_BACKENDS = [ 'opentalti.apps.LTIAuth','django.contrib.auth.backends.ModelBackend' ]
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+from opentalti.settings_lti import *

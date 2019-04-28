@@ -1,4 +1,5 @@
 import logging
+from selenium import webdriver
 from django.core.mail import get_connection
 from django.conf import settings
 from django.template.loader import get_template
@@ -70,6 +71,7 @@ class OpenTAStaticLiveServerTestCase(StaticLiveServerTestCase):
     to live_server_url.
 
     """
+
 
     @property
     def live_server_url(self):

@@ -12,6 +12,8 @@ def duplicate_course(course: Course):
     old_course_path = course.get_exercises_path()
     course.pk = None
     course.course_key = uuid.uuid4()
+    course.lti_secret = uuid.uuid4()
+    course.lti_key = uuid.uuid4()
     course.course_name = "{old} (copy)".format(old=course.course_name)
     course.published = False
     course.save()

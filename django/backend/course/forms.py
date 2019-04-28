@@ -1,19 +1,20 @@
 from django import forms
 from course.models import Course
+from django.utils.translation import ugettext_lazy as _
 
 
 HELP_TEXTS = {
-    'url': "The course url, including http:// or https://",
-    'registration_domains': (
+    'url': _("The course url, including http:// or https://"),
+    'registration_domains': _(
         'Comma separated list of email domains' ' that are permitted to self-register'
     ),
-    'email_host_password': (
+    'email_host_password': _(
         'Password for your email account (Please use SSO,'
         ' the password is stored in cleartext on the server)'
     ),
-    'email_host': 'Uses port 587/TLS',
-    'email_reply_to': 'Email of the course admin',
-    'languages': (
+    'email_host': _('Uses port 587/TLS'),
+    'email_reply_to': _('Email of the course admin'),
+    'languages': _(
         'Languages for translations in the course:'
         ' the first language is dominant and used in emails.'
     ),
@@ -30,8 +31,17 @@ class CourseForm(forms.ModelForm):
 
 
 class CourseFormFrontend(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(CourseFormFrontend, self).__init__(*args, **kwargs)
+        self.fields['lti_secret'].disabled = True
+        self.fields['lti_key'].disabled = True
+
+    lti_key = forms.CharField(disabled=True)
+    lti_secret = forms.CharField(disabled=True)
+
     class Meta:
         model = Course
+        # fields = '__all__'
         fields = [
             'published',
             'course_name',
@@ -45,6 +55,8 @@ class CourseFormFrontend(forms.ModelForm):
             'registration_password',
             'registration_by_password',
             'owners',
+            'lti_key',
+            'lti_secret',
         ]
         widgets = {
             'owners': forms.CheckboxSelectMultiple(),

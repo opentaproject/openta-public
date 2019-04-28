@@ -17,6 +17,7 @@
   <link rel="icon" href="{% static "icons/favicon.ico" %}"/>
   <link rel="apple-touch-icon-precomposed" href="{% static "icons/apple.png" %}" />
 
+
   <script>
     var globalInit = {
       coursePk: parseInt("{{ course.pk }}"),
@@ -38,5 +39,13 @@
 <body>
   {% hijack_notification %}
   <div id="app"></div>
+   {% if messages %}
+  {% for message in messages %}
+    <script>
+    alert( '{{ message }}' ) 
+    </script>
+  {% endfor %}
+{% endif %}
+
 </body>
 </html>

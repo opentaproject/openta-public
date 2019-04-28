@@ -1,6 +1,7 @@
 from utils import OpenTAStaticLiveServerTestCase
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from backend.selenium_utils import create_selenium
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.remote.remote_connection import LOGGER
@@ -10,6 +11,7 @@ import logging
 import datetime
 import exercises.paths as paths
 from exercises.setup_tests import create_exercise, create_database
+from backend.selenium_utils import create_selenium
 from .models import Exercise
 from course.models import Course
 from django.utils import timezone
@@ -28,7 +30,9 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
         paths.EXERCISES_PATH = self.dir.name
         for msg in Exercise.objects.sync_with_disc(course, True):
             print(msg)
-        self.selenium = webdriver.Chrome()
+        #self.selenium = webdriver.Chrome(chrome_options=set_options() )
+        #self.selenium.implicitly_wait(10)
+        self.selenium = create_selenium()
         self.selenium.implicitly_wait(0)
 
     def tearDown(self):

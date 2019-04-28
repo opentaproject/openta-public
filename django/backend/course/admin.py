@@ -72,7 +72,7 @@ class CustomUserAdmin(UserAdmin):
 
 class CourseAdmin(admin.ModelAdmin):
     form = CourseForm
-    readonly_fields = ('course_key',)
+    readonly_fields = ('course_key', 'lti_key', 'lti_secret')
 
 
 admin.site.register(Course, CourseAdmin)

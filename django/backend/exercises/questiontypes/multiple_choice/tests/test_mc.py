@@ -1,4 +1,5 @@
 from selenium import webdriver
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -8,6 +9,7 @@ import os
 import logging
 import datetime
 import exercises.paths as paths
+from backend.selenium_utils import create_selenium
 from exercises.setup_tests import create_exercise, create_database
 from exercises.models import Exercise
 from course.models import Course
@@ -41,8 +43,9 @@ class MCTest(OpenTAStaticLiveServerTestCase):
         paths.EXERCISES_PATH = self.dir.name
         for msg in Exercise.objects.sync_with_disc(course, i_am_sure=True):
             print(msg)
-        self.selenium = webdriver.Chrome()
-        self.selenium.implicitly_wait(0)
+        print("MC_TEST setUP")
+        self.selenium = create_selenium()
+        self.selenium.implicitly_wait(10)
 
     def tearDown(self):
         self.selenium.quit()

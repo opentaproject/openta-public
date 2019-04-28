@@ -138,9 +138,21 @@ return (
       <li >
         <a href={"mailto:" + course.toLowerCase() + "@openta.se"} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}><span className="uk-text-primary">Problem?</span></a>
       </li>
+<li>
+
+<a title="Change password" href={SUBPATH + "/change_password/?next=" }><i className="uk-icon uk-icon-lock uk-text-large uk-text-middle"></i></a>
+</li>
+<li>
+<a title="Change password" href={SUBPATH + "/edit_profile/?next=" }><i className="uk-icon uk-icon-user uk-text-large uk-text-middle"></i></a>
+
+</li>
+
       <li >
-      <a title="Logga ut" href={SUBPATH + "/logout/?next=" + SUBPATH + "/login"}><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
+      <a title="Logga ut" href={SUBPATH + "/logout"}><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
       </li>
+    
+
+
   </ul>
   </div>
   <div className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap" style={{height: 'auto'}}>

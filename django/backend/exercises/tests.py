@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.remote.remote_connection import LOGGER
 from tempfile import TemporaryDirectory
+from backend.selenium_utils import create_selenium
 import random
 import logging
 import exercises.paths as paths
@@ -24,8 +25,10 @@ class CourseListTest(OpenTAStaticLiveServerTestCase):
         create_exercise(course, self.dir.name, 'exercise1')
         paths.EXERCISES_PATH = self.dir.name
         Exercise.objects.add_exercise('/exercise1', course=course)
-        self.selenium = webdriver.Chrome()
-        self.selenium.implicitly_wait(0)
+        self.selenium = create_selenium()
+        self.selenium.implicitly_wait(10)
+
+
         super().setUp()
 
     def tearDown(self):

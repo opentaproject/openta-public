@@ -1,22 +1,23 @@
 """Test settings."""
 
-from backend.settings_subpath import *
+from backend.settings_base import *
 
+ALLOWED_HOSTS = ['*']
 RUNNING_DEVSERVER = True
 
 DEBUG = True
 
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    #    'django.middleware.locale.LocaleMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    #    'backend.simulate_slow.simulate_slow'
-]
+#MIDDLEWARE = MIDDLEWARE + [
+#    'django.middleware.security.SecurityMiddleware',
+#    'django.contrib.sessions.middleware.SessionMiddleware',
+#    'django.middleware.locale.LocaleMiddleware',
+#    'django.middleware.common.CommonMiddleware',
+#    'django.middleware.csrf.CsrfViewMiddleware',
+#    'django.contrib.auth.middleware.AuthenticationMiddleware',
+#    'django.contrib.messages.middleware.MessageMiddleware',
+#    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+#     'backend.simulate_slow.simulate_slow'
+#]
 
 DATABASES = {
     'default': {
@@ -38,3 +39,5 @@ warnings.filterwarnings(
     RuntimeWarning,
     r'django\.db\.models\.fields',
 )
+
+HEADLESS = True

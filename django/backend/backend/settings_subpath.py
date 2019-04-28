@@ -14,4 +14,5 @@ STATIC_URL = '/' + SUBPATH + STATIC_TAG + '/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, STATIC_TAG),)
 STATIC_ROOT = os.path.join(BASE_DIR, "deploystatic")
 
-CSRF_COOKIE_NAME = CSRF_COOKIE_NAME = 'csrftoken' + _subpath
+CSRF_COOKIE_NAME = 'csrftoken' + _subpath
+SESSION_COOKIE_NAME = 'sessionid' + _subpath
