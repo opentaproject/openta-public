@@ -40,4 +40,7 @@ warnings.filterwarnings(
     r'django\.db\.models\.fields',
 )
 
-HEADLESS = False
+try:
+    from backend.settings_headless import *
+except:
+    HEADLESS = False
