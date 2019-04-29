@@ -91,12 +91,14 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, viewer, active
   });
   console.log("COMPACT_VIEW = ", compactview )
   console.log("LTI_LOGIN = ", lti_login)
+  var compactmode =  lti_login || compactview 
+  var authormode =  ! compactmode
   var renderPending = pendingPaths.map( item => {
     return (pendingState.getIn(item.path, false) && (<span key={item.path}>{item.name}<Spinner icon="uk-icon-bar-chart" size="" className="uk-margin-small-left"/></span>))
   });
 var studentViewDOM = (author || viewer) ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open(SUBPATH + "/hijack/username/student" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
-var authorview = compactview ? 'Full Site' : 'View Only'
-var compactViewDOM = (author || viewer) ? (<button onClick={(e) => UIkit.modal.confirm(authorview, () => window.open(SUBPATH + "/view_toggle/" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">{authorview} </button>) : '';
+var authorview = compactmode ? ' Full Site' : 'View Only'
+var compactViewDOM = (author || viewer) ? (<button onClick={(e) => UIkit.modal.confirm(authorview, () => window.open(SUBPATH + "/view_toggle/" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="View site? ">{authorview} </button>) : '';
 
 var canViewXML = author || viewer || admin
 return (
@@ -126,15 +128,18 @@ return (
   <div className="uk-navbar-content">
   </div>
   }
-  <ul className="uk-navbar-nav">
+<ul className="uk-navbar-nav">
+  {  ! lti_login   && ( 
 <li>
         <div className="uk-navbar-content">
         {compactViewDOM}
       </div>
     </li>
+    )
 
+  }
 
-    { ! compactview && (
+    { authormode  && (
     <li>
       <div className="uk-navbar-content">
         {studentViewDOM}
@@ -146,7 +151,7 @@ return (
       <LanguageSelect/>
       </div>
     </li>
-    { ! compactview && (
+    { authormode && (
     <li>
       <div className="uk-navbar-content">
       <CourseSelect/>
@@ -154,7 +159,7 @@ return (
     </li>
     )
     }
-    { ! compactview && 
+    {  ! lti_login && 
      ( <li>
         <a href={"mailto:" + course.toLowerCase() + "@openta.se"} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}><span className="uk-text-primary">Problem?</span></a>
       </li>
@@ -181,7 +186,7 @@ return (
   </div>
   <div className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap" style={{height: 'auto'}}>
   { renderPending }
-  { ! compactview &&  canViewXML && <Menu/> }
+  { authormode &&  canViewXML && <Menu/> }
 </div>
   </div>
   </nav>
