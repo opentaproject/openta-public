@@ -57,27 +57,30 @@ var pendingPaths = [
   },
 ];
 
-var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => (
+
+
+var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => {
+    return(
+    
     <div className="uk-button-group">
         { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
         { showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary" title="Reset to last saved version." data-uk-tooltip onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a> }
-      <ExerciseHistory/>
+      <ExerciseHistory/> 
       <DeleteExercise/>
     </div>
-);
+)};
 
 const BaseLoginInfo = ({ username, groups, course, admin, author, viewer, activeExercise,
       exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onStatisticsClick, onSave,
-      onReset, onHome, pendingState, menuPath, motd}) => {
+      onReset, onHome, pendingState, menuPath, motd,languages,lti_login,compactview}) => {
     var savePending = exerciseState.get('savepending');
     var saveError = exerciseState.get('saveerror');
     var resetPending = exerciseState.get('resetpending');
     var modified = exerciseState.get('modified');
     var no_xml_error = exerciseState.get('xmlError') == null;
     var can_save = modified && no_xml_error;
-
     var savereset = (
-      <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(activeExercise)}/>
+      <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(activeExercise) }  />
     );
 
   var renderGroupIcons = groups.map( group => {
@@ -86,10 +89,15 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, viewer, active
                                     else
                                       return (<span key={group}/>)
   });
+  console.log("COMPACT_VIEW = ", compactview )
+  console.log("LTI_LOGIN = ", lti_login)
   var renderPending = pendingPaths.map( item => {
     return (pendingState.getIn(item.path, false) && (<span key={item.path}>{item.name}<Spinner icon="uk-icon-bar-chart" size="" className="uk-margin-small-left"/></span>))
   });
 var studentViewDOM = (author || viewer) ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open(SUBPATH + "/hijack/username/student" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
+var authorview = compactview ? 'Full Site' : 'View Only'
+var compactViewDOM = (author || viewer) ? (<button onClick={(e) => UIkit.modal.confirm(authorview, () => window.open(SUBPATH + "/view_toggle/" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">{authorview} </button>) : '';
+
 var canViewXML = author || viewer || admin
 return (
   <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
@@ -109,43 +117,59 @@ return (
     {renderGroupIcons}
     <span className="uk-text-middle">{username}</span>
     { admin && <span className="uk-text-small uk-text-middle"> (admin)</span> }
-    <span className="uk-text-middle uk-text-warning"> {motd} </span>
+    <span className="uk-text-middle uk-text-warning"> {motd} </span> 
   </span>
   </div>
   </div>
   <div className="uk-navbar-flip">
-  { author && activeExercise && ( menuPositionUnder(menuPath, ['activeExercise', 'xmlEditor']) || menuPositionUnder(menuPath, ['activeExercise', 'xmlEditorSplit']) ) &&
+  {   author && activeExercise && ( menuPositionUnder(menuPath, ['activeExercise', 'xmlEditor']) || menuPositionUnder(menuPath, ['activeExercise', 'xmlEditorSplit']) ) &&
   <div className="uk-navbar-content">
-  {savereset}
   </div>
   }
   <ul className="uk-navbar-nav">
+<li>
+        <div className="uk-navbar-content">
+        {compactViewDOM}
+      </div>
+    </li>
+
+
+    { ! compactview && (
     <li>
       <div className="uk-navbar-content">
         {studentViewDOM}
       </div>
     </li>
+    ) }
     <li>
       <div className="uk-navbar-content">
       <LanguageSelect/>
       </div>
     </li>
+    { ! compactview && (
     <li>
       <div className="uk-navbar-content">
       <CourseSelect/>
       </div>
     </li>
-      <li >
+    )
+    }
+    { ! compactview && 
+     ( <li>
         <a href={"mailto:" + course.toLowerCase() + "@openta.se"} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}><span className="uk-text-primary">Problem?</span></a>
       </li>
+    )}
+{ lti_login && (
 <li>
-
 <a title="Change password" href={SUBPATH + "/change_password/?next=" }><i className="uk-icon uk-icon-lock uk-text-large uk-text-middle"></i></a>
 </li>
+    ) }
+{ lti_login && (
 <li>
-<a title="Change password" href={SUBPATH + "/edit_profile/?next=" }><i className="uk-icon uk-icon-user uk-text-large uk-text-middle"></i></a>
+<a title="Edit profile" href={SUBPATH + "/edit_profile/?next=" }><i className="uk-icon uk-icon-user uk-text-large uk-text-middle"></i></a>
 
 </li>
+    ) }
 
       <li >
       <a title="Logga ut" href={SUBPATH + "/logout"}><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
@@ -157,7 +181,7 @@ return (
   </div>
   <div className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap" style={{height: 'auto'}}>
   { renderPending }
-  { canViewXML && <Menu/> }
+  { ! compactview &&  canViewXML && <Menu/> }
 </div>
   </div>
   </nav>
@@ -179,6 +203,8 @@ BaseLoginInfo.propTypes = {
   onHome: PropTypes.func,
   pendingState: PropTypes.object,
   menuPath: PropTypes.object,
+  compactview: PropTypes.bool,
+
 };
 
 function handleSave(exercise) {
@@ -209,11 +235,12 @@ function handleReset(exercise) {
 
 const mapStateToProps = state => {
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
-  var activeCourse = state.get('activeCourse')
+  var activeCourse = state.getIn(['activeCourse'])
   return ({
+  activeCourse: activeCourse,
   username: state.getIn(['login', 'username']),
   course: state.getIn(['courses', activeCourse, 'course_name'], ""),
-  motd: state.getIn(['course','motd'], ""),
+  motd: state.getIn(['courses',activeCourse,'motd'], ""),
   groups: state.getIn(['login', 'groups'], immutable.List([])),
   admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
   viewer: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
@@ -224,6 +251,10 @@ const mapStateToProps = state => {
   folder: state.get('folder', ""),
   pendingState: state.get('pendingState'),
   menuPath: state.get('menuPath'),
+  languages:  state.getIn(['course', 'languages'],['none']),
+  compactview: state.getIn(['login','compactview'] , true),
+  lti_login: state.getIn(['login','lti_login'] , true),
+
 });
 }
 
@@ -237,3 +268,4 @@ const mapDispatchToProps = dispatch => ({
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseLoginInfo)
+export {Tools,handleReset,handleSave}

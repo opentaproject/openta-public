@@ -23,12 +23,15 @@ class BaseApp extends React.Component {
     author: PropTypes.bool,
     view: PropTypes.bool,
     activeExercise: PropTypes.string,
-    menuPath: PropTypes.object
+    menuPath: PropTypes.object,
+    compactiview: PropTypes.bool
   };
   render() {
+    var doLoginInfo = ! this.props.compactiview
+    doLoginInfo = true
     return (
       <div className="uk-grid">
-        <div className="uk-width-1-1"><LoginInfo/></div>
+        { doLoginInfo  && <div className="uk-width-1-1"><LoginInfo/></div> }
         <div id="content" className="uk-width-1-1">
           <div id="main" className="uk-grid uk-margin-remove">
             <div className="uk-container-center uk-flex uk-flex-center uk-width-1-1">
@@ -37,7 +40,7 @@ class BaseApp extends React.Component {
                 menuPositionUnder(this.props.menuPath, ['exercises', 'activity']) ||
                 menuPositionAt(this.props.menuPath, ['exercises']) ||
                 menuPositionAt(this.props.menuPath, [])) &&
-                <div className="uk-width-medium-2-3 uk-margin-small-left"><Course/></div> }
+                <div className="uk-width-medium-4-5 uk-margin-small-left"><Course/></div> }
               { menuPositionUnder(this.props.menuPath, ['results']) && <div className="uk-width-1-1 uk-margin-small-left"><Results/></div> }
               { menuPositionUnder(this.props.menuPath, ['course', 'options']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseOptions/></div> }
               { menuPositionUnder(this.props.menuPath, ['course', 'import_exercises']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseExercisesImport/></div> }
@@ -49,10 +52,7 @@ class BaseApp extends React.Component {
               { /*(this.props.admin || this.props.author) ? <span/> : <div className="exercise-spacing"></div> */ }
               { menuPositionUnder(this.props.menuPath, ['activeExercise']) &&
               <div className="exercise-list">
-                  <ExerciseList showOnCanvas={
-                      !menuPositionUnder(this.props.menuPath, ['activeExercise', 'audit']) &&
-                      !menuPositionUnder(this.props.menuPath, ['activeExercise', 'xmlEditor'])
-                                             }/>
+                  <ExerciseList showOnCanvas={false}/>
               </div>
               }
               { menuPositionUnder(this.props.menuPath, ['activeExercise']) && (((this.props.author || this.props.admin || this.props.view) && !menuPositionUnder(this.props.menuPath, ['activeExercise', 'student'])) ? <AuthorExercise /> : <div className="exercise uk-padding-remove"><StudentExercise/></div>) }
@@ -70,7 +70,8 @@ const mapStateToProps = state => ({
   view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
   student: state.getIn(['login', 'groups'],immutable.List([])).includes('Student'),
   activeExercise: state.get('activeExercise'),
-  menuPath: state.get('menuPath')
+  menuPath: state.get('menuPath'),
+  compactiview: state.getIn(['login','compactiview'] , true)
 });
 
 export default connect(mapStateToProps)(BaseApp)

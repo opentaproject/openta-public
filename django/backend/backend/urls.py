@@ -56,6 +56,7 @@ internalurlpatterns = [
         backendviews.validate_and_show_registration,
     ),
     url(r'^(?P<course_pk>[0-9]+)$', backendviews.main),
+    url(r'^view_toggle/$', backendviews.view_toggle),
     url(r'^$', backendviews.main),
     url(r'^', include('workqueue.urls')),
     url(r'^', include('course.urls')),

@@ -153,18 +153,16 @@ def login_status(request):
     dbgroups = request.user.groups.all()
     for group in dbgroups:
         groups.append(group.name)
-    lti_login = False
-    try:
-        lti_login = request.session['lti_login']
-    except:
-        pass
-    # lti_login = True # XXXXXXXXXXXXXXXXXX
+    lti_login = request.session.get('lti_login',False)
+    compactview = request.session.get('compactview',lti_login)
+    print("LTI_LOGIN = ", lti_login)
     response = {
         'username': request.user.get_username(),
         'user_pk': request.user.pk,
         'admin': request.user.is_staff,
         'groups': groups,
         'lti_login': lti_login,
+        'compactview': compactview,
     }
     return Response(response)
 
@@ -367,6 +365,10 @@ def set_persistent_lang(course_data, request):
     request.session[translation.LANGUAGE_SESSION_KEY] = lang
     return lang
 
+def view_toggle(request, course_pk=None):
+    print("VIEW TOGGLE")
+    request.session['compactview'] = not request.session.get('compactview',False)
+    return main( request ,course_pk )
 
 @login_required
 def main(request, course_pk=None):

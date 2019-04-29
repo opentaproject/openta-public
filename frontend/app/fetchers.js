@@ -82,7 +82,9 @@ function fetchLoginStatus(coursePk) {
                 user_pk: json.user_pk,
                 groups: json.groups,
                 course: json.course,
-                course_pk: json.course_pk
+                course_pk: json.course_pk,
+                lti_login: json.lti_login,
+                compactview: json.compactview,
             }))
             .then(data => {
                 dispatch(updateLoginStatus(data));
