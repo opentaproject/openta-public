@@ -21,6 +21,7 @@ class CourseSerializer(serializers.ModelSerializer):
             'motd',
             'url',
             'use_email'
+            'use_auto_translation'
         )
 
     def get_languages(self, instance):

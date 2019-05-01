@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { Controlled as Codemirror } from 'react-codemirror2';
 import immutable from 'immutable';
 import vkbeautify from 'vkbeautify'
+import AutoTranslate from './AutoTranslate.jsx';
 import {handleSave,handleReset} from "./LoginInfo.jsx"
 import { handleXMLChange } from './AuthorExercise.jsx';
 import ExerciseHistory from './ExerciseHistory.jsx';
@@ -56,13 +57,20 @@ var tags = {
   }
 }
 
-var Tools = ({ showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset }) => (
-  <div className="uk-button-group">
-    {showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a>}
-    {showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary" title="Reset to last saved version." data-uk-tooltip onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a>}
-    <ExerciseHistory />
-    <DeleteExercise />
-  </div>
+var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset,use_auto_translation}) => (
+    <div className="uk-button-group">
+        {use_auto_translation && <AutoTranslate action={'remove'} /> }
+        {use_auto_translation && <AutoTranslate action={'changedefaultlanguage'} />  }
+        {use_auto_translation && <AutoTranslate action={'translate'} />  }
+        { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
+        { showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary" title="Reset to last saved version." data-uk-tooltip onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a> }
+      <ExerciseHistory/>
+      <DeleteExercise/>
+        {!use_auto_translation && 
+             <span className="uk-button uk-button-small uk-text uk-text-warning " title={'translations must be enabled in admin'} data-uk-tooltip >
+                TRANSLATE OFF
+                </span> }
+    </div>
 );
 
 function completeAfter(cm, pred) {
@@ -174,9 +182,10 @@ class XMLEditor extends Component {
     var modified = exerciseState.get('modified');
     var no_xml_error = exerciseState.get('xmlError') == null;
     var can_save = modified && no_xml_error;
+    var use_auto_translation = this.props.use_auto_translation
 
     var savereset = (
-      <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => this.props.onSave(activeExercise)} onreset={(event) => onReset(activeExercise)} />
+      <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => this.props.onSave(activeExercise)} onreset={(event) => onReset(activeExercise) } use_auto_translation={use_auto_translation} />
     );
 
     var options = {
@@ -227,11 +236,15 @@ const mapStateToProps = state => {
     exerciseState: activeExerciseState,
     activeXML: activeExerciseState.getIn(['activeXML']),
     editor: state.editor,
-  });
+    languages:  state.getIn(['course', 'languages'],['none']),
+    lang: state.get('lang'),
+    editor: state.editor,
+    use_auto_translation: state.getIn(['courses',activeCourse,'use_auto_translation'])
+});
 }
 
 const mapDispatchToProps = dispatch => ({
-  onXMLEditorClick: (event) => dispatch(updateActiveAdminTool('xml-editor')),
+    onXMLEditorClick: (event) => dispatch(updateActiveAdminTool('xml-editor')),
     onOptionsClick: (event) => dispatch(updateActiveAdminTool('options')),
     onStatisticsClick: (event) => dispatch(updateActiveAdminTool('statistics')),
     onSave: (exercise) => dispatch(handleSave(exercise)),

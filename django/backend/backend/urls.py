@@ -67,6 +67,7 @@ internalurlpatterns = [
     url(r'^' + settings.MEDIA_TAG + '/(?P<asset>[\w\.\-\ \/]+)$', backendviews.serve_public_media),
     url(r'^(?P<course_name>[\w\.\ -]+)/?$', backendviews.login, name='login_course_short'),
     url(r'^hijack/', include('hijack.urls')),
+    url(r'^', include('translations.urls')),
 ]
 
 urlpatterns = [url(r'^' + settings.SUBPATH, include(internalurlpatterns))] + static(

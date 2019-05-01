@@ -76,7 +76,8 @@ const mapStateToProps = state => ({
   student: state.getIn(['login', 'groups'],immutable.List([])).includes('Student'),
   activeExercise: state.get('activeExercise'),
   menuPath: state.get('menuPath'),
-  lti_login: state.getIn(['login','lti_login'] , true)
+  compactview: state.getIn(['login','compactview'] , true),
+  lti_login: state.getIn(['login','lti_login'] , true),
 });
 
 export default connect(mapStateToProps)(BaseApp)

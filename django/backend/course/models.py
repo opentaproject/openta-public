@@ -17,9 +17,32 @@ from django.core.mail import get_connection
 from django.conf import settings
 logger = logging.getLogger(__name__)
 from django.contrib import messages
+from google.cloud import translate
+from google.oauth2 import service_account
+import tempfile
+import io,json
+
 
 
 EMAIL_VALIDATOR = EmailValidator()
+
+def patch_credential_string(value):
+    return value.strip().lstrip('r').strip("'")
+
+
+#def validate_google_auth_string(value): 
+#     if not ( value.strip()  == ''   ) :
+#        try:
+#            print("VALUE = ", value )
+#            credentialstring = patch_credential_string(value)
+#            service_account_info = json.load(io.StringIO(credentialstring))
+#            credentials = service_account.Credentials.from_service_account_info( service_account_info)
+#            translate_client = translate.Client( credentials=credentials)
+#            should_be_en = translate_client.detect_language( 'This is a statement in english')['language'] 
+#            assert 'en' == should_be_en 
+#        except :
+#            raise ValidationError( _('Google Auth string does not pass validation. Set it to blank to avoid error. ') ,code='invalid' )
+    
 
 
 def send_email_object(email,host,username,password):
@@ -66,8 +89,8 @@ class Course(models.Model):
     url = models.CharField(max_length=255, blank=True, null=True, default=None)
     registration_domains = models.CharField(max_length=255, blank=True, null=True, default=None)
     registration_by_domain = models.BooleanField(default=False, blank=True)
-    languages = models.CharField(max_length=255, blank=True, null=True, default=None)
     difficulties  = models.CharField(max_length=512, blank=True, null=True, default='+:Recommended,*:Easy,**:Medium,***:Hard')
+    languages = models.CharField(max_length=255, blank=True, default='')
     email_reply_to = models.CharField(
         max_length=255, blank=True, null=True, default="", validators=[EMAIL_VALIDATOR]
     )
@@ -88,8 +111,35 @@ class Course(models.Model):
     )
     published = models.BooleanField(default=False)
     owners = models.ManyToManyField(User, limit_choices_to={'is_staff': True})
-    use_auto_translation = models.BooleanField(default=False) 
     use_email = models.BooleanField(default=False)
+    use_auto_translation = models.BooleanField( default=False )
+    google_auth_string = models.CharField(max_length=4096,blank=True,default='' ) #, validators=[validate_google_auth_string] )
+
+        
+
+    def clean(self):
+        if self.use_auto_translation  and self.google_auth_string == '':
+            raise ValidationError( {'use_auto_translation': _('Auto translation cannot be enabled with a blank Google auth string.') } ,
+                     code='invalid')
+        if self.use_auto_translation and self.languages == '' :
+            raise ValidationError( {'use_auto_translation': _('Auto translation can only be enabled if Languages is nonempty.') } ,
+                     code='invalid')
+
+        if not ( self.google_auth_string.strip()  == ''   ) :
+            try:
+                 
+                 #print("VALUE = ", value)
+                 value = self.google_auth_string;
+                 credentialstring = patch_credential_string(value)
+                 service_account_info = json.load(io.StringIO(credentialstring))
+                 credentials = service_account.Credentials.from_service_account_info( service_account_info)
+                 translate_client = translate.Client( credentials=credentials)
+                 should_be_en = translate_client.detect_language( 'This is a statement in english')['language'] 
+                 assert 'en' == should_be_en 
+            except :
+                 raise ValidationError({'google_auth_string': _('Google Auth string does not pass validation. Set it to blank to avoid error. ') } ,
+                     code='invalid' )
+
 
 
     def __str__(self):

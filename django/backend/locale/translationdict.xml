@@ -1,0 +1,615 @@
+<?xml version="1.0" ?>
+<exercise>
+	<exercisename>
+		 Translation Dictionary 
+		<alt lang="en"> Translation Dictionary </alt>
+		<alt lang="sv">Översättningsordbok</alt>
+		<alt lang="de">Übersetzung Wörterbuch</alt>
+		<alt lang="ru">Словарь перевода</alt>
+	</exercisename>
+	<text>
+		 Audited 
+		<alt lang="en">Audited</alt>
+		<alt lang="sv">Granskad</alt>
+		<alt lang="zh">审计</alt>
+		<alt lang="de">Geprüft</alt>
+		<alt lang="ru">Проверенные</alt>
+	</text>
+	<text>
+		 not graded 
+		<alt lang="en">not graded</alt>
+		<alt lang="sv">ej rättad</alt>
+		<alt lang="zh">没有评分</alt>
+		<alt lang="de">nicht benotet</alt>
+		<alt lang="ru">не оцененный</alt>
+	</text>
+	<text>
+		 STOP GUESSING! 
+		<alt lang="en"> STOP GUESSING!</alt>
+		<alt lang="sv"> SLUTA GISSA!</alt>
+		<alt lang="zh">停止下载！</alt>
+		<alt lang="de">Hört auf zu raten!</alt>
+		<alt lang="ru">Хватит гадать!</alt>
+	</text>
+	<text>
+		 CORRECT ON THE FIRST ATTEMPT! 
+		<alt lang="en">CORRECT ON THE FIRST ATTEMPT!</alt>
+		<alt lang="sv">KORREKT PÅ FÖRSTA FÖRSÖKET!</alt>
+		<alt lang="zh">正确的第一次尝试！</alt>
+		<alt lang="de">RICHTIG AUF DEN ERSTEN VERSUCH!</alt>
+		<alt lang="ru">ПРАВИЛЬНО НА ПЕРВУЮ ПОПЫТКУ!</alt>
+	</text>
+	<text>
+		 Language 
+		<alt lang="en">Language</alt>
+		<alt lang="sv">Språk</alt>
+		<alt lang="zh">语言</alt>
+		<alt lang="de">Sprache</alt>
+		<alt lang="ru">язык</alt>
+	</text>
+	<text>
+		 NUMERICAL 
+		<alt lang="en">NUMERICAL</alt>
+		<alt lang="sv">NUMERISK</alt>
+		<alt lang="zh">数值</alt>
+		<alt lang="de">NUMERISCH</alt>
+		<alt lang="ru">Численный</alt>
+	</text>
+	<text>
+		 attempts 
+		<alt lang="en">attempts</alt>
+		<alt lang="sv">försök</alt>
+		<alt lang="zh">尝试</alt>
+		<alt lang="de">Versuche</alt>
+		<alt lang="ru">попытки</alt>
+	</text>
+	<text>
+		 previous 
+		<alt lang="en">previous</alt>
+		<alt lang="sv">föregående</alt>
+		<alt lang="zh">以前</alt>
+		<alt lang="de">Bisherige</alt>
+		<alt lang="ru">предыдущий</alt>
+	</text>
+	<text>
+		 in terms of 
+		<alt lang="en">in terms of</alt>
+		<alt lang="sv">i termer av variablerna</alt>
+		<alt lang="zh">就......而言</alt>
+		<alt lang="de">bezüglich</alt>
+		<alt lang="ru">с точки зрения</alt>
+	</text>
+	<text>
+		 Exercise name 
+		<alt lang="en">Exercise name</alt>
+		<alt lang="sv">Uppgiftsnamn</alt>
+		<alt lang="zh">练习名称</alt>
+		<alt lang="de">Übungsname</alt>
+		<alt lang="ru">Название упражнения</alt>
+	</text>
+	<text>
+		 is correct. 
+		<alt lang="en"> is correct.</alt>
+		<alt lang="sv"> är korrekt.</alt>
+		<alt lang="zh">是正确的。</alt>
+		<alt lang="de">ist richtig.</alt>
+		<alt lang="ru">верно.</alt>
+	</text>
+	<text>
+		 is incorrect. 
+		<alt lang="en"> is incorrect.</alt>
+		<alt lang="sv"> är inte korrekt.</alt>
+		<alt lang="zh">是不正确的。</alt>
+		<alt lang="de">ist falsch.</alt>
+		<alt lang="ru">это неверно.</alt>
+	</text>
+	<text>
+		 Unpublished 
+		<alt lang="en">Unpublished</alt>
+		<alt lang="sv">Ej publicerad</alt>
+		<alt lang="zh">未公布</alt>
+		<alt lang="de">Nicht veröffentlicht</alt>
+		<alt lang="ru">неопубликованный</alt>
+	</text>
+	<text>
+		 Hidden for for students. 
+		<alt lang="en">Hidden for for students.</alt>
+		<alt lang="sv">Dold för studenter. </alt>
+		<alt lang="zh">为学生隐藏。</alt>
+		<alt lang="de">Versteckt für Studenten.</alt>
+		<alt lang="ru">Скрыто для студентов.</alt>
+	</text>
+	<text>
+		 Easy 
+		<alt lang="en">Easy</alt>
+		<alt lang="sv">Lätt</alt>
+		<alt lang="zh">简单</alt>
+		<alt lang="de">Einfach</alt>
+		<alt lang="ru">Легко</alt>
+	</text>
+	<text>
+		 Medium 
+		<alt lang="en">Medium</alt>
+		<alt lang="sv">Mellan</alt>
+		<alt lang="zh">介质</alt>
+		<alt lang="de">Mittel</alt>
+		<alt lang="ru">Средняя</alt>
+	</text>
+	<text>
+		 Hard 
+		<alt lang="en">Hard</alt>
+		<alt lang="sv">Svår</alt>
+		<alt lang="zh">硬</alt>
+		<alt lang="de">Schwer</alt>
+		<alt lang="ru">Жесткий</alt>
+	</text>
+	<text>
+		 after 
+		<alt lang="en">after</alt>
+		<alt lang="sv">efter</alt>
+		<alt lang="de">nach dem</alt>
+		<alt lang="ru">после</alt>
+	</text>
+	<text>
+		 are you guessing 
+		<alt lang="en">are you guessing</alt>
+		<alt lang="sv">gissar du</alt>
+		<alt lang="de">raten Sie</alt>
+		<alt lang="ru">ты догадываешься</alt>
+	</text>
+	<text>
+		 Number of attempts 
+		<alt lang="en">Number of attempts</alt>
+		<alt lang="sv">Antal försök</alt>
+		<alt lang="de">Anzahl der Versuche</alt>
+		<alt lang="ru">Количество попыток</alt>
+	</text>
+	<text>
+		 unchecked 
+		<alt lang="en">unchecked</alt>
+		<alt lang="sv">okontrollerat</alt>
+		<alt lang="de">ungeprüft</alt>
+		<alt lang="ru">непроверенный</alt>
+	</text>
+	<text>
+		 Press send to check 
+		<alt lang="sv">Tryck på Skicka för att kontrollera</alt>
+		<alt lang="en">
+			 Press 
+			<i class="uk-icon uk-icon-send uk-margin-small-left uk-margin-small-right"> </i>
+			 to send You can submit it as many times as you want. While you are typing, you will get reports on syntax errors if you keep this tab open. 
+			<p/>
+			 In addition to syntax in the usual answer field, ( 
+			<HelpCompareNumeric/>
+			 ) there are also vector operations that are written in functional form : cross product 
+			<code>cross(v1, v2)</code>
+			 , scalar product 
+			<code>dot(v1, v2)</code>
+			 and the length of a vector 
+			<code>norm(v)</code>
+			 (or 
+			<code>abs(v)</code>
+			 ). 
+		</alt>
+		<alt lang="de">Klicken Sie auf Senden, um zu überprüfen</alt>
+		<alt lang="ru">Нажмите отправить, чтобы проверить</alt>
+	</text>
+	<text>
+		 Correct 
+		<alt lang="en">Correct</alt>
+		<alt lang="sv">Korrekt</alt>
+		<alt lang="ru">Правильный</alt>
+	</text>
+	<text>
+		 Not correct 
+		<alt lang="en">Not correct</alt>
+		<alt lang="sv">Inte korrekt</alt>
+		<alt lang="ru">Неправильно</alt>
+	</text>
+	<text>
+		 is not correct. 
+		<alt lang="en">is not correct.</alt>
+		<alt lang="sv">är inte korrekt.</alt>
+		<alt lang="ru">не является правильным.</alt>
+	</text>
+	<text>
+		 0-Vektorer 
+		<alt lang="sv">0-Vektorer</alt>
+		<alt lang="en">0 Vectors</alt>
+	</text>
+	<text>
+		 Grundläggande 
+		<alt lang="sv">Grundläggande</alt>
+		<alt lang="en">Basic</alt>
+	</text>
+	<text>
+		 1-Kraftgeometri 
+		<alt lang="sv">1-Kraft geometriska</alt>
+		<alt lang="en">1-Kraft Geometric</alt>
+	</text>
+	<text>
+		 c-Advanced 
+		<alt lang="sv">c-Advanced</alt>
+		<alt lang="en">c-Advanced</alt>
+	</text>
+	<text>
+		 3b-Friktion 
+		<alt lang="sv">3b-Friktion</alt>
+		<alt lang="en">3b-Friktion</alt>
+	</text>
+	<text>
+		 4a-Balkar 
+		<alt lang="sv">4a-balkar</alt>
+		<alt lang="en">4a-balkar</alt>
+	</text>
+	<text>
+		 Intermediate 
+		<alt lang="sv">Mellanliggande</alt>
+		<alt lang="en">Intermediate</alt>
+	</text>
+	<text>
+		 Mellannivå 
+		<alt lang="sv">Mellannivå</alt>
+		<alt lang="en">Intermediate</alt>
+	</text>
+	<text>
+		 6-Kinetik 
+		<alt lang="sv">6 Kinetik</alt>
+		<alt lang="en">6 Kinetics</alt>
+	</text>
+	<text>
+		 Advanced 
+		<alt lang="sv">Avancerad</alt>
+		<alt lang="en">Advanced</alt>
+	</text>
+	<text>
+		 ReadOnlyExamples 
+		<alt lang="sv">ReadOnlyExamples</alt>
+		<alt lang="en">ReadOnlyExamples</alt>
+	</text>
+	<text>
+		 2 
+		<alt lang="sv">2</alt>
+		<alt lang="en">2</alt>
+	</text>
+	<text>
+		 4b-Flytkrafter 
+		<alt lang="sv">4b-Flytkrafter</alt>
+		<alt lang="en">4b-Flytkrafter</alt>
+	</text>
+	<text>
+		 Basic 
+		<alt lang="sv">Grundläggande</alt>
+		<alt lang="en">Basic</alt>
+	</text>
+	<text>
+		 v8-1 
+		<alt lang="sv">v8-1</alt>
+		<alt lang="en">v8-1</alt>
+	</text>
+	<text>
+		 10-Stela Kroppar 
+		<alt lang="sv">10-Stela Kroppar</alt>
+		<alt lang="en">10-Steal Bodies</alt>
+	</text>
+	<text>
+		 5-Kinematik 
+		<alt lang="sv">5-kinematik</alt>
+		<alt lang="en">5-kinematics</alt>
+	</text>
+	<text>
+		 Linjär Algebra 
+		<alt lang="sv">Linjär Algebra</alt>
+		<alt lang="en">Linear algebra</alt>
+	</text>
+	<text>
+		 7-Partikelsystem 
+		<alt lang="sv">7-Partikelsystem</alt>
+		<alt lang="en">7-particle system</alt>
+	</text>
+	<text>
+		 v8-2 
+		<alt lang="sv">v8-2</alt>
+		<alt lang="en">v8-2</alt>
+	</text>
+	<text>
+		 9-Plana Stela Kroppar Kinetik 
+		<alt lang="sv">9-Plana Stela Kroppar Kinetik</alt>
+		<alt lang="en">9-Flat Stela Body Kinetics</alt>
+	</text>
+	<text>
+		 3-Masscentrum 
+		<alt lang="sv">3-Masscentrum</alt>
+		<alt lang="en">3-Masscentrum</alt>
+	</text>
+	<text>
+		 Trash 
+		<alt lang="sv">Skräp</alt>
+		<alt lang="en">Trash</alt>
+	</text>
+	<text>
+		 macros 
+		<alt lang="sv">makron</alt>
+		<alt lang="en">macros</alt>
+	</text>
+	<text>
+		 8-Plana Stela Kroppar 
+		<alt lang="sv">8-Plana Stela Kroppar</alt>
+		<alt lang="en">8-Flat Stela Body</alt>
+	</text>
+	<text>
+		 df8c1b8e-f07f-4356-b518-339d0aacf1cb 
+		<alt lang="sv">df8c1b8e-f07f-4356-b518-339d0aacf1cb</alt>
+		<alt lang="en">df8c1b8e-f07f-4356-b518-339d0aacf1cb</alt>
+	</text>
+	<text>
+		 Quiz 
+		<alt lang="sv">Frågesport</alt>
+		<alt lang="en">Quiz</alt>
+	</text>
+	<text>
+		 2-Jämnviktslära 
+		<alt lang="sv">2-Jämnviktslära</alt>
+		<alt lang="en">2-equilibrium Mechanics</alt>
+	</text>
+	<text>
+		 11-Svängningar 
+		<alt lang="sv">11-Svängningar</alt>
+		<alt lang="en">11 Fluctuations</alt>
+	</text>
+	<text>
+		 Avancerad 
+		<alt lang="sv">Avancerad</alt>
+		<alt lang="en">Advanced</alt>
+	</text>
+	<text>
+		 b-Intermediate 
+		<alt lang="sv">b-Intermediär</alt>
+		<alt lang="en">b-Intermediate</alt>
+	</text>
+	<text>
+		 12-Lagrangian 
+		<alt lang="sv">12-Lagrange-</alt>
+		<alt lang="en">12-Lagrangian</alt>
+	</text>
+	<text>
+		 a-Basic 
+		<alt lang="sv">a-Basic</alt>
+		<alt lang="en">a-Basic</alt>
+	</text>
+	<text>
+		 Obligatory2457 
+		<alt lang="sv">Obligatory2457</alt>
+		<alt lang="en">Obligatory2457</alt>
+	</text>
+	<text>
+		 Obligatory3084 
+		<alt lang="sv">Obligatory3084</alt>
+		<alt lang="en">Obligatory3084</alt>
+	</text>
+	<text>
+		 Obligatory3731 
+		<alt lang="sv">Obligatory3731</alt>
+		<alt lang="en">Obligatory3731</alt>
+	</text>
+	<text>
+		 Obligatory4378 
+		<alt lang="sv">Obligatory4378</alt>
+		<alt lang="en">Obligatory4378</alt>
+	</text>
+	<text>
+		 Obligatory5025 
+		<alt lang="sv">Obligatory5025</alt>
+		<alt lang="en">Obligatory5025</alt>
+	</text>
+	<text>
+		 Obligatory5672 
+		<alt lang="sv">Obligatory5672</alt>
+		<alt lang="en">Obligatory5672</alt>
+	</text>
+	<text>
+		 Obligatory6319 
+		<alt lang="sv">Obligatory6319</alt>
+		<alt lang="en">Obligatory6319</alt>
+	</text>
+	<text>
+		 Obligatory 
+		<alt lang="sv">Obligatorisk</alt>
+		<alt lang="en">Obligatory</alt>
+	</text>
+	<text>
+		 Obligatory6966 
+		<alt lang="sv">Obligatory6966</alt>
+		<alt lang="en">Obligatory6966</alt>
+	</text>
+	<text>
+		 Obligatory3749 
+		<alt lang="sv">Obligatory3749</alt>
+		<alt lang="en">Obligatory3749</alt>
+	</text>
+	<text>
+		 Obligatory3750 
+		<alt lang="sv">Obligatory3750</alt>
+		<alt lang="en">Obligatory3750</alt>
+	</text>
+	<text>
+		 Obligatory4400 
+		<alt lang="sv">Obligatory4400</alt>
+		<alt lang="en">Obligatory4400</alt>
+	</text>
+	<text>
+		 Obligatory4401 
+		<alt lang="sv">Obligatory4401</alt>
+		<alt lang="en">Obligatory4401</alt>
+	</text>
+	<text>
+		 Obligatory634 
+		<alt lang="sv">Obligatory634</alt>
+		<alt lang="en">Obligatory634</alt>
+	</text>
+	<text>
+		 Obligatory635 
+		<alt lang="sv">Obligatory635</alt>
+		<alt lang="en">Obligatory635</alt>
+	</text>
+	<text>
+		 Obligatory610 
+		<alt lang="sv">Obligatory610</alt>
+		<alt lang="en">Obligatory610</alt>
+	</text>
+	<text>
+		 Obligatory611 
+		<alt lang="sv">Obligatory611</alt>
+		<alt lang="en">Obligatory611</alt>
+	</text>
+	<text>
+		 check syntax 
+		<alt lang="sv">kolla syntaxen</alt>
+		<alt lang="en">check syntax</alt>
+	</text>
+	<text>
+		 1-Geometry of force 
+		<alt lang="sv">1-geometri av kraft</alt>
+		<alt lang="en">1-Geometry of force</alt>
+	</text>
+	<text>
+		 Introductory 
+		<alt lang="sv">Inledande</alt>
+		<alt lang="en">Introductory</alt>
+	</text>
+	<text>
+		 2-Equilibrium mechanics 
+		<alt lang="sv">2-jämviktsmekanik</alt>
+		<alt lang="en">2-Equilibrium mechanics</alt>
+	</text>
+	<text>
+		 8-System of particles 
+		<alt lang="sv">8-System av partiklar</alt>
+		<alt lang="en">8-System of particles</alt>
+	</text>
+	<text>
+		 10-Kinematics of two dimensional bodies 
+		<alt lang="sv">10-Kinematik av tvådimensionella kroppar</alt>
+		<alt lang="en">10-Kinematics of two dimensional bodies</alt>
+	</text>
+	<text>
+		 3-Center of mass 
+		<alt lang="sv">3-centrum av massan</alt>
+		<alt lang="en">3-Center of mass</alt>
+	</text>
+	<text>
+		 11-Rigid bodies in three dimension 
+		<alt lang="sv">11-rigida kroppar i tre dimensioner</alt>
+		<alt lang="en">11-Rigid bodies in three dimension</alt>
+	</text>
+	<text>
+		 0-Vectors 
+		<alt lang="sv">0-vektorer</alt>
+		<alt lang="en">0-Vectors</alt>
+	</text>
+	<text>
+		 6-Kinematics of single body 
+		<alt lang="sv">6-Kinematik av enstaka kropp</alt>
+		<alt lang="en">6-Kinematics of single body</alt>
+	</text>
+	<text>
+		 12-Lagranges equations 
+		<alt lang="sv">12-Lagranges ekvationer</alt>
+		<alt lang="en">12-Lagranges equations</alt>
+	</text>
+	<text>
+		 9-Two dimensional rigid bodies 
+		<alt lang="sv">9-tvådimensionella styva kroppar</alt>
+		<alt lang="en">9-Two dimensional rigid bodies</alt>
+	</text>
+	<text>
+		 Linear Algebra 
+		<alt lang="sv">Linjär algebra</alt>
+		<alt lang="en">Linear Algebra</alt>
+	</text>
+	<text>
+		 3b-Friction 
+		<alt lang="sv">3b-Friktion</alt>
+		<alt lang="en">3b-Friction</alt>
+	</text>
+	<text>
+		 4a-Beams 
+		<alt lang="sv">4a-Balkar</alt>
+		<alt lang="en">4a-Beams</alt>
+	</text>
+	<text>
+		 Review 
+		<alt lang="sv">Recension</alt>
+		<alt lang="en">Review</alt>
+	</text>
+	<text>
+		 7-Vibrations 
+		<alt lang="sv">7-Vibrationer</alt>
+		<alt lang="en">7-Vibrations</alt>
+	</text>
+	<text>
+		 4b-Bouyancy 
+		<alt lang="sv">4b-Bouyancy</alt>
+		<alt lang="en">4b-Bouyancy</alt>
+	</text>
+	<text>
+		 5-Kinematics 
+		<alt lang="sv">5-Kinematics</alt>
+		<alt lang="en">5-Kinematics</alt>
+	</text>
+	<text>
+		 CORRECT FIRST TIME! 
+		<alt lang="sv">KORRIGT FÖRSTA TID!</alt>
+		<alt lang="en">CORRECT FIRST TIME!</alt>
+	</text>
+	<text>
+		 to submit or check your answer. 
+		<alt lang="sv">att skicka in eller kontrollera ditt svar.</alt>
+		<alt lang="en">to submit or check your answer.</alt>
+	</text>
+	<text>
+		 Choose one or serveral alternatives and then click the icon 
+		<alt lang="sv">Välj ett eller flera alternativ och klicka sedan på ikonen</alt>
+		<alt lang="en">Choose one or serveral alternatives and then click the icon</alt>
+	</text>
+	<text>
+		 6b-Vibrations 
+		<alt lang="sv">6b-Vibrationer</alt>
+		<alt lang="en">6b-Vibrations</alt>
+	</text>
+	<text>
+		 7-System of particles 
+		<alt lang="sv">7-System av partiklar</alt>
+		<alt lang="en">7-System of particles</alt>
+	</text>
+	<text>
+		 10-Rigid bodies - general 
+		<alt lang="sv">10-rigiga kroppar - generellt</alt>
+		<alt lang="en">10-Rigid bodies - general</alt>
+	</text>
+	<text>
+		 8-Kinematics of two dimensional rigid body kinematics 
+		<alt lang="sv">8-Kinematik av tvådimensionell styv kroppskinematik</alt>
+		<alt lang="en">8-Kinematics of two dimensional rigid body kinematics</alt>
+	</text>
+	<text>
+		 5-Kinetics 
+		<alt lang="sv">5-Kinetics</alt>
+		<alt lang="en">5-Kinetics</alt>
+	</text>
+	<text>
+		 9-Kinetics of two dimensional rigid bodies 
+		<alt lang="sv">9-kinetik av tvådimensionella styva kroppar</alt>
+		<alt lang="en">9-Kinetics of two dimensional rigid bodies</alt>
+	</text>
+	<text>
+		 On the first attempt. Good work! 
+		<alt lang="sv">Vid första försöket. Bra jobbat!</alt>
+		<alt lang="en">On the first attempt. Good work!</alt>
+	</text>
+	<text>
+		Bonus
+		<alt lang="sv">Bonus</alt>
+		<alt lang="en">Bonus</alt>
+	</text>
+</exercise>

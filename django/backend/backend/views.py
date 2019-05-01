@@ -263,6 +263,18 @@ def set_persistent_lang(course, request):
     return lang
 
 
+# def set_persistent_lang(course, request):
+#    course_languages = course.get_languages()
+#    if course_languages is None:
+#        lang = 'en'
+#    else:
+#        lang = request.COOKIES.get('lang', course_languages[0])
+#
+#    translation.activate(lang)  # SEE https://docs.djangoproject.com/en/2.1/topics/i18n/translation/
+#    request.session[translation.LANGUAGE_SESSION_KEY] = lang
+#    return lang
+
+
 def activate_and_reset(request, username, token):
     """User activation with a form for choosing a password.
 

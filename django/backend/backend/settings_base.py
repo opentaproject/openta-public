@@ -55,6 +55,8 @@ INSTALLED_APPS = [
     'hijack',
     'compat',
     'import_export',
+    'autotranslate',
+    'translations',
 ]
 
 MIDDLEWARE = [

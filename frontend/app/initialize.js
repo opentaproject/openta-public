@@ -39,6 +39,22 @@ if( getcookie('lang') !== undefined ){
       }
    }
 
+store.dispatch( setTimezone(globalInit.timezone) );
+store.dispatch( setOpenTAVersion(globalInit.openTAVersion) );
+store.dispatch( setActiveCourse(globalInit.coursePk) );
+store.dispatch( fetchExercises(globalInit.coursePk) );
+store.dispatch( fetchExerciseTree(globalInit.coursePk) );
+store.dispatch( fetchLoginStatus(globalInit.coursePk) );
+store.dispatch( fetchCourse(globalInit.coursePk) );
+store.dispatch( fetchCourses() );
+store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
+
+
+
+
+
+
+
 if (module.hot) {
   module.hot.accept('./reducers', () => {
     store.replaceReducer(require('./reducers').default);
