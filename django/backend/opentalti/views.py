@@ -55,40 +55,44 @@ def dprint(*args,**kwargs) :
 
 # @csrf_exempt
 @xframe_options_exempt
-def denied(r):
-    return render(r, "denied.html")
+def denied(r,msg=''):
+    return render(r, "denied.html",{'msg': msg}  )
+
+
+#@csrf_exempt
+#@xframe_options_exempt
+#def root(request, course_pk=None):
+#    #try:
+#    #    request.session['lti_login']  = not request.session['lti_login']
+#    #except:
+#    #    request.session['lti_login'] = False
+#    dprint("ROOT course_pk" , str( course_pk))
+#    #tdprint("lti_login = ", request.session['lti_login'] )
+#    if course_pk is None:
+#        course = Course.objects.order_by("-published", "-pk")[0]
+#        course_pk = course.pk
+#    return lti_main(request, course_pk)
+#    #if request.method == "POST":
+#    #    dprint("PASS TO LTI_MAIN")
+#    #    lti_main(request, course_pk)
+#    #dprint("PASS TO BAKCEND_VIEWS_MAIN")
+#    #return backendviews.main(request, course_pk)
 
 
 @csrf_exempt
 @xframe_options_exempt
-def root(request, course_pk=None):
-    #try:
-    #    request.session['lti_login']  = not request.session['lti_login']
-    #except:
-    #    request.session['lti_login'] = False
-    dprint("ROOT course_pk" )
-    #tdprint("lti_login = ", request.session['lti_login'] )
-    if course_pk is None:
-        course = Course.objects.order_by("-published", "-pk")[0]
-        course_pk = course.pk
-    if request.method == "POST":
-        dprint("PASS TO LTI_MAIN")
-        lti_main(request, course_pk)
-    dprint("PASS TO BAKCEND_VIEWS_MAIN")
-    return backendviews.main(request, course_pk)
-
-
-# @csrf_exempt
-@xframe_options_exempt
-def lti_main(request, course_pk):
+def lti_main(request, course_pk=None):
     #
     # MUST PARSE THE POST REQUEST TO EXTRACT KEYS
     # IN ORDER TO DECIDE ACTION  AND PREPARE AUTHORIZATION
     # THE RESULT OF ALL THIS IS TO MODIFY THE REQUEST
     # AND TO CALL auth
     #
+    if course_pk is None:
+        course = Course.objects.order_by("-published", "-pk")[0]
+        course_pk = course.pk
     dprint("LTI_MAIN course_pk = ", course_pk)
-    assert ( not course_pk == None )
+    #assert ( not course_pk == None )
     course = Course.objects.get(pk=course_pk)
     course_key = str(course.course_key)
     dprint("secret1 = ", course.lti_key)
@@ -115,7 +119,7 @@ def lti_main(request, course_pk):
     try:
         verify_request_common(consumers, url, request.method, headers, params)
     except LTIException as e:
-        raise LTIException("B: " + "LTI request failed. Check key and secret ")
+        return denied(request,"LTI: Key and/or secret is probaly wrong ")
     #
     #  IF USER DOES NOT EXIST CREATE AND RETURN USER
     #  IF USER DOES EXIST RETURN IT
@@ -124,14 +128,14 @@ def lti_main(request, course_pk):
         print("GET OR CREATE")
         user = LTIAuth.ltiauth(LTIAuth, request)
     except LTIException as e:
-        raise LTIException("A: REQUESTED COURSE DOES NOT EXIST")
+        return denied(request,"LTI: Course does not exist")
     dprint("NEXT LOGIN BASE")
     # NEXT SET UP SESSION DATA USING THE AUTHENTICATION IN LTIAUTU
     try:
         dprint("CALL LOGINBASE")
         loginbase(request, user, backend="opentalti.apps.LTIAuth")
     except AttributeError as e:
-        raise AttributeError("C + login failed ")
+        return denied(request,"LTI: Login failed ")
     # AFTER LOGIN HAS BEEN ACHIEVED AND SESSION SET UP
     # PASS TO MAIN
     dprint("CALL MAIN")
@@ -155,24 +159,24 @@ def lti_main(request, course_pk):
 
 
 # @csrf_exempt
-@xframe_options_exempt
-def invalid_lti_request(user_payload, request):
-    dprint("INVALID LTI REQUEST AGAIN")
-    extra = {}
-    course = Course.objects.order_by("-published", "-pk")[0]
-    course_data = CourseSerializer(course).data
-    extra = dict(course=course_data, timezone=settings.TIME_ZONE)
-    # lang = set_persistent_lang(course, request)
-    dprint("DENIED.HTML")
-    response = render(request, "info.html", context=extra)
-    # response = render(request, "maintenance.html", content=extra)
-    # if settings.CSRF_COOKIE_NAME:
+#@xframe_options_exempt
+#def invalid_lti_request(user_payload, request):
+#    dprint("INVALID LTI REQUEST AGAIN")
+#    extra = {}
+#    course = Course.objects.order_by("-published", "-pk")[0]
+#    course_data = CourseSerializer(course).data
+#    extra = dict(course=course_data, timezone=settings.TIME_ZONE)
+#    # lang = set_persistent_lang(course, request)
+#    dprint("DENIED.HTML")
+#    response = render(request, "info.html", context=extra)
+#    # response = render(request, "maintenance.html", content=extra)
+#    # if settings.CSRF_COOKIE_NAME:
     #    response.set_cookie(key='csrf_cookie_name', value=settings.CSRF_COOKIE_NAME)
-    subpath = settings.SUBPATH.strip("/")
-    # response.set_cookie(key='subpath', value=subpath)
-    # response.set_cookie(key='lang', value=lang)
-    dprint("INVALID LTI REQUEST")
-    return response
+#    subpath = settings.SUBPATH.strip("/")
+#    # response.set_cookie(key='subpath', value=subpath)
+#    # response.set_cookie(key='lang', value=lang)
+#    dprint("INVALID LTI REQUEST")
+#    return response
 
 
 # SEE https://www.edu-apps.org/code.html
