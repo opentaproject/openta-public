@@ -1,5 +1,14 @@
 """Asset file handling."""
 import os
+import zipfile
+import tarfile
+import tempfile
+from course.models import Course
+from exercises.models import Exercise, ExerciseMeta
+from django.core.exceptions import ObjectDoesNotExist
+import logging
+
+LOGGER = logging.getLogger(__file__)
 
 
 def list_assets(path, types):
@@ -13,7 +22,52 @@ def has_asset(path, asset):
     return os.path.isfile(file_path)
 
 
-def add_asset(path, asset_file, types):
+def extract_exercise_archive(path, asset_file, types, course_key):
+    extension = asset_file.name.split('.')[-1]
+    contains_exercise_xml = False
+    if 'zip' in extension:
+        try:
+            filelist = ''
+            with zipfile.ZipFile(asset_file) as myzip:
+                for member in myzip.namelist():
+                    if member in ['exercise.xml']:
+                        contains_exercise_xml = True
+                    if member not in ['exercisekey']:
+                        myzip.extract(member, path)
+                        filelist = filelist + str(member) + ', '
+        except zipfile.BadZipFile as e:
+            LOGGER.error('zip extract error: ' + asset_file.name + ' ' + str(e))
+            return {'error': 'Error extracting  zipfile : ' + asset_file.name}
+
+    elif 'gz' in extension:
+        try:
+            temp_file_path = asset_file.temporary_file_path()
+            filelist = ''
+            with tarfile.open(temp_file_path) as mytar:
+                for member in mytar.getmembers():
+                    if member in ['exercise.xml']:
+                        contains_exercise_xml = True
+                    if member not in ['exercisekey']:
+                        mytar.extract(member, path)
+                        filelist = filelist + member.name + ', '
+                    else:
+                        pass
+        except tarfile.TarError as e:
+            LOGGER.error('tar extract error: ' + asset_file.name + ' ' + str(e))
+            return {'error': 'Error extracting  tarfile : ' + asset_file.name}
+
+    if contains_exercise_xml:
+        try:
+            dbcourse = Course.objects.get(course_key=course_key)
+            Exercise.objects.add_exercise_full_path(path, dbcourse)
+        except ObjectDoesNotExist as e:
+            LOGGER.error("UNABLE TO RECREATE EXERCISE " + str(e))
+            return {'error': 'Unable to create exercise. Perhaps exercise.xml is missing'}
+
+    return {'success': 'Extracted: ' + filelist}
+
+
+def add_asset(path, asset_file, types, course_key):
     """Create asset from uploaded file.
 
     Args:
@@ -35,12 +89,16 @@ def add_asset(path, asset_file, types):
         return {'error': 'File already exists.'}
     if not os.path.isdir(path):
         os.makedirs(path, exist_ok=True)
-    try:
-        with open(file_path, 'wb') as asset:
-            for chunk in asset_file.chunks():
-                asset.write(chunk)
-    except IOError:
-        return {'error': "Couldn't write to asset file " + file_path}
+    extension = asset_file.name.split('.')[-1]
+    if extension in ('zip', 'gz'):
+        return extract_exercise_archive(path, asset_file, types, course_key)
+    else:
+        try:
+            with open(file_path, 'wb') as asset:
+                for chunk in asset_file.chunks():
+                    asset.write(chunk)
+        except IOError:
+            return {'error': "Couldn't write to asset file " + file_path}
     return {'success': 'Wrote file'}
 
 

@@ -30,6 +30,7 @@ urlpatterns = [
     url(
         r'^exercise/(?P<exercise>[\w\.-]+)/asset/(?P<asset>[\w\.\-\ \(\)]+)$', views.exercise_asset
     ),
+    url(r'^exercise/(?P<exercise>[\w\.-]+)/download_assets$', views.exercise_download_assets),
     url(
         r'^exercise/(?P<exercise>[\w\.-]+)/studentasset/(?P<asset>[\w\.\-\ \(\)]+)$',
         views.exercise_student_asset,

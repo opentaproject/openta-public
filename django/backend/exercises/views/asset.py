@@ -1,18 +1,40 @@
 from rest_framework import status
+from django.contrib import messages
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.decorators import api_view, parser_classes
 from django.contrib.auth.decorators import permission_required
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse
 from exercises.models import Exercise
 from exercises.views.file_handling import serve_file
 import backend.settings as settings
 import exercises.paths as paths
-from exercises.assets import list_assets, add_asset, delete_asset, has_asset
+from exercises.assets import list_assets, add_asset, delete_asset, has_asset, zip_exercise
 from exercises.parsing import exercise_xmltree
+import zipfile
+import tempfile
+import os
+import io
 from PIL import Image
+import datetime
 
-asset_types = ('.pdf', '.jpg', '.jpeg', '.svg', '.tiff', '.tif', '.png', '.gif')
+asset_types = (
+    '.pdf',
+    '.jpg',
+    '.jpeg',
+    '.svg',
+    '.tiff',
+    '.tif',
+    '.png',
+    '.gif',
+    '.py',
+    '.csv',
+    '.txt',
+    '.m',
+    '.tex',
+    '.gz',
+    '.zip',
+)
 
 THUMBNAIL_FILENAME = 'thumbnail.png'
 DEFAULT_THUMBNAIL_SIZE = 10
@@ -67,6 +89,27 @@ def exercise_student_asset(request, exercise, asset):
         dev_path=asset_path,
         content_type=get_content_type(asset),
     )
+
+
+@api_view(['GET'])
+def exercise_download_assets(request, exercise):
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
+    path = "{path}".format(path=dispatch_asset_path(request, dbexercise))
+    tmpfile = io.BytesIO()
+    zipf = zipfile.ZipFile(tmpfile, 'w', zipfile.ZIP_DEFLATED)
+    for root, _, files in os.walk(path):
+        for file in files:
+            if 'exercisekey' not in file:
+                fullpath = os.path.join(root, file)
+                relpath = os.path.relpath(fullpath, start=path)
+                zipf.write(fullpath, relpath)
+    zipf.close()
+    content_type = 'application/zip'
+    zipfilename = (os.path.basename(path)).strip() + '.zip'
+    dt = '{0:%Y%m%d-%H%M%S}'.format(datetime.datetime.now())
+    response = HttpResponse(tmpfile.getvalue(), content_type=content_type)
+    response['Content-Disposition'] = 'attachment; filename=' + dt + '-' + zipfilename
+    return response
 
 
 @api_view(['GET'])
@@ -127,13 +170,14 @@ def exercise_upload_asset(request, exercise):
         return Response("File larger than 10mb", status.HTTP_500_INTERNAL_SERVER_ERROR)
     try:
         dbexercise = Exercise.objects.get(exercise_key=exercise)
+        course_pk = dbexercise.course.course_key
         if (
             not request.user.has_perm('exercises.edit_exercise')
             and not dbexercise.meta.student_assets
         ):
             return Response({}, status.HTTP_403_FORBIDDEN)
         res = add_asset(
-            dispatch_asset_path(request, dbexercise), request.FILES['file'], asset_types
+            dispatch_asset_path(request, dbexercise), request.FILES['file'], asset_types, course_pk
         )
         if 'error' in res:
             return Response(res, status.HTTP_500_INTERNAL_SERVER_ERROR)

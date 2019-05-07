@@ -1,10 +1,8 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import immutable from 'immutable';
 import Spinner from './Spinner.jsx';
 import SafeImg from './SafeImg.jsx';
-import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import _ from 'lodash';
 import {
@@ -13,6 +11,10 @@ import {
     deleteAsset,
     fetchAssets
 } from '../fetchers.js';
+
+import {handleSave,handleReset} from "./LoginInfo.jsx"
+
+
 
 class BaseAssets extends Component {
     constructor() {
@@ -63,6 +65,18 @@ class BaseAssets extends Component {
             </span>
     )
 
+
+    renderDownload = () => {
+        return (
+            <span className="uk-margin-left">
+                <div>
+                <a className={"uk-button"} href={SUBPATH + "/exercise/" + this.props.activeExercise  + "/download_assets" } >
+                <i className="uk-icon-download" title="download"/> </a>
+                </div>
+            </span>
+        );
+    }
+
     renderUpload = () => {
         return (
             <span className="uk-margin-left">
@@ -96,6 +110,7 @@ class BaseAssets extends Component {
                 <div className="uk-flex uk-width-1-1 uk-flex-space-between">
                     <div><form className="uk-form"><label><input type="checkbox" value={this.state.preview} onChange={this.handlePreviewChange}/> Preview</label></form></div>
                     {this.renderUpload()}
+                    {this.renderDownload()}
                 </div>
                     {this.props.pendingUpload && this.renderProgress() }
                 <table className="uk-table uk-table-condensed">
@@ -111,7 +126,16 @@ class BaseAssets extends Component {
 const handleUpload = (event, exerciseKey) => dispatch => {
   if (event.target.value !== "") {
     var file = event.target.files[0];
-    dispatch(uploadAsset(exerciseKey, file)).catch(err => console.log(err));
+    var extension = file.name.split('.').pop()
+    if(  extension.match(/(gz|zip)/ ) ){
+        dispatch(uploadAsset(exerciseKey, file))
+            .then( () => dispatch( handleReset(exerciseKey) ))
+            .catch(err => console.log(err));
+        }
+    else {
+        dispatch(uploadAsset(exerciseKey, file))
+        .catch(err => console.log(err));
+        }
     event.target.value = "";
   }
 };

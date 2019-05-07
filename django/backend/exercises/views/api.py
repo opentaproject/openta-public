@@ -330,7 +330,6 @@ def upload_answer_image(request, exercise):
         )
         image_answer.save()
         image_answer.compress()
-
         return Response({})
     except Exception as e:
         if not dbexercise.meta.allow_pdf:
