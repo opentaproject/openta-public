@@ -51,6 +51,8 @@ def lti_main(request, course_pk=None):
     # THE RESULT OF ALL THIS IS TO MODIFY THE REQUEST
     # AND TO CALL auth
     #
+    if request.user.is_authenticated:
+        return backendviews.main(request)
     if course_pk is None:
         course = Course.objects.order_by("-published", "-pk")[0]
         course_pk = course.pk
@@ -101,6 +103,7 @@ def lti_main(request, course_pk=None):
     return backendviews.main(request)
 
 # SEE https://www.edu-apps.org/code.html
+@login_required
 @xframe_options_exempt
 def edit_profile(request):
     user = request.user
@@ -202,8 +205,8 @@ def config_xml(request, course_name=None):
     return response
 
 
-@xframe_options_exempt
 @login_required
+@xframe_options_exempt
 def change_password(request):
     logging.debug("CHANGE PASSWORD")
     try:
