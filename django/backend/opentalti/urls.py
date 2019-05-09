@@ -4,8 +4,6 @@ from . import views
 app_name = "django_lti_auth"
 
 urlpatterns = [
-    # url(r'^auth/$', views.lti_auth, name="lti_auth"),
-    #url(r"^denied/$", views.denied, name="denied"),
     url(r"^change_password/", views.change_password, name="change_password"),
     url(r"^edit_profile/", views.edit_profile, name="edit_profile"),
     url(r"^lti/$", views.lti_main),

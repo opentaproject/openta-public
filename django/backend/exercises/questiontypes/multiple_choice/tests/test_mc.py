@@ -43,7 +43,6 @@ class MCTest(OpenTAStaticLiveServerTestCase):
         paths.EXERCISES_PATH = self.dir.name
         for msg in Exercise.objects.sync_with_disc(course, i_am_sure=True):
             print(msg)
-        print("MC_TEST setUP")
         self.selenium = create_selenium()
         self.selenium.implicitly_wait(10)
 

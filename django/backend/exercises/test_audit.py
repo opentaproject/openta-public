@@ -30,8 +30,6 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
         paths.EXERCISES_PATH = self.dir.name
         for msg in Exercise.objects.sync_with_disc(course, True):
             print(msg)
-        #self.selenium = webdriver.Chrome(chrome_options=set_options() )
-        #self.selenium.implicitly_wait(10)
         self.selenium = create_selenium()
         self.selenium.implicitly_wait(0)
 

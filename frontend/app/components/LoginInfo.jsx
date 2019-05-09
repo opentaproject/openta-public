@@ -61,11 +61,10 @@ var pendingPaths = [
 
 var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset}) => {
     return(
-    
     <div className="uk-button-group">
         { showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a> }
         { showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary" title="Reset to last saved version." data-uk-tooltip onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a> }
-      <ExerciseHistory/> 
+      <ExerciseHistory/>
       <DeleteExercise/>
     </div>
 )};
@@ -89,9 +88,7 @@ const BaseLoginInfo = ({ username, groups, course, admin, author, viewer, active
                                     else
                                       return (<span key={group}/>)
   });
-  console.log("COMPACT_VIEW = ", compactview )
-  console.log("LTI_LOGIN = ", lti_login)
-  var compactmode =  lti_login || compactview 
+  var compactmode =  lti_login || compactview
   var authormode =  ! compactmode
   var renderPending = pendingPaths.map( item => {
     return (pendingState.getIn(item.path, false) && (<span key={item.path}>{item.name}<Spinner icon="uk-icon-bar-chart" size="" className="uk-margin-small-left"/></span>))
@@ -129,7 +126,7 @@ return (
   </div>
   }
 <ul className="uk-navbar-nav">
-  {  ! lti_login   && ( 
+  {  ! lti_login   && (
 <li>
         <div className="uk-navbar-content">
         {compactViewDOM}
@@ -159,7 +156,7 @@ return (
     </li>
     )
     }
-    {  ! lti_login && 
+    {  ! lti_login &&
      ( <li>
         <a href={"mailto:" + course.toLowerCase() + "@openta.se"} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}><span className="uk-text-primary">Problem?</span></a>
       </li>
@@ -179,7 +176,7 @@ return (
       <li >
       <a title="Logga ut" href={SUBPATH + "/logout"}><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
       </li>
-    
+
 
 
   </ul>

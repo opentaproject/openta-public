@@ -155,7 +155,7 @@ def login_status(request):
         groups.append(group.name)
     lti_login = request.session.get('lti_login',False)
     compactview = request.session.get('compactview',lti_login)
-    print("LTI_LOGIN = ", lti_login)
+    logging.debug("LTI_LOGIN = %s", lti_login)
     response = {
         'username': request.user.get_username(),
         'user_pk': request.user.pk,
@@ -168,7 +168,7 @@ def login_status(request):
 
 
 @ratelimit(key='ip', rate='5/30s')
-def oldlogin(request, course_name=None):
+def login(request, course_name=None):
     """Login view.
 
     Returns:
@@ -180,11 +180,8 @@ def oldlogin(request, course_name=None):
         course = Course.objects.order_by('-published', '-pk')[0]
     course_data = CourseSerializer(course).data
 
-    try:
-        if request.user.is_authenticated:
-            return main(request, course_pk=course.pk)
-    except:
-        pass
+    if request.user.is_authenticated:
+        return main(request, course_pk=course.pk)
 
     set_persistent_lang(course, request)
 
@@ -195,84 +192,7 @@ def oldlogin(request, course_name=None):
         'course': course_data,
         'openta_version': settings.VERSION if hasattr(settings, 'VERSION') else "",
         'subpath': '/' + settings.SUBPATH,
-    }
-    if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
-        return auth_views.login(request, extra_context=extra)
-    else:
-        return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
-
-
-@ratelimit(key='ip', rate='5/30s')
-def login(request, course_name=None):
-    """Login view.
-
-    Returns:
-        Login view unless rate limited in which case rate_limit.html
-    """
-    print("LOGIN  SCREEN course_name = ", course_name)
-    print("LOGIN  request", request.POST)
-    # if course_name is None:
-    #    try :
-    #         course_name = request.POST['course_name']
-    #         print("POST TRY COURSE NAME ", course_name )
-    #         course = Course.objects.get(course_name__iexact=course_name)
-    #         print("GOT COURSE NAME ", course_name )
-    #    except :
-    #        print("GOT EXCEPTION for course_name = ", course_name)
-    #        course = Course.objects.order_by('-published', '-pk')[0]
-    #        print("GET DEFAULT COURSE")
-    #        course_name = course.course_name
-    #        print("NO COURSE NAME IN POST")
-    #        pass
-    if course_name is None:
-        try:
-            course_name = request.POST['course_name']
-        except:
-            pass
-    try:
-        course = Course.objects.get(course_name__iexact=course_name)
-    except Course.DoesNotExist:
-        course = Course.objects.order_by('-published', '-pk')[0]
-    course_data = CourseSerializer(course).data
-    course_name = course.course_name
-    print("TYPE OF", request.session)
-
-    try:
-        launch_presentation = request.session['launch_presentation_return_url']
-    except:
-        if course_name is None:
-            # DO NOT REMOVE COMMENTED LINES; USEFUL, FRAGILE  AND FUNCTIONING ALTERNATIVE
-            request.session['launch_presentation_return_url'] = 'login'
-            # request.session['launch_presentation_return_url'] =  'login/' +  settings.SUBPATH
-        else:
-            # DO NOT REMOVE COMMENTED LINES; USEFUL, FRAGILE  AND FUNCTIONING ALTERNATIVE
-            request.session['launch_presentation_return_url'] = course_name + '/login'
-            # request.session['launch_presentation_return_url'] =    'login/' + course_name
-            # request.session['launch_presentation_return_url'] =  'login/' +  settings.SUBPATH  + course_name
-    print("REQUEST SESSION PRESENTATION = ", request.session['launch_presentation_return_url'] )
-
-    # try:
-    # except Course.DoesNotExist:
-    #    course = Course.objects.order_by('-published', '-pk')[0]
-    # course_data = CourseSerializer(course).data
-    print("LOGIN LAUNCH PRESENTATION = ", request.session['launch_presentation_return_url'] )
-
-    if request.user.is_authenticated:
-        print("USER WAS AUTHENTICATED SO HEAD FOR MAIN")
-        return main(request, course_pk=course.pk)
-
-    print("USER WAS NOT AUTHENTICATED SO DO SOME MORE")
-    # set_persistent_lang(course, request)
-
-    if course_data['icon'] is not None:
-        course_data['icon'] = '/' + settings.SUBPATH + course_data['icon'].lstrip('/')
-
-    print("REDIRECT TO AUTH_VIEWS coursename = ", course_name )
-    extra = {
-        'course': course_data,
-        'openta_version': settings.VERSION if hasattr(settings, 'VERSION') else "",
-        'subpath': '/' + settings.SUBPATH,
-        'course_name': course_name,
+        'course_name': course.course_name
     }
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
         return auth_views.login(request, extra_context=extra)
@@ -297,28 +217,16 @@ def activate(request, username, token):
     messages.add_message(request, messages.SUCCESS, _('Activation successful, please login.'))
     return auth_views.login(request, 'registration/login.html')
 
+def set_persistent_lang(course, request):
+    course_languages = course.get_languages()
+    if course_languages is None:
+        lang = 'en'
+    else:
+        lang = request.COOKIES.get('lang', course_languages[0])
 
-# def set_persistent_lang(course_data, request):
-#    if course_data.get('languages') is None:
-#        lang = 'en'
-#    else:
-#        lang = request.COOKIES.get('lang', course_data.get('languages')[0])
-#    translation.activate(lang)  # SEE https://docs.djangoproject.com/en/2.1/topics/i18n/translation/
-#    request.session[translation.LANGUAGE_SESSION_KEY] = lang
-#    return lang
-
-
-# def set_persistent_lang(course, request):
-#    course_languages = course.get_languages()
-#    if course_languages is None:
-#        lang = 'en'
-#    else:
-#        lang = request.COOKIES.get('lang', course_languages[0])
-#
-#    translation.activate(lang)  # SEE https://docs.djangoproject.com/en/2.1/topics/i18n/translation/
-#    request.session[translation.LANGUAGE_SESSION_KEY] = lang
-#    return lang
-
+    translation.activate(lang)  # SEE https://docs.djangoproject.com/en/2.1/topics/i18n/translation/
+    request.session[translation.LANGUAGE_SESSION_KEY] = lang
+    return lang
 
 def activate_and_reset(request, username, token):
     """User activation with a form for choosing a password.
@@ -339,36 +247,11 @@ def activate_and_reset(request, username, token):
     return ActivateAndReset.as_view()(request, user=user)
 
 
-# def set_persistent_lang(course_data, request):
-#    try:
-#        if course_data.get('languages') is None:
-#            lang = 'en'
-#        else:
-#            lang = request.COOKIES.get('lang', course_data.get('languages')[0])
-#    except:
-#        lang = 'en'
-#    translation.activate(lang)  # SEE https://docs.djangoproject.com/en/2.1/topics/i18n/translation/
-#    request.session[translation.LANGUAGE_SESSION_KEY] = lang
-#    return lang
-#
-#
 @login_required
-def set_persistent_lang(course_data, request):
-    try:
-        if course_data.get('languages') is None:
-            lang = 'en'
-        else:
-            lang = request.COOKIES.get('lang', course_data.get('languages')[0])
-    except:
-        lang = 'en'
-    translation.activate(lang)  # SEE https://docs.djangoproject.com/en/2.1/topics/i18n/translation/
-    request.session[translation.LANGUAGE_SESSION_KEY] = lang
-    return lang
-
 def view_toggle(request, course_pk=None):
-    print("VIEW TOGGLE")
+    logging.debug("VIEW TOGGLE")
     request.session['compactview'] = not request.session.get('compactview',False)
-    return main( request ,course_pk )
+    return main(request ,course_pk)
 
 @login_required
 def main(request, course_pk=None):
@@ -377,25 +260,26 @@ def main(request, course_pk=None):
     Returns:
         The frontend app in base_main.html if authorized, otherwise login screen.
     """
-    print("MAIN SCREEN course_pk = ", course_pk)
+    logging.debug("MAIN SCREEN course_pk = %s", course_pk)
     if course_pk is not None:
         course = Course.objects.get(pk=course_pk)
     else:
-        course = Course.objects.order_by('-published', '-pk')[0]
-    try:
-        if (
-            request.user.groups.filter(name='Student').exists()
-            and not course.published
-            and not request.user.username == 'student'
-        ):
-            messages.add_message(request, messages.WARNING, _("Course not published yet."))
+        if Course.objects.count() == 0:
+            messages.add_message(request, messages.WARNING,
+                                _("No courses yet"))
             return redirect(reverse('login'))
-    except:
-        pass
+        course = Course.objects.order_by('-published', '-pk')[0]
+
+    if (request.user.groups.filter(name='Student').exists()
+            and not course.published
+            and not request.user.username == 'student'):
+        messages.add_message(request, messages.WARNING,
+                             _("Course not published yet."))
+        return redirect(reverse('login'))
+
     course_data = CourseSerializer(course).data
     extra = dict(course=course_data, timezone=settings.TIME_ZONE)
-    # lang = set_persistent_lang(course, request)
-    lang = 'en'
+    lang = set_persistent_lang(course, request)
     response = render(request, "base_main.html", context=extra)
     if settings.CSRF_COOKIE_NAME:
         response.set_cookie(key='csrf_cookie_name', value=settings.CSRF_COOKIE_NAME)
@@ -413,8 +297,6 @@ class RegisterByPassword(RatelimitMixin, FormView):
     ratelimit_rate = '5/30s'
 
     def get_context_data(self, **kwargs):
-        # course_pk = kwargs.pop('course_pk')
-        # print(kwargs)
         ctx = super().get_context_data(**kwargs)
         course = Course.objects.get(pk=self.kwargs['course_pk'])
         ctx['domains'] = course.get_registration_domains()
@@ -524,23 +406,17 @@ def serve_public_media(request, asset):
     return serve_file(settings.MEDIA_URL + asset, asset.split('/')[-1])
 
 
-# @csrf_exempt
-# @xframe_options_exempt
 def logout(request):
-    print("HIT LOGOUT")
-    print("LAUNCH PRES = ", request.session.get('launch_presentation_return_url') )
+    logging.debug("HIT LOGOUT")
+    logging.debug("LAUNCH PRES = %s", request.session.get(
+        'launch_presentation_return_url'))
     next_url = "UNDEFINED"
     try:
         next_url = request.session.get('launch_presentation_return_url')
-        # del request.session['launch_presentation_return_url']
-        print("NEXT URL  = ", next_url)
+        logging.debug("NEXT URL  = %s", next_url)
+        syslogout(request)
+        return HttpResponseRedirect(next_url)
     except:
-        print("NEXT URL FAILED ", next_url)
+        logging.debug("NEXT URL FAILED %s", next_url)
         syslogout(request)
         return render(request, 'bye.html')
-    # next_url =  request.session.get('login_method','') )
-    # next_url = 'http://opentaserver.com:3000/courses/1/external_content/success/external_tool_redirect'
-    syslogout(request)
-    # next_url = '/login'
-    return HttpResponseRedirect(next_url)
-    # return render(request, 'bye.html')

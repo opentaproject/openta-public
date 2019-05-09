@@ -63,7 +63,7 @@ internalurlpatterns = [
     url(r'^', include('opentalti.urls')),
     url(r'^logout$', backendviews.logout),
     url(r'^' + settings.MEDIA_TAG + '/(?P<asset>[\w\.\-\ \/]+)$', backendviews.serve_public_media),
-    url(r'^(?P<course_name>[\w\.-]+)/?$', backendviews.login, name='login'),
+    url(r'^(?P<course_name>[\w\.-]+)/?$', backendviews.login, name='login_course_short'),
     url(r'^hijack/', include('hijack.urls')),
 ]
 

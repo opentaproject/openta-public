@@ -1,23 +1,11 @@
 """Test settings."""
 
-from backend.settings_base import *
+from backend.settings_lti import *
 
 ALLOWED_HOSTS = ['*']
 RUNNING_DEVSERVER = True
 
 DEBUG = True
-
-#MIDDLEWARE = MIDDLEWARE + [
-#    'django.middleware.security.SecurityMiddleware',
-#    'django.contrib.sessions.middleware.SessionMiddleware',
-#    'django.middleware.locale.LocaleMiddleware',
-#    'django.middleware.common.CommonMiddleware',
-#    'django.middleware.csrf.CsrfViewMiddleware',
-#    'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'django.contrib.messages.middleware.MessageMiddleware',
-#    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-#     'backend.simulate_slow.simulate_slow'
-#]
 
 DATABASES = {
     'default': {
@@ -39,8 +27,3 @@ warnings.filterwarnings(
     RuntimeWarning,
     r'django\.db\.models\.fields',
 )
-
-try:
-    from backend.settings_headless import *
-except:
-    HEADLESS = False

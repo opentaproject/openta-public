@@ -7,6 +7,7 @@ from pylti.common import LTIException
 import hashlib
 import re
 import time
+import logging
 
 
 # Register your models here.
@@ -46,27 +47,13 @@ def groups_from_roles(roles):
     groups = list(set(groups))
     return groups
 
-
 class user_stub_from_request:
     def __init__(self, request,course):
-
-        roles = request.POST.get("roles", "Student")
         for key, name in zip(lti_keys, lti_names):
             setattr(self, name, request.POST.get(key))
         self.groups = groups_from_roles(request.POST.get("roles", "Student"))
         self.courses = course.pk
         self.immutable_user_id = immutable_user_id(self)
-
-#!    def __str__(self):
-#!
-#!        return (
-#!            "TEMPUSER = "
-#!            + str(self.immutable_user_id) + ", " + str(self.lti_user_id) + ", "
-#!            + str(self.lis_person_contact_email_primary) + " ," + str(self.lti_tool_consumer_instance_guid)
-#!            + " ," + str(self.lti_context_id) + " ," + str(self.lti_roles) + " ," + str(self.lis_person_name_full)
-#!            + " ," + str(self.lis_person_name_given) + " ," + str(self.lis_person_name_family) + ", "
-#!            + str(self.courses)
-#!        )
 
 def immutable_user_id(user_stub):
     if not user_stub.lti_user_id:
@@ -82,7 +69,7 @@ def immutable_user_id(user_stub):
         hashstring = hashlib.sha1(combostring.encode("UTF-8")).hexdigest()
         return hashstring
     except Exception as e:
-        print("IMMUTABLE_USER_ID", str(e))
+        logging.debug("IMMUTABLE_USER_ID %s", str(e))
         return None
 
 
@@ -103,5 +90,5 @@ def default_username(opentauser):
             return immutable_user_id(opentauser)
 
     except Exception as e:
-        print("DEFAULT USERNAME FAILED ", str(e))
+        logging.debug("DEFAULT USERNAME FAILED %s", str(e))
         return None

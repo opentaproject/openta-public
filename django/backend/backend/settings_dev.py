@@ -4,7 +4,3 @@ from backend.settings_subpath import *
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ALLOWED_HOSTS = ['*']
-
-from opentalti.settings_lti import *
-
-# Override needed settings here

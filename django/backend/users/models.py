@@ -4,19 +4,6 @@ from django.contrib.auth.models import User
 
 from course.models import Course
 
-
-# lti_user_keys = [
-#        'lti_user_id',
-#        'lti_roles',
-#        'lti_tool_consumer_instance_guid',
-#        'lis_person_name_full',
-#        'lis_person_name_given',
-#        'lis_person_name_family',
-#        'lis_person_contact_email_primary',
-#        'lti_context_id',
-#        ]
-
-
 class OpenTAUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='opentauser')
     courses = models.ManyToManyField(Course)

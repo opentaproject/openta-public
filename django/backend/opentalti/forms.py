@@ -1,3 +1,4 @@
+import logging
 from django import forms
 from django.contrib import messages
 from django.contrib.auth.forms import PasswordResetForm, UserCreationForm
@@ -14,7 +15,7 @@ class EditProfileForm(forms.ModelForm):
 
     first_name = forms.CharField(label="First Name")
     last_name = forms.CharField(label="Last Name")
-    email = forms.EmailField(label="Email")  # ,widget=forms.HiddenInput() ) #, required=True)
+    email = forms.EmailField(label="Email")
     username = forms.CharField(label="Username")
     pk = forms.IntegerField(label="pk", widget=forms.HiddenInput())
 
@@ -25,16 +26,13 @@ class EditProfileForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        print("TO THE CLEANER with ", cleaned_data)
+        logging.debug("TO THE CLEANER with %s", cleaned_data)
         username = cleaned_data["username"]
         users = User.objects.filter(username=cleaned_data["username"])
-        print("USERS THAT MATCH = ", users)
+        logging.debug("USERS THAT MATCH = %s", users)
         for user in users:
-            print("USER = ", user.username)
+            logging.debug("USER = %s", user.username)
             if not user.pk == cleaned_data["pk"]:
-                print("REFUSE TO CHANGE ; username taken")
+                logging.debug("REFUSE TO CHANGE ; username taken")
                 raise ValidationError(username + " IS TAKEN")
-        # if OpenTAUser.objects.filter(user_alias=cleaned_data['user_alias']).exists():
-        #    raise ValidationError(
-        #          'Solution with this Name already exists for this problem')
         return cleaned_data

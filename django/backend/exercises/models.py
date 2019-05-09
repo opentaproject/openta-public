@@ -26,7 +26,6 @@ from exercises.parsing import (
     question_validate_xmltree,
 )
 from exercises.util import nested_print
-import datetime
 
 logger = logging.getLogger(__name__)
 

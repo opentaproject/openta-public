@@ -6,15 +6,10 @@ from selenium.webdriver.remote.remote_connection import LOGGER
 from django.conf import settings
 
 
-
 def create_selenium(*args, **kwargs):
-    print("CREATE SELENIUM")
     options = webdriver.ChromeOptions()
-    try:
-        assert settings.HEADLESS 
+    if hasattr(settings, 'HEADLESS') and settings.get('HEADLESS', False):
         options.add_argument('headless')
-    except:
-        pass
     options.add_argument('window-size=800x600')
     return webdriver.Chrome(chrome_options=options )
 

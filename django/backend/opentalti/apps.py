@@ -9,49 +9,13 @@ import time
 from django.contrib import messages
 import logging
 
-# Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-
-#! PLEASE LEAVE THE FOLLOWING COMMENTED SECTION  FOR POSSIBLE USE
-#!
-#!def username_from_immutable_user_id(username):
-#!   if username == None:
-#!       return None
-#!   trueusername = None
-#!   immutable_user_ids = ["immutable_user_id"]
-#!   try:
-#!       opentausers = OpenTAUser._meta.model.objects.all()
-#!       for field in immutable_user_ids:
-#!           filter = field + "__exact"
-#!           query = opentausers.filter(**{filter: username})
-#!           if query.count() > 0:
-#!               opentauser = query[0]
-#!               user = opentauser.user
-#!               trueusername = user.username
-#!   except:
-#!       return None
-#!   return trueusername
-#!
-
-#def dprint(*args,**kwargs) :
-#    logger.info( (",").join([*args] ) )
-
-def dprint(*args,**kwargs) :
-    txt = "OPENTALTI.APPS: "
-    for value in  list( args ) :
-        txt = txt + ( str(value) )
-    print(txt)
-    logger.info( txt)
-
-
-
 def create_new_user(request, username , course):
-    assert course.pk >= 0 
+    assert course.pk >= 0
     assert not ( username  == None  )
     assert not (  User.objects.filter(username=username).exists() )
     user = User.objects.create(username=username)
-    # opentauser, _ = OpenTAUser.objects.get_or_create(user=user)
     opentauser = OpenTAUser.objects.create(user=user)
     user_stub = user_stub_from_request(request,course)
     for name in lti_names:
@@ -103,8 +67,8 @@ def get_immutable_user_id(request, course):
 
 
 def get_or_create_user(request, course):
-    dprint("AUTHENTICATE VIA OPENTALTI get_or_create_user")
-    dprint("REQUEST.SESSION", request.session.get("lti_login", "NO LOGIN DEFINED"))
+    logging.debug("AUTHENTICATE VIA OPENTALTI get_or_create_user")
+    logging.debug("REQUEST.SESSION %s", request.session.get("lti_login", "NO LOGIN DEFINED"))
     try:
         assert request.session.get("lti_login", False)
     except AssertionError:
@@ -135,7 +99,7 @@ def course_from_request(request):
 
 class LTIAuth:
     def ltiauth(self, request):
-        dprint("LTIAUTH LTIAUTH CALLED")
+        logging.debug("LTIAUTH LTIAUTH CALLED")
         course = course_from_request(request) # TODO REMOVE DEPENDENCE ON REQUEST PARSE
         try:
             user = get_or_create_user(request, course)
@@ -145,14 +109,14 @@ class LTIAuth:
         return user
 
     def authenticate(self, request, username=None, password=None):
-        dprint("LTIAUTH AUTHENTICATE CALLED")
+        logging.debug("LTIAUTH AUTHENTICATE CALLED")
         #! THIS IS CALLED BY DJANGO AUTH FOR FAILED ATTEMPT IN LOGIN SCREEN
         #! AUTHENTICATION VIA OPENTALTI SHOULD NEVER GET HERE
         #! RETURNING NONE IS NECESSARY SO FAILED ORDINARY ALSO FAILS HERE
         return None
 
     def get_user(self, user_pk):
-        dprint("LTIAUTH GET_USER CALLED" + str( user_pk) )
+        logging.debug("LTIAUTH GET_USER CALLED %s", str(user_pk))
         try:
             return User.objects.get(pk=user_pk)
         except User.DoesNotExist:

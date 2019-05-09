@@ -1,5 +1,5 @@
 #!/bin/bash
-export DISPLAY=''
+#export DISPLAY=''
 if [ -z ${VIRTUAL_ENV+x} ]; then
   echo "You probably want to be in the corresponding python virtual env when running the tests.";
   else

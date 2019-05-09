@@ -327,8 +327,6 @@ def upload_answer_image(request, exercise):
             image=request.FILES['file'],
             filetype=ImageAnswer.IMAGE,
         )
-        extension = image_answer.image.path.split('.')[-1] 
-        print("EXTENSION = ", extension)
         image_answer.save()
         return Response({})
     except Exception as e:
@@ -421,7 +419,6 @@ def image_answers_get(request, exercise):
 
 @api_view(['POST'])
 def image_answer_delete(request, pk):
-    print("TRY DELETION")
     try:
         image_answer = ImageAnswer.objects.get(pk=pk)
     except ObjectDoesNotExist:
@@ -438,6 +435,5 @@ def image_answer_delete(request, pk):
                 {'deleted': 0, 'error': _('You cannot delete after the deadline has passed.')}
             )
 
-    image_answer.remove()  # REMOVE THE FILE
-    deleted, deltype = image_answer.delete() # REMOVE THE DATABASE ENTRY
+    deleted, deltype = image_answer.delete()
     return Response({'deleted': deleted})

@@ -39,13 +39,12 @@
 <body>
   {% hijack_notification %}
   <div id="app"></div>
-   {% if messages %}
-  {% for message in messages %}
+  {% if messages %}
+    {% for message in messages %}
     <script>
-    alert( '{{ message }}' ) 
+      alert('{{ message }}')
     </script>
-  {% endfor %}
-{% endif %}
-
+    {% endfor %}
+  {% endif %}
 </body>
 </html>
