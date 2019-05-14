@@ -3,6 +3,7 @@ import logging
 from io import StringIO
 from smtplib import SMTPException
 from django.utils import translation
+from django.views.decorators.clickjacking import  xframe_options_exempt
 
 from django.conf import settings
 from django.contrib import messages
@@ -247,6 +248,7 @@ def activate_and_reset(request, username, token):
     return ActivateAndReset.as_view()(request, user=user)
 
 
+@xframe_options_exempt # NECESSARY TO KEEP FROM CRASHING IN CANVAS FRAME
 @login_required
 def view_toggle(request, course_pk=None):
     logging.debug("VIEW TOGGLE")
