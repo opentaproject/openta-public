@@ -22,4 +22,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # USE_CUSTOM_SMTP_EMAIL = True
 
 # Redis information
-RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 0, 'DEFAULT_TIMEOUT': 360}}
+RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 0,
+                         'DEFAULT_TIMEOUT': 360, 'ASYNC': True}}
