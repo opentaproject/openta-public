@@ -237,6 +237,7 @@ const BaseCourse = ({
   pendingExerciseAdd,
   author,
   compactview,
+  lti_login,
 }) => {
   function flatten(arr) {
     return arr.reduce((flat, toFlat) => flat.concat(Array.isArray(toFlat) ? flatten(toFlat) : toFlat), []);
@@ -426,6 +427,7 @@ const mapStateToProps = state => ({
   student: state.getIn(["login", "groups"], immutable.List([])).includes("Student"),
   author: state.getIn(["login", "groups"], immutable.List([])).includes("Author"),
   compactview: state.getIn(["login", "compactview"], false ),
+  lti_login: state.getIn(["login", "lti_login"], false ),
 });
 
 const mapDispatchToProps = dispatch => ({

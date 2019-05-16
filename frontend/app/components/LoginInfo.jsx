@@ -206,6 +206,7 @@ BaseLoginInfo.propTypes = {
   pendingState: PropTypes.object,
   menuPath: PropTypes.object,
   compactview: PropTypes.bool,
+  lti_login: PropTypes.bool,
 
 };
 
