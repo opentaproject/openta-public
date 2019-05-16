@@ -60,6 +60,7 @@ ptyprocess==0.6.0
 pydotplus==2.0.2
 Pygments==2.3.1
 pygraphviz==1.5
+PyLTI==0.7.0
 pyparsing==2.4.0
 PyPDF2==1.26.0
 pyrsistent==0.14.11
