@@ -3,7 +3,7 @@ import logging
 from io import StringIO
 from smtplib import SMTPException
 from django.utils import translation
-from django.views.decorators.clickjacking import  xframe_options_exempt
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 from django.conf import settings
 from django.contrib import messages
@@ -154,8 +154,8 @@ def login_status(request):
     dbgroups = request.user.groups.all()
     for group in dbgroups:
         groups.append(group.name)
-    lti_login = request.session.get('lti_login',False)
-    compactview = request.session.get('compactview',lti_login)
+    lti_login = request.session.get('lti_login', False)
+    compactview = request.session.get('compactview', lti_login)
     logging.debug("LTI_LOGIN = %s", lti_login)
     response = {
         'username': request.user.get_username(),
@@ -193,7 +193,7 @@ def login(request, course_name=None):
         'course': course_data,
         'openta_version': settings.VERSION if hasattr(settings, 'VERSION') else "",
         'subpath': '/' + settings.SUBPATH,
-        'course_name': course.course_name
+        'course_name': course.course_name,
     }
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
         return auth_views.login(request, extra_context=extra)
@@ -218,6 +218,7 @@ def activate(request, username, token):
     messages.add_message(request, messages.SUCCESS, _('Activation successful, please login.'))
     return auth_views.login(request, 'registration/login.html')
 
+
 def set_persistent_lang(course, request):
     course_languages = course.get_languages()
     if course_languages is None:
@@ -228,6 +229,7 @@ def set_persistent_lang(course, request):
     translation.activate(lang)  # SEE https://docs.djangoproject.com/en/2.1/topics/i18n/translation/
     request.session[translation.LANGUAGE_SESSION_KEY] = lang
     return lang
+
 
 def activate_and_reset(request, username, token):
     """User activation with a form for choosing a password.
@@ -248,12 +250,13 @@ def activate_and_reset(request, username, token):
     return ActivateAndReset.as_view()(request, user=user)
 
 
-@xframe_options_exempt # NECESSARY TO KEEP FROM CRASHING IN CANVAS FRAME
+@xframe_options_exempt  # NECESSARY TO KEEP FROM CRASHING IN CANVAS FRAME
 @login_required
 def view_toggle(request, course_pk=None):
     logging.debug("VIEW TOGGLE")
-    request.session['compactview'] = not request.session.get('compactview',False)
-    return main(request ,course_pk)
+    request.session['compactview'] = not request.session.get('compactview', False)
+    return main(request, course_pk)
+
 
 @login_required
 def main(request, course_pk=None):
@@ -267,16 +270,16 @@ def main(request, course_pk=None):
         course = Course.objects.get(pk=course_pk)
     else:
         if Course.objects.count() == 0:
-            messages.add_message(request, messages.WARNING,
-                                _("No courses yet"))
+            messages.add_message(request, messages.WARNING, _("No courses yet"))
             return redirect(reverse('login'))
         course = Course.objects.order_by('-published', '-pk')[0]
 
-    if (request.user.groups.filter(name='Student').exists()
-            and not course.published
-            and not request.user.username == 'student'):
-        messages.add_message(request, messages.WARNING,
-                             _("Course not published yet."))
+    if (
+        request.user.groups.filter(name='Student').exists()
+        and not course.published
+        and not request.user.username == 'student'
+    ):
+        messages.add_message(request, messages.WARNING, _("Course not published yet."))
         return redirect(reverse('login'))
 
     course_data = CourseSerializer(course).data
@@ -410,8 +413,7 @@ def serve_public_media(request, asset):
 
 def logout(request):
     logging.debug("HIT LOGOUT")
-    logging.debug("LAUNCH PRES = %s", request.session.get(
-        'launch_presentation_return_url'))
+    logging.debug("LAUNCH PRES = %s", request.session.get('launch_presentation_return_url'))
     next_url = "UNDEFINED"
     try:
         next_url = request.session.get('launch_presentation_return_url')

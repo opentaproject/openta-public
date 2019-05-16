@@ -11,5 +11,4 @@ def create_selenium(*args, **kwargs):
     if hasattr(settings, 'HEADLESS') and settings.get('HEADLESS', False):
         options.add_argument('headless')
     options.add_argument('window-size=800x600')
-    return webdriver.Chrome(chrome_options=options )
-
+    return webdriver.Chrome(chrome_options=options)

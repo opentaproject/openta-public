@@ -38,9 +38,11 @@ import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
+
 @xframe_options_exempt
-def denied(r,msg=''):
-    return render(r, "denied.html",{'msg': msg}  )
+def denied(r, msg=''):
+    return render(r, "denied.html", {'msg': msg})
+
 
 @csrf_exempt
 @xframe_options_exempt
@@ -62,8 +64,9 @@ def lti_main(request, course_pk=None):
     logging.debug("secret2 = %s", course.lti_secret)
     params = {key: request.POST[key] for key in request.POST}
     try:
-        logging.debug("PARAMS launch_presentation_return_url = %s",
-                      params["launch_presentation_return_url"])
+        logging.debug(
+            "PARAMS launch_presentation_return_url = %s", params["launch_presentation_return_url"]
+        )
         request.session["lti_login"] = True
         request.session["launch_presentation_return_url"] = params["launch_presentation_return_url"]
     except:
@@ -81,7 +84,7 @@ def lti_main(request, course_pk=None):
     try:
         verify_request_common(consumers, url, request.method, headers, params)
     except LTIException:
-        return denied(request,"LTI: Key and/or secret is probaly wrong ")
+        return denied(request, "LTI: Key and/or secret is probaly wrong ")
     #
     #  IF USER DOES NOT EXIST CREATE AND RETURN USER
     #  IF USER DOES EXIST RETURN IT
@@ -89,18 +92,19 @@ def lti_main(request, course_pk=None):
         logging.debug("GET OR CREATE")
         user = LTIAuth.ltiauth(LTIAuth, request)
     except LTIException as e:
-        return denied(request,"LTI: Course does not exist")
+        return denied(request, "LTI: Course does not exist")
     logging.debug("NEXT LOGIN BASE")
     # NEXT SET UP SESSION DATA USING THE AUTHENTICATION IN LTIAUTU
     try:
         logging.debug("CALL LOGINBASE")
         loginbase(request, user, backend="opentalti.apps.LTIAuth")
     except AttributeError as e:
-        return denied(request,"LTI: Login failed ")
+        return denied(request, "LTI: Login failed ")
     # AFTER LOGIN HAS BEEN ACHIEVED AND SESSION SET UP
     # PASS TO MAIN
     logging.debug("CALL MAIN")
     return backendviews.main(request)
+
 
 # SEE https://www.edu-apps.org/code.html
 @login_required

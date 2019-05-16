@@ -47,13 +47,15 @@ def groups_from_roles(roles):
     groups = list(set(groups))
     return groups
 
+
 class user_stub_from_request:
-    def __init__(self, request,course):
+    def __init__(self, request, course):
         for key, name in zip(lti_keys, lti_names):
             setattr(self, name, request.POST.get(key))
         self.groups = groups_from_roles(request.POST.get("roles", "Student"))
         self.courses = course.pk
         self.immutable_user_id = immutable_user_id(self)
+
 
 def immutable_user_id(user_stub):
     if not user_stub.lti_user_id:

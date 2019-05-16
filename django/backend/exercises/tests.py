@@ -28,7 +28,6 @@ class CourseListTest(OpenTAStaticLiveServerTestCase):
         self.selenium = create_selenium()
         self.selenium.implicitly_wait(10)
 
-
         super().setUp()
 
     def tearDown(self):

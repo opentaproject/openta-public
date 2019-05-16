@@ -11,13 +11,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def create_new_user(request, username , course):
+
+def create_new_user(request, username, course):
     assert course.pk >= 0
-    assert not ( username  == None  )
-    assert not (  User.objects.filter(username=username).exists() )
+    assert not (username == None)
+    assert not (User.objects.filter(username=username).exists())
     user = User.objects.create(username=username)
     opentauser = OpenTAUser.objects.create(user=user)
-    user_stub = user_stub_from_request(request,course)
+    user_stub = user_stub_from_request(request, course)
     for name in lti_names:
         setattr(opentauser, name, getattr(user_stub, name))
     opentauser.lti_roles = user_stub.lti_roles
@@ -35,7 +36,7 @@ def create_new_user(request, username , course):
         course = Course.objects.order_by("-published", "-pk")[0]
     opentauser.courses.add(course)
     user.is_active = True
-    user.username =  default_username(user_stub)
+    user.username = default_username(user_stub)
     groups = user_stub.groups
     for groupname in groups:
         groupname = groupname.strip()
@@ -57,13 +58,13 @@ def get_user_username(request, course):
         return opentauser.user.username
     except:
         return None
-    # PLEASE LEAVE THIS COMMENT username = username_from_immutable_user_id(immutable_user_id) 
+    # PLEASE LEAVE THIS COMMENT username = username_from_immutable_user_id(immutable_user_id)
 
 
 def get_immutable_user_id(request, course):
-    #scratchuser = user_stub_from_request(request,course)
+    # scratchuser = user_stub_from_request(request,course)
     # testuser = LTIAuth.ltiauth( LTIAuth,  request)
-    return immutable_user_id( user_stub_from_request(request,course) )
+    return immutable_user_id(user_stub_from_request(request, course))
 
 
 def get_or_create_user(request, course):
@@ -86,6 +87,7 @@ def get_or_create_user(request, course):
 
     return user
 
+
 def course_from_request(request):
     # TODO THIS SHOULD NOT BE NECESSARY
     # TODO COURSE SHOULD BE AVAILABLE WHERE NEEDED
@@ -100,7 +102,7 @@ def course_from_request(request):
 class LTIAuth:
     def ltiauth(self, request):
         logging.debug("LTIAUTH LTIAUTH CALLED")
-        course = course_from_request(request) # TODO REMOVE DEPENDENCE ON REQUEST PARSE
+        course = course_from_request(request)  # TODO REMOVE DEPENDENCE ON REQUEST PARSE
         try:
             user = get_or_create_user(request, course)
         except:

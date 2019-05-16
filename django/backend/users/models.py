@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 from course.models import Course
 
+
 class OpenTAUser(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='opentauser')
     courses = models.ManyToManyField(Course)
