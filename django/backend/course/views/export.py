@@ -24,8 +24,7 @@ def export_course_exercises_pipeline(task, course):
     task.save()
     dirpath = str(tempfile.mkdtemp())
     output_filename = None
-    try:
-        for filename, progress in export_course_exercises(course=course, output_path=dirpath):
+    for filename, progress in export_course_exercises(course=course, output_path=dirpath):
             task.progress = progress * 100
             task.status = filename
             task.save()
@@ -50,6 +49,7 @@ def export_course_exercises_pipeline(task, course):
 @permission_required('exercises.edit_exercises')
 @api_view(['GET'])
 def export_course_exercises_async(request, course_pk):
+    print("EXPORT COURSE EXERCISES ASYNC")
     dbcourse = Course.objects.get(pk=course_pk)
     task_id = workqueue.enqueue_task(
         "course_exercises_export", export_course_exercises_pipeline, course=dbcourse
