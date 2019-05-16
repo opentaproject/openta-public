@@ -166,4 +166,5 @@ HIJACK_ALLOW_GET_REQUESTS = True
 HIJACK_AUTHORIZE_STAFF = True
 
 # Default to handling queue tasks in main thread
-RQ_QUEUES = {'default': {'HOST': 'localhost', 'DB': 0, 'PORT': 6379, 'ASYNC': False}}
+RQ_QUEUES = {'default': {'HOST': 'localhost', 'DB': 0, 'PORT': 6379, 'ASYNC': False,
+                         'DEFAULT_TIMEOUT': 20 * 60}}
