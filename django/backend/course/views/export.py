@@ -26,16 +26,22 @@ def export_course_exercises_pipeline(task, course):
     output_filename = None
     try:
         for filename, progress in export_course_exercises(course=course, output_path=dirpath):
-            task.progress = progress * 100
-            task.status = filename
+                task.progress = progress * 100
+                task.status = filename
+                task.save()
+                output_filename = filename
+        if output_filename is None:
+            task.result_file = None
+            task.done = False
+            task.status = "No exercises to export"
+            task.progress = 100
             task.save()
-            output_filename = filename
-
-        task.result_file = File(open(output_filename, 'rb'))
-        task.done = True
-        task.status = "Done"
-        task.progress = 100
-        task.save()
+        else:
+            task.result_file = File(open(output_filename, 'rb'))
+            task.done = True
+            task.status = "Done"
+            task.progress = 100
+            task.save()
     except Exception as e:
         task.status = str(e)
         task.save()
