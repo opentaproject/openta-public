@@ -321,6 +321,7 @@ def upload_answer_image(request, exercise):
     try:
         trial_image = Image.open(request.FILES['file'])
         trial_image.verify()
+
         image_answer = ImageAnswer(
             user=request.user,
             exercise=dbexercise,
@@ -328,6 +329,8 @@ def upload_answer_image(request, exercise):
             filetype=ImageAnswer.IMAGE,
         )
         image_answer.save()
+        image_answer.compress()
+
         return Response({})
     except Exception as e:
         if not dbexercise.meta.allow_pdf:
@@ -435,5 +438,6 @@ def image_answer_delete(request, pk):
                 {'deleted': 0, 'error': _('You cannot delete after the deadline has passed.')}
             )
 
+    image_answer.remove_file()
     deleted, deltype = image_answer.delete()
     return Response({'deleted': deleted})

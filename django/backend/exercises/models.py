@@ -1,7 +1,9 @@
 import json as JSON
 import logging
+import backend.settings as settings
 import os
 import uuid
+from PIL import Image, ImageDraw, ImageFont
 from functools import reduce
 
 from django.contrib.auth.models import User
@@ -11,6 +13,7 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
+from image_utils import compress_pil_image_timestamp
 
 import exercises.paths as paths
 from course.models import Course
@@ -26,6 +29,7 @@ from exercises.parsing import (
     question_validate_xmltree,
 )
 from exercises.util import nested_print
+import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -466,6 +470,12 @@ class ImageAnswer(models.Model):
             return self.user.username + " image for " + self.exercise.name
         except AttributeError:
             return "__Orphan__"
+
+    def compress(self):
+        compress_pil_image_timestamp(self.image.path)
+
+    def remove_file(self):
+        os.remove(self.image.path)
 
 
 class ExerciseMeta(models.Model):
