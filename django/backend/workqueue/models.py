@@ -18,12 +18,12 @@ def result_file_name(instance, filename):
 
 
 class QueueTask(models.Model):
-    owner = models.ForeignKey(
-        User, default=None, null=True, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255)
     progress = models.PositiveIntegerField(default=0)
     done = models.BooleanField(default=False)
     status = models.CharField(max_length=255, default="Created")
-    result_file = models.FileField(default=None, blank=True, null=True, upload_to=result_file_name,
-                                   max_length=512)
+    result_file = models.FileField(
+        default=None, blank=True, null=True, upload_to=result_file_name, max_length=512
+    )

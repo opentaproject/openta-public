@@ -8,9 +8,7 @@ from collections import namedtuple
 def enqueue_task(name, func, *args, owner=None, **kwargs):
     task = QueueTask.objects.create(name=name, owner=owner)
     try:
-        django_rq.enqueue(
-            func, *args, task=task, job_id=str(task.pk), **kwargs
-        )
+        django_rq.enqueue(func, *args, task=task, job_id=str(task.pk), **kwargs)
     except ResponseError as e:
         raise WorkQueueError(
             'Could not connect to Redis server. (Please check that the authentication '
