@@ -39,6 +39,7 @@
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
     "universal-cookie": "^2.1.2",
+    "vkbeautify": "^0.99.3",
     "whatwg-fetch": "^2.0.0",
     "xml2js": "^0.4.17"
   },

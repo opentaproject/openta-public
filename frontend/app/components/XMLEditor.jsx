@@ -3,7 +3,15 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Controlled as Codemirror } from 'react-codemirror2';
 import immutable from 'immutable';
+import vkbeautify from 'vkbeautify'
+import {handleSave,handleReset} from "./LoginInfo.jsx"
+import { handleXMLChange } from './AuthorExercise.jsx';
+import ExerciseHistory from './ExerciseHistory.jsx';
+import DeleteExercise from './DeleteExercise.jsx';
 
+
+
+require('codemirror/addon/display/autorefresh');
 require('codemirror/addon/fold/foldcode');
 require('codemirror/addon/fold/foldgutter');
 require('codemirror/addon/fold/xml-fold');
@@ -13,22 +21,6 @@ require('codemirror/mode/xml/xml');
 require('codemirror/keymap/vim.js');
 
 var CodeMirror = require('codemirror');
-import {
-  updateQuestionResponse,
-  updateExerciseXML,
-  updateExerciseActiveXML,
-  updateExerciseJSON,
-  updatePendingStateIn,
-  setExerciseModifiedState,
-  setExerciseXMLError,
-} from '../actions.js';
-
-// Make this presentational, pass state via props
-var dummy = {
-        attrs: {
-        },
-        children: []
-      };
 var tags = {
   "!top": ['exercise'],
   exercise: {
@@ -63,6 +55,15 @@ var tags = {
     }
   }
 }
+
+var Tools = ({ showsave, onsave, savepending, savesuccess, saveerror, showreset, resetpending, onreset }) => (
+  <div className="uk-button-group">
+    {showsave && <a className={"uk-button uk-button-small " + (saveerror ? "uk-button-danger" : "uk-button-success")} onClick={onsave}>Save {savepending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-floppy-o"></i>)} </a>}
+    {showreset && savepending !== true && <a className="uk-button uk-button-small uk-button-primary" title="Reset to last saved version." data-uk-tooltip onClick={onreset}> {resetpending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-undo"></i>)}</a>}
+    <ExerciseHistory />
+    <DeleteExercise />
+  </div>
+);
 
 function completeAfter(cm, pred) {
   var cur = cm.getCursor();
@@ -99,24 +100,97 @@ function settheme2(cm){
 class XMLEditor extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      editor: this,
+      readOnly: false,
+      theme : 'paraiso-light',
+      mode : 'default',
+      keyMap: 'default',
+    }
   }
 
   static propTypes = {
     xmlCode: PropTypes.string,
     onChange: PropTypes.func,
     theme: PropTypes.string,
+    keyMap: PropTypes.string,
+    activeXML: PropTypes.string,
+    editor: PropTypes.object,
   };
 
+  keyMap_toggle = () => {
+    var currentkeyMap = this.state.keyMap
+    if (currentkeyMap == 'default') {
+      this.setState({ keyMap: 'vim' })
+    }
+    else if (currentkeyMap == 'vim') {
+      this.setState({ keyMap: 'default' })
+    }
+    else {
+      this.setState({
+        keyMap: 'default'
+      })
+    }
+  }
+
+  theme_toggle = () => {
+    var current_theme = this.state.theme
+    if (current_theme == 'paraiso-light') {
+      this.setState({
+        theme: 'rubyblue'
+      })
+    }
+    else if (current_theme == 'rubyblue') {
+      this.setState({
+        theme: 'paraiso-light'
+      })
+    }
+    else {
+      this.setState({
+        theme: 'paraiso-light'
+      })
+    }
+  }
+
+  prettify = () => {
+    var editor = $('.CodeMirror')[0].CodeMirror
+    var xml = vkbeautify.xmlmin(editor.getValue(), true) // true = preserve comments
+    xml = xml.replace(/[\s\r\n]+/gm, ' ')
+    xml = vkbeautify.xml(xml)
+    xml = xml.replace(/^\s*[\r\n]/gm, '')
+    editor.setValue(xml)
+  }
+
   render(){
+    var can_save = true
     var xmlCode = this.props.xmlCode;
     var onChange = this.props.onChange;
+    var onReset = this.props.onReset;
+    var exerciseState = this.props.exerciseState;
+    var activeExercise = this.props.activeExercise;
+    var savePending = exerciseState.get('savepending');
+    var saveError = exerciseState.get('saveerror');
+    var resetPending = exerciseState.get('resetpending');
+    var modified = exerciseState.get('modified');
+    var no_xml_error = exerciseState.get('xmlError') == null;
+    var can_save = modified && no_xml_error;
+
+    var savereset = (
+      <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => this.props.onSave(activeExercise)} onreset={(event) => onReset(activeExercise)} />
+    );
+
     var options = {
       mode: 'xml',
+      theme: this.state.theme,
+      keyMap: this.state.keyMap,
+      readOnly: false,
       lineWrapping: true,
       lineNumbers: true,
       foldGutter: true,
       gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
       hintOptions: {schemaInfo: tags},
+      minFoldSize: 0,
+      autoRefresh: true,
       extraKeys: {
         "'<'": completeAfter,
         "' '": completeIfInTag,
@@ -125,15 +199,46 @@ class XMLEditor extends Component {
         "Ctrl-5": settheme1,
         "Ctrl-6": settheme2,
         "Ctrl-7": onChange,
-      },
+        },
     };
-    return(
-      <div className="uk-panel uk-panel-box uk-margin-small-top uk-margin-small-right" style={{height:"80vh"}}>
-        <Codemirror value={xmlCode} options={options} onBeforeChange={onChange}/>
+    return (
+      <div className="uk-panel uk-panel-box uk-margin-small-top uk-margin-small-right" style={{ height: "80vh" }}>
+        <a className={"uk-button uk-button-small  "} onClick={this.theme_toggle}>Switch theme {options.theme}</a>
+        <a className={"uk-button uk-button-small "} onClick={this.keyMap_toggle}>Switch keymap {options.keyMap}</a>
+        <a className={"uk-button uk-button-small  "} onClick={this.prettify}> Prettify </a>
+        {savereset}
+        <Codemirror value={xmlCode} options={options} onBeforeChange={this.props.onChange} editorDidMount={this.editorDidMount} editorDidConfigure={this.editorDidConfigure}
+          editorWillUnmount={this.editorWillUnmount} />
       </div>
     )
   }
 
+
 }
 
-export default XMLEditor;
+const mapStateToProps = state => {
+  var activeExerciseState = state.getIn(['exerciseState', state.get('activeExercise')], immutable.Map({}));
+  var activeCourse = state.getIn(['activeCourse'])
+  return ({
+    exerciseKey: state.get('activeExercise'),
+    activeCourse: activeCourse,
+    course: state.getIn(['courses', activeCourse, 'course_name'], ""),
+    activeExercise: state.get('activeExercise'),
+    exerciseState: activeExerciseState,
+    activeXML: activeExerciseState.getIn(['activeXML']),
+    editor: state.editor,
+  });
+}
+
+const mapDispatchToProps = dispatch => ({
+  onXMLEditorClick: (event) => dispatch(updateActiveAdminTool('xml-editor')),
+    onOptionsClick: (event) => dispatch(updateActiveAdminTool('options')),
+    onStatisticsClick: (event) => dispatch(updateActiveAdminTool('statistics')),
+    onSave: (exercise) => dispatch(handleSave(exercise)),
+    onReset: (exercise) => dispatch(handleReset(exercise)),
+    onHome: () => dispatch(navigateMenuArray([])),
+    onXMLChange: (xml, exercise, flagModified=true) => dispatch(handleXMLChange(xml, exercise, flagModified)) ,
+
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(XMLEditor)
