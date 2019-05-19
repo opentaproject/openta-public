@@ -111,7 +111,7 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     return result
 
 
-def linear_algebra_json_hook(safe_question, full_question, question_id, user_id):
+def linear_algebra_json_hook(safe_question, full_question, question_id, user_id, *args):
     correct_answer = full_question.get('expression').get('$', 'NO TEXT IN EXPRESSION').split(';')[0]
     caretless = re.sub(r"\^", ' ', correct_answer)
     caretless = re.sub(r"[A-Za-z0-9]+\(", '(', caretless)

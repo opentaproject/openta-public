@@ -148,7 +148,7 @@ def question_check_numeric(question_json, question_xmltree, answer_data, global_
     return result
 
 
-def numeric_json_hook(safe_question, full_question, question_id, user_id):
+def numeric_json_hook(safe_question, full_question, question_id, user_id, *args):
     # print("NUMERIC_INIT.PY: question", json.dumps( full_question,  sort_keys=True, indent=4))
     question_key = full_question.get('@attr').get('key', 0)
     # print("NUMERIC_INIT.PY question_key =  ", question_key )

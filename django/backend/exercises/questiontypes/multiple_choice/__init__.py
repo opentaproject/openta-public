@@ -80,7 +80,7 @@ def question_check_multiple_choice(question_json, question_xmltree, answer_data,
     return results
 
 
-def mutiple_choice_json_hook(safe_question, full_question, question_id, user_id):
+def mutiple_choice_json_hook(safe_question, full_question, question_id, user_id, *args):
     safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)
     return safe_question
 

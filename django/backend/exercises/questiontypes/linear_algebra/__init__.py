@@ -133,7 +133,7 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     return result
 
 
-def linear_algebra_json_hook(safe_question, full_question, question_id, user_id):
+def linear_algebra_json_hook(safe_question, full_question, question_id, user_id, *args):
     safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)
     safe_question['last_attempts'] = get_previous_answers(question_id, user_id, 5)
     return safe_question
