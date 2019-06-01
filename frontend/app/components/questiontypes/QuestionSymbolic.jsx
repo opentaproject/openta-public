@@ -171,11 +171,11 @@ export default class QuestionSymbolic extends Component {
     }
     var itemjson = question.getIn(["text"], undefined);
     var questiontext = itemjson.getIn(["$"], "");
+    var questionkey = question.getIn(['@attr', 'key']);
     var msg1 = "QuestionType QuestionSymbolic";
     return (
       <div className="">
         {questiontext}
-        <span className="uk-text-small uk-text-primary">{availableVariables}</span>
         <span className="uk-text-small uk-text-primary">
           {" "}
           [ {feedback} {n_attempts} <T>attempts</T> ]{" "}
@@ -195,6 +195,7 @@ export default class QuestionSymbolic extends Component {
             {answerbox && (
               <div className="uk-width-1-1">
                 <textarea
+                  id={questionkey}
                   className={"uk-width-1-1 "}
                   value={this.state.value}
                   onSelect={this.handleSelect}
@@ -208,7 +209,7 @@ export default class QuestionSymbolic extends Component {
               onClick={event => submit(input)}
               className={
                 "uk-width-1-1 uk-button uk-padding-remove " +
-                (nonEmpty && hasChanged && !renderedResult.error ? "uk-button-success" : "")
+                (nonEmpty && hasChanged ? "uk-button-success" : "")
               }
             >
               {pending && <i className="uk-icon-cog uk-icon-spin" />}
@@ -223,10 +224,6 @@ export default class QuestionSymbolic extends Component {
         <div className="uk-flex">
           <span className={"uk-width-1-1 "}>{graderResponse}</span>
         </div>
-        {renderedResult.error && <span className="uk-text-danger"> {t("check syntax")} </span>}
-        {renderedResult.warnings.length > 0 && (
-          <Alert message={renderedResult.warnings.join(", ")} type="warning" key="renderWarning" />
-        )}
       </div>
     );
   }

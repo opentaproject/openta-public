@@ -19,36 +19,44 @@ class BaseQuestion extends Component {
     var pendingState = this.props.pendingState;
     var onQuestionSubmit = this.props.onQuestionSubmit;
     var json = exerciseState.get('json', immutable.Map({})) || immutable.Map({});
-    var question = json.getIn(['exercise','question'], immutable.List([])).find( q => q.getIn(['@attr','key']) == questionKey, this, immutable.Map({}));
-    var questionType = question.getIn(['@attr','type'], undefined);
+    var question = json.getIn(['exercise', 'question'], immutable.List([])).find(q => q.getIn(['@attr', 'key']) == questionKey, this, immutable.Map({}));
+    var questionType = question.getIn(['@attr', 'type'], undefined);
     var questionState = exerciseState.getIn(['question', questionKey], immutable.Map({}))
-    if(questionType && questionType in questionDispatch) {
-      var globals = json.getIn(['exercise','global'], immutable.List([])).find( q => {
-        return q.getIn(['@attr','type']) === questionType || (!q.hasIn(['@attr', 'type']));
+    var iscorrect = questionState.getIn(['correct'], null)
+    if (questionType && questionType in questionDispatch) {
+      var globals = json.getIn(['exercise', 'global'], immutable.List([])).find(q => {
+        return q.getIn(['@attr', 'type']) === questionType || (!q.hasIn(['@attr', 'type']));
       });
-      if(globals)question = question.set('global', globals);
+      if (globals) question = question.set('global', globals);
       var questionDOM = React.createElement(questionDispatch[questionType], {
         key: questionKey,
         exerciseKey: exerciseKey,
         questionData: question,
         questionState: questionState,
-        questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.getIn(['@attr','key']), 'waiting'], false),
+        questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.getIn(['@attr', 'key']), 'waiting'], false),
         isAuthor: this.props.author,
         lang: this.props.lang,
         canViewSolution: this.props.view,
         submitFunction: (data) => onQuestionSubmit(exerciseKey, questionKey, data),
-          ref: (ref) => this.questionref = ref
+        ref: (ref) => this.questionref = ref
       });
       var alerts = [];
-      if(question.getIn(['@attr','key'], undefined) == undefined && this.props.admin) {
-       alerts.push( (<Alert key={"alertkey"} message="No question key, please add an attribute key=..." type="error"/>));
+      if (question.getIn(['@attr', 'key'], undefined) == undefined && this.props.admin) {
+        alerts.push((<Alert key={"alertkey"} message="No question key, please add an attribute key=..." type="error" />));
+      }
+      var yescorrect = '';
+      if (iscorrect) {
+        yescorrect = 'yescorrect';
+      }
+      if (iscorrect == null) {
+        yescorrect = 'unchecked';
       }
       var topDOM = React.createElement('div', {
-        className: "uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top",
+        className: "uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top " + yescorrect,
         key: questionKey
       }, [
-        alerts,
-        questionDOM]);
+          alerts,
+          questionDOM]);
       return topDOM;
     }
     else {
@@ -56,31 +64,31 @@ class BaseQuestion extends Component {
     }
   }
 
-  componentDidUpdate(props,state,root) {
+  componentDidUpdate(props, state, root) {
     var node = ReactDOM.findDOMNode(this.questionref);
     //MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
-    if(node !== null)
+    if (node !== null)
       renderMathInElement(node, {
-        delimiters: [{left: "$", right: "$", display: false}]
+        delimiters: [{ left: "$", right: "$", display: false }]
       });
   }
 }
 
 const mapStateToProps = state => {
-  var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
+  var activeExerciseState = state.getIn(['exerciseState', state.get('activeExercise')], immutable.Map({}));
   return (
-  {
-    admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
-    author: state.getIn(['login', 'groups'],immutable.List([])).includes('Author'),
-    view: state.getIn(['login', 'groups'],immutable.List([])).includes('View'),
-    exerciseState: activeExerciseState,
-    pendingState: state.get('pendingState'),
-    lang: state.get('lang', state.getIn(['course', 'languages', 0], 'en'))
-  })
+    {
+      admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
+      author: state.getIn(['login', 'groups'], immutable.List([])).includes('Author'),
+      view: state.getIn(['login', 'groups'], immutable.List([])).includes('View'),
+      exerciseState: activeExerciseState,
+      pendingState: state.get('pendingState'),
+      lang: state.get('lang', state.getIn(['course', 'languages', 0], 'en'))
+    })
 };
 
 const mapDispatchToProps = dispatch => ({
-    onQuestionSubmit: (exerciseKey, questionKey, data) => dispatch(checkQuestion(exerciseKey, questionKey, data))
-  });
+  onQuestionSubmit: (exerciseKey, questionKey, data) => dispatch(checkQuestion(exerciseKey, questionKey, data))
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseQuestion)

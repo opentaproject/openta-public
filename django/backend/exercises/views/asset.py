@@ -9,7 +9,7 @@ from exercises.models import Exercise
 from exercises.views.file_handling import serve_file
 import backend.settings as settings
 import exercises.paths as paths
-from exercises.assets import list_assets, add_asset, delete_asset, has_asset, zip_exercise
+from exercises.assets import list_assets, add_asset, delete_asset, has_asset
 from exercises.parsing import exercise_xmltree
 import zipfile
 import tempfile

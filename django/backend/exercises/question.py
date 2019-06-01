@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 from exercises.models import Exercise, Question, Answer
 from exercises.serializers import AnswerSerializer
 from exercises.parsing import question_json_get, question_xmltree_get, exercise_xmltree
@@ -120,7 +121,10 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     question_xmltree.append(runtime_element)
 
     rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
-    if rate_limit is not None and rate_limit.text is not None and not user.is_staff:
+    if ((not settings.RUNNING_DEVSERVER) and
+            rate_limit is not None and
+            rate_limit.text is not None and
+            not user.is_staff):
         rate = rate_limit.text.strip()
         if is_ratelimited(
             request, group='question_custom_rate', key='user', rate=rate, increment=True

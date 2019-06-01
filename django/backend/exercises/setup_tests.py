@@ -16,11 +16,16 @@ DEFAULT_EXERCISE_TEMPLATE = """
                 </question>\n
                 </exercise>\n
                 """
+DATABASE_PASSWORD = 'pw'
 DEFAULT_EXERCISE = DEFAULT_EXERCISE_TEMPLATE.format(name=DEFAULT_EXERCISE_NAME)
 
 
-def create_database(password="pw"):
-    course, created = Course.objects.get_or_create(course_name="Test course", published=True)
+def create_database(password="pw", course_key=None):
+    if course_key is not None:
+        course, created = Course.objects.get_or_create(
+            course_name="Test course", course_key=course_key, published=True)
+    else:
+        course, created = Course.objects.get_or_create(course_name="Test course", published=True)
     perm_edit_exercise = Permission.objects.get(codename="edit_exercise")
     perm_admin_exercise = Permission.objects.get(codename="administer_exercise")
     perm_log_answer = Permission.objects.get(codename="log_question")
@@ -46,6 +51,19 @@ def create_database(password="pw"):
     admin.user_set.add(usuper)
     author.user_set.add(usuper)
     view.user_set.add(usuper)
+
+
+def create_exercises_from_dir(course, directory):
+    exerciselist = []
+    for name in os.listdir(directory):
+        path = os.path.join(directory, course.get_exercises_folder(), name)
+        exerciselist = exerciselist + [os.path.join(name)]
+    return exerciselist
+
+
+def create_exercise_from_dir(course, directory, name):
+    path = os.path.join(directory, course.get_exercises_folder(), name)
+    return os.path.join(name)
 
 
 def create_exercise(course, directory, name, content=DEFAULT_EXERCISE):

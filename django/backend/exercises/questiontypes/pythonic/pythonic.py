@@ -12,13 +12,14 @@ import time
 import logging
 import sys
 import importlib
+import traceback
 
 logger = logging.getLogger(__name__)
 
 
 def pythonic_runner(studentanswerdict, questiondict, globaldict, result_queue):
     try:
-        path = questiondict['@path']
+        path = questiondict['runtime']['@path']
         filename = questiondict.get('@file', "questions")
         functionname = questiondict['@function']
         sys.path.append(path)

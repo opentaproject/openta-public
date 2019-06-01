@@ -345,6 +345,7 @@ export default class QuestionLinearAlgebra extends Component {
       mathSizeClass = 'uk-text-large'; break;
   }
   var questiontext = renderText(question.getIn(['text']), null, this.props.lang); 
+  var questionkey = question.getIn(['@attr', 'key']);
   var msg1 = "Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."
   return (
         <div className="">
@@ -358,7 +359,7 @@ export default class QuestionLinearAlgebra extends Component {
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">
           <div className="uk-width-1-1">
-            <textarea className={"uk-width-1-1 "} value={this.state.value} onSelect={this.handleSelect} onChange={this.handleChange} ></textarea>
+            <textarea id={questionkey} className={"uk-width-1-1 "} value={this.state.value} onSelect={this.handleSelect} onChange={this.handleChange} ></textarea>
           </div>
           </div>
           <div className="uk-width-1-6">
