@@ -18,3 +18,6 @@ django/backend/logfile
 django/backend/db.sqlite3
 docs_src/_build_html
 /exercises/
+django/env3.5/
+logfile
+frontend/last_build/

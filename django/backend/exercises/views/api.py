@@ -28,6 +28,7 @@ from django.db.models import Prefetch
 from ratelimit.decorators import ratelimit
 from django.views.decorators.cache import never_cache
 from PIL import Image
+import exercises.paths as paths
 import datetime
 import PyPDF2
 import logging
@@ -35,6 +36,7 @@ import backend.settings as settings
 import json
 
 import os
+from lxml import etree
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +50,7 @@ def exercises_reload_streaming(request, course_pk):
         logger.error('Requested course does not exist pk: %d', course_pk)
         return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     exercises = Exercise.objects.sync_with_disc(dbcourse)
+
     base = loader.get_template('base_streaming.html')
 
     def next_exercise():
@@ -254,22 +257,46 @@ def exercise_xml(request, exercise):
     return Response({'xml': parsing.exercise_xml(dbexercise.get_full_path())})
 
 
+def validate_exercise_xml(xml):
+    messages = []
+    xmlschema = etree.XMLSchema(etree.parse(paths.EXERCISE_XSD))
+    try:
+        parser = etree.XMLParser(recover=True)
+        root = etree.fromstring(xml, parser=parser)
+        xmlschema.assert_(root)
+        messages.append(('success', 'XML OK '))
+    except etree.XMLSyntaxError as err:
+        messages.append(('error', "Parsing Error:{0}".format(err)))
+    except AssertionError as err:
+        msg = "{0}".format(err)
+        if 'Element \'text\': This element is not expected' in msg:
+            msg = "The &lt;text&gt; tag is not expeced. \n Is it nested? \n It should not be:  Suggested fix: Change  for instance &lt;text&gt; string1 &lt;text&gt; string2 &lt;/text&gt; string3 &lt;/text&gt; to &lt;text&gt; string1 &lt;/text&gt;&lt;text&gt; string2 string3 &lt;/text&gt; "
+        elif 'Element \'exercise\': Character content other than whitespace is not allowed ' in msg:
+            msg = "The &lt;exercise&gt; tag should not contain character content; Suggestion: wrap the desired character content with &lt;text&gt ... &lt;/text&gt; so that &lt;text&gt; is a direct child of &lt;exercise&gt;"
+        elif 'Element \'qmath\': This element is not expected' in msg:
+            msg = msg + ' You may need to wrap the element with &lt;text&gt tag '
+        elif 'Element \'asciimath\': This element is not expected' in msg:
+            msg = msg + ' You may need to wrap the element with &lt;text&gt tag '
+        messages.append(('error', 'XML Error: ' + msg))
+    return messages
+
+
 @permission_required('exercises.edit_exercise')
 @api_view(['POST'])
 def exercise_save(request, exercise):
     messages = []
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"
+    xml = request.data['xml']
     try:
-        messages += parsing.exercise_save(
-            dbexercise.get_full_path(), request.data['xml'], backup_name
-        )
+        messages += parsing.exercise_save(dbexercise.get_full_path(), xml, backup_name)
     except IOError as e:
         messages.append(('error', str(e)))
     try:
         messages += Exercise.objects.add_exercise(dbexercise.path, dbexercise.course)
     except parsing.ExerciseParseError as e:
         messages.append(('warning', str(e)))
+    messages = messages + validate_exercise_xml(xml)
     result = response_from_messages(messages)
     return Response(result)
 

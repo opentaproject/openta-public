@@ -4,6 +4,8 @@ EXERCISES_PATH = "../../exercises"
 TEMPLATE_EXERCISE_PATH = "../../exercise_templates"
 TRASH_PATH = "z:Trash"
 STUDENT_ASSETS_PATH = "media/studentassets"
+EXERCISE_XML = 'exercise.xml'
+EXERCISE_XSD = './exercises/exercise.xsd'
 
 
 def get_student_asset_path(user, exercise):

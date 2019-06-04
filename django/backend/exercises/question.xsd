@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+<xs:element name="global">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="blacklist"/>
+        <xs:element ref="var"/>
+      </xs:choice>
+      <xs:attribute name="type" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="macros" type="xs:string"/>
+
+
+
+<xs:element name="question">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="blacklist"/>
+        <xs:element ref="hint"/>
+        <xs:element ref="parsed"/>
+        <xs:element ref="text"/>
+        <xs:element ref="var"/>
+        <xs:element ref="choice"/>
+        <xs:element ref="equality"/>
+        <xs:element ref="expression"/>
+        <xs:element ref="istrue"/>
+        <xs:element ref="rate"/>
+        <xs:element ref="variables"/>
+        <xs:element ref="macros"/>
+      </xs:choice>
+      <xs:attribute name="exposeglobals" type="xs:NCName"/>
+      <xs:attribute name="key" type="xs:NMTOKEN"/>
+      <xs:attribute name="precision" type="xs:decimal"/>
+      <xs:attribute name="type" type="xs:NCName"/>
+      <xs:attribute name="function" type="xs:NCName"/>
+      <xs:attribute name="file" type="xs:NCName"/>
+      <xs:attribute name="answerbox" type="xs:NCName"/>
+    </xs:complexType>
+ </xs:element>
+
+<xs:element name="choice">
+    <xs:complexType mixed="false">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="alt"/>
+        <xs:element ref="figure"/>
+        <xs:element ref="text"/>
+      </xs:choice>
+      <xs:attribute name="correct" type="xs:string"/>
+      <xs:attribute name="key" use="required" type="xs:string"/>
+      <xs:attribute name="order"  type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="equality" type="xs:string"/>
+  <xs:element name="expression">
+    <xs:complexType mixed="true">
+      <xs:attribute name="label" type="xs:NMTOKEN"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="istrue" type="xs:string"/>
+  <xs:element name="rate" type="xs:string"/>
+  <xs:element name="variables">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="var"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+ <xs:element name="comment">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="alt"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="regex">
+    <xs:complexType mixed="true">
+      <xs:attribute name="present" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+
+<xs:element name="hint">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="hide"/>
+        <xs:element ref="hint"/>
+        <xs:element ref="image"/>
+        <xs:element ref="text"/>
+        <xs:element ref="comment"/>
+        <xs:element ref="regex"/>
+      </xs:choice>
+      <xs:attribute name="label"/>
+      <xs:attribute name="lang" type="xs:NCName"/>
+    </xs:complexType>
+  </xs:element>
+
+ <xs:element name="var">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="token"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="tex"/>
+          <xs:element ref="value"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="tex" type="xs:string"/>
+  <xs:element name="value" type="xs:string"/>
+  <xs:element name="blacklist">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element maxOccurs="unbounded" ref="token"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+<xs:element name="thecorrectanswer">
+    <xs:complexType mixed="true">
+      <xs:attribute name="id" type="xs:NCName"/>
+      <xs:attribute name="lang" type="xs:NCName"/>
+      <xs:attribute name="question"/>
+      <xs:attribute name="questionkey" type="xs:NMTOKEN"/>
+    </xs:complexType>
+  </xs:element>
+
+<xs:element name="token" type="xs:NCName"/>
+
+
+ 
+
+
+
+
+
+</xs:schema>
