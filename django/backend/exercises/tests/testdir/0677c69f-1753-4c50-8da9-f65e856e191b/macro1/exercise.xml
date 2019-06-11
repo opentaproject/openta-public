@@ -1,0 +1,44 @@
+<exercise>
+  
+  <exercisename>multiplechoice</exercisename>
+  <text>
+    Simple multiple choices 
+  </text>
+  
+  
+  <question key='66' type="multipleChoice"> 
+    <macros>
+      
+        [@a,@b]  := randomshuffle(['A','B'] ) ;
+        [@k1,@k2] := randomshuffle([1,2]) ;
+    </macros>
+    <text>  Pick out the number '2' in the list below <p/>
+    	 </text> ;
+    
+   <choice key="@k1" order='@a' > <text> (@a) 1 </text>  </choice>
+    <choice key="@k2" correct='true' order='@b' > <text> (@b) 2 </text>  </choice>
+  </question>
+
+  
+  <question key='7' type="multipleChoice"> 
+    <macros>
+  [@r1,@r2,@r3,@r4,@r5] :=  randomsortedsample(0,99,5 )   ;   # overdone enough with sorted list here  ; 
+   @rr := [@r1,@r2,@r3,@r4,@r5] ;
+  [@k1,@k2,@k3,@k4,@k5] :=  randomshuffle([1,2,3,4,5]) ;
+  [@a1,@a2,@a3,@a4,@a5] := randomshuffle(['A','B','C','D','E']);
+  [@c1,@c2,@c3,@c4,@c5] := randominversesort(['true','false','false','false','true'], [@r1,@r2,@r3,@r4,@r5]  );
+   @o :=   randominversesort( 
+      ['@a1','@a2','@a3','@a4','@a5'], [@r1,@r2,@r3,@r4,@r5] ) ;
+    </macros>
+    <text> Pick the smallest and largest  of the following numbers @rr ;  Here is the  listed key order @o ; thus the first and last key in the list is the answer  </text>
+    
+   <choice key="@k1" order='@a1' correct='@c1'> <text> (@a1) @r1  </text>  </choice>
+   <choice key="@k2" order='@a2' correct='@c2'> <text> (@a2) @r2  </text>  </choice>
+   <choice key="@k3" order='@a3' correct='@c3'> <text> (@a3) @r3  </text>  </choice>
+   <choice key="@k4" order='@a4' correct='@c4'> <text> (@a4) @r4  </text>  </choice>
+   <choice key="@k5" order='@a5'  correct='@c5' > <text> (@a5) @r5  </text>  </choice>
+    
+  </question>
+
+  
+</exercise>

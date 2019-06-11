@@ -1,6 +1,8 @@
 from django.shortcuts import render
+from exercises.applymacros import MacroError
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
+from exercises.applymacros import apply_macros_to_exercise, apply_macros_to_node
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.exceptions import PermissionDenied
@@ -9,7 +11,15 @@ from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExerc
 from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
 from exercises.serializers import AuditExerciseSerializer
 from exercises import parsing
+from exercises.parsing import question_json_get_from_raw_json
 import exercises.question as question_module
+from exercises.question import (
+    get_number_of_attempts,
+    get_number_of_correct_attempts,
+    get_combined_usermacros,
+    get_seed,
+    get_usermacros,
+)
 from exercises.modelhelpers import serialize_exercise_with_question_data
 from exercises.modelhelpers import exercise_folder_structure, exercise_test
 from exercises.views.file_handling import serve_file
@@ -34,9 +44,13 @@ import PyPDF2
 import logging
 import backend.settings as settings
 import json
+import exercises.paths as paths
+from xml.etree.ElementTree import fromstring, ParseError
+from lxml import etree
 
 import os
 from lxml import etree
+import os.path
 
 logger = logging.getLogger(__name__)
 
@@ -220,17 +234,51 @@ def other_exercises_from_folder(request, exercise):
 @api_view(['GET'])
 def exercise_json(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
+    user = request.user
     try:
+        errormsg = None
         hide_answers = not request.user.has_perm("exercises.view_solution")
-        full_exercisejson = parsing.exercise_json(dbexercise.get_full_path(), hide_answers=False)
+        xml = parsing.exercise_xml(dbexercise.get_full_path())
+        if True or '@' in xml:
+            usermacros = get_usermacros(user, exercise)
+            usermacros['@call'] = 'exercise_json'
+            usermacros['@combined_user_macros'] = get_combined_usermacros(exercise, xml, user)
+        else:
+            usermacros = {}  # if usermacros = {} then no macroparsing is done
+        root = etree.fromstring(xml)
+        try:
+            root = apply_macros_to_node(root, usermacros)
+            xml = etree.tostring(root)
+        except MacroError as e:
+            extype = type(e).__name__
+            errormsg = extype + str(e)
+        except Exception as e:
+            extype = type(e).__name__
+            errormsg = extype
+        full_exercisejson = parsing.exercise_xml_to_json(xml)
         hide_tags = question_module.get_sensitive_tags()
         hide_attrs = question_module.get_sensitive_attrs()
-        safe_exercisejson = parsing.exercise_json(
-            dbexercise.get_full_path(),
-            hide_answers=hide_answers,
-            sensitive_attrs=hide_attrs,
-            sensitive_tags=hide_tags,
+        safe_exercisejson = parsing.exercise_xml_to_json(
+            xml, hide_answers=hide_answers, sensitive_tags=hide_tags, sensitive_attrs=hide_attrs
         )
+        full_exercisejson['exercise']['exercise_key'] = exercise
+        # print("API CALL exercise_json")
+        # def question_json_get(path, question_key, usermacros={}):
+
+        # if 'question' in safe_exercisejson['exercise']:
+        #    safe_and_full = zip(safe_exercisejson['exercise']['question'],
+        #                        full_exercisejson['exercise']['question'])
+        #    safe_exercisejson['exercise']['question'] = []
+        #    for safe_question, full_question in safe_and_full:
+        #        question_key = deep_get(full_question, '@attr', 'key')
+        #        dbquestion = Question.objects.filter(
+        #            exercise=dbexercise, question_key=question_key).first()
+        #        full_question['exercise_key'] = exercise
+        #        modified_question = question_module.question_json_hook(
+        #            safe_question, full_question, dbquestion.pk, request.user.pk)
+        #        safe_exercisejson['exercise']['question'].append(modified_question)
+        # def question_json_get_from_raw_json(raw_json, exercise_key, question_key, usermacros={}):
+        exercise_key = exercise
         if 'question' in safe_exercisejson['exercise']:
             safe_and_full = zip(
                 safe_exercisejson['exercise']['question'], full_exercisejson['exercise']['question']
@@ -241,10 +289,16 @@ def exercise_json(request, exercise):
                 dbquestion = Question.objects.filter(
                     exercise=dbexercise, question_key=question_key
                 ).first()
+                full_question = question_json_get_from_raw_json(
+                    full_exercisejson, exercise_key, question_key, {}
+                )
+                full_question['exercise_key'] = exercise
                 modified_question = question_module.question_json_hook(
                     safe_question, full_question, dbquestion.pk, request.user.pk, exercise
                 )
                 safe_exercisejson['exercise']['question'].append(modified_question)
+        if errormsg:
+            safe_exercisejson['error'] = errormsg
         return Response(safe_exercisejson)
     except parsing.ExerciseParseError as e:
         return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -323,10 +377,14 @@ def exercise_check(request, exercise, question):
         return Response({'error': _('You are limited to ') + "5" + _(" tries per minute.")})
 
     agent = request.META.get('HTTP_USER_AGENT', 'unknown')
-    result = question_module.question_check(
-        request, request.user, agent, exercise, question, answer_data
-    )
-    return Response(result)
+    try:
+        result = question_module.question_check(
+            request, request.user, agent, exercise, question, answer_data
+        )
+        return Response(result)
+    except NameError as e:
+        print("Name Error ", str(e))
+        return Response({'error': str(e)})
 
 
 @never_cache
@@ -358,14 +416,17 @@ def upload_answer_image(request, exercise):
     try:
         trial_image = Image.open(request.FILES['file'])
         trial_image.verify()
-
         image_answer = ImageAnswer(
             user=request.user,
             exercise=dbexercise,
+            # exercise_key=exercise,
             image=request.FILES['file'],
             filetype=ImageAnswer.IMAGE,
         )
+        extension = image_answer.image.path.split('.')[-1]
+        print("EXTENSION = ", extension)
         image_answer.save()
+        # if  not 'tif' in extension :
         image_answer.compress()
         return Response({})
     except Exception as e:
@@ -376,6 +437,7 @@ def upload_answer_image(request, exercise):
             image_answer = ImageAnswer(
                 user=request.user,
                 exercise=dbexercise,
+                # exercise_key=exercise,
                 pdf=request.FILES['file'],
                 filetype=ImageAnswer.PDF,
             )
@@ -458,6 +520,7 @@ def image_answers_get(request, exercise):
 
 @api_view(['POST'])
 def image_answer_delete(request, pk):
+    print("TRY DELETION")
     try:
         image_answer = ImageAnswer.objects.get(pk=pk)
     except ObjectDoesNotExist:
@@ -474,6 +537,6 @@ def image_answer_delete(request, pk):
                 {'deleted': 0, 'error': _('You cannot delete after the deadline has passed.')}
             )
 
-    image_answer.remove_file()
-    deleted, deltype = image_answer.delete()
+    image_answer.remove()  # REMOVE THE FILE
+    deleted, deltype = image_answer.delete()  # REMOVE THE DATABASE ENTRY
     return Response({'deleted': deleted})

@@ -1,4 +1,5 @@
-from xml.etree.ElementTree import fromstring, ParseError
+from xml.etree.ElementTree import fromstring, ParseError, tostring
+from exercises.applymacros import apply_macros_to_exercise
 from lxml import etree
 from PIL import Image
 from django.utils.timezone import now
@@ -10,17 +11,20 @@ from subprocess import check_output, CalledProcessError
 
 import exercises.paths as paths
 from exercises.util import deep_get
+
 from exercises.xmljson import BadgerFish
+import exercises.paths as paths
+import re
 
 logger = logging.getLogger(__name__)
 
 bf = BadgerFish(xml_fromstring=False)
 
 
-EXERCISE_XML = 'exercise.xml'
 EXERCISE_KEY = 'exercisekey'
 EXERCISE_HISTORY = 'history'
 EXERCISE_THUMBNAIL = 'thumbnail.png'
+EXERCISE_XML = paths.EXERCISE_XML
 
 
 class ExerciseParseError(Exception):
@@ -40,14 +44,20 @@ class ExerciseNotFound(Exception):
 
 
 def is_exercise(path):
-    return os.path.isfile(os.path.join(path, EXERCISE_XML))
+    return os.path.isfile(os.path.join(path, paths.EXERCISE_XML))
+
+
+def fromString(xml):
+    parser = etree.XMLParser(recover=True)
+    root = etree.fromstring(xml, parser=parser)
+    return root
 
 
 def list_exercises_in_folder(path):
     exerciselist = []
     for root, _, filenames in os.walk(path, followlinks=True):
         for filename in filenames:
-            if filename == EXERCISE_XML:
+            if filename == paths.EXERCISE_XML:
                 name = os.path.basename(os.path.normpath(root))
                 exerciselist.append({'name': name, 'path': root})
     return exerciselist
@@ -85,10 +95,10 @@ def exercise_json(path, hide_answers=False, sensitive_tags={}, sensitive_attrs={
     xml_path = os.path.join(path, EXERCISE_XML)
     with open(xml_path, mode='rb') as fil:
         xml = fil.read()
-    return _exercise_xml_to_json(xml, hide_answers, sensitive_tags, sensitive_attrs)
+    return exercise_xml_to_json(xml, hide_answers, sensitive_tags, sensitive_attrs)
 
 
-def _exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):
+def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):
     """
     Converts exercise xml to json using the custom xmljson module. Enforces
     list structure of question and global tags.
@@ -106,15 +116,26 @@ def _exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_
         Dictionary corresponding to the JSON representation.
     """
     obj = {}
+    taglist = []
     try:
-        root = fromstring(xml)
+        root = fromString(xml)
         if hide_answers:
             for question_type, tags in sensitive_tags.items():
                 questions = root.findall('./question[@type="{type}"]'.format(type=question_type))
                 for question in questions:
                     for tag in tags:
-                        node = question.find(tag)
-                        question.remove(node)
+                        if tag not in taglist:
+                            taglist = taglist + [tag]
+                        nodes = question.findall('.//' + tag)
+                        if not isinstance(nodes, list):
+                            nodes = []
+                        for node in nodes:
+                            parent = node.getparent()
+                            parent.remove(node)
+                        if tag == 'value':
+                            variablesnode = question.find('variables')
+                            if not variablesnode is None:
+                                variablesnode.text = 'replaced by sensitive tag value'
             for question_type, attrs in sensitive_attrs.items():
                 for attr in attrs:
                     nodes = root.findall(
@@ -124,7 +145,18 @@ def _exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_
                     )
                     for node in nodes:
                         node.attrib.pop(attr, None)
+            if 'value' in taglist:
+                globalnodes = root.findall('./global')
+                if len(globalnodes) > 0:
+                    globalnode = globalnodes[0]
+                    globalnode.text = 'replaced by sensitive tag value'
+                    valuenodes = globalnode.findall('.//value')
+                    for valuenode in valuenodes:
+                        parent = valuenode.getparent()
+                        parent.remove(valuenode)
+
         obj = bf.data(root)
+
     except ParseError as e:
         raise ExerciseParseError(e)
     questions = deep_get(obj, 'exercise', 'question')
@@ -161,7 +193,7 @@ def exercise_save(path, xml, backup=None):
                 file.write(xml)
         except IOError:
             messages.append(('warning', "Couldn't write backup file"))
-    xml_path = os.path.join(path, EXERCISE_XML)
+    xml_path = os.path.join(path, paths.EXERCISE_XML)
     with open(xml_path, 'w') as file:
         file.write(xml)
     messages.append(('success', 'Saved exercise'))
@@ -175,25 +207,29 @@ def question_validate_xmltree(question):
 
 
 def exercise_xmltree(path):
-    xml_path = os.path.join(path, EXERCISE_XML)
+    xml_path = os.path.join(path, paths.EXERCISE_XML)
     parser = etree.XMLParser(remove_blank_text=True)
     try:
         root = etree.parse(xml_path, parser)
         return root
     except etree.XMLSyntaxError as e:
+        # print("PARSING: exercise_xmltree failed", xml )
         raise ExerciseParseError(e)
 
 
-def question_xmltree_get(exercise_xmltree, question_key):
-    question = exercise_xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[
-        0
-    ]
-    return question
+def question_xmltree_get(exercise_xmltree, question_key, usermacros={}):
+    return global_and_question_xmltree_get(exercise_xmltree, question_key, usermacros)[1]
 
 
-def question_json_get(path, question_key):
-    json = exercise_json(path)
-    questions = deep_get(json, 'exercise', 'question')
+def question_json_get(path, question_key, usermacros={}):
+    usermacros['@call'] = 'QUESTION_JSON_GET'
+    raw_json = exercise_json(path, True)
+    exercise_key = exercise_key_get(path)
+    return question_json_get_from_raw_json(raw_json, exercise_key, question_key, usermacros)
+
+
+def question_json_get_from_raw_json(raw_json, exercise_key, question_key, usermacros={}):
+    questions = deep_get(raw_json, 'exercise', 'question')
     found = list(
         filter(
             lambda q: ('@attr' in q and 'key' in q['@attr'] and q['@attr']['key'] == question_key),
@@ -201,22 +237,26 @@ def question_json_get(path, question_key):
         )
     )
     if len(found) == 1:
-        global_data = deep_get(json, 'exercise', 'global')
-        if global_data and 'type' in found[0]['@attr']:
+        global_data = deep_get(raw_json, 'exercise', 'global')
+        if global_data:  # and 'type' in found[0]['@attr']:
             if not isinstance(global_data, list):
                 global_data = [global_data]
             global_for_type = list(
                 filter(
                     lambda g: (
-                        '@attr' in g
-                        and 'type' in g['@attr']
-                        and g['@attr']['type'] == found[0]['@attr']['type']
+                        ('@attr' not in g)
+                        or (
+                            '@attr' in g
+                            and 'type' in g['@attr']
+                            and g['@attr']['type'] == found[0]['@attr']['type']
+                        )
                     ),
                     global_data,
                 )
             )
             if len(global_for_type) == 1:
                 found[0].update({'global': global_for_type[0]})
+        found[0]['exercise_key'] = exercise_key
         return found[0]
     else:
         return "{}"
@@ -269,7 +309,7 @@ def exercise_add(folder, name):
     if is_exercise(full_path):
         return {'error': 'There is already an exercise with that name in the file tree'}
     os.makedirs(full_path, exist_ok=True)
-    xml_path = os.path.join(full_path, EXERCISE_XML)
+    xml_path = os.path.join(full_path, paths.EXERCISE_XML)
     template_data = "<exercise>\n\t<exercisename>\n\t\t{name}\n\t</exercisename>\n</exercise>".format(
         name=name
     )
@@ -365,7 +405,7 @@ def exercise_json_history(path, name):
     res = exercise_xml_history(path, name)
     if 'error' in res:
         return res
-    return _exercise_xml_to_json(res['xml'])
+    return exercise_xml_to_json(res['xml'])
 
 
 def get_translations(xml):
@@ -379,3 +419,32 @@ def get_translations(xml):
     for lang in alt_langs:
         ret_langs[lang.get('lang')] = lang.text
     return ret_langs
+
+
+def getkey(stringin):
+    key = re.sub(r'\s+', '', stringin)
+    return key
+
+
+def get_questionkeys_from_xml(xml):
+    qnodes = (etree.fromstring(xml)).findall('./question')
+    questionlist = []
+    for qnode in qnodes:
+        questionlist.append(qnode.attrib['key'])
+    return questionlist
+
+
+def global_xmltree_get(exercise_xmltree, question_key, usermacros={}):
+    return global_and_question_xmltree_get(exercise_xmltree, question_key, usermacros)[0]
+
+
+def global_and_question_xmltree_get(exercise_xmltree, question_key, usermacros={}):
+    xml = etree.tostring(exercise_xmltree)
+    root = etree.fromstring(xml)
+    root = apply_macros_to_exercise(root, usermacros)
+    global_xpath = (
+        '/exercise/global[@type="{type}"] | /exercise/global[not(@type)] | /exercise/global'
+    )
+    global_xmltree = (root.xpath(global_xpath) or [None])[0]
+    question_xmltree = root.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
+    return [global_xmltree, question_xmltree]

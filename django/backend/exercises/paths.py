@@ -1,6 +1,8 @@
 import os
 from django.conf import settings
 
+EXERCISES_PATH = "../../exercises"
+STUDENT_ASSET_PATH = "./media/studentassets"
 TEMPLATE_EXERCISE_PATH = "../../exercise_templates"
 TRASH_PATH = "z:Trash"
 STUDENT_ASSETS_PATH = "media/studentassets"
@@ -8,11 +10,13 @@ STUDENT_ANSWERIMAGES_PATH = "media/answerimages"
 EXERCISE_XML = 'exercise.xml'
 EXERCISE_XSD = './exercises/exercise.xsd'
 EXERCISES_PATH = settings.EXERCISES_PATH  #  '../../exercises'
+LIVE_TRANSLATION_DICT_XML = 'locale/translationdict.xml'
+DEFAULT_TRANSLATION_DICT_XML = 'translations/translationdict.xml'
 
 
 def get_student_asset_path(user, exercise):
     """Get path to asset folder.
->>>>>>> Fix login if two courses exist with same name
+    Fix login if two courses exist with same name
 
     Args:
         user (User): Django user object.
