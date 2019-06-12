@@ -14,8 +14,12 @@ LOGGER = logging.getLogger(__file__)
 
 
 def list_assets(path, types):
-    all_files = os.listdir(path)
-    assets = [{'filename': asset} for asset in all_files if asset.lower().endswith(types)]
+    assets = []
+    try: 
+        all_files = os.listdir(path)
+        assets = [{'filename': asset} for asset in all_files if asset.lower().endswith(types)]
+    except :
+        pass
     return assets
 
 

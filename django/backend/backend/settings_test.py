@@ -4,8 +4,6 @@ from backend.settings_lti import *
 
 
 ALLOWED_HOSTS = ['*']
-RUNNING_DEVSERVER = True
-
 DEBUG = True
 
 ASYNC = False
@@ -13,7 +11,9 @@ ASYNC = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'TEST': {'NAME': os.path.join(BASE_DIR, 'dbtest.sqlite3')},
+        'TEST' : {
+        'NAME': os.path.join(BASE_DIR, 'dbtest.sqlite3'),
+        }
     }
 }
 
@@ -44,3 +44,4 @@ UNITTESTS = True
 HEADLESS = False
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 EXERCISES_PATH = 'media/exercise'
+RUNNING_DEVSERVER = True

@@ -94,15 +94,23 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
                   </a>
                 </div>
               </div>
-              <div className="uk-form-row uk-margin-small-top">
+              <div className="uk-form-column uk-margin-small-top">
                 <div className="uk-flex uk-flex-middle uk-flex-space-between uk-flex-wrap uk-margin-small-top">
-                  { audits.getIn([activeAudit, 'revision_needed']) === null && <a className="uk-button uk-text-muted" title="Please select status before publishing." data-uk-tooltip id="publish-single">Publish</a> }
+                  { audits.getIn([activeAudit, 'revision_needed']) === null && <a 
+                      className="uk-button uk-text-muted" title="Please select status before publishing." 
+                       data-uk-tooltip id="publish-single">Publish</a> }
                   { audits.getIn([activeAudit, 'revision_needed']) !== null &&
-                  <a className={"uk-button uk-margin-small-top uk-position-relative " + publishClass} onClick={() => onPublishAudit(activeAudit, audits.getIn([activeAudit, 'published']), audits.getIn([activeAudit, 'sent']), bccStatus)} data-uk-tooltip title="The audit will become visible for the student and an email will be sent if first time." id="publish-single">{publishName}
+                  <a className={"uk-button uk-margin-small-top uk-position-relative " + publishClass} 
+                      onClick={() => onPublishAudit(activeAudit, audits.getIn([activeAudit, 'published']), 
+                      audits.getIn([activeAudit, 'sent']), bccStatus)} data-uk-tooltip 
+                        title="The audit will become visible for the student and an email will be sent if first time." 
+                        id="publish-single">{publishName}
                   { pendingPublish && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   }
-                  <a className="uk-button uk-button-danger uk-margin-small-top uk-position-relative" onClick={() => onDeleteAudit(activeAudit)} data-uk-tooltip title="Delete audit (no trace will remain and the result of the student will be unaffected)">Delete
+                  <a className="uk-button uk-button-danger uk-margin-small-top uk-position-relative" 
+                    onClick={() => onDeleteAudit(activeAudit)} data-uk-tooltip 
+                    title="Delete audit (no trace will remain and the result of the student will be unaffected)">Delete
                   { pendingDelete && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                 </div>

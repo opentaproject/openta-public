@@ -346,6 +346,7 @@ export default class QuestionLinearAlgebra extends Component {
   var questiontext = this.props.renderText(question.getIn(['text']));
   var questionkey = question.getIn(['@attr', 'key']);
   var msg1 = "Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."
+  var questionkey = question.getIn(['@attr','key'])
   return (
         <div className="">
         <MathSpan>{questiontext}</MathSpan>

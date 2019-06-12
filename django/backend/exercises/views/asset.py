@@ -157,8 +157,8 @@ def exercise_asset(request, exercise, asset):
 @api_view(['GET'])
 def exercise_list_assets(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    if not request.user.has_perm('exercises.edit_exercise') and not dbexercise.meta.student_assets:
-        return Response({}, status.HTTP_403_FORBIDDEN)
+    #if not request.user.has_perm('exercises.edit_exercise') and not dbexercise.meta.student_assets:
+    #    return Response({}, status.HTTP_403_FORBIDDEN)
     assets = list_assets(dispatch_asset_path(request, dbexercise), asset_types)
     return Response(assets)
 

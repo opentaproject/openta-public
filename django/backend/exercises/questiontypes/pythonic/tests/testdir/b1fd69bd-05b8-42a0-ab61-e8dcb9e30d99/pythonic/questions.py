@@ -143,7 +143,30 @@ def doevaluationset(studentanswerdict, questiondict, globaldict):
         filename = os.path.join(studentassetpath, csvfile + ".csv")
         csvars[csvfile] = np.genfromtxt(filename, delimiter=',')
     res = getOmegas(csvars, evaluationSet)
-    if res['COmega'] < 0.01 and res['HOmega'] < 0.02:
+    if res['COmega'] < 1.0  and res['HOmega'] < 1.0:
+        response['correct'] = True
+    else:
+        response['correct'] = False
+    response['warning'] = (
+        '$ C_{\\Omega} $ = ' + str(res['COmega']) + ' $ H_{\\Omega} =  $ ' + str(res['HOmega'])
+    )
+    return response
+
+
+def doevaluationset(studentanswerdict, questiondict, globaldict):
+    response = {}
+    exerciseassetpath = questiondict['@exerciseassetpath']
+    evaluationSet = np.genfromtxt(
+        os.path.join(exerciseassetpath, 'evaluation_set.csv'), delimiter=','
+    )
+    studentassetpath = questiondict['@studentassetpath']
+    csvfiles = ['t1', 't2', 't3', 'w1', 'w2', 'w3']
+    csvars = {}
+    for csvfile in csvfiles:
+        filename = os.path.join(studentassetpath, csvfile + ".csv")
+        csvars[csvfile] = np.genfromtxt(filename, delimiter=',')
+    res = getOmegas(csvars, evaluationSet)
+    if res['COmega'] < 1.0 and res['HOmega'] < 1.0:
         response['correct'] = True
     else:
         response['correct'] = False

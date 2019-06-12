@@ -23,10 +23,13 @@ class BaseQuestion extends Component {
     var question = json.getIn(['exercise', 'question'], immutable.List([])).find(q => q.getIn(['@attr', 'key']) == questionKey, this, immutable.Map({}));
     var questionType = question.getIn(['@attr', 'type'], undefined);
     var questionState = exerciseState.getIn(['question', questionKey], immutable.Map({}))
-    var iscorrect = questionState.getIn(['correct'], null)
-    if (questionType && questionType in questionDispatch) {
-      var globals = json.getIn(['exercise', 'global'], immutable.List([])).find(q => {
-        return q.getIn(['@attr', 'type']) === questionType || (!q.hasIn(['@attr', 'type']));
+    var okornot = questionState.getIn( ['response','correct'], null )
+    console.log("OKORNOT  = ", okornot)
+    var iscorrect = questionState.getIn(['correct'],'undefined')
+    console.log("iscorrect = ",iscorrect)
+    if(questionType && questionType in questionDispatch) {
+      var globals = json.getIn(['exercise','global'], immutable.List([])).find( q => {
+        return q.getIn(['@attr','type']) === questionType || (!q.hasIn(['@attr', 'type']));
       });
       if (globals) question = question.set('global', globals);
       var questionDOM = React.createElement(questionDispatch[questionType], {
@@ -53,8 +56,25 @@ class BaseQuestion extends Component {
       if (iscorrect == null) {
         yescorrect = 'unchecked';
       }
+      var yescorrect = 'undefined'
+      var cname = "question uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top "
+      if( iscorrect == true ){
+            yescorrect = 'yescorrect'
+            cname = "question uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top yescorrect ready"
+            }
+      if( iscorrect == null ){
+            yescorrect = 'unchecked'
+            cname = "question uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top unchecked ready"
+            }
+      if( iscorrect == false ){
+            cname = "question uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top unchecked notcorrect ready"
+            yescorrect = 'notcorrect'
+            }
+      console.log(exerciseKey + ' ' + questionKey + " okornot , YESCORRECT = " +  okornot + ' ' +   yescorrect  )
+      console.log(exerciseKey + ' ' + questionKey + " cname = " +  cname)
       var topDOM = React.createElement('div', {
-        className: "uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top " + yescorrect,
+        className: cname,
+        id: questionKey,
         key: questionKey
       }, [
           alerts,
@@ -66,7 +86,26 @@ class BaseQuestion extends Component {
     }
   }
 
-  componentDidUpdate(props, state, root) {
+  /* shouldComponentUpdate(nextProps) {
+        var questionKey = this.props.questionKey
+        var questionState = this.props.exerciseState.getIn(['question', questionKey] , null ) 
+        if( questionState == null ){
+            return false
+        }
+        var nextQuestionState = nextProps.exerciseState.getIn(['question', questionKey] )
+        var wascorrect = questionState.getIn(['correct'],null) 
+        var iscorrect = nextQuestionState.getIn(['correct'],null) 
+        console.log("WAS AND IS = ", wascorrect, iscorrect)
+        //const differentTitle = this.props.title !== nextProps.title;
+        //const differentDone = this.props.done !== nextProps.done
+        //return differentTitle || differentDone;
+        var should = ! ( wascorrect &&  iscorrect )
+        console.log("SHOULD = ", should )
+        return should
+    }
+    */
+
+  componentDidUpdate(props,state,root) {
     var node = ReactDOM.findDOMNode(this.questionref);
     //MathJax.Hub.Queue(["Typeset", MathJax.Hub, node]);
     if (node !== null)

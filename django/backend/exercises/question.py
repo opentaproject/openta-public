@@ -117,6 +117,7 @@ def register_question_type(
 
 
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
+    print("QUESTION CHECK ANSER_DATA = ", answer_data)
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
@@ -198,7 +199,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         and not user.is_staff
     ):
         rate = rate_limit.text.strip()
-        if is_ratelimited(
+        if (not settings.RUNNING_DEVSERVER) and is_ratelimited(
             request, group='question_custom_rate', key='user', rate=rate, increment=True
         ):
             error_msg = _('Answer rate exceeded, ' 'please wait before trying again. (Rate: ')

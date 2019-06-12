@@ -47,7 +47,7 @@ def parse_variables(variables):  # {{{
 
 
 def question_check_linear_algebra(question_json, question_xmltree, answer_data, global_xmltree):
-    # print("QUESTION_CHECK_LINEAR_ALGEBRA");
+    logger.debug("QUESTION_CHECK_LINEAR_ALGEBRA" +  answer_data );
     # print("question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
     # print("global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
     hints = parsehints(question_xmltree, global_xmltree, answer_data)
@@ -93,21 +93,35 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
         check_units=check_units,
         blacklist=list(blacklist),
     )
-    # print("NEGATE = ", negate )
+    logger.debug("RESULT = " + str( result ) )
+    logger.debug("NEGATE = " + str(  negate ) )
+    logger.debug("RESULT KEYS = " + str(  list( result.keys()  )) )
     if negate:
-        # print("WILL NEGATE ", result )
-        if 'correct' in result:
-            result['status'] = 'incorrect' if result['correct'] else 'correct'
-        elif 'error' in result:
+        logger.debug("WILL NEGATE " + str( result ) )
+        if 'correct' in list( result.keys()):
+            if result['correct'] :
+                result['status'] = 'incorrect'
+            else :
+                result['status'] = 'correct' 
+            #result['status'] = 'incorrect' if result['correct'] else 'correct'
+        elif 'error' in list( result.keys()):
             result['status'] = 'error'
     else:
-        if 'correct' in result:
-            result['status'] = 'correct' if result['correct'] else 'incorrect'
-        elif 'error' in result:
+        logger.debug("DONT NEGATE " + str( result ) )
+        if 'correct' in list( result.keys()):
+            if result['correct'] :
+                result['status'] = 'correct'
+            else :
+                result['status'] = 'incorrect' 
+        #result['status'] = 'incorrect' if result['correct'] else 'correct'
+        #if 'correct' in result.keys():
+        #    result['status'] = 'correct' if result['correct'] else 'incorrect'
+        elif 'error' in list( result.keys()):
             result['status'] = 'error'
     if hints is not None:
         result.update(hints)
     # print("final result = ", result)
+    logger.debug("RETTURN RESULT = " +  str( result) )
     return result
 
 

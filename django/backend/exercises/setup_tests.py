@@ -55,6 +55,7 @@ def create_database(password="pw", course_key=None):
 
 
 def create_exercises_from_dir(course, directory):
+    print("CREATE EXERCISES IN DIRECTORY ", directory)
     exerciselist = []
     for name in os.listdir(directory):
         path = os.path.join(directory, course.get_exercises_folder(), name)
@@ -63,12 +64,15 @@ def create_exercises_from_dir(course, directory):
 
 
 def create_exercise_from_dir(course, directory, name):
+    print("CREATE EXERCISE FROM DIR", directory)
     path = os.path.join(directory, course.get_exercises_folder(), name)
     return os.path.join(name)
 
 
 def create_exercise(course, directory, name, content=DEFAULT_EXERCISE):
+    print("CREATE EXERCISES ", directory)
     path = os.path.join(directory, course.get_exercises_folder(), name)
+    print("PATH=", path)
     os.makedirs(path)
     exercise_path = os.path.join(path, "exercise.xml")
     image_path = os.path.join(path, "figure.png")
