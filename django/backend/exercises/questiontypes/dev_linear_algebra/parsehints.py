@@ -70,7 +70,10 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                             presence = attributedict.get('present', 'forbidden')
                             # print('presence = ', presence )
                         if regex and reply:
-                            found = re.search(regex, answer_data)
+                            # found = re.search(regex, answer_data)
+                            found = re.search(
+                                r'{}'.format(regex), answer_data
+                            )  # Allow for special chars in regex hint i.ie. <regex> (\[|\]) </regex>
                             if presence == 'forbidden' and found:
                                 result['correct'] = False
                                 result['comment'] = reply
@@ -85,6 +88,12 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                                 result['comment'] = reply
                                 result['dict'] = tdict
                                 return result
+                            elif presence == 'required' and not found:
+                                result['correct'] = False
+                                result['comment'] = reply
+                                result['dict'] = tdict
+                                return result
+
                     # print("QSON ITEM regex",  item.get('regex') )
                     # print("QSON ITEM comment",  item.get('comment') )
                 except:

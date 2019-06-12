@@ -12,6 +12,12 @@ import t from '../../translations.js';
 "use strict"; // It is recommended to use strict javascript for easier debugging
 
 function uniquecat(a,b) {
+     if( a === undefined ){
+            return b;
+            }
+     else if ( b === undefined ){
+            return a ;
+     }
 	var c = a.concat(b.filter(function (item) {
     		return a.indexOf(item) < 0;
 	})) 
@@ -32,6 +38,7 @@ function anotinb(a,b){
 
  function parseVariables(question) {
     // var varsList = parseVariableString(question.getIn(['global','$'], ''));
+    // console.log("MATHEXPRESSIONPARSER question = ", JSON.stringify( question) )
     var varsListGlobal1 = parseVariableString(question.getIn(['global','$'], ''));
 //console.log("MATHEX varsListGlobal1=", varsListGlobal1 )
     var varsListGlobal2 =   enforceList( question.getIn(['global','var'], List([]))  ).map(
@@ -43,15 +50,15 @@ function anotinb(a,b){
 	item => item.trim() ).toJS();
 //console.log("MATHEX varsListLocal2=", varsListLocal2)
     var  varsUsed = question.get('usedvariablelist',List([])).toJS() ;
-    // console.log("MATHEX varsUsed 1 =", varsUsed)
-    if( varsUsed.length == 0 ){
+    if(  false && varsUsed.length == 0 ){
 	// console.log("Length is zero ");
 	var correct_answer =  question.getIn(['expression','$'], '').replace(/;/g,'').trim();
  	var caretless = correct_answer;
 	// console.log("correct_answer = ", correct_answer )
-    	caretless = caretless.replace(/[A-Za-z0-9]+\(/g,'(' )
- 	// console.log("caretless = ", caretless )
-	var rx = new RegExp("([A-Za-z]+\w*)","g")
+        caretless = caretless.replace(/\^/g,' ')
+    	caretless = caretless.replace(/[A-z][A-Za-z0-9]*\(/g,'(' )
+ 	//console.log("caretless = ", caretless )
+	var rx = new RegExp("([A-z][A-z0-9]*)","g")
 	var lis = [];
 	var match ;
 	while((match = rx.exec(caretless)) !== null){
@@ -75,6 +82,8 @@ function anotinb(a,b){
  //   console.log("MATHEX varsUsed 2 =", varsUsed)
     var globalvarPropsList = enforceList(question.getIn(['global', 'var'], List([])));
     var localvarPropsList = enforceList(question.get('var', List([])));
+    var localvarPropsList2 =  enforceList(question.getIn(['variables','var'], List([])));
+    //console.log("localvarPropsList2 = ", JSON.stringify( localvarPropsList2  ) )
     var allvarPropsList = localvarPropsList.concat(globalvarPropsList);
     var usethese = uniquecat( uniquecat( varsUsed, varsListLocal1 ), varsListLocal2 )
     var allpossibleVars = uniquecat(  usethese, uniquecat( varsListGlobal1, varsListGlobal2) )
@@ -158,6 +167,7 @@ function AvailableVariables(question) {
   var res = parseVariables( question );
   // var varsList = res['varsList'];
   var varProps = res['varProps'];
+  //console.log("VARPROPS = ", varProps )
   // var varsUsed = res['varsUsed'];
   // var allVars = res['allVars'];
   // var  n_attempts =  state.getIn(['n_attempts'],'23');

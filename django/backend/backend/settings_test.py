@@ -11,7 +11,7 @@ ASYNC = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'TEST' : {
+        'TEST' :{
         'NAME': os.path.join(BASE_DIR, 'dbtest.sqlite3'),
         }
     }

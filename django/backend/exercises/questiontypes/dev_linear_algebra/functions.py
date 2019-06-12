@@ -33,22 +33,28 @@ logger = logging.getLogger(__name__)
 # see https://pypkg.com/pypi/sympy/f/sympy/matrices/expressions/diagonal.py/
 
 
-class Dot(sympy.Function):
-    nargs = 2
-
-    @classmethod
-    def eval(cls, x, y):
-        if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
-            return conjugate(x).dot(y)
-        else:
-            return None
+# class Dot(sympy.Function):
+##    nargs = (2)
+#    @classmethod
+#    def eval(cls, x,y):
+#        if ( isinstance(x, sympy.MatrixBase  ) and isinstance(y, sympy.MatrixBase )):
+#            return conjugate(x).dot(y)
+#        else:
+#            return None
 
 
 class Norm(sympy.Function):
     @classmethod
     def eval(cls, x):
+        # print("Norm is entered with x = ", x )
+        # print("type = ", type(x) )
         if isinstance(x, sympy.MatrixBase):
-            return x.norm()
+            res = N(x.norm())
+            # print("result = ", res )
+            return res
+        elif isinstance(x, Number):
+            # print("identified float")
+            return N(Abs(x))
         else:
             return None
 
@@ -66,7 +72,7 @@ class Trace(sympy.Function):
     @classmethod
     def eval(cls, x):
         if isinstance(x, sympy.MatrixBase):
-            return x.trace()
+            return N(x.trace())
         else:
             return None
 
@@ -117,6 +123,7 @@ class IsDiagonalizationOf(sympy.Function):
         if isinstance(u, sympy.MatrixBase) and isinstance(m, sympy.MatrixBase):
             ut = transpose(u)
             diag = ut.inv() * m * ut
+            diag = diag.evalf(6, chop=True)
             if diag.is_diagonal():
                 return sympy.sympify('1')
             else:
@@ -153,7 +160,10 @@ class isunitary(sympy.Function):
             sp = x.shape
             target = eye(sp[1])
             # print("target = ", target )
-            if ((x * conjugate(x.T)) - target).is_zero:
+            zer = (x * conjugate(x.T)) - target
+            # print("zer = ", zer )
+            zer = zer.evalf(6, chop=True)
+            if zer.is_zero:
                 return sympy.sympify('1')
             else:
                 return sympy.sympify('0')
@@ -165,7 +175,9 @@ class IsHermitian(sympy.Function):
     @classmethod
     def eval(cls, x):
         if isinstance(x, sympy.MatrixBase):
-            if (x - conjugate(x.T)).is_zero:
+            zer = x - conjugate(x.T)
+            zer = zer.evalf(6, chop=True)
+            if zer.is_zero:
                 return sympy.sympify('1')
             else:
                 return sympy.sympify('0')
@@ -184,7 +196,15 @@ class Cross(sympy.MatrixExpr):
     def doit(self, **hints):
         x = self.args[0].doit() if isinstance(self.args[0], sympy.Basic) else self.args[0]
         y = self.args[1].doit() if isinstance(self.args[1], sympy.Basic) else self.args[1]
-        if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
+        # print("enter Cross with x  = ", x , type( x ))
+        # print("enter Cross with y = ", y , type( y ) )
+        if str(x) == '0':
+            # print("IDENTIFIED ZERO x ")
+            return 0 * y
+        elif str(y) == '0':
+            # print("IDENTIFIED ZERO x ")
+            return 0 * x
+        elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
             return x.cross(y)
         else:
             return self
@@ -210,6 +230,8 @@ class gt(sympy.Function):
     @classmethod
     def eval(cls, x, y):
         if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
+            x = x.doit()
+            y = y.doit()
             if Gt(x, y):
                 return sympy.sympify('1')
             else:
@@ -224,6 +246,9 @@ class lt(sympy.Function):
     @classmethod
     def eval(cls, x, y):
         if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
+            x = x.doit()
+            y = y.doit()
+            # print("LT x = ", x )
             if Lt(x, y):
                 return sympy.sympify('1')
             else:
@@ -238,6 +263,8 @@ class ge(sympy.Function):
     @classmethod
     def eval(cls, x, y):
         if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
+            x = x.doit()
+            y = y.doit()
             if Ge(x, y):
                 return sympy.sympify('1')
             else:
@@ -252,6 +279,8 @@ class le(sympy.Function):
     @classmethod
     def eval(cls, x, y):
         if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
+            x = x.doit()
+            y = y.doit()
             if Le(x, y):
                 return sympy.sympify('1')
             else:
@@ -266,7 +295,7 @@ class eq(sympy.Function):
     @classmethod
     def eval(cls, x, y):
         if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
-            if Eq(x, y):
+            if (x - y).is_zero:
                 return sympy.sympify('1')
             else:
                 return sympy.sympify('0')
@@ -287,7 +316,7 @@ class neq(sympy.Function):
     @classmethod
     def eval(cls, x, y):
         if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
-            if Eq(x, y):
+            if (x - y).is_zero:
                 return sympy.sympify('0')
             else:
                 return sympy.sympify('1')
@@ -363,7 +392,9 @@ class Dot(sympy.Function):
 
     @classmethod
     def eval(cls, x, y):
-        if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
+        if str(x) == '0' or str(y) == '0':
+            return 0
+        elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
             return conjugate(x).dot(y)
         else:
             return None

@@ -35,6 +35,8 @@ exports.symbols = {
   'false': '\\mathrm{False}',
   //other
   i: 'i', //TODO use \i ??
+  I: '\\underline{i}' ,
+  hbar: '\\hbar',
   inf: '\\infty',
   Inf: '\\infty',
   infinity: '\\infty',

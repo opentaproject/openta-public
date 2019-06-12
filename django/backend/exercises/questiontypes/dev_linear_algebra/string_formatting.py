@@ -79,7 +79,7 @@ def absify(expression):  # {{{
         c = expression[i]
         if c == '|':
             if depth == 0:
-                s += " Norm( "
+                s += " abs( "
                 depth = -1
             elif depth == -1:
                 depth = 0

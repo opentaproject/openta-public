@@ -36,7 +36,7 @@ var absify = (expression) => {//{{{
             var c = expression[i]
             if(c === '|'){
                  if(depth == 0) {
-                        s += "Norm("
+                        s += "abs("
                         depth = -1
                  }
                  else if(depth == -1)
@@ -167,6 +167,7 @@ const asciiMathToMathJS = (str) => {
     parsed = insertImplicitMultiply(parsed);
     parsed = insertImplicitSubscript(parsed);
     parsed = braketify(parsed);
+    parsed = absify( parsed);
     parsed = fixDelimiters(parsed);
     return parsed;
 }

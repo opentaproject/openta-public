@@ -12,6 +12,9 @@ EXERCISE_XSD = './exercises/exercise.xsd'
 EXERCISES_PATH = settings.EXERCISES_PATH  #  '../../exercises'
 LIVE_TRANSLATION_DICT_XML = 'locale/translationdict.xml'
 DEFAULT_TRANSLATION_DICT_XML = 'translations/translationdict.xml'
+EXERCISE_KEY = 'exercisekey'
+EXERCISE_HISTORY = 'history'
+EXERCISE_THUMBNAIL = 'thumbnail.png'
 
 
 def get_student_asset_path(user, exercise):

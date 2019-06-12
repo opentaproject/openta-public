@@ -6,7 +6,10 @@ import traceback
 import random
 import itertools
 from sympy.core import S
+from .unithelpers import units, sympy_units
 
+
+from .variableparser import getallvariables, get_used_variable_list
 from exercises.questiontypes.safe_run import safe_run
 import logging
 import traceback
@@ -31,11 +34,14 @@ lambdifymodules = [
         'abs': numpy.linalg.norm,
         'cross': lambda x, y: numpy.cross(x, y, axis=0),
         'dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
+        'Dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
         'zoo': numpy.inf,
         'I': numpy.complex(0, 1),
     },
     "numpy",
 ]
+
+import re
 
 
 class LinearAlgebraUnitError(Exception):
@@ -51,6 +57,9 @@ class LinearAlgebraUnitError(Exception):
 
 
 def check_units_new(expression, correct, sample_variables):
+    # print("check_units_new expression ", expression )
+    # print("check_units_new correct ", correct )
+    # print("sample_variables = ", sample_variables)
     nvarsubs = {}
     nsubs_values = []
 
@@ -77,13 +86,7 @@ def check_units_new(expression, correct, sample_variables):
     ]
     results = []
     for check in checks:
-        unit_values = list(
-            map(
-                lambda item: (item[1], item[0]),
-                zip(check, [kg, meter, second, ampere, kelvin, mole, candela]),
-            )
-        )
-        # print("unit_values = ", unit_values )
+        unit_values = list(map(lambda item: (item[1], item[0]), zip(check, sympy_units)))
         allvalues = nsubs_values + unit_values
         vale = numpy.linalg.norm(
             sympy.lambdify([], nexpression.subs(allvalues).doit(), modules=lambdifymodules)()
@@ -95,31 +98,70 @@ def check_units_new(expression, correct, sample_variables):
             results.append(vale / valc)
         else:
             results.append(vale)
-    # print("CHECK UNITS results = ", results )
     for res in results:
         if numpy.absolute(res - results[0]) > 10e-5:
-            # print("RAISING UNIT ERROR");
             raise LinearAlgebraUnitError(_("Incorrect units"))
 
 
 def check_for_legal_answer(
     precision, variables, student_answer, expression, check_units=True, blacklist=[]
 ):
-    varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
-    # print("varsubs = ", varsubs)
-    # print("varsubs_sympify = ", varsubs_sympify)
-    # print("sample_variables", sample_variables)
     response = {}
-    # print("check for legal answer of ", student_answer)
+    atoms = get_used_variable_list(student_answer)
+    # print("ATOMS = ", atoms )
+    for atom in atoms:
+        strrep = str(atom)
+        # funcstr = str(atom.func)
+        if strrep in blacklist:
+            return {'error': _('(A) Forbidden token: ') + strrep}
     student_answer = declash(student_answer)
-    # print("check for legal answer of ", student_answer)
+    # if funcstr in blacklist:
+    #    return {'error': _('(C) Forbidden token: ') + funcstr}
+
+    # print("LEGAL: expression = ", expression)
+    # print("LEGAL: student_answer = ", student_answer)
+    if '==' in expression and not '$$' in expression:
+        if not '==' in student_answer:
+            return {'error': _('answer in terms of an equality using == ')}
+    if '==' in student_answer:
+        if not '==' in expression or '$$' in expression:
+            return {'error': _('an equality is not permitted as answer')}
+        else:
+            equality = student_answer.split('==')
+            student_answer = equality[0] + '-' + equality[1]
+    varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
+    m = re.search(r'(atan|arctan|acos|arccos|acos|arcos|asin|arcsin)', student_answer)
+    if m:
+        return {'error': _('inverse trig function') + m.group(1) + _(' is forbidden')}
+    m = re.search(r'(print|sum)', student_answer)
+    if m:
+        return {'error': _('forbidden function') + m.group(1)}
     try:
         try:
-            unparsedstudentanswer = sympy.sympify(ascii_to_sympy(student_answer), varsubs_sympify)
+            sympyex = ascii_to_sympy(student_answer)
+            unparsedstudentanswer = sympify_with_custom(
+                ascii_to_sympy(student_answer), varsubs_sympify
+            )
             sympy1 = unparsedstudentanswer.subs(baseunits)
+        except SympifyError as e:
+            return {'error': 'error in: ' + student_answer}
+        except TypeError as e:
+            if 'required positional argument' in str(e):
+                return {'error': _('Syntax Error: a function is missing an argument')}
+            if 'callable' in str(e):
+                return {
+                    'error': _(
+                        'Syntax Error: You probably have a variable followed by a parenthesis without a space between. This is interpreted as a function call rather than implicit multiply and therefore  therefore fails.'
+                    )
+                }
         except Exception as e:
-            # print("DEV ERROR = ", e );
-            return {'error': 'Syntax Error: ' + str(e)}
+            return {
+                'error': 'Unidentified error unidentified : >'
+                + e.__class__.__name__
+                + '< '
+                + str(e)
+            }
+            # return {'error': 'Unidentified error: ' };
         try:
             prelhs = sympify_with_custom(student_answer, varsubs_sympify)
         except Exception as e:
@@ -143,40 +185,35 @@ def check_for_legal_answer(
                 ('KetMBra', KetMBra),
                 ('Trace', Trace),
                 ('gt', gt),
+                ('lt', lt),
             ]
             for special in specials:
-                # print("___________________________")
-                # print("DEV_LINEAR ALGEBRA TEST ", unparsedstudentanswer, "TEST FOR", special[0] )
-                # print("DEV_LINEAR ALGEBRA TEST atoms:", unparsedstudentanswer.has( special[1] ) )
-                # print("DEV_LINEAR ALGEBRA TEST blacklist ", blacklist )
-                # print("___________________________")
-                # if special[0] in blacklist and unparsedstudentanswer.has(special[1]):
-                # if special[0] in blacklist and unparsedstudentanswer.has(special[1]):
                 if special[0] in blacklist and (special[0] in str(unparsedstudentanswer)):
-                    return {'error': _('Forbidden token: ') + special[0]}
-            atoms = prelhs.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
-            # print("atoms = ", atoms )
+                    return {'error': _('(A) Forbidden token: ') + special[0]}
+
+            sa = sympy.sympify(student_answer)
+            atoms = sa.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
             for atom in atoms:
                 strrep = str(atom)
                 funcstr = str(atom.func)
                 if strrep in blacklist:
-                    return {'error': _('Forbidden token: ') + strrep}
+                    return {'error': _('(B) Forbidden token: ') + strrep}
                 if funcstr in blacklist:
-                    return {'error': _('Forbidden token: ') + funcstr}
+                    return {'error': _('(C) Forbidden token: ') + funcstr}
+
             varlist = []
             reclash = {}
             for var in variables:
                 name = declash(var['name'])
                 varlist.append(name)
-            # print('varlist = ', varlist )
             symbolatoms = list(prelhs.atoms(sympy.Symbol))
-            # print('symbolatoms = ', type( symbolatoms), symbolatoms)
+            varlist = varlist + units
             for item in symbolatoms:
-                # print("check item ", item )
                 if str(item) not in varlist:
-                    # print("item ", item, "not in ", varlist )
                     response['correct'] = False
-                    response['error'] = _('Forbidden token: ') + (str(item)).replace('variable', '')
+                    response['error'] = _('(D) Forbidden token: ') + (str(item)).replace(
+                        'variable', ''
+                    )
                     return response
     except:
         response['warning'] = 'warning'

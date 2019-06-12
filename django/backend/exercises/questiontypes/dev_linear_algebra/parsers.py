@@ -30,28 +30,34 @@ def parse_sample_variables(variables):
         variables: [ { name: string, value: asciimath } , ... ]
 
     Returns:
-        tuple ( subs_rules, sympify_rules, sample_variables )
+        tuple ( subs_rules, varsubs_sympify, sample_variables )
         subs_rules: list of 2-tuples [ (sympy symbol, sympy expression), ... ] used in .subs(...)
-        sympify_rules: { string(name): sympy symbol } used in sympify(...)
+        varsubs_sympify: { string(name): sympy symbol } used in sympify(...)
         sample_variables: [ { symbol: sympy Symbol/MatrixSymbol,
                               around: sympy expression ( a point around which to sample (might contain units))
                               }, ... ]
 
     """
     sym = {}
-    vars = variables
+    vars_ = variables
     subs_rules = []
-    sympify_rules = {}
+    varsubs_sympify = {}
     sample_variables = []
     matrix_symbols = {}
-    for var in vars:
+    # print("PARSE SAMPLE VARIABLES vars_ = ", variables )
+    vars_ = []
+    for vardict in variables:
+        if not vardict['name'] in units:
+            vars_ = vars_ + [vardict]
+    # print("PARSE SAMPLE VARIABLES NOW vars_ = ", vars_)
+    for var in vars_:
         expr = sympify_with_custom(ascii_to_sympy(var['value']), matrix_symbols)
         if hasattr(expr, 'shape'):
             sym[var['name']] = sympy.MatrixSymbol(var['name'], *expr.shape)
             matrix_symbols[var['name']] = sym[var['name']]
         else:
             sym[var['name']] = sympy.Symbol(var['name'])
-        sympify_rules[var['name']] = sym[var['name']]
+        varsubs_sympify[var['name']] = sym[var['name']]
         if expr.has(sympy.Function('sample')):
             [sample] = expr.find(sympy.Function('sample'))
             sample_points = list(sample.args)
@@ -62,7 +68,15 @@ def parse_sample_variables(variables):
             sample_variables.append({'symbol': sym[var['name']], 'around': sample_around})
         else:
             subs_rules.append((sym[var['name']], expr))
-    return (list(reversed(subs_rules)), sympify_rules, sample_variables)
+    varsubs = list(reversed(subs_rules))
+    varsubs_sympify_new = {}
+    for key, val in varsubs_sympify.items():
+        varsubs_sympify_new[key] = val.subs(varsubs).doit()
+    varsubs_sympify = varsubs_sympify_new
+    # print("subs_rules = ", subs_rules)
+    # print("varsubs_sympify = ", varsubs_sympify)
+    # print("sample_variables = ", sample_variables)
+    return (varsubs, varsubs_sympify, sample_variables)
 
 
 def sympify_with_custom(expression, varsubs):
@@ -81,6 +95,7 @@ def sympify_with_custom(expression, varsubs):
         'Abs': Norm,  # sympy.Function('norm')
         'Trace': Trace,
         'Transpose': Transpose,
+        'Conjugate': conjugate,
         'AreEigenvaluesOf': eigenvaluesof,
         'AreEigenvaluesOf': AreEigenvaluesOf,
         'IsDiagonalizationOf': IsDiagonalizationOf,
@@ -118,5 +133,7 @@ def sympify_with_custom(expression, varsubs):
     scope.update(varsubs)
     # print("LINEAR_ALGEBRA expression= ", expression)
     # print("LINEAR_ALGEBRA ascii_to_sympy = ", ascii_to_sympy(expression) )
+    # print("LINEAR_ALGEBRA varsubs= ", varsubs)
+    # print("LINEAR_ALGEBRA scope= ", scope)
     sexpr = sympy.sympify(ascii_to_sympy(expression), scope)
     return sexpr

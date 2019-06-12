@@ -9,7 +9,7 @@ import time
 import logging
 from subprocess import check_output, CalledProcessError
 
-import exercises.paths as paths
+from exercises.paths import *
 from exercises.util import deep_get
 
 from exercises.xmljson import BadgerFish
@@ -19,12 +19,6 @@ import re
 logger = logging.getLogger(__name__)
 
 bf = BadgerFish(xml_fromstring=False)
-
-
-EXERCISE_KEY = 'exercisekey'
-EXERCISE_HISTORY = 'history'
-EXERCISE_THUMBNAIL = 'thumbnail.png'
-EXERCISE_XML = paths.EXERCISE_XML
 
 
 class ExerciseParseError(Exception):
@@ -45,6 +39,12 @@ class ExerciseNotFound(Exception):
 
 def is_exercise(path):
     return os.path.isfile(os.path.join(path, paths.EXERCISE_XML))
+
+
+def fromString(xml):
+    parser = etree.XMLParser(recover=True)
+    root = etree.fromstring(xml, parser=parser)
+    return root
 
 
 def fromString(xml):
@@ -96,6 +96,12 @@ def exercise_json(path, hide_answers=False, sensitive_tags={}, sensitive_attrs={
     with open(xml_path, mode='rb') as fil:
         xml = fil.read()
     return exercise_xml_to_json(xml, hide_answers, sensitive_tags, sensitive_attrs)
+<<<<<<< HEAD
+=======
+    xmlfile = open(xml_path)
+    xml = xmlfile.read()
+    return exercise_xml_to_json(xml, hide_answers, sensitive_tags, sensitive_attrs)
+>>>>>>> Fix up dev_linear_algebra and safe_question for all
 
 
 def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):
@@ -115,6 +121,7 @@ def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_a
     Returns:
         Dictionary corresponding to the JSON representation.
     """
+    # print("PARSING: exercise_xml_to_json")
     obj = {}
     taglist = []
     try:
@@ -149,9 +156,17 @@ def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_a
                 globalnodes = root.findall('./global')
                 if len(globalnodes) > 0:
                     globalnode = globalnodes[0]
+<<<<<<< HEAD
                     globalnode.text = 'replaced by sensitive tag value'
                     valuenodes = globalnode.findall('.//value')
                     for valuenode in valuenodes:
+=======
+                    # print("global text = ", globalnode.text)
+                    globalnode.text = 'replaced by sensitive tag value'
+                    valuenodes = globalnode.findall('.//value')
+                    for valuenode in valuenodes:
+                        # print("REMOVE VALUENODE")
+>>>>>>> Fix up dev_linear_algebra and safe_question for all
                         parent = valuenode.getparent()
                         parent.remove(valuenode)
 
@@ -169,6 +184,19 @@ def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_a
         if not isinstance(globals_, list):
             globals_ = [globals_]
             obj['exercise']['global'] = globals_
+
+    globals_ = deep_get(obj, 'exercise', 'global')
+    if globals_:
+        if not isinstance(globals_, list):
+            globals_ = [globals_]
+            nglobals = []
+            for global_ in globals_:
+                if hide_answers:
+                    print("GLOBAL_ = ", global_)
+                    global_['$'] = 'HIDE THE TEXT'
+                    global_['$children$'][0]['$'] = 'HIDE THE TEXT 2'
+                nglobals = nglobals + [global_]
+            obj['exercise']['global'] = nglobals
     return obj
 
 
@@ -217,9 +245,14 @@ def exercise_xmltree(path):
         raise ExerciseParseError(e)
 
 
+<<<<<<< HEAD
 def question_xmltree_get(exercise_xmltree, question_key, usermacros={}):
     return global_and_question_xmltree_get(exercise_xmltree, question_key, usermacros)[1]
 
+=======
+def question_xmltree_get(exercise_xmltree, question_key):
+    return global_and_question_xmltree_get(exercise_xmltree, question_key)[1]
+>>>>>>> Fix up dev_linear_algebra and safe_question for all
 
 def question_json_get(path, question_key, usermacros={}):
     usermacros['@call'] = 'QUESTION_JSON_GET'
@@ -227,8 +260,21 @@ def question_json_get(path, question_key, usermacros={}):
     exercise_key = exercise_key_get(path)
     return question_json_get_from_raw_json(raw_json, exercise_key, question_key, usermacros)
 
+<<<<<<< HEAD
 
 def question_json_get_from_raw_json(raw_json, exercise_key, question_key, usermacros={}):
+=======
+def question_json_get(path, question_key):
+    # print("QUESTION_JSON_GET")
+    raw_json = exercise_json(path, True)
+    exercise_key = exercise_key_get(path)
+    return question_json_get_from_raw_json(raw_json, exercise_key, question_key)
+
+
+def question_json_get_from_raw_json(raw_json, exercise_key, question_key):
+    # print("QUESTION_JSON_GET")
+    # exercise_key = exercise_key_get(path)
+>>>>>>> Fix up dev_linear_algebra and safe_question for all
     questions = deep_get(raw_json, 'exercise', 'question')
     found = list(
         filter(
@@ -238,6 +284,10 @@ def question_json_get_from_raw_json(raw_json, exercise_key, question_key, userma
     )
     if len(found) == 1:
         global_data = deep_get(raw_json, 'exercise', 'global')
+<<<<<<< HEAD
+=======
+        # print("GLOBAL DATA = ", global_data )
+>>>>>>> Fix up dev_linear_algebra and safe_question for all
         if global_data:  # and 'type' in found[0]['@attr']:
             if not isinstance(global_data, list):
                 global_data = [global_data]
@@ -255,6 +305,7 @@ def question_json_get_from_raw_json(raw_json, exercise_key, question_key, userma
                 )
             )
             if len(global_for_type) == 1:
+                # print("UPDATE GLOBAL DATA")
                 found[0].update({'global': global_for_type[0]})
         found[0]['exercise_key'] = exercise_key
         return found[0]
@@ -301,7 +352,7 @@ def exercise_check_thumbnail(xmltree, path):
 
 def exercise_add(folder, name):
     full_path = os.path.join(folder, name)
-    template_path = os.path.join(paths.TEMPLATE_EXERCISE_PATH, "exercise.xml")
+    template_path = os.path.join(TEMPLATE_EXERCISE_PATH, "exercise.xml")
     if not os.path.isdir(folder):
         os.makedirs(folder, exist_ok=True)
     if os.path.isdir(full_path):
@@ -329,7 +380,7 @@ def exercise_add(folder, name):
 def exercise_delete(course_path, path):
     exercise_folder_name = os.path.basename(os.path.normpath(path))
     date_now = "{:%Y%m%d_%H:%M:%S_%f}".format(now())
-    deleted_relative_path = os.path.join(paths.TRASH_PATH, exercise_folder_name + "." + date_now)
+    deleted_relative_path = os.path.join(TRASH_PATH, exercise_folder_name + "." + date_now)
     deleted_path = os.path.join(course_path, deleted_relative_path)
     if not os.path.isdir(path):
         return {'error': 'There is no such exercise folder!'}
@@ -421,6 +472,7 @@ def get_translations(xml):
     return ret_langs
 
 
+<<<<<<< HEAD
 def getkey(stringin):
     key = re.sub(r'\s+', '', stringin)
     return key
@@ -442,6 +494,15 @@ def global_and_question_xmltree_get(exercise_xmltree, question_key, usermacros={
     xml = etree.tostring(exercise_xmltree)
     root = etree.fromstring(xml)
     root = apply_macros_to_exercise(root, usermacros)
+=======
+def global_xmltree_get(exercise_xmltree, question_key):
+    return global_and_question_xmltree_get(exercise_xmltree, question_key)[0]
+
+
+def global_and_question_xmltree_get(exercise_xmltree, question_key):
+    xml = etree.tostring(exercise_xmltree)
+    root = etree.fromstring(xml)
+>>>>>>> Fix up dev_linear_algebra and safe_question for all
     global_xpath = (
         '/exercise/global[@type="{type}"] | /exercise/global[not(@type)] | /exercise/global'
     )

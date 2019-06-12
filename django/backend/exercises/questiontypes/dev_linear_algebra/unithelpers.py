@@ -3,9 +3,12 @@ import numpy
 from sympy import sympify, symbols
 from sympy.abc import _clash1, _clash2, _clash
 
-meter, second, kg, ampere, kelvin, mole, candela = sympy.symbols(
-    'meter,second,kg,ampere,kelvin,mole,candela', real=True, positive=True
-)
+units = 'meter,second,kg,ampere,kelvin,mole,candela'
+
+meter, second, kg, ampere, kelvin, mole, candela = sympy.symbols(units, real=True, positive=True)
+units = units.split(',')
+sympy_units = [meter, second, kg, ampere, kelvin, mole, candela]
+
 ns = {}
 ns.update(_clash)
 ns.update(
@@ -29,7 +32,7 @@ ns.update(
 baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
 derivedunits = {
     'joule': kg * meter ** 2 / second ** 2,
-    'Newton': kg * meter ** 2 / second ** 2,
+    'Newton': kg * meter / second ** 2,
     'coulomb': sympy.sympify(ampere * second),
     'volt': sympy.sympify(kg * meter ** 2 / second ** 3 / ampere),
 }
