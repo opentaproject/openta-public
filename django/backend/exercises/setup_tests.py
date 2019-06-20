@@ -23,7 +23,8 @@ DEFAULT_EXERCISE = DEFAULT_EXERCISE_TEMPLATE.format(name=DEFAULT_EXERCISE_NAME)
 def create_database(password="pw", course_key=None):
     if course_key is not None:
         course, created = Course.objects.get_or_create(
-            course_name="Test course", course_key=course_key, published=True)
+            course_name="Test course", course_key=course_key, published=True
+        )
     else:
         course, created = Course.objects.get_or_create(course_name="Test course", published=True)
     perm_edit_exercise = Permission.objects.get(codename="edit_exercise")

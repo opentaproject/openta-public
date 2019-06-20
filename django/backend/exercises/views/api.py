@@ -282,8 +282,11 @@ def exercise_check(request, exercise, question):
     if not dbexercise.meta.published and not request.user.has_perm('exercises.edit_exercise'):
         return Response({'error': _('Exercise not activated.')}, status.HTTP_403_FORBIDDEN)
 
-    if (getattr(request, 'limited', False) and not request.user.is_staff and
-            not settings.RUNNING_DEVSERVER):
+    if (
+        getattr(request, 'limited', False)
+        and not request.user.is_staff
+        and not settings.RUNNING_DEVSERVER
+    ):
         return Response({'error': _('You are limited to ') + "5" + _(" tries per minute.")})
 
     agent = request.META.get('HTTP_USER_AGENT', 'unknown')

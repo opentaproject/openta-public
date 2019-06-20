@@ -72,7 +72,9 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
         sel = self.selenium
         wait = WebDriverWait(sel, 2)
         sel.find_element_by_xpath("//a[contains(@href,\'logout\')]").click()
-        wait.until(EC.presence_of_element_located((By.XPATH, "//form[contains(@action, \'login\')]")))
+        wait.until(
+            EC.presence_of_element_located((By.XPATH, "//form[contains(@action, \'login\')]"))
+        )
 
     def click_exercise(self, exercise):
         exercise_key = exercise.exercise_key

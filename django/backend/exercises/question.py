@@ -46,8 +46,9 @@ def get_other_answers(question_key, user_id, exercise_key):
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     for question in Question.objects.filter(exercise=dbexercise):
         try:
-            previous_answer = Answer.objects.filter(user__pk=user_id, question=question)\
-                                    .latest('date')
+            previous_answer = Answer.objects.filter(user__pk=user_id, question=question).latest(
+                'date'
+            )
             all_answers[question.question_key] = previous_answer.answer
         except Answer.DoesNotExist:
             all_answers[question.question_key] = None
@@ -72,11 +73,12 @@ def get_previous_answers(question_id, user_id, n_answers=10):
 
 
 def register_question_type(
-        question_type,
-        grading_function,
-        json_hook=lambda safe_json, full_json, q_id, u_id, e_id: safe_json,
-        hide_tags=[],
-        hide_attrs=[]):
+    question_type,
+    grading_function,
+    json_hook=lambda safe_json, full_json, q_id, u_id, e_id: safe_json,
+    hide_tags=[],
+    hide_attrs=[],
+):
     question_check_dispatch[question_type] = grading_function
     question_json_hooks[question_type] = json_hook
     sensitive_tags[question_type] = hide_tags
@@ -121,10 +123,12 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     question_xmltree.append(runtime_element)
 
     rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
-    if ((not settings.RUNNING_DEVSERVER) and
-            rate_limit is not None and
-            rate_limit.text is not None and
-            not user.is_staff):
+    if (
+        (not settings.RUNNING_DEVSERVER)
+        and rate_limit is not None
+        and rate_limit.text is not None
+        and not user.is_staff
+    ):
         rate = rate_limit.text.strip()
         if is_ratelimited(
             request, group='question_custom_rate', key='user', rate=rate, increment=True
