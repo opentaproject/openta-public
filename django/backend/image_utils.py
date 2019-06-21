@@ -2,7 +2,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import datetime
 
-FONT_PATH = "../../fonts/FreeMono.ttf"
+FONT_PATH = "../fonts/FreeMono.ttf"
 
 
 def compress_pil_image_timestamp(image_path):
@@ -14,6 +14,7 @@ def compress_pil_image_timestamp(image_path):
 
     """
     image = Image.open(image_path)
+    print("A")
     w, h = image.size
     ratio = max(float(w) / 1280.0, float(h) / 1024.0, 1.0)
     image = image.resize((int(w / ratio), int(h / ratio)), Image.ANTIALIAS)
