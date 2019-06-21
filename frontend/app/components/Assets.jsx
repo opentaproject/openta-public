@@ -83,13 +83,13 @@ class BaseAssets extends Component {
                 <div className="uk-form-file">
                     <a type="file" className={"uk-button"}><i className="uk-icon-camera"/>
                     </a>
-                    <input type="file" accept="image/*" onChange={(e) => this.props.onUpload(e, this.props.activeExercise)}/>
+                    <input type="file" accept="image/*" onChange={(e) => this.props.onUpload(e, this.props.activeExercise,this.props.author)}/>
                 </div>
 
                 <div className="uk-form-file">
                     <a type="file" className={"uk-button"}><i className="uk-icon-file-o" title="file"/>
                     </a>
-                    <input type="file" onChange={(e) => this.props.onUpload(e, this.props.activeExercise)}/>
+                    <input type="file" onChange={(e) => this.props.onUpload(e, this.props.activeExercise,this.props.author)}/>
                 </div>
             </span>
         );
@@ -123,13 +123,13 @@ class BaseAssets extends Component {
     }
 }
 
-const handleUpload = (event, exerciseKey) => dispatch => {
+const handleUpload = (event, exerciseKey ,author ) => dispatch => {
   if (event.target.value !== "") {
     var file = event.target.files[0];
     var extension = file.name.split('.').pop()
-    if(  extension.match(/(gz|zip)/ ) ){
+    if(  author && extension.match(/(gz|zip)/ ) ){
         dispatch(uploadAsset(exerciseKey, file))
-            .then( () => dispatch( handleReset(exerciseKey) ))
+            .then( () => dispatch( handleReset(exerciseKey) )) // Only author is allowed to reset after upload since others dont change xml
             .catch(err => console.log(err));
         }
     else {
@@ -153,7 +153,7 @@ const handleDeleteAsset = (exerciseKey, asset) => dispatch => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        onUpload: (event, exerciseKey) => dispatch(handleUpload(event, exerciseKey)),
+        onUpload: (event, exerciseKey,author) => dispatch(handleUpload(event, exerciseKey,author)),
         handleDeleteAsset: (exerciseKey, asset) => dispatch(handleDeleteAsset(exerciseKey, asset))
     }
 }
@@ -163,6 +163,7 @@ const mapStateToProps = state => {
   var activeExerciseState = state.getIn(["exerciseState", state.get("activeExercise")], immutable.Map({}));
   var pendingState = state.getIn(["pendingState", "exercise", state.get("activeExercise")], immutable.Map({}));
   var assetViewer = '/asset/';
+  var author = state.getIn(['login', 'groups'], immutable.List([])).includes('Author')
   if(state.getIn(["login", "groups"], immutable.List([])).includes("Student"))
     var assetViewer = '/studentasset/';
   return {
@@ -171,7 +172,8 @@ const mapStateToProps = state => {
     pendingState: pendingState,
     pendingUpload: pendingState.getIn(["assetUploadPending"]),
     uploadProgress: pendingState.getIn(["assetUploadProgress"]),
-    assetViewer: assetViewer
+    assetViewer: assetViewer,
+    author: author
   };
 };
 
