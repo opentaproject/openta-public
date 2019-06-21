@@ -6,6 +6,7 @@ import {
 } from '../actions.js';
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
+import QMath from './QMath';
 import MathSpan from './MathSpan.jsx';
 
 import immutable from 'immutable';
@@ -26,7 +27,7 @@ function renderExpression(expression) {
 }
 
 
-const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers, pending, admin}) => {
+const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers, pending, admin, exerciseKey}) => {
   const getQuestionText = key => {
     const q = exerciseState.getIn([activeExercise, 'json', 'exercise', 'question'], immutable.List([])).find(q => q.getIn(['@attr', 'key']) === key, null);
     if (q) {
@@ -34,6 +35,37 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
     }
     return '';
   }
+
+
+
+  const getQuestionType = key => {
+    const q = exerciseState.getIn([activeExercise, 'json', 'exercise', 'question'], immutable.List([])).find(q => q.getIn(['@attr', 'key']) === key, null);
+    if (q) {
+      return q.getIn(['@attr', 'type'],'devLinearAlgebra');
+    }
+    return '';
+  }
+
+
+
+
+const timeago = t =>  {
+    var txt = moment(t).fromNow('mm')
+    txt = txt.replace(/ *ago */,'')
+    txt = txt.replace(/ *hours */,' h')
+    txt = txt.replace(/ *minutes* */,' m')
+    txt = txt.replace(/ a /,' 1 ')
+    txt = txt.replace(/ *seconds */,' s')
+    txt = txt.replace(/ *a few */,' ~ 0 ')
+    txt = txt.replace(/a/,' 1 ')
+    return txt 
+    }
+
+    
+
+
+
+
   var questions = recentAnswers.keys();
   return (
     <div className="uk-panel uk-panel-box uk-margin-top">
@@ -62,14 +94,20 @@ const BaseExerciseRecentResults = ({activeExercise, exerciseState, recentAnswers
                         data.get('answers').map( answer => (
                           <tr key={answer.get('question')+':'+answer.get('user')+':'+answer.get('date')}>
                           <td className={answer.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'} title={answer.get('answer')} data-uk-tooltip>
-                            <div className="uk-text-truncate" style={{maxWidth: "300px"}}>
-                              <MathSpan className="uk-text-small">
-                                { renderExpression(answer.get('answer')) }
-                              </MathSpan>
+                             <i className={answer.get('correct', false) ? 'uk-icon uk-icon-check uk-text-success' : 'uk-icon uk-icon-close uk-text-danger'} />
+                                </td>
+                            <td>   { <QMath  questionType="linearAlgebra" exerciseKey={exerciseKey} expression={answer.get('answer')} /> }   </td>
+                                 <td>
+                            </td>
+                            <td>
+                            <div className='uk-text uk-text-small'>
+                                {answer.get('answer')}
                             </div>
+
                           </td>
+                        
                           <td className="uk-text-small">
-                            { moment(answer.get('date')).fromNow() }
+                            {timeago(answer.get('date')) }
                           </td>
                           </tr>
                         ))
@@ -96,6 +134,7 @@ const mapStateToProps = state => {
     pending: state.getIn(['pendingState', 'results', 'exercises', activeExercise, 'recent'], false),
     activeExercise: activeExercise,
     exerciseState: state.get('exerciseState'),
+    exerciseKey: state.get('activeExercise'),
     admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
   });
 }
