@@ -94,7 +94,7 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
                 '//textarea[contains(@id,\"' + questionkey + '\")]'
             )
             answerarea.send_keys(ans)
-        buttons = sel.find_elements_by_xpath("//a//i[contains(@class, \'uk-icon-send\')]")
+        buttons = sel.find_elements_by_xpath("//a[.//i[contains(@class, \'uk-icon-send\')]]")
         for button in buttons:
             button.click()
         corrects = sel.find_elements_by_xpath("//div[contains(@class, \'yescorrect\')]")
