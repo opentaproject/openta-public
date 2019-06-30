@@ -2,6 +2,7 @@ from django.apps import AppConfig
 from users.models import OpenTAUser
 from django.contrib.auth.models import User, Group
 from course.models import Course
+from exercises.modelhelpers import enrollment
 from pylti.common import LTIException
 from .admin import user_stub_from_request, default_username, immutable_user_id, lti_names, lti_keys, verify_request
 import re
@@ -59,8 +60,12 @@ def get_user_username(request, course):
     if immutable_user_id is None:
         return None
     opentausers = OpenTAUser._meta.model.objects.all()
+    logging.debug("GET USER_USERNAME")
     try:
         opentauser = opentausers.filter(immutable_user_id=immutable_user_id)[0]
+        if course.pk not in enrollment( opentauser ) :
+            opentauser.courses.add(course)
+            opentauser.save()
         return opentauser.user.username
     except:
         return None
@@ -75,13 +80,14 @@ def get_immutable_user_id(request, course):
 
 def get_or_create_user(request, course):
     try:
-        assert request.session.get("lti_login", False)
-    except AssertionError:
-        return None
-    try:
+        logging.debug("TRY GETTING IMMUTABLE")
         username = get_immutable_user_id(request, course)
         user = User.objects.get(username=username)
+        opentauser = OpenTAUser.objects.get(user=user)
+        opentauser.courses.add(course)
+        opentauser.save()
     except User.DoesNotExist:
+        logging.debug("USER NO EXIST")
         try:
             username = get_user_username(request, course)
             user = User.objects.get(username=username)
@@ -91,11 +97,13 @@ def get_or_create_user(request, course):
 
     return user
 
-
 def course_from_request(request):
     # TODO THIS SHOULD NOT BE NECESSARY
     # TODO COURSE SHOULD BE AVAILABLE WHERE NEEDED
-    course_pk = request.META.get("PATH_INFO").split("/").pop()
+    #course_pk = request.META.get("PATH_INFO").split("/").pop()
+    #course_pk = request.COOKIES.get('course_pk',2)
+    course_pk = ( request.get_full_path() ).split('/')[2]
+    logging.debug("COURSE FROM REQUEST RETURN COURSE_PK  " +  str( course_pk) )
     try:
         course = Course.objects.get(pk=course_pk)
     except:
@@ -110,6 +118,7 @@ class LTIAuth:
         course = course_from_request(request)  # TODO REMOVE DEPENDENCE ON REQUEST PARSE
         try:
             user = get_or_create_user(request, course)
+            logging.debug("GET OR CREATE SUCCEEDED")
         except:
             raise LTIException("Authentication failed")
         return user
@@ -124,6 +133,8 @@ class LTIAuth:
     def get_user(self, user_pk):
         logging.debug("LTIAUTH GET_USER CALLED %s", str(user_pk))
         try:
-            return User.objects.get(pk=user_pk)
+            user = User.objects.get(pk=user_pk)
+            logging.debug("USER FOUND")
+            return user
         except User.DoesNotExist:
             return None

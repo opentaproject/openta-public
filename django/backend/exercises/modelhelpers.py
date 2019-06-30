@@ -799,3 +799,10 @@ def get_students_not_to_be_audited(exercise):
     active_students = get_all_who_tried(exercise)
     passed_students = get_students_to_be_audited(exercise)
     return active_students.exclude(pk__in=passed_students)
+
+def enrollment(user):
+    try:
+        courses =   [ sw.pk  for sw in user.opentauser.courses.all()  ]
+    except:
+        courses = []
+    return courses

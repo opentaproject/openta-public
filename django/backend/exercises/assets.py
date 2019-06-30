@@ -10,7 +10,6 @@ import logging
 from image_utils import compress_pil_image_timestamp
 
 
-
 LOGGER = logging.getLogger(__file__)
 
 
@@ -102,8 +101,8 @@ def add_asset(path, asset_file, types, course_key):
                     asset.write(chunk)
         except IOError:
             return {'error': "Couldn't write to asset file " + file_path}
-    if  extension.lower()  in ('jpg','png','jpeg') :
-            compress_pil_image_timestamp(file_path)
+    if extension.lower() in ('jpg', 'png', 'jpeg'):
+        compress_pil_image_timestamp(file_path)
     return {'success': 'Wrote file'}
 
 

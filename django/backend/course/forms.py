@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 HELP_TEXTS = {
-    'url': _("The course url, including http:// or https://"),
+    'url': "Course url. Augment with /lti/config_xml/ for LTI URL configuration ",
     'registration_domains': _(
         'Comma separated list of email domains' ' that are permitted to self-register'
     ),
@@ -27,14 +27,11 @@ class CourseForm(forms.ModelForm):
         exclude = []
         fields = '__all__'
         widgets = {'registration_password': forms.PasswordInput(render_value=True)}
-        help_texts = HELP_TEXTS
 
 
 class CourseFormFrontend(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CourseFormFrontend, self).__init__(*args, **kwargs)
-        self.fields['lti_secret'].disabled = True
-        self.fields['lti_key'].disabled = True
 
     lti_key = forms.CharField(disabled=True)
     lti_secret = forms.CharField(disabled=True)
@@ -49,17 +46,18 @@ class CourseFormFrontend(forms.ModelForm):
             'motd',
             'deadline_time',
             'url',
+            'lti_key',
+            'lti_secret',
             'registration_by_domain',
             'registration_domains',
             'languages',
             'registration_password',
             'registration_by_password',
             'owners',
-            'lti_key',
-            'lti_secret',
         ]
         widgets = {
             'owners': forms.CheckboxSelectMultiple(),
             'motd': forms.Textarea(attrs={'cols': 80, 'rows': 10}),
+            'url': forms.Textarea(attrs={'cols': 80, 'rows': 1}),
         }
         help_texts = HELP_TEXTS

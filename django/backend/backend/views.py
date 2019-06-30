@@ -3,7 +3,7 @@ import logging
 from io import StringIO
 from smtplib import SMTPException
 from django.utils import translation
-from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.decorators.clickjacking import xframe_options_exempt, xframe_options_deny
 
 from django.conf import settings
 from django.contrib import messages
@@ -25,12 +25,14 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 from django.views.generic.edit import CreateView, FormView
 from django.contrib.auth import logout as syslogout
+from django.views.decorators.csrf import csrf_exempt
 
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from ratelimit.decorators import ratelimit
 from ratelimit.mixins import RatelimitMixin
+from users.models import OpenTAUser
 
 from backend.forms import (
     EmailUsersForm,
@@ -44,6 +46,7 @@ from backend.constants import DONT_REPLY_EMAIL
 from course.models import Course
 from course.serializers import CourseSerializer
 from exercises.views.file_handling import serve_file
+from exercises.modelhelpers import enrollment
 
 logger = logging.getLogger(__name__)
 
@@ -155,8 +158,8 @@ def login_status(request):
     for group in dbgroups:
         groups.append(group.name)
     lti_login = request.session.get('lti_login', False)
-    compactview = request.session.get('compactview', lti_login)
-    logging.debug("LTI_LOGIN = %s", lti_login)
+    nonlti_login = request.session.get('nonlti_login', False)
+    compactview = request.session.get('compactview', request.session.get('lti_login',False) )
     response = {
         'username': request.user.get_username(),
         'user_pk': request.user.pk,
@@ -167,7 +170,6 @@ def login_status(request):
     }
     return Response(response)
 
-
 @ratelimit(key='ip', rate='5/30s')
 def login(request, course_name=None):
     """Login view.
@@ -175,6 +177,9 @@ def login(request, course_name=None):
     Returns:
         Login view unless rate limited in which case rate_limit.html
     """
+    # get last course name to make it easy to return
+    if course_name == None:
+        course_name = request.COOKIES.get('last_course_name', None)
     try:
         course = Course.objects.get(course_name__iexact=course_name)
     except Course.DoesNotExist:
@@ -193,7 +198,7 @@ def login(request, course_name=None):
         'course': course_data,
         'openta_version': settings.VERSION if hasattr(settings, 'VERSION') else "",
         'subpath': '/' + settings.SUBPATH,
-        'course_name': course.course_name,
+        'course_name': course.course_name
     }
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
         return auth_views.login(request, extra_context=extra)
@@ -254,10 +259,11 @@ def activate_and_reset(request, username, token):
 @login_required
 def view_toggle(request, course_pk=None):
     logging.debug("VIEW TOGGLE")
-    request.session['compactview'] = not request.session.get('compactview', False)
+    request.session['compactview'] = not request.session.get('compactview', request.session.get('lti_login', False ) )
     return main(request, course_pk)
 
 
+@xframe_options_exempt # KEEPS FROM CRASHING FOR PASSWSORD CHANGE
 @login_required
 def main(request, course_pk=None):
     """The main frontend view.
@@ -265,7 +271,6 @@ def main(request, course_pk=None):
     Returns:
         The frontend app in base_main.html if authorized, otherwise login screen.
     """
-    logging.debug("MAIN SCREEN course_pk = %s", course_pk)
     if course_pk is not None:
         course = Course.objects.get(pk=course_pk)
     else:
@@ -273,14 +278,23 @@ def main(request, course_pk=None):
             messages.add_message(request, messages.WARNING, _("No courses yet"))
             return redirect(reverse('login'))
         course = Course.objects.order_by('-published', '-pk')[0]
-
-    if (
-        request.user.groups.filter(name='Student').exists()
-        and not course.published
-        and not request.user.username == 'student'
-    ):
-        messages.add_message(request, messages.WARNING, _("Course not published yet."))
-        return redirect(reverse('login'))
+        course_pk = course.pk
+    user = request.user
+    enrolled =  int( course_pk )   in enrollment(user)
+    published_and_enrolled = course.published and enrolled
+    msg = ''
+    if not enrolled:
+        msg = "Not enrolled in course"
+    if not course.published :
+        msg = "Course not published yet"
+    if ( request.user.groups.filter(name='Student').exists() and  not published_and_enrolled and not request.user.username == 'student'):
+        try:
+            mycourse = ( Course.objects.get(pk=enrollment(user)[0] ) ).course_name
+            messages.add_message(request, messages.WARNING, _(msg))
+            return redirect( '/' + settings.SUBPATH + 'logout/' + mycourse + '/' )
+        except :
+            messages.add_message(request, messages.WARNING, _("Not enrolled!"))
+            return redirect( '/' + settings.SUBPATH + 'logout/'  + course.course_name + '/')
 
     course_data = CourseSerializer(course).data
     extra = dict(course=course_data, timezone=settings.TIME_ZONE)
@@ -288,10 +302,12 @@ def main(request, course_pk=None):
     response = render(request, "base_main.html", context=extra)
     if settings.CSRF_COOKIE_NAME:
         response.set_cookie(key='csrf_cookie_name', value=settings.CSRF_COOKIE_NAME)
+    if request.session.get("launch_presentation_return_url", None ) :
+        response.set_cookie(key='launch_presentation_return_url',value=request.session.get('launch_presentation_return_url', None ), path='/')
 
     subpath = settings.SUBPATH.strip('/')
-    response.set_cookie(key='subpath', value=subpath)
-    response.set_cookie(key='lang', value=lang)
+    response.set_cookie(key='subpath', value=subpath,path='/')
+    response.set_cookie(key='lang', value=lang,path='/' )
     return response
 
 
@@ -409,18 +425,3 @@ def serve_public_media(request, asset):
         raise Http404('Not authorized')
 
     return serve_file(settings.MEDIA_URL + asset, asset.split('/')[-1])
-
-
-def logout(request):
-    logging.debug("HIT LOGOUT")
-    logging.debug("LAUNCH PRES = %s", request.session.get('launch_presentation_return_url'))
-    next_url = "UNDEFINED"
-    try:
-        next_url = request.session.get('launch_presentation_return_url')
-        logging.debug("NEXT URL  = %s", next_url)
-        syslogout(request)
-        return HttpResponseRedirect(next_url)
-    except:
-        logging.debug("NEXT URL FAILED %s", next_url)
-        syslogout(request)
-        return render(request, 'bye.html')

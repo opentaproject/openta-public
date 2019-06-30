@@ -64,7 +64,7 @@ class user_stub_from_request:
         for key, name in zip(lti_keys, lti_names):
             setattr(self, name, request.POST.get(key))
         self.groups = groups_from_roles(request.POST.get("roles", "Student"))
-        self.courses = course.pk
+        self.courses = [ course ]
         self.immutable_user_id = immutable_user_id(self)
 
 

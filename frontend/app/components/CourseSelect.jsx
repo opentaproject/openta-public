@@ -5,6 +5,7 @@ import Spinner from './Spinner.jsx';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import T from './Translation.jsx';
+import Cookies from 'universal-cookie';
 
 import {
   setActiveCourse

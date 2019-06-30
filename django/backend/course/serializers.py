@@ -18,6 +18,7 @@ class CourseSerializer(serializers.ModelSerializer):
             'languages',
             'email_reply_to',
             'motd',
+            'url',
         )
 
     def get_languages(self, instance):
@@ -32,7 +33,7 @@ class CourseStudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Course
-        fields = ('course_name', 'published', 'pk', 'languages', 'motd')
+        fields = ('course_name', 'published', 'icon', 'email_reply_to','pk', 'languages', 'motd','url')
 
     def get_languages(self, instance):
         return instance.get_languages()

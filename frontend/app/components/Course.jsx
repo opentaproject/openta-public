@@ -333,21 +333,6 @@ const BaseCourse = ({
                         {child.pending && <Spinner size="" />}
                         {child.pending === null && <i className="uk-icon uk-icon-exclamation-triangle" />}
                       </span>
-                      {student &&
-                        false && (
-                          <div className="uk-grid">
-                            {summaryReq.total > 0 && (
-                              <div className="uk-width-1-1 uk-progress uk-margin-remove uk-padding-remove uk-progress-mini uk-progress-success">
-                                <div className="uk-progress-bar" style={{ width: percentReq + "%" }} />
-                              </div>
-                            )}
-                            {summaryBonus.total > 0 && (
-                              <div className="uk-width-1-1 uk-progress uk-margin-remove uk-padding-remove uk-progress-mini uk-progress-warning">
-                                <div className="uk-progress-bar" style={{ width: percentBonus + "%" }} />
-                              </div>
-                            )}
-                          </div>
-                        )}
                     </a>
                     { author && (
                       <div

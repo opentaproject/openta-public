@@ -38,7 +38,7 @@ const mapDispatchToProps = dispatch => {
     return {
         onLanguageChange: (language) => {
             var cookies = new Cookies()
-            cookies.set('lang',language)
+            cookies.set('lang',language,{path : '/'} )
             dispatch(updateLanguage(language));
         }
     }

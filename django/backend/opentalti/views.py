@@ -20,6 +20,7 @@ from users.models import OpenTAUser
 from django.contrib.auth.models import Group, User
 from course.models import Course
 from course.serializers import CourseSerializer
+from exercises.modelhelpers import enrollment
 
 # from backend.views import set_persistent_lang
 from django.contrib.auth import authenticate
@@ -30,6 +31,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import SetPasswordForm, PasswordChangeForm
 from django.shortcuts import render, redirect
 from .forms import EditProfileForm
+from django.contrib.auth import logout as syslogout
 import re
 import io
 
@@ -53,11 +55,23 @@ def lti_main(request, course_pk=None):
     # THE RESULT OF ALL THIS IS TO MODIFY THE REQUEST
     # AND TO CALL auth
     #
-    if request.user.is_authenticated:
-        return backendviews.main(request, course_pk)
+
+    syslogout( request ) # LOGOUT OF ANY OTHER USERS BEFORE AUTHENTICATIN NEW
     if course_pk is None:
         course = Course.objects.order_by("-published", "-pk")[0]
         course_pk = course.pk
+    if request.user.is_authenticated:
+        user = request.user
+        #courses =   [ sw.pk for sw in opentauser.courses.all()  ] 
+        #logging.debug("LIST OF COURSES")
+        #logging.debug( courses )
+        #if not course_pk in courses :
+        if not course_pk in enrollment( user ):
+            course = Course.objects.get(pk=course_pk)
+            opentauser = OpenTAUser.objects.get(user=user)
+            opentauser.courses.add(course)
+            opentauser.save()
+        return backendviews.main(request,course_pk)
     logging.debug("LTI_MAIN course_pk = %s", course_pk)
     course = Course.objects.get(pk=course_pk)
     logging.debug("secret1 = %s", course.lti_key)
@@ -155,11 +169,13 @@ def edit_profile(request):
                 logging.debug("DO A SAVE")
                 user.save()
             logging.debug("EDIT_PROFILE REDIRECT TO  " + settings.SUBPATH + "lti/")
-            return redirect("/" + settings.SUBPATH + "lti/")
+            print("REDIRECT 4")
+            return redirect("/" + settings.SUBPATH )
         else:
             logging.debug("ERRORS = %s", form.errors)
             return render(request, "edit_profile.html", context)
-        return redirect("/" + settings.SUBPATH + "lti/")
+        print("REDIRECT5")
+        return redirect("/" + settings.SUBPATH )
 
     return render(request, "edit_profile.html", context)
 
@@ -223,13 +239,15 @@ def change_password(request):
                 if "save" in request.POST["action"]:
                     user = form.save()
                     update_session_auth_hash(request, user)  # Important!
-                    messages.success(request, "Passward was reset!")
+                    messages.success(request, "Password was reset!")
                 logging.debug("REDIRECT TO %s", settings.SUBPATH)
-                return redirect("/" + settings.SUBPATH + "lti/")
+                print("REDIRECT1")
+                return redirect("/" + settings.SUBPATH )
             else:
                 logging.debug("PASSWORD FORM NOT VALID")
                 messages.error(request, "Password not reset.")
-                return redirect("/" + settings.SUBPATH + "lti/")
+                print("REDIRECT2")
+                return redirect("/" + settings.SUBPATH )
         else:
             form = passwordform(request.user)
         subpath = settings.SUBPATH.strip("/")
@@ -237,4 +255,5 @@ def change_password(request):
         return render(request, "change_password.html", {"form": form, "subpath": subpath})
     except:
         messages.error(request, "Password not reset.")
-        return redirect("/" + settings.SUBPATH + "lti/")
+        print("REDIRECT3")
+        return redirect("/" + settings.SUBPATH )

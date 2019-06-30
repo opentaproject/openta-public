@@ -123,7 +123,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
       <div className="uk-offcanvas-bar">
         <ul className="uk-nav uk-nav-offcanvas">
           <li className="uk-nav-header" key="header">
-            <a onClick={(ev) => { UIkit.offcanvas.hide(); onBack(coursePk) } }>
+            <a className='onBackToCourse' onClick={(ev) => { UIkit.offcanvas.hide(); onBack(coursePk) } }>
               <i className="uk-icon uk-icon-arrow-left uk-margin-small-right"></i>
               <span className="uk-text-small">{folder.split('.')[0]}</span>
             </a>
@@ -136,7 +136,7 @@ const BaseExercises = ({ exerciselist, folder, activeExercise, exerciseState, on
     { showOnCanvas &&
     <ul className="uk-nav uk-nav-side uk-list-space exercise-menu exercise-list-on-canvas">
     <li className="uk-nav-header" key="header">
-      <a onClick={(ev) => onBack(coursePk)}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
+      <a  onClick={(ev) => onBack(coursePk)}><i className="uk-icon uk-icon-medium uk-icon-arrow-left"></i></a> <span className="uk-text-large">{folder.split('.')[0]}</span>
     </li>
     { pendingState.get('exerciseList', false) && (<Spinner/>) }
     {exerciselist.map( exercise => {

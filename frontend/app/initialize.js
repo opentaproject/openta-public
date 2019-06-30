@@ -102,7 +102,7 @@ const load = () => {
     })();
   ReactDOM.render(
     <Provider store={store}>
-      <App />
+      <App/>
     </Provider>,
     document.querySelector('#app')
   );

@@ -100,7 +100,7 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
     def back_to_course(self):
         sel = self.selenium
         wait = WebDriverWait(sel, 2)
-        back = sel.find_element_by_css_selector('ul.exercise-menu > li.uk-nav-header > a')
+        back = sel.find_element_by_css_selector('a.onBackToCourse')
         back.click()
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'li.course-exercise-item')))
 
@@ -111,6 +111,7 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
 
     def audit_goto_my_audits(self):
         sel = self.selenium
+        wait = WebDriverWait(sel, 500)
         sel.find_element_by_xpath('//a[contains(text(), \'Audit\')]').click()
         sel.find_element_by_xpath('//a[contains(text(), \'My audits\')]').click()
 

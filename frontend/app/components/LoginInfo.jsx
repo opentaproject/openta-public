@@ -147,9 +147,16 @@ var canViewXML = author || viewer || admin
                 <a title="Administration" href={SUBPATH + "/administration/"}><i className="uk-icon uk-icon-cog uk-text-middle"></i></a>
               </li>
             )}
-            <li >
-              <a title="Logga ut" href={SUBPATH + "/logout"}><i className="uk-icon uk-icon-sign-out uk-text-middle"></i></a>
-            </li>
+            {!iframed && (
+              <li >
+                <a title="Logga ut" href={SUBPATH + "/logout/" + course + '/'}><span className="uk-padding-large"> {course} </span><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
+              </li>
+            )}
+            {iframed && (
+              <li >
+                <a title="Logga ut" href={SUBPATH + "/logout/" + course + '/lti_login/'}><span className="uk-padding-large"> {course} </span><i className="uk-icon uk-icon-rotate-right uk-text-large uk-text-middle"></i></a>
+              </li>
+    ) }
 
             {/* TODO: Is this needed? Edit profile */}
             {/* {false && lti_login && (
