@@ -99,7 +99,7 @@ function generateItem(
         >
           <div className="exercise-thumb-wrap" style={{ minWidth: "80px", maxWidth: "100px" }}>
             <div className="exercise-thumb-badge">
-              {meta.difficulty && <Badge className="uk-badge-notification"><T>{(difficulties[meta.difficulty])}</T></Badge>}
+              {meta.difficulty && <Badge className="uk-badge-notification"><T>{(meta.difficulty)}</T></Badge>}
               {meta.deadline_date && (
                 <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>
                   {moment(meta.deadline_date).format("D MMM")}

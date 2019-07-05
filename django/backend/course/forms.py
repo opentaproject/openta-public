@@ -41,9 +41,10 @@ class CourseFormFrontend(forms.ModelForm):
         # fields = '__all__'
         fields = [
             'published',
-            'course_name',
+            'course_name', 
             'course_long_name',
-            'motd',
+            'url', 
+            'motd', 'difficulties',
             'deadline_time',
             'url',
             'lti_key',
@@ -59,5 +60,6 @@ class CourseFormFrontend(forms.ModelForm):
             'owners': forms.CheckboxSelectMultiple(),
             'motd': forms.Textarea(attrs={'cols': 80, 'rows': 10}),
             'url': forms.Textarea(attrs={'cols': 80, 'rows': 1}),
+            'difficulties': forms.Textarea(attrs={'cols': 80, 'rows': 10}),
         }
         help_texts = HELP_TEXTS

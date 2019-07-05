@@ -18,7 +18,7 @@ EMAIL_VALIDATOR = EmailValidator()
 
 class Course(models.Model):
     course_key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    course_name = models.CharField(max_length=255)
+    course_name = models.CharField(max_length=255,default='OpenTA')
     lti_key = models.UUIDField(unique=True, default=uuid.uuid4)
     lti_secret = models.UUIDField(unique=True, default=uuid.uuid4)
     icon = models.ImageField(default=None, null=True, blank=True, upload_to='public')
@@ -33,6 +33,7 @@ class Course(models.Model):
     registration_domains = models.CharField(max_length=255, blank=True, null=True, default=None)
     registration_by_domain = models.BooleanField(default=False, blank=True)
     languages = models.CharField(max_length=255, blank=True, null=True, default=None)
+    difficulties  = models.CharField(max_length=512, blank=True, null=True, default='+:Recommended,*:Easy,**:Medium,***:Hard')
     email_reply_to = models.CharField(
         max_length=255, blank=True, null=True, default="", validators=[EMAIL_VALIDATOR]
     )
