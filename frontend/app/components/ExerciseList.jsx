@@ -23,13 +23,6 @@ import T from './Translation.jsx';
 import t from '../translations.js'
 import {SUBPATH} from '../settings.js';
 
-var difficulties = {
-  '1': 'Easy',
-  '2': 'Medium',
-  '3': 'Hard',
-  'none': ''
-};
-
 function listClass(item, active) {
   if(item === active)return "uk-active";
   else return "";
@@ -41,11 +34,24 @@ function generateItem(onClickFunc,  exercise, activeExercise, exerciseState, met
     onClickFunc(key, loaded);
   };
   var deadlineClass = "uk-badge-primary";
-  var legend = 'Obligatorisk';
+  var dolegend = false
+  var legend = ''
   if( meta.get('bonus', false) ) {
     deadlineClass = "uk-badge-warning";
     legend = 'Bonus';
+    dolegend = true
   }
+
+  if( meta.get('obligatorisk', false) ) {
+    deadlineClass = "uk-badge-primary";
+    legend = 'Obligatorisk';
+    dolegend = true
+  }
+  if( meta.get('deadline_date')){
+      var duedate =moment(meta.get('deadline_date')).format('D MMM') 
+      } else {
+      var duedate =  legend
+    }
   if(showStatistics) {
     var percent = exerciseState.getIn([exercise.get('exercise_key'), 'percent_complete'], 0);
     if(percent === null)percent = 0;
@@ -67,9 +73,9 @@ return (
               { /*meta.get('bonus', false) && <Badge className="uk-badge-notification uk-badge-warning"><i className="uk-icon uk-icon-plus uk-text-bold " title="Bonus"/></Badge> */}
                 { meta.get('solution', false) &&
                   <Badge className={"uk-badge-notification"}>lösning</Badge> }
-                { meta.get('deadline_date',false) &&
+                { dolegend  &&
                   <Badge className={"uk-badge-notification uk-text-small " + deadlineClass} title={legend}>
-                    {moment(meta.get('deadline_date')).format('D MMM')}
+                    {duedate} 
                   </Badge> }
                 { meta.get('image', false) &&
                   <Badge className={"uk-badge-notification " + imageUploadClass}>

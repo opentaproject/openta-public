@@ -47,11 +47,6 @@ function generateItem(
   var legend = ''
   var dolegend = false
 
-  if ( meta.recommended) {
-    deadlineClass = "uk-badge-success";
-    legend = '+';
-    dolegend = true
-  }
 
   if (meta.bonus) {
     deadlineClass = "uk-badge-warning";
@@ -66,10 +61,12 @@ function generateItem(
   }
 
 
-
-  if ( meta.deadline_date ) {
-    dolegend = false
+  if( meta.deadline_date){
+      var duedate = moment(meta.deadline_date).format('D MMM') 
+      } else {
+      var duedate =  legend
     }
+
   var responseAwaits = 0
   if (showStatistics) {
     var percent_complete = exerciseState.getIn([exercise, "percent_complete"], 0);
@@ -100,17 +97,12 @@ function generateItem(
           <div className="exercise-thumb-wrap" style={{ minWidth: "80px", maxWidth: "100px" }}>
             <div className="exercise-thumb-badge">
               {meta.difficulty && <Badge className="uk-badge-notification"><T>{(meta.difficulty)}</T></Badge>}
-              {meta.deadline_date && (
+              { dolegend && (
                 <Badge className={"uk-badge-notification " + deadlineClass} title={legend}>
-                  {moment(meta.deadline_date).format("D MMM")}
+                  {duedate}
                 </Badge>
               )}
-              { dolegend && (
-                <Badge className={"uk-badge-notification " + deadlineClass} title={'Recommended'}>
-                  <T>{legend}</T>
-                </Badge>
-                    )
-               }
+              
                     
         
               {meta.image && (
