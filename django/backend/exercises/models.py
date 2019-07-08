@@ -490,7 +490,7 @@ class ImageAnswer(models.Model):
 
 
 class ExerciseMeta(models.Model):
-    DIFFICULTIES = ((1, 'Easy'), (2, 'Medium'), (3, 'Hard'))
+    DIFFICULTIES = ( ('Recommended','Recommended'), ('Easy', 'Easy'), ('Medium', 'Medium'), ('Hard', 'Hard')) # GETS OVERRIDDEN IN  course default
     exercise = models.OneToOneField(Exercise, related_name='meta', on_delete=models.CASCADE)
     deadline_date = models.DateField(default=None, null=True, blank=True)
     solution = models.BooleanField(default=False, verbose_name='Publish solution')
