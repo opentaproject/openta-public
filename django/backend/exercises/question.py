@@ -122,6 +122,22 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     runtime_element.set('exerciseassetpath', exerciseassetpath)
     question_xmltree.append(runtime_element)
 
+
+    ## THIS IS FROM OLD VERSION 
+    #question_xmltree.append(etree.fromstring('<exercisekey>' + exercise_key + '</exercisekey>'))
+    #question_xmltree.set('exercise_key', exercise_key)
+    #question_xmltree.set(
+    #    'path', os.path.join(dbexercise.course.get_exercises_path(), dbexercise.path)
+    #)
+    #question_xmltree.set('user', str(user))
+    #studentassetpath = dispatch_asset_path(request, dbexercise)
+    #exerciseassetpath = os.path.join(dbexercise.course.get_exercises_path(), dbexercise.path)
+    #question_xmltree.set('studentassetpath', studentassetpath)
+    #question_xmltree.set('exerciseassetpath', exerciseassetpath)
+    ## END 
+
+
+
     rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
     if (
         (not settings.RUNNING_DEVSERVER)

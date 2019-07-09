@@ -7,7 +7,7 @@ from pprint import pformat
 import re
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
-from exercises.questiontypes.dev_linear_algebra.string_formatting import ascii_to_sympy
+from exercises.questiontypes.pythonic.ascii_to_sympy import *
 
 import traceback
 import random
@@ -98,11 +98,11 @@ def dotrainingset(studentanswerdict, questiondict, globaldict):
     response = {}
     # print("studentanswerdict = ", studentanswerdict )
     try:
-        exerciseassetpath = questiondict['runtime']['@exerciseassetpath']
+        exerciseassetpath = questiondict['@exerciseassetpath']
         trainingSet = np.genfromtxt(
             os.path.join(exerciseassetpath, 'training_set.csv'), delimiter=','
         )
-        studentassetpath = questiondict['runtime']['@studentassetpath']
+        studentassetpath = questiondict['@studentassetpath']
         csvfiles = ['t1', 't2', 't3', 'w1', 'w2', 'w3']
         csvars = {}
         for csvfile in csvfiles:
@@ -132,11 +132,11 @@ def dotrainingset(studentanswerdict, questiondict, globaldict):
 
 def doevaluationset(studentanswerdict, questiondict, globaldict):
     response = {}
-    exerciseassetpath = questiondict['runtime']['@exerciseassetpath']
+    exerciseassetpath = questiondict['@exerciseassetpath']
     evaluationSet = np.genfromtxt(
         os.path.join(exerciseassetpath, 'evaluation_set.csv'), delimiter=','
     )
-    studentassetpath = questiondict['runtime']['@studentassetpath']
+    studentassetpath = questiondict['@studentassetpath']
     csvfiles = ['t1', 't2', 't3', 'w1', 'w2', 'w3']
     csvars = {}
     for csvfile in csvfiles:
@@ -207,7 +207,7 @@ def add_one(studentanswerdict, questiondict, globaldict):
     # print("ALL_ANSWERS = ", get_all_answers( studentanswerdict['dbhooks'] ) )
     response = {}
     expression2 = sympify(ascii_to_sympy(studentanswerdict['studentanswer']))
-    expressionfromone = sympify(ascii_to_sympy(studentanswerdict['all_answers']['1']))
+    expressionfromone = sympify(ascii_to_sympy(studentanswerdict['all_answers']['4']))
     diffy = (expression2 - expressionfromone).det()
     try:
         if diffy == 1:
