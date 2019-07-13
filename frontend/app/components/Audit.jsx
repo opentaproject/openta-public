@@ -27,7 +27,7 @@ import {
 } from '../actions.js';
 
 
-const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onDeleteAudit, pendingDelete, onSubjectChange, onPublishAudit, pendingPublish, onPassAudit, onRevisionAudit, onSaveAudit, pendingRevision, userPk}, bccStatus, onBccClick) => {
+const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onDeleteAudit, pendingDelete, onSubjectChange, onPublishAudit, pendingPublish, onPassAudit, onRevisionAudit, onSaveAudit, pendingRevision, userPk,use_email }, bccStatus, onBccClick) => {
   const auditsList = audits.filter( (audit) => audit.get('exercise') === activeExercise )
                            .filter( (audit) => audit.get('auditor') === userPk )
                            .toList()
@@ -70,6 +70,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               <div className="uk-form-row uk-margin-small-top">
                   <AuditResponseUpload/>
               </div>
+	   { use_email && 
               <div className="uk-form-row uk-margin-small-top">
                 <div className="uk-flex uk-flex-middle uk-flex-wrap uk-margin-small-top">
                   <a className={"uk-button uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit, bccStatus)} data-uk-tooltip title="Send/resend email">{sendName} 
@@ -78,6 +79,8 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
                   <label data-uk-tooltip title="Send copy to auditor (and you if different)"><input type="checkbox" className="uk-margin-small-right uk-margin-left" checked={bccStatus} onChange={onBccClick}/>Bcc</label>
                 </div>
               </div>
+	 	} 
+		  
               <div className="uk-form-row uk-margin-small-top">
                 <div className="uk-button-group uk-flex uk-flex-center">
                   <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-success " + passedClass} onClick={() => onRevisionAudit(activeAudit, false)} data-uk-tooltip title="The student has completed all tasks and no further action is required. Unless otherwise stated this means the student has passed." id="revision-not-needed">
@@ -251,6 +254,7 @@ const mapStateToProps = state => {
   var auditData = state.getIn(['audit', 'auditdata', activeAudit], immutable.Map({}))
   var activeExercise = state.get('activeExercise');
   return {
+    use_email: state.getIn(['course','use_email'],false ),
     userPk: state.getIn(['login', 'user_pk']),
     audits: state.getIn(['audit', 'audits'], immutable.Map({})),
     auditData: auditData,

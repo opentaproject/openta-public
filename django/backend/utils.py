@@ -5,6 +5,9 @@ from django.conf import settings
 from django.template.loader import get_template
 from django.template import TemplateDoesNotExist
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.contrib import messages
+
+
 
 from course.models import Course
 
@@ -12,8 +15,9 @@ logger = logging.getLogger(__name__)
 
 
 def send_email_object(email):
-    if hasattr(settings, 'USE_CUSTOM_SMTP_EMAIL') and settings.USE_CUSTOM_SMTP_EMAIL:
-        course = Course.objects.first()
+    course = Course.objects.first()
+    docustom = bool( course.email_host and course.email_host_password and course.email_reply_to and course.email_host_user  )
+    if ( hasattr(settings, 'USE_CUSTOM_SMTP_EMAIL') and settings.USE_CUSTOM_SMTP_EMAIL ) or  docustom:
         with get_connection(
             host=course.email_host,
             port='587',

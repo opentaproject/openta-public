@@ -225,11 +225,16 @@ def update_audit(request, pk):
 @permission_required('exercises.administer_exercise')
 @api_view(['POST'])
 def send_audit(request, pk):
+    print("SEND_AUDIT")
     try:
         audit = AuditExercise.objects.get(pk=pk)
     except AuditExercise.DoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    print("EMAIL ACTIVATED")
+    if not audit.exercise.course.use_email:
+        print("EMAIL NOT ACTIVATED")
+        return Response({'warning': 'use_email is not activated'} ) 
     course_url = audit.exercise.course.url
     mail_message_template = (
         "{message}"

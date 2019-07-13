@@ -1,4 +1,5 @@
 import os
+import logging
 import datetime
 import uuid
 from django.core.exceptions import ValidationError
@@ -7,13 +8,46 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.core.validators import EmailValidator
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 import pytz
 from django.conf import settings
 import exercises.paths as paths
 from django.conf import settings
+from django.core.mail import get_connection
+from django.conf import settings
+logger = logging.getLogger(__name__)
+from django.contrib import messages
 
 
 EMAIL_VALIDATOR = EmailValidator()
+
+
+def send_email_object(email,host,username,password):
+    if  hasattr(settings, 'USE_CUSTOM_SMTP_EMAIL')  or ( host and username and password ):
+        with get_connection(
+            host=host,
+            port='587',
+            username=username,
+            password=password,
+            use_tls=True,
+        ) as connection:
+            email.connection = connection
+        try:
+            n_sent = email.send()
+            logger.info('send_email_object success' + " (" + str(n_sent) + " delivered)")
+        except Exception as e:
+            logger.error(str(e))
+            raise e
+    else:
+        try:
+            n_sent = email.send()
+            logger.info('send_email_object success' + " (" + str(n_sent) + " delivered)")
+        except Exception as e:
+            logger.error('send_email_object fail' + str(e))
+            raise e
+    return n_sent
+
+
 
 
 class Course(models.Model):
@@ -48,7 +82,9 @@ class Course(models.Model):
     )
     published = models.BooleanField(default=False)
     owners = models.ManyToManyField(User, limit_choices_to={'is_staff': True})
-    use_auto_translation = models.BooleanField(default=False)
+    use_auto_translation = models.BooleanField(default=False) 
+    use_email = models.BooleanField(default=False)
+
 
     def __str__(self):
         return self.course_name + ' - ' + self.course_long_name
@@ -85,3 +121,38 @@ class Course(models.Model):
             return list(map(str.strip, self.languages.split(',')))
         else:
             return None
+
+
+    def docheck( self ) :
+        course = Course.objects.filter(pk=self.pk)
+        old_value = course.values('use_email').get()['use_email']
+        nocheck = True
+        for field in ['email_host_user','email_reply_to','email_host_password','email_host','use_email'] :
+            nocheck = nocheck and  getattr(self,field) == course.values(field).get()[field] 
+            print("NOCHECK FIELD  ", field , " ", nocheck )
+        check = not nocheck
+        return check
+
+        
+
+
+    def clean(self):
+        course = Course.objects.filter(pk=self.pk)
+        body = " email_reply_to = " + str(self.email_reply_to ) + "\n email_host: " + str( self.email_host ) + "\n email_host_user: " +  str( self.email_host_user ) 
+        print("BODY =  ", body )
+        if self.use_email   and self.docheck()  and ( settings.EMAIL_BACKEND ==  'django.core.mail.backends.smtp.EmailBackend') :
+            try:
+                email_object = EmailMessage(
+                    subject='EMAIL VERIFICATION TEST from ' + self.email_host  ,
+                    body  = body ,
+                    from_email=self.email_host_user,
+                    to=[self.email_reply_to],
+                    reply_to=[self.email_reply_to],
+                )
+                n_sent = send_email_object(email_object,self.email_host,self.email_host_user,self.email_host_password)
+                assert n_sent == 1
+            except Exception as e :
+                 raise ValidationError({'use_email':  "PARAMETERS USED: " + body + "ERROR" + str(e) + "HINT: remember that google passwords must be of type app-password" } ,
+                     code='invalid' )
+
+    
