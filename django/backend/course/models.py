@@ -90,7 +90,7 @@ class Course(models.Model):
     registration_domains = models.CharField(max_length=255, blank=True, null=True, default=None)
     registration_by_domain = models.BooleanField(default=False, blank=True)
     difficulties  = models.CharField(max_length=512, blank=True, null=True, default='+:Recommended,*:Easy,**:Medium,***:Hard')
-    languages = models.CharField(max_length=255, blank=True, default='')
+    languages = models.CharField(max_length=255, blank=True, null=True, default=None)
     email_reply_to = models.CharField(
         max_length=255, blank=True, null=True, default="", validators=[EMAIL_VALIDATOR]
     )
