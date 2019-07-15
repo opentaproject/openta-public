@@ -77,6 +77,9 @@ class Course(models.Model):
     email_host_user = models.CharField(
         max_length=255, blank=True, null=True, default=settings.EMAIL_HOST_USER
     )
+    email_username = models.CharField(
+        max_length=255, blank=True, null=True, default=settings.EMAIL_HOST_USER
+    )
     email_host_password = models.CharField(
         max_length=255, blank=True, null=True, default=settings.EMAIL_HOST_PASSWORD
     )
@@ -127,7 +130,7 @@ class Course(models.Model):
         course = Course.objects.filter(pk=self.pk)
         old_value = course.values('use_email').get()['use_email']
         nocheck = True
-        for field in ['email_host_user','email_reply_to','email_host_password','email_host','use_email'] :
+        for field in ['email_username', 'email_host_user','email_reply_to','email_host_password','email_host','use_email'] :
             nocheck = nocheck and  getattr(self,field) == course.values(field).get()[field] 
             print("NOCHECK FIELD  ", field , " ", nocheck )
         check = not nocheck
@@ -139,6 +142,7 @@ class Course(models.Model):
     def clean(self):
         course = Course.objects.filter(pk=self.pk)
         body = " email_reply_to = " + str(self.email_reply_to ) + "\n email_host: " + str( self.email_host ) + "\n email_host_user: " +  str( self.email_host_user ) 
+        body = body + "\n email_username: " + str( self.email_username)
         print("BODY =  ", body )
         if self.use_email   and self.docheck()  and ( settings.EMAIL_BACKEND ==  'django.core.mail.backends.smtp.EmailBackend') :
             try:
@@ -149,10 +153,8 @@ class Course(models.Model):
                     to=[self.email_reply_to],
                     reply_to=[self.email_reply_to],
                 )
-                n_sent = send_email_object(email_object,self.email_host,self.email_host_user,self.email_host_password)
+                n_sent = send_email_object(email_object,self.email_host,self.email_username,self.email_host_password)
                 assert n_sent == 1
             except Exception as e :
                  raise ValidationError({'use_email':  "PARAMETERS USED: " + body + "ERROR" + str(e) + "HINT: remember that google passwords must be of type app-password" } ,
                      code='invalid' )
-
-    

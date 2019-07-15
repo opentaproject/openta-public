@@ -21,7 +21,7 @@ def send_email_object(email):
         with get_connection(
             host=course.email_host,
             port='587',
-            username=course.email_host_user,
+            username=course.email_username,
             password=course.email_host_password,
             use_tls=True,
         ) as connection:

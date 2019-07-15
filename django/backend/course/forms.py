@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 
 
 HELP_TEXTS = {
-    'url': "Course url. Augment with /lti/config_xml/ for LTI URL configuration ",
+    'url': _("The course url, including http:// or https:// or leave blank" ),
     'registration_domains': _(
         'Comma separated list of email domains' ' that are permitted to self-register'
     ),
@@ -12,8 +12,10 @@ HELP_TEXTS = {
         'Password for your email account (Please use SSO,'
         ' the password is stored in cleartext on the server)'
     ),
-    'email_host': _('Uses port 587/TLS'),
-    'email_reply_to': _('Email of the course admin'),
+    'email_host': _('For instance smtp.gmail.com Uses port 587/TLS'),
+    'email_reply_to': _('Full email of the course admin'),
+    'email_host_user': _('Entire email of smtp account owner ,i.e. myemail@gmail.com'),
+    'email_username': _('username only i.e. usually  myemail'),
     'languages': _(
         'Languages for translations in the course:'
         ' the first language is dominant and used in emails.'
