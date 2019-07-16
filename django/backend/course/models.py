@@ -80,6 +80,9 @@ class Course(models.Model):
     email_username = models.CharField(
         max_length=255, blank=True, null=True, default=settings.EMAIL_HOST_USER
     )
+    #
+    # TODO  https://pypi.org/project/django-encrypted-model-fields/
+    #
     email_host_password = models.CharField(
         max_length=255, blank=True, null=True, default=settings.EMAIL_HOST_PASSWORD
     )
