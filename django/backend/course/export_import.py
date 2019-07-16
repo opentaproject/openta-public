@@ -116,7 +116,7 @@ class CourseResource(resources.ModelResource):
             'registration_by_domain',
             'languages',
         )
-        exclude = ('id', 'lti_secret', 'lti_key')
+        exclude = ('id', 'lti_secret', 'lti_key','email_host_password')
         import_id_fields = ('course_key',)
 
     def get_queryset(self):
