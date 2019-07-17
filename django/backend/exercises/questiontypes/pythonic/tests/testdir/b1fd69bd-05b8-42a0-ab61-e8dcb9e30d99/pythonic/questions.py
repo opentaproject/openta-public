@@ -143,7 +143,7 @@ def doevaluationset(studentanswerdict, questiondict, globaldict):
         filename = os.path.join(studentassetpath, csvfile + ".csv")
         csvars[csvfile] = np.genfromtxt(filename, delimiter=',')
     res = getOmegas(csvars, evaluationSet)
-    if res['COmega'] < 1.0  and res['HOmega'] < 1.0:
+    if res['COmega'] < 1.0 and res['HOmega'] < 1.0:
         response['correct'] = True
     else:
         response['correct'] = False

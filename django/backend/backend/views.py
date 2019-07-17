@@ -350,7 +350,7 @@ class RegisterByPassword(RatelimitMixin, FormView):
         return ctx
 
     def form_valid(self, form):
-        if getattr(self.request, 'limited', False) and (not settings.RUNNING_DEVSERVER ):
+        if getattr(self.request, 'limited', False) and (not settings.RUNNING_DEVSERVER):
             return render(
                 self.request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')}
             )
@@ -375,7 +375,7 @@ def validate_and_show_registration(request, course_pk, password):
     Register user with password view that handles the form submission
     of the register with password form.
     """
-    if getattr(request, 'limited', False) and (not settings.RUNNING_DEVSERVER ):
+    if getattr(request, 'limited', False) and (not settings.RUNNING_DEVSERVER):
         return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})
     course = Course.objects.get(pk=course_pk)
     if course.registration_by_password and course.registration_password == password:
@@ -404,7 +404,7 @@ def password_reset(request):
     from_email = DONT_REPLY_EMAIL
     template_name = 'registration/password_reset_subject.txt'
     subject = loader.render_to_string(template_name)
-    if getattr(request, 'limited', False) and (not settings.RUNNING_DEVSERVER ):
+    if getattr(request, 'limited', False) and (not settings.RUNNING_DEVSERVER):
         message = (
             "If you are not receiving an reset link by email, check your"
             "spam filter or junk mail. The email was sent from [{from_email}] with the subject [{subject}]"

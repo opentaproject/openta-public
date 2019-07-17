@@ -178,7 +178,6 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     runtime_element.set('exerciseassetpath', exerciseassetpath)
     question_xmltree.append(runtime_element)
 
-
     rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
     if (
         (not settings.RUNNING_DEVSERVER)

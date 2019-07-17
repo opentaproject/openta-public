@@ -26,8 +26,8 @@ logger = logging.getLogger(__name__)
 
 # The function below is the core of the server interface and the only mandatory component.
 def question_check_pythonic(question_json, question_xmltree, answer_data, global_xmltree):
-    questiondict = dict((xmltodict.parse(etree.tostring(question_xmltree)))['question']) 
-    questiondict.update( dict( questiondict.get('runtime',{})) )
+    questiondict = dict((xmltodict.parse(etree.tostring(question_xmltree)))['question'])
+    questiondict.update(dict(questiondict.get('runtime', {})))
     try:
         globaldict = dict(xmltodict.parse(etree.tostring(global_xmltree)))
     except:

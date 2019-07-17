@@ -58,7 +58,7 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
 
     def login(self, username="student1", pw="pw", assert_role="student"):
         sel = self.selenium
-        wait = WebDriverWait(sel, 2000)
+        wait = WebDriverWait(sel, 20)
         input_username = sel.find_element_by_css_selector('input[id=id_username]')
         input_password = sel.find_element_by_css_selector('input[id=id_password]')
         login = sel.find_element_by_css_selector('input[type=submit]')
@@ -81,23 +81,32 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
 
     def click_exercise(self, exercise):
         exercise_key = exercise.exercise_key
+        print("CLICK EXERCISE_KEY = ", exercise_key)
         sel = self.selenium
-        wait = WebDriverWait(sel, 2000)
+        wait = WebDriverWait(sel, 20)
+        wait.until(
+            EC.presence_of_element_located(
+                (By.CSS_SELECTOR, 'li.course-exercise-item[id=' + str(exercise_key) + ']')
+            )
+        )
         exercise = sel.find_element_by_css_selector(
             'li.course-exercise-item[id=' + str(exercise_key) + ']'
         )
         exercise.click()
-        wait.until(EC.presence_of_element_located((By.XPATH, '//article')))
+        xp = '//article[contains(@id,\'' + str(exercise_key) + '\')]'
+        wait.until(EC.presence_of_element_located((By.XPATH, xp)))
 
     def answerall(self, answerdict):
         sel = self.selenium
-        wait = WebDriverWait(sel, 2000)
-        for questionkey, ans in answerdict.items():
-            # answerarea = sel.find_element_by_xpath('//textarea[contains(@id,\"' + questionkey + '\")]')
-            answerarea = sel.find_element_by_xpath(
-                '//div[contains(@id,\"' + questionkey + '\")]//textarea'
-            )
-            answerarea.send_keys(ans)
+        wait = WebDriverWait(sel, 20)
+        # for questionkey, ans in answerdict.items():
+        #    # answerarea = sel.find_element_by_xpath('//textarea[contains(@id,\"' + questionkey + '\")]')
+        #    answerarea = sel.find_element_by_xpath(
+        #        '//div[contains(@id,\"' + questionkey + '\")]//textarea'
+        #    )
+        #    for c in ans:
+        #            answerarea.send_keys(c )
+        #    #answerarea.send_keys(ans)
         buttons = sel.find_elements_by_xpath('//a//i[contains(@class, \'uk-icon-send\')]')
         questions = sel.find_elements_by_xpath('//div[contains(@class, \'question\')]')
         print("NUMBER OF BUTTONS = ", len(buttons))
@@ -108,18 +117,36 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
             print("QUESTION =  ", question.get_attribute("id"))
         print("BUTTONKEYS = ", buttonkeys)
         for buttonkey in buttonkeys:
+            print("DO BUTTONKEY = ", buttonkey)
+            self.selenium.implicitly_wait(0)
             xpbutton = (
                 '//div[contains(@id,\"'
                 + buttonkey
                 + '\")]//a//i[contains(@class, \'uk-icon-send\')]'
             )
+            if buttonkey == '0':
+                xpbutton = (
+                    '//div[contains(@id,\"'
+                    + buttonkey
+                    + '\")]//a//i[contains(@class, \'uk-icon-send\')]'
+                )
             print("XP = ", xpbutton)
             wait.until(EC.presence_of_element_located((By.XPATH, xpbutton)))
+            answerareas = sel.find_elements_by_xpath(
+                '//div[contains(@id,\"' + buttonkey + '\")]//textarea'
+            )
+            if len(answerareas) == 1:
+                answerarea = answerareas[0]
+                ans = answerdict[buttonkey]
+                for c in ans:
+                    answerarea.send_keys(c)
             button = sel.find_element_by_xpath(xpbutton)
             print("BUTTON TEXT", button.text)
             button.click()
-            xpready = '//div[contains(@id,\"' + buttonkey + '\")][contains(@class, \'ready\')]'
+            xpready = '//div[contains(@id,\"' + buttonkey + '\") and contains(@class, \'ready\')]'
             print("XPREADY ", xpready)
+            for entry in sel.get_log('browser'):
+                print(str(entry))
             wait.until(EC.presence_of_element_located((By.XPATH, xpready)))
             corrects = sel.find_elements_by_xpath('//div[contains(@class, \'yescorrect\')]')
             unchecked = sel.find_elements_by_xpath('//div[contains(@class, \'unchecked\')]')
@@ -143,7 +170,7 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
         Publish an exercise and verify that a student can answer and upload an image.
         '''
         sel = self.selenium
-        wait = WebDriverWait(sel, 2000)
+        wait = WebDriverWait(sel, 200)
         print("OPEN SITE")
         self.open_site()
         print("CHANGE EXERCISE OPTIONS")
@@ -152,17 +179,24 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
         answerdicts['pythonic'] = collections.OrderedDict(
             [('3', 'sqrt(a^2 +  b^2)'), ('4', '[[1,0],[0,1]]'), ('5', '[[0,0],[0,0]]')]
         )
-        answerdicts['standard'] = collections.OrderedDict([('0', 'sqrt(a^2 +  b^2)')])
+        answerdicts['standard'] = collections.OrderedDict(
+            [('0', '   sqrt(  a * a  +  b *   b )  ')]
+        )
+        answerdicts['standard2'] = collections.OrderedDict(
+            [('0', '   sqrt(  a * a  +  b *   b )  ')]
+        )
+
         for exercise in exercises:
-            print("NOW DO EXERCISE_PATH ", exercise.path)
-            print("HANDLE EXERCISE_KEY = ", exercise.exercise_key)
             self.change_exercise_options(exercise)
-            print("LOGIN")
-            self.login()
-            print("DO FIRST EXERCISE")
+
+        self.login()
+        for exercise in exercises:
+            print("DO EXERCISE")
             self.click_exercise(exercise)
             print("EXERCISE PATH = ", exercise.path)
             print("ANSWER FIRST EXERCISE")
             self.answerall(answerdicts[exercise.path])
+            mainbutton = sel.find_element_by_xpath('//a[contains(@class, \'uk-navbar-brand\')]')
+            mainbutton.click()
             print("LOGOUT")
-            self.logout()
+        self.logout()

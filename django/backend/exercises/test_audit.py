@@ -156,12 +156,8 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
         sel = self.selenium
         wait = WebDriverWait(sel, 2000)
 
-        wait.until(
-            EC.presence_of_element_located(
-                (By.XPATH,  '//a[@id="publish-single"]')
-            )
-        )
-        
+        wait.until(EC.presence_of_element_located((By.XPATH, '//a[@id="publish-single"]')))
+
         sel.find_element_by_xpath('//a[@id="publish-single"]').click()
         wait.until(
             EC.presence_of_element_located(
