@@ -10,9 +10,7 @@ DEBUG = True
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'TEST' : {
         'NAME': os.path.join(BASE_DIR, 'dbtest.sqlite3'),
-        }
     }
 }
 
@@ -30,4 +28,4 @@ warnings.filterwarnings(
     r'django\.db\.models\.fields',
 )
 
-HEADLESS = False
+HEADLESS = True
