@@ -33,13 +33,24 @@ class ExerciseMetaUpdate(UpdateView):
     model = ExerciseMeta
     success_url = '/' + settings.SUBPATH + 'exercisemeta/{id}'
 
+def split_or_repeat( txt ):
+    txt = txt.strip('\r\n')
+    pieces = txt.split(':')
+    print("txt = ", txt )
+    if len( pieces ) < 2  :
+            pieces = [txt,txt]
+    return tuple(pieces)
+    print("pices = ", pieces )
+
 @permission_required('exercises.administer_exercise')
 def ExerciseMetaUpdateView(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     meta, created = ExerciseMeta.objects.get_or_create(exercise=dbexercise)
-    print("meta = ", meta.exercise.course.languages)
-    difficultieslist =  meta.exercise.course.difficulties.split(',')
-    difficulties = tuple( tuple(( str(v).strip('\r\n') ).split(':') ) for k,v in enumerate( difficultieslist ) )
+    try :
+        difficultieslist =  meta.exercise.course.difficulties.split(',')
+        difficulties = tuple(   split_or_repeat( str(v) )  for v in  difficultieslist   )
+    except : 
+        difficulties = None
     #difficulties = tuple( {('B' + v, v) for k,v in enumerate( difficultieslist ) })
     result = ExerciseMetaUpdate.as_view()(request, pk=meta.id,difficulties=difficulties)
     if request.method == 'POST':
