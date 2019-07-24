@@ -100,7 +100,12 @@ class BaseAuthorExercise extends Component {
     var gridClass = this.props.atMenu(['activeExercise', 'assets']) ? '' : 'admin';
     var canViewXML = this.props.author || this.props.view;
     var authorDOM = (
-      <div className={"uk-grid admin"}>
+      <div className="uk-grid">
+        <div className='uk-width-1-1 uk-width-expand'>
+	   <div className='uk-panel uk-panel-box'>
+          <Assets/>
+	   </div>
+          </div>
         { !this.props.underMenu(['activeExercise', 'audit']) &&
           !this.props.atMenu(['activeExercise', 'xmlEditor']) &&
           !this.props.atMenu(['activeExercise', 'assets']) &&
@@ -109,6 +114,7 @@ class BaseAuthorExercise extends Component {
           <Exercise/>
         </div>
         }
+	
         { !this.props.atMenu(['activeExercise','xmlEditor']) &&
           !this.props.underMenu(['activeExercise', 'audit']) &&
           !this.props.atMenu(['activeExercise', 'assets']) &&
@@ -127,7 +133,7 @@ class BaseAuthorExercise extends Component {
         }
         { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }
         { !loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) &&  canViewXML &&
-          <div className="uk-width-1-1 uk-padding-remove">
+          <div className="uk-width-1-1">
               <div className="uk-flex">
                   <div style={{flex: '1'}}>
                   <XMLEditor xmlCode={this.state.xml} onChange={ (editor, data, xml) => this.xmlUpdate(xml, key)}/>
@@ -135,10 +141,8 @@ class BaseAuthorExercise extends Component {
                     <Alert type="error">{xmlError}</Alert>
                   }
                   </div>
-              <div className="uk-margin-small-top">
-                  <Assets/>
               </div>
-              </div>
+          <Assets/>
           </div>
         }
       {this.props.underMenu(['activeExercise','audit','myaudits']) &&

@@ -57,7 +57,7 @@ const BaseMenu = ({menuPath, menuClick, groups}) => {
     <div className="uk-button-group uk-margin-left">
     {subMenu}
     </div>
-    {menuPath.size > 0 && !(menuPath.size == 1 && leaf) &&
+    { false && menuPath.size > 0 && !(menuPath.size == 1 && leaf) &&
     <ul className="uk-breadcrumb uk-display-inline-block uk-vertical-align-middle">
      {breadcrumbs}
     </ul>

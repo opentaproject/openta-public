@@ -105,20 +105,26 @@ class BaseAssets extends Component {
         const sortedAssets = this.props.assets.sort( (a, b) => a.get('filename') > b.get('filename'));
         const renderedAssets = sortedAssets.map( asset => this.renderAsset(asset));
         return (
-            <div className="uk-panel uk-panel-box">
-                <h3 className="uk-panel-title">Assets</h3>
-                <div className="uk-flex uk-width-1-1 uk-flex-space-between">
-                    <div><form className="uk-form"><label><input type="checkbox" value={this.state.preview} onChange={this.handlePreviewChange}/> Preview</label></form></div>
+            <div>
+
+            <div>
+                <button className="uk-button" data-uk-toggle="{target: '.toggle'}"> Assets </button>
+                <p className='toggle uk-hidden'>
+                    <div className="uk-flex uk-width-1-1 uk-flex-space-between">
+                         <div><form className="uk-form"><label><input type="checkbox" value={this.state.preview} onChange={this.handlePreviewChange}/> Preview</label></form>
+                         </div>
                     {this.renderUpload()}
                     {this.renderDownload()}
-                </div>
+                    </div>
                     {this.props.pendingUpload && this.renderProgress() }
-                <table className="uk-table uk-table-condensed">
-                    <tbody>
-                        {renderedAssets}
-                    </tbody>
-                </table>
+                    <table className="uk-table uk-table-condensed">
+                         <tbody>
+                             {renderedAssets}
+                         </tbody>
+                    </table>
+                </p>
             </div>
+        </div>
         )
     }
 }

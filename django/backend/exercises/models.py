@@ -628,6 +628,9 @@ class ExerciseMeta(models.Model):
             sender=self.__class__, user=None, exercise=exercise, course=course, date=None
         )
 
+    def get_languages(self):
+        return "ABCDEFG"
+
 
 class AuditManager(models.Manager):
     def get_force_passed_exercises_pk(self, user):

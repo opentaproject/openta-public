@@ -8,6 +8,8 @@ from django.forms.models import modelform_factory
 
 class ExerciseMetaUpdate(UpdateView):
 
+class ExerciseMetaUpdate(UpdateView):
+    model = ExerciseMeta
     fields = [
         'deadline_date',
         'solution',
@@ -21,7 +23,6 @@ class ExerciseMetaUpdate(UpdateView):
         'feedback',
         'student_assets',
     ]
-
     def get_object(self, queryset=None):
         obj = self.model.objects.get(pk=self.kwargs['pk'])
         if 'difficulties' in self.kwargs:
@@ -33,6 +34,16 @@ class ExerciseMetaUpdate(UpdateView):
 
     model = ExerciseMeta
     success_url = '/' + settings.SUBPATH + 'exercisemeta/{id}'
+
+
+def split_or_repeat(txt):
+    txt = txt.strip('\r\n')
+    pieces = txt.split(':')
+    print("txt = ", txt)
+    if len(pieces) < 2:
+        pieces = [txt, txt]
+    return tuple(pieces)
+    print("pices = ", pieces)
 
 
 def split_or_repeat(txt):

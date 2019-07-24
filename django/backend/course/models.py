@@ -73,9 +73,49 @@ def send_email_object(email,host,username,password):
 
 
 
+def patch_credential_string(value):
+    return value.strip().lstrip('r').strip("'")
+
+
+# def validate_google_auth_string(value):
+#     if not ( value.strip()  == ''   ) :
+#        try:
+#            print("VALUE = ", value )
+#            credentialstring = patch_credential_string(value)
+#            service_account_info = json.load(io.StringIO(credentialstring))
+#            credentials = service_account.Credentials.from_service_account_info( service_account_info)
+#            translate_client = translate.Client( credentials=credentials)
+#            should_be_en = translate_client.detect_language( 'This is a statement in english')['language']
+#            assert 'en' == should_be_en
+#        except :
+#            raise ValidationError( _('Google Auth string does not pass validation. Set it to blank to avoid error. ') ,code='invalid' )
+
+
+def send_email_object(email, host, username, password):
+    if hasattr(settings, 'USE_CUSTOM_SMTP_EMAIL') or (host and username and password):
+        with get_connection(
+            host=host, port='587', username=username, password=password, use_tls=True
+        ) as connection:
+            email.connection = connection
+        try:
+            n_sent = email.send()
+            logger.info('send_email_object success' + " (" + str(n_sent) + " delivered)")
+        except Exception as e:
+            logger.error(str(e))
+            raise e
+    else:
+        try:
+            n_sent = email.send()
+            logger.info('send_email_object success' + " (" + str(n_sent) + " delivered)")
+        except Exception as e:
+            logger.error('send_email_object fail' + str(e))
+            raise e
+    return n_sent
+
+
 class Course(models.Model):
     course_key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-    course_name = models.CharField(max_length=255,default='OpenTA')
+    course_name = models.CharField(max_length=255, default='OpenTA')
     lti_key = models.UUIDField(unique=True, default=uuid.uuid4)
     lti_secret = models.UUIDField(unique=True, default=uuid.uuid4)
     icon = models.ImageField(default=None, null=True, blank=True, upload_to='public')
@@ -89,8 +129,10 @@ class Course(models.Model):
     url = models.CharField(max_length=255, blank=True, null=True, default=None)
     registration_domains = models.CharField(max_length=255, blank=True, null=True, default=None)
     registration_by_domain = models.BooleanField(default=False, blank=True)
-    difficulties  = models.CharField(max_length=512, blank=True, null=True, default='+:Recommended,*:Easy,**:Medium,***:Hard')
     languages = models.CharField(max_length=255, blank=True, null=True, default=None)
+    difficulties = models.CharField(
+        max_length=512, blank=True, null=True, default='+:Recommended,*:Easy,**:Medium,***:Hard'
+    )
     email_reply_to = models.CharField(
         max_length=255, blank=True, null=True, default="", validators=[EMAIL_VALIDATOR]
     )
@@ -141,6 +183,8 @@ class Course(models.Model):
                      code='invalid' )
 
 
+    use_email = models.BooleanField(default=False, blank=True)
+    use_lti = models.BooleanField(default=False, blank=True)
 
     def __str__(self):
         return self.course_name + ' - ' + self.course_long_name
@@ -178,36 +222,83 @@ class Course(models.Model):
         else:
             return None
 
-
-    def docheck( self ) :
+    def docheck(self):
         course = Course.objects.filter(pk=self.pk)
         old_value = course.values('use_email').get()['use_email']
-        nocheck = True
-        for field in ['email_username', 'email_host_user','email_reply_to','email_host_password','email_host','use_email'] :
-            nocheck = nocheck and  getattr(self,field) == course.values(field).get()[field] 
-            print("NOCHECK FIELD  ", field , " ", nocheck )
-        check = not nocheck
+        nochange = True
+        for field in [
+            'email_username',
+            'email_host_user',
+            'email_reply_to',
+            'email_host_password',
+            'email_host',
+        ]:
+            nochange = nochange and getattr(self, field) == course.values(field).get()[field]
+            print("NOCHECK FIELD  ", field, " ", nochange)
+        check = not nochange
         return check
-
-        
-
 
     def clean(self):
         course = Course.objects.filter(pk=self.pk)
-        body = " email_reply_to = " + str(self.email_reply_to ) + "\n email_host: " + str( self.email_host ) + "\n email_host_user: " +  str( self.email_host_user ) 
-        body = body + "\n email_username: " + str( self.email_username)
-        print("BODY =  ", body )
-        if self.use_email   and self.docheck()  and ( settings.EMAIL_BACKEND ==  'django.core.mail.backends.smtp.EmailBackend') :
+        body = (
+            " email_reply_to = "
+            + str(self.email_reply_to)
+            + "\n email_host: "
+            + str(self.email_host)
+            + "\n email_host_user: "
+            + str(self.email_host_user)
+        )
+        body = body + "\n email_username: " + str(self.email_username)
+        print("BODY =  ", body)
+        if self.docheck() and (
+            settings.EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend'
+        ):
             try:
                 email_object = EmailMessage(
-                    subject='EMAIL VERIFICATION TEST from ' + self.email_host  ,
-                    body  = body ,
+                    subject='EMAIL VERIFICATION TEST from ' + self.email_host,
+                    body=body,
                     from_email=self.email_host_user,
                     to=[self.email_reply_to],
                     reply_to=[self.email_reply_to],
                 )
-                n_sent = send_email_object(email_object,self.email_host,self.email_username,self.email_host_password)
+                n_sent = send_email_object(
+                    email_object, self.email_host, self.email_username, self.email_host_password
+                )
                 assert n_sent == 1
-            except Exception as e :
-                 raise ValidationError({'use_email':  "PARAMETERS USED: " + body + "ERROR" + str(e) + "HINT: remember that google passwords must be of type app-password" } ,
-                     code='invalid' )
+            except Exception as e:
+                raise ValidationError(
+                    {
+                        'use_email': "PARAMETERS USED: "
+                        + body
+                        + "  ERROR"
+                        + str(e)
+                        + " HINT: remember that google passwords must be of type app-password"
+                    },
+                    code='invalid',
+                )
+
+    #    try :
+    #        if self.use_auto_translation  and not self.google_auth_string :
+    #            raise ValidationError( {'use_auto_translation': _('Auto translation cannot be enabled with a blank Google auth string. Turn off use_auto_translation to avoid error') } ,
+    #                 code='invalid')
+    #        if self.use_auto_translation and not self.languages  :
+    #            raise ValidationError( {'languages': _('Auto translation can only be enabled if Languages is nonempty.') } ,
+    #                 code='invalid')
+    #
+    #        if not ( self.google_auth_string.strip()  == ''   ) :
+    #            try:
+    #
+    #                #print("VALUE = ", value)
+    #                value = self.google_auth_string;
+    #                credentialstring = patch_credential_string(value)
+    #                service_account_info = json.load(io.StringIO(credentialstring))
+    #                credentials = service_account.Credentials.from_service_account_info( service_account_info)
+    #                translate_client = translate.Client( credentials=credentials)
+    #                should_be_en = translate_client.detect_language( 'This is a statement in english')['language']
+    #                assert 'en' == should_be_en
+    #            except :
+    #                raise ValidationError({'use_auto_translation': _('Google Auth string does not pass validation. Turn off google_auth_string and set it to blank to avoid error. ') } , code='invalid' )
+    #    except:
+    #            raise ValidationError({'use_auto_translation': _('Google Auth string does not pass validation. Turn off use_auto_translation and google_auth_string to to blank to avoid error. ') } , code='invalid' )
+    #            pass
+    #
