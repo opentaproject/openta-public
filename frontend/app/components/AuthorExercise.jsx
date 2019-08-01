@@ -34,6 +34,7 @@ import {
   fetchExercise,
   fetchExerciseRemoteState,
   fetchSameFolder,
+  fetchExerciseTree,
 } from '../fetchers.js';
 
 var XMLParser = new xml2js.Parser({
@@ -216,11 +217,13 @@ function handleXMLChange(xml, exercise, flagModified=true) {
 
 function handleOptionsSubmit() {
   return (dispatch, getState) => {
+    var coursePk = getState().get('activeCourse');
     var folder = getState().get('folder');
     var exercise = getState().get('activeExercise');
     dispatch(fetchExercise(exercise, true));
     dispatch(fetchExerciseRemoteState(exercise));
     dispatch(fetchSameFolder(exercise, folder));
+    dispatch(fetchExerciseTree(coursePk));
   }
 }
 
