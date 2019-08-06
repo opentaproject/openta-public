@@ -36,7 +36,7 @@ class CustomUserAdmin(UserAdmin):
     def resend_activation(self, request, queryset):
         for user in queryset:
             try:
-                send_activation_mail(user.username, user.email, 'user-activation-and-reset')
+                send_activation_mail(user.opentauser.courses.first(), user.username, user.email, 'user-activation-and-reset')
                 self.message_user(request, "Email sent for " + user.username)
             except Exception as e:
                 self.message_user(request, "Email to " + user.username + ' failed with ' + str(e))
