@@ -56,6 +56,8 @@ def lti_main(request, course_pk=None):
     # AND TO CALL auth
     #
     syslogout(request)  # LOGOUT OF ANY OTHER USERS BEFORE AUTHENTICATIN NEW
+    if request.user.is_authenticated:
+        return backendviews.main(request, course_pk)
     if course_pk is None:
         course = Course.objects.order_by("-published", "-pk")[0]
         course_pk = course.pk
