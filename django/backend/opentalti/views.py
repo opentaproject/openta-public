@@ -54,7 +54,7 @@ def lti_main(request, course_pk=None):
     # AND TO CALL auth
     #
     if request.user.is_authenticated:
-        return backendviews.main(request)
+        return backendviews.main(request, course_pk)
     if course_pk is None:
         course = Course.objects.order_by("-published", "-pk")[0]
         course_pk = course.pk
@@ -103,7 +103,7 @@ def lti_main(request, course_pk=None):
     # AFTER LOGIN HAS BEEN ACHIEVED AND SESSION SET UP
     # PASS TO MAIN
     logging.debug("CALL MAIN")
-    return backendviews.main(request)
+    return backendviews.main(request, course.pk)
 
 
 # SEE https://www.edu-apps.org/code.html
