@@ -166,7 +166,7 @@ return (
 <a title="Change password" href={SUBPATH + "/change_password/?next=" }><i className="uk-icon uk-icon-lock uk-text-large uk-text-middle"></i></a>
 </li>
     ) }
-{ lti_login && (
+{ false &&  lti_login && (
 <li>
 <a title="Edit profile" href={SUBPATH + "/edit_profile/?next=" }><i className="uk-icon uk-icon-user uk-text-large uk-text-middle"></i></a>
 

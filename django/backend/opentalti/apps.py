@@ -43,6 +43,7 @@ def create_new_user(request, username, course):
         group = Group.objects.get(name=groupname)
         user.groups.add(group)
     opentauser.save()
+    user.save()
     return user
 
 
@@ -68,8 +69,6 @@ def get_immutable_user_id(request, course):
 
 
 def get_or_create_user(request, course):
-    logging.debug("AUTHENTICATE VIA OPENTALTI get_or_create_user")
-    logging.debug("REQUEST.SESSION %s", request.session.get("lti_login", "NO LOGIN DEFINED"))
     try:
         assert request.session.get("lti_login", False)
     except AssertionError:

@@ -12,6 +12,16 @@
     <blti:description>OpenTA</blti:description>
     <blti:icon></blti:icon>
     <blti:launch_url>OPENTASERVER_LTI</blti:launch_url>
+    <blti:custom>
+        <lticm:property name="canvas_login_id">$Canvas.user.loginId</lticm:property>
+        <lticm:property name="user_id">$Canvas.user.id</lticm:property>
+        <lticm:property name="canvas_id">$Canvas.user.id</lticm:property>
+        <lticm:property name="lis_person_name_full">$Person.name.full</lticm:property>
+        <lticm:property name="lis_person_name_given">$Person.name.given</lticm:property>
+        <lticm:property name="lis_person_name_family">$Person.name.family</lticm:property>
+        <lticm:property name="lis_person_contact_email_primary">$Person.email.primary</lticm:property>
+        <lticm:property name="account_name">$Canvas.account.name</lticm:property>
+    </blti:custom>
     <blti:extensions platform="canvas.instructure.com">
       <lticm:property name="tool_id">COURSE_KEY</lticm:property>
       <lticm:property name="privacy_level">anonymous</lticm:property>

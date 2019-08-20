@@ -39,6 +39,18 @@
 <body>
   {% hijack_notification %}
   <div id="app"></div>
+  <script>
+	if ( window.location !== window.parent.location ) {
+	//var isframe = "ISFRAME"
+  	// alert('YOU ARE OPENING THIS IN A FRAME: USE THE REDIRECT TO BREAK OUT OF THE CANVAS FRAME')
+	// document.getElementById("app").id = "";
+	} else {
+	//var isframe = "NOT ISFRAME"
+	//alert('NOT IN IFRAME')
+  	// The page is not in an iframe
+	}
+ </script>
+  
   {% if messages %}
     {% for message in messages %}
     <script>

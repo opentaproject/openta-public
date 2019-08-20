@@ -23,13 +23,18 @@ class OpenTAUserInline(admin.StackedInline):
 class CustomUserAdmin(UserAdmin):
     actions = ['resend_activation', 'show_activation', 'send_an_email']
     inlines = (OpenTAUserInline,)
-    list_display = ('id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'get_courses')
+    list_display = ('id','lti_user_id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'get_courses')
     list_select_related = ('opentauser',)
     list_filter = ('opentauser__courses', 'is_staff', 'is_superuser', 'is_active', 'groups')
     readonly_fields = ('id',)
 
     def get_courses(self, instance):
         return list(instance.opentauser.courses.values_list('course_name', flat=True))
+
+    def lti_user_id(self, instance):
+        return str( instance.opentauser.lti_user_id)
+
+    lti_user_id.short_description = 'LTI_ID'
 
     get_courses.short_description = 'Courses'
 

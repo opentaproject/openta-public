@@ -9,18 +9,20 @@ import re
 import time
 import logging
 
+logger = logging.getLogger(__name__)
+
 
 # Register your models here.
 
 lti_keys = [
     "roles",
-    "user_id",
-    "lis_person_contact_email_primary",
+    "custom_user_id",
+    "custom_lis_person_contact_email_primary",
     "lti_tool_consumer_instance_guid",
     "lti_context_id",
-    "lis_person_name_full",
-    "lis_person_name_given",
-    "lis_person_name_family",
+    "custom_lis_person_name_full",
+    "custom_lis_person_name_given",
+    "custom_lis_person_name_family",
 ]
 lti_names = [
     "lti_roles",
