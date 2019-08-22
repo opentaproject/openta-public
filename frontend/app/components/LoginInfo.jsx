@@ -70,124 +70,109 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
 )};
 
 const BaseLoginInfo = ({ username, groups, course, admin, author, viewer, activeExercise,
-      exerciseState, activeAdminTool, onXMLEditorClick, onOptionsClick, onStatisticsClick, onSave,
-      onReset, onHome, pendingState, menuPath, motd,languages,lti_login,compactview}) => {
-    var savePending = exerciseState.get('savepending');
-    var saveError = exerciseState.get('saveerror');
-    var resetPending = exerciseState.get('resetpending');
-    var modified = exerciseState.get('modified');
-    var no_xml_error = exerciseState.get('xmlError') == null;
-    var can_save = modified && no_xml_error;
-    var savereset = (
-      <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => onSave(activeExercise)} onreset={(event) => onReset(activeExercise) }  />
-    );
-
+      onHome, pendingState, menuPath, motd,lti_login}) => {
   var renderGroupIcons = groups.map( group => {
                                     if(group in groupIcons)
                                       return (<i key={group} className={"uk-icon uk-text-success uk-margin-small-left " + groupIcons[group].icon} title={groupIcons[group].alt}/>)
                                     else
                                       return (<span key={group}/>)
   });
-  var compactmode =  lti_login || compactview
-  var authormode =  ! compactmode
   var renderPending = pendingPaths.map( item => {
     return (pendingState.getIn(item.path, false) && (<span key={item.path}>{item.name}<Spinner icon="uk-icon-bar-chart" size="" className="uk-margin-small-left"/></span>))
   });
-var studentViewDOM = (author || viewer) ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open(SUBPATH + "/hijack/username/student" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
-var authorview = compactmode ? ' Full Site' : 'View Only'
-var compactViewDOM = (author || viewer) ? (<button onClick={(e) => UIkit.modal.confirm(authorview, () => window.open(SUBPATH + "/view_toggle/" , "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="View site? ">{authorview} </button>) : '';
-
+  var studentViewDOM = (author || viewer) ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open(SUBPATH + "/hijack/username/student", "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
 var canViewXML = author || viewer || admin
-return (
-  <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
-  <div className="uk-container uk-container-center">
-  <div className="uk-navbar-content uk-flex uk-flex-wrap">
-  { activeExercise && menuPositionUnder(menuPath, ['activeExercise']) &&
-  <div className="uk-navbar-content uk-padding-remove">
-    <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas uk-padding-remove" data-uk-offcanvas/>
-  </div> }
-  <ul className="uk-navbar-nav exercise-list-on-canvas"><li>
-  <a className="uk-navbar-brand" onClick={onHome}>
-    <i className="uk-icon uk-icon-medium uk-icon-circle-o"></i>
-  </a>
-  </li></ul>
-  <div className="uk-vertical-align">
-  <span className="uk-vertical-align-middle">
-    {renderGroupIcons}
-    <span className="uk-text-middle">{username}</span>
-    { admin && <span className="uk-text-small uk-text-middle"> (admin)</span> }
-    <span className="uk-text-middle uk-text-warning"> {motd} </span> 
-  </span>
-  </div>
-  </div>
-  <div className="uk-navbar-flip">
-  {   author && activeExercise && ( menuPositionUnder(menuPath, ['activeExercise', 'xmlEditor']) || menuPositionUnder(menuPath, ['activeExercise', 'xmlEditorSplit']) ) &&
-  <div className="uk-navbar-content">
-  </div>
-  }
-<ul className="uk-navbar-nav">
-  {  ! lti_login   && (
-<li>
-        <div className="uk-navbar-content">
-        {compactViewDOM}
+  return (
+    <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
+      <div className="uk-container uk-container-center">
+        {/* Username and side-bar menu */}
+        <div className="uk-navbar-content uk-flex uk-flex-wrap">
+          {/* Side-bar menu and home button */}
+          {activeExercise && menuPositionUnder(menuPath, ['activeExercise']) &&
+            <div className="uk-navbar-content uk-padding-remove">
+              <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas uk-padding-remove" data-uk-offcanvas />
+            </div>}
+          <ul className="uk-navbar-nav exercise-list-on-canvas"><li>
+            <a className="uk-navbar-brand" onClick={onHome}>
+              <i className="uk-icon uk-icon-small uk-icon-mail-reply"></i>
+            </a>
+          </li></ul>
+          {/* Username */}
+          <div className="uk-vertical-align">
+            <span className="uk-vertical-align-middle">
+              {renderGroupIcons}
+              <span className="uk-text-middle">{username}</span>
+              <span className="uk-text-middle uk-text-warning"> {motd} </span>
+            </span>
+          </div>
+        </div>
+        {/* Main navbar */}
+        <div className="uk-navbar-flip">
+          <ul className="uk-navbar-nav">
+            {author && (
+              <li>
+                <div className="uk-navbar-content">
+                  {studentViewDOM}
+                </div>
+              </li>
+            )}
+            <li>
+              <div className="uk-navbar-content">
+                <LanguageSelect />
+              </div>
+            </li>
+            {author && (
+              <li>
+                <div className="uk-navbar-content">
+                  <CourseSelect />
+                </div>
+              </li>
+            )
+            }
+            <li>
+              <a href={"mailto:" + course.toLowerCase() + "@openta.se"} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}>
+                <span className="uk-icon-question-circle"></span>
+              </a>
+            </li>
+            {lti_login && (
+              <li>
+                <a title="Change password" href={SUBPATH + "/change_password/?next="}><i className="uk-icon uk-icon-key uk-text-small"></i></a>
+              </li>
+            )}
+            {admin && (
+              <li>
+                <a title="Administration" href={SUBPATH + "/administration/"}><i className="uk-icon uk-icon-cog uk-text-middle"></i></a>
+              </li>
+            )}
+            <li >
+              <a title="Logga ut" href={SUBPATH + "/logout"}><i className="uk-icon uk-icon-sign-out uk-text-middle"></i></a>
+            </li>
+
+            {/* Edit profile */}
+            {/* {false && lti_login && (
+              <li>
+                <a title="Edit profile" href={SUBPATH + "/edit_profile/?next="}><i className="uk-icon uk-icon-user uk-text-large uk-text-middle"></i></a>
+
+              </li>
+            )} */}
+
+          </ul>
+        </div>
+
+        {/* Admin menu bar */}
+        <div className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap uk-visible-large" style={{ height: 'auto' }}>
+          {renderPending}
+          {canViewXML && <Menu />}
+        </div>
+        {/* Toggle menu for smaller sizes */}
+        <button className="uk-button uk-button-mini uk-margin-small-top uk-hidden-large" data-uk-toggle="{target:'#menuBarId'}"><i className="uk-icon-ellipsis-v"/></button>
+        <div id="menuBarId" className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap uk-hidden-large uk-hidden" style={{ height: 'auto' }}>
+          {renderPending}
+          {canViewXML && <Menu />}
+        </div>
       </div>
-    </li>
-    )
-
-  }
-
-    { authormode  && (
-    <li>
-      <div className="uk-navbar-content">
-        {studentViewDOM}
-      </div>
-    </li>
-    ) }
-    <li>
-      <div className="uk-navbar-content">
-      <LanguageSelect/>
-      </div>
-    </li>
-    { authormode && (
-    <li>
-      <div className="uk-navbar-content">
-      <CourseSelect/>
-      </div>
-    </li>
-    )
-    }
-    {  ! lti_login &&
-     ( <li>
-        <a href={"mailto:" + course.toLowerCase() + "@openta.se"} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}><span className="uk-text-primary">Problem?</span></a>
-      </li>
-    )}
-{ lti_login && (
-<li>
-<a title="Change password" href={SUBPATH + "/change_password/?next=" }><i className="uk-icon uk-icon-lock uk-text-large uk-text-middle"></i></a>
-</li>
-    ) }
-{ false &&  lti_login && (
-<li>
-<a title="Edit profile" href={SUBPATH + "/edit_profile/?next=" }><i className="uk-icon uk-icon-user uk-text-large uk-text-middle"></i></a>
-
-</li>
-    ) }
-
-      <li >
-      <a title="Logga ut" href={SUBPATH + "/logout"}><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
-      </li>
-
-
-
-  </ul>
-  </div>
-  <div className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap" style={{height: 'auto'}}>
-  { renderPending }
-  { authormode &&  canViewXML && <Menu/> }
-</div>
-  </div>
-  </nav>
-);
+    </nav>
+  );
 }
 
 BaseLoginInfo.propTypes = {
