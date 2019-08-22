@@ -111,9 +111,8 @@ var canViewXML = author || viewer || admin
           <ul className="uk-navbar-nav">
             {author && (
               <li>
-                <div className="uk-navbar-content">
-                  {studentViewDOM}
-                </div>
+                <div className="uk-navbar-content uk-visible-large"> {studentViewDOM} </div>
+                <div className="uk-navbar-content uk-hidden-large uk-hidden smallHidden"> {studentViewDOM} </div>
               </li>
             )}
             <li>
@@ -123,7 +122,10 @@ var canViewXML = author || viewer || admin
             </li>
             {author && (
               <li>
-                <div className="uk-navbar-content">
+                <div className="uk-navbar-content uk-visible-large">
+                  <CourseSelect />
+                </div>
+                <div className="uk-navbar-content uk-hidden-large uk-hidden smallHidden">
                   <CourseSelect />
                 </div>
               </li>
@@ -166,11 +168,15 @@ var canViewXML = author || viewer || admin
           {canViewXML && <Menu />}
         </div>
         {/* Toggle menu for smaller sizes */}
-        <button className="uk-button uk-button-mini uk-margin-small-top uk-hidden-large" data-uk-toggle="{target:'#menuBarId'}"><i className="uk-icon-ellipsis-v"/></button>
-        <div id="menuBarId" className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap uk-hidden-large uk-hidden" style={{ height: 'auto' }}>
-          {renderPending}
-          {canViewXML && <Menu />}
-        </div>
+        { canViewXML && (
+          <span>
+          <button className="uk-button uk-button-mini uk-margin-small-top uk-hidden-large" data-uk-toggle="{target:'.smallHidden'}"><i className="uk-icon-ellipsis-v"/></button>
+          <div className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap uk-hidden-large uk-hidden smallHidden" style={{ height: 'auto' }}>
+            {renderPending}
+            {canViewXML && <Menu />}
+          </div>
+          </span>
+        )}
       </div>
     </nav>
   );
