@@ -202,7 +202,6 @@ def config_xml(request, course_name=None):
     data = re.sub(r"OPENTASERVER_LTI", url, data)
     data = re.sub(r"DOMAIN", domain, data)
     data = re.sub(r"COURSE_KEY", coursekey, data)
-    data = re.sub(r"OpenTA", coursename, data)
     data = data.encode("utf-8")
     response = HttpResponse(data, content_type="text/xml")
     response["Content-Disposition"] = 'attachment; filename="config.xml"'
