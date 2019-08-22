@@ -17,6 +17,7 @@ def create_new_user(request, username, course):
     assert not (username == None)
     assert not (User.objects.filter(username=username).exists())
     user = User.objects.create(username=username)
+    roles = request.POST.get("roles", "Student")
     opentauser = OpenTAUser.objects.create(user=user)
     user_stub = user_stub_from_request(request, course)
     for name in lti_names:
@@ -42,6 +43,8 @@ def create_new_user(request, username, course):
         groupname = groupname.strip()
         group = Group.objects.get(name=groupname)
         user.groups.add(group)
+    if 'ContentDeveloper' in roles  or 'Admin' in roles  or 'Instructor' in roles:
+        user.is_staff = True
     opentauser.save()
     user.save()
     return user
