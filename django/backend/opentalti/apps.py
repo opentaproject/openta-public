@@ -56,6 +56,8 @@ class OpentaltiConfig(AppConfig):
 
 def get_user_username(request, course):
     immutable_user_id = get_immutable_user_id(request, course)
+    if immutable_user_id is None:
+        return None
     opentausers = OpenTAUser._meta.model.objects.all()
     try:
         opentauser = opentausers.filter(immutable_user_id=immutable_user_id)[0]

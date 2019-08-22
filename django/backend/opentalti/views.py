@@ -92,7 +92,7 @@ def lti_main(request, course_pk=None):
         logging.debug("GET OR CREATE")
         user = LTIAuth.ltiauth(LTIAuth, request)
     except LTIException as e:
-        return denied(request, "LTI: Course does not exist")
+        return denied(request, "LTI: Authentication failed")
     logging.debug("NEXT LOGIN BASE")
     # NEXT SET UP SESSION DATA USING THE AUTHENTICATION IN LTIAUTU
     try:
