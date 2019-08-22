@@ -69,7 +69,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
     </div>
 )};
 
-const BaseLoginInfo = ({ username, groups, course, admin, author, viewer, activeExercise,
+const BaseLoginInfo = ({ username, groups, iframed, replyTo, admin, author, viewer, activeExercise,
       onHome, pendingState, menuPath, motd,lti_login}) => {
   var renderGroupIcons = groups.map( group => {
                                     if(group in groupIcons)
@@ -130,16 +130,17 @@ var canViewXML = author || viewer || admin
             )
             }
             <li>
-              <a href={"mailto:" + course.toLowerCase() + "@openta.se"} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + course.toLowerCase() + "@openta.se"}>
+              <a href={"mailto:" + replyTo} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + replyTo}>
                 <span className="uk-icon-question-circle"></span>
               </a>
             </li>
             {lti_login && (
               <li>
-                <a title="Change password" href={SUBPATH + "/change_password/?next="}><i className="uk-icon uk-icon-key uk-text-small"></i></a>
+                <a title="Change password" href={SUBPATH + "/change_password/?next="}><i className="uk-icon uk-icon-key uk-text-medium"></i></a>
               </li>
             )}
-            {admin && (
+            {/* Don't show administration link when in iframe */}
+            {admin && (!iframed) && (
               <li>
                 <a title="Administration" href={SUBPATH + "/administration/"}><i className="uk-icon uk-icon-cog uk-text-middle"></i></a>
               </li>
@@ -148,7 +149,7 @@ var canViewXML = author || viewer || admin
               <a title="Logga ut" href={SUBPATH + "/logout"}><i className="uk-icon uk-icon-sign-out uk-text-middle"></i></a>
             </li>
 
-            {/* Edit profile */}
+            {/* TODO: Is this needed? Edit profile */}
             {/* {false && lti_login && (
               <li>
                 <a title="Edit profile" href={SUBPATH + "/edit_profile/?next="}><i className="uk-icon uk-icon-user uk-text-large uk-text-middle"></i></a>
@@ -191,7 +192,7 @@ BaseLoginInfo.propTypes = {
   pendingState: PropTypes.object,
   menuPath: PropTypes.object,
   compactview: PropTypes.bool,
-  lti_login: PropTypes.bool,
+  iframed: PropTypes.bool,
 
 };
 
@@ -199,7 +200,7 @@ function handleSave(exercise) {
   return (dispatch, getState) => {
     var state = getState();
     dispatch(setSavePendingState(exercise, true));
-    const doSave = () => { 
+    const doSave = () => {
       dispatch(saveExercise(exercise))
         .then(() => dispatch(fetchExerciseJSON(exercise)))
         .then(
@@ -228,6 +229,7 @@ const mapStateToProps = state => {
   activeCourse: activeCourse,
   username: state.getIn(['login', 'username']),
   course: state.getIn(['courses', activeCourse, 'course_name'], ""),
+  replyTo: state.getIn(['courses', activeCourse, 'email_reply_to'], ""),
   motd: state.getIn(['courses',activeCourse,'motd'], ""),
   groups: state.getIn(['login', 'groups'], immutable.List([])),
   admin: state.getIn(['login', 'groups'], immutable.List([])).includes('Admin'),
@@ -241,7 +243,7 @@ const mapStateToProps = state => {
   menuPath: state.get('menuPath'),
   languages:  state.getIn(['course', 'languages'],['none']),
   compactview: state.getIn(['login','compactview'] , true),
-  lti_login: state.getIn(['login','lti_login'] , true),
+  iframed: state.getIn(['iframed'] , false),
 
 });
 }

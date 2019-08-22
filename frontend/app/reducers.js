@@ -158,6 +158,8 @@ export default (state = defaultState, action) => {
       return state.mergeIn(['tasks', action.task], immutable.fromJS(action.data));
     case 'SET_TIMEZONE':
       return state.setIn(['timezone'], action.data);
+    case 'SET_IFRAMED':
+      return state.setIn(['iframed'], action.data);
     default:
       return state;
   }

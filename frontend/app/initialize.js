@@ -16,7 +16,8 @@ import {
 } from './fetchers';
 import {
     updateLanguage,
-    setTimezone
+    setTimezone,
+    setIFramed
     } from './actions.js'
 import {
   updateActiveExercise,
@@ -56,6 +57,8 @@ if (module.hot) {
 }
 
 const load = () => {
+  var iframed = ( window.self !== window.top )
+  store.dispatch(setIFramed(iframed));
   var hash = window.location.hash;
   if(hash.length > 0) {
     var location = hash.substring(1);

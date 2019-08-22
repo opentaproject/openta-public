@@ -325,8 +325,14 @@ function setExerciseXMLError(exercise, error) {
   }
 }
 
-export { updateLoginStatus, updateExercises, setExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseActiveXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, setImageAnswersData,updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, updateAudit, setActiveAudit, setAuditExerciseStats, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise, setDetailResultsView, updateExerciseTreeUI, setExerciseRecentResults, setExerciseXMLError}
+function setIFramed(exercise, iframed) {
+  return {
+    type: 'SET_IFRAMED',
+    data: iframed
+  }
+}
 
+export { updateLoginStatus, updateExercises, setExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseActiveXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, setImageAnswersData,updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, updateAudit, setActiveAudit, setAuditExerciseStats, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise, setDetailResultsView, updateExerciseTreeUI, setExerciseRecentResults, setExerciseXMLError, setIFramed}
 
 export * from './actions/exercise.js'
 export * from './actions/results.js'
