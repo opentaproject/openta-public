@@ -84,7 +84,7 @@ const BaseLoginInfo = ({ username, groups, iframed, replyTo, admin, author, view
 var canViewXML = author || viewer || admin
   return (
     <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
-      <div className="uk-container uk-container-center">
+      <div className="uk-container uk-container-center" style={{maxWidth: 'none'}}>
         {/* Username and side-bar menu */}
         <div className="uk-navbar-content uk-flex uk-flex-wrap">
           {/* Side-bar menu and home button */}
