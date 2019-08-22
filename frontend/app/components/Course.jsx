@@ -41,12 +41,8 @@ function generateItem(
   statistics,
   activityRange,
   author,
-  compactview
 ) {
   var meta = metaImmutable.toJS();
-  if ( ! meta.published  && compactview ) {
-        return ''
-        }
   var deadlineClass = "uk-badge-primary";
   var legend = ''
   var dolegend = false
@@ -211,7 +207,7 @@ function generateItem(
             </div>
           )}
         </a>
-        {  ! compactview && author && (
+        {  author && (
           <div className="uk-dropdown uk-dropdown-small uk-margin-remove" style={{ minWidth: 0 }}>
             <ExerciseHoverMenu exerciseKey={exercise} />
           </div>
@@ -236,7 +232,6 @@ const BaseCourse = ({
   onExerciseAdd,
   pendingExerciseAdd,
   author,
-  compactview,
   lti_login,
 }) => {
   function flatten(arr) {
@@ -275,13 +270,10 @@ const BaseCourse = ({
           statistics,
           activityRange,
           author, 
-          compactview,
         );
       });
     }
-    if( ! compactview ){ 
-        exercises = exercises.push(<AddExercise key="addExercise" path={folder.get("path")} />);
-    }
+    exercises = exercises.push(<AddExercise key="addExercise" path={folder.get("path")} />);
     if (folder.has("folders"))
       children = folder
         .get("folders", immutable.Map({}))
@@ -357,7 +349,7 @@ const BaseCourse = ({
                           </div>
                         )}
                     </a>
-                    {! compactview && author && (
+                    { author && (
                       <div
                         className="uk-dropdown uk-dropdown-small uk-margin-small"
                         style={{
@@ -426,7 +418,6 @@ const mapStateToProps = state => ({
   activityRange: state.get("activityRange", "1h"),
   student: state.getIn(["login", "groups"], immutable.List([])).includes("Student"),
   author: state.getIn(["login", "groups"], immutable.List([])).includes("Author"),
-  compactview: state.getIn(["login", "compactview"], false ),
   lti_login: state.getIn(["login", "lti_login"], false ),
 });
 

@@ -24,14 +24,11 @@ class BaseApp extends React.Component {
     view: PropTypes.bool,
     activeExercise: PropTypes.string,
     menuPath: PropTypes.object,
-    compactview: PropTypes.bool
   };
   render() {
-    var doLoginInfo = ! this.props.compactview
-    doLoginInfo = true
     return (
       <div className="uk-grid">
-        { doLoginInfo  && <div className="uk-width-1-1"><LoginInfo/></div> }
+        <div className="uk-width-1-1"><LoginInfo/></div>
         <div id="content" className="uk-width-1-1">
           <div id="main" className="uk-grid uk-margin-remove">
             <div className="uk-container-center uk-flex uk-flex-center uk-width-1-1">
@@ -71,7 +68,6 @@ const mapStateToProps = state => ({
   student: state.getIn(['login', 'groups'],immutable.List([])).includes('Student'),
   activeExercise: state.get('activeExercise'),
   menuPath: state.get('menuPath'),
-  compactview: state.getIn(['login','compactview'] , true),
   lti_login: state.getIn(['login','lti_login'] , true)
 });
 

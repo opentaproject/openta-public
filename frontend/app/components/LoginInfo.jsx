@@ -191,7 +191,6 @@ BaseLoginInfo.propTypes = {
   onHome: PropTypes.func,
   pendingState: PropTypes.object,
   menuPath: PropTypes.object,
-  compactview: PropTypes.bool,
   iframed: PropTypes.bool,
 
 };
@@ -242,7 +241,6 @@ const mapStateToProps = state => {
   pendingState: state.get('pendingState'),
   menuPath: state.get('menuPath'),
   languages:  state.getIn(['course', 'languages'],['none']),
-  compactview: state.getIn(['login','compactview'] , true),
   iframed: state.getIn(['iframed'] , false),
 
 });
