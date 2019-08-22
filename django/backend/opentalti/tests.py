@@ -75,7 +75,7 @@ class TestLTI(TestCase):
             lti_message_type="basic-lti-launch-request",
             lti_version="LTI-1p0",
             resource_link_id="0",
-            user_id="user_id",
+            custom_user_id="user_id",
             roles="Learner",
         )
 
@@ -102,7 +102,7 @@ class TestLTI(TestCase):
             lti_message_type="basic-lti-launch-request",
             lti_version="LTI-1p0",
             resource_link_id="0",
-            user_id="user_id",
+            custom_user_id="user_id",
             roles="Instructor",
         )
 
