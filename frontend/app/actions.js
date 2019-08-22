@@ -325,7 +325,7 @@ function setExerciseXMLError(exercise, error) {
   }
 }
 
-function setIFramed(exercise, iframed) {
+function setIFramed(iframed) {
   return {
     type: 'SET_IFRAMED',
     data: iframed

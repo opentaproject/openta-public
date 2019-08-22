@@ -30,7 +30,7 @@ const BaseCourseSelect = ({courses, activeCourse, onCourseChange}) => {
     else
       return "uk-button-danger";
   }
-  if(courses == null || (courses.size == 1 && courses.first() == ''))
+  if(courses == null || (courses.size == 1 && courses.first() == '') || courses.size == 0)
     return (<span/>);
   var courseChoices = courses.map(course =>
     <li className="uk-text-left" key={course.get('pk')}>
