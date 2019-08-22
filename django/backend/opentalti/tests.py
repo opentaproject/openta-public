@@ -63,7 +63,7 @@ class TestLTI(TestCase):
             etree.fromstring(response.content)
         except etree.XMLSyntaxError:
             self.fail("Invalid XML from {}".format(LTI_CONFIG_XML))
-        self.assertTrue('course_name' in str(response.content), msg=str(response.content))
+        self.assertTrue('OpenTA' in str(response.content), msg=str(response.content))
 
     @patch("opentalti.views.verify_request_common")
     def test_lti_first_launch_student(self, verify_request_common=None):

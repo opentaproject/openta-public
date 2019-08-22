@@ -58,7 +58,7 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
         input_username.send_keys(username)
         input_password.send_keys(pw)
         login.click()
-        wait.until(EC.text_to_be_present_in_element((By.ID, 'app'), assert_role))
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'li.course-exercise-item')))
         assert assert_role in sel.page_source
 
     def logout(self):
