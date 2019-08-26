@@ -42,7 +42,7 @@
  </xs:element>
 
 <xs:element name="choice">
-    <xs:complexType mixed="false">
+    <xs:complexType mixed="true">
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element ref="alt"/>
         <xs:element ref="figure"/>
