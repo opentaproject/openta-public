@@ -70,7 +70,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
 )};
 
 const BaseLoginInfo = ({ username, groups, iframed, replyTo, admin, author, viewer, activeExercise,
-      onHome, pendingState, menuPath, motd,lti_login}) => {
+      onHome, pendingState, menuPath, motd,lti_login,course}) => {
   var renderGroupIcons = groups.map( group => {
                                     if(group in groupIcons)
                                       return (<i key={group} className={"uk-icon uk-text-success uk-margin-small-left " + groupIcons[group].icon} title={groupIcons[group].alt}/>)
