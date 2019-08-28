@@ -170,7 +170,7 @@ export default class QuestionSymbolic extends Component {
       }
     }
     var itemjson = question.getIn(["text"], undefined);
-    var questiontext = itemjson.getIn(["$"], "");
+    var questiontext = this.props.questiontext
     var questionkey = question.getIn(['@attr', 'key']);
     var msg1 = "QuestionType QuestionSymbolic";
     return (

@@ -28,5 +28,5 @@ warnings.filterwarnings(
     r'django\.db\.models\.fields',
 )
 
-HEADLESS = True
+HEADLESS = False
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'

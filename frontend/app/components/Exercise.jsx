@@ -87,11 +87,13 @@ class BaseExercise extends Component {
     var questions = json.getIn(['exercise', 'question'], immutable.List([]));
     var question = itemjson;
     var type =  question.getIn(['@attr','type'])
+    var qtext = question.getIn(['text'],null)
+    var questiontext = this.renderText(qtext,qtext, meta,exerciseKey)
     return (
           <div key={"q" + question.getIn(['@attr', 'key'])}>
           { questions.filter( q => q.getIn(['@attr','key']) == question.getIn(['@attr','key']) ).count() > 1 && this.props.admin && <Alert message="Duplicate question keys! (If you copied a question please change the key attribute)" type="error"/> }
           <form key={question.getIn(['@attr','key'])} className="uk-form" onSubmit={(event) => event.preventDefault()}>
-          {<Question exerciseKey={exerciseKey} questionKey={question.getIn(['@attr','key'])}/>}
+          {<Question exerciseKey={exerciseKey} questiontext={questiontext} questionKey={question.getIn(['@attr','key'])}/>}
           </form>
           </div>
             );
@@ -276,11 +278,11 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
     }
 
     renderHTMLElementHR = () =>  (itemjson, json, meta, exerciseKey) => {
-        return (<hr/>)
+        return (<div key={nextUnstableKey()}> <hr/> </div> )
     }
 
     renderHTMLElementBR = () =>  (itemjson, json, meta, exerciseKey) => {
-        return (<br/>)
+        return (<div key={nextUnstableKey()}> <br/> </div> )
     }
 
     renderHTMLElement = (className="", extraAttrs=[]) => (itemjson, json, meta, exerciseKey) => {

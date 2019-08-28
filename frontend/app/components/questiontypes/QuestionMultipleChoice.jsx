@@ -17,7 +17,19 @@ import MathSpan from "../MathSpan.jsx";
 import immutable from "immutable";
 import { SUBPATH } from "../../settings.js";
 import DOMPurify from "dompurify";
-import { renderText } from "./render_text.js";
+import { renderText  } from "./render_text.js"
+
+
+/* 
+ *
+ THIS renderText is all that is left; it renders text only in choices and has restricted functionality
+
+ */
+
+
+
+
+
 
 export default class QuestionMultipleChoice extends Component {
   static propTypes = {
@@ -102,6 +114,7 @@ export default class QuestionMultipleChoice extends Component {
     var submit = this.props.submitFunction;
     var pending = this.props.questionPending;
     var unchecked = '('+t('unchecked')+')';
+    var questiontext = this.props.questiontext;
     if (state.getIn(["response", "question"])) {
       question = state.getIn(["response", "question"]);
     }
@@ -221,7 +234,7 @@ export default class QuestionMultipleChoice extends Component {
     return (
       <div className="">
         <label className="uk-form-row uk-display-inline-block uk-margin-bottom">
-          {renderText(question.getIn(["text"]), this.dispatchElement, this.props.lang)} <HelpMultipleChoice />
+	  {this.props.questiontext} <HelpMultipleChoice />
         </label>
         <a
           onClick={event => submit(JSON.stringify(this.state.choices))}

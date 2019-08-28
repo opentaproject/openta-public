@@ -459,7 +459,9 @@ export default class QuestionCompareNumeric extends Component {
   }
   return (
         <div className="">
-          <label className="uk-form-row uk-display-inline-block">{ renderText(question.getIn(['text']), null, this.props.lang) } <span className="uk-text-small uk-text-primary">{availableVariables}</span><HelpCompareNumeric/></label>
+          <label className="uk-form-row uk-display-inline-block">{this.props.questiontext} <span className="uk-text-small uk-text-primary">{availableVariables}</span><HelpCompareNumeric/></label>
+	  
+	
 { hasChanged && lastAnswer !== '' && (<Badge message={"föregående: " + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">

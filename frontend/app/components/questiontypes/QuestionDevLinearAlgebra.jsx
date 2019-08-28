@@ -20,7 +20,6 @@ import t from '../../translations.js';
 import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
-import { renderText } from './render_text.js';
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
 import { usethesevariables, parseBlacklist, uniquecat, parseVariableString , parseVariables , AvailableVariables} from './mathexpressionparser.js'
@@ -344,7 +343,7 @@ export default class QuestionLinearAlgebra extends Component {
     case 'large':
       mathSizeClass = 'uk-text-large'; break;
   }
-  var questiontext = renderText(question.getIn(['text']), null, this.props.lang); 
+  var questiontext = this.props.questiontext
   var questionkey = question.getIn(['@attr', 'key']);
   var msg1 = "Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."
   return (

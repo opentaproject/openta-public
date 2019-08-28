@@ -32,6 +32,7 @@ class BaseQuestion extends Component {
         key: questionKey,
         exerciseKey: exerciseKey,
         questionData: question,
+	questiontext: this.props.questiontext,
         questionState: questionState,
         questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.getIn(['@attr', 'key']), 'waiting'], false),
         isAuthor: this.props.author,

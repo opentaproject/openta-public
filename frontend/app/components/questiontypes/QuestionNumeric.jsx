@@ -14,10 +14,10 @@ import MathSpan from '../MathSpan.jsx';
 import HelpNumeric from './HelpNumeric.jsx';
 import T from '../Translation.jsx';
 import t from '../../translations.js';
+import { renderText  } from "./render_text.js"
 import mathjs from 'mathjs';
 import latex from './latex.js';
 import immutable, { List } from 'immutable';
-import { renderText } from "./render_text.js";
 import { enforceList } from '../../immutablehelpers.js';
 import { throttle } from 'lodash'
 import { parseBlacklist, uniquecat, parseVariableString , parseVariables , AvailableVariables} from './mathexpressionparser.js';
