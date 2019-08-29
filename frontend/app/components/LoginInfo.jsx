@@ -205,6 +205,7 @@ BaseLoginInfo.propTypes = {
   pendingState: PropTypes.object,
   menuPath: PropTypes.object,
   iframed: PropTypes.bool,
+  lti_login: PropTypes.bool,
 
 };
 
@@ -255,6 +256,7 @@ const mapStateToProps = state => {
   menuPath: state.get('menuPath'),
   languages:  state.getIn(['course', 'languages'],['none']),
   iframed: state.getIn(['iframed'] , false),
+  lti_login: state.getIn(['login','lti_login'], false )
 
 });
 }
