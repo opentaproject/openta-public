@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib import messages
 from django.apps import AppConfig
 from users.models import OpenTAUser
 from django.contrib.auth.models import User, Group
@@ -49,6 +50,14 @@ def groups_from_roles(roles):
     groups = list(set(groups))
     return groups
 
+
+def verify_request(request):
+    """Catch some known LTI/Canvas issues."""
+    if request.POST.get("custom_user_id") is None:
+        raise LTIException("Error in LTI authentication, please try again.")
+
+    if "$" in request.POST.get("custom_user_id"):
+        raise LTIException("Error in LTI authentication, please try again.")
 
 class user_stub_from_request:
     def __init__(self, request, course):

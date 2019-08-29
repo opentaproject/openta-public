@@ -3,7 +3,7 @@ from users.models import OpenTAUser
 from django.contrib.auth.models import User, Group
 from course.models import Course
 from pylti.common import LTIException
-from .admin import user_stub_from_request, default_username, immutable_user_id, lti_names, lti_keys
+from .admin import user_stub_from_request, default_username, immutable_user_id, lti_names, lti_keys, verify_request
 import re
 import time
 from django.contrib import messages
@@ -106,12 +106,12 @@ def course_from_request(request):
 class LTIAuth:
     def ltiauth(self, request):
         logging.debug("LTIAUTH LTIAUTH CALLED")
+        verify_request(request)
         course = course_from_request(request)  # TODO REMOVE DEPENDENCE ON REQUEST PARSE
         try:
             user = get_or_create_user(request, course)
         except:
-            messages.add_message(request, messages.ERROR, "ERROR IN LTIAuth" + str(request.POST))
-            raise LTIException(" LTIAuth gives None " + str(request.POST))
+            raise LTIException("Authentication failed")
         return user
 
     def authenticate(self, request, username=None, password=None):

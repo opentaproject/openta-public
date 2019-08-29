@@ -66,6 +66,24 @@ class TestLTI(TestCase):
         self.assertTrue('OpenTA' in str(response.content), msg=str(response.content))
 
     @patch("opentalti.views.verify_request_common")
+    def test_failed_verification(self, verify_request_common=None):
+        course_other = create_course("other_course_name", datetime.time(0, 0, 0))
+        course = create_course("course_name", datetime.time(0, 0, 0))
+        course.registration_domains = "valid.ext"
+        course.save()
+        data = dict(
+            lti_message_type="basic-lti-launch-request",
+            lti_version="LTI-1p0",
+            resource_link_id="0",
+            custom_user_id="$Custom",
+            roles="Learner",
+        )
+        url = "/" + settings.SUBPATH + LTI_LAUNCH
+        response = self.client.post(url, data=data, **self._headers)
+        self.assertIn("please try again", str(response.content))
+
+
+    @patch("opentalti.views.verify_request_common")
     def test_lti_first_launch_student(self, verify_request_common=None):
         course_other = create_course("other_course_name", datetime.time(0, 0, 0))
         course = create_course("course_name", datetime.time(0, 0, 0))
