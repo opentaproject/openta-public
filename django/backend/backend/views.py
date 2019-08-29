@@ -427,31 +427,18 @@ def serve_public_media(request, asset):
     return serve_file(settings.MEDIA_URL + asset, asset.split('/')[-1])
 
 @xframe_options_exempt  # NECESSARY TO KEEP FROM CRASHING IN CANVAS FRAME
-def logout(request, course_name=None,lti_status='no_lti'):
-    print("HIT LOGOUT")
-    print("LTI_STATUS = ", lti_status)
-    #exit_lti = False
-    #exit_nolti = False
-    #if lti_status == 'no_lti' :
-    #    exit_nolti = True
-    #if lti_status == 'lti_login' :
-    #    exit_lti = True
-    #logging.debug("LAUNCH PRES = %s", request.session.get('launch_presentation_return_url', None))
-    #nonlti_login =  request.session.get('nonlti_login',False) 
-    #lti_login =  request.session.get('lti_login',False) 
-    #print("NONLTILOGIN = " +  str(nonlti_login ) )
-    #print("LTILOGIN = "  + str(  lti_login) )
+def logout(request, course_name=None, lti_status='no_lti'):
     if  lti_status == 'no_lti' :
         request.session['nonlti_login'] = False
         request.session.modified = True
         if course_name == None  or course_name == '':
-                next_url = '/' + settings.SUBPATH 
-        else: 
+                next_url = '/' + settings.SUBPATH
+        else:
                 next_url = '/' + settings.SUBPATH + course_name + '/'
         response = HttpResponseRedirect(next_url)
         response.set_cookie(key='last_course_name', value=course_name)  # HAVE THIS FOR NEXT LOGIN
         request.session.modified = True
-        syslogout(request ) # Always do syslogout if request is from non-lti-window
+        syslogout(request) # Always do syslogout if request is from non-lti-window
         return response
     else:
         next_url = request.COOKIES.get('launch_presentation_return_url', None) # GET FROM COOKIE IN C̄ASE SESSION IS DEAD
@@ -460,4 +447,5 @@ def logout(request, course_name=None,lti_status='no_lti'):
         response.set_cookie(key='last_course_name', value=course_name)  # HAVE THIS FOR NEXT LOGIN
         request.session.modified = True
         response = HttpResponseRedirect(next_url)
+        syslogout(request) # Always do syslogout if request is from non-lti-window
         return response
