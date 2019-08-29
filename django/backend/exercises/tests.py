@@ -63,6 +63,7 @@ class CourseListTest(OpenTAStaticLiveServerTestCase):
     def back_to_course(self):
         sel = self.selenium
         wait = WebDriverWait(sel, 2)
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'a.onHome')))
         back = sel.find_element_by_css_selector('a.onHome')
         back.click()
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'li.course-exercise-item')))

@@ -93,7 +93,7 @@ var canViewXML = author || viewer || admin
               <a href="#offcanvas-exercise-list" className="uk-navbar-toggle exercise-list-off-canvas uk-padding-remove" data-uk-offcanvas />
             </div>}
           <ul className="uk-navbar-nav exercise-list-on-canvas"><li>
-            <a className="uk-navbar-brand" onClick={onHome}>
+            <a className="uk-navbar-brand onHome" onClick={onHome}>
               <i className="uk-icon uk-icon-small uk-icon-mail-reply"></i>
             </a>
           </li></ul>
