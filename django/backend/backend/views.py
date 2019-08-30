@@ -159,7 +159,7 @@ def login_status(request):
         groups.append(group.name)
     lti_login = request.session.get('lti_login', False)
     nonlti_login = request.session.get('nonlti_login', False)
-    compactview = request.session.get('compactview', request.session.get('lti_login',False) )
+    compactview = request.session.get('compactview', request.session.get('lti_login', False))
     response = {
         'username': request.user.get_username(),
         'user_pk': request.user.pk,
@@ -169,6 +169,7 @@ def login_status(request):
         'compactview': compactview,
     }
     return Response(response)
+
 
 @ratelimit(key='ip', rate='5/30s')
 def login(request, course_name=None):
@@ -198,7 +199,7 @@ def login(request, course_name=None):
         'course': course_data,
         'openta_version': settings.VERSION if hasattr(settings, 'VERSION') else "",
         'subpath': '/' + settings.SUBPATH,
-        'course_name': course.course_name
+        'course_name': course.course_name,
     }
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
         return auth_views.login(request, extra_context=extra)
@@ -259,11 +260,13 @@ def activate_and_reset(request, username, token):
 @login_required
 def view_toggle(request, course_pk=None):
     logging.debug("VIEW TOGGLE")
-    request.session['compactview'] = not request.session.get('compactview', request.session.get('lti_login', False ) )
+    request.session['compactview'] = not request.session.get(
+        'compactview', request.session.get('lti_login', False)
+    )
     return main(request, course_pk)
 
 
-@xframe_options_exempt # KEEPS FROM CRASHING FOR PASSWSORD CHANGE
+@xframe_options_exempt  # KEEPS FROM CRASHING FOR PASSWSORD CHANGE
 @login_required
 def main(request, course_pk=None):
     """The main frontend view.
@@ -280,21 +283,25 @@ def main(request, course_pk=None):
         course = Course.objects.order_by('-published', '-pk')[0]
         course_pk = course.pk
     user = request.user
-    enrolled =  int( course_pk )   in enrollment(user)
+    enrolled = int(course_pk) in enrollment(user)
     published_and_enrolled = course.published and enrolled
     msg = ''
     if not enrolled:
         msg = "Not enrolled in course"
-    if not course.published :
+    if not course.published:
         msg = "Course not published yet"
-    if ( request.user.groups.filter(name='Student').exists() and  not published_and_enrolled and not request.user.username == 'student'):
+    if (
+        request.user.groups.filter(name='Student').exists()
+        and not published_and_enrolled
+        and not request.user.username == 'student'
+    ):
         try:
-            mycourse = ( Course.objects.get(pk=enrollment(user)[0] ) ).course_name
+            mycourse = (Course.objects.get(pk=enrollment(user)[0])).course_name
             messages.add_message(request, messages.WARNING, _(msg))
-            return redirect( '/' + settings.SUBPATH + 'logout/' + mycourse + '/' )
-        except :
+            return redirect('/' + settings.SUBPATH + 'logout/' + mycourse + '/')
+        except:
             messages.add_message(request, messages.WARNING, _("Not enrolled!"))
-            return redirect( '/' + settings.SUBPATH + 'logout/'  + course.course_name + '/')
+            return redirect('/' + settings.SUBPATH + 'logout/' + course.course_name + '/')
 
     course_data = CourseSerializer(course).data
     extra = dict(course=course_data, timezone=settings.TIME_ZONE)
@@ -302,12 +309,16 @@ def main(request, course_pk=None):
     response = render(request, "base_main.html", context=extra)
     if settings.CSRF_COOKIE_NAME:
         response.set_cookie(key='csrf_cookie_name', value=settings.CSRF_COOKIE_NAME)
-    if request.session.get("launch_presentation_return_url", None ) :
-        response.set_cookie(key='launch_presentation_return_url',value=request.session.get('launch_presentation_return_url', None ), path='/')
+    if request.session.get("launch_presentation_return_url", None):
+        response.set_cookie(
+            key='launch_presentation_return_url',
+            value=request.session.get('launch_presentation_return_url', None),
+            path='/',
+        )
 
     subpath = settings.SUBPATH.strip('/')
-    response.set_cookie(key='subpath', value=subpath,path='/')
-    response.set_cookie(key='lang', value=lang,path='/' )
+    response.set_cookie(key='subpath', value=subpath, path='/')
+    response.set_cookie(key='lang', value=lang, path='/')
     return response
 
 
@@ -426,26 +437,29 @@ def serve_public_media(request, asset):
 
     return serve_file(settings.MEDIA_URL + asset, asset.split('/')[-1])
 
+
 @xframe_options_exempt  # NECESSARY TO KEEP FROM CRASHING IN CANVAS FRAME
 def logout(request, course_name=None, lti_status='no_lti'):
-    if  lti_status == 'no_lti' :
+    if lti_status == 'no_lti':
         request.session['nonlti_login'] = False
         request.session.modified = True
-        if course_name == None  or course_name == '':
-                next_url = '/' + settings.SUBPATH
+        if course_name == None or course_name == '':
+            next_url = '/' + settings.SUBPATH
         else:
-                next_url = '/' + settings.SUBPATH + course_name + '/'
+            next_url = '/' + settings.SUBPATH + course_name + '/'
         response = HttpResponseRedirect(next_url)
         response.set_cookie(key='last_course_name', value=course_name)  # HAVE THIS FOR NEXT LOGIN
         request.session.modified = True
-        syslogout(request) # Always do syslogout if request is from non-lti-window
+        syslogout(request)  # Always do syslogout if request is from non-lti-window
         return response
     else:
-        next_url = request.COOKIES.get('launch_presentation_return_url', None) # GET FROM COOKIE IN C̄ASE SESSION IS DEAD
+        next_url = request.COOKIES.get(
+            'launch_presentation_return_url', None
+        )  # GET FROM COOKIE IN C̄ASE SESSION IS DEAD
         response = HttpResponseRedirect(next_url)
         request.session['lti_login'] = False
         response.set_cookie(key='last_course_name', value=course_name)  # HAVE THIS FOR NEXT LOGIN
         request.session.modified = True
         response = HttpResponseRedirect(next_url)
-        syslogout(request) # Always do syslogout if request is from non-lti-window
+        syslogout(request)  # Always do syslogout if request is from non-lti-window
         return response

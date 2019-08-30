@@ -82,7 +82,6 @@ class TestLTI(TestCase):
         response = self.client.post(url, data=data, **self._headers)
         self.assertIn("please try again", str(response.content))
 
-
     @patch("opentalti.views.verify_request_common")
     def test_lti_first_launch_student(self, verify_request_common=None):
         course_other = create_course("other_course_name", datetime.time(0, 0, 0))

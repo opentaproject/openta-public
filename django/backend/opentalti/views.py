@@ -56,22 +56,22 @@ def lti_main(request, course_pk=None):
     # AND TO CALL auth
     #
 
-    syslogout( request ) # LOGOUT OF ANY OTHER USERS BEFORE AUTHENTICATIN NEW
+    syslogout(request)  # LOGOUT OF ANY OTHER USERS BEFORE AUTHENTICATIN NEW
     if course_pk is None:
         course = Course.objects.order_by("-published", "-pk")[0]
         course_pk = course.pk
     if request.user.is_authenticated:
         user = request.user
-        #courses =   [ sw.pk for sw in opentauser.courses.all()  ] 
-        #logging.debug("LIST OF COURSES")
-        #logging.debug( courses )
-        #if not course_pk in courses :
-        if not course_pk in enrollment( user ):
+        # courses =   [ sw.pk for sw in opentauser.courses.all()  ]
+        # logging.debug("LIST OF COURSES")
+        # logging.debug( courses )
+        # if not course_pk in courses :
+        if not course_pk in enrollment(user):
             course = Course.objects.get(pk=course_pk)
             opentauser = OpenTAUser.objects.get(user=user)
             opentauser.courses.add(course)
             opentauser.save()
-        return backendviews.main(request,course_pk)
+        return backendviews.main(request, course_pk)
     logging.debug("LTI_MAIN course_pk = %s", course_pk)
     course = Course.objects.get(pk=course_pk)
     logging.debug("secret1 = %s", course.lti_key)
@@ -170,12 +170,12 @@ def edit_profile(request):
                 user.save()
             logging.debug("EDIT_PROFILE REDIRECT TO  " + settings.SUBPATH + "lti/")
             print("REDIRECT 4")
-            return redirect("/" + settings.SUBPATH )
+            return redirect("/" + settings.SUBPATH)
         else:
             logging.debug("ERRORS = %s", form.errors)
             return render(request, "edit_profile.html", context)
         print("REDIRECT5")
-        return redirect("/" + settings.SUBPATH )
+        return redirect("/" + settings.SUBPATH)
 
     return render(request, "edit_profile.html", context)
 
@@ -242,12 +242,12 @@ def change_password(request):
                     messages.success(request, "Password was reset!")
                 logging.debug("REDIRECT TO %s", settings.SUBPATH)
                 print("REDIRECT1")
-                return redirect("/" + settings.SUBPATH )
+                return redirect("/" + settings.SUBPATH)
             else:
                 logging.debug("PASSWORD FORM NOT VALID")
                 messages.error(request, "Password not reset.")
                 print("REDIRECT2")
-                return redirect("/" + settings.SUBPATH )
+                return redirect("/" + settings.SUBPATH)
         else:
             form = passwordform(request.user)
         subpath = settings.SUBPATH.strip("/")
@@ -256,4 +256,4 @@ def change_password(request):
     except:
         messages.error(request, "Password not reset.")
         print("REDIRECT3")
-        return redirect("/" + settings.SUBPATH )
+        return redirect("/" + settings.SUBPATH)

@@ -59,12 +59,13 @@ def verify_request(request):
     if "$" in request.POST.get("custom_user_id"):
         raise LTIException("Error in LTI authentication, please try again.")
 
+
 class user_stub_from_request:
     def __init__(self, request, course):
         for key, name in zip(lti_keys, lti_names):
             setattr(self, name, request.POST.get(key))
         self.groups = groups_from_roles(request.POST.get("roles", "Student"))
-        self.courses = [ course ]
+        self.courses = [course]
         self.immutable_user_id = immutable_user_id(self)
 
 

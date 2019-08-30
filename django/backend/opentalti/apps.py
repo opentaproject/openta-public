@@ -4,7 +4,14 @@ from django.contrib.auth.models import User, Group
 from course.models import Course
 from exercises.modelhelpers import enrollment
 from pylti.common import LTIException
-from .admin import user_stub_from_request, default_username, immutable_user_id, lti_names, lti_keys, verify_request
+from .admin import (
+    user_stub_from_request,
+    default_username,
+    immutable_user_id,
+    lti_names,
+    lti_keys,
+    verify_request,
+)
 import re
 import time
 from django.contrib import messages
@@ -44,7 +51,7 @@ def create_new_user(request, username, course):
         groupname = groupname.strip()
         group = Group.objects.get(name=groupname)
         user.groups.add(group)
-    if 'ContentDeveloper' in roles  or 'Admin' in roles  or 'Instructor' in roles:
+    if 'ContentDeveloper' in roles or 'Admin' in roles or 'Instructor' in roles:
         user.is_staff = True
     opentauser.save()
     user.save()
@@ -63,7 +70,7 @@ def get_user_username(request, course):
     logging.debug("GET USER_USERNAME")
     try:
         opentauser = opentausers.filter(immutable_user_id=immutable_user_id)[0]
-        if course.pk not in enrollment( opentauser ) :
+        if course.pk not in enrollment(opentauser):
             opentauser.courses.add(course)
             opentauser.save()
         return opentauser.user.username
@@ -97,13 +104,14 @@ def get_or_create_user(request, course):
 
     return user
 
+
 def course_from_request(request):
     # TODO THIS SHOULD NOT BE NECESSARY
     # TODO COURSE SHOULD BE AVAILABLE WHERE NEEDED
-    #course_pk = request.META.get("PATH_INFO").split("/").pop()
-    #course_pk = request.COOKIES.get('course_pk',2)
-    course_pk = ( request.get_full_path() ).split('/')[2]
-    logging.debug("COURSE FROM REQUEST RETURN COURSE_PK  " +  str( course_pk) )
+    # course_pk = request.META.get("PATH_INFO").split("/").pop()
+    # course_pk = request.COOKIES.get('course_pk',2)
+    course_pk = (request.get_full_path()).split('/')[2]
+    logging.debug("COURSE FROM REQUEST RETURN COURSE_PK  " + str(course_pk))
     try:
         course = Course.objects.get(pk=course_pk)
     except:

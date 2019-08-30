@@ -53,9 +53,11 @@ def get_courses(request):
     if request.user.is_superuser:
         scourse = CourseSerializer(courses, many=True)
     elif request.user.is_staff:
-        courses_owned = Course.objects.filter( owners=request.user ) 
-        courses_enrolled = Course.objects.filter( pk__in=request.user.opentauser.courses.values_list('pk',flat=True)  )
-        scourse = CourseSerializer(courses_owned | courses_enrolled , many=True)
+        courses_owned = Course.objects.filter(owners=request.user)
+        courses_enrolled = Course.objects.filter(
+            pk__in=request.user.opentauser.courses.values_list('pk', flat=True)
+        )
+        scourse = CourseSerializer(courses_owned | courses_enrolled, many=True)
     else:
         courses = request.user.opentauser.courses.filter(published=True)
         scourse = CourseStudentSerializer(courses, many=True)

@@ -23,7 +23,16 @@ class OpenTAUserInline(admin.StackedInline):
 class CustomUserAdmin(UserAdmin):
     actions = ['resend_activation', 'show_activation', 'send_an_email']
     inlines = (OpenTAUserInline,)
-    list_display = ('id','lti_user_id', 'username', 'email', 'first_name', 'last_name', 'is_staff', 'get_courses')
+    list_display = (
+        'id',
+        'lti_user_id',
+        'username',
+        'email',
+        'first_name',
+        'last_name',
+        'is_staff',
+        'get_courses',
+    )
     list_select_related = ('opentauser',)
     list_filter = ('opentauser__courses', 'is_staff', 'is_superuser', 'is_active', 'groups')
     readonly_fields = ('id',)
@@ -32,7 +41,7 @@ class CustomUserAdmin(UserAdmin):
         return list(instance.opentauser.courses.values_list('course_name', flat=True))
 
     def lti_user_id(self, instance):
-        return str( instance.opentauser.lti_user_id)
+        return str(instance.opentauser.lti_user_id)
 
     lti_user_id.short_description = 'LTI_ID'
 
@@ -41,7 +50,12 @@ class CustomUserAdmin(UserAdmin):
     def resend_activation(self, request, queryset):
         for user in queryset:
             try:
-                send_activation_mail(user.opentauser.courses.first(), user.username, user.email, 'user-activation-and-reset')
+                send_activation_mail(
+                    user.opentauser.courses.first(),
+                    user.username,
+                    user.email,
+                    'user-activation-and-reset',
+                )
                 self.message_user(request, "Email sent for " + user.username)
             except Exception as e:
                 self.message_user(request, "Email to " + user.username + ' failed with ' + str(e))
