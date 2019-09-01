@@ -475,7 +475,11 @@ class ImageAnswer(models.Model):
         compress_pil_image_timestamp(self.image.path)
 
     def remove_file(self):
-        os.remove(self.image.path)
+        if self.image :
+            os.remove(self.image.path)
+        elif self.pdf :
+            os.remove(self.pdf.path)
+
 
 
 class ExerciseMeta(models.Model):
