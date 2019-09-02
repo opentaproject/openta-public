@@ -1,6 +1,7 @@
 from django import forms
 from django.conf import settings
-from course.models import Course
+from course.models import Course, send_email_object
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.utils.translation import ugettext_lazy as _
 from django import forms
 from django.core.exceptions import ValidationError
@@ -8,6 +9,7 @@ from google.cloud import translate
 from google.oauth2 import service_account
 import tempfile
 import io, json
+from django.contrib import messages
 
 
 def patch_credential_string(value):
@@ -66,7 +68,45 @@ HELP_TEXTS = {
         ' the first language is dominant and used in emails.'
     ),
 }
-
+def email_verify(data):
+        newdata = data
+        print("EMAIL VERIFY " )
+        print(data)
+        for key,val in data.items() :
+            print("KEY = ", key, "VAL = ", val )
+        body = (
+            " email_reply_to = "
+            + str(data['email_reply_to'])
+            + "\n email_host: "
+            + str(data['email_host'])
+            + "\n email_host_user: "
+            + str(data['email_host_user'])
+        )
+        body = body + "\n email_username: " + str(data['email_username'])
+        print("BODY =  ", body)
+        if  data['use_email'] and (
+            settings.EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend'
+        ):
+            print("TRY SENDING EMAIL" )
+            try:
+                email_object = EmailMessage(
+                    subject='EMAIL VERIFICATION TEST from ' + data['email_host'],
+                    body=body,
+                    from_email=data['email_host_user'],
+                    to=[data['email_reply_to'] ],
+                    reply_to=[data['email_reply_to']],
+                )
+                n_sent = send_email_object(
+                    email_object, data['email_host'], data['email_username'], data['email_host_password']
+                )
+                assert n_sent == 1
+                return (True, '' )
+            except Exception as e:
+                return (False, "PARAMETERS USED: "
+                        + body
+                        + "  ERROR"
+                        + str(e)
+                        + " HINT: remember that google passwords must be of type app-password" )
 
 class CourseForm(forms.ModelForm):
     class Meta:
@@ -97,8 +137,8 @@ class CourseFormFrontend(forms.ModelForm):
             'use_lti': ['lti_secret', 'lti_key'],
             'use_auto_translation': ['google_auth_string'],
         }
-        # if self.fields.get('email_reply_to',False )  and kwargs['instance'].use_email  :
-        #    self.fields['use_email'].help_text =  'Verification will be sent to ' + str( self.initial['email_reply_to'] )
+        if self.fields.get('email_reply_to',False )  and kwargs['instance'].use_email  :
+            self.fields['use_email'].help_text =  'On saving, verification will be sent to ' + str( self.initial['email_reply_to'] )
         for key, fields in exclusions.items():
             print(
                 "__INIT__: DEAL WITH ",
@@ -111,7 +151,8 @@ class CourseFormFrontend(forms.ModelForm):
                 for field in fields:
                     print("     POP ", field)
                     self.fields.pop(field, False)
-                    # self.Meta.exclude = self.Meta.exclude + [field] # DOES NOT WORK
+                    #self.Meta.exclude = self.Meta.exclude + [field] # DOES NOT WORK
+
 
     def clean(self):
         data = self.cleaned_data
@@ -123,6 +164,20 @@ class CourseFormFrontend(forms.ModelForm):
         else:
             for field in self.changed_data:
                 print("CLEAN: FIELD THAT CHANGE", field)
+            
+        
+        if  'email_host' in data.keys() and data['use_email']  and  settings.EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend' :
+            #if not 'email_host' in data.keys() :
+            #    #raise ValidationError({'use_email': "Save the paramaters" },code='invalid')
+            #    raise ValidationError({"email_reply_to": "MESSAGE"}, code='invalid')
+            (success,msg) = email_verify( data )
+            #print(  "SUCCESS" , success, "MSG = ", msg )
+            if not success :
+                raise ValidationError( {'use_email': msg }, 
+                    code='invalid'
+                )
+        #if data['use_email'] and 'email_host' not in data.keys() :
+        #        data['use_email'] = False 
 
         if data['registration_by_domain']:
             if not data.get('use_email'):
@@ -229,6 +284,7 @@ class CourseFormFrontend(forms.ModelForm):
             'deadline_time',
             'difficulties',
         ]
+        exclude = []
 
         if not settings.EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend':
             exclude = ['email_host_password', 'email_host', 'email_host_user', 'email_username']

@@ -13,15 +13,16 @@ import pytz
 from django.conf import settings
 import exercises.paths as paths
 from django.conf import settings
-from django.core.mail import get_connection
-from django.conf import settings
-logger = logging.getLogger(__name__)
-from django.contrib import messages
 from google.cloud import translate
 from google.oauth2 import service_account
 import tempfile
-import io,json
+import io, json
 
+from django.core.mail import get_connection
+from django.conf import settings
+
+logger = logging.getLogger(__name__)
+from django.contrib import messages
 
 
 EMAIL_VALIDATOR = EmailValidator()
@@ -237,6 +238,7 @@ class Course(models.Model):
             nochange = nochange and getattr(self, field) == course.values(field).get()[field]
             print("NOCHECK FIELD  ", field, " ", nochange)
         check = not nochange
+        print("CHECK = ", check )
         return check
 
     def clean(self):
