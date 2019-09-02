@@ -11,7 +11,7 @@ from course.views import course_duplicate_async
 urlpatterns = [
     url(r'^course/(?P<course_pk>[0-9]+)/$', get_course),
     url(r'^courses/', get_courses),
-    url(r'^course/(?P<course>[\w\.-]+)/updateoptions/$', CourseUpdateView),
+    url(r'^course/(?P<course_pk>[\w\.-]+)/updateoptions/$', CourseUpdateView),
     url(r'^course/(?P<course_pk>[\w\.-]+)/uploadexercises/$', upload_exercises),
     url(r'^course/(?P<course_pk>[0-9]+)/exportexercisesasync/$', export_course_exercises_async),
     url(r'^course/(?P<course_pk>[0-9]+)/export/$', export_course_async),

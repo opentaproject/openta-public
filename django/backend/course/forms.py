@@ -182,6 +182,7 @@ class CourseFormFrontend(forms.ModelForm):
                             code='invalid',
                         )
 
+        #data['url'] = 'NEW URL'
         self.save(commit=True)
         return data
 
