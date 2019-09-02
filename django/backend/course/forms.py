@@ -33,11 +33,11 @@ def google_auth_string_is_valid(value):
 
 HELP_TEXTS = {
     'use_lti': _('reveal LTI/Canvas parameters'),
+    'use_email': _('Check to enable the use of  email'),
     'url': "Course url.  Reset by deleting it. Augment with /lti/config_xml/ for LTI URL configuration ",
     'registration_domains': _(
         'Comma separated list of email domains' ' that are permitted to self-register'
     ),
-    'use_email': _('Check to enable the use of ' ' email'),
     'course_name': _(
         'A short name '
         'preferably without spaces or special characters; appears in course-url. Something like fysik2-2019 would be suitable. '

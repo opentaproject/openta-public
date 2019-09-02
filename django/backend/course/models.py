@@ -232,6 +232,7 @@ class Course(models.Model):
             'email_reply_to',
             'email_host_password',
             'email_host',
+            'use_email'
         ]:
             nochange = nochange and getattr(self, field) == course.values(field).get()[field]
             print("NOCHECK FIELD  ", field, " ", nochange)
@@ -250,7 +251,7 @@ class Course(models.Model):
         )
         body = body + "\n email_username: " + str(self.email_username)
         print("BODY =  ", body)
-        if self.docheck() and (
+        if self.docheck() and  self.use_email and (
             settings.EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend'
         ):
             try:
