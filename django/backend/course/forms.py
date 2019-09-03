@@ -138,7 +138,7 @@ class CourseFormFrontend(forms.ModelForm):
             'use_auto_translation': ['google_auth_string'],
         }
         if self.fields.get('email_reply_to',False )  and kwargs['instance'].use_email  :
-            self.fields['use_email'].help_text =  'On saving, verification will be sent to ' + str( self.initial['email_reply_to'] )
+            self.fields['use_email'].help_text =  'Press save below for email verification to be sent to ' + str( self.initial['email_reply_to'] )
         for key, fields in exclusions.items():
             print(
                 "__INIT__: DEAL WITH ",
