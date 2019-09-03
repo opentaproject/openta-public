@@ -69,9 +69,6 @@ HELP_TEXTS = {
     ),
 }
 def email_verify(data):
-        newdata = data
-        print("EMAIL VERIFY " )
-        print(data)
         for key,val in data.items() :
             print("KEY = ", key, "VAL = ", val )
         body = (

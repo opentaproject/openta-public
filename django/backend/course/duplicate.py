@@ -1,14 +1,10 @@
 import os
-from django.db import models
-from exercises.models import Exercise, Answer, Question, ExerciseMeta
-from users.models import User
+from exercises.models import Exercise, Answer, Question
 from course.models import Course
 from django.contrib.auth.models import User
-from datetime import timedelta
 import shutil
 from pathlib import Path
 import uuid
-from copy import deepcopy
 
 
 def file_get_contents(filename):
