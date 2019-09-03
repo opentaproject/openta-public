@@ -157,7 +157,9 @@ class ExerciseManager(models.Manager):
                 if filename == 'exercise.xml':
                     name = os.path.basename(os.path.normpath(root))
                     relpath = root[len(exercises_path) :]
-                    exerciselist.append((name, relpath))
+                    # THE NEXT COMMAND CAUSED SYNC TO CRASH WHEN exercise.xml mistakenly is put in root dir
+                    if not relpath == '' : # GET RID OF EDGE CASE WHEN exercise.xml mistakenly is put in root dir
+                        exerciselist.append((name, relpath))
 
         for name, path in exerciselist:
             try:
