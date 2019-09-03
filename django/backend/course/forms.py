@@ -161,7 +161,10 @@ class CourseFormFrontend(forms.ModelForm):
         else:
             for field in self.changed_data:
                 print("CLEAN: FIELD THAT CHANGE", field)
+
             
+        if data.get('owners')  == None :
+            raise ValidationError({'published': 'Must set at least one owner!' }, code='invalid' ) 
         
         if  'email_host' in data.keys() and data['use_email']  and  settings.EMAIL_BACKEND == 'django.core.mail.backends.smtp.EmailBackend' :
             #if not 'email_host' in data.keys() :
