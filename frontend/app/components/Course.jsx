@@ -330,7 +330,7 @@ const BaseCourse = ({
                       {folderName === "Trash" && <i className="uk-icon uk-icon-trash uk-margin-small-left" />}
                       <span className="uk-margin-small-left">
                         <T>{folderName}</T>
-                        {child.pending && <Spinner size="" />}
+                        {child.pending && <Spinner size=""  title='Spinner2' />}
                         {child.pending === null && <i className="uk-icon uk-icon-exclamation-triangle" />}
                       </span>
                     </a>
@@ -367,10 +367,10 @@ const BaseCourse = ({
     return DOM;
   }
   if (pendingState.getIn(["course", "loadingExercises"], false)) {
-    return <Spinner />;
+    return <Spinner title='IF THIS KEEPS SPINNING, DISABLE THIRD PARTY COOKIES AND  UNSELECT CROSS-SITE TRACKING' />;
   }
   if (pendingState.getIn(['course', 'loadingExerciseTree'], false)) {
-      return (<Spinner/>);
+      return (<Spinner title='Spinner4' />);
   }
   if (exercisetree) {
     var top = parseFolder(exercisetree, "/");
@@ -383,7 +383,7 @@ const BaseCourse = ({
     );
   }
   else {
-    return (<Spinner />);
+    return (<Spinner title='Spinner5' />);
   }
 };
 
