@@ -233,12 +233,12 @@ class Course(models.Model):
             'email_reply_to',
             'email_host_password',
             'email_host',
-            'use_email'
+            'use_email',
         ]:
             nochange = nochange and getattr(self, field) == course.values(field).get()[field]
             print("NOCHECK FIELD  ", field, " ", nochange)
         check = not nochange
-        print("CHECK = ", check )
+        print("CHECK = ", check)
         return check
 
     def clean(self):

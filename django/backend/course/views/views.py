@@ -32,7 +32,7 @@ def CourseUpdateView(request, course_pk):
     print("COURS UPDATE VIEW")
     course = Course.objects.get(pk=course_pk)
     courseurl = request.build_absolute_uri('/') + settings.SUBPATH + course.course_name + '/'
-    if not courseurl  == course.url :
+    if not courseurl == course.url:
         course.url = courseurl
         course.save()
     result = CourseUpdate.as_view()(request, pk=course_pk)
