@@ -36,14 +36,6 @@ if( getcookie('lang') !== undefined ){
       }
    }
 
-store.dispatch( setTimezone(globalInit.timezone) )
-store.dispatch( setActiveCourse(globalInit.coursePk) )
-store.dispatch( fetchExercises(globalInit.coursePk) );
-store.dispatch( fetchExerciseTree(globalInit.coursePk) );
-store.dispatch( fetchLoginStatus(globalInit.coursePk) );
-store.dispatch( fetchCourse(globalInit.coursePk) );
-store.dispatch( fetchCourses() );
-store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
 
 if (module.hot) {
   module.hot.accept('./reducers', () => {
@@ -63,6 +55,15 @@ const load = () => {
     ReactDOM.render( <CookiesNotEnabled/>, document.querySelector('#app'));
     return;
   }
+
+  store.dispatch( setTimezone(globalInit.timezone) );
+  store.dispatch( setActiveCourse(globalInit.coursePk) );
+  store.dispatch( fetchExercises(globalInit.coursePk) );
+  store.dispatch( fetchExerciseTree(globalInit.coursePk) );
+  store.dispatch( fetchLoginStatus(globalInit.coursePk) );
+  store.dispatch( fetchCourse(globalInit.coursePk) );
+  store.dispatch( fetchCourses() );
+  store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
 
   var iframed = ( window.self !== window.top )
   store.dispatch(setIFramed(iframed));
