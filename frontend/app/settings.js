@@ -5,7 +5,5 @@
  * (Note preceding slash below!)
  * var SUBPATH = "/subpath"
  */
-import {getcookie} from 'cookies.js';
-const COOKIE_SUBPATH = getcookie('subpath')[0]
-const SUBPATH =  (COOKIE_SUBPATH !== '""' && COOKIE_SUBPATH !== '') ?  '/' + getcookie('subpath')[0]  : ''
+const SUBPATH = globalInit.subpath;
 export {SUBPATH};

@@ -304,7 +304,7 @@ def main(request, course_pk=None):
             return redirect('/' + settings.SUBPATH + 'logout/' + course.course_name + '/')
 
     course_data = CourseSerializer(course).data
-    extra = dict(course=course_data, timezone=settings.TIME_ZONE)
+    extra = dict(course=course_data, timezone=settings.TIME_ZONE, subpath=settings.SUBPATH)
     lang = set_persistent_lang(course, request)
     response = render(request, "base_main.html", context=extra)
     if settings.CSRF_COOKIE_NAME:
