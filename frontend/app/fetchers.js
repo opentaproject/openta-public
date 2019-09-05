@@ -73,7 +73,7 @@ function fetchLoginStatus(coursePk) {
             .then(response => response.json() )
             .then(json => {
                 if(!json.username) {
-                    window.location.href="/login/";
+                    window.location.href= SUBPATH + "/login/";
                 }
                 return json;
             })

@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom';
 import React from 'react';
 import { Provider } from 'react-redux';
 import App from 'components/App';
+import CookiesNotEnabled from 'components/CookiesNotEnabled';
 import {getcookie} from 'cookies.js'
 import {
     fetchExercises,
@@ -57,6 +58,12 @@ if (module.hot) {
 }
 
 const load = () => {
+  var cookiesEnabled = getcookie('cookieTest');
+  if (!(cookiesEnabled !== undefined && cookiesEnabled[0] == 'enabled')) {
+    ReactDOM.render( <CookiesNotEnabled/>, document.querySelector('#app'));
+    return;
+  }
+
   var iframed = ( window.self !== window.top )
   store.dispatch(setIFramed(iframed));
   var hash = window.location.hash;

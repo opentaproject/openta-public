@@ -5,5 +5,5 @@
  * (Note preceding slash below!)
  * var SUBPATH = "/subpath"
  */
-const SUBPATH = globalInit.subpath;
+const SUBPATH = globalInit.subpath !== '' ? '/' + globalInit.subpath.replace(/\/$/, "") : "";
 export {SUBPATH};

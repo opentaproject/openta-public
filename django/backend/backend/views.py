@@ -317,7 +317,7 @@ def main(request, course_pk=None):
         )
 
     subpath = settings.SUBPATH.strip('/')
-    response.set_cookie(key='subpath', value=subpath, path='/')
+    response.set_cookie(key='cookieTest', value='enabled', path='/')
     response.set_cookie(key='lang', value=lang, path='/')
     return response
 
