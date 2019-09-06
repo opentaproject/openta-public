@@ -320,11 +320,9 @@ def main(request, course_pk=None):
             return redirect('/' + settings.SUBPATH + 'logout/' + course.course_name + '/')
 
     course_data = CourseSerializer(course).data
+    help_url = getattr(settings, 'HELP_URL', '')
     extra = dict(
-        course=course_data,
-        timezone=settings.TIME_ZONE,
-        subpath=settings.SUBPATH,
-        openta_version=settings.VERSION,
+        course=course_data, timezone=settings.TIME_ZONE, subpath=settings.SUBPATH, help_url=help_url
     )
     lang = set_persistent_lang(course, request)
     response = render(request, "base_main.html", context=extra)
@@ -484,3 +482,12 @@ def logout(request, course_name=None, lti_status='no_lti'):
         response = HttpResponseRedirect(next_url)
         syslogout(request)  # Always do syslogout if request is from non-lti-window
         return response
+
+
+@xframe_options_exempt
+def csrf_failure(request, reason=""):
+    if 'cookie' in reason:
+        reason = reason + ' You need to allow cookies for this site.'
+    response = render(request, "csrf_failure.html", {'msg': reason})
+    # response = HttpResponseRedirect('https://www.google.com')
+    return response

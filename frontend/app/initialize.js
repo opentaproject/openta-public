@@ -26,7 +26,7 @@ import {
   setActiveCourse,
 } from './actions.js';
 import { navigateMenuArray, menuPositionUnder } from './menu.js';
-import { SUBPATH  } from './settings.js';
+import { SUBPATH ,help_url } from './settings.js';
 import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js';
 import {store} from 'store.js';
 
@@ -52,8 +52,8 @@ if (module.hot) {
 
 const load = () => {
   var cookiesEnabled = getcookie('cookieTest');
-  if (!(cookiesEnabled !== undefined && cookiesEnabled[0] == 'enabled')) {
-    ReactDOM.render( <CookiesNotEnabled/>, document.querySelector('#app'));
+  if (  !(cookiesEnabled !== undefined && cookiesEnabled[0] == 'enabled')) {
+    ReactDOM.render( <CookiesNotEnabled help_url={help_url} />, document.querySelector('#app'));
     return;
   }
 

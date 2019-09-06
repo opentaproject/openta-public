@@ -6,4 +6,5 @@
  * var SUBPATH = "/subpath"
  */
 const SUBPATH = globalInit.subpath !== '' ? '/' + globalInit.subpath.replace(/\/$/, "") : "";
-export {SUBPATH};
+const help_url = globalInit.help_url 
+export {SUBPATH, help_url };
