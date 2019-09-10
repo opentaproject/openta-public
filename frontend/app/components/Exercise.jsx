@@ -53,6 +53,8 @@ class BaseExercise extends Component {
       'b': this.renderHTMLElement(),
       'strong': this.renderHTMLElement(),
       'em': this.renderHTMLElement(),
+      'pre': this.renderTag("<pre>", "</pre>"),
+      'code': this.renderTag("<pre><code>", "</code></pre>"),
       'h3': this.renderHTMLElement(),
       'h2': this.renderHTMLElement(),
       'h1': this.renderHTMLElement(),
@@ -94,6 +96,19 @@ class BaseExercise extends Component {
           </div>
             );
   }
+
+  renderTag = (tagopen='<pre>', tagclose='</pre>', extraAttrs=[] )  => (itemjson, json, meta, exerciseKey) => {
+          var children = itemjson.get('$children$', immutable.List([]))
+                    .filter(item => item.get('#name') === 'figure')
+                    .map(child => this.dispatchElement(child, json, meta, exerciseKey)).toSeq();
+    return (
+      <span className="uk-clearfix" key={"text"}>
+      <span className="uk-align-right">{children}</span>
+      <span dangerouslySetInnerHTML={{__html: DOMPurify.sanitize(tagopen + itemjson.get('$') + tagclose)}} />
+      </span>
+    );
+  }
+
 
   renderQuestionMath = (itemjson, json, meta, exerciseKey) => {
     var question = itemjson;
