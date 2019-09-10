@@ -32,6 +32,7 @@ class CustomUserAdmin(UserAdmin):
         'last_name',
         'is_staff',
         'get_courses',
+        'number_of_groups'
     )
     list_select_related = ('opentauser',)
     list_filter = ('opentauser__courses', 'is_staff', 'is_superuser', 'is_active', 'groups')
@@ -43,7 +44,11 @@ class CustomUserAdmin(UserAdmin):
     def lti_user_id(self, instance):
         return str(instance.opentauser.lti_user_id)
 
+    def number_of_groups( self, instance ) :
+        return len(instance.groups.all())
+
     lti_user_id.short_description = 'LTI_ID'
+    number_of_groups.admin_order_field = 'groups__name'
 
     get_courses.short_description = 'Courses'
 
