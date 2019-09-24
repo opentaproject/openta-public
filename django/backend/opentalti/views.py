@@ -63,7 +63,8 @@ def lti_main(request, course_pk=None):
     valid_roles = ['ContentDeveloper', 'Learner', 'Student', 'Instructor', 'Observer']
     proper_role = not set(roles).isdisjoint(valid_roles)
     if not proper_role:
-        return denied(request, "LTI : No  proper role is unassigned. You may be logged into the wrong Canvas. " + str( roles) )
+        return denied(request, "LTI : No  proper role is unassigned. You may be logged into the wrong Canvas or not properly registered in the course. Please contact course examiner with an email if you have questions.")
+
     if request.user.is_authenticated:
         user = request.user
         # courses =   [ sw.pk for sw in opentauser.courses.all()  ]
