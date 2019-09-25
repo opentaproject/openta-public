@@ -25,7 +25,7 @@ from django.utils.translation import ugettext as _
 from django.utils.translation import get_language
 from django.views.generic.edit import CreateView, FormView
 from django.contrib.auth import logout as syslogout
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 
 
 from rest_framework.decorators import api_view
@@ -267,6 +267,7 @@ def view_toggle(request, course_pk=None):
 
 
 @xframe_options_exempt  # KEEPS FROM CRASHING FOR PASSWSORD CHANGE
+@ensure_csrf_cookie
 @login_required
 def main(request, course_pk=None):
     """The main frontend view.
