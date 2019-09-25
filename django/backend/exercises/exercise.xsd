@@ -77,11 +77,11 @@
         <xs:element ref="hidden"/>
         <xs:element ref="qmath"/>
         <xs:element ref="right"/>
-	<xs:element ref="asset"/>
+        <xs:element ref="asset"/>
         <xs:element ref="solution"/>
         <xs:element ref="text"/>
-  	<xs:element ref="code"/>
-	<xs:element ref="strong"/>
+        <xs:element ref="code"/>
+        <xs:element ref="strong"/>
         <xs:element ref="asciimath"/>
       </xs:choice>
       <xs:attribute name="class" type="xs:NCName"/>
@@ -130,7 +130,9 @@
       <xs:attribute name="label"/>
     </xs:complexType>
   </xs:element>
+
   <xs:element name="code" type="xs:string"/>
+  <xs:element name="strong" type="xs:string"/>
 
 
   <xs:element name="alt">
