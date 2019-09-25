@@ -34,7 +34,7 @@ const BaseCourseExport = ({onExport, coursePk, taskId, progress, done, status}) 
 
 const mapDispatchToProps = (dispatch) => ({
   onExport: (coursePk) => {
-    dispatch(enqueueTask("/course/" + coursePk + "/export")).then(taskId =>
+    dispatch(enqueueTask("/course/" + coursePk + "/export/")).then(taskId =>
       dispatch(updatePendingStateIn(["course", coursePk, "export", "task"], taskId))
     );
   }
