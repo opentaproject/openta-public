@@ -158,7 +158,9 @@ class ExerciseManager(models.Manager):
                     name = os.path.basename(os.path.normpath(root))
                     relpath = root[len(exercises_path) :]
                     # THE NEXT COMMAND CAUSED SYNC TO CRASH WHEN exercise.xml mistakenly is put in root dir
-                    if not relpath == '' : # GET RID OF EDGE CASE WHEN exercise.xml mistakenly is put in root dir
+                    if (
+                        not relpath == ''
+                    ):  # GET RID OF EDGE CASE WHEN exercise.xml mistakenly is put in root dir
                         exerciselist.append((name, relpath))
 
         for name, path in exerciselist:
@@ -477,11 +479,10 @@ class ImageAnswer(models.Model):
         compress_pil_image_timestamp(self.image.path)
 
     def remove_file(self):
-        if self.image :
+        if self.image:
             os.remove(self.image.path)
-        elif self.pdf :
+        elif self.pdf:
             os.remove(self.pdf.path)
-
 
 
 class ExerciseMeta(models.Model):
