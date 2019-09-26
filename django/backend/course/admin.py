@@ -26,9 +26,8 @@ class CustomUserAdmin(UserAdmin):
     list_display = (
         'id',
         'lti_user_id',
+        'last_login',
         'username',
-        'email',
-        'first_name',
         'last_name',
         'is_staff',
         'get_courses',
@@ -96,6 +95,7 @@ class CustomUserAdmin(UserAdmin):
 
 class CourseAdmin(admin.ModelAdmin):
     form = CourseForm
+    list_display = ('id','published', 'course_name','course_key')
     readonly_fields = ('course_key', 'lti_key', 'lti_secret')
 
 
