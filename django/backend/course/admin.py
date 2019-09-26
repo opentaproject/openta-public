@@ -28,6 +28,8 @@ class CustomUserAdmin(UserAdmin):
         'lti_user_id',
         'last_login',
         'username',
+        'email',
+        'first_name',
         'last_name',
         'is_staff',
         'get_courses',

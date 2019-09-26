@@ -20,6 +20,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+class OpentaltiConfig(AppConfig):
+    name = "opentalti"
 
 def create_new_user(request, username, course):
     logging.debug("CREATE NEW USER username" + str(username) + str(course))
@@ -34,14 +36,12 @@ def create_new_user(request, username, course):
         setattr(opentauser, name, getattr(user_stub, name))
     opentauser.lti_roles = user_stub.lti_roles
     opentauser.immutable_user_id = user_stub.immutable_user_id
-    course_pk = user_stub.courses
     if opentauser.lis_person_contact_email_primary:
         user.email = opentauser.lis_person_contact_email_primary
     if opentauser.lis_person_name_given:
         user.first_name = opentauser.lis_person_name_given
     if opentauser.lis_person_name_family:
         user.last_name = opentauser.lis_person_name_family
-    logging.debug(" CREATE NEW USER WITH COURSE PK=" + str(course_pk))
     opentauser.courses.add(course)
     user.is_active = True
     user.username = default_username(user_stub)
@@ -56,38 +56,11 @@ def create_new_user(request, username, course):
         groupname = groupname.strip()
         group = Group.objects.get(name=groupname)
         user.groups.add(group)
-    if "Admin" in groups or "Author" in groups: 
+    if "Admin" in groups or "Author" in groups:
         user.is_staff = True
     opentauser.save()
     user.save()
     return user
-
-
-class OpentaltiConfig(AppConfig):
-    name = "opentalti"
-
-
-def get_user_username(request, course):
-    immutable_user_id = get_immutable_user_id(request, course)
-    if immutable_user_id is None:
-        return None
-    opentausers = OpenTAUser._meta.model.objects.all()
-    try:
-        opentauser = opentausers.filter(immutable_user_id=immutable_user_id)[0]
-        if course.pk not in enrollment(opentauser):
-            opentauser.courses.add(course)
-            opentauser.save()
-        return opentauser.user.username
-    except:
-        return None
-    # PLEASE LEAVE THIS COMMENT username = username_from_immutable_user_id(immutable_user_id)
-
-
-def get_immutable_user_id(request, course):
-    # scratchuser = user_stub_from_request(request,course)
-    # testuser = LTIAuth.ltiauth( LTIAuth,  request)
-    return immutable_user_id(user_stub_from_request(request, course))
-
 
 def update_user_profile(user, user_stub):
     # A LOT OF CODE DUPLICATION WITH create_new_user
@@ -127,19 +100,14 @@ def update_user_profile(user, user_stub):
 
 def get_or_create_user(request, course):
     user_stub = user_stub_from_request(request, course)
+    user = None
     try:
-        username = get_immutable_user_id(request, course)
-        user = User.objects.get(username=username)
-        opentauser = OpenTAUser.objects.get(user=user)
+        opentauser = OpenTAUser.objects.get(immutable_user_id=user_stub.immutable_user_id)
         opentauser.courses.add(course)
         opentauser.save()
-    except User.DoesNotExist:
-        try:
-            username = get_user_username(request, course)
-            user = User.objects.get(username=username)
-        except User.DoesNotExist:
-            username = get_immutable_user_id(request, course)
-            user = create_new_user(request, username, course)
+        user = opentauser.user
+    except OpenTAUser.DoesNotExist:
+        user = create_new_user(request, user_stub.immutable_user_id, course)
 
     if not user.is_staff:
         update_user_profile(user, user_stub)
