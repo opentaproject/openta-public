@@ -177,7 +177,11 @@ def exercise_upload_asset(request, exercise):
         ):
             return Response({}, status.HTTP_403_FORBIDDEN)
         res = add_asset(
-            dispatch_asset_path(request, dbexercise), request.FILES['file'], asset_types, course_pk
+            dispatch_asset_path(request, dbexercise),
+            request.FILES['file'],
+            asset_types,
+            course_pk,
+            request.user.is_staff,
         )
         if 'error' in res:
             return Response(res, status.HTTP_500_INTERNAL_SERVER_ERROR)

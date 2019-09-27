@@ -69,7 +69,7 @@ def extract_exercise_archive(path, asset_file, types, course_key):
     return {'success': 'Extracted: ' + filelist}
 
 
-def add_asset(path, asset_file, types, course_key):
+def add_asset(path, asset_file, types, course_key, is_staff=False):
     """Create asset from uploaded file.
 
     Args:
@@ -101,7 +101,7 @@ def add_asset(path, asset_file, types, course_key):
                     asset.write(chunk)
         except IOError:
             return {'error': "Couldn't write to asset file " + file_path}
-    if extension.lower() in ('jpg', 'png', 'jpeg'):
+    if (not is_staff) and extension.lower() in ('jpg', 'png', 'jpeg'):
         compress_pil_image_timestamp(file_path)
     return {'success': 'Wrote file'}
 
