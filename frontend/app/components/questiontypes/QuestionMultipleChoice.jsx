@@ -116,8 +116,12 @@ export default class QuestionMultipleChoice extends Component {
     var lastAnswer = JSON.parse(state.getIn(["answer"], "{}")); // Last saved answer in database, same format as passed to the submitFunction
     var correctAnswers = state.getIn(["response", "choices"], immutable.Map({}));
     var correct = state.getIn(["response", "correct"], false) || state.getIn(["correct"], false); // Boolean indicating if the grader reported correct answer
-    var feedback = correct !== null;
     var n_attempts = state.getIn(["response", "n_attempts"], question.getIn(["n_attempts"]), 0);
+     if( state.getIn(['correct'], null ) == null ){
+       var feedback = false
+        } else {
+       var feedback = true
+     }
 
     var choicesElements = question.get("choice", immutable.List([]));
     if (choicesElements.length > 1) {
@@ -159,7 +163,7 @@ export default class QuestionMultipleChoice extends Component {
                   <i className="uk-margin-small-top uk-icon uk-icon-square-o" />
                 </div>
               )}
-              {this.props.canViewSolution && item.getIn(["@attr", "correct"]) === "true" && (
+              { feedback && this.props.canViewSolution && item.getIn(["@attr", "correct"]) === "true" && (
                 <div className="uk-margin-small-left uk-margin-small-right uk-badge">correct</div>
               )}
               {this.props.isAuthor && <div className="uk-badge">{choiceKey}</div>}
@@ -208,8 +212,8 @@ export default class QuestionMultipleChoice extends Component {
     var info = state.getIn(["response", "info"]); // Custom field containing error information
     var stick =
       n_attempts > 4 && n_attempts % 2 == 0
-        ? " after " + n_attempts + ": are you guessing?"
-        : " after   " + n_attempts + " attempts.";
+        ? " ( " + n_attempts + " attempts): are you guessing?"
+        : " ( " + n_attempts + " attempts. )";
     var carrot =
       n_attempts < 2 ? " On the first attempt. Good work!" : " Number of attempts =  " + n_attempts;
     return (
@@ -224,13 +228,20 @@ export default class QuestionMultipleChoice extends Component {
           {pending && <i className="uk-icon-cog uk-icon-spin" />}
           {!pending && <i className="uk-icon uk-icon-send" />}
         </a>
-        {correct && (
+        { feedback && correct && (
           <Alert className="uk-margin-small-top uk-margin-small-bottom" type="success" key="input">
             {" "}
             Correct! {carrot}{" "}
           </Alert>
         )}
-        {n_attempts > 0 && !correct && (
+        { ! feedback && 
+        (
+        <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input">
+            {" "}
+             No feedback  {stick}{" "}
+          </Alert>
+        )}
+        {feedback  && n_attempts > 0 && !correct && (
           <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input">
             {" "}
             Not correct {stick}{" "}
@@ -241,7 +252,7 @@ export default class QuestionMultipleChoice extends Component {
           <Alert message={author_error} type="error" key="author_error" />
         )}
         {info && <Alert message={info} type="info" key="info" />}
-        {question.has("hint") &&
+        {feedback && question.has("hint") &&
           !correct &&
           state.get("answer", "") !== "" &&
           this.renderContentInPanel(question.get("hint"), <div className="uk-badge">Hint</div>)}
