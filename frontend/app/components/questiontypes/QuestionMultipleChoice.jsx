@@ -6,6 +6,7 @@
 import React, { Component } from "react"; // React specific import
 import PropTypes from "prop-types";
 import T from "../Translation.jsx";
+import t from '../../translations.js';
 
 import { registerQuestionType } from "./question_type_dispatch.js"; // Register function used at the bottom of this file to let the system know of the question type
 import Alert from "../Alert.jsx"; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
@@ -100,6 +101,7 @@ export default class QuestionMultipleChoice extends Component {
     var state = this.props.questionState;
     var submit = this.props.submitFunction;
     var pending = this.props.questionPending;
+    var unchecked = '('+t('unchecked')+')';
     if (state.getIn(["response", "question"])) {
       question = state.getIn(["response", "question"]);
     }
@@ -215,7 +217,7 @@ export default class QuestionMultipleChoice extends Component {
         ? " ( " + n_attempts + " attempts): are you guessing?"
         : " ( " + n_attempts + " attempts. )";
     var carrot =
-      n_attempts < 2 ? " On the first attempt. Good work!" : " Number of attempts =  " + n_attempts;
+      ( n_attempts < 2  &&  feedback ) ? " On the first attempt. Good work!" : " Number of attempts =  " + n_attempts;
     return (
       <div className="">
         <label className="uk-form-row uk-display-inline-block uk-margin-bottom">
@@ -238,7 +240,7 @@ export default class QuestionMultipleChoice extends Component {
         (
         <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input">
             {" "}
-             No feedback  {stick}{" "}
+             {unchecked} {stick}{" "}
           </Alert>
         )}
         {feedback  && n_attempts > 0 && !correct && (
