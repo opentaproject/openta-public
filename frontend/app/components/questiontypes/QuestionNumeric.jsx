@@ -428,6 +428,9 @@ arrayUnique = (array) =>  {
   // System state data
   var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
   var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
+  var unchecked = '('+t('unchecked')+')';
+  var comment = state.getIn(['response','comment'],'');
+  var tdict = state.getIn(['response','dict'],'');
 
   // Custom state data
   var latex = state.getIn(['response','latex'], ''); // Custom field containing the latex code obtained from SymPy.
@@ -438,12 +441,17 @@ arrayUnique = (array) =>  {
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
 // var precision = state.getIn(['response','precision'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
+
   var precision = question.get('precision',0)
   if( precision == 0 ){
         precision = '\u00B1 '+( (100 * question.getIn(['@attr','precision'],0) ) ).toString()+'%'
         }
         
-        
+    if( state.getIn(['correct'], null ) == null ){
+       var feedback = false
+        } else {
+       var feedback = true
+     }    
   // console.log("QUESTION_NUMERIC precision = ", precision );
   if(state.getIn(['response','detail']))
     error = "Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)";
@@ -485,13 +493,18 @@ arrayUnique = (array) =>  {
   var renderedResult = this.renderAsciiMath(this.state.value);
   var renderedMath = renderedResult.out;
   if(input === lastAnswer && lastAnswer !== '' && !error) {
+    if( feedback ){
     if(correct)
        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is correct.') } type="success" key="input" hasMath={true}/>);
     else
       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + t(' is not correct.') } type="warning" key="input" hasMath={true}/>);
+    } else {
+              graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + unchecked + t(comment,tdict) } type="text" key="input" hasMath={true} /> );
+    }
   } else if(input !== ''){
     graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
   }
+
   var mathjsError = false;
   try {
     var mathjsParse = mathjs.eval(insertImplicitSubscript(input), mathjsEvalVars);
