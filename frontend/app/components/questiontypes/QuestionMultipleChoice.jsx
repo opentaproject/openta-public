@@ -238,7 +238,7 @@ export default class QuestionMultipleChoice extends Component {
         )}
         {!feedback &&
           (
-            <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input">
+            <Alert className="uk-margin-small-top uk-margin-small-bottom" type="primary" key="input">
               {" "}
               {unchecked} {stick}{" "}
             </Alert>
