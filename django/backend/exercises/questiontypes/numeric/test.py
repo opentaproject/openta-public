@@ -26,7 +26,7 @@ PRECISION = 0.001
 
 NUMERIC_EXERCISE_XML = """
                 <exercise>\n
-                <exercisename>{name}</exercisename>\n
+                <exercisename>Numeric test </exercisename>\n
                 <text>Test exercise text</text>\n
                 <question type="Numeric" key="1" precision="0.001">\n
                 <text>compareNumeric</text>\n
