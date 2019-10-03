@@ -42,10 +42,10 @@ function insertBefore(str, pos, newString) {
 }
 
 //Parse Bra,Ket,BraKet and KetBra expressions for QM.
-var braketify = (sstr) => { 
+var braketify = (sstr) => {
   var snew = sstr.replace(/\<([^<|]+)\|([^|>]+)\>/g, 'Braket($1, $2)');
   var snew = snew.replace(/\<([^<|]+)\|([^|]+)\|([^|>]+)\>/g, 'Braket($1, $2,$3)');
-  var snew = snew.replace(/\|([^>]+)\>([\S^\<]+)\<([^|]+)\|/g,'KetBra($1,$2,$3)'); 
+  var snew = snew.replace(/\|([^>]+)\>([\S^\<]+)\<([^|]+)\|/g,'KetBra($1,$2,$3)');
   var snew = snew.replace(/\|([^>]+)\>\S*<([^|]+)\|/g,'KetBra($1,$2)');
   return snew;
 }
@@ -68,7 +68,7 @@ var insertImplicitMultiply = (asciitext) => {//{{{
     /([\w~]+)\s+([\w~]+)/g,    // [token] [token] => [token]*[token]
     /([0-9]+)\s+([0-9]+)/g,    // [int] [int] => [int]*[int]
     /([\w~]+)\s+([\w~]+)/g,    // [token] [token] => [token]*[token]
-    /(\s+[0-9]+)([(])/g, 	// [space][integers]( => [integer] * ( 
+    /(\s+[0-9]+)([(])/g, 	// [space][integers]( => [integer] * (
     /(\W+[0-9]+)([A-Za-z]+)/g, // [nonword][integers][token] => [nonword][integers] * token
     /(\w+)\s+([\[(])/g,           // [token][space]( => [token] * (
     /([)\]])\s*([\w~]+)/g, 	    // )[space][token] => ) * [token]
@@ -104,7 +104,7 @@ function fixDelimiters(str) {//{{{
             str = replaceAt(str, i, ' fail("' + ends[j] + '") ')
             i = i + 10;
           }
-        } 
+        }
         // If there was nothing on the stack then there is no corresponding open delimiter
         else {
           str = replaceAt(str, i, ' fail("' + ends[j] + '") ')
@@ -270,11 +270,11 @@ export default class QuestionNumeric extends Component {
     else if(node.type === 'SymbolNode') {
       const origVar = node.name.replace(/\_/g, '');
       const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : latex.toSymbol(node.name,false);//node._toTex(options);
-      if(this.blacklist.indexOf(node.name) !== -1) 
+      if(this.blacklist.indexOf(node.name) !== -1)
         return '\\color{orange}{' + texSymbol + '}';
       if(this.varsList.indexOf(node.name) !== -1 || this.validSymbols.indexOf(node.name) !== -1  || this.varProps.hasIn([origVar]) )
         return '\\color{green}{' + texSymbol + '}';
-      else 
+      else
         return '\\color{red}{' + texSymbol + '}';
     }
     // Special handling for unmatched parenthesis, otherwise render normally
@@ -286,7 +286,7 @@ export default class QuestionNumeric extends Component {
       if(isUnclosed) {
         return '\\color{red}{(} ' + node.content.toTex(options) + '';
       }
-      else 
+      else
         return node._toTex(options);
     }
     // Cursor handling by hooking into the bitwise not operator that has a very high precedence.
@@ -309,7 +309,6 @@ export default class QuestionNumeric extends Component {
 
 
   renderAsciiMath = (asciitext) => {
-      
       var cursorComplete = false;
       var cursorPos = this.state.cursor;
       if(cursorPos > asciitext.length)cursorPos = asciitext.length;
@@ -361,45 +360,6 @@ arrayUnique = (array) =>  {
     return a;
 }
 
-  
-/*
-
-  oldparseVariables = () => {
-    // var varsListGlobal = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
-    var  varsListGlobal = ['meter','kg','second','ampp'];
-    var  varsListGlobal = [];
-    var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
-    var  varsListLocal = this.parseVariableString(this.props.questionData.getIn(['variables','$'], ''));
-    //var correctanswer = this.parseVariableString(this.props.questionData.getIn(['expression','$'], '')).toString(); 
-    //console.log("QUESTION_NUMERIC - varsList ", this.varsList )
-    // correctanswer = correctanswer.replace(/\^/g,' ' )
-   //  console.log("QUESTION_NUMERIC - correctanserstring ", correctanswer )
-    // var found = correctanswer.match( /([A-z]+[A-z0-9_]*)/gi )
-    // console.log("QUESTION_NUMERIC - found ", found)
-    // var usedVars = this.arrayUnique( found )
-    // var usedVars = found
-    // console.log("QUESTION_NUMERIC - usedVars ", usedVars)
-    // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
-    var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
-    var localVars = enforceList(this.props.questionData.get('var', List([])));
-    var allVars = localVars.concat(varPropsList);
-    this.varsList = this.arrayUnique( varsListUsed.concat( varsListLocal) )
-    for(let v of allVars) {
-      if(v.hasIn('token','$')) {
-        var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 
-        if( this.varsList.indexOf(parsedVar) == -1) {
-          this.varsList.push(parsedVar);
-        }
-      }
-    }
-    this.varProps = allVars.map( item => ({
-      //The token is the key, the other items that are not the token or the special $children$ are added as a map.
-      [item.getIn(['token', '$'], '').trim()]: item.filterNot( (val, key) => key === 'token' || key === '$children$' || key === '$').map( val => val.get('$') )
-    }) )
-    .reduce( (prev, next) => prev.merge(next), immutable.Map({}));
-  }
-*/
-
   parseBlacklist = () => {
     var blacklist = immutable.List([]);
     var globalBlacklistObject =  this.props.questionData.getIn(['global','blacklist','token']);
@@ -410,143 +370,120 @@ arrayUnique = (array) =>  {
   }
 
   /* render gets called every time the question is shown on screen */
-  render() {  
-  // Some convenience definitions
-  var question = this.props.questionData;
-  var state = this.props.questionState;
-  var submit = this.props.submitFunction;
-  var pending = this.props.questionPending;
-  var  hidevariables =  question.getIn(['@attr','hidevariables'],false);
-  // console.log("NUMERIC hidevariables = ", hidevariables)
-  // console.log("QUESTION_JSX state", state );
-  //console.log('question = ', question )
-  //console.log('questionstate = ', question.get('username') ) 
-  //console.log('usedvariablelist = ', question.get('usedvariablelist',List([])).toJS() );
-  
-  /* Both the questionData and questionState are of type Map from immutable.js. They are nested dictionaries that are accessed via the get and getIn functions. For example question.get('text') retrieves <question> <text> * </text> </question>. Deeper structures can be accessed with getIn, for example question.getIn(['tag1', 'tag2']) would retrieve <question> <tag1> <tag2> * </tag2> </tag1> </question>. */
+  render() {
+    // Some convenience definitions
+    var question = this.props.questionData;
+    var state = this.props.questionState;
+    var submit = this.props.submitFunction;
+    var pending = this.props.questionPending;
+    var hidevariables = question.getIn(['@attr', 'hidevariables'], false);
 
-  // System state data
-  var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
-  var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
-  var unchecked = '('+t('unchecked')+')';
-  var comment = state.getIn(['response','comment'],'');
-  var tdict = state.getIn(['response','dict'],'');
+    /* Both the questionData and questionState are of type Map from immutable.js. They are nested dictionaries that are accessed via the get and getIn functions. For example question.get('text') retrieves <question> <text> * </text> </question>. Deeper structures can be accessed with getIn, for example question.getIn(['tag1', 'tag2']) would retrieve <question> <tag1> <tag2> * </tag2> </tag1> </question>. */
 
-  // Custom state data
-  var latex = state.getIn(['response','latex'], ''); // Custom field containing the latex code obtained from SymPy.
-  var error = state.getIn(['response','error']); // Custom field containing error information
-  // console.log("ERROR = ", error )
-  var author_error = state.getIn(['response','author_error']); // Custom field containing error information
-  var warning = state.getIn(['response','warning']); // Custom field containing error information
-  var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
-// var precision = state.getIn(['response','precision'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
-  var  varsListUsed = this.props.questionData.get('usedvariablelist',List([])).toJS() ;
+    // System state data
+    var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
+    var correct = state.getIn(['response', 'correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
+    var unchecked = '(' + t('unchecked') + ')';
+    var comment = state.getIn(['response', 'comment'], '');
+    var tdict = state.getIn(['response', 'dict'], '');
 
-  var precision = question.get('precision',0)
-  if( precision == 0 ){
-        precision = '\u00B1 '+( (100 * question.getIn(['@attr','precision'],0) ) ).toString()+'%'
-        }
-        
-    if( state.getIn(['correct'], null ) == null ){
-       var feedback = false
-        } else {
-       var feedback = true
-     }    
-  // console.log("QUESTION_NUMERIC precision = ", precision );
-  if(state.getIn(['response','detail']))
-    error = "Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)";
-  // console.log("NUMERIC: @attr", question.getIn(['@attr','precision'],'0') )
+    // Custom state data
+    var latex = state.getIn(['response', 'latex'], ''); // Custom field containing the latex code obtained from SymPy.
+    var error = state.getIn(['response', 'error']); // Custom field containing error information
+    // console.log("ERROR = ", error )
+    var author_error = state.getIn(['response', 'author_error']); // Custom field containing error information
+    var warning = state.getIn(['response', 'warning']); // Custom field containing error information
+    var status = state.getIn(['response', 'status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
+    // var precision = state.getIn(['response','precision'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
+    var varsListUsed = this.props.questionData.get('usedvariablelist', List([])).toJS();
 
-  this.parseBlacklist();
-  var res = parseVariables(question);
-  this.varsList = res['varsList'];
-  this.varProps = res['varProps'];
-  console.log("varProps = ", ( this.varProps ).toJS() );
-  var varsUsed = res['varsUsed'];
-
-  var mathjsEvalVars = {}
-  //console.log("this.varsList = ", this.varsList )
-/*
-      if(varsUsed && !hidevariables ) {
-          varsUsed.map( v => {mathjsEvalVars[v] = 1;} );
-          availableVariables.push( (<span key="s">(i termer av </span>) );
-              var filteredVars = varsUsed.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,''));
-              for(const [i, v] of filteredVars.entries()) {
-                  availableVariables.push((<span key={"v"+i}>{v}</span>));
-                  if(this.varProps.hasIn([v, 'tex']))
-                      availableVariables.push((<span key={"tex"+i}> (<MathSpan message={"$" + this.varProps.getIn([v,'tex']) + "$"}></MathSpan>)</span>));
-                  if(i < filteredVars.length - 1)
-                      availableVariables.push((<span key={"c"+i}>, </span>));
-              }
-          availableVariables.push((<span key={"e"}>)</span>));
-*/
-          /* availableVariables = this.varsList.length ? "(i termer av " + varsUsed.filter(v => typeof v === 'string' && this.blacklist.indexOf(v) == -1).map( v => v.replace(/\_/g,'')).join(", ") + ")" : ""; */
-     /* }
-    */
-  // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
-  // The styling classes are from UIKit, see getuikit.com for available elements.
-  var availableVariables =  AvailableVariables(question,'sv')
-  var graderResponse = null;
-  var input = this.state.value.trim();
-  var hasChanged = input !== lastAnswer;
-  var nonEmpty = input !== "";
-  var renderedResult = this.renderAsciiMath(this.state.value);
-  var renderedMath = renderedResult.out;
-  if(input === lastAnswer && lastAnswer !== '' && !error) {
-    if( feedback ){
-    if(correct)
-       graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is correct.') } type="success" key="input" hasMath={true}/>);
-    else
-      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + t(' is not correct.') } type="warning" key="input" hasMath={true}/>);
-    } else {
-              graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + unchecked + t(comment,tdict) } type="text" key="input" hasMath={true} /> );
+    var precision = question.get('precision', 0)
+    if (precision == 0) {
+      precision = '\u00B1 ' + ((100 * question.getIn(['@attr', 'precision'], 0))).toString() + '%'
     }
-  } else if(input !== ''){
-    graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
-  }
 
-  var mathjsError = false;
-  try {
-    var mathjsParse = mathjs.eval(insertImplicitSubscript(input), mathjsEvalVars);
-  }
-  catch(e) {
-    if(e instanceof Error && !(e instanceof TypeError))
-      mathjsError = e.toString();//(<Alert type="warning" message={ e.toString() }/>);
-    if(e instanceof TypeError)
-      mathjsError = e.toString();//(<Alert type="warning" message="Expression unfinished"/>);
-  }
-  var mathSizeClass = 'large';
-  var sizeActive = 'uk-text-bold';
-  switch(this.state.mathSize) {
-    case 'small':
-      mathSizeClass = 'uk-text-small'; break;
-    case 'medium':
-      mathSizeClass = ''; break;
-    case 'large':
-      mathSizeClass = 'uk-text-large'; break;
-  }
-  return (
-        <div className="">
-          <label className="uk-form-row uk-display-inline-block">{renderText(question.getIn(['text']), null, this.props.lang)} <span className="uk-text-small uk-text-primary">  {availableVariables} <T>NUMERICAL</T> {precision}</span><HelpNumeric/></label>
-{ hasChanged && lastAnswer !== '' && (<Badge message={t('previous') + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
-          <div className="uk-grid uk-grid-small">
+    if (state.getIn(['correct'], null) == null) {
+      var feedback = false
+    } else {
+      var feedback = true
+    }
+
+    if (state.getIn(['response', 'detail']))
+      error = "Ett fel uppstod. (Detta kan bero på att du inte är inloggad, om problem kvarstår var vänlig hör av dig.)";
+
+    this.parseBlacklist();
+    var res = parseVariables(question);
+    this.varsList = res['varsList'];
+    this.varProps = res['varProps'];
+    console.log("varProps = ", (this.varProps).toJS());
+    var varsUsed = res['varsUsed'];
+
+    var mathjsEvalVars = {}
+
+    // HTML output defined as JSX code: Contains HTML entities with className instead of class and with javascript code within curly braces.
+    // The styling classes are from UIKit, see getuikit.com for available elements.
+    var availableVariables = AvailableVariables(question, 'sv')
+    var graderResponse = null;
+    var input = this.state.value.trim();
+    var hasChanged = input !== lastAnswer;
+    var nonEmpty = input !== "";
+    var renderedResult = this.renderAsciiMath(this.state.value);
+    var renderedMath = renderedResult.out;
+    if (input === lastAnswer && lastAnswer !== '' && !error) {
+      if (feedback) {
+        if (correct)
+          graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is correct.')} type="success" key="input" hasMath={true} />);
+        else
+          graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.')} type="warning" key="input" hasMath={true} />);
+      } else {
+        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + unchecked + t(comment, tdict)} type="text" key="input" hasMath={true} />);
+      }
+    } else if (input !== '') {
+      graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={renderedMath} key="input" />);
+    }
+
+    var mathjsError = false;
+    try {
+      var mathjsParse = mathjs.eval(insertImplicitSubscript(input), mathjsEvalVars);
+    }
+    catch (e) {
+      if (e instanceof Error && !(e instanceof TypeError))
+        mathjsError = e.toString();//(<Alert type="warning" message={ e.toString() }/>);
+      if (e instanceof TypeError)
+        mathjsError = e.toString();//(<Alert type="warning" message="Expression unfinished"/>);
+    }
+    var mathSizeClass = 'large';
+    var sizeActive = 'uk-text-bold';
+    switch (this.state.mathSize) {
+      case 'small':
+        mathSizeClass = 'uk-text-small'; break;
+      case 'medium':
+        mathSizeClass = ''; break;
+      case 'large':
+        mathSizeClass = 'uk-text-large'; break;
+    }
+    return (
+      <div className="">
+        <label className="uk-form-row uk-display-inline-block">{renderText(question.getIn(['text']), null, this.props.lang)} <span className="uk-text-small uk-text-primary">  {availableVariables} <T>NUMERICAL</T> {precision}</span><HelpNumeric /></label>
+        {hasChanged && lastAnswer !== '' && (<Badge message={t('previous') + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove" />)}
+        <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">
-          <div className="uk-width-1-1">
-            <textarea className={"uk-width-1-1 "} value={this.state.value} onSelect={this.handleSelect} onChange={this.handleChange} ></textarea>
-          </div>
-          </div>
-          <div className="uk-width-1-6">
-            <a onClick={(event) => submit(input)} className={ "uk-width-1-1 uk-button uk-padding-remove " + (nonEmpty && hasChanged && !mathjsError ? "uk-button-success" : "")}>
-              { pending && <i className="uk-icon-cog uk-icon-spin"/> }
-              { !pending && <i className="uk-icon uk-icon-send"/> }
-            </a>
+            <div className="uk-width-1-1">
+              <textarea className={"uk-width-1-1 "} value={this.state.value} onSelect={this.handleSelect} onChange={this.handleChange} ></textarea>
             </div>
           </div>
-          { error && !hasChanged && <Alert message={error} type="error" key="err"/> }
-          { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }
-        { warning && !hasChanged && <Alert message={warning} type="warning" key="warning"/> }
+          <div className="uk-width-1-6">
+            <a onClick={(event) => submit(input)} className={"uk-width-1-1 uk-button uk-padding-remove " + (nonEmpty && hasChanged && !mathjsError ? "uk-button-success" : "")}>
+              {pending && <i className="uk-icon-cog uk-icon-spin" />}
+              {!pending && <i className="uk-icon uk-icon-send" />}
+            </a>
+          </div>
+        </div>
+        {error && !hasChanged && <Alert message={error} type="error" key="err" />}
+        {author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error" />}
+        {warning && !hasChanged && <Alert message={warning} type="warning" key="warning" />}
         <div className="uk-flex">
-        <span className={"uk-width-1-1 " + mathSizeClass}>{ graderResponse }</span>
+          <span className={"uk-width-1-1 " + mathSizeClass}>{graderResponse}</span>
         </div>
         <div className="uk-float-right uk-flex">
           <div className={"uk-text-small uk-margin-small-left " + (this.state.mathSize === 'small' ? sizeActive : '')}>
@@ -559,12 +496,12 @@ arrayUnique = (array) =>  {
             <a onClick={() => this.setMathSize('large')}>A</a>
           </div>
         </div>
-        { renderedResult.error && <span className="uk-text-danger">Kontrollera syntax. (Visar senaste fungerande ovan.)</span>}
-        { /*mathjsError*/ }
-        { renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning"/>}
-        </div>
-  );
-}
+        {renderedResult.error && <span className="uk-text-danger">Kontrollera syntax. (Visar senaste fungerande ovan.)</span>}
+        { /*mathjsError*/}
+        {renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning" />}
+      </div>
+    );
+  }
 }
 
 //Register the question component with the system

@@ -119,11 +119,11 @@ export default class QuestionMultipleChoice extends Component {
     var correctAnswers = state.getIn(["response", "choices"], immutable.Map({}));
     var correct = state.getIn(["response", "correct"], false) || state.getIn(["correct"], false); // Boolean indicating if the grader reported correct answer
     var n_attempts = state.getIn(["response", "n_attempts"], question.getIn(["n_attempts"]), 0);
-     if( state.getIn(['correct'], null ) == null ){
-       var feedback = false
-        } else {
-       var feedback = true
-     }
+    if (state.getIn(['correct'], null) == null) {
+      var feedback = false
+    } else {
+      var feedback = true
+    }
 
     var choicesElements = question.get("choice", immutable.List([]));
     if (choicesElements.length > 1) {
@@ -230,20 +230,20 @@ export default class QuestionMultipleChoice extends Component {
           {pending && <i className="uk-icon-cog uk-icon-spin" />}
           {!pending && <i className="uk-icon uk-icon-send" />}
         </a>
-        { feedback && correct && (
+        {feedback && correct && (
           <Alert className="uk-margin-small-top uk-margin-small-bottom" type="success" key="input">
             {" "}
             Correct! {carrot}{" "}
           </Alert>
         )}
-        { ! feedback && 
-        (
-        <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input">
-            {" "}
-             {unchecked} {stick}{" "}
-          </Alert>
-        )}
-        {feedback  && n_attempts > 0 && !correct && (
+        {!feedback &&
+          (
+            <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input">
+              {" "}
+              {unchecked} {stick}{" "}
+            </Alert>
+          )}
+        {feedback && n_attempts > 0 && !correct && (
           <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input">
             {" "}
             Not correct {stick}{" "}
