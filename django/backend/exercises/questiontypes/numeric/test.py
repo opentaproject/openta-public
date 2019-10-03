@@ -35,6 +35,7 @@ NUMERIC_EXERCISE_XML = """
                 </exercise>\n
                 """
 
+
 class NumericTest(OpenTAStaticLiveServerTestCase):
     def setUp(self):
         super().setUp()

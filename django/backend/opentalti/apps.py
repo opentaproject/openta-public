@@ -20,8 +20,10 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class OpentaltiConfig(AppConfig):
     name = "opentalti"
+
 
 def create_new_user(request, username, course):
     logging.debug("CREATE NEW USER username" + str(username) + str(course))
@@ -61,6 +63,7 @@ def create_new_user(request, username, course):
     opentauser.save()
     user.save()
     return user
+
 
 def update_user_profile(user, user_stub):
     # A LOT OF CODE DUPLICATION WITH create_new_user

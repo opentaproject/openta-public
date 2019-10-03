@@ -97,7 +97,7 @@ class CustomUserAdmin(UserAdmin):
 
 class CourseAdmin(admin.ModelAdmin):
     form = CourseForm
-    list_display = ('id','published', 'course_name','course_key')
+    list_display = ('id', 'published', 'course_name', 'course_key')
     readonly_fields = ('course_key', 'lti_key', 'lti_secret')
 
 

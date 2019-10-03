@@ -68,18 +68,6 @@ def lti_main(request, course_pk=None):
             "LTI : No  proper role is unassigned. You may be logged into the wrong Canvas or not properly registered in the course. Please contact course examiner with an email if you have questions.",
         )
 
-    if request.user.is_authenticated:
-        user = request.user
-        # courses =   [ sw.pk for sw in opentauser.courses.all()  ]
-        # logging.debug("LIST OF COURSES")
-        # logging.debug( courses )
-        # if not course_pk in courses :
-        if not course_pk in enrollment(user):
-            course = Course.objects.get(pk=course_pk)
-            opentauser = OpenTAUser.objects.get(user=user)
-            opentauser.courses.add(course)
-            opentauser.save()
-        return backendviews.main(request, course_pk)
     logging.debug("LTI_MAIN course_pk = %s", course_pk)
     course = Course.objects.get(pk=course_pk)
     logging.debug("secret1 = %s", course.lti_key)
