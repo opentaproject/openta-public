@@ -29,3 +29,4 @@ warnings.filterwarnings(
 )
 
 HEADLESS = False
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
