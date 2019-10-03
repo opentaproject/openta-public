@@ -70,7 +70,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
 )};
 
 const BaseLoginInfo = ({ username, groups, iframed, replyTo, admin, author, viewer, activeExercise,
-      onHome, pendingState, menuPath, motd,lti_login,course}) => {
+      onHome, pendingState, menuPath, motd,lti_login,course,openta_version}) => {
   var renderGroupIcons = groups.map( group => {
                                     if(group in groupIcons)
                                       return (<i key={group} className={"uk-icon uk-text-success uk-margin-small-left " + groupIcons[group].icon} title={groupIcons[group].alt}/>)
@@ -132,7 +132,8 @@ var canViewXML = author || viewer || admin
             )
             }
             <li>
-              <a href={"mailto:" + replyTo} className="uk-padding-remove" data-uk-tooltip title={"Skicka ett mail till " + replyTo}>
+              <a href={"mailto:" + replyTo} className="uk-padding-remove" 
+                data-uk-tooltip title={ '[' + openta_version  +  "] Send an email to " + replyTo + '\n  and include this version info'}>
                 <span className="uk-icon-question-circle"></span>
               </a>
             </li>
@@ -256,6 +257,7 @@ const mapStateToProps = state => {
   menuPath: state.get('menuPath'),
   languages:  state.getIn(['course', 'languages'],['none']),
   iframed: state.getIn(['iframed'] , false),
+  openta_version: state.getIn(['openta_version'], 'VERSION MISSING' ),
   lti_login: state.getIn(['login','lti_login'], false )
 
 });

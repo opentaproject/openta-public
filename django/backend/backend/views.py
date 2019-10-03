@@ -194,10 +194,11 @@ def login(request, course_name=None):
 
     if course_data['icon'] is not None:
         course_data['icon'] = '/' + settings.SUBPATH + course_data['icon'].lstrip('/')
+    print("SETTINGS VERSION = ", settings.VERSION )
 
     extra = {
         'course': course_data,
-        'openta_version': settings.VERSION if hasattr(settings, 'VERSION') else "",
+        'openta_version': settings.VERSION ,
         'subpath': '/' + settings.SUBPATH,
         'course_name': course.course_name,
     }
@@ -305,7 +306,8 @@ def main(request, course_pk=None):
             return redirect('/' + settings.SUBPATH + 'logout/' + course.course_name + '/')
 
     course_data = CourseSerializer(course).data
-    extra = dict(course=course_data, timezone=settings.TIME_ZONE, subpath=settings.SUBPATH)
+    extra = dict(course=course_data, timezone=settings.TIME_ZONE, subpath=settings.SUBPATH,
+            openta_version=settings.VERSION )
     lang = set_persistent_lang(course, request)
     response = render(request, "base_main.html", context=extra)
     if settings.CSRF_COOKIE_NAME:

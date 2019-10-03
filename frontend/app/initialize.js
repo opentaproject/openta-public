@@ -18,17 +18,21 @@ import {
 import {
     updateLanguage,
     setTimezone,
-    setIFramed
+    setIFramed,
+    setOpenTAVersion,
     } from './actions.js'
 import {
   updateActiveExercise,
   setActiveCourse,
 } from './actions.js';
 import { navigateMenuArray, menuPositionUnder } from './menu.js';
-import { SUBPATH } from './settings.js';
+import { SUBPATH  } from './settings.js';
 import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js';
 import {store} from 'store.js';
 
+
+
+console.log("SUBPATH = ", SUBPATH )
 if( getcookie('lang') !== undefined ){
     if( getcookie('lang')[0] !== '""'  ){
           var cookielang = getcookie('lang')[0]
@@ -37,6 +41,7 @@ if( getcookie('lang') !== undefined ){
    }
 
 store.dispatch( setTimezone(globalInit.timezone) );
+store.dispatch( setOpenTAVersion(globalInit.openta_version) );
 store.dispatch( setActiveCourse(globalInit.coursePk) );
 store.dispatch( fetchExercises(globalInit.coursePk) );
 store.dispatch( fetchExerciseTree(globalInit.coursePk) );
@@ -44,7 +49,6 @@ store.dispatch( fetchLoginStatus(globalInit.coursePk) );
 store.dispatch( fetchCourse(globalInit.coursePk) );
 store.dispatch( fetchCourses() );
 store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
-
 
 if (module.hot) {
   module.hot.accept('./reducers', () => {
