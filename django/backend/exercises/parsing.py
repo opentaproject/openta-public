@@ -83,8 +83,8 @@ def exercise_key_get_or_create(path):
 
 def exercise_json(path, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):
     xml_path = os.path.join(path, EXERCISE_XML)
-    xmlfile = open(xml_path)
-    xml = xmlfile.read()
+    with open(xml_path, mode='rb') as fil:
+        xml = fil.read()
     return _exercise_xml_to_json(xml, hide_answers, sensitive_tags, sensitive_attrs)
 
 
@@ -142,8 +142,10 @@ def _exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_
 
 def exercise_xml(path):
     xml_path = os.path.join(path, EXERCISE_XML)
-    xmlfile = open(xml_path)
-    xml = xmlfile.read()
+    #xmlfile = open(xml_path)
+    #xml = xmlfile.read()
+    with open(xml_path, mode='rb') as fil:
+        xml = fil.read()
     return xml
 
 
@@ -352,8 +354,10 @@ def exercise_xml_history(path, name):
     fullpath = os.path.join(backup_path, name)
     if not os.path.isfile(fullpath):
         return {'error': 'No such file.'}
-    xmlfile = open(fullpath)
-    xml = xmlfile.read()
+    with open(fullpath, mode='rb') as fil:
+        xml = fil.read()
+    #xmlfile = open(fullpath)
+    #xml = xmlfile.read()
     return {'success': 'Ok', 'xml': xml}
 
 
