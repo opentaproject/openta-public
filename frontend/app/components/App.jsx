@@ -38,7 +38,7 @@ class BaseApp extends React.Component {
                 menuPositionAt(this.props.menuPath, ['exercises']) ||
                 menuPositionAt(this.props.menuPath, [])) &&
                 <div className="uk-width-medium-4-5 uk-margin-small-left"><Course /></div>}
-              {menuPositionUnder(this.props.menuPath, ['results']) && <div className="uk-width-1-1 uk-margin-small-left"><Results /></div>}
+              {menuPositionUnder(this.props.menuPath, ['results']) && <div className="uk-width-1-1 uk-margin-small-left results"><Results /></div>}
               {menuPositionUnder(this.props.menuPath, ['course', 'options']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseOptions /></div>}
               {menuPositionUnder(this.props.menuPath, ['course', 'import_exercises']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseExercisesImport /></div>}
               {menuPositionUnder(this.props.menuPath, ['course', 'export_exercises']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseExercisesExport /></div>}

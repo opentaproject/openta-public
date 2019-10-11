@@ -183,10 +183,20 @@ def login(request, course_name=None):
     # get last course name to make it easy to return
     if course_name == None:
         course_name = request.COOKIES.get('last_course_name', None)
+    course = None
     try:
-        course = Course.objects.get(course_name__iexact=course_name)
-    except Course.DoesNotExist:
-        course = Course.objects.order_by('-published', '-pk')[0]
+        course = (
+            Course.objects.all()
+            .filter(course_name__iexact=course_name)
+            .order_by('-published', '-pk')[0]
+        )
+    except:
+        pass
+    if course is None:
+        try:
+            course = Course.objects.get(course_name__iexact=course_name)
+        except Course.DoesNotExist:
+            course = Course.objects.order_by('-published', '-pk')[0]
     course_data = CourseSerializer(course).data
 
     if request.user.is_authenticated:

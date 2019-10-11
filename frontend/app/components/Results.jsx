@@ -269,7 +269,7 @@ const BaseResults = ({menuPath,
     }
       { menuPositionUnder(menuPath, ['results', 'download']) && !pendingResults && 
       <div className="uk-width-1-1 uk-text-center">
-        <h1><a href={SUBPATH + "/course/" + activeCourse + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a></h1> 
+        <h1><a href={SUBPATH + "/course/" + activeCourse + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o DownloadExcel"/></a></h1> 
       </div>
       }
       { menuPositionUnder(menuPath, ['results', 'gradebook']) && !pendingResults &&

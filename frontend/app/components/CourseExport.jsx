@@ -9,8 +9,8 @@ const BaseCourseExport = ({onExport, coursePk, taskId, progress, done, status}) 
   return <div className="uk-flex uk-flex-wrap uk-margin-top">
       <div className="uk-flex uk-flex-column uk-flex-middle uk-margin-left uk-panel uk-panel-box">
         <div>Export a zip file containing the database and exercises of this course.</div>
-        <div>
-          <a className="uk-button" onClick={() => onExport(coursePk)}>
+        <div className={status} > 
+          <a className="uk-button CourseExport" onClick={() => onExport(coursePk)}>
             Export course
           </a>
         </div>

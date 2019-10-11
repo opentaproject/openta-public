@@ -22,8 +22,8 @@ class OpenTAUser(models.Model):
     lis_person_name_family = models.CharField(max_length=256, null=True, blank=True)
     immutable_user_id = models.CharField(max_length=256, null=True, blank=True, editable=False)
 
-    class Meta:
-        unique_together = (('lti_user_id', 'lti_context_id', 'lti_tool_consumer_instance_guid'),)
+    # class Meta:
+    # unique_together = (('lti_user_id', 'lti_context_id', 'lti_tool_consumer_instance_guid'),)
 
     # SEE https://github.com/misli/django-verified-email-field
 

@@ -2,10 +2,13 @@
 
 from backend.settings_lti import *
 
+
 ALLOWED_HOSTS = ['*']
 RUNNING_DEVSERVER = True
 
 DEBUG = True
+
+ASYNC = False
 
 DATABASES = {
     'default': {
@@ -28,5 +31,16 @@ warnings.filterwarnings(
     r'django\.db\.models\.fields',
 )
 
+
+RQ_QUEUES = {
+    'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 5, 'DEFAULT_TIMEOUT': 360, 'ASYNC': ASYNC}
+}
+CSRF_FAILURE_VIEW = 'backend.views.csrf_failure'
+HELP_URL = 'https://opentaserver.com/'
+
+UNITTESTS = True
+
+
 HEADLESS = False
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+EXERCISES_PATH = 'media/exercise'

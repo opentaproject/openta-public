@@ -48,7 +48,8 @@ const BaseMenu = ({menuPath, menuClick, groups}) => {
 
   var subMenu = subItems.filter( item => !item.get('invisible', false) && hasReqGroup(item.get('reqGroup', immutable.List([])) ))
     .map( (item, key) => {
-    var cssclass = "uk-button uk-button-small uk-button-primary" + (menuPath.last() === key ? " uk-active" : "");
+    var itemname = item.get('name')
+    var cssclass = "uk-button uk-button-small uk-button-primary " + itemname  + (menuPath.last() === key ? " uk-active" : "");
     return ( <a key={item.get('name')} className={cssclass} onClick={e => menuClick((leaf ? menuPath.butLast() : menuPath).push(item.get('key')))}>{item.get('name')}</a> )
   }).toArray();
   return (

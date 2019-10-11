@@ -25,9 +25,11 @@ class BaseServerImport extends Component {
         return (
             <span className="uk-margin-left">
                 <div className="uk-form-file">
-                    <a type="file" className={"uk-button"}><i className="uk-icon-file-zip-o" title="file"/> Upload zip
-                    </a>
-                    <input type="file" onChange={(e) => this.props.onUpload(e)}/>
+                    <button  className={"uk-button UploadCourseZipButton"}>
+                        <i className="uk-icon-file-zip-o" title="file"/> Upload zip
+			</button>
+                    <input id='upl' className="UploadCourseZip" type="file" 
+                        onChange={(e) => this.props.onUpload(e)}/>
                 </div>
             </span>
         );
@@ -45,7 +47,7 @@ class BaseServerImport extends Component {
               <div>
                 Upload a zip file with server content.
               </div>
-              <div>{this.renderUpload()}</div>
+              <div className={this.props.processStatus}>{this.renderUpload()}</div>
               {this.props.pendingUpload && this.renderProgress()}
               {this.props.processStatus}
             </div>

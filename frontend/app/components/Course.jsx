@@ -160,7 +160,7 @@ function generateItem(
           {showStatistics &&
             !meta.deadline_date && (
               <div
-                className="uk-progress uk-margin-remove uk-progress-small uk-progress-warning"
+                className="ProgressBar uk-progress uk-margin-remove uk-progress-small uk-progress-warning"
                 title="blue: correct, orange: tried"
               >
                 <div
@@ -173,7 +173,7 @@ function generateItem(
           {showStatistics &&
             meta.deadline_date && (
               <div
-                className="uk-progress uk-margin-remove uk-progress-small uk-progress-success"
+                className="ProgressBar uk-progress uk-margin-remove uk-progress-small uk-progress-success"
                 title="green: complete, blue: correct, orange: tried"
               >
                 <div className="uk-progress-bar" style={{ width: percent_complete * 100 + "%" }} />
@@ -190,7 +190,7 @@ function generateItem(
           {activity >= 0 && (
             <div className="uk-progress uk-margin-remove uk-progress-small uk-progress-danger" title="Tries/Question">
               <div
-                className="uk-progress-bar uk-text-small"
+                className="ProgressBar uk-progress-bar uk-text-small"
                 style={{ width: activity + "%", backgroundColor: "#de96e2" }}
               >
                 {activity >= 10 && (

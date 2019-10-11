@@ -55,6 +55,15 @@ class Course(models.Model):
     def get_exercises_path(self):
         return os.path.join(paths.EXERCISES_PATH, self.get_exercises_folder())
 
+    def get_student_assets_path(self):
+        return os.path.join(paths.STUDENT_ASSETS_PATH, self.get_exercises_folder())
+
+    def get_student_asset_path(self):
+        return os.path.join(paths.STUDENT_ASSETS_PATH, self.get_exercises_folder())
+
+    def get_student_answerimages_path(self):
+        return os.path.join(paths.STUDENT_ANSWERIMAGES_PATH, self.get_exercises_folder())
+
     def get_exercises_folder(self):
         return str(self.course_key)
 

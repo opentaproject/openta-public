@@ -1,0 +1,38 @@
+"""Development settings."""
+
+from backend.settings_lti import *
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+ALLOWED_HOSTS = ['*']
+
+TIME_ZONE = 'Europe/Copenhagen'
+print("SYS", sys.argv)
+RUNNING_DEVSERVER = len(sys.argv) > 1 and sys.argv[1] == 'runserver'
+if RUNNING_DEVSERVER:
+        ASYNC = False
+else :
+        ASYNC = True
+print("ASYNC = ", ASYNC)
+#ASYNC = True
+#DEBUG = False
+if ASYNC :
+    RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 0, 'DEFAULT_TIMEOUT': 360, 'ASYNC': ASYNC }}
+CSRF_FAILURE_VIEW = 'backend.views.csrf_failure'
+HELP_URL = 'https://opentaserver.com/'
+
+DATABASES = {
+    #'default': {
+    #    'ENGINE': 'django.db.backends.sqlite3',
+    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    #}
+    'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'NAME': 'openta_2019',
+            'USER': 'openta',
+            'PASSWORD': 'learning',
+            'HOST': 'localhost',
+            'PORT': '',
+    }
+}
+
+ALLOWED_HOSTS = ['*']

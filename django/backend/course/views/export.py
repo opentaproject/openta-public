@@ -10,7 +10,9 @@ import backend.settings as settings
 from django.core.files.base import File
 from django.db import transaction
 import time
+import logging
 
+LOGGER = logging.getLogger(__file__)
 from course.models import Course
 from course.export_import import import_course_exercises, export_course_exercises
 from course.export_import import export_course
@@ -20,6 +22,7 @@ import tempfile
 
 
 def export_course_exercises_pipeline(task, course):
+    LOGGER.debug("EXPORT COURSE EXERCISES PIPELINE")
     task.status = "Working"
     task.save()
     dirpath = str(tempfile.mkdtemp())
@@ -50,7 +53,7 @@ def export_course_exercises_pipeline(task, course):
 @permission_required('exercises.edit_exercises')
 @api_view(['GET'])
 def export_course_exercises_async(request, course_pk):
-    print("EXPORT COURSE EXERCISES ASYNC")
+    LOGGER.debug("EXPORT COURSE EXERCISES ASYNC")
     dbcourse = Course.objects.get(pk=course_pk)
     task_id = workqueue.enqueue_task(
         "course_exercises_export", export_course_exercises_pipeline, course=dbcourse
@@ -59,10 +62,12 @@ def export_course_exercises_async(request, course_pk):
 
 
 def export_course_pipeline(task, course):
+    LOGGER.debug("EXPORT COURSE PIPELINE")
     task.status = "Working"
     task.save()
     dirpath = str(tempfile.mkdtemp())
     output_filename = None
+    LOGGER.debug(" DIRPATH = " + str(dirpath))
     try:
         # for status, progress, filename in export_course(course=course, output_path=dirpath):
         for task_result in export_course(course=course, output_path=dirpath):
@@ -84,6 +89,7 @@ def export_course_pipeline(task, course):
 @permission_required('exercises.edit_exercises')
 @api_view(['GET'])
 def export_course_async(request, course_pk):
+    LOGGER.debug("EXPORT COURSE ASYNC")
     dbcourse = Course.objects.get(pk=course_pk)
     task_id = workqueue.enqueue_task("course_export", export_course_pipeline, course=dbcourse)
     return Response({'task_id': task_id})

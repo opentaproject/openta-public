@@ -12,6 +12,7 @@ from workqueue.models import QueueTask
 import workqueue.util as workqueue
 from workqueue.exceptions import WorkQueueError
 from datetime import datetime
+from django.conf import settings
 import numpy
 from messages import error, embed_messages
 
@@ -42,7 +43,15 @@ def get_results_async(request, course_pk):
 def get_results_excel(request, course_pk):
     dbcourse = Course.objects.get(pk=course_pk)
     results = students_results(course=dbcourse)
+    print("TYPE = ", type(results))
     xlsx_data = create_xlsx_from_results_list(results)
+    if settings.UNITTESTS:
+        b = []
+        for item in results:
+            del item['pk']
+            b = b + [item]
+        with open("/tmp/results.txt", mode="w") as out:
+            out.write(str(b))
     content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     response = HttpResponse(xlsx_data, content_type=content_type)
     response['Content-Disposition'] = 'attachment; filename=results.xlsx'

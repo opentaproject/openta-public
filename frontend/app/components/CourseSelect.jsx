@@ -37,11 +37,13 @@ const BaseCourseSelect = ({courses, activeCourse, onCourseChange}) => {
     <li className="uk-text-left" key={course.get('pk')}>
       <a className="uk-dropdown-close" style={{padding:"0px 5px"}} onClick={() => onCourseChange(course.get('pk'))}>
         <i className="uk-icon uk-icon-circle uk-margin-small-right" style={{color: courseColor(course)}}/>
-        <span className={course.pk == activeCourse ? 'uk-text-bold' : ''}>{course.get('course_name')}</span>
+        <span className={ { courseColor } + ' ' + course.get('course_name')  + 
+          (  course.pk == activeCourse ? 'uk-text-bold' : '') }>
+          {course.get('course_name')}</span>
       </a>
     </li>).toList();
   var course = courses.getIn([activeCourse], immutable.Map({}));
-  return <div className="uk-button-dropdown" data-uk-dropdown="{mode:'click'}">
+  return <div className="ChooseCourseToShow uk-button-dropdown" data-uk-dropdown="{mode:'click'}">
     <button className={"uk-button uk-button-mini " + courseClass(course)}>
       {!course.get('published') && course.has('published') &&
         <span className="uk-margin-small-right"><T>Unpublished:</T></span>}

@@ -118,6 +118,7 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesSto
 MEDIA_TAG = 'media'
 MEDIA_URL = MEDIA_TAG + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_TAG)
+EXERCISES_PATH = '../../exercises'
 
 FILE_UPLOAD_HANDLERS = ['django.core.files.uploadhandler.TemporaryFileUploadHandler']
 
@@ -172,7 +173,9 @@ RQ_QUEUES = {
         'HOST': 'localhost',
         'DB': 0,
         'PORT': 6379,
-        'ASYNC': False,
+        'ASYNC': True,
         'DEFAULT_TIMEOUT': 20 * 60,
     }
 }
+UNITTESTS = False
+EXERCISES_PATH = '../../exercises'
