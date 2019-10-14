@@ -142,8 +142,8 @@ def _exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_
 
 def exercise_xml(path):
     xml_path = os.path.join(path, EXERCISE_XML)
-    #xmlfile = open(xml_path)
-    #xml = xmlfile.read()
+    # xmlfile = open(xml_path)
+    # xml = xmlfile.read()
     with open(xml_path, mode='rb') as fil:
         xml = fil.read()
     return xml
@@ -356,8 +356,8 @@ def exercise_xml_history(path, name):
         return {'error': 'No such file.'}
     with open(fullpath, mode='rb') as fil:
         xml = fil.read()
-    #xmlfile = open(fullpath)
-    #xml = xmlfile.read()
+    # xmlfile = open(fullpath)
+    # xml = xmlfile.read()
     return {'success': 'Ok', 'xml': xml}
 
 
