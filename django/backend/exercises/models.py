@@ -463,8 +463,12 @@ class ImageAnswer(models.Model):
     )
     date = models.DateTimeField(default=now)
     filetype = models.CharField(max_length=3, choices=FILETYPE_CHOICES, default=IMAGE)
-    image = models.ImageField(default=None, blank=True, null=True, upload_to=answer_image_filename,max_length=512)
-    pdf = models.FileField(default=None, blank=True, null=True, upload_to=answer_image_filename,max_length=512)
+    image = models.ImageField(
+        default=None, blank=True, null=True, upload_to=answer_image_filename, max_length=512
+    )
+    pdf = models.FileField(
+        default=None, blank=True, null=True, upload_to=answer_image_filename, max_length=512
+    )
     image_thumb = ImageSpecField(
         source='image', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60}
     )
@@ -569,7 +573,9 @@ class AuditResponseFile(models.Model):
     image = models.ImageField(
         default=None, blank=True, null=True, upload_to=audit_response_filename
     )
-    pdf = models.FileField(default=None, blank=True, null=True, upload_to=audit_response_filename,max_length=512)
+    pdf = models.FileField(
+        default=None, blank=True, null=True, upload_to=audit_response_filename, max_length=512
+    )
     image_thumb = ImageSpecField(
         source='image', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60}
     )
