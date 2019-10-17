@@ -343,7 +343,7 @@ export default class QuestionLinearAlgebra extends Component {
     case 'large':
       mathSizeClass = 'uk-text-large'; break;
   }
-  var questiontext = this.props.questiontext
+  var questiontext = this.props.renderText(question.getIn(['text']));
   var questionkey = question.getIn(['@attr', 'key']);
   var msg1 = "Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."
   return (
@@ -351,7 +351,7 @@ export default class QuestionLinearAlgebra extends Component {
         {questiontext}
 		<span className="uk-text-small uk-text-primary">{availableVariables}</span>
   	  <span className="uk-text-small uk-text-primary"> [  {feedback} {n_attempts } <T>attempts</T> ]  </span>
-          
+
           <HelpLinearAlgebra/>
 	   <span data-uk-tooltip title={msg1}></span>
 { hasChanged && lastAnswer !== '' && (<Badge message={t('previous') + '  '  + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}

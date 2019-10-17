@@ -114,7 +114,7 @@ export default class QuestionMultipleChoice extends Component {
     var submit = this.props.submitFunction;
     var pending = this.props.questionPending;
     var unchecked = '('+t('unchecked')+')';
-    var questiontext = this.props.questiontext;
+    var questiontext = this.props.renderText(question.getIn(['text']));
     if (state.getIn(["response", "question"])) {
       question = state.getIn(["response", "question"]);
     }
@@ -234,7 +234,7 @@ export default class QuestionMultipleChoice extends Component {
     return (
       <div className="">
         <label className="uk-form-row uk-display-inline-block uk-margin-bottom">
-	  {this.props.questiontext} <HelpMultipleChoice />
+          {questiontext} <HelpMultipleChoice />
         </label>
         <a
           onClick={event => submit(JSON.stringify(this.state.choices))}

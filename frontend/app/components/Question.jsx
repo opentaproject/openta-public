@@ -8,6 +8,7 @@ import immutable from 'immutable';
 import { checkQuestion } from '../fetchers.js'
 import { questionDispatch } from './questiontypes/question_type_dispatch.js'
 import * as qt from './questiontypes/question_types.js'
+import { renderText } from './questiontypes/render_text.js'
 
 //const BaseQuestion = ({exerciseKey, questionKey, exerciseState, onQuestionSubmit}) => {
 class BaseQuestion extends Component {
@@ -32,7 +33,7 @@ class BaseQuestion extends Component {
         key: questionKey,
         exerciseKey: exerciseKey,
         questionData: question,
-	questiontext: this.props.questiontext,
+        renderText: this.props.renderText || ((itemjson) => renderText(itemjson, null, this.props.lang)),
         questionState: questionState,
         questionPending: pendingState.getIn(['exercises', exerciseKey, 'questions', question.getIn(['@attr', 'key']), 'waiting'], false),
         isAuthor: this.props.author,
