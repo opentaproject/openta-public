@@ -11,10 +11,10 @@ function updateLoginStatus(data) {//{{{
   }
 }//}}}
 
-function setOpenTAVersion(openta_version) {
+function setOpenTAVersion(openTAVersion) {
     return {
         type: 'SET_OPENTA_VERSION',
-        data: openta_version 
+        data: openTAVersion
     }
 }
 

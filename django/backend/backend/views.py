@@ -194,7 +194,6 @@ def login(request, course_name=None):
 
     if course_data['icon'] is not None:
         course_data['icon'] = '/' + settings.SUBPATH + course_data['icon'].lstrip('/')
-    print("SETTINGS VERSION = ", settings.VERSION)
 
     extra = {
         'course': course_data,

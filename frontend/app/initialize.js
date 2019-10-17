@@ -31,8 +31,6 @@ import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js';
 import {store} from 'store.js';
 
 
-
-console.log("SUBPATH = ", SUBPATH )
 if( getcookie('lang') !== undefined ){
     if( getcookie('lang')[0] !== '""'  ){
           var cookielang = getcookie('lang')[0]
@@ -41,7 +39,7 @@ if( getcookie('lang') !== undefined ){
    }
 
 store.dispatch( setTimezone(globalInit.timezone) );
-store.dispatch( setOpenTAVersion(globalInit.openta_version) );
+store.dispatch( setOpenTAVersion(globalInit.openTAVersion) );
 store.dispatch( setActiveCourse(globalInit.coursePk) );
 store.dispatch( fetchExercises(globalInit.coursePk) );
 store.dispatch( fetchExerciseTree(globalInit.coursePk) );

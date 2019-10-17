@@ -70,7 +70,7 @@ var Tools = ({showsave, onsave, savepending, savesuccess, saveerror, showreset, 
 )};
 
 const BaseLoginInfo = ({ username, groups, iframed, replyTo, admin, author, viewer, activeExercise,
-      onHome, pendingState, menuPath, motd,lti_login,course,openta_version}) => {
+      onHome, pendingState, menuPath, motd, lti_login, course, openTAVersion}) => {
   var renderGroupIcons = groups.map( group => {
                                     if(group in groupIcons)
                                       return (<i key={group} className={"uk-icon uk-text-success uk-margin-small-left " + groupIcons[group].icon} title={groupIcons[group].alt}/>)
@@ -132,8 +132,8 @@ var canViewXML = author || viewer || admin
             )
             }
             <li>
-              <a href={"mailto:" + replyTo} className="uk-padding-remove" 
-                data-uk-tooltip title={ '[' + openta_version  +  "] Send an email to " + replyTo + '\n  and include this version info'}>
+              <a href={"mailto:" + replyTo + "?subject=" + openTAVersion} className="uk-padding-remove"
+                data-uk-tooltip title={ "Send an email to " + replyTo + " and include that this is OpenTA version [" + openTAVersion + "]" }>
                 <span className="uk-icon-question-circle"></span>
               </a>
             </li>
@@ -257,8 +257,8 @@ const mapStateToProps = state => {
   menuPath: state.get('menuPath'),
   languages:  state.getIn(['course', 'languages'],['none']),
   iframed: state.getIn(['iframed'] , false),
-  openta_version: state.getIn(['openta_version'], 'VERSION MISSING' ),
-  lti_login: state.getIn(['login','lti_login'], false )
+  openTAVersion: state.getIn(['openTAVersion'], 'VERSION MISSING'),
+  lti_login: state.getIn(['login','lti_login'], false)
 
 });
 }

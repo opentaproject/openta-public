@@ -159,7 +159,7 @@ export default (state = defaultState, action) => {
     case 'SET_TIMEZONE':
       return state.setIn(['timezone'], action.data);
     case 'SET_OPENTA_VERSION':
-      return state.setIn(['openta_version'], action.data);
+      return state.setIn(['openTAVersion'], action.data);
     case 'SET_IFRAMED':
       return state.setIn(['iframed'], action.data);
     default:
