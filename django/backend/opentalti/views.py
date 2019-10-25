@@ -21,6 +21,9 @@ from django.contrib.auth.models import Group, User
 from course.models import Course
 from course.serializers import CourseSerializer
 from exercises.modelhelpers import enrollment
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import MultiPartParser
+from rest_framework.response import Response
 
 # from backend.views import set_persistent_lang
 from django.contrib.auth import authenticate
@@ -34,6 +37,10 @@ from .forms import EditProfileForm
 from django.contrib.auth import logout as syslogout
 import re
 import io
+
+import workqueue.util as workqueue
+from opentalti.gradebook import canvas_gradebook_pipeline
+import tempfile
 
 import logging
 
@@ -255,3 +262,19 @@ def change_password(request):
         messages.error(request, "Password not reset.")
         print("REDIRECT3")
         return redirect("/" + settings.SUBPATH)
+
+
+@api_view(['POST'])
+@parser_classes((MultiPartParser,))
+def amend_canvas_gradebook(request, course_pk):
+    dbcourse = Course.objects.get(pk=course_pk)
+    if not request.user.has_perm('exercises.edit_exercise'):
+        return Response({}, status.HTTP_403_FORBIDDEN)
+
+    _, tmp_filename = tempfile.mkstemp(suffix=".csv")
+    with open(tmp_filename, 'wb') as destination:
+        for chunk in request.FILES['file'].chunks():
+            destination.write(chunk)
+
+    task_id = workqueue.enqueue_task("canvas_gradebook", canvas_gradebook_pipeline, course=dbcourse, csv_file=tmp_filename)
+    return Response({'task_id': task_id})

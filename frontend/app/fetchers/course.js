@@ -27,7 +27,7 @@ function fetchCourses() {
     return dispatch => {
         return jsonfetch('/courses/')
             .then(res => res.json())
-            .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({}))) 
+            .then(json => json.reduce( (map, obj) => { return map.set(obj.pk, immutable.fromJS(obj)); }, immutable.Map({})))
             .then(json => dispatch(updateCourses(json)));
     };
 }
@@ -43,7 +43,7 @@ function uploadProgress(dispatch, evt, courseKey) {
 
 var throttleUploadProgress = _.throttle(uploadProgress, 300);
 
-function uploadExercises(courseKey, file) { 
+function uploadExercises(courseKey, file) {
   return dispatch => {
       if (!file ) return;
       var fd = new FormData();

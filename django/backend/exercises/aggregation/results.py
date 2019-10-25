@@ -265,7 +265,7 @@ def calculate_students_results_subset(exercise_query, task=None, course=None):
     n_students = students.count()
     for index, student in enumerate(students):
         if task is not None:
-            task.status = "Working"
+            task.status = "Calculating results"
             task.progress = round(((index + 1) / n_students) * 100)
             task.save()
         passed_required = get_passed_exercises_with_image_data(
@@ -312,6 +312,7 @@ def calculate_students_results_subset(exercise_query, task=None, course=None):
         results.append(
             {
                 'username': student.username,
+                'lti_user_id': student.opentauser.lti_user_id,
                 'pk': student.pk,
                 'first_name': student.first_name,
                 'last_name': student.last_name,

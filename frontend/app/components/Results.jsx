@@ -14,6 +14,7 @@ import Plot from './Plot.jsx';
 import Table from './Table.jsx';
 import StudentResults from './StudentResults.jsx';
 import CustomResult from './CustomResult.jsx';
+import CanvasGradebook from './CanvasGradebook.jsx';
 
 import immutable from 'immutable';
 import moment from 'moment';
@@ -271,9 +272,15 @@ const BaseResults = ({menuPath,
         <h1><a href={SUBPATH + "/course/" + activeCourse + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o"/></a></h1> 
       </div>
       }
+      { menuPositionUnder(menuPath, ['results', 'gradebook']) && !pendingResults &&
+      <div className="uk-width-1-1 uk-text-center">
+        <CanvasGradebook/>
+      </div>
+      }
       { !activeDetailExercise &&
         !menuPositionUnder(menuPath, ['results', 'download']) &&
         !menuPositionUnder(menuPath, ['results', 'custom']) &&
+        !menuPositionUnder(menuPath, ['results', 'gradebook']) &&
         renderFilter({filteredUsers: renderResults, onFilterChange, onFilterKeypress, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
     { !menuPositionUnder(menuPath, ['results', 'custom']) &&
       <div className="results-table" style={{flex:'1'}}> {/*uk-width-4-10 uk-overflow-container*/}

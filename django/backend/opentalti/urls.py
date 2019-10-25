@@ -10,4 +10,5 @@ urlpatterns = [
     url(r"^lti/config_xml/$", views.config_xml),
     url(r"^(?P<course_pk>[0-9]+)/lti/$", views.lti_main),
     url(r"^(?P<course_name>[\w\.-]+)/lti/config_xml/?$", views.config_xml),
+    url(r'^course/(?P<course_pk>[0-9]+)/lti/canvasgradebook/$', views.amend_canvas_gradebook),
 ]

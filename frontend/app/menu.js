@@ -132,6 +132,10 @@ var menuTree = immutable.fromJS({
           name: 'Download',
           key: 'download',
         },
+        gradebook: {
+          name: 'Canvas gradebook',
+          key: 'gradebook',
+        },
           custom: {
               name: 'Custom',
               key: 'custom',
