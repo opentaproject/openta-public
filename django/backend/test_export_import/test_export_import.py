@@ -35,16 +35,13 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         create_database(password="learning", course_key=course_key, course_name=course_name)
         course = Course.objects.first()
         exercises_path = course.get_exercises_path()
-        print("COURSE EXERCISES_PATH = ", exercises_path)
         create_exercise(course, exercises_path, 'exercise1')
         for msg in Exercise.objects.sync_with_disc(course, True):
             print(msg)
         self.selenium = create_selenium()
         self.selenium.implicitly_wait(20)
         queue = django_rq.get_queue('default')
-        print("queue = ", queue)
         self.worker = django_rq.get_worker('default')
-        print("getworker = ", self.worker)
 
     def tearDown(self):
         self.selenium.quit()
@@ -72,7 +69,6 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         input_password.send_keys(pw)
         login.click()
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'li.course-exercise-item')))
-        # wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'uk-thumbnail-exercise')))
         assert assert_role in sel.page_source
 
     def logout(self):
@@ -84,27 +80,10 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         )
 
     def first_exercise(self):
-        print("ZZZZZZZZZ 01")
         sel = self.selenium
-        print("ZZZZZZZZZ 02")
         wait = WebDriverWait(sel, 20)
-        print("ZZZZZZZZZ 03")
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'li.course-exercise-item')))
-        print("ZZZZZZZZZ 04")
         self.wait_for_then_click(wait, 'exercise-a')
-        # _className = 'exercise-a'
-        # wait.until(EC.presence_of_element_located((By.CLASS_NAME, _className)))
-        # print("FOUND ", _className)
-        # exercise = self.selenium.find_element_by_class_name(_className)
-        # exercise = sel.find_elements_by_css_selector('li.course-exercise-item')
-        print("ZZZZZZZZZ 05")
-        # exercise = exercises[0]
-        # wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'forever')))
-        # print("ZZZZZZZZZ 06")
-        # exercise.click()
-        print("ZZZZZZZZZ 07")
-        # wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'textarea.uk-width-1-1')))
-        print("ZZZZZZZZZ 08")
 
     def answer(self):
         sel = self.selenium
@@ -112,12 +91,9 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         wait.until(
             EC.presence_of_element_located((By.XPATH, '//img[contains(@src, \'figure.png\')]'))
         )
-        # wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'extarea.uk-width-1-1')))
         input_box = sel.find_elements_by_css_selector('textarea')[0]
         input_box.send_keys('sin(2)')
         self.wait_for_then_click(wait, 'uk-button-success')
-        # send_button = sel.find_elements_by_xpath('//a[.//i[contains(@class, \'uk-icon-send\')]]')[0]
-        # send_button.click()
         wait.until(EC.text_to_be_present_in_element((By.CSS_SELECTOR, 'form'), "korrekt"))
 
     def upload_image(self):
@@ -154,6 +130,7 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, _className)))
         print("FOUND ", _className)
         self.selenium.find_element_by_class_name(_className).click()
+        print("CLICK", _className)
 
     def do_click_sequence(self, wait, _classNames):
         for _className in _classNames:
@@ -163,28 +140,18 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         '''
         Publish an exercise and verify that a student can answer and upload an image.
         '''
-        print("YYYYYYYYYYYYYYYYYYYYY 11")
         self.open_site()
-        print("YYYYYYYYYYYYYYYYYYYYY 12")
         self.change_exercise_options()
-        print("YYYYYYYYYYYYYYYYYYYYY 13")
         self.login()
-        print("YYYYYYYYYYYYYYYYYYYYY 14")
         self.first_exercise()
-        print("YYYYYYYYYYYYYYYYYYYYY 15")
         self.answer()
-        print("YYYYYYYYYYYYYYYYYYYYY 16")
         self.upload_image()
-        print("YYYYYYYYYYYYYYYYYYYYY 21")
         self.logout()
         self.login('super', 'learning', 'admin')
         sel = self.selenium
         queue = django_rq.get_queue('default')
-        print("queue = ", queue)
         sel.worker = django_rq.get_worker('default')
-        print("getworker = ", sel.worker)
 
-        print("YYYYYYYYYYYYYYYYYYYYY 31")
 
         for course in Course.objects.all():
             LOGGER.info("Calculating for course {}".format(course.course_name))
@@ -193,37 +160,25 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
             students_results(force=True, course=course)
             LOGGER.info('Finished calculating results and statistics')
 
-        print("YYYYYYYYYYYYYYYYYYYYY 41")
 
         wait = WebDriverWait(sel, 20)
         seq = ['Course', 'Export', 'CourseExport', 'Home', 'Results', 'Download', 'DownloadExcel']
         self.do_click_sequence(wait, seq)
-        print("YYYYYYYYYYYYYYYYYYYYY 51")
         os.replace("/tmp/results.txt", "/tmp/results_export.txt")
         self.logout()
 
     def wait_for_spinners(self, wait):
         wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'Spinner')))
-        print("FOUND ELEMENT Spinner")
         wait.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'Spinner')))
-        print("Spinner dispappeared")
 
     def check_import_course(self):
-        print("XXXXXXXXXXXXXXXXXXx 6")
         self.setup(course_name='code789')
-        print("XXXXXXXXXXXXXXXXXXx 7")
         self.open_site()
-        print("XXXXXXXXXXXXXXXXXXx 8")
         self.change_exercise_options()
-        print("XXXXXXXXXXXXXXXXXXx 9")
         self.login()
-        print("XXXXXXXXXXXXXXXXXXx 10")
         self.first_exercise()
-        print("XXXXXXXXXXXXXXXXXXx 11")
         course = Course.objects.get(course_name="code789")
-        print("XXXXXXXXXXXXXXXXXXx 12")
         student, created = Group.objects.get_or_create(name="Student")
-        print("XXXXXXXXXXXXXXXXXXx 13 ")
         perm_log_answer = Permission.objects.get(codename="log_question")
         student.permissions.add(perm_log_answer)
         student.save()
@@ -238,10 +193,8 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         self.logout()
         self.open_site()
         self.login('super', 'learning', 'admin')
-        print("XXXXXXXXXXXXXXXXXXx 16")
         sel = self.selenium
         queue = django_rq.get_queue('default')
-        print("queue = ", queue)
         sel.worker = django_rq.get_worker('default')
         print("getworker = ", sel.worker)
 
@@ -253,26 +206,14 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
             students_results(force=True, course=course)
             LOGGER.info('Finished calculating results and statistics')
 
-        print("XXXXXXXXXXXXXXXXXXx 26")
         self.do_click_sequence(wait, ['Server', 'Import'])
-        # wait.until(EC.presence_of_element_located((By.XPATH, 'UploadCourseZip')))
         element = self.wait_for(wait, "UploadCourseZip")
         element.send_keys('/tmp/server.zip')
-        print("SENT KEYS ")
-        # self.do_click_sequence(wait, ['UploadCourseZip'])
-        # print("CLICKED")
-        # elt = '//div[contains(@class, \'Done\')]'
-        # wait.until(EC.presence_of_element_located((By.XPATH, elt)))
         self.wait_for(wait, 'Done')
         sel.refresh()
-        # self.wait_for_spinners(wait)
-        # sel.refresh()
-        # IF TESTING ANOTHER COURSE NAME AS IMPORT SO THERE ARE TWO COURSES
-        # USE THE FOLLOWING
         self.do_click_sequence(wait, ['ChooseCourseToShow', 'code123'])
         self.do_click_sequence(wait, ['Results', 'Download', 'DownloadExcel'])
         os.replace("/tmp/results.txt", "/tmp/results_import.txt")
-        # self.do_click_sequence(wait, ['Forever'])
         self.logout()
 
     # LOGIC IS test1 actively creates a course code123 and dumps server.zip into /tmp
