@@ -309,10 +309,13 @@ def calculate_students_results_subset(exercise_query, task=None, course=None):
         )
         all_audits = exercise_query.filter(audits__student=student, audits__published=True)
         passed_manually = exercise_query.filter(audits__student=student, audits__force_passed=True)
+        lti_user_id = student.opentauser.lti_user_id
+        if lti_user_id is None:  # map None to blank in json results
+                lti_user_id = ''
         results.append(
             {
                 'username': student.username,
-                'lti_user_id': student.opentauser.lti_user_id,
+                'lti_user_id': lti_user_id,
                 'pk': student.pk,
                 'first_name': student.first_name,
                 'last_name': student.last_name,
