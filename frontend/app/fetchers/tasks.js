@@ -46,7 +46,8 @@ function fetchTaskProgress(taskId, completeAction, progressAction) {
 function enqueueTask(url, {data, method="GET", completeAction, progressAction} = {}) {
     return dispatch => {
         var fetchconfig = {
-            method: method
+            method: method,
+            data: data
         };
         if(data !== undefined) {
             fetchconfig.headers = { "Content-Type": "application/json" };

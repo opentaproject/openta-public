@@ -1,4 +1,6 @@
 from rest_framework.decorators import api_view, parser_classes
+import requests
+import json
 from rest_framework import status
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
@@ -9,11 +11,11 @@ from course.duplicate import duplicate_course
 import workqueue.util as workqueue
 
 
-def course_duplicate_pipeline(task, course):
+def course_duplicate_pipeline(task, course, data):
     task.status = "Working"
     task.save()
     try:
-        for phase, progress in duplicate_course(course=course):
+        for phase, progress in duplicate_course(course=course, data=data):
             task.progress = progress * 100
             task.status = phase
             task.save()
@@ -30,8 +32,15 @@ def course_duplicate_pipeline(task, course):
 
 
 @permission_required('exercises.edit_exercises')
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def course_duplicate_async(request, course_pk):
+    data = request.data
+    newname = data.get('newname', "NEWNAME")
+    days = data.get('days', "0")
+    checked1 = data.get('checked1', False)
+    checked2 = data.get('checked2', False)
     dbcourse = Course.objects.get(pk=course_pk)
-    task_id = workqueue.enqueue_task("course_duplicate", course_duplicate_pipeline, course=dbcourse)
+    task_id = workqueue.enqueue_task(
+        "course_duplicate", course_duplicate_pipeline, course=dbcourse, data=data
+    )
     return Response({'task_id': task_id})

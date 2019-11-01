@@ -1,26 +1,104 @@
 import os
-from exercises.models import Exercise, Answer, Question
+from django.db import models
+from exercises.models import Exercise, Answer, Question, ExerciseMeta
+from users.models import User
 from course.models import Course
 from django.contrib.auth.models import User
+from datetime import timedelta
 import shutil
 from pathlib import Path
 import uuid
+from copy import deepcopy
 
 
-def duplicate_course(course: Course):
-    n_exercises = Exercise.objects.filter(course=course).count()
-    old_course_path = course.get_exercises_path()
-    course.pk = None
-    course.course_key = uuid.uuid4()
-    course.lti_secret = uuid.uuid4()
-    course.lti_key = uuid.uuid4()
-    course.course_name = "{old} (copy)".format(old=course.course_name)
-    course.published = False
-    course.save()
-    yield ("Copying exercises file tree, this could take some time...", 0)
-    shutil.copytree(old_course_path, course.get_exercises_path())
-    for key_file in Path(course.get_exercises_path()).glob("**/exercisekey"):
-        key_file.unlink()
-    for index, _ in enumerate(Exercise.objects.sync_with_disc(course, i_am_sure=True)):
-        if index % (n_exercises // 20 + 1) == 0:
-            yield ("Updating database...", index / n_exercises)
+def file_get_contents(filename):
+    with open(filename) as f:
+        return f.read()
+
+
+def duplicate_course(course: Course, *args, **kwargs):
+    data = kwargs['data']
+    newname = data.get('newname', course.course_name)
+    days = data.get('days', '0')
+    yield ("Beginning", 0)
+    if not newname == course.course_name:
+        old_course = course
+        n_exercises = Exercise.objects.filter(course=course).count()
+        old_exercises = Exercise.objects.filter(course=course)
+        old_uuid = str(course.course_key)
+        old_exercises_path = course.get_exercises_path()
+        course.pk = None
+        course.course_key = uuid.uuid4()
+        new_uuid = str(course.course_key)
+        course.lti_secret = uuid.uuid4()
+        course.lti_key = uuid.uuid4()
+        # if newname == None :
+        #   newname = "{old}-copy".format(old=course.course_name)
+        course.course_name = newname
+        course.published = False
+        course.save()
+        yield ("Copying exercises file tree, this could take some time...", 0)
+        shutil.copytree(old_exercises_path, course.get_exercises_path())
+        for key_file in Path(course.get_exercises_path()).glob("**/exercisekey"):
+            key_file.unlink()
+        for index, _ in enumerate(Exercise.objects.sync_with_disc(course, i_am_sure=True)):
+            if index % (n_exercises // 20 + 1) == 0:
+                yield ("Updating database...", index / n_exercises)
+        new_exercises = Exercise.objects.filter(course=course)
+        exercises_path = course.get_exercises_path()
+        exerciselist = []
+        for root, directories, filenames in os.walk(exercises_path, followlinks=True):
+            for filename in filenames:
+                if filename == 'exercise.xml':
+                    name = os.path.basename(os.path.normpath(root))
+                    relpath = root[len(exercises_path) :]
+                    # THE NEXT COMMAND CAUSED SYNC TO CRASH WHEN exercise.xml mistakenly is put in root dir
+                    if (
+                        not relpath == ''
+                    ):  # GET RID OF EDGE CASE WHEN exercise.xml mistakenly is put in root dir
+                        exerciselist.append((name, relpath))
+        nocopy = ['id', '_state', 'exercise_id']
+        for (_, key_file) in exerciselist:
+            oldkey = file_get_contents(
+                '../../exercises/' + old_uuid + '/' + str(key_file) + '/' + 'exercisekey'
+            )
+            newkey = file_get_contents(
+                '../../exercises/' + new_uuid + '/' + str(key_file) + '/' + 'exercisekey'
+            )
+            old_exercise = Exercise.objects.get(exercise_key=oldkey)
+            new_exercise = Exercise.objects.get(exercise_key=newkey)
+            meta_names = list(old_exercise.meta.__dict__.keys())
+            for name in meta_names:
+                if not name in nocopy:
+                    setattr(new_exercise.meta, str(name), getattr(old_exercise.meta, str(name)))
+            # meta_date_names = ['deadline_date',]
+            # for name in meta_date_names :
+            #    olddate = getattr(new_exercise.meta, name )
+            #    if not olddate == None :
+            #        newdate = getattr(new_exercise.meta, name )  + timedelta(days=int( days))
+            #    else :
+            #        newdate = None
+            #    setattr( new_exercise.meta, str(name), newdate )
+            new_exercise.meta.save()
+    add_days_to_course(course, data)
+    return course
+
+
+def add_days_to_course(course: Course, data):
+    days = data['days']
+    exercises = list(Exercise.objects.filter(course=course))
+    for exercise in exercises:
+        meta_date_names = ['deadline_date']
+        for name in meta_date_names:
+            olddate = getattr(exercise.meta, name)
+            if not olddate == None:
+                newdate = getattr(exercise.meta, name) + timedelta(days=int(days))
+            else:
+                newdate = None
+            setattr(exercise.meta, str(name), newdate)
+        for name, val in data.items():
+            if (type(val) == bool) and val:
+                oldvalue = getattr(exercise.meta, str(name))
+                default = ExerciseMeta._meta.get_field(name).get_default()
+                setattr(exercise.meta, str(name), default)
+        exercise.meta.save()
