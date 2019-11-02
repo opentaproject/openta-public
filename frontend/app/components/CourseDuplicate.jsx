@@ -10,26 +10,26 @@ import { renderText } from './questiontypes/render_text.js';
 
 class BaseCourseDuplicate extends Component  {
   // {onCourseDuplicate, coursePk, taskId, status, progress, done,course_name}) => 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       newname: '',
       days: '0',
-    deadline_date : false,
-    solution : false,
-    difficulty : false,
-    required : false,
-    student_assets : false,
-    image : false,
-    allow_pdf : false,
-    bonus : false,
-    published : false,
-    feedback : false,
+      deadline_date : null,
+      solution : null,
+      difficulty : null,
+      required : null,
+      student_assets : null,
+      image : null,
+      allow_pdf : null,
+      bonus : null,
+      published : null,
+      feedback : null,
     }
-
   }
 
   handleChange = (e) => {
+    console.log("E.TARGET", e.target)
     if ( e.target.type == 'checkbox'  ){
       this.setState({ [e.target.name]: e.target.checked })
     } else {
@@ -47,14 +47,26 @@ class BaseCourseDuplicate extends Component  {
   var status = this.props.status
   var progress  = this.props.progress
   var done = this.props.done
-  if( newname ==  '' ){
+  var courses = this.props.courses
+  var action = this.props.action
+  var existing_courses = courses.map( course => ( course.getIn(['course_name']) ).toString()  ).toArray()
+  if( action == 'modify'){
     this.state.newname = course_name
   }
+  if( action == 'duplicate' && this.state.newname == '' ){
+    this.state.newname = course_name + '-copy'
+    }
   var checks =  Object.keys(this.state)
   checks.splice(0,2)
 
  var checkfields = checks.map((name) => {
-      var checked= this.state.name
+      var checked = this.state.name
+      if( typeof( this.state[name] ) == 'boolean' ){
+          var checked = this.state[name]
+      } else {
+          var checked = true
+      }
+
       var desc = String( name)
       return( 
         <tr key={name}>
@@ -67,30 +79,36 @@ class BaseCourseDuplicate extends Component  {
     }
  )
 
- var warning1 = ( this.state.newname == course_name ) ? "The present course will be modified. " : "A new course with name " + this.state.newname + " will be created."
- var warning2 = ( this.state.newname == course_name ) ? "Students will be kept" :  "The new course  will have the same exercises as " + course_name + 
+
+ var modify = ( action == 'modify' ? true : false ) 
+ var duplicate = ( action == 'duplicate' ? true : false )
+ var newname_ok = ! existing_courses.includes( this.state.newname )
+ var enable_click = ( newname_ok && duplicate || modify  )
+ var warning1 = ( modify ) ? "The present course will be modified. " : "A new course with name " + this.state.newname + " will be created."
+ var warning2 = ( modify  ) ? "Students will be kept" :  "The new course  will have the same exercises as " + course_name + 
         " but an empty studentlist. The original course " +  course_name + "will be unaffected. "
- var dupeormodify = (this.state.newname == course_name ) ? "Modify the course " : "Duplicate the course "
- var textclass = (this.state.newname == course_name ) ? "uk-text  uk-text-warning" : "uk-text-primary"
- var buttonclass = (this.state.newname == course_name ) ? "uk-button uk-button-danger" : "uk-button uk-button-primary"
- var buttonmessage = (this.state.newname == course_name ) ? "Click here to modify the present course: This cannot be undone " : "Create the new course"
+ var dupeormodify = (modify) ? "Modify the course " : "Duplicate the course "
+ var textclass = (enable_click ) ? "uk-text  uk-text-warning" : "uk-text-primary"
+ var buttonclass = (enable_click ) ? "uk-button uk-button-danger" : "uk-button uk-button-primary"
+ var buttonmessage = (modify ) ? "Click here to modify the present course: This cannot be undone " : "Create the new course"
 
   
-
+  console.log("NEWNAME OK = ", newname_ok )
   return   ( 
     <div className="uk-panel uk-background-muted uk-width-medium-1-2">
       <div className="uk-flex uk-flex-column uk-flex-middle uk-margin-left uk-panel uk-panel-box">
         <div>
           <h3>  {dupeormodify} {course_name}</h3>
           <br/>
-<div className={textclass}> (*) {warning1} <br/>{warning2} </div>
+{enable_click && <div className={textclass}> (*) {warning1} <br/>{warning2} </div> }
         <br/>
           <table>
             <tbody>
-              <tr><td> Course name: </td><td>  <input type="text" name="newname"
-                onChange={this.handleChange}
-                value={this.state.newname}
-              ></input>  (*)  </td></tr>
+              <tr><td> New course name: </td><td>  
+                {duplicate && <input type="text" name="newname" onChange={this.handleChange} value={this.state.newname} ></input>}
+                {duplicate && !newname_ok && <div className='uk-text uk-text-warning'> Course exists </div> }
+                { modify &&   <div> { this.state.newname }    </div>    }
+                </td></tr>
               <tr><td> Days to shift : </td><td>  <input type="text" name="days"
                 value={days}
                 onChange={this.handleChange}
@@ -98,7 +116,7 @@ class BaseCourseDuplicate extends Component  {
             </tbody>
           </table>
           <br/>
-          <div className={textclass} > Put a check by the options in {this.state.newname} that should be reset to default</div>
+          <div className={textclass} > Put a check by the exercise options in {this.state.newname} that should be kept</div>
           <br/>
           <table>
             <tbody>
@@ -106,8 +124,9 @@ class BaseCourseDuplicate extends Component  {
              </tbody>
             </table>
           <br/>
-          <div onClick={() => this.props.onCourseDuplicate(coursePk, this.state ) }> 
+          {enable_click && <div onClick={() => this.props.onCourseDuplicate(coursePk, this.state ) }> 
             <button className={buttonclass}  type="button"> {buttonmessage} </button> </div>
+             }
         </div>
         <div className="uk-width-1-1 uk-margin-top">
           {progress >= 0 && done !== true && <div className="uk-progress">
@@ -153,6 +172,7 @@ const mapStateToProps = (state) => {
     done: state.getIn(['tasks', taskId, 'done']),
     status: state.getIn(['tasks', taskId, 'status']),
     course_name: state.getIn(['courses',coursePk,'course_name']),
+    courses:  state.getIn(['courses']), 
   };
 }
 

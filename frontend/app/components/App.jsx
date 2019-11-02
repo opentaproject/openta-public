@@ -43,7 +43,8 @@ class BaseApp extends React.Component {
               {menuPositionUnder(this.props.menuPath, ['course', 'import_exercises']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseExercisesImport /></div>}
               {menuPositionUnder(this.props.menuPath, ['course', 'export_exercises']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseExercisesExport /></div>}
               {menuPositionUnder(this.props.menuPath, ['course', 'export']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseExport /></div>}
-              {menuPositionUnder(this.props.menuPath, ['course', 'duplicate']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseDuplicate /></div>}
+              {menuPositionUnder(this.props.menuPath, ['course', 'duplicate']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseDuplicate action='duplicate'/></div>}
+              {menuPositionUnder(this.props.menuPath, ['course', 'modify']) && <div className="uk-width-1-1 uk-margin-small-left"><CourseDuplicate action='modify'/></div>}
               {menuPositionUnder(this.props.menuPath, ['server', 'import']) && <div className="uk-width-1-1 uk-margin-small-left"><ServerImport /></div>}
               {menuPositionAt(this.props.menuPath, ['exercises', 'reload']) && <div className="uk-width-medium-2-3 uk-margin-small-left"><ReloadExercises /></div>}
               { /*(this.props.admin || this.props.author) ? <span/> : <div className="exercise-spacing"></div> */}

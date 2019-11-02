@@ -54,6 +54,10 @@ var menuTree = immutable.fromJS({
           reqGroup: ['SuperUser'],
           name: 'Duplicate or Modify',
           key: 'duplicate',
+        },
+        modify: {
+          name: 'Modify',
+          key: 'modify',
         }
       }
     },

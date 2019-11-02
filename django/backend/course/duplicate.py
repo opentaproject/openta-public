@@ -71,20 +71,12 @@ def duplicate_course(course: Course, *args, **kwargs):
             for name in meta_names:
                 if not name in nocopy:
                     setattr(new_exercise.meta, str(name), getattr(old_exercise.meta, str(name)))
-            # meta_date_names = ['deadline_date',]
-            # for name in meta_date_names :
-            #    olddate = getattr(new_exercise.meta, name )
-            #    if not olddate == None :
-            #        newdate = getattr(new_exercise.meta, name )  + timedelta(days=int( days))
-            #    else :
-            #        newdate = None
-            #    setattr( new_exercise.meta, str(name), newdate )
             new_exercise.meta.save()
-    add_days_to_course(course, data)
+    alter_meta(course, data)
     return course
 
 
-def add_days_to_course(course: Course, data):
+def alter_meta(course: Course, data):
     days = data['days']
     exercises = list(Exercise.objects.filter(course=course))
     for exercise in exercises:
@@ -97,7 +89,7 @@ def add_days_to_course(course: Course, data):
                 newdate = None
             setattr(exercise.meta, str(name), newdate)
         for name, val in data.items():
-            if (type(val) == bool) and val:
+            if (type(val) == bool) and ( not val ):
                 oldvalue = getattr(exercise.meta, str(name))
                 default = ExerciseMeta._meta.get_field(name).get_default()
                 setattr(exercise.meta, str(name), default)
