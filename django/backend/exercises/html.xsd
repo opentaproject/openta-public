@@ -11,6 +11,7 @@
  <xs:element ref="h3"/>
  <xs:element ref="i"/>
  <xs:element ref="p"/>
+  <xs:element ref="a"/>
  <xs:element ref="table"/>
  </xs:choice>
 </xs:group>
