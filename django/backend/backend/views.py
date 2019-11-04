@@ -275,6 +275,9 @@ def main(request, course_pk=None):
     Returns:
         The frontend app in base_main.html if authorized, otherwise login screen.
     """
+    if course_pk is None:
+        course_pk = request.session.get('course_pk')
+
     if course_pk is not None:
         course = Course.objects.get(pk=course_pk)
     else:

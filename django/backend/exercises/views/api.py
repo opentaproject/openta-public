@@ -121,6 +121,7 @@ def exercise_list(request, course_pk):
     """
     List all exercises
     """
+    request.session['course_pk'] = course_pk
     responselist = {}
     exercises = Exercise.objects.filter(course__pk=course_pk).prefetch_related(
         Prefetch(
