@@ -16,6 +16,7 @@ def content_type_dispatch(name):
     content_types = {
         'xlsx': "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         'zip': "application/zip",
+        'csv': "text/csv",
     }
     for ending, content_type in content_types.items():
         if name.endswith(ending):
