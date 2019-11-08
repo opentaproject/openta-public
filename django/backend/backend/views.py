@@ -157,6 +157,8 @@ def login_status(request):
     dbgroups = request.user.groups.all()
     for group in dbgroups:
         groups.append(group.name)
+    if request.user.is_superuser :
+        groups.append('SuperUser')
     lti_login = request.session.get('lti_login', False)
     nonlti_login = request.session.get('nonlti_login', False)
     compactview = request.session.get('compactview', request.session.get('lti_login', False))

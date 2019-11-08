@@ -21,7 +21,7 @@ var menuTree = immutable.fromJS({
     server: {
       name: 'Server',
       key: 'server',
-      reqGroup: ['Admin'],
+      reqGroup: ['SuperUser'],
       menuItems: {
         import: {
           name: 'Import',
@@ -32,7 +32,7 @@ var menuTree = immutable.fromJS({
     course: {
       name: 'Course',
       key: 'course',
-      reqGroup: ['Author'],
+      reqGroup: ['SuperUser','Admin'],
       menuItems: {
         options: {
           name: 'Options',
@@ -51,6 +51,7 @@ var menuTree = immutable.fromJS({
           key: 'export_exercises',
         },
         duplicate: {
+          reqGroup: ['SuperUser'],
           name: 'Duplicate',
           key: 'duplicate',
         }
