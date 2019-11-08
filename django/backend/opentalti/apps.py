@@ -31,7 +31,7 @@ def create_new_user(request, username, course):
     assert not (username == None)
     assert not (User.objects.filter(username=username).exists())
     user = User.objects.create(username=username)
-    roles = request.POST.get("roles", "Student")
+    roles = request.POST.get("roles", "Learner")
     opentauser = OpenTAUser.objects.create(user=user)
     user_stub = user_stub_from_request(request, course)
     for name in lti_names:
