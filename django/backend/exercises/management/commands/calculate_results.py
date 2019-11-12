@@ -12,7 +12,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         logger.info('Started calculating results and statistics')
-        for course in Course.objects.all():
+        for course in Course.objects.filter(published=True):
             logger.info("Calculating for course {}".format(course.course_name))
             student_statistics_exercises(force=True, course=course)
             logger.info('Statistics done, now doing results.')
