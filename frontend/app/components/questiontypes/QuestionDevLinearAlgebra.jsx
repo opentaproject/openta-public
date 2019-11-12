@@ -348,7 +348,7 @@ export default class QuestionLinearAlgebra extends Component {
   var msg1 = "Denna fråga är av en ny typ där bland annat vektorer och matriser kan användas. Hör gärna av er om ni stöter på problem."
   return (
         <div className="">
-        {questiontext}
+        <MathSpan>{questiontext}</MathSpan>
 		<span className="uk-text-small uk-text-primary">{availableVariables}</span>
   	  <span className="uk-text-small uk-text-primary"> [  {feedback} {n_attempts } <T>attempts</T> ]  </span>
 
