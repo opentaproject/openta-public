@@ -114,16 +114,29 @@ def e_student_attempts_median(exercise):
 
 
 def get_all_who_tried(exercise):
-    users = (
+    """Users who either answered and uploaded image."""
+    users_image_answer = (
         User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
-        .filter(Q(answer__question__exercise=exercise) | Q(imageanswer__exercise=exercise))
+        .filter(Q(imageanswer__exercise=exercise))
         .exclude(groups__name='View')
         .exclude(groups__name='Admin')
         .exclude(groups__name='Author')
         .exclude(username='student')
         .distinct()
+        .values_list('pk', flat=True)
     )
-    return users
+    users_answer = (
+        User.objects.filter(groups__name='Student', is_active=True, email__isnull=False)
+        .filter(Q(answer__question__exercise=exercise))
+        .exclude(groups__name='View')
+        .exclude(groups__name='Admin')
+        .exclude(groups__name='Author')
+        .exclude(username='student')
+        .distinct()
+        .values_list('pk', flat=True)
+    )
+    all_users = list(set(users_answer) | set(users_image_answer))
+    return User.objects.filter(pk__in=all_users)
 
 
 def e_student_tried(exercise):
