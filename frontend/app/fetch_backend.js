@@ -18,6 +18,8 @@ function jsonfetch(url, options = {}) {
         credentials: 'same-origin'
     };
     var _opts = immutable.fromJS(defaults).mergeDeep(immutable.fromJS(options));
+    if ( Object.keys(options).length   ){
+      }
     return fetch(SUBPATH + url, _opts.toJS());
 }
 

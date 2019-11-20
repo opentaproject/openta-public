@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import sys, traceback
 from exercises.applymacros import MacroError
+from users.models import User
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
 from exercises.applymacros import apply_macros_to_exercise, apply_macros_to_node
@@ -8,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.exceptions import PermissionDenied
 from course.models import Course
+from aggregation.models import Aggregation, get_cache_and_key, stypes, agkeys
 from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
 from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
 from exercises.serializers import AuditExerciseSerializer
@@ -35,7 +37,8 @@ from exercises.question import (
     get_usermacros,
 )
 from exercises.modelhelpers import serialize_exercise_with_question_data
-from exercises.modelhelpers import exercise_folder_structure, exercise_test
+from exercises.modelhelpers import exercise_test
+from exercises.folder_structure.modelhelpers import exercise_folder_structure
 from exercises.views.file_handling import serve_file
 from exercises.time import before_deadline
 from exercises.util import deep_get, get_hash_from_string
@@ -49,9 +52,10 @@ from django.template.response import TemplateResponse
 from django.template import loader
 from django.utils.timezone import now
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Q
 from ratelimit.decorators import ratelimit
 from django.views.decorators.cache import never_cache
+
 from PIL import Image
 import exercises.paths as paths
 import datetime, hashlib
@@ -64,6 +68,8 @@ from xml.etree.ElementTree import fromstring, ParseError, tostring
 from lxml import etree
 
 import re
+import time
+from django.core.cache import caches
 import os
 from lxml import etree
 import os.path
@@ -146,84 +152,283 @@ def exercises_reload_json(request, course_pk):
 @api_view(['GET'])
 def exercise(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
-    data = serialize_exercise_with_question_data(dbexercise, request.user)
+    hijacked = request.session.get('hijacked', False)
+    data = serialize_exercise_with_question_data(dbexercise, request.user, hijacked)
     return Response(data)
 
 
 @never_cache
 @api_view(['GET'])
 def exercise_list(request, course_pk):
-    """
-    List all exercises
-    """
+    # FOR SOME REASON EVERYONE IS CREDITED WITH
+    # OK ON PROBLEM test1 TODO
+    # in particular guscaich TODO
+    # ALSO CORRECT + UNTRIED GIVES OK
+    # CHECK AGGREGATIONS
     request.session['course_pk'] = course_pk
-    responselist = {}
-    exercises = Exercise.objects.filter(course__pk=course_pk).prefetch_related(
-        Prefetch(
-            'question__answer',
-            queryset=Answer.objects.filter(user=request.user).order_by('-date'),
-            to_attr="useranswers",
-        ),
-        Prefetch(
-            'imageanswer',
-            queryset=ImageAnswer.objects.filter(user=request.user),
-            to_attr="userimageanswers",
-        ),
-        'meta',
+    hijacked = request.session.get('hijacked', False)
+    user = request.user
+    (cache, cachekey) = get_cache_and_key(
+        'safe_user_cache:', userPk=str(user.pk), coursePk=course_pk
     )
-    for exercise in exercises:
-        if exercise.meta.published or request.user.has_perm('exercises.edit_exercise'):
-            exerciseserializer = ExerciseSerializer(exercise)
-            data = exerciseserializer.data
-            data['question'] = {}
-            data['image_answers'] = [image_answer.pk for image_answer in exercise.userimageanswers]
-            try:
-                audit = AuditExercise.objects.get(student=request.user, exercise=exercise)
-                saudit = AuditExerciseSerializer(audit)
-                data['audit'] = saudit.data
-            except AuditExercise.DoesNotExist:
-                pass
-            allcorrect = True
-            questions = exercise.question.all()
-            tried_all = True
-            if not questions:
-                tried_all = False
-            for question in exercise.question.all():
-                try:
-                    if hasattr(question, 'useranswers') and question.useranswers:
-                        if not question.useranswers[0].correct:
-                            allcorrect = False
-                        answerserializer = AnswerSerializer(question.useranswers[0])
-                        response = json.loads(question.useranswers[0].grader_response)
-                        data['question'][question.question_key] = answerserializer.data
-                        data['question'][question.question_key]['response'] = response
-                        if not exercise.meta.feedback:
-                            data['question'][question.question_key]['correct'] = None
-                            data['question'][question.question_key]['response']['correct'] = None
-                    else:
-                        allcorrect = False
-                        tried_all = False
-                except ObjectDoesNotExist:
-                    allcorrect = False
-            if exercise.meta.feedback:
-                data['correct'] = allcorrect
-            data['tried_all'] = tried_all
-            responselist[exercise.exercise_key] = data
+    if cache.has_key(cachekey):
+        responselist = cache.get(cachekey)
+    else:
+        responselist = get_exercise_list(user, course_pk, hijacked, False)
+
+        if not user.is_staff:
+            if cachekey:
+                cache.set(cachekey, responselist, settings.CACHE_LIFETIME)
+        else:
+            if cachekey:
+                cache.set(cachekey, responselist, settings.CACHE_LIFETIME)
     return Response(responselist)
 
 
 @never_cache
 @api_view(['GET'])
+def user_exercise_list(request, course_pk, user_pk):
+    user = User.objects.get(id=user_pk)
+    #
+    # THIS GENERATES STATISTICS FOR USE BY ADMIN
+    # AND THUS DOES NOT HIDE CORRECTNESS OF NO_FEEDBACK QUESTIONS
+    # IT HAS ITS OWN CACHE
+    #
+    (cache, cachekey) = get_cache_and_key('unsafe_user_cache:', userPk=user_pk, coursePk=course_pk)
+    if cache.has_key(cachekey):
+        responselist = cache.get(cachekey)
+        return Response(responselist)
+    responselist = get_exercise_list(user, course_pk, False, True)
+    all_exercise_keys = Exercise.objects.filter(
+        course__pk=course_pk, meta__published=True
+    ).values_list('exercise_key', flat=True)
+    used_exercise_keys = responselist.keys()
+    for exercise_key in all_exercise_keys:
+        if not exercise_key in used_exercise_keys:
+            responselist[exercise_key] = None
+    if cachekey:
+        cache.set(cachekey, responselist, settings.CACHE_LIFETIME)
+
+    return Response(responselist)
+
+
+def get_unsafe_exercise_summary(user, course_pk, dbexercises):
+    logger.debug("GET_UNSAFE_EXERCISE_SUMMARY")
+    cachekey = None
+    if dbexercises == None:
+        logger.debug("DBEXERCISE = None")
+    else:
+        logger.debug("DBEXERCISE IS NOT NONE")
+    if dbexercises is None:
+        (cache, cachekey) = get_cache_and_key(
+            'get_unsafe_exercise_summary:', userPk=user, coursePk=course_pk
+        )
+        if cache.has_key(cachekey):
+            sums = cache.get(cachekey)
+            return sums
+    ags = Aggregation.objects.filter(user=user, course=course_pk, exercise__meta__published=True)
+    if not dbexercises is None:
+        ags = ags.filter(exercise__in=dbexercises)
+        logger.debug("DBEXERCISES COUNT = ", dbexercises.count())
+    else:
+        logger.debug("DBEXERCISES IS NONE")
+    sums = {}
+    etypes = ['required', 'bonus', 'optional']
+    for etype in etypes:
+        sums[etype] = {}
+        sums[etype][etype] = {}
+        sums[etype] = {}
+        for stype in stypes:
+            sums[etype][stype] = 0
+
+    ags_required = ags.filter(exercise__meta__required=True)
+    ags_bonus = ags.filter(exercise__meta__bonus=True)
+    ags_optional = ags.filter(exercise__meta__bonus=False, exercise__meta__required=False)
+    n_optional = ags_optional.filter(Q(user_is_correct=True) | Q(force_passed=True)).count()
+
+    student = user
+    failed_by_audits = ags.filter(audit_needs_attention=True, audit_published=True).count()
+    passed_audits = ags.filter(audit_needs_attention=False, audit_published=True).count()
+    all_audits = ags.filter(audit_published=True).count()
+    passed_manually = ags.filter(force_passed=True).count()
+    agt = {}
+    agt['required'] = ags_required
+    agt['optional'] = ags_optional
+    agt['bonus'] = ags_bonus
+    for etype in ['required', 'optional', 'bonus']:
+        for stype, agkey in zip(stypes, agkeys):
+            sums[etype][stype] = agt[etype].filter(**{agkey: True}).count()
+        sums[etype]['n_correct'] = (
+            agt[etype]
+            .filter(Q(force_passed=True) | Q(user_is_correct=True), audit_needs_attention=False)
+            .count()
+        )
+        sums[etype]['n_deadline'] = (
+            agt[etype]
+            .filter(Q(force_passed=True) | Q(correct_by_deadline=True), audit_needs_attention=False)
+            .count()
+        )
+        sums[etype]['n_image_deadline'] = (
+            agt[etype]
+            .filter(
+                Q(force_passed=True) | Q(complete_by_deadline=True), audit_needs_attention=False
+            )
+            .count()
+        )
+        sums[etype]['n_complete'] = sums[etype]['number_complete_by_deadline']
+        sums[etype]['n_complete_no_deadline'] = sums[etype]['number_complete']
+    sums['n_optional'] = n_optional
+    sums['failed_by_audits'] = failed_by_audits
+    sums['passed_audits'] = passed_audits
+    sums['total_audits'] = all_audits
+    sums['manually_passed'] = passed_manually
+    sums['total'] = ags.filter(user_is_correct=True).count()
+    sums['total_complete_before_deadline'] = ags.filter(
+        complete_by_deadline=True
+    ).count()  # n_complete_bonus + n_complete_required + n_optional,
+    sums['total_complete_no_deadline'] = ags.filter(all_complete=True).count()
+    if not cachekey is None:
+        cache.set(cachekey, sums, settings.CACHE_LIFETIME)
+    return sums
+
+
+def get_exercise_list(user, course_pk, hijacked, force_feedback, dbexercises=None):
+    """
+    List all exercises
+    """
+    #
+    # THIS IS SENDS THE STUDENT RESULT JSON TO CLIENT
+    #
+    responselist = {}
+    beg = time.time()
+    ags = Aggregation.objects.filter(user=user, course=course_pk)
+    ags = ags.filter(exercise__meta__published=True)
+    if not dbexercises is None:
+        ags = ags.filter(exercise__in=dbexercises)
+    sums = {}
+    etypes = ['required', 'bonus', 'optional', 'nofeedback']
+    for etype in etypes:
+        sums[etype] = {}
+        sums[etype][etype] = {}
+        for gtype in ['feedback', 'nofeedback']:
+            sums[etype][gtype] = {}
+            for stype in stypes:
+                sums[etype][gtype][stype] = 0
+    for ag in ags:
+        exercise = ag.exercise
+        if exercise.meta.required:
+            etype = 'required'
+        elif exercise.meta.bonus:
+            etype = 'bonus'
+        else:
+            etype = 'optional'
+        data = {}
+        if exercise.meta.published or user.has_perm('exercises.edit_exercise'):
+            data = serialize_exercise_with_question_data(exercise, user, hijacked)
+        # if  not exercise.meta.feedback and not force_feedback and (
+        #    not exercise.meta.feedback and (not settings.IGNORE_NO_FEEDBACK) and hijacked
+        # ):
+        give_feedback_anyway = settings.IGNORE_NO_FEEDBACK or force_feedback or settings.RUNTESTS
+        if not exercise.meta.feedback and not give_feedback_anyway:
+            sums[etype]['nofeedback']['number_complete'] += 1
+            sums[etype]['nofeedback']['number_complete_by_deadline'] += 1
+            del data['correct']
+            del data['correct_by_deadline']
+            del data['all_complete']
+            del data['complete_by_deadline']
+        else:
+            #
+            # THESE ARE JUST CUMULANTS OF THE BOOLEANDS IN AGGREGATION
+            #
+            for stype, agkey in zip(stypes, agkeys):
+                sums[etype]['feedback'][stype] = (
+                    (sums[etype]['feedback'][stype] + 1)
+                    if data.get(agkey, False)
+                    else sums[etype]['feedback'][stype]
+                )
+        data['ignore_no_feedback'] = settings.IGNORE_NO_FEEDBACK or force_feedback
+        responselist[exercise.exercise_key] = data
+    responselist['runtests'] = settings.RUNTESTS
+    responselist['username'] = user.username
+
+    # THE FOLLOWING WAS REFACTORED FROM results.py
+    # AND ADDS DEPENDENT AGGREGATION FIELDS
+
+    course = Course.objects.get(pk=course_pk)
+    exercises = Exercise.objects.filter(meta__published=True, course=course)
+    required_exercises = exercises.filter(meta__required=True)
+    bonus_exercises = exercises.filter(meta__bonus=True)
+    optional_exercises = exercises.filter(meta__bonus=False, meta__required=False)
+    ags_required = ags.filter(exercise__in=required_exercises)
+    ags_bonus = ags.filter(exercise__in=bonus_exercises)
+    ags_optional = ags.filter(exercise__in=optional_exercises)
+    n_optional = ags_optional.filter(Q(user_is_correct=True) | Q(force_passed=True)).count()
+
+    student = user
+    failed_by_audits = ags.filter(audit_needs_attention=True, audit_published=True).count()
+    passed_audits = ags.filter(audit_needs_attention=False, audit_published=True).count()
+    all_audits = ags.filter(audit_published=True).count()
+    passed_manually = ags.filter(force_passed=True).count()
+    agt = {}
+    agt['required'] = ags_required
+    agt['optional'] = ags_optional
+    agt['bonus'] = ags_bonus
+    for etype in ['required', 'optional', 'bonus']:
+        sums[etype]['feedback']['n_correct'] = (
+            agt[etype]
+            .filter(Q(force_passed=True) | Q(user_is_correct=True), audit_needs_attention=False)
+            .count()
+        )
+        sums[etype]['feedback']['n_deadline'] = (
+            agt[etype]
+            .filter(Q(force_passed=True) | Q(correct_by_deadline=True), audit_needs_attention=False)
+            .count()
+        )
+        sums[etype]['feedback']['n_image_deadline'] = (
+            agt[etype]
+            .filter(
+                Q(force_passed=True) | Q(complete_by_deadline=True), audit_needs_attention=False
+            )
+            .count()
+        )
+        sums[etype]['feedback']['n_complete'] = sums[etype]['feedback'][
+            'number_complete_by_deadline'
+        ]
+        sums[etype]['feedback']['n_complete_no_deadline'] = sums[etype]['feedback'][
+            'number_complete'
+        ]
+    sums['n_optional'] = n_optional
+    sums['failed_by_audits'] = failed_by_audits
+    sums['passed_audits'] = passed_audits
+    sums['total_audits'] = all_audits
+    sums['manually_passed'] = passed_manually
+    sums['total'] = ags.filter(user_is_correct=True).count()
+    sums['total_complete_before_deadline'] = ags.filter(
+        complete_by_deadline=True
+    ).count()  # n_complete_bonus + n_complete_required + n_optional,
+    sums['total_complete_no_deadline'] = ags.filter(all_complete=True).count()
+    responselist['sums'] = sums
+    return responselist
+
+
+@never_cache
+@api_view(['GET', 'POST'])
 def exercise_tree(request, course_pk):
     """
     Get exercise tree
     """
+    defaultfilter = {'FROM_EXERCISE_TREE', True}
+    exercisefilter = request.data.get('exercisefilter', defaultfilter)
+    if exercisefilter == None:
+        exercisefilter = defaultfilter
     try:
         dbcourse = Course.objects.get(pk=course_pk)
     except Course.DoesNotExist:
         logger.error('Requested course does not exist pk: %d', course_pk)
         return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response(exercise_folder_structure(Exercise.objects, request.user, dbcourse))
+    return Response(
+        exercise_folder_structure(Exercise.objects, request.user, dbcourse, exercisefilter)
+    )
 
 
 @never_cache

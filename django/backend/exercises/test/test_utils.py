@@ -66,12 +66,12 @@ def _create_image_answer_at(user, exercise, date):
 
 
 def create_image_answer_before(user, exercise, deadline):
-    before = deadline - datetime.timedelta(seconds=1)
+    before = deadline - datetime.timedelta(seconds=600)
     return _create_image_answer_at(user, exercise, date=before)
 
 
 def create_image_answer_after(user, exercise, deadline):
-    after = deadline + datetime.timedelta(seconds=1)
+    after = deadline + datetime.timedelta(seconds=600)
     return _create_image_answer_at(user, exercise, date=after)
 
 

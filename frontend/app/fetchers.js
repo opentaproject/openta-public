@@ -108,7 +108,22 @@ function fetchLoginStatus(coursePk) {
     };
 }
 
+
+function fetchUserExercises(coursePk, user_pk) {//{{{
+  return dispatch => {
+    return jsonfetch('/course/' + coursePk + '/exercises/' + user_pk + '/')
+      .then(response => response.json())
+      .then(json => {
+         dispatch(updatePendingStateIn( ['course', 'loadingExercises'], false));
+         return json;
+      })
+      .then(json => dispatch(updateExercisesState(json)))
+      .catch( err => console.log(err) );
+  };
+}//}}}
+
 function fetchExercises(coursePk) {//{{{
+  //console.log("fetchExercises")
   return dispatch => {
     return jsonfetch('/course/' + coursePk + '/exercises/')
       .then(response => response.json())
@@ -122,15 +137,25 @@ function fetchExercises(coursePk) {//{{{
 }//}}}
 
 function fetchExerciseTree(coursePk) {//{{{
-  return dispatch => {
+  // console.log("fetchExerciseTree", exercisefilter)
+  return ( dispatch, getState ) => {
+  var state = getState()
+  var exercisefilter = state.get('exercisefilter' )
+  var filter = {'exercisefilter' : exercisefilter }
+  var filterdata = JSON.stringify( filter )
+  var fetchconfig = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: filterdata 
+        };
     dispatch(updatePendingStateIn( ['course', 'loadingExerciseTree'], true));
-    return jsonfetch('/course/' + coursePk + '/exercises/tree/')
+    return jsonfetch('/course/' + coursePk + '/exercises/tree/' , fetchconfig )
       .then(response => response.json())
       .then(json => {
          dispatch(updatePendingStateIn( ['course', 'loadingExerciseTree'], false));
          return json;
       })
-      .then(json => dispatch(setExerciseTree(json, coursePk)))
+      .then(json => dispatch(setExerciseTree(json, coursePk, filterdata)))
       .catch( err => console.log(err) );
   };
 }//}}}
@@ -149,6 +174,7 @@ function fetchSameFolder(exercise, folder) {//{{{
 }//}}}
 
 function fetchExerciseJSON(exercise) {
+  // console.log("fetcExerciseJSON")
   return dispatch => {
     return jsonfetch('/exercise/' + exercise + '/json')
       .then( res => { 
@@ -181,6 +207,7 @@ function fetchExerciseXML(exercise) {//{{{
 }//}}}
 
 function fetchExerciseRemoteState(exercise) {//{{{
+  // console.log("fetchExerciseRemoteState")
   return dispatch => {
     return jsonfetch('/exercise/' + exercise)
       .then(response => response.json() )
@@ -189,6 +216,7 @@ function fetchExerciseRemoteState(exercise) {//{{{
 }//}}}
 
 function fetchExercise(exercise, empty) {//{{{
+  // console.log("fetchExercise")
   return (dispatch, getState) => {
     dispatch(updateActiveExercise(exercise));
     const state = getState();
@@ -422,6 +450,7 @@ function fetchStudentResults(coursePk) {
 }
 
 function fetchStudentDetailResults(userPk, coursePk) {
+  console.log("fetchStudentDetailResults")
   return (dispatch, getState) => {
     var state = getState();
     var coursePk = state.get('activeCourse');
@@ -525,6 +554,7 @@ export {
   fetchStudentResults,
   fetchStudentDetailResults,
   reloadExercises,
+  fetchUserExercises,
   fetchExerciseRecentResults,
 };
 export * from './fetchers/audit.js'

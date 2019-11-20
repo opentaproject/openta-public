@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
-fetchStudentDetailResults
+fetchStudentDetailResults,
+fetchUserExercises,
 } from '../fetchers.js';
 import {
   setSelectedStudentResults,
@@ -139,36 +140,10 @@ const renderFilter = ({filteredUsers, onFilterChange, onFilterKeypress, filter, 
           <form className="uk-form uk-form-stacked">
             <div className="uk-form-row">
               <span className="uk-form-label">Text search</span>
-              <input type="text" placeholder="Filter on name and username" className={"uk-width-1-1 " + (filteredUsers.size === 1 ? 'uk-form-success' : '')} onChange={onFilterChange} onKeyPress={(e) => onFilterKeypress(e, filteredUsers, requiredFilter, bonusFilter)} value={filter}/>        
+              <input type="text" placeholder="Filter on name and username" className={"uk-width-1-1 " + (filteredUsers.size === 1 ? 'uk-form-success' : '')} onChange={onFilterChange} onKeyPress={(e) => onFilterKeypress(e, filteredUsers  )} value={filter}/>        
             </div>
 
-            <span className="uk-form-label uk-margin-top">Obligatory deadline</span>
-            <div className="uk-form-row uk-margin-small-top">
-              <label>
-              <input type="radio" name="required" className={"uk-width-1-1 uk-margin-small-right" } onChange={() => onRequiredDeadline('n_complete_no_deadline')} checked={requiredFilter === 'n_complete_no_deadline'}/>        
-              No deadline
-              </label>
-            </div>
-            <div className="uk-form-row uk-margin-small-top">
-              <label>
-              <input type="radio" name="required" className="uk-width-1-1 uk-margin-small-right" onChange={() => onRequiredDeadline('n_complete')} checked={requiredFilter === 'n_complete'}/>        
-              Enforce deadline
-              </label>
-            </div>
 
-            <span className="uk-form-label uk-margin-top">Bonus deadline</span>
-            <div className="uk-form-row uk-margin-small-top">
-              <label>
-              <input type="radio" name="bonus" className="uk-width-1-1 uk-margin-small-right" onChange={() => onBonusDeadline('n_complete_no_deadline')} checked={bonusFilter === 'n_complete_no_deadline'}/>        
-              No deadline
-              </label>
-            </div>
-            <div className="uk-form-row uk-margin-small-top">
-              <label>
-              <input type="radio" name="bonus" className="uk-width-1-1 uk-margin-small-right" onChange={() => onBonusDeadline('n_complete')} checked={bonusFilter === 'n_complete'}/>        
-              Enforce deadline
-              </label>
-            </div>
           </form>
         </div>
       </div>
@@ -182,8 +157,6 @@ const BaseResults = ({menuPath,
                      onRequiredDeadline,
                      onBonusDeadline,
                      filter,
-                     requiredFilter,
-                     bonusFilter,
                      onUserClick,
                      selectedUser,
                      activeDetailExercise,
@@ -195,13 +168,21 @@ const BaseResults = ({menuPath,
       'pk': user.get('pk'),
       'first_name': user.get('first_name'),
       'last_name': user.get('last_name'),
-      'n_passed_required': user.getIn(['required', requiredFilter]),
-      'n_passed_bonus': user.getIn(['bonus', bonusFilter]),
+      'n_passed_required': user.getIn(['required', false]),
+      'n_passed_bonus': user.getIn(['bonus', false]),
       'n_after_deadline': '(' + (user.getIn(['required', 'n_correct'])-user.getIn(['required', 'n_image_deadline'])+
                           user.getIn(['bonus', 'n_correct'])-user.getIn(['bonus', 'n_image_deadline'])) + ')',
-      'n_passed_optional': user.getIn(['optional']),
-      'n_passed_total': user.getIn(['optional']) + user.getIn(['required', requiredFilter]) + user.getIn(['bonus', bonusFilter])/*user.getIn(['total'])*/,
-      'n_failed_audits': user.getIn(['failed_by_audits'])
+      'n_passed_optional': user.getIn(['n_optional']),
+      'n_passed_total': user.getIn(['total'],0),
+      'n_failed_audits': user.getIn(['failed_by_audits']),
+      'audits'  : ( user.getIn(['total_audits'],0) - user.getIn(['failed_by_audits'],0) ).toString() + ':' + user.getIn(['failed_by_audits'],0).toString(),
+      'total_complete_no_deadline':user.getIn(['total_complete_no_deadline']),
+      'required': user.getIn(['required','number_complete_by_deadline']).toString()  + ':' + (  user.getIn(['required','number_complete']) -user.getIn(['required','number_complete_by_deadline']) ).toString() ,
+      'required_ok': user.getIn(['required','number_complete_by_deadline']).toString()  ,
+      'required_late':  (  user.getIn(['required','number_complete']) -user.getIn(['required','number_complete_by_deadline']) ).toString() ,
+      'bonus': user.getIn(['bonus','number_complete_by_deadline']).toString()  + ':' + (  user.getIn(['bonus','number_complete']) -user.getIn(['bonus','number_complete_by_deadline']) ).toString() ,
+      'optional': user.getIn(['optional','number_complete_by_deadline']).toString()  + ':' + (  user.getIn(['optional','number_complete']) -user.getIn(['optional','number_complete_by_deadline']) ).toString() ,
+      'total' :   user.getIn(['total_complete_before_deadline']).toString()  + ':' + (  user.getIn(['total_complete_no_deadline']) -user.getIn(['total_complete_before_deadline']) ).toString() 
     })));
   var { data: hist2dData, layout: hist2dLayout } = generateHist2dPlot(renderResults);
   var { data: histData, layout: histLayout } = generateHistPlot(renderResults);
@@ -228,30 +209,31 @@ const BaseResults = ({menuPath,
     },*/
     {
       name: 'Obligatory',
-      index: 'n_passed_required'
+      index: 'required'
     },
+    
     {
       name: 'Bonus',
-      index: 'n_passed_bonus'
+      index: 'bonus'
     },
     {
       name: 'Optional',
-      index: 'n_passed_optional'
+      index: 'optional'
     },
     {
-      name: 'Failed audits',
-      index: 'n_failed_audits'
+      name: 'Audits',
+      index: 'audits'
     },
-    {
+    /*{
       name: 'Late',
       index: 'n_after_deadline'
-    },
+    }, */
     {
       name: 'Total',
-      index: 'n_passed_total'
+            index: 'total',
     },
   ];//}}}
-  var excelParameters = "required_key=" + requiredFilter + "&" + "bonus_key=" + bonusFilter;
+  var excelParameters = "required_key=" +  "&" + "bonus_key=" ;
   //var filters = {
 
   return (
@@ -281,7 +263,7 @@ const BaseResults = ({menuPath,
         !menuPositionUnder(menuPath, ['results', 'download']) &&
         !menuPositionUnder(menuPath, ['results', 'custom']) &&
         !menuPositionUnder(menuPath, ['results', 'gradebook']) &&
-        renderFilter({filteredUsers: renderResults, onFilterChange, onFilterKeypress, filter, onRequiredDeadline, requiredFilter, onBonusDeadline, bonusFilter}) }
+        renderFilter({filteredUsers: renderResults, onFilterChange, onFilterKeypress, filter, onRequiredDeadline,  onBonusDeadline}) }
     { !menuPositionUnder(menuPath, ['results', 'custom']) &&
       <div className="results-table" style={{flex:'1'}}> {/*uk-width-4-10 uk-overflow-container*/}
         <div className="uk-container-center">
@@ -299,7 +281,7 @@ const BaseResults = ({menuPath,
         }
         </div>
         { menuPositionUnder(menuPath, ['results', 'list']) && !activeDetailExercise &&
-            <div className="uk-scrollable-box uk-margin-bottom" style={{height:'70vh'}}><Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} activeItem={selectedUser} onItem={(id) => onUserClick(id)}/></div>
+            <div className="uk-scrollable-box uk-margin-bottom" style={{height:'30vh'}}><Table tableId='results' data={renderResults} fields={tableFields} keyIndex={'pk'} activeItem={selectedUser} onItem={(id) => onUserClick(activeCourse,id)}/></div>
         }
       </div>
     }
@@ -321,10 +303,11 @@ const BaseResults = ({menuPath,
   );
 }
 
-function handleUserClick(userPk, deadline, imageDeadline) {
+function handleUserClick(coursePk,userPk, deadline, imageDeadline) {
   return dispatch => {
     dispatch(fetchStudentDetailResults(userPk))
     dispatch(setSelectedStudentResults(userPk))
+    dispatch(fetchUserExercises(coursePk,userPk) )
   }
 }
 
@@ -333,8 +316,6 @@ const mapStateToProps = state => ({
   userResults: state.getIn(['results', 'studentResults']),
   selectedUser: state.getIn(['results', 'selectedUser']),
   filter: state.getIn(['results', 'filters', 'text']),
-  requiredFilter: state.getIn(['results', 'filters', 'requiredKey'], 'n_complete'),
-  bonusFilter: state.getIn(['results', 'filters', 'bonusKey'], 'n_complete'),
   pendingResults: state.getIn(['pendingState', 'studentResults'], false),
   activeDetailExercise: state.getIn(['results', 'detailResultExercise'], false),
   activeCourse: state.get('activeCourse')
@@ -365,17 +346,17 @@ const handleBonusDeadline = (value) => (dispatch) => {
 
 const mapDispatchToProps = dispatch => ({
   onFilterChange: (e) => dispatch(setResultsFilter({'text': e.target.value})),
-  onFilterKeypress: (e, filteredUsers, deadline, imageDeadline) => {
+  onFilterKeypress: (e, filteredUsers, coursePk, deadline, imageDeadline) => {
     if(e.key === 'Enter') {
       e.preventDefault();
       if(filteredUsers.size === 1) {
-        dispatch(handleUserClick(filteredUsers.first().get('pk'), deadline, imageDeadline))
+        dispatch(handleUserClick(coursePk,filteredUsers.first().get('pk'), deadline, imageDeadline))
       }
     }
   },
   onRequiredDeadline: (value) => dispatch(handleRequiredDeadline(value)), //dispatch(setResultsFilter({ 'requiredKey': value})),
   onBonusDeadline: (value) => dispatch(handleBonusDeadline(value)),//dispatch(setResultsFilter({ 'bonusKey': value})),
-  onUserClick: (userPk, deadline, imageDeadline) => dispatch(handleUserClick(userPk, deadline, imageDeadline))
+  onUserClick: (coursePk, userPk,  deadline, imageDeadline) => dispatch(handleUserClick(coursePk,userPk, deadline, imageDeadline))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseResults)

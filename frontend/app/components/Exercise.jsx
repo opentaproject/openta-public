@@ -18,6 +18,8 @@ import Assets from './Assets.jsx';
 import {SUBPATH} from '../settings.js';
 import classNames from 'classnames';
 import uniqueId from 'lodash/uniqueId';
+import { navigateMenuArray } from '../menu.js';
+
 
 
 import {
@@ -80,7 +82,8 @@ class BaseExercise extends Component {
     exerciseKey: PropTypes.string.isRequired,
     onQuestionInputKeyUp: PropTypes.func,
     exerciseState: PropTypes.object,
-    pendingState: PropTypes.object
+    pendingState: PropTypes.object,
+    onHome: PropTypes.func,
   };
 
   renderQuestion = (itemjson, json, meta, exerciseKey) => {
@@ -317,14 +320,18 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
   }
 
   basename = (path) =>  {
+    if ( ! path == ''  ){
     return path.split('/').reverse()[0];
+    } else {
+    return ''
+    }
   }
 
   render() {
     var key = this.props.exerciseKey;
     var state = this.props.exerciseState;
     var pendingState = this.props.pendingState;
-    var filename = this.basename(state.get('path', '') );
+    var filename = this.basename(state.getIn(['path'], '') );
     var json = state.get('json', immutable.Map({}));
     var error = json.get('error', null )
     var response_awaits = Number(state.getIn(["response_awaits"], 0));
@@ -339,8 +346,10 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
       <span className="uk-text-bold uk-text-primary">
         Exercise file path: {filename}
       </span>);
-    var exerciseDOM = <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left uk-width uk-width-1-1" id={key} ref="exercise" key={key}>
+    var exerciseDOM = <div> <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
+        
         {canViewXML && showResponseAwaits && <i className="uk-text-danger uk-margin-small-left uk-icon uk-icon uk-icon-envelope" />}
+        {/* <a className="uk-navbar-brand onHome" onClick={this.props.onHome}> <i className="uk-icon uk-icon-tiny uk-icon-mail-reply"></i> </a> */}
         {error && canViewXML && <Alert message={error} type="error" />}
         {canViewXML && filenameDOM}
         {meta.get("student_assets") && <Assets />}
@@ -348,7 +357,7 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
               <ExerciseImageUpload />
             </div>}
         {items}
-      </article>;
+      </article> </div>
 
     if(pendingState.getIn(['exercises', key, 'loadingJSON'], false)) {
       return (<Spinner/>);
@@ -385,14 +394,16 @@ const mapStateToProps = state => {
     language: state.get('lang', defaultLanguage),
     exerciseKey: state.get('activeExercise'),
     exerciseState: activeExerciseState,
-    pendingState: state.get('pendingState')
+    pendingState: state.get('pendingState'),
+
   })
 };
 
 const mapDispatchToProps = dispatch => {
   return {
     onQuestionInputKeyUp: (event,exercise,question) => handleQuestionInputKeyUp(dispatch, event, exercise, question),
-    getAssets: () => dispatch(fetchAssets())
+    getAssets: () => dispatch(fetchAssets()),
+    onHome: () => dispatch(navigateMenuArray([])),
   }
 }
 

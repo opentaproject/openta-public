@@ -56,6 +56,10 @@ export default (state = defaultState, action) => {
         return state.set('course', immutable.fromJS(action.data));
     case 'UPDATE_COURSES':
         return state.set('courses', immutable.fromJS(action.data));
+    case 'UPDATE_DISPLAYSTYLE':
+       return state.setIn(['displaystyle'], action.displaystyle);
+    case 'UPDATE_EXERCISEFILTER':
+       return state.setIn(['exercisefilter'], action.exercisefilter);
     case 'UPDATE_LANGUAGE':
        return state.setIn(['lang'], action.language);
     case 'UPDATE_ACTIVE_EXERCISE':

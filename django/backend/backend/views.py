@@ -8,7 +8,8 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import Group, User
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.mail import EmailMessage
 from django.core.signing import BadSignature, SignatureExpired, TimestampSigner
 from django.urls import reverse, reverse_lazy
 from django.http import Http404
@@ -42,8 +43,25 @@ from course.models import Course
 from course.serializers import CourseSerializer
 from exercises.views.file_handling import serve_file
 from exercises.modelhelpers import enrollment
+from hijack.signals import hijack_started, hijack_ended
 
 logger = logging.getLogger(__name__)
+
+
+def print_hijack_started(sender, hijacker_id, hijacked_id, request, **kwargs):
+    request.session['hijacked'] = True
+    print('%d has hijacked %d' % (hijacker_id, hijacked_id))
+
+
+hijack_started.connect(print_hijack_started)
+
+
+def print_hijack_ended(sender, hijacker_id, hijacked_id, request, **kwargs):
+    request.session['hijacked'] = False
+    print('%d has released %d' % (hijacker_id, hijacked_id))
+
+
+hijack_ended.connect(print_hijack_ended)
 
 
 class ActivateAndReset(FormView):
@@ -180,18 +198,17 @@ def login(request, course_name=None):
         course_name = request.COOKIES.get('last_course_name', None)
     course = None
     try:
+        #  IF WE DISALLOW COURSE WITH SAME NAME ON CREATION, WE CAN REVERT THIS LINE
+        course = Course.objects.get(course_name__iexact=course_name)
+    except Course.DoesNotExist:
+        course = Course.objects.order_by('-published', '-pk')[0]
+    except Course.MultipleObjectsReturned:
         course = (
-            Course.objects.all()
-            .filter(course_name__iexact=course_name)
-            .order_by('-published', '-pk')[0]
+            Course.objects.filter(course_name__iexact=course_name)
+            .order_by('-published', '-pk')
+            .last()
         )
-    except:
-        pass
-    if course is None:
-        try:
-            course = Course.objects.get(course_name__iexact=course_name)
-        except Course.DoesNotExist:
-            course = Course.objects.order_by('-published', '-pk')[0]
+
     course_data = CourseSerializer(course).data
 
     if request.user.is_authenticated:
@@ -296,6 +313,7 @@ def main(request, course_pk=None):
         course = Course.objects.order_by('-published', '-pk')[0]
         course_pk = course.pk
     user = request.user
+    # print("IS HIJACKED", request.session.get('hijacked', False))
     enrolled = int(course_pk) in enrollment(user)
     published_and_enrolled = course.published and enrolled
     msg = ''

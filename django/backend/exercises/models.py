@@ -4,6 +4,10 @@ import backend.settings as settings
 import os
 import uuid
 from PIL import Image, ImageDraw, ImageFont
+from django.db.models.signals import pre_save, post_save, post_delete, pre_delete
+from django.forms import ValidationError
+from django.dispatch import receiver, Signal
+from django.template.defaultfilters import slugify
 from functools import reduce
 
 from django.contrib.auth.models import User
@@ -14,6 +18,10 @@ from django.utils.translation import ugettext as _
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
 from image_utils import compress_pil_image_timestamp
+import aggregation
+import datetime
+import pytz
+from model_utils import FieldTracker
 
 import exercises.paths as paths
 from course.models import Course
@@ -31,7 +39,24 @@ from exercises.parsing import (
 from exercises.util import nested_print
 import datetime
 
+# from aggregation.models import answer_received
+
+BIN_LENGTH = settings.BIN_LENGTH
+
 logger = logging.getLogger(__name__)
+
+# https://coderwall.com/p/ktdb3g/django-signals-an-extremely-simplified-explanation-for-beginners
+#
+# LISTEN TO ALL RELEVANT SIGNALS
+#
+@receiver([post_save, post_delete])
+def signal_handler(sender, *args, **kwargs):
+    for signal in ['post_save', 'post_delete']:
+        if hasattr(sender, signal):
+            getattr(sender, signal)(sender, *args, **kwargs)
+
+
+answer_received = Signal(providing_args=["course", "user", "exercise"])
 
 
 class ExerciseManager(models.Manager):
@@ -380,10 +405,28 @@ class Exercise(models.Model):
     def __str__(self):
         return self.name + ': ' + self.path
 
+    def deadline(self):
+        tz = pytz.timezone('Europe/Berlin')
+        deadline_time = datetime.time(23, 59, 59)
+        course = self.course
+        if course is not None and course.deadline_time is not None:
+            deadline_time = course.deadline_time
+        try:
+            deadline_date = self.meta.deadline_date
+        except:
+            deadline_date = None
+        if deadline_date is not None:
+            deadline_date_time = tz.localize(
+                datetime.datetime.combine(deadline_date, deadline_time)
+            )
+        else:
+            deadline_date_time = None
+        return deadline_date_time
+
     def get_full_path(self):
         return os.path.join(self.course.get_exercises_path(), *self.path.split('/'))
 
-    def user_is_correct(self, user):
+    def old_user_is_correct(self, user):
         allcorrect = True
         questions = Question.objects.filter(exercise=self)
         for question in questions:
@@ -395,16 +438,22 @@ class Exercise(models.Model):
                 allcorrect = False
         return allcorrect
 
+    def user_is_correct(self, user):
+        try:
+            user_is_correct = aggregation.models.Aggregation.objects.get(
+                user=user, exercise=self
+            ).user_is_correct
+        except:
+            user_is_correct = False
+        return user_is_correct
+
     def user_tried_all(self, user):
-        tried_all = True
-        questions = Question.objects.filter(exercise=self)
-        if not questions:
-            return False
-        for question in questions:
-            try:
-                Answer.objects.filter(user=user, question=question).latest('date')
-            except Answer.DoesNotExist:
-                tried_all = False
+        try:
+            tried_all = aggregation.models.Aggregation.objects.get(
+                user=user, exercise=self
+            ).user_tried_all
+        except:
+            tried_all = False
         return tried_all
 
 
@@ -416,9 +465,30 @@ class Question(models.Model):
     question_key = models.CharField(max_length=255)
     exercise = models.ForeignKey(Exercise, related_name='question', on_delete=models.CASCADE)
     type = models.CharField(max_length=255, default='none')
+    tracker = FieldTracker()
 
     def __str__(self):
         return self.exercise.name + ": " + self.question_key
+
+    def post_save(self, *args, **kwargs):
+        instance = kwargs['instance']
+        question_key_has_changed = instance.tracker.has_changed('question_key')
+        if question_key_has_changed:
+            exercise = kwargs['instance'].exercise
+            course = exercise.course
+            answer_received.send(
+                sender=self.__class__, user=None, exercise=exercise, course=course, date=None
+            )
+
+    def post_delete(self, *args, **kwargs):
+        instance = kwargs['instance']
+        question_key_has_changed = instance.tracker.has_changed('question_key')
+        exercise = kwargs['instance'].exercise
+        course = exercise.course
+        if question_key_has_changed:
+            answer_received.send(
+                sender=self.__class__, user=None, exercise=exercise, course=course, date=None
+            )
 
 
 class Answer(models.Model):
@@ -426,6 +496,7 @@ class Answer(models.Model):
     question = models.ForeignKey(
         Question, on_delete=models.SET_NULL, null=True, related_name='answer'
     )
+
     answer = models.TextField()
     grader_response = models.TextField(default='')
     correct = models.BooleanField()
@@ -440,6 +511,24 @@ class Answer(models.Model):
             + "} which is "
             + ("correct" if self.correct else "incorrect")
         )
+
+    def post_save(self, *args, **kwargs):
+        instance = kwargs['instance']
+        user = instance.user
+        date = instance.date
+        grader_response = instance.grader_response
+        exercise = instance.question.exercise
+        course = exercise.course
+        answer_received.send(
+            sender=self.__class__, user=user, exercise=exercise, course=course, date=date
+        )
+
+    # def save(self, *args, **kwargs):
+    #    if self.pk == None:
+    #        answers = Answer.objects.filter(user=self.user, question=self.question)
+    #        nattempt = 1 if answers == None else answers.count()
+    #        self.nattempt = nattempt
+    #    super().save(*args, **kwargs)
 
 
 def answer_image_filename(instance, filename):
@@ -488,6 +577,26 @@ class ImageAnswer(models.Model):
         elif self.pdf:
             os.remove(self.pdf.path)
 
+    def post_save(self, *args, **kwargs):
+        instance = kwargs['instance']
+        user = instance.user
+        date = instance.date
+        exercise = instance.exercise
+        course = exercise.course
+        answer_received.send(
+            sender=self.__class__, user=user, exercise=exercise, course=course, date=date
+        )
+
+    def post_delete(self, *args, **kwargs):
+        instance = kwargs['instance']
+        user = instance.user
+        date = instance.date
+        exercise = instance.exercise
+        course = exercise.course
+        answer_received.send(
+            sender=self.__class__, user=user, exercise=exercise, course=course, date=date
+        )
+
 
 class ExerciseMeta(models.Model):
     exercise = models.OneToOneField(Exercise, related_name='meta', on_delete=models.CASCADE)
@@ -504,11 +613,20 @@ class ExerciseMeta(models.Model):
     sort_key = models.CharField(max_length=255, default='', verbose_name='Sort order key')
     feedback = models.BooleanField(default=True, verbose_name='Feedback to student')
 
+    def clean(self):
+        if self.required and self.bonus:
+            raise ValidationError('BONUS AND REQUIRED CANNOT BOTH BE TRUE')
+
     def __str__(self):
         return self.exercise.name
 
-    def get_languages(self):
-        return "ABCDEFG"
+    def post_save(self, *args, **kwargs):
+        instance = kwargs['instance']
+        exercise = instance.exercise
+        course = exercise.course
+        answer_received.send(
+            sender=self.__class__, user=None, exercise=exercise, course=course, date=None
+        )
 
 
 class AuditManager(models.Manager):
@@ -551,6 +669,16 @@ class AuditExercise(models.Model):
 
     class Meta:
         unique_together = (("student", "exercise"),)  # Only one audit per student and exercise
+
+    def post_save(self, *args, **kwargs):
+        instance = kwargs['instance']
+        user = instance.student
+        date = instance.date
+        exercise = instance.exercise
+        course = exercise.course
+        answer_received.send(
+            sender=self.__class__, user=user, exercise=exercise, course=course, date=date
+        )
 
 
 def audit_response_filename(instance, filename):

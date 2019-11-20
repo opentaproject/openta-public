@@ -4,6 +4,22 @@ import ReactDOM from 'react-dom';
 import Alert from './components/Alert.jsx';
 import immutable from 'immutable';
 
+function updateExerciseFilter(exercisefilter) {
+    return {
+        type: 'UPDATE_EXERCISEFILTER',
+        exercisefilter: exercisefilter,
+    };
+}
+
+function updateDisplayStyle(displaystyle) {
+    return {
+        type: 'UPDATE_DISPLAYSTYLE',
+        displaystyle: displaystyle
+    };
+}
+
+
+
 function updateLoginStatus(data) {//{{{
   return {
     type: 'UPDATE_LOGIN_STATUS',
@@ -339,7 +355,9 @@ function setIFramed(iframed) {
   }
 }
 
-export { setOpenTAVersion, updateLoginStatus, updateExercises, setExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseActiveXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, setImageAnswersData,updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, updateAudit, setActiveAudit, setAuditExerciseStats, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise, setDetailResultsView, updateExerciseTreeUI, setExerciseRecentResults, setExerciseXMLError, setIFramed}
+export { setOpenTAVersion, updateLoginStatus, updateExercises, setExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseActiveXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, setImageAnswersData,updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, updateAudit, setActiveAudit, setAuditExerciseStats, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise, setDetailResultsView, updateExerciseTreeUI, setExerciseRecentResults, setExerciseXMLError, setIFramed,
+updateDisplayStyle, updateExerciseFilter
+}
 
 export * from './actions/exercise.js'
 export * from './actions/results.js'

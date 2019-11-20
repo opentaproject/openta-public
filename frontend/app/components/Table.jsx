@@ -17,9 +17,9 @@ import {SUBPATH} from '../settings.js';
 const BaseTable = ({ data, fields, keyIndex, onSort, sortField, sortReverse, onItem, activeItem }) => {
   var sorted = data;
   if(sortField && !sortReverse)
-    sorted = data.sortBy( item => item.get(sortField) )
+    sorted = data.sortBy( item => parseFloat( ( item.get(sortField)).replace(':','.' )))
   if(sortField && sortReverse)
-    sorted = data.sortBy( item => item.get(sortField) ).reverse()
+    sorted = data.sortBy( item => parseFloat( ( item.get(sortField)).replace(':','.'))).reverse() 
 
   const renderFields = (item, fields) => fields.map( field => 
                                                     (
@@ -28,15 +28,18 @@ const BaseTable = ({ data, fields, keyIndex, onSort, sortField, sortReverse, onI
                                                       </td>
                                                     )
                                                    );
+  var ind = 0;
   var rows = sorted.map( item => (
     <tr key={item.get(keyIndex)} onClick={() => onItem(item.get(keyIndex))} className={'pointer ' + (item.get(keyIndex) === activeItem ? 'uk-active uk-text-primary' : '')}>
+    <td>{ind += 1 } </td>
       {renderFields(item, fields)}
     </tr>
   ));
   return (
-    <table className="uk-table uk-table-hover uk-table-condensed">
+    <table className="uk-table uk-table-hover uk-table-condensed uk-text-small">
       <thead>
         <tr>
+          <th key='asdfa'> </th>
           { fields.map( field => (
               <th key={field.name}>
                 { sortField && field.index === sortField && !sortReverse && <i className="uk-icon uk-icon-chevron-circle-down"/> }

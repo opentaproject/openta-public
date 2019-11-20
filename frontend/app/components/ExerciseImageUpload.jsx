@@ -46,7 +46,7 @@ const BaseComponent = ({exerciseKey, imageAnswers, imageAnswersData, uploaded, o
     <div className="uk-button-group uk-align-medium-right"> 
         { uploadPending && <span className="uk-button">{progress}</span> }
         <div className="uk-form-file">
-        <a type="file" className={"uk-button"}>{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-camera"></i>)}
+        <a type="file" className={"uk-button"} capture="camera">{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-camera"></i>)}
         </a>
         <input type="file" accept="image/*" onChange={(e) => onUpload(e, exerciseKey)}/>
         </div>

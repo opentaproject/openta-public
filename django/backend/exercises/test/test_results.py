@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer, AuditExercise
+from exercises.models import Exercise, ExerciseMeta, Question, Answer, ImageAnswer, AuditExercise
 from course.models import Course
 from django.contrib.auth.models import User, Group
 import datetime
@@ -24,12 +24,13 @@ def set_meta(exercise, **kwargs):
 
 
 def create_question(exercise, key):
-    question = Question(exercise=exercise, question_key=key)
+    question = Question(exercise=exercise, question_key=key, type='devLinearAlgebra')
     question.save()
     return question
 
 
 def create_answer(user, question, **kwargs):
+    print("CREATE ANSWER", user, question, kwargs)
     a = Answer(user=user, question=question, **kwargs)
     a.save()
     return a
@@ -76,8 +77,9 @@ def create_audit(auditor, user, exercise, **kwargs):
 
 def create_answers_and_imageanswers(user, deadline, q1, q2, q3, q4, q5, e1, e2, e3, e4, e5):
     now = deadline
-    after = deadline + datetime.timedelta(seconds=1)
-    before = deadline - datetime.timedelta(seconds=1)
+    fudgeseconds = 3600
+    after = deadline + datetime.timedelta(seconds=fudgeseconds)
+    before = deadline - datetime.timedelta(seconds=fudgeseconds)
     create_answer_at(user, q1, before)  # Just before deadline
     # An incorrect answer after a correct one should still register as passed
     create_incorrect_at(user, q1, after)
@@ -194,19 +196,19 @@ class QuestionMethodTests(TestCase):
         self.assertEqual(ru1[0]['required']['n_deadline'], 3)
         self.assertEqual(ru1[0]['required']['n_image_deadline'], 2)
         self.assertEqual(ru1[0]['total'], 4)
-        self.assertEqual(ru1[0]['optional'], 0)
+        self.assertEqual(ru1[0]['n_optional'], 0)
         ru2 = list(filter(lambda user: user['username'] == 'student2', results))
         self.assertEqual(ru2[0]['bonus']['n_correct'], 4)
         self.assertEqual(ru2[0]['bonus']['n_deadline'], 3)
         self.assertEqual(ru2[0]['bonus']['n_image_deadline'], 2)
         self.assertEqual(ru2[0]['total'], 4)
-        self.assertEqual(ru2[0]['optional'], 0)
+        self.assertEqual(ru2[0]['n_optional'], 0)
         ru3 = list(filter(lambda user: user['username'] == 'student3', results))
         self.assertEqual(ru3[0]['required']['n_correct'], 2)
         self.assertEqual(ru3[0]['required']['n_deadline'], 2)
         self.assertEqual(ru3[0]['required']['n_image_deadline'], 2)
         self.assertEqual(ru3[0]['total'], 3)
-        self.assertEqual(ru3[0]['optional'], 0)
+        self.assertEqual(ru3[0]['n_optional'], 0)
         self.assertEqual(ru3[0]['failed_by_audits'], 1)
 
         u1 = User.objects.get(username='student1')
@@ -223,76 +225,76 @@ class QuestionMethodTests(TestCase):
         self.assertEqual(u2detailed['summary']['bonus']['n_deadline'], 3)
         self.assertEqual(u2detailed['summary']['bonus']['n_image_deadline'], 2)
         self.assertEqual(u1detailed['summary']['total'], 4)
-        self.assertEqual(u1detailed['summary']['optional'], 0)
+        self.assertEqual(u1detailed['summary']['n_optional'], 0)
         self.assertEqual(u2detailed['summary']['total'], 4)
-        self.assertEqual(u2detailed['summary']['optional'], 0)
+        self.assertEqual(u2detailed['summary']['n_optional'], 0)
 
         # Audit revision test user
         self.assertEqual(u3detailed['summary']['required']['n_correct'], 2)
         self.assertEqual(u3detailed['summary']['required']['n_deadline'], 2)
         self.assertEqual(u3detailed['summary']['required']['n_image_deadline'], 2)
         self.assertEqual(u3detailed['summary']['total'], 3)
-        self.assertEqual(u3detailed['summary']['optional'], 0)
+        self.assertEqual(u3detailed['summary']['n_optional'], 0)
 
         self.assertEqual(u1detailed['exercises']['r1']['correct'], True)
         self.assertEqual(u1detailed['exercises']['r1']['image'], True)
-        self.assertEqual(u1detailed['exercises']['r1']['correct_deadline'], True)
+        self.assertEqual(u1detailed['exercises']['r1']['correct_by_deadline'], True)
         self.assertEqual(u1detailed['exercises']['r1']['image_deadline'], True)
 
         self.assertEqual(u1detailed['exercises']['r2']['correct'], True)
         self.assertEqual(u1detailed['exercises']['r2']['image'], True)
-        self.assertEqual(u1detailed['exercises']['r2']['correct_deadline'], False)
+        self.assertEqual(u1detailed['exercises']['r2']['correct_by_deadline'], False)
         self.assertEqual(u1detailed['exercises']['r2']['image_deadline'], False)
 
         self.assertEqual(u1detailed['exercises']['r3']['correct'], True)
         self.assertEqual(u1detailed['exercises']['r3']['image'], True)
-        self.assertEqual(u1detailed['exercises']['r3']['correct_deadline'], True)
+        self.assertEqual(u1detailed['exercises']['r3']['correct_by_deadline'], True)
         self.assertEqual(u1detailed['exercises']['r3']['image_deadline'], False)
 
         self.assertEqual(u1detailed['exercises']['r4']['correct'], True)
         self.assertEqual(u1detailed['exercises']['r4']['image'], True)
-        self.assertEqual(u1detailed['exercises']['r4']['correct_deadline'], False)
+        self.assertEqual(u1detailed['exercises']['r4']['correct_by_deadline'], False)
         self.assertEqual(u1detailed['exercises']['r4']['image_deadline'], False)
         self.assertEqual(u1detailed['exercises']['r4']['force_passed'], True)
 
         self.assertEqual(u2detailed['exercises']['b1']['correct'], True)
         self.assertEqual(u2detailed['exercises']['b1']['image'], True)
-        self.assertEqual(u2detailed['exercises']['b1']['correct_deadline'], True)
+        self.assertEqual(u2detailed['exercises']['b1']['correct_by_deadline'], True)
         self.assertEqual(u2detailed['exercises']['b1']['image_deadline'], True)
 
         self.assertEqual(u2detailed['exercises']['b2']['correct'], True)
         self.assertEqual(u2detailed['exercises']['b2']['image'], True)
-        self.assertEqual(u2detailed['exercises']['b2']['correct_deadline'], False)
+        self.assertEqual(u2detailed['exercises']['b2']['correct_by_deadline'], False)
         self.assertEqual(u2detailed['exercises']['b2']['image_deadline'], False)
 
         self.assertEqual(u2detailed['exercises']['b3']['correct'], True)
         self.assertEqual(u2detailed['exercises']['b3']['image'], True)
-        self.assertEqual(u2detailed['exercises']['b3']['correct_deadline'], True)
+        self.assertEqual(u2detailed['exercises']['b3']['correct_by_deadline'], True)
         self.assertEqual(u2detailed['exercises']['b3']['image_deadline'], False)
 
         self.assertEqual(u2detailed['exercises']['b4']['correct'], True)
         self.assertEqual(u2detailed['exercises']['b4']['image'], True)
-        self.assertEqual(u2detailed['exercises']['b4']['correct_deadline'], False)
+        self.assertEqual(u2detailed['exercises']['b4']['correct_by_deadline'], False)
         self.assertEqual(u2detailed['exercises']['b4']['image_deadline'], False)
         self.assertEqual(u2detailed['exercises']['b4']['force_passed'], True)
 
         self.assertEqual(u3detailed['exercises']['r1']['correct'], True)
         self.assertEqual(u3detailed['exercises']['r1']['image'], True)
-        self.assertEqual(u3detailed['exercises']['r1']['correct_deadline'], True)
+        self.assertEqual(u3detailed['exercises']['r1']['correct_by_deadline'], True)
         self.assertEqual(u3detailed['exercises']['r1']['image_deadline'], True)
         self.assertEqual(u3detailed['exercises']['r1']['audited'], True)
         self.assertEqual(u3detailed['exercises']['r1']['revision_needed'], True)
 
         self.assertEqual(u3detailed['exercises']['r2']['correct'], True)
         self.assertEqual(u3detailed['exercises']['r2']['image'], True)
-        self.assertEqual(u3detailed['exercises']['r2']['correct_deadline'], True)
+        self.assertEqual(u3detailed['exercises']['r2']['correct_by_deadline'], True)
         self.assertEqual(u3detailed['exercises']['r2']['image_deadline'], True)
         self.assertEqual(u3detailed['exercises']['r2']['audited'], True)
         self.assertEqual(u3detailed['exercises']['r2']['revision_needed'], False)
 
         self.assertEqual(u3detailed['exercises']['r3']['correct'], True)
         self.assertEqual(u3detailed['exercises']['r3']['image'], True)
-        self.assertEqual(u3detailed['exercises']['r3']['correct_deadline'], True)
+        self.assertEqual(u3detailed['exercises']['r3']['correct_by_deadline'], True)
         self.assertEqual(u3detailed['exercises']['r3']['image_deadline'], True)
         # Audit exists but not published
         self.assertEqual(u3detailed['exercises']['r3']['audited'], False)
