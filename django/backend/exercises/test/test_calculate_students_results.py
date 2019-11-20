@@ -32,10 +32,8 @@ DEADLINE = timezone.make_aware(
 )
 
 # TODO
-# The behaviour of correct/deadline/image_deadline is different from calculate_students_results:
-# - correct: Always counted if the student answered correctly (does not need an image uploaded)
-# - deadline: Counted if correct before deadline
-# - image_deadline: Counted if image and correct answer before deadline
+# The current calculate_students_results require an image uploaded for all required
+# and bonus exercises to count correct/deadline/image_deadline
 
 
 class BasicCourse(TestCase):
@@ -76,7 +74,7 @@ class TestRequiredExercise(BasicCourse):
         # Create exercise
         self._exercise = create_exercise('r1', 'Required Exercise 1', 'path1', course=self._course)
         self._question = create_question(self._exercise, 'q1')
-        set_meta(self._exercise, published=True, required=True, deadline_date=DEADLINE)
+        set_meta(self._exercise, published=True, required=True, deadline_date=DEADLINE)  #
 
     def test_before_deadline(self):
         """Answer before deadline.
@@ -88,15 +86,16 @@ class TestRequiredExercise(BasicCourse):
 
         # Create correct answer before deadline
         create_answer_before(self._student, self._question, DEADLINE, correct=True)
-
         # Calculate results
-        results = calculate_user_results(user_pk=self._student.pk, course_pk=self._course.pk)
-        self.assertEqual(results['summary']['required']['n_correct'], 1)
-        self.assertEqual(results['summary']['required']['n_deadline'], 1)
-        self.assertEqual(results['summary']['required']['n_image_deadline'], 0)
-        self.assertEqual(results['summary']['required']['n_complete'], 1)
-        self.assertEqual(results['summary']['total'], 1)
-        self.assertEqual(results['summary']['optional'], 0)
+        results = calculate_students_results(course=self._course)
+        ru1 = list(filter(lambda user: user['username'] == 'student1', results))
+        self.assertEqual(ru1[0]['required']['n_complete'], 1)
+        self.assertEqual(ru1[0]['required']['n_correct'], 1)
+        self.assertEqual(ru1[0]['required']['n_deadline'], 1)
+        # THIS IS WRONG : SINCE IMAGE IS NOT REQUIRED , ALTHOUGH IT IS REQUIRED EXERCISE
+        # THIS SHOULD BE 1
+        # self.assertEqual(ru1[0]['required']['n_image_deadline'], 0)
+        self.assertEqual(ru1[0]['required']['n_image_deadline'], 1)
 
     def test_after_deadline(self):
         """Answer after deadline.
@@ -110,13 +109,16 @@ class TestRequiredExercise(BasicCourse):
         create_answer_after(self._student, self._question, DEADLINE, correct=True)
 
         # Calculate results
-        results = calculate_user_results(user_pk=self._student.pk, course_pk=self._course.pk)
-        self.assertEqual(results['summary']['required']['n_correct'], 1)
-        self.assertEqual(results['summary']['required']['n_deadline'], 0)
-        self.assertEqual(results['summary']['required']['n_image_deadline'], 0)
-        self.assertEqual(results['summary']['required']['n_complete'], 0)
-        self.assertEqual(results['summary']['total'], 1)
-        self.assertEqual(results['summary']['optional'], 0)
+        results = calculate_students_results(course=self._course)
+        ru1 = list(filter(lambda user: user['username'] == 'student1', results))
+        self.assertEqual(ru1[0]['required']['n_complete'], 0)  # THIS  GENERATES ERROR
+        # BUT THIS SHOULD BE THE DEFINTION
+        # n_complete MEANDS  THERE IS NOTHING MORE FOR THE STUDENT TO DO
+        # n_complete_DEADLINE MEANS DEADLINE MISSED
+        print("THIS DEFINITION OF N_COMPLETE IS INCONSISTENT WITH AGGREGATION")
+        self.assertEqual(ru1[0]['required']['n_correct'], 1)
+        self.assertEqual(ru1[0]['required']['n_deadline'], 0)
+        self.assertEqual(ru1[0]['required']['n_image_deadline'], 0)
 
 
 class ImageRequired(BasicCourse):
@@ -149,13 +151,12 @@ class ImageRequired(BasicCourse):
         create_answer_before(self._student, self._q1, DEADLINE, correct=False)
 
         # Calculate results
-        results = calculate_user_results(user_pk=self._student.pk, course_pk=self._course.pk)
-        self.assertEqual(results['summary']['required']['n_correct'], 0)
-        self.assertEqual(results['summary']['required']['n_deadline'], 0)
-        self.assertEqual(results['summary']['required']['n_image_deadline'], 0)
-        self.assertEqual(results['summary']['required']['n_complete'], 0)
-        self.assertEqual(results['summary']['total'], 0)
-        self.assertEqual(results['summary']['optional'], 0)
+        results = calculate_students_results(course=self._course)
+        ru1 = list(filter(lambda user: user['username'] == 'student1', results))
+        self.assertEqual(ru1[0]['required']['n_complete'], 0)
+        self.assertEqual(ru1[0]['required']['n_correct'], 0)
+        self.assertEqual(ru1[0]['required']['n_deadline'], 0)
+        self.assertEqual(ru1[0]['required']['n_image_deadline'], 0)
 
     def test_answer_before_deadline(self):
         """Answer before deadline.
@@ -173,16 +174,15 @@ class ImageRequired(BasicCourse):
         create_image_answer_after(self._student, self._e1, DEADLINE)
 
         # Calculate results
-        results = calculate_user_results(user_pk=self._student.pk, course_pk=self._course.pk)
-        self.assertEqual(results['summary']['required']['n_correct'], 1)
-        self.assertEqual(results['summary']['required']['n_deadline'], 1)
-        self.assertEqual(results['summary']['required']['n_image_deadline'], 0)
-        self.assertEqual(results['summary']['required']['n_complete'], 0)
-        self.assertEqual(results['summary']['total'], 1)
-        self.assertEqual(results['summary']['optional'], 0)
+        results = calculate_students_results(course=self._course)
+        ru1 = list(filter(lambda user: user['username'] == 'student1', results))
+        self.assertEqual(ru1[0]['required']['n_complete'], 0)
+        self.assertEqual(ru1[0]['required']['n_correct'], 1)
+        self.assertEqual(ru1[0]['required']['n_deadline'], 1)
+        self.assertEqual(ru1[0]['required']['n_image_deadline'], 0)
 
-    def test_correct_after_deadline(self):
-        """Answer after deadline.
+    def test_both_after_deadline(self):
+        """Both after deadline.
 
         Student answers:
             - 1 correct AFTER deadline
@@ -193,17 +193,16 @@ class ImageRequired(BasicCourse):
         # Create correct answer after deadline
         create_answer_after(self._student, self._q1, DEADLINE, correct=True)
 
-        # Create image answer after deadline
+        # Create image answer before deadline
         create_image_answer_after(self._student, self._e1, DEADLINE)
 
         # Calculate results
-        results = calculate_user_results(user_pk=self._student.pk, course_pk=self._course.pk)
-        self.assertEqual(results['summary']['required']['n_correct'], 1)
-        self.assertEqual(results['summary']['required']['n_deadline'], 0)
-        self.assertEqual(results['summary']['required']['n_image_deadline'], 0)
-        self.assertEqual(results['summary']['required']['n_complete'], 0)
-        self.assertEqual(results['summary']['total'], 1)
-        self.assertEqual(results['summary']['optional'], 0)
+        results = calculate_students_results(course=self._course)
+        ru1 = list(filter(lambda user: user['username'] == 'student1', results))
+        self.assertEqual(ru1[0]['required']['n_complete'], 0)
+        self.assertEqual(ru1[0]['required']['n_correct'], 1)
+        self.assertEqual(ru1[0]['required']['n_deadline'], 0)
+        self.assertEqual(ru1[0]['required']['n_image_deadline'], 0)
 
     def test_both_before_deadline(self):
         """Both before deadline.
@@ -221,10 +220,9 @@ class ImageRequired(BasicCourse):
         create_image_answer_before(self._student, self._e1, DEADLINE)
 
         # Calculate results
-        results = calculate_user_results(user_pk=self._student.pk, course_pk=self._course.pk)
-        self.assertEqual(results['summary']['required']['n_correct'], 1)
-        self.assertEqual(results['summary']['required']['n_deadline'], 1)
-        self.assertEqual(results['summary']['required']['n_image_deadline'], 1)
-        self.assertEqual(results['summary']['required']['n_complete'], 1)
-        self.assertEqual(results['summary']['total'], 1)
-        self.assertEqual(results['summary']['optional'], 0)
+        results = calculate_students_results(course=self._course)
+        ru1 = list(filter(lambda user: user['username'] == 'student1', results))
+        self.assertEqual(ru1[0]['required']['n_complete'], 1)
+        self.assertEqual(ru1[0]['required']['n_correct'], 1)
+        self.assertEqual(ru1[0]['required']['n_deadline'], 1)
+        self.assertEqual(ru1[0]['required']['n_image_deadline'], 1)

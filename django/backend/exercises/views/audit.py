@@ -2,14 +2,17 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from rest_framework import status
-from exercises.modelhelpers import (
+from exercises.modelhelpers import e_student_tried, get_all_who_tried
+
+
+from exercises.audits.modelhelpers import (
     get_students_to_be_audited,
     get_students_not_to_be_audited,
-    e_student_tried,
-    get_all_who_tried,
     analyze_exercise_for_student,
     get_students_not_active,
 )
+
+
 from exercises.models import Exercise, AuditExercise
 from exercises.serializers import AuditExerciseSerializer
 from course.models import Course

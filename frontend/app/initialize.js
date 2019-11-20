@@ -24,6 +24,7 @@ import {
 import {
   updateActiveExercise,
   setActiveCourse,
+  updateExerciseFilter,
 } from './actions.js';
 import { navigateMenuArray, menuPositionUnder } from './menu.js';
 import { SUBPATH ,help_url } from './settings.js';
@@ -57,7 +58,15 @@ const load = () => {
     return;
   }
 
-
+   var defaultfilter =  {
+            'required_exercises' : true, 
+            'optional_exercises': true, 
+            'bonus_exercises': true, 
+            // 'all_exercises' : false , 
+            //'published_exercises': true ,
+            'unpublished_exercises': false,
+            'FROM INITIALIZE': true}
+  store.dispatch(updateExerciseFilter(  defaultfilter) );
   store.dispatch( setTimezone(globalInit.timezone) );
   store.dispatch( setOpenTAVersion(globalInit.openTAVersion) );
   store.dispatch( setActiveCourse(globalInit.coursePk) );

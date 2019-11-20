@@ -14,13 +14,12 @@ LOGGER = logging.getLogger(__file__)
 
 
 def list_assets(path, types):
-    assets = []
-    try:
+    if os.path.exists(path):
         all_files = os.listdir(path)
         assets = [{'filename': asset} for asset in all_files if asset.lower().endswith(types)]
-    except:
-        pass
-    return assets
+        return assets
+    else:
+        return []
 
 
 def has_asset(path, asset):

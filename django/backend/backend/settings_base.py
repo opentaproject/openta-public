@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 import os
 import sys
 import backend.version as version
+from django.core.cache import caches
 
 RUNNING_DEVSERVER = len(sys.argv) > 1 and sys.argv[1] == 'runserver'
 
@@ -167,10 +168,17 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'my_cache_table',
         'OPTIONS': {
-            'MAX_ENTRIES': 3000
+            'MAX_ENTRIES': 30000
         }
-    }
+    },
+    'aggregation': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'aggregation_cache',
+        'TIMEOUT': None,
+        'OPTIONS': {'MAX_ENTRIES': 30000},
+    },
 }
+
 
 # Enable the user hijack app for get requests for it to integrate with the frontend.
 HIJACK_ALLOW_GET_REQUESTS = True
@@ -191,3 +199,10 @@ EXERCISES_PATH = '../../exercises'
 REFRESH_SEED_ON_CORRECT_ANSWER = False
 DO_CACHE = True
 SAFE_RUN_TIMEOUT = 6
+
+BIN_LENGTH = 300  # 5 minutes binning  size in activity
+CHECK_AGGREGATIONS = False
+IGNORE_NO_FEEDBACK = False
+RUNTESTS = False
+CACHE_LIFETIME = None  # 60 * 60 * 24 * 7 * 365
+print("CACHE KEYS", caches)

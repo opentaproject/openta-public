@@ -1,5 +1,10 @@
 import xlsxwriter
 import io
+import logging
+import json
+import pickle
+
+logger = logging.getLogger(__name__)
 
 
 def write_xlsx_from_results_list(filename, results):
@@ -10,55 +15,107 @@ def write_xlsx_from_results_list(filename, results):
 
 def create_xlsx_from_results_list(results):
     output = io.BytesIO()
+    # logger.error(str(results) )
+    # with open('/tmp/exceldata.py','w') as f :
+    #    print(results,file=f)
+    fp = open('/tmp/exceldata3.pkl', 'wb')
+    pickle.dump(results, fp)
+    fp.close()
+    logger.debug("WROTE EXCELDATA3.pkl")
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     bold_format = workbook.add_format({'bold': True})
     right_border_format = workbook.add_format({'bold': True})
     right_border_format.set_right(1)
     worksheet = workbook.add_worksheet()
-    worksheet.write(0, 0, 'Username')
-    worksheet.write(0, 1, 'First')
-    worksheet.write(0, 2, 'Last')
-    worksheet.write(0, 3, 'Obligatory (before deadline)', bold_format)
-    worksheet.write(0, 4, 'Bonus (before deadline)', bold_format)
-    worksheet.write(0, 5, 'Optional', bold_format)
-    worksheet.write(0, 6, 'Total (before deadline)', right_border_format)
-    worksheet.write(0, 7, 'Obligatory (no deadline)')
-    worksheet.write(0, 8, 'Bonus (no deadline)')
-    worksheet.write(0, 9, 'After deadline')
-    worksheet.write(0, 10, 'Failed by audit')
-    worksheet.write(0, 11, 'Passed audits')
-    worksheet.write(0, 12, 'Total audits')
-    worksheet.write(0, 13, 'Manually passed')
-    worksheet.write(0, 14, 'Total (no deadline)')
-    worksheet.write(0, 15, 'Correct answer (no other requirements)')
+    ind = 0
+    worksheet.write(0, ind, 'ID')
+    ind += 1
+    worksheet.write(0, ind, 'Username')
+    ind += 1
+    worksheet.write(0, ind, 'First')
+    ind += 1
+    worksheet.write(0, ind, 'Last')
+    ind += 1
+    worksheet.write(0, ind, 'Obligatory ontime ', bold_format)
+    ind += 1
+    worksheet.write(0, ind, 'Obligatory  late ', bold_format)
+    ind += 1
+    worksheet.write(0, ind, 'Bonus ontime ', bold_format)
+    ind += 1
+    worksheet.write(0, ind, 'Bonus late ', bold_format)
+    ind += 1
+    worksheet.write(0, ind, 'Optional total', bold_format)
+    ind += 1
+    worksheet.write(0, ind, 'Total ontime ', right_border_format)
+    ind += 1
+    worksheet.write(0, ind, 'total Late ', right_border_format)
+    ind += 1
+    worksheet.write(0, ind, 'Passed audits')
+    ind += 1
+    worksheet.write(0, ind, 'Failed audits')
+    ind += 1
+    worksheet.write(0, ind, 'Total audits')
+    ind += 1
+    worksheet.write(0, ind, 'Manually passed')
+    ind += 1
+    exercises = results[0]['exercises']
+    for exercise in exercises:
+        worksheet.write(0, ind, exercise['name'])
+        ind += 1
+        worksheet.write(0, ind, 'late')
+        ind += 1
+    logger.debug("START ENUMERATION")
     for index, student in enumerate(results):
-        worksheet.write(index + 1, 0, student['username'])
-        worksheet.write(index + 1, 1, student['first_name'])
-        worksheet.write(index + 1, 2, student['last_name'])
-        worksheet.write(index + 1, 3, student['required']['n_complete'], bold_format)
-        worksheet.write(index + 1, 4, student['bonus']['n_complete'], bold_format)
-        worksheet.write(index + 1, 5, student['optional'], bold_format)
-        worksheet.write(
-            index + 1, 6, student['total_complete_before_deadline'], right_border_format
+        required_late = (
+            student['required']['n_complete_no_deadline'] - student['required']['n_complete']
         )
-        worksheet.write(index + 1, 7, student['required']['n_complete_no_deadline'])
-        worksheet.write(index + 1, 8, student['bonus']['n_complete_no_deadline'])
-        worksheet.write(
-            index + 1,
-            9,
-            (
-                student['required']['n_complete_no_deadline']
-                - student['required']['n_complete']
-                + student['bonus']['n_complete_no_deadline']
-                - student['bonus']['n_complete']
-            ),
-        )
-        worksheet.write(index + 1, 10, student['failed_by_audits'])
-        worksheet.write(index + 1, 11, student['passed_audits'])
-        worksheet.write(index + 1, 12, student['total_audits'])
-        worksheet.write(index + 1, 13, student['manually_passed'])
-        worksheet.write(index + 1, 14, student['total_complete_no_deadline'])
-        worksheet.write(index + 1, 15, student['total'])
+        required_complete = student['required']['n_complete']
+        bonus_late = student['bonus']['n_complete_no_deadline'] - student['bonus']['n_complete']
+        bonus_complete = student['bonus']['n_complete']
+        optional_complete = student['optional']['n_complete_no_deadline']
+        ind = 0
+        worksheet.write(index + 1, ind, student['lti_user_id'])
+        ind += 1
+        worksheet.write(index + 1, ind, student['username'])
+        ind += 1
+        worksheet.write(index + 1, ind, student['first_name'])
+        ind += 1
+        worksheet.write(index + 1, ind, student['last_name'])
+        ind += 1
+        worksheet.write(index + 1, ind, required_complete, bold_format)
+        ind += 1
+        worksheet.write(index + 1, ind, required_late, bold_format)
+        ind += 1
+        worksheet.write(index + 1, ind, bonus_complete, bold_format)
+        ind += 1
+        worksheet.write(index + 1, ind, bonus_late, right_border_format)
+        ind += 1
+        worksheet.write(index + 1, ind, optional_complete)
+        ind += 1
+        worksheet.write(index + 1, ind, (bonus_complete + required_complete + optional_complete))
+        ind += 1
+        worksheet.write(index + 1, ind, (bonus_late + required_late))
+        ind += 1
+        worksheet.write(index + 1, ind, student['passed_audits'])
+        ind += 1
+        worksheet.write(index + 1, ind, student['failed_by_audits'])
+        ind += 1
+        worksheet.write(index + 1, ind, student['total_audits'])
+        ind += 1
+        worksheet.write(index + 1, ind, student['manually_passed'])
+        ind += 1
+        exercises = student['exercises']
+        for exercise in exercises:
+            all_complete = exercise.get('all_complete', 0)
+            complete_by_deadline = exercise.get('complete_by_deadline', 0)
+            worksheet.write(index + 1, ind, complete_by_deadline)
+            ind += 1
+            worksheet.write(index + 1, ind, all_complete - complete_by_deadline)
+            ind += 1
     workbook.close()
     output.seek(0)
-    return output.read()
+    xls = output.read()
+    fp = open("/tmp/out.xlsx", "wb")
+    fp.write( xls )
+    fp.close()
+    return xls

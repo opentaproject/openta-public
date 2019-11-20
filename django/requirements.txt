@@ -91,4 +91,8 @@ XlsxWriter==1.1.6
 xlwt==1.3.0
 xmljson==0.2.0
 xmltodict==0.12.0
+<<<<<<< HEAD
 portalocker==1.5.0
+=======
+django-model-utils==4.0.0
+>>>>>>> Fix login when several courses have the same name

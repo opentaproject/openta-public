@@ -71,6 +71,21 @@ def get_number_of_attempts(question_id, user_id):
     """
     answers = Answer.objects.filter(user__pk=user_id, question__pk=question_id)
     return answers.count()
+    # if answers == None:
+    #    return 0
+    # last_answer = answers.last()
+    # if not None == last_answer:
+    #    nattempt = last_answer.nattempt + 1
+    # else:
+    #    nattempt = 0
+    # print("COMPARE ", answers.count(), nattempt)
+    # if answers.count() != nattempt:
+    #    attemptlist = list(answers.values_list('nattempt', flat=True))
+    #    datelist = list(answers.values_list('date', flat=True))
+    #    print("ANSWERLIST = ", attemptlist)
+    #    print("ANSWERLIST = ", attemptlist)
+    #    # assert False, "IN QUESTION.py, GET NUMBER OF ATTEMPTS INCORRECT"
+    # return nattempt
 
 
 def get_other_answers(question_key, user_id, exercise_key):
@@ -120,6 +135,7 @@ def register_question_type(
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
     # print("QUESTION CHECK ANSER_DATA = ", answer_data)
     tbeg = time.time()
+    hijacked = request.session.get('hijacked', False)
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)

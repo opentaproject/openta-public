@@ -16,7 +16,8 @@ from exercises.test.test_utils import (
     create_image_answer_before,
     create_image_answer_after,
 )
-from exercises.modelhelpers import get_students_not_active
+from exercises.audits.modelhelpers import get_students_not_active
+import time
 
 DEADLINE_HOUR = 8
 DEADLINE_MINUTE = 0
@@ -64,9 +65,9 @@ class TestInactiveStudents(BasicCourse):
     def test_get_students_not_active_1(self):
         exercise = create_exercise('r1', 'exercise1', 'path1', self._course)
         question = create_question(exercise, 'q1')
+        user = self._student
         # No answers so should be inactive
         self.assertIn(self._student, get_students_not_active(exercise))
-
         # With an answer the student should be active
         create_answer_before(self._student, question, DEADLINE)
         self.assertNotIn(self._student, get_students_not_active(exercise))

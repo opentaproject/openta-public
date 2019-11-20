@@ -30,7 +30,6 @@ function listClass(item, active) {
 
 function generateItem(onClickFunc,  exercise, activeExercise, exerciseState, meta, showStatistics) {
   var onExerciseClick = (key, loaded) => {
-    UIkit.offcanvas.hide();
     onClickFunc(key, loaded);
   };
   var deadlineClass = "uk-badge-primary";

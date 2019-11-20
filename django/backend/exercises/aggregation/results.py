@@ -1,261 +1,70 @@
-from exercises.modelhelpers import get_passed_exercises_with_image_data, get_passed_exercises
 from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
+from aggregation.models import Aggregation, get_cache_and_key, STATISTICS_CACHE_TIMEOUT
+from exercises.modelhelpers import serialize_exercise_with_question_data, get_exercise_render
 from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
+from django.conf import settings
+from exercises.views import get_exercise_list, get_unsafe_exercise_summary
 from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Q
+from statistics import mean, median
 import datetime
-from django.core.cache import cache
+import time
+from django.core.cache import caches
 from exercises.modelhelpers import (
     exercise_list_data,
     e_name,
     e_path,
     e_student_tried,
     has_audit_response_waiting,
+    bonafide_students,
 )
 from exercises.modelhelpers import e_student_percent_complete, e_student_attempts_mean
 from exercises.modelhelpers import e_student_attempts_median, e_student_activity, post_process_list
 from exercises.modelhelpers import p_student_activity
-from exercises.modelhelpers import get_passed_exercises_with_image_data
+from aggregation.models import Aggregation
 import pytz
 import logging
+import django_rq
+from rq.decorators import job
+
 
 logger = logging.getLogger(__name__)
 
 
-def students_results(cache_seconds=1 * 60 * 60, force=False, task=None, course=None):
-    cache_url = 'course.{course_pk}.exercises.aggregation.results'.format(course_pk=course.pk)
-    result = cache.get(cache_url)
+def students_results(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, task=None, course=None):
+    (cache, cachekey) = get_cache_and_key('students_results:', coursePk=course.id)
+    result = cache.get(cachekey)
     if result is not None and not force:
         return result
     result = calculate_students_results(task, course=course)
-    cache.set(cache_url, result, cache_seconds)
+    if cachekey:
+        cache.set(cachekey, result)
     return result
 
 
-def student_statistics_exercises(cache_seconds=1 * 60 * 60, force=False, course=None):
-    cache_url = 'course.{course_pk}.exercises.aggregation.statistics'.format(course_pk=course.pk)
-    result = cache.get(cache_url)
+def student_statistics_exercises(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, course=None):
+    (cache, cachekey) = get_cache_and_key('student_statistics_exercises:', coursePk=course.pk)
+    result = cache.get(cachekey)
     if result is not None and not force:
         return result
     result = calculate_student_statistics_exercises(course=course)
-    cache.set(cache_url, result, cache_seconds)
+    if cachekey:
+        cache.set(cachekey, result, cache_seconds)
     return result
 
 
-def calculate_students_results(task=None, course=None):
-    return calculate_students_results_subset(
-        Exercise.objects.filter(course=course), task, course=course
-    )
+# @job('high')
+# def testfunc() :
+#    time.sleep(60)
+#    testfile = open("/tmp/qfile.txt","a")
+#    now = datetime.datetime.now()
+#    testfile.write( now.strftime("%Y-%m-%d %H:%M:%S") )
+#    testfile.write('\n')
+#    testfile.close()
 
 
-def calculate_student_statistics_exercises(course):
-    data = exercise_list_data(
-        [
-            e_name,
-            e_path,
-            e_student_tried,
-            e_student_percent_complete,
-            has_audit_response_waiting,
-            e_student_attempts_mean,
-            e_student_attempts_median,
-            e_student_activity,
-        ],
-        course=course,
-    )
-    aggregates = post_process_list(data, [p_student_activity])
-    return {'exercises': data, 'aggregates': aggregates}
-
-
-def calculate_user_results(user_pk, course_pk):
-    user = User.objects.get(pk=user_pk)
-    course = Course.objects.get(pk=course_pk)
-    tz = pytz.timezone('Europe/Stockholm')
-    deadline_time = datetime.time(23, 59, 59)
-    if course is not None and course.deadline_time is not None:
-        deadline_time = course.deadline_time
-    exercises = Exercise.objects.filter(meta__published=True, course=course)
-    required_exercises = exercises.filter(meta__required=True)
-    bonus_exercises = exercises.filter(meta__bonus=True)
-    n_complete_required = len(get_completed_exercises(required_exercises, user))
-    n_complete_required_no_deadline = len(
-        get_completed_exercises(required_exercises, user, enforce_deadline=False)
-    )
-    n_complete_bonus = len(get_completed_exercises(bonus_exercises, user))
-    n_complete_bonus_no_deadline = len(
-        get_completed_exercises(bonus_exercises, user, enforce_deadline=False)
-    )
-    exercises_with_answers = exercises.prefetch_related(
-        Prefetch(
-            'question',
-            queryset=Question.objects.all().prefetch_related(
-                Prefetch(
-                    'answer',
-                    queryset=Answer.objects.filter(user=user, correct=True).order_by('-date'),
-                    to_attr='correct',
-                ),
-                Prefetch(
-                    'answer',
-                    queryset=Answer.objects.filter(user=user).order_by('-date'),
-                    to_attr='allanswers',
-                ),
-            ),
-            to_attr='questions',
-        ),
-        Prefetch(
-            'imageanswer',
-            queryset=ImageAnswer.objects.filter(user=user).order_by('-date'),
-            to_attr='imageanswers',
-        ),
-        Prefetch(
-            'audits', queryset=AuditExercise.objects.filter(student=user), to_attr='student_audits'
-        ),
-    )
-    exercises_render = {}
-
-    for exercise in exercises_with_answers:
-        sexercise = ExerciseSerializer(exercise)
-        exercises_render[exercise.exercise_key] = sexercise.data
-        exercises_render[exercise.exercise_key]['questions'] = {}
-        exercises_render[exercise.exercise_key]['force_passed'] = (
-            exercise.student_audits[0].force_passed if exercise.student_audits else False
-        )
-        exercises_render[exercise.exercise_key]['revision_needed'] = (
-            exercise.student_audits[0].revision_needed
-            if (exercise.student_audits and exercise.student_audits[0].published)
-            else False
-        )
-        exercises_render[exercise.exercise_key]['audited'] = (
-            True if (exercise.student_audits and exercise.student_audits[0].published) else False
-        )
-        if exercise.meta.deadline_date:
-            deadline_tz_date = tz.localize(
-                datetime.datetime.combine(exercise.meta.deadline_date, deadline_time)
-            )
-            exercises_render[exercise.exercise_key]['deadline'] = deadline_tz_date
-            n_correct_deadline = 0
-
-            def before_deadline(item):
-                return item.date < deadline_tz_date
-
-            for question in exercise.questions:
-                correct_before_deadline = next(
-                    (x for x in question.correct if before_deadline(x)), None
-                )
-                if correct_before_deadline is not None:
-                    n_correct_deadline += 1
-            exercises_render[exercise.exercise_key]['correct_deadline'] = n_correct_deadline == len(
-                exercise.questions
-            )
-
-            n_image_before_deadline = 0
-            for imageanswer in exercise.imageanswers:
-                if before_deadline(imageanswer):
-                    n_image_before_deadline += 1
-            exercises_render[exercise.exercise_key]['image_deadline'] = (
-                n_image_before_deadline == len(exercise.imageanswers)
-                and n_image_before_deadline > 0
-            )
-            exercises_render[exercise.exercise_key]['image'] = len(exercise.imageanswers) > 0
-            imageanswers = ImageAnswerSerializer(exercise.imageanswers, many=True)
-            exercises_render[exercise.exercise_key]['imageanswers'] = imageanswers.data
-
-        n_correct = 0
-        n_tries = 0
-        for question in exercise.questions:
-            if question.correct:
-                n_correct += 1
-            answers = AnswerSerializer(question.allanswers, many=True)
-            exercises_render[exercise.exercise_key]['questions'][question.question_key] = {}
-            exercises_render[exercise.exercise_key]['questions'][question.question_key][
-                'answers'
-            ] = answers.data
-            n_tries += len(question.allanswers)
-        exercises_render[exercise.exercise_key]['correct'] = n_correct == len(exercise.questions)
-        exercises_render[exercise.exercise_key]['tries'] = n_tries
-
-    n_passed_required = 0
-    n_passed_required_d = 0
-    n_passed_required_d_id = 0
-    n_passed_bonus = 0
-    n_passed_bonus_d = 0
-    n_passed_bonus_d_id = 0
-    n_optional = 0
-    n_total = 0
-
-    for key, exercise in exercises_render.items():
-        if exercise['correct'] or exercise['force_passed']:
-            n_total += 1
-        if exercise['meta']['required']:
-            if (exercise['correct'] and not exercise['revision_needed']) or exercise[
-                'force_passed'
-            ]:
-                n_passed_required += 1
-            if exercise['meta']['deadline_date']:
-                if (exercise['correct_deadline'] and not exercise['revision_needed']) or exercise[
-                    'force_passed'
-                ]:
-                    n_passed_required_d += 1
-                    if (exercise['image_deadline'] and not exercise['revision_needed']) or exercise[
-                        'force_passed'
-                    ]:
-                        # Here d_id refers to both answer and image answer before deadline
-                        n_passed_required_d_id += 1
-        elif exercise['meta']['bonus']:
-            if (exercise['correct'] and not exercise['revision_needed']) or exercise[
-                'force_passed'
-            ]:
-                n_passed_bonus += 1
-            if exercise['meta']['deadline_date']:
-                if (exercise['correct_deadline'] and not exercise['revision_needed']) or exercise[
-                    'force_passed'
-                ]:
-                    n_passed_bonus_d += 1
-                    if (exercise['image_deadline'] and not exercise['revision_needed']) or exercise[
-                        'force_passed'
-                    ]:
-                        # Here d_id refers to both answer and image answer before deadline
-                        n_passed_bonus_d_id += 1
-        else:
-            if exercise['correct'] or exercise['force_passed']:
-                n_optional += 1
-
-    return {
-        'first_name': user.first_name,
-        'last_name': user.last_name,
-        'username': user.username,
-        'pk': user.pk,
-        'exercises': exercises_render,
-        'summary': {
-            'required': {
-                'n_correct': n_passed_required,
-                'n_deadline': n_passed_required_d,
-                'n_image_deadline': n_passed_required_d_id,
-                'n_complete': n_complete_required,
-                'n_complete_no_deadline': n_complete_required_no_deadline,
-            },
-            'bonus': {
-                'n_correct': n_passed_bonus,
-                'n_deadline': n_passed_bonus_d,
-                'n_image_deadline': n_passed_bonus_d_id,
-                'n_complete': n_complete_bonus,
-                'n_complete_no_deadline': n_complete_bonus_no_deadline,
-            },
-            'optional': n_optional,
-            # Note that 'total' is total number of exercises with correct answer
-            # (but otherwise no other requirements)
-            'total': n_total,
-            'total_complete_before_deadline': n_complete_bonus + n_complete_required + n_optional,
-            'total_complete_no_deadline': n_complete_bonus_no_deadline
-            + n_complete_required_no_deadline
-            + n_optional,
-        },
-    }
-
-
-def calculate_students_results_subset(exercise_query, task=None, course=None):
-    required = exercise_query.filter(meta__required=True).select_related('meta')
-    bonus = exercise_query.filter(meta__bonus=True).select_related('meta')
+def calculate_students_custom_results(dbexercises, task=None, course=None):
     students = (
         User.objects.filter(groups__name='Student', opentauser__courses=course)
         .exclude(username='student')
@@ -265,154 +74,175 @@ def calculate_students_results_subset(exercise_query, task=None, course=None):
     n_students = students.count()
     for index, student in enumerate(students):
         if task is not None:
-            task.status = "Calculating results"
+            task.status = "Calculating custom results in aggregation.results.py "
             task.progress = round(((index + 1) / n_students) * 100)
             task.save()
-        passed_required = get_passed_exercises_with_image_data(
-            required, student, deadline=False, image_deadline=False
-        )
-        passed_required_d = get_passed_exercises_with_image_data(
-            required, student, deadline=True, image_deadline=False
-        )
-        passed_required_d_id = get_passed_exercises_with_image_data(
-            required, student, deadline=True, image_deadline=True
-        )
-        completed_required = get_completed_exercises(required, student)
-        completed_required_no_deadline = get_completed_exercises(
-            required, student, enforce_deadline=False
-        )
+        results.append(calculate_unsafe_user_summary(student.pk, course.id, dbexercises))
+        if True or logger.isEnabledFor(logging.DEBUG):
+            logger.debug("Adding result for " + student.username)
+            if dbexercises:
+                logger.debug("CALCULATE STUDENTS CUSTOM RESULTS DBEXERCISEDS ", dbexercises.count())
+    return results
 
-        passed_bonus = get_passed_exercises_with_image_data(
-            bonus, student, deadline=False, image_deadline=False
-        )
-        passed_bonus_d = get_passed_exercises_with_image_data(
-            bonus, student, deadline=True, image_deadline=False
-        )
-        passed_bonus_d_id = get_passed_exercises_with_image_data(
-            bonus, student, deadline=True, image_deadline=True
-        )
-        completed_bonus = get_completed_exercises(bonus, student)
-        completed_bonus_no_deadline = get_completed_exercises(
-            bonus, student, enforce_deadline=False
-        )
 
-        total = get_passed_exercises(exercise_query.filter(meta__published=True), student)
-        optional = get_passed_exercises(
-            exercise_query.filter(meta__published=True, meta__required=False, meta__bonus=False),
-            student,
-        )
-        failed_by_audits = exercise_query.filter(
-            audits__student=student, audits__published=True, audits__revision_needed=True
-        )
-        passed_audits = exercise_query.filter(
-            audits__student=student, audits__published=True, audits__revision_needed=False
-        )
-        all_audits = exercise_query.filter(audits__student=student, audits__published=True)
-        passed_manually = exercise_query.filter(audits__student=student, audits__force_passed=True)
-        lti_user_id = student.opentauser.lti_user_id
-        if lti_user_id is None:  # map None to blank in json results
-            lti_user_id = ''
-        results.append(
-            {
-                'username': student.username,
-                'lti_user_id': lti_user_id,
-                'pk': student.pk,
-                'first_name': student.first_name,
-                'last_name': student.last_name,
-                'required': {
-                    'n_correct': len(passed_required),
-                    'n_deadline': len(passed_required_d),
-                    'n_image_deadline': len(passed_required_d_id),
-                    'n_complete': len(completed_required),
-                    'n_complete_no_deadline': len(completed_required_no_deadline),
-                },
-                'bonus': {
-                    'n_correct': len(passed_bonus),
-                    'n_deadline': len(passed_bonus_d),
-                    'n_image_deadline': len(passed_bonus_d_id),
-                    'n_complete': len(completed_bonus),
-                    'n_complete_no_deadline': len(completed_bonus_no_deadline),
-                },
-                'failed_by_audits': failed_by_audits.count(),
-                'passed_audits': passed_audits.count(),
-                'total_audits': all_audits.count(),
-                'manually_passed': passed_manually.count(),
-                'optional': len(optional),
-                # Note that 'total' is total number of exercises with correct answer
-                # (but otherwise no other requirements)
-                'total': len(total),
-                'total_complete_before_deadline': (
-                    len(completed_bonus) + len(completed_required) + len(optional)
-                ),
-                'total_complete_no_deadline': (
-                    len(completed_bonus_no_deadline)
-                    + len(completed_required_no_deadline)
-                    + len(optional)
-                ),
-            }
-        )
-        if logger.isEnabledFor(logging.DEBUG):
+def calculate_students_results(task=None, course=None):
+    students = (
+        User.objects.filter(groups__name='Student', opentauser__courses=course)
+        .exclude(username='student')
+        .order_by('first_name')
+    )
+    results = []
+    n_students = students.count()
+    for index, student in enumerate(students):
+        if task is not None:
+            task.status = "Calculating results in aggregation.results.py "
+            task.progress = round(((index + 1) / n_students) * 100)
+            task.save()
+        results.append(calculate_unsafe_user_summary(student.pk, course.id, None))
+        if True or logger.isEnabledFor(logging.DEBUG):
             logger.debug("Adding result for " + student.username)
     return results
 
 
-def get_completed_exercises(exercise_queryset, user, enforce_deadline=True):
-    """
-    Generate data containing which exercises from the queryset that user have
-    passed all required parts before deadline (if there is a deadline).
-
-    Args:
-        user: Django User instance
-        exercise_queryset: The exercises to be tested
-
-    Returns:
-        List
-        [
-            {
-                'exercise_name':
-                'answers': [
-                    {
-                        'answer':
-                        'date':
-                    }
-                    ]
-                'deadline':
-            }
-        ]
-
-    """
-    basic_exercises = exercise_queryset.filter(
-        meta__required=False, meta__bonus=False, meta__deadline_date__isnull=True
+def serialize_exercise_data_for_course(course, exercise):
+    (cache, cachekey) = get_cache_and_key(
+        'exercise_data_for_course:', coursePk=course.id, exercise_key=exercise.exercise_key
     )
+    if cache.has_key(cachekey):
+        return cache.get(cachekey)
+    users = bonafide_students.filter(opentauser__courses=course)
+    nstudents = users.count()
+    serializer = ExerciseSerializer(exercise)
+    esdata = serializer.data
+    exercise_key = esdata['exercise_key']
+    ed = {}
+    ags = Aggregation.objects.filter(course=course, exercise=exercise, user__in=users)
+    n_questions = Question.objects.filter(exercise=exercise).count()
+    attempt_list = list(ags.values_list('attempt_count', flat=True))
+    med = 0 if (sum(attempt_list) == 0 or n_questions == 0) else median(attempt_list) / n_questions
+    avg = 0 if len(attempt_list) == 0 else mean(attempt_list)
+    avg = 0 if n_questions == 0 else avg / n_questions
+    ed['name'] = esdata['name']
+    ed['path'] = esdata['path']
+    ed['ntried'] = ags.count()
+    ed['percent_tried'] = 0 if nstudents == 0 else ed['ntried'] / nstudents
+    ed['deadline'] = exercise.meta.deadline_date
+    ed['ncorrect'] = ags.filter(user_is_correct=True).count()
+    ed['percent_correct'] = 0 if nstudents == 0 else ed['ncorrect'] / nstudents
+    ed['ncomplete'] = ags.filter(all_complete=True).count()
+    ed['percent_complete'] = 0 if nstudents == 0 else ed['ncomplete'] / nstudents
+    ed['attempts_mean'] = avg
+    ed['attempts_median'] = med
+    ed['nstudents'] = nstudents
+    ed['response_awaits'] = ags.filter(audit_needs_attention=True).count()
+    if cachekey:
+        cache.set(cachekey, ed, settings.CACHE_LIFETIME)
+    return ed
 
-    deadline_exercises = exercise_queryset.filter(
-        Q(meta__required=True) | Q(meta__bonus=True),
-        meta__deadline_date__isnull=False,
-        meta__image=False,
-    )
 
-    image_deadline_exercises = exercise_queryset.filter(
-        Q(meta__required=True) | Q(meta__bonus=True),
-        meta__deadline_date__isnull=False,
-        meta__image=True,
-    )
+def calculate_student_statistics_exercises(course):
+    '''
+    DATA =  {'40fc7217-8832-48ac-8b81-d18c712a2d13': 
+        {'name': 'asdfasdf', 'path': 'asdfasdf', 'ntried': 2, 'percent_tried': 1.0, 'percent_complete': 0.5, 
+        'percent_correct': 0.5, 'ncomplete': 1, 'ncorrect': 1, 'nstudents': 2, 'deadline': 
+        datetime.date(2019, 11, 9), 'response_awaits': 0, 'attempts_mean': 1.25, 'attempts_median': 1.25, 
+        'activity': {'1h': 0, '24h': 0, '1w': 2, 'all': 2}}, 
+        '78896b7c-c6e2-4045-bff4-4a76147b4a9f': ...
+    AGGREGATES =  {'max_1h': 0, 'max_24h': 0, 'max_1w': 4, 'max_all': 6}
+    }
+    '''
+    exercises = Exercise.objects.filter(course=course, meta__published=True)
+    data = {}
+    for exercise in exercises:
+        data[exercise.exercise_key] = serialize_exercise_data_for_course(course, exercise)
+        data[exercise.exercise_key]['activity'] = e_student_activity(exercise)['activity']
+    # data  = exercise_list_data(
+    #    [
+    #        e_name,
+    #        e_path,
+    #        e_student_tried,
+    #        e_student_percent_complete,
+    #        has_audit_response_waiting,
+    #        e_student_attempts_mean,
+    #        e_student_attempts_median,
+    #        e_student_activity,
+    #    ],
+    #    course=course,
+    # )
+    #
+    aggregates = post_process_list(data, [p_student_activity])
+    return {'exercises': data, 'aggregates': aggregates}
 
-    passed_basic = get_passed_exercises_with_image_data(
-        basic_exercises, user, deadline=False, image_deadline=False, require_image=False
-    )
-    passed_deadline = get_passed_exercises_with_image_data(
-        deadline_exercises,
-        user,
-        deadline=enforce_deadline,
-        image_deadline=False,
-        require_image=False,
-    )
-    passed_image_deadline = get_passed_exercises_with_image_data(
-        image_deadline_exercises,
-        user,
-        deadline=enforce_deadline,
-        image_deadline=enforce_deadline,
-        require_image=True,
-    )
 
-    return passed_basic + passed_deadline + passed_image_deadline
+# stypes = ['number_complete','number_complete_by_deadline','number_correct','number_correct_by_deadline','number_image_by_deadline',
+
+
+def get_exercises_render(user, course_pk):
+    course = Course.objects.get(pk=course_pk)
+    exercises = Exercise.objects.filter(meta__published=True, course=course)
+    exercises_render = {}
+    for exercise in exercises:
+        item = serialize_exercise_with_question_data(exercise, user, False)
+        exercises_render[exercise.exercise_key] = item['exercise_render']
+    return exercises_render
+
+
+def calculate_unsafe_user_summary(user_pk, course_pk, dbexercises):
+    student = User.objects.get(pk=user_pk)
+    course = Course.objects.get(pk=course_pk)
+    tz = pytz.timezone('Europe/Stockholm')
+    deadline_time = datetime.time(23, 59, 59)
+    if course is not None and course.deadline_time is not None:
+        deadline_time = course.deadline_time
+
+    sums = get_unsafe_exercise_summary(user_pk, course_pk, dbexercises)
+    required = sums['required']
+    bonus = sums['bonus']
+    optional = sums['optional']
+    summary = {
+        'username': student.username,
+        'lti_user_id': student.opentauser.lti_user_id,
+        'pk': student.pk,
+        'first_name': student.first_name,
+        'last_name': student.last_name,
+        'required': required,  # {
+        'bonus': bonus,
+        'optional': optional,
+        'n_optional': sums['n_optional'],
+        'failed_by_audits': sums['failed_by_audits'],
+        'passed_audits': sums['passed_audits'],
+        'total_audits': sums['total_audits'],
+        'manually_passed': sums['manually_passed'],
+        'total': sums['total'],  # ags.filter(user_is_correct=True).count(),
+        'total_complete_before_deadline': sums['total_complete_before_deadline'],
+        'total_complete_no_deadline': sums['total_complete_no_deadline'],
+    }
+    if not dbexercises == None:
+        summary['exercises'] = []
+        for exercise in dbexercises:
+            summary['exercises'].append(
+                serialize_exercise_with_question_data(exercise, student, False)
+            )
+    return summary
+
+
+def calculate_user_results(user_pk, course_pk):
+    user = User.objects.get(pk=user_pk)
+    course = Course.objects.get(pk=course_pk)
+    tz = pytz.timezone('Europe/Stockholm')
+    deadline_time = datetime.time(23, 59, 59)
+    if course is not None and course.deadline_time is not None:
+        deadline_time = course.deadline_time
+    exercises_render = get_exercises_render(user, course_pk)
+    summary = get_unsafe_exercise_summary(user_pk, course_pk, None)
+
+    result = {
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'username': user.username,
+        'pk': user.pk,
+        'lti_user_id': user.opentauser.lti_user_id,
+        'exercises': exercises_render,
+        'summary': summary,
+    }
+    return result

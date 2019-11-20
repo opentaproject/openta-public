@@ -4,6 +4,7 @@ from exercises import views
 
 urlpatterns = [
     url(r'^course/(?P<course_pk>[0-9]+)/exercises/$', views.exercise_list),
+    url(r'^course/(?P<course_pk>[0-9]+)/exercises/(?P<user_pk>[0-9]+)/$', views.user_exercise_list),
     url(r'^course/(?P<course_pk>[0-9]+)/exercises/reload/$', views.exercises_reload),
     url(r'^course/(?P<course_pk>[0-9]+)/exercises/reload/json/$', views.exercises_reload_json),
     url(r'^course/(?P<course_pk>[0-9]+)/exercises/tree/$', views.exercise_tree),

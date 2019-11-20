@@ -20,6 +20,7 @@ from .models import Exercise
 from .models import Question
 from .models import Answer
 from .models import ImageAnswer
+from aggregation.models import Aggregation
 from .models import AuditExercise
 from .models import AuditResponseFile
 
@@ -155,16 +156,47 @@ class ExerciseAdmin(admin.ModelAdmin):
     get_thumbnail.short_description = 'Figure'
 
 
+class AggregationAdmin(admin.ModelAdmin):
+    list_filter = [
+        'course',
+        'user',
+        'exercise',
+        'attempt_count',
+        'all_complete',
+        'complete_by_deadline',
+        'user_tried_all',
+        'user_is_correct',
+        'audit_needs_attention',
+    ]
+    search_fields = ['course__course_name', 'user__username', 'exercise__name']
+    list_display = [
+        'user',
+        'course',
+        'exercise',
+        'attempt_count',
+        'all_complete',
+        'complete_by_deadline',
+        'user_tried_all',
+        'user_is_correct',
+        'audit_needs_attention',
+    ]
+
+
 class AnswerAdmin(admin.ModelAdmin):
     # readonly_fields = ('id',)
-    list_filter = ['question__exercise', 'user__id']
-    search_fields = ['user__username', 'question__exercise__name']
+    list_filter = ['question__exercise', 'user__id', 'question__exercise__course']
+    search_fields = [
+        'user__username',
+        'question__exercise__name',
+        'question__exercise__course__course_name',
+    ]
     list_per_page = 20
 
     def get_list_display(self, request):
         if request.user.has_perm('exercises.view_student_id'):
             return [
                 'get_username',
+                'get_course_name',
                 'get_answer',
                 'correct',
                 'get_exercise_name',
@@ -180,6 +212,12 @@ class AnswerAdmin(admin.ModelAdmin):
                 'get_question',
                 'date',
             ]
+
+    def get_course_name(self, answer):
+        try:
+            return answer.question.exercise.course.course_name
+        except:
+            return 'XX'
 
     def get_question(self, answer):
         try:
@@ -234,6 +272,7 @@ class AuditExerciseAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Exercise, ExerciseAdmin)
+admin.site.register(Aggregation, AggregationAdmin)
 admin.site.register(Question)
 admin.site.register(Answer, AnswerAdmin)
 admin.site.register(ImageAnswer, ImageAnswerAdmin)

@@ -5,7 +5,7 @@ from rest_framework import status
 from django.http import HttpResponse
 from exercises.models import Exercise, Answer
 from exercises.aggregation import student_statistics_exercises, students_results
-from exercises.aggregation import create_xlsx_from_results_list, calculate_students_results_subset
+from exercises.aggregation import create_xlsx_from_results_list, calculate_students_results
 from exercises.aggregation import excel_custom_results_pipeline, students_results_async_pipeline
 from course.models import Course
 from workqueue.models import QueueTask
@@ -13,6 +13,10 @@ import workqueue.util as workqueue
 from workqueue.exceptions import WorkQueueError
 from datetime import datetime
 from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
+
 import numpy
 from messages import error, embed_messages
 
@@ -52,38 +56,44 @@ def get_results_excel(request, course_pk):
             b = b + [item]
         with open("/tmp/results.txt", mode="w") as out:
             out.write(str(b))
+    fp = open('/tmp/custom.xlsx','wb')
+    fp.write(xlsx_data)
+    fp.close()
     content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     response = HttpResponse(xlsx_data, content_type=content_type)
     response['Content-Disposition'] = 'attachment; filename=results.xlsx'
     return response
 
 
-@permission_required('exercises.view_statistics')
-@api_view(['GET'])
-def get_custom_result_excel(request):
-    exercises = request.query_params.get('exercises').split(',')
-    dbexercises = Exercise.objects.filter(pk__in=exercises)
-    results = calculate_students_results_subset(dbexercises)
-    xlsx_data = create_xlsx_from_results_list(results)
-    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    response = HttpResponse(xlsx_data, content_type=content_type)
-    response['Content-Disposition'] = 'attachment; filename=results.xlsx'
-    return response
-
+# @permission_required('exercises.view_statistics')
+# @api_view(['GET'])
+# def nget_custom_result_excel(request):
+#    logging.info("GET_CUSTOM_RESULTS_EXCEL")
+#    exercises = request.query_params.get('exercises').split(',')
+#    dbexercises = Exercise.objects.filter(pk__in=exercises)
+#    results = calculate_students_results(dbexercises)
+#    xlsx_data = create_xlsx_from_results_list(results)
+#    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+#    response = HttpResponse(xlsx_data, content_type=content_type)
+#    response['Content-Disposition'] = 'attachment; filename=results.xlsx'
+#    return response
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET', 'POST'])
 def enqueue_custom_result_excel(request, course_pk):
     exercises = None
     if request.method == 'GET':
+        print("GET", str( request.query_params ) )
         exercises = request.query_params.get('exercises').split(',')
     if request.method == 'POST':
+        print("POST", str( request.data ) )
         exercises = request.data.get('exercises')
     if exercises is None:
         return Response({})
 
     dbcourse = Course.objects.get(pk=course_pk)
-    dbexercises = Exercise.objects.filter(pk__in=exercises)
+    dbexercises = Exercise.objects.filter(exercise_key__in=exercises)
+    print("DBEXERCISES = ", list( dbexercises.values_list('exercise_key', flat=True) ) )
     task_id = workqueue.enqueue_task(
         "Custom results", excel_custom_results_pipeline, dbexercises, course=dbcourse
     )

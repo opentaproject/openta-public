@@ -19,9 +19,7 @@ import {
   updatePendingStateIn,
   setExerciseModifiedState,
 } from '../actions.js';
-import {
-  navigateMenuArray
-} from '../menu.js';
+import { navigateMenuArray } from '../menu.js';
 
 import immutable from 'immutable';
 import _ from 'lodash';
@@ -83,7 +81,8 @@ const BaseLoginInfo = ({ username, groups, iframed, replyTo, admin, author, view
   var studentViewDOM = (author || viewer) ? (<button onClick={(e) => UIkit.modal.confirm("View site as student?", () => window.open(SUBPATH + "/hijack/username/student", "_self"))} className="uk-button uk-button-mini uk-alert-warning" data-uk-tooltip title="Log in as default student">Student view</button>) : '';
 var canViewXML = author || viewer || admin
   return (
-    <nav id="login" className="uk-nav uk-navbar-attached ta-nav border-bottom">
+    <div id="login" className="uk-nav uk-navbar-attached ta-nav border-top">
+    
       <div className="uk-container uk-container-center" style={{maxWidth: 'none'}}>
         {/* Username and side-bar menu */}
         <div className="uk-navbar-content uk-flex uk-flex-wrap">
@@ -97,6 +96,7 @@ var canViewXML = author || viewer || admin
               <i className="uk-icon uk-icon-small uk-icon-mail-reply"></i>
             </a>
           </li></ul>
+          <button className="uk-button uk-margin-small-top uk-hidden-large" data-uk-toggle="{target:'.smallHidden'}"><i className="uk-icon-chevron-circle-down"/></button>
           {/* Username */}
           <div className="uk-vertical-align">
             <span className="uk-vertical-align-middle">
@@ -148,6 +148,8 @@ var canViewXML = author || viewer || admin
                 <a title="Administration" href={SUBPATH + "/administration/"}><i className="uk-icon uk-icon-cog uk-text-middle"></i></a>
               </li>
             )}
+
+
             {!iframed && (
               <li >
                 <a title="Logga ut" href={SUBPATH + "/logout/" + course + '/'}><span className="uk-padding-large"> {course} </span><i className="uk-icon uk-icon-sign-out uk-text-large uk-text-middle"></i></a>
@@ -158,6 +160,8 @@ var canViewXML = author || viewer || admin
                 <a title="Logga ut" href={SUBPATH + "/logout/" + course + '/lti_login/'}><span className="uk-padding-large"> {course} </span><i className="uk-icon uk-icon-rotate-right uk-text-large uk-text-middle"></i></a>
               </li>
     ) }
+
+
 
             {/* TODO: Is this needed? Edit profile */}
             {/* {false && lti_login && (
@@ -178,7 +182,6 @@ var canViewXML = author || viewer || admin
         {/* Toggle menu for smaller sizes */}
         { canViewXML && (
           <span>
-          <button className="uk-button uk-button-mini uk-margin-small-top uk-hidden-large" data-uk-toggle="{target:'.smallHidden'}"><i className="uk-icon-ellipsis-v"/></button>
           <div className="uk-navbar-content uk-margin-small-top uk-flex uk-flex-middle uk-flex-wrap uk-hidden-large uk-hidden smallHidden" style={{ height: 'auto' }}>
             {renderPending}
             {canViewXML && <Menu />}
@@ -186,7 +189,7 @@ var canViewXML = author || viewer || admin
           </span>
         )}
       </div>
-    </nav>
+    </div>
   );
 }
 

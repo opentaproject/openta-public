@@ -7,7 +7,9 @@ import { fetchCustomResults, enqueueTask } from '../fetchers.js';
 import { updateCustomResults } from '../actions.js';
 
 const BaseCustomResult = ({onGenerateResults, exerciseState, taskId, progress, done, activeCourse}) => {
-  var selected = exerciseState.filter( exercise => exercise.get('selected'));
+  
+  var selected = exerciseState.filter( exercise => ( typeof( exercise) == 'object' ) )
+        .filter( exercise =>   exercise.get('selected') )
   var keys = selected.keySeq().toJS();
   var urlkeys = keys.join(',');
   return (
@@ -39,9 +41,10 @@ const BaseCustomResult = ({onGenerateResults, exerciseState, taskId, progress, d
 
 const mapDispatchToProps = (dispatch) => ({
   onGenerateResults: (exerciseState, activeCourse) => {
-    var selected = exerciseState.filter( exercise => exercise.get('selected'));
+    var selected = exerciseState.filter( exercise => ( typeof( exercise) == 'object' ) )
+        .filter( exercise =>   exercise.get('selected') )
     var exercises = selected.keySeq().toJS();
-    //dispatch(fetchCustomResults(exercises));
+    // dispatch(fetchCustomResults(exercises));
     dispatch(enqueueTask('/course/' + activeCourse + '/statistics/customresult', { data: {exercises: exercises}, method: "POST" } ))
      .then( taskId => dispatch(updateCustomResults({taskId: taskId})) );
   }

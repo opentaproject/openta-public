@@ -12,10 +12,167 @@ html {
   border-right: 1px solid #929292; }
 
 .border-top {
-  border-top: 1px solid #929292; }
+  border-top: 0px solid #929292; }
 
 .border-bottom {
   border-bottom: 1px solid #929292; }
+
+table.exercise_item {
+  table-layout: fixed;
+  border: 0px solid black;
+  border-collapse: collapse;
+  padding: 0px;
+  width: 100%;  
+}
+th,td.column_date {
+	width: 15%;
+	text-align: left;
+	text-overflow: ellipsis; 
+	white-space: nowrap;
+  	overflow: hidden;
+	}
+
+
+th,td.column_date_main {
+	width: 15%;
+	text-align: left;
+	text-overflow: ellipsis; 
+	border: 1px solid black;
+	white-space: nowrap;
+  	overflow: hidden;
+	}
+
+
+th,td.column_date_due {
+	width: 15%;
+	text-align: center;
+	border: 0px solid black;
+	padding: 5px 5px 5px 30px;
+	text-overflow: ellipsis; 
+	white-space: nowrap;
+  	overflow: hidden;
+	}
+
+
+th,td.no_data{
+	width: 65%;
+	text-align: left;
+	border: 0px solid black;
+	padding: 5px 5px 5px 5px;
+	text-overflow: ellipsis; 
+	white-space: nowrap;
+  	overflow: hidden;
+	}
+
+
+
+
+th,td.column_name{
+	width: 30%;
+	text-align: left;
+	border: 0px solid black;
+	padding: 0px 0px 0px 10px;
+	text-overflow: ellipsis; 
+	white-space: nowrap;
+  	overflow: hidden;
+	}
+
+th,td.column_name_head{
+	width: 30%;
+	padding: 5px 5px 5px 30px;
+	text-align: left;
+	border: 0px solid black;
+	text-overflow: ellipsis; 
+	white-space: nowrap;
+  	overflow: hidden;
+	}
+
+th,td.column_check{
+	text-align: center;
+	border: 0px solid black;
+	width: 5%;
+	white-space: nowrap;
+  	overflow: hidden;
+	}
+
+th,td.column_check_main{
+	text-align: center;
+	border: 1px solid black;
+	width: 5%;
+	white-space: nowrap;
+  	overflow: hidden;
+	}
+
+td.column_check_main:hover {
+  background-color: #DCDCDC;
+}
+
+button.gold{
+  background-color: #EEAB44;
+  color : #FFFFFF;
+}
+
+button.unpublished{
+   background-color: pink;
+   color : #000000
+}
+
+button.blue{
+  background-color: #4BA5E3;
+  color : #FFFFFF;
+}
+
+button.green{
+  background-color: #9AC54A;
+  color : #FFFFFF;
+}
+
+td.column_date_main:hover {
+  background-color: #DCDCDC;
+}
+
+
+i.padright{
+  padding: 0px 5px 0px 0px;
+  }
+
+
+
+th,td.column_date_plus{
+	text-align: left;
+	border: 0px solid black;
+	width: 20%;
+	padding: 5px 5px 5px 35px;
+	text-overflow: ellipsis; 
+	white-space: nowrap;
+  	overflow: hidden;
+	
+	}
+
+th,td.column_date_center{
+	text-align: left;
+	border: 0px solid black;
+	text-overflow: ellipsis; 
+	white-space: nowrap;
+  	overflow: hidden;
+	width: 15%;
+	
+	}
+
+.footer {
+   position: fixed;
+   background-color: #FAF0F0;
+   bottom: 0;
+   z-index: 999;
+}
+
+.myheader{
+   background-color: #F0F0FA;
+   z-index: 999;
+}
+.pix30 {
+ height: auto;
+}
 
 /*@media (min-width: 960px) {
   @include layout(0.1, 0.33);
@@ -178,7 +335,27 @@ html {
   background-color: #00FF00; }
 
 .exercise-unpublished {
-  background-color: #f8c57a; }
+  background-color: #FDF1F0; }
+
+.exercise-complete_by_deadline{
+  border-color: #00FF00;
+  border-width: medium
+}
+
+
+.exercise-ungraded{
+  border-color: lightblue;
+  border-width: medium
+}
+
+.exercise-all_complete {
+  border-color: gold;
+  border-width: medium
+}
+
+.exercise-incomplete{
+  border-color: red;
+}
 
 .exercise-a {
   text-align: center; }
