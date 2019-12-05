@@ -293,8 +293,13 @@ def exercise_save(request, exercise):
         messages += parsing.exercise_save(dbexercise.get_full_path(), xml, backup_name)
     except IOError as e:
         messages.append(('error', str(e)))
+
+    @transaction.atomic
+    def update_exercise():
+        return Exercise.objects.add_exercise(dbexercise.path, dbexercise.course)
+
     try:
-        messages += Exercise.objects.add_exercise(dbexercise.path, dbexercise.course)
+        messages += update_exercise()
     except parsing.ExerciseParseError as e:
         messages.append(('warning', str(e)))
     messages = messages + validate_exercise_xml(xml)

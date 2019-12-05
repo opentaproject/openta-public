@@ -128,9 +128,9 @@ class ExerciseManager(models.Manager):
                         + question.get('type')
                     )
                 )
-
+        questions_with_key = exercisetree.xpath('/exercise/question[@key]')
         for question in Question.objects.filter(exercise=dbexercise):
-            bool_list = map(lambda q: q.get('key') == question.question_key, questions)
+            bool_list = map(lambda q: q.get('key') == question.question_key, questions_with_key)
             exists = reduce(lambda a, b: a or b, bool_list, False)
             if not exists:
                 question.delete()
