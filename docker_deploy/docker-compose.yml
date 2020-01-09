@@ -2,25 +2,34 @@ version: '3'
 
 services:
   redis:
+    network_mode: host
     image: 'redis:3.2.0'
     volumes:
-      - ../deploy/redis_data:/data
+      - /tmp/redis_data:/data
   db:
+    network_mode: host
     image: 'postgres:9.5.3'
     volumes:
-      - ../deploy/postgres_data:/var/lib/postgresql/data
+      - /tmp/postgres_data:/var/lib/postgresql/data
   nginx:
+    network_mode: host
     build:
       context: ../
       dockerfile: ./docker_deploy/Dockerfile.nginx
     image: nginx
+    command: /bin/sh -c "envsubst '$$OPENTA_SUBPATH $$USE_SSL' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"
+    environment:
+      - OPENTA_SUBPATH=/openta
+      - USE_SSL=0
     volumes:
       - media:/srv/openta/django/backend/media
+      - exercises:/srv/openta/exercises
     depends_on:
       - web
     ports:
       - 80:80
   web:
+    network_mode: host
     build:
       context: ../
       dockerfile: ./docker_deploy/Dockerfile.backendDeploy
@@ -29,23 +38,30 @@ services:
     command: gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --env DJANGO_SETTINGS_MODULE=backend.settings_production_docker
     volumes:
       - media:/srv/openta/django/backend/media
+      - exercises:/srv/openta/exercises
     # volumes:
       #- ../:/srv/openta
       #- ../django/backend/backend/settings_production_docker.py:/srv/openta/django/backend/backend/settings.py
     environment:
       - WEB_CONCURRENCY=10
+      - OPENTA_SUBPATH=openta
     depends_on:
       - db
       - redis
   rqworker:
+    network_mode: host
     image: web-image
     working_dir: /srv/openta/django/backend/
     command: python manage.py rqworker
+    environment:
+      - OPENTA_SUBPATH=openta
     volumes:
       - media:/srv/openta/django/backend/media
+      - exercises:/srv/openta/exercises
     depends_on:
       - web
       - redis
 
 volumes:
   media:
+  exercises:
