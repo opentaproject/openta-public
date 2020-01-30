@@ -12,7 +12,6 @@ def get_version_string():
         return string.decode(sys.stdout.encoding)
 
     try:
-        raise Exception('test')
         branch_name = subprocess.check_output(["/usr/bin/git", "rev-parse", "--abbrev-ref", "HEAD"])
         short_hash = subprocess.check_output(["/usr/bin/git", "rev-parse", "--short", "HEAD"])
         commit_date = subprocess.check_output(
