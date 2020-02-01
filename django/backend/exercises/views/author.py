@@ -7,8 +7,6 @@ from django.forms.models import modelform_factory
 
 
 class ExerciseMetaUpdate(UpdateView):
-
-class ExerciseMetaUpdate(UpdateView):
     model = ExerciseMeta
     fields = [
         'deadline_date',
