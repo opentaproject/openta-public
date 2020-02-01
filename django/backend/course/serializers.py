@@ -20,7 +20,7 @@ class CourseSerializer(serializers.ModelSerializer):
             'email_reply_to',
             'motd',
             'url',
-            'use_email'
+            'use_email',
             'use_auto_translation'
         )
 
