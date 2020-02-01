@@ -96,12 +96,6 @@ def exercise_json(path, hide_answers=False, sensitive_tags={}, sensitive_attrs={
     with open(xml_path, mode='rb') as fil:
         xml = fil.read()
     return exercise_xml_to_json(xml, hide_answers, sensitive_tags, sensitive_attrs)
-<<<<<<< HEAD
-=======
-    xmlfile = open(xml_path)
-    xml = xmlfile.read()
-    return exercise_xml_to_json(xml, hide_answers, sensitive_tags, sensitive_attrs)
->>>>>>> Fix up dev_linear_algebra and safe_question for all
 
 
 def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_attrs={}):
@@ -156,17 +150,11 @@ def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_a
                 globalnodes = root.findall('./global')
                 if len(globalnodes) > 0:
                     globalnode = globalnodes[0]
-<<<<<<< HEAD
-                    globalnode.text = 'replaced by sensitive tag value'
-                    valuenodes = globalnode.findall('.//value')
-                    for valuenode in valuenodes:
-=======
                     # print("global text = ", globalnode.text)
                     globalnode.text = 'replaced by sensitive tag value'
                     valuenodes = globalnode.findall('.//value')
                     for valuenode in valuenodes:
                         # print("REMOVE VALUENODE")
->>>>>>> Fix up dev_linear_algebra and safe_question for all
                         parent = valuenode.getparent()
                         parent.remove(valuenode)
 
@@ -245,14 +233,9 @@ def exercise_xmltree(path):
         raise ExerciseParseError(e)
 
 
-<<<<<<< HEAD
 def question_xmltree_get(exercise_xmltree, question_key, usermacros={}):
     return global_and_question_xmltree_get(exercise_xmltree, question_key, usermacros)[1]
 
-=======
-def question_xmltree_get(exercise_xmltree, question_key):
-    return global_and_question_xmltree_get(exercise_xmltree, question_key)[1]
->>>>>>> Fix up dev_linear_algebra and safe_question for all
 
 def question_json_get(path, question_key, usermacros={}):
     usermacros['@call'] = 'QUESTION_JSON_GET'
@@ -260,21 +243,7 @@ def question_json_get(path, question_key, usermacros={}):
     exercise_key = exercise_key_get(path)
     return question_json_get_from_raw_json(raw_json, exercise_key, question_key, usermacros)
 
-<<<<<<< HEAD
-
 def question_json_get_from_raw_json(raw_json, exercise_key, question_key, usermacros={}):
-=======
-def question_json_get(path, question_key):
-    # print("QUESTION_JSON_GET")
-    raw_json = exercise_json(path, True)
-    exercise_key = exercise_key_get(path)
-    return question_json_get_from_raw_json(raw_json, exercise_key, question_key)
-
-
-def question_json_get_from_raw_json(raw_json, exercise_key, question_key):
-    # print("QUESTION_JSON_GET")
-    # exercise_key = exercise_key_get(path)
->>>>>>> Fix up dev_linear_algebra and safe_question for all
     questions = deep_get(raw_json, 'exercise', 'question')
     found = list(
         filter(
@@ -284,10 +253,7 @@ def question_json_get_from_raw_json(raw_json, exercise_key, question_key):
     )
     if len(found) == 1:
         global_data = deep_get(raw_json, 'exercise', 'global')
-<<<<<<< HEAD
-=======
         # print("GLOBAL DATA = ", global_data )
->>>>>>> Fix up dev_linear_algebra and safe_question for all
         if global_data:  # and 'type' in found[0]['@attr']:
             if not isinstance(global_data, list):
                 global_data = [global_data]
@@ -472,7 +438,6 @@ def get_translations(xml):
     return ret_langs
 
 
-<<<<<<< HEAD
 def getkey(stringin):
     key = re.sub(r'\s+', '', stringin)
     return key
@@ -494,15 +459,6 @@ def global_and_question_xmltree_get(exercise_xmltree, question_key, usermacros={
     xml = etree.tostring(exercise_xmltree)
     root = etree.fromstring(xml)
     root = apply_macros_to_exercise(root, usermacros)
-=======
-def global_xmltree_get(exercise_xmltree, question_key):
-    return global_and_question_xmltree_get(exercise_xmltree, question_key)[0]
-
-
-def global_and_question_xmltree_get(exercise_xmltree, question_key):
-    xml = etree.tostring(exercise_xmltree)
-    root = etree.fromstring(xml)
->>>>>>> Fix up dev_linear_algebra and safe_question for all
     global_xpath = (
         '/exercise/global[@type="{type}"] | /exercise/global[not(@type)] | /exercise/global'
     )
