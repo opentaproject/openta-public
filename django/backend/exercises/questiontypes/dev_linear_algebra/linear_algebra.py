@@ -38,16 +38,23 @@ logger = logging.getLogger(__name__)
 
 
 def linear_algebra_check_if_true(
-    precision, variables, correct, expression, check_units=False, blacklist=[]
+    precision, variables, correct, expression, check_units=False, blacklist=[], funcsubs={}
 ):
     shouldbetrue = correct + '== 1'
     return linear_algebra_compare_expressions(
-        precision, variables, expression, shouldbetrue, check_units=True, blacklist=[]
+        precision, variables, expression, shouldbetrue, check_units=True, blacklist=[], funcsubs={}
     )
 
 
 def linear_algebra_compare_expressions(
-    precision, variables, student_answer, correct, check_units=True, blacklist=[]
+    precision,
+    variables,
+    student_answer,
+    correct,
+    check_units=True,
+    blacklist=[],
+    used_varialbes=[],
+    funcsubs={},
 ):
     """
     Compare two asciimath expressions for equality.
@@ -64,48 +71,32 @@ def linear_algebra_compare_expressions(
             error: string
         }
     """
-    # print('variables = ' , variables)
-    # print('correct = ', correct)
-    # print('correct = ', correct)
-    # print("LINEARALGEBRA variables = ", variables, "student_answer = ", student_answer, "correct = ", correct  )
-    # print("LINEARALGEBRA blacklist = ", blacklist )
-    # print("CORRECT = ", correct )
+    student_answer_orig = student_answer
     try:
         precheck = check_for_legal_answer(
             precision, variables, student_answer, correct, check_units, blacklist
         )
         if precheck is not None:
             return precheck
-        # else :
-        #    pass:
-        # print("PRECHECK OK ")
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
         equality = correct.split('==')
-        # test = sympify_with_custom( ascii_to_sympy( student_answer), varsubs_sympify).doit()
-        # print("SYMPIFY ", test )
-        # print("SYMPIFY2 ",  test.atoms( sympy.Function) )
         if len(equality) > 1 and '$$' in correct:
             correct = equality[1]
-            student_answer_orig = student_answer
+            # student_answer_orig = student_answer
             student_answer = (equality[0]).replace('$$', '(' + student_answer + ')')
-        # print("student_answer = ", student_answer)
         if '==' in student_answer:
-            # print("== in student_answer")
             equality = correct.split('==')
             if len(equality) != 2:
                 return {'error': 'Response is not an equality'}
             correct = 'abs( (' + equality[0] + ') - ( ' + equality[1] + '))'
             correct = '0'
-            # print("new correct = ", correct );
             equality = student_answer.split('==')
             student_answer = 'abs( (' + equality[0] + ') - ( ' + equality[1] + '))'
-            # print("new student answer = ", student_answer)
         try:
             unparsedstudentanswer = sympify_with_custom(
                 ascii_to_sympy(student_answer), varsubs_sympify
             )
         except Exception as e:
-            # print("LINEAR ALGEBRA CHACK FUNCTION",   ( sympy.sympify( student_answer_orig ) ).atoms( sympy.Function) )
             test = sympify_with_custom(ascii_to_sympy(student_answer_orig), varsubs_sympify).doit()
             testatoms = list(test.atoms(sympy.Function))
             testsymbols = list(test.atoms(sympy.Symbol))
@@ -125,12 +116,8 @@ def linear_algebra_compare_expressions(
             return response
         lhs = prelhs.doit().subs(varsubs).subs(varsubs).subs(varsubs).doit()
         try:
-            # print("CORRECT AT 2 ", correct )
-            # print("varsubs_sympify = ", varsubs_sympify )
             prerhs = sympify_with_custom(correct, varsubs_sympify)
-            # print("PRERHS = ", prerhs )
             rhs = prerhs.doit().subs(varsubs).subs(varsubs).subs(varsubs).doit()
-            # print("RHS at 2 = ", rhs )
         except Exception as e:
             if '@' in str(e):
                 explanation = 'The character @ appears in author expression; check for macros with missing semicolon separator or missing :=  in macro definition'
@@ -202,7 +189,6 @@ def linear_algebra_compare_expressions(
 
 
 def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_units=True):  # {{{
-    # print("LINEAR_ALGEBRA CHECK EQUALITY OF ", lhs, rhs )
     number_of_points = 5
     response = {}
     # response['ABC'] = 'ABC';
@@ -261,16 +247,11 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         nnsympy2 = numpy.linalg.norm(sympy.lambdify([], nsympy2, modules=lambdifymodules)())
         if check_units:
             if nsympy2 == 0 or nnsympy2 < 1e-12:
-                # print("nsympy2 identied as zero so no unitchecking is to be done")
                 check_units = False
-        # print( "checkunits = ", check_units)
-        # print("nsympy2 ", type( nsympy2), nsympy2)
-        # test_evaluation = numpy.linalg.norm(sympy.lambdify([], (sympy1.subs(eval_point).doit()-sympy2.subs(eval_point).doit()), modules=lambdifymodules)())
         test_evaluation = numpy.linalg.norm(
             sympy.lambdify([], nsympy1 - nsympy2, modules=lambdifymodules)()
         )
         inner = "A"
-        # print("check_units = ", check_units)
         if check_units:
             try:
                 inner = inner + '1'
@@ -287,23 +268,8 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
             inner = inner + 'C'
             nsympy1 = sympy1.subs(sample_point).doit()
             nsympy2 = sympy2.subs(sample_point).doit()
-            # print(" TEST nsympy1 = ", nsympy1)
-            # print(" TEST nsympy2 = ", nsympy2)
-            # print("###############")
-            # nvalue11 = numpy.array(sympy11).astype(numpy.float64)
-            # print(nvalue11)
-            # print("######")
-            # nvalue1 = sympy.lambdify([], sympy1.subs(sample_point).doit(), modules=lambdifymodules)()
-            # nvalue1 = numpy.array( nsympy1).astype( numpy.float)
-            # print("nvalue1 = ", nvalue1)
-            # nvalue2 = numpy.array( nsympy2).astype( numpy.float)
-            # print("nvalue2 = ", nvalue2)
-            # print("#######")
             inner = inner + 'D'
-            # nvalue2 = sympy.lambdify([], sympy2.subs(sample_point).doit(), modules=lambdifymodules)()
             inner = inner + 'E'
-            # ndiff = numpy.absolute(nvalue2 - nvalue1)
-            # ndiff = numpy.absolute( nsympy1 - nsympy2 )
             try:
                 ndiff = numpy.linalg.norm(
                     sympy.lambdify(
@@ -313,7 +279,6 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
                     )()
                 )
             except Exception as e:
-                # print(" ndiff ERROR is ", str(e) )
                 response['error'] = str(e)
                 response['correct'] = False
                 return response
@@ -348,16 +313,38 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
 
 
 def linear_algebra_expression_runner(
-    precision, variables, expression1, expression2, check_units, blacklist, result_queue
+    precision,
+    variables,
+    expression1,
+    expression2,
+    check_units,
+    blacklist,
+    used_variables,
+    funcsubs,
+    result_queue,
 ):
     response = linear_algebra_compare_expressions(
-        precision, variables, expression1, expression2, check_units, blacklist
+        precision,
+        variables,
+        expression1,
+        expression2,
+        check_units,
+        blacklist,
+        used_variables,
+        funcsubs,
     )
     result_queue.put(response)
 
 
 def linear_algebra_expression(
-    precision, variables, student_answer, correct_answer, check_units=True, blacklist=[]
+    precision,
+    variables,
+    student_answer,
+    correct_answer,
+    check_units=True,
+    blacklist=[],
+    used_variables=[],
+    funcsubs={},
 ):
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
@@ -369,16 +356,39 @@ def linear_algebra_expression(
     # print(compare_numeric_internal(variables, expression1, expression2))
     return safe_run(
         linear_algebra_expression_runner,
-        args=(precision, variables, student_answer, correct_answer, check_units, blacklist),
+        args=(
+            precision,
+            variables,
+            student_answer,
+            correct_answer,
+            check_units,
+            blacklist,
+            used_variables,
+            funcsubs,
+        ),
     )
 
 
 def linear_algebra_expression_blocking(
-    precision, variables, student_answer, correct_answer, check_units=True, blacklist=[]
+    precision,
+    variables,
+    student_answer,
+    correct_answer,
+    check_units=True,
+    blacklist=[],
+    used_variables=[],
+    funcsubs={},
 ):
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
     return linear_algebra_compare_expressions(
-        precision, variables, student_answer, correct_answer, check_units, blacklist
+        precision,
+        variables,
+        student_answer,
+        correct_answer,
+        check_units,
+        blacklist,
+        used_variables,
+        funcsubs,
     )

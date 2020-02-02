@@ -6,6 +6,7 @@
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element ref="blacklist"/>
         <xs:element ref="var"/>
+	<xs:element ref="func"/>
       </xs:choice>
       <xs:attribute name="type" type="xs:NCName"/>
     </xs:complexType>
@@ -23,12 +24,14 @@
         <xs:element ref="parsed"/>
         <xs:element ref="text"/>
         <xs:element ref="var"/>
+	<xs:element ref="func"/>
         <xs:element ref="choice"/>
         <xs:element ref="equality"/>
         <xs:element ref="expression"/>
         <xs:element ref="istrue"/>
         <xs:element ref="rate"/>
         <xs:element ref="variables"/>
+	<xs:element ref="functions"/>
         <xs:element ref="macros"/>
       </xs:choice>
       <xs:attribute name="exposeglobals" type="xs:NCName"/>
@@ -63,6 +66,17 @@
   </xs:element>
   <xs:element name="istrue" type="xs:string"/>
   <xs:element name="rate" type="xs:string"/>
+
+
+  <xs:element name="functions">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="func"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
   <xs:element name="variables">
     <xs:complexType mixed="true">
       <xs:sequence>
@@ -70,6 +84,8 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+
 
  <xs:element name="comment">
     <xs:complexType mixed="true">
@@ -110,6 +126,23 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+
+ <xs:element name="func">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="token"/>
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+          <xs:element ref="tex"/>
+          <xs:element ref="value"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+
+
   <xs:element name="tex" type="xs:string"/>
   <xs:element name="value" type="xs:string"/>
   <xs:element name="blacklist">

@@ -1,5 +1,6 @@
 from sympy import *
-from sympy.abc import _clash1, _clash2, _clash
+
+# from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
@@ -57,9 +58,6 @@ class LinearAlgebraUnitError(Exception):
 
 
 def check_units_new(expression, correct, sample_variables):
-    # print("check_units_new expression ", expression )
-    # print("check_units_new correct ", correct )
-    # print("sample_variables = ", sample_variables)
     nvarsubs = {}
     nsubs_values = []
 
@@ -115,11 +113,6 @@ def check_for_legal_answer(
         if strrep in blacklist:
             return {'error': _('(A) Forbidden token: ') + strrep}
     student_answer = declash(student_answer)
-    # if funcstr in blacklist:
-    #    return {'error': _('(C) Forbidden token: ') + funcstr}
-
-    # print("LEGAL: expression = ", expression)
-    # print("LEGAL: student_answer = ", student_answer)
     if '==' in expression and not '$$' in expression:
         if not '==' in student_answer:
             return {'error': _('answer in terms of an equality using == ')}

@@ -46,26 +46,25 @@ def parse_variables(variables):  # {{{
         raise QuestionError("Cannot parse variables")
 
 
-def question_check_linear_algebra(question_json, question_xmltree, answer_data, global_xmltree):
-    logger.debug("QUESTION_CHECK_LINEAR_ALGEBRA" + answer_data)
-    # print("question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
-    # print("global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
+def question_check(question_json, question_xmltree, answer_data, global_xmltree, symex):
+    print("DEV LINEAR ALGEBRA QUESTION_CHECK")
     hints = parsehints(question_xmltree, global_xmltree, answer_data)
-    # print("hints = ", hints)
     result = {}
     if hints is not None:
         if hints.get('correct', None) is not None:
             return hints
     check_units = True
-    ret = getallvariables(global_xmltree, question_xmltree)
+    ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
+    print("RET = ", ret)
+    used_variables = list(ret['used_variables'])
     variables = ret['variables']
+    funcsubs = ret['functions']
     authorvariables = ret['authorvariables']
     blacklist = ret['blacklist']
     correct_answer = ret['correct_answer']
     equality = question_xmltree.find('equality')
     negate = False
     if equality is not None:
-        # print("EQUALITTY = ", equality.text)
         correct_answer = equality.text
     istrue = question_xmltree.find('istrue')
     if istrue is not None:
@@ -83,13 +82,15 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
         check_units = False
     precision = question_json.get('@attr').get('precision', '1e-6')
     precision = float(precision)
-    result = linear_algebra_expression(
+    result = symex(
         precision,
         authorvariables,
         answer_data,
         correct_answer,
         check_units=check_units,
         blacklist=list(blacklist),
+        used_variables=used_variables,
+        funcsubs=funcsubs,
     )
     logger.debug("RESULT = " + str(result))
     logger.debug("NEGATE = " + str(negate))
@@ -112,7 +113,7 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
             else:
                 result['status'] = 'incorrect'
         # result['status'] = 'incorrect' if result['correct'] else 'correct'
-        # if 'correct' in result.keys():
+        # if 'correct' in result.keys() :
         #    result['status'] = 'correct' if result['correct'] else 'incorrect'
         elif 'error' in list(result.keys()):
             result['status'] = 'error'
@@ -123,13 +124,24 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
     return result
 
 
-# def get_used_variable_list( correct_answer) :
-#    caretless = re.sub(r"\^",' ',correct_answer)
-#    caretless = re.sub(r"[A-Za-z0-9]+\(",'(',caretless)
-#    lis = re.findall(r'([A-Za-z]+\w*)', caretless )
-#    used_variable_list = []
-#    [ used_variable_list.append(item) for item in lis if item not in used_variable_list ]  # SELECT UNIQUE ITEMS
-#    return used_variable_list
+def question_check_linear_algebra(question_json, question_xmltree, answer_data, global_xmltree):
+    return question_check(
+        question_json, question_xmltree, answer_data, global_xmltree, linear_algebra_expression
+    )
+
+
+def get_functions_from_obj(variablesobj, foundvariables=[]):
+    vars_ = variablesobj.get('func', {})
+    if not isinstance(vars_, list):
+        vars_ = [vars_]
+    for var in vars_:
+        try:
+            token = (var.get('token').get('$')).strip()
+            if (not token is '') and (token not in foundvariables):
+                foundvariables = foundvariables + [token]
+        except:
+            pass
+    return foundvariables
 
 
 def get_more_variables_from_obj(variablesobj, foundvariables=[]):
@@ -160,7 +172,6 @@ def remove_blacklist_variables_from_obj(variablesobj, foundvariables=[]):
     tokens = variablesobj.get('token', {})
     if not isinstance(tokens, list):
         tokens = [tokens]
-    # print("tokens = ", tokens )
     for tokendict in tokens:
         if not tokendict.get('$') is None:
             # print("FOUND TOKEN TO REMOVE ", tokendict.get('$') )
@@ -173,21 +184,14 @@ def remove_blacklist_variables_from_obj(variablesobj, foundvariables=[]):
 def linear_algebra_json_hook(safe_question, full_question, question_id, user_id, *args):
     correct_answer = full_question.get('expression').get('$', 'NO TEXT IN EXPRESSION').split(';')[0]
     used_variable_list = get_used_variable_list(correct_answer)
-    # caretless = re.sub(r"\^",' ',correct_answer)
-    # caretless = re.sub(r"[A-Za-z0-9]+\(",'(',caretless)
-    # lis = re.findall(r'([A-Za-z]+\w*)', caretless )
-    # print("DEV: INIT: JSON HOOK")
     variablelist = get_more_variables_from_obj(
         full_question.get('variables', {}), used_variable_list
     )
-    # print("DEV: INIT: JSON HOOK variablelist after searching question", variablelist)
     if (full_question.get('@attr').get('exposeglobals', 'false')).lower() == 'true':
         # print("Expose = true")
         safe_question['exposeglobals'] = True
-        # print("global variables full_question.get", full_question.get('global',{} ) )
         variablelist = get_more_variables_from_obj(full_question.get('global', {}), variablelist)
     else:
-        # print("Expose = false")
         safe_question['exposeglobals'] = False
     try:
         blacklist = full_question.get('variables').get('blacklist')
@@ -195,32 +199,8 @@ def linear_algebra_json_hook(safe_question, full_question, question_id, user_id,
         blacklist = full_question.get('blacklist')
     if not blacklist is None:
         variablelist = remove_blacklist_variables_from_obj(blacklist, variablelist)
-    # print("variablelist = ", variablelist)
-    # print("DEV_INIT question_variables = ", full_question.get('variables',{} ) )
-    # print("DEV_INIT global_variables = ", full_question.get('global', {} ) )
-    # DISABLE feedback XML in quesiton
-    # feedback = full_question.get('@attr').get('feedback',True)
-    # safe_question['feedback'] = feedback
-    # print("DEV/ININIT FEEDBACK",  full_question.get('@attr').get('feedback',None) )
-    # print("DEV/ININIT FEEDBACK",  safe_question['feedback'] )
-    # if feedback is False:
-    #        #print("SETTING RESPONS TO None")
-    #        #print("feedback is false? = ", feedback)
-    #        safe_question['correct'] = None
-    #        feedback = False
-    # else:
-    # print("feedback is true? = ", feedback)
-    # print("Nlis = ", lis )
-    # used_variable_list = []
-    # [ used_variable_list.append(item) for item in lis if item not in used_variable_list ]  # SELECT UNIQUE ITEMS
-    # print("usedvariablelist=", used_variable_list)
-    # print("question_id, user_id", question_id, user_id)
-    # print("nattemts = ", get_number_of_attempts(question_id, user_id) )
-    # print("INIT.PY: full_question", full_question)
     safe_question['username'] = user_id
-    # safe_question['usedvariablelist'] = used_variable_list
     safe_question['used_variable_list'] = variablelist
-    # print("VARIABLELIST = ", variablelist )
     safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)
     safe_question['previous_answers'] = get_previous_answers(question_id, user_id, 5)
     return safe_question

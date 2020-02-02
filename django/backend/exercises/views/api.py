@@ -11,7 +11,20 @@ from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExerc
 from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
 from exercises.serializers import AuditExerciseSerializer
 from exercises import parsing
-from exercises.parsing import question_json_get_from_raw_json
+from exercises.parsing import (
+    question_json_get_from_raw_json,
+    exercise_xml_to_json,
+    exercise_xmltree_from_xml,
+)
+from exercises.questiontypes.dev_linear_algebra.variableparser import (
+    parse_xml_variables,
+    getallvariables,
+    parse_xml_functions,
+)
+from exercises.questiontypes.symbolic.symbolic import symbolic_compare_expressions
+from exercises.questiontypes.dev_linear_algebra.linear_algebra import (
+    linear_algebra_compare_expressions,
+)
 import exercises.question as question_module
 from exercises.question import (
     get_number_of_attempts,
@@ -45,12 +58,18 @@ import logging
 from django.conf import settings
 import json
 import exercises.paths as paths
-from xml.etree.ElementTree import fromstring, ParseError
+from xml.etree.ElementTree import fromstring, ParseError, tostring
 from lxml import etree
 
+import re
 import os
 from lxml import etree
 import os.path
+
+compare_function = {}
+compare_function['symbolic'] = symbolic_compare_expressions
+compare_function['devLinearAlgebra'] = linear_algebra_compare_expressions
+
 
 logger = logging.getLogger(__name__)
 
@@ -312,8 +331,94 @@ def exercise_xml(request, exercise):
     return Response({'xml': parsing.exercise_xml(dbexercise.get_full_path())})
 
 
-def validate_exercise_xml(xml):
+def validate_exercise_globals(xml):
     messages = []
+    obj = exercise_xml_to_json(xml)
+    parser = etree.XMLParser(recover=True)
+    root = etree.fromstring(xml, parser=parser)
+    global_xpath = (
+        '/exercise/global[@type="{type}"] | /exercise/global[not(@type)] | /exercise/global'
+    )
+    global_xmltree = (root.xpath(global_xpath) or [None])[0]
+    xml_variables = parse_xml_variables(global_xmltree)
+    # print("XML VARIABLES = ", xml_variables)
+    funcsubs = parse_xml_functions(global_xmltree)
+    # print("xml_variables = ", xml_variables)
+    questions = obj['exercise']['question']
+    types_to_check = []
+    for question in questions:
+        types_to_check = types_to_check + [question['@attr']['type']]
+    types_to_check = list(set(types_to_check))
+    print("TYPES TO CHECK = ", types_to_check)
+    # types_to_check = ['symbolic' ]
+    expressions = [x['name'] + ' == ' + x['value'] for x in xml_variables]
+    # print("EXPRESSIONS = ", expressions)
+    try:
+        for question_type in types_to_check:
+            symex = compare_function[question_type]
+            variables = xml_variables
+            funcsubs = parse_xml_functions(global_xmltree)
+            precision = 1.0e-6
+            for expression in expressions:
+                expr = "QuestionType " + question_type + " :Error in global definitions: "
+                result = symex(precision, variables, expression, '0 == 0', True, [], [], funcsubs)
+                if (not result.get('correct')) or result.get('error'):
+                    print("ERROR = ", result)
+                    msg = expr + result.get('error', '') + result.get('debug', '')
+                    msg = re.sub(r"[\'<>]", '', msg)
+                    messages.append(('error', msg))
+                    return messages
+
+            question_xmltrees = root.findall(
+                './question[@type="{type}"]'.format(type=question_type)
+            )
+            for question_xmltree in question_xmltrees:
+                ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
+                used_variables = list(ret['used_variables'])
+                variables = ret['variables']
+                funcsubs = ret['functions']
+                authorvariables = ret['authorvariables']
+                blacklist = ret['blacklist']
+                correct_answer = ret['correct_answer']
+                precision = 1.0e-6
+                try:
+                    expr = correct_answer + '  '
+                    result = symex(
+                        precision,
+                        variables,
+                        correct_answer,
+                        correct_answer,
+                        True,
+                        [],
+                        used_variables,
+                        funcsubs,
+                    )
+                    if result.get('error'):
+                        msg = (
+                            "Error in question with answer "
+                            + expr
+                            + ":   "
+                            + result.get('debug', '')
+                        )
+                        msg = re.sub(r"[\'<>]", '', msg)
+                        messages.append(('error', msg))
+                        return messages
+                    else:
+                        pass
+
+                except:
+                    msg = "Error in question with answer " + expr + ":   " + result.get('debug', '')
+                    msg = re.sub(r"[\'<>]", '', msg)
+                    messages.append(('error', msg))
+                    return messages
+    except Exception as e:
+        messages.append(('error', str(e)))
+        return messages
+    return []
+
+
+def validate_exercise_xml(xml):
+    messages = validate_exercise_globals(xml)
     xmlschema = etree.XMLSchema(etree.parse(paths.EXERCISE_XSD))
     try:
         parser = etree.XMLParser(recover=True)

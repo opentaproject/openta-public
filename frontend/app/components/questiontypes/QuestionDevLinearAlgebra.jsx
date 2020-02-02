@@ -44,12 +44,13 @@ export default class QuestionDevLinearAlgebra extends Component {
       mathSize: 'medium',
       cursor: 0,
     };
+    this.unClosed = true;
     this.lastParsable = '';
     this.mathjserror = false;
     this.mathjswarning = '';
     this.varProps = {};
     this.varsList = [];
-    this.validSymbols = ['pi', 'I', 'e'];
+    this.validSymbols = ['pi', 'I', 'e','xhat','yhat','zhat','t','x','y','z'];
     this.blacklist = [];
     if(this.props.canViewSolution)
       this.state.value = this.props.questionData.getIn(['expression','$'], '').replace(/;/g,'').trim();
@@ -80,9 +81,26 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 
   customLatex = (node, options) => {
+    if( node.op == '\''){
+      //console.log("QUOTE OPERATOR NODE")
+      if ( node.type === 'OperatorNode' ) {
+        var child = node.args[0]
+        if( child.type == 'SymbolNode'  ){
+            if ( this.validSymbols.indexOf( child.name ) < 0  ){
+                this.validSymbols.push( child.name )
+                }
+            }
+        return  '{' + child.toTex(options) + '^{\\prime} }'
+        }
+      return '{' + ( node.args[0].name ).toTex(options)+ '}^{\\prime}';
+      }
+        
     if(node.type === 'FunctionNode') {
+      if ( node.op == '\''){
+        //console.log("FUNCTION NODE .. ", node.args[0])
+        }
       // Will print in red
-      if(node.name === 'fail') {
+      if(node.name === 'fail' && !options.ignore_undefined) {
         this.mathjserror = true;
         this.mathjswarning += " : error1";
         return '\\color{red}{' + node.args[0].value + '}';
@@ -122,9 +140,13 @@ export default class QuestionDevLinearAlgebra extends Component {
       else if( node.name === 'dot'  ){
         if( node.args.length == 1 ){
           var tex0 = node.args[0].toTex(options);
-          return "\\left(" + tex0 + "\\right)\\circ";
-        }
-        if( node.args.length == 2 ){
+          var child = node.args[0]
+        if ( child.type ==  'SymbolNode' ){
+          return "\\dot{" + tex0 + "}"
+          } else {
+          return "\\frac{d}{dt} " + tex0 
+          }
+        } else  {
           var tex0 = node.args[0].toTex(options);
           var tex1 = node.args[1].toTex(options);
           return "\\left(" + tex0 + "\\right)\\circ\\left(" + tex1 + "\\right)";
@@ -141,30 +163,110 @@ export default class QuestionDevLinearAlgebra extends Component {
           return '|\\,' + tex0 +" \\, \\rangle \\, " + tex1 + "\\, \\langle \\," + tex2 + " \\,|"
         }
       }
+      else if( node.name === 'curl'  ){
+        var tex0 = node.args[0].toTex(options);
+         var child = node.args[0]
+         if ( child.type ==  'SymbolNode' ){
+            return '\\nabla \\times ' + tex0 + ''
+            }
+          else {
+         return '\\nabla \\times (' + tex0 + ')'
+        }
+      }
+      else if( node.name === 'div'  ){
+        var child = node.args[0]
+         var tex0 = child.toTex(options);
+         if ( child.type ==  'SymbolNode' ){
+            return '\\nabla \\circ ' + tex0 + ''
+            }
+         else {
+            return '\\nabla \\circ(' + tex0 + ')'
+            }
+      }
+
+      else if( node.name === 'partial'  ){
+        if ( node.args.length == 2  ){
+          var tex0 = node.args[0].toTex(options);
+          var tex1 = node.args[1].toTex(options);
+          return '\\frac{ \\partial ' + tex0 + '}{ \\partial ' + tex1 + '}'
+          }
+        else if ( node.args.length > 2  ){
+          var tex0 = node.args[0].toTex(options);
+          node.args.shift()
+          var order = node.args.length
+          var largs = node.args.map( item => item.toTex(options) )
+          var i  = 0
+          var texstring = ''
+          var supercript = 1
+          while( i < order- 1 ){
+              if(  largs[i] == largs[i+1] ){
+                    supercript = supercript + 1 
+                   } else {
+                    texstring = supercript == 1 ? ( texstring + '\\partial '  +  largs[i] )  : ( texstring + '\\partial^{' + supercript.toString() +'}'  +  largs[i]  )
+                    supercript = 1;
+                 }
+             i = i + 1
+             }
+          texstring = supercript == 1 ? ( texstring + '\\partial '  +  largs[i] )  : ( texstring + '\\partial^{' + supercript.toString() +'}'  +  largs[i]  )
+          return '\\frac{ {\\partial}^{' + order + '}'  + tex0 + '}{' + texstring +  '}'
+         }
+        }      
+      
+      else if( node.name === 'grad'  ){
+        var tex0 = node.args[0].toTex(options);
+        var child = node.args[0]
+         if ( child.type ==  'SymbolNode' ){
+            return '\\nabla ' + tex0 + ''
+            }
+         else {
+            return '\\nabla  (' + tex0 + ')'
+        }
+      }
+    else if( node.name === 'del_2'  ){
+        var tex0 = node.args[0].toTex(options);
+        var child = node.args[0]
+         if ( child.type ==  'SymbolNode' ){
+            return '\\nabla^2 ' + tex0 + ''
+            }
+         else {
+            return '\\nabla^2  (' + tex0 + ')'
+        }
+      }
+
+
+
+
+
       else {
+        //console.log("UNIDENTIFIED FUNCTION NODE ", node.name )
         var ret =  node._toTex(options);
         if( node.name == 'erf'){
             ret = ret.replace(/^erf/,'\\mathrm{erf}') 
             }
-        var isUnclosed = false;
+        this.isUnclosed = false;
         node.traverse( (node, path, parent) => {
           if(node.type === 'FunctionNode' && node.name === 'unclosed'){
-            isUnclosed = true;
+            this.isUnclosed = true;
             // this.mathjswarning += " : unclosed FunctionNode";
             this.mathjserror = true;
             }
         });
-        if(isUnclosed) {
+        if(this.isUnclosed) {
           this.mathjserror = true;
           this.mathjswarning += " : unclosed function "+ node.name;
           return '\\color{orange}{' +  ret + '}';
           }
         else
-          return ' '+ ret;
+          var origVar = node.name
+          const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : 
+			latex.toSymbol( insertImplicitSubscript( origVar),false);//node._toTex(options);
+          return '{' + texSymbol  + '}(  ' +  node.args[0].toTex(options) + ')'
       }
     }
     // Render green if allowed variable otherwise red
     else if(node.type === 'SymbolNode') {
+      if ( options.ignore_undefined ){
+        }
       const origVar = node.name.replace(/\_/g, '');
       // console.log("origVar = ", origVar );
       const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : 
@@ -175,7 +277,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         this.mathjserror = true;
         return '\\color{orange}{' + texSymbol + '}';
           }
-      if(this.varsList.indexOf(origVar) !== -1 || this.validSymbols.indexOf(origVar) !== -1)
+      if(this.varsList.indexOf(origVar) !== -1 || this.validSymbols.indexOf(origVar) !== -1 || options.ignore_undefined)
         return '\\color{green}{' + texSymbol + '}';
       else 
         this.mathjserror = true;
@@ -184,11 +286,12 @@ export default class QuestionDevLinearAlgebra extends Component {
     }
     // Special handling for unmatched parenthesis, otherwise render normally
     else if(node.type === 'ParenthesisNode') {
-      var isUnclosed = false;
+      this.isUnclosed = false;
       node.traverse( (node, path, parent) => {
-        if(node.type === 'FunctionNode' && node.name === 'unclosed')isUnclosed = true;
+        if(node.type === 'FunctionNode' && node.name === 'unclosed')
+            this.isUnclosed = true;
       });
-      if(isUnclosed) {
+      if(this.isUnclosed) {
         this.mathjswarning += " : unclosed right paren";
         this.mathjserror = true;
         return '\\color{red}{(} ' + node.content.toTex(options) + '';
@@ -200,11 +303,12 @@ export default class QuestionDevLinearAlgebra extends Component {
     else if(node.type === 'OperatorNode') {
       if(node.fn === 'bitNot') {
         if(node.args[0].type === 'ParenthesisNode') {
-          var isUnclosed = false;
+          this.isUnclosed = false;
           node.args[0].traverse( (node, path, parent) => {
-            if(node.type === 'FunctionNode' && node.name === 'unclosed')isUnclosed = true;
+            if(node.type === 'FunctionNode' && node.name === 'unclosed')
+              this.isUnclosed = true;
           });
-          if(isUnclosed) {
+          if(this.isUnclosed) {
             this.mathjswarning += " : unclosed parenthesis of operator ";
             this.mathjserror = true;
             return '\\color{red}{\\left(\\large{\\color{#0f0}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right.}';
@@ -231,10 +335,14 @@ export default class QuestionDevLinearAlgebra extends Component {
     this.varsList = this.parseVariableString(this.props.questionData.getIn(['global','$'], ''));
     // Create a map keyed by the variable token containing all its other child elements as a submap for easy indexing
     var varPropsList = enforceList(this.props.questionData.getIn(['global', 'var'], List([])));
+    var funcPropsList = enforceList(this.props.questionData.getIn(['global', 'func'], List([])));
+    varPropsList = varPropsList.concat( funcPropsList)
+    //console.log("varPropsList = ", JSON.stringify( varPropsList) )
+    // console.log("funcPropsList = ", JSON.stringify( funcPropsList) )
     var localVars2 = enforceList(this.props.questionData.getIn(['variables','var'], List([])));
     var localVars1 = enforceList(this.props.questionData.getIn(['var'], List([])));
     var localVars = localVars2.concat( localVars1 )
-    var allVars = localVars.concat(varPropsList);
+    var allVars = localVars.concat(varPropsList).concat(funcPropsList);
     for(let v of allVars) {
       if(v.hasIn('token','$')) {
         var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 
@@ -252,7 +360,7 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 
 
-  renderAsciiMath = (asciitext) => {
+  renderAsciiMath = (asciitext,ignore_undefined=false) => {
       
       var cursorComplete = false;
       var cursorPos = this.state.cursor;
@@ -279,7 +387,12 @@ export default class QuestionDevLinearAlgebra extends Component {
         var mParsed = mathjs.parse(parsed).toTex({
           parenthesis: 'keep', // The keep options keeps parenthesis from input expression, seems to work best.
           handler: this.customLatex, // Custom latex node handler
+          ignore_undefined: ignore_undefined,
         });
+        mParsed = mParsed.replace(/prime}~ /g,'prime}');
+        mParsed = mParsed.replace(/}~ /g,'}');
+        mParsed = mParsed.replace(/\\left\(/g,'(')
+        mParsed = mParsed.replace(/\\right\)/g,')')
         // console.log("mParsed = ", mParsed )
         if(typeof mParsed === 'string' && mParsed !== 'undefined') {
           this.lastParsable = mParsed.replace(/\\\\end{bmatrix}/g,'end{bmatrix}'); // MathJS outputs an extra \\ which KaTeX interprets as a new line
@@ -304,8 +417,6 @@ export default class QuestionDevLinearAlgebra extends Component {
 
   /* render gets called every time the question is shown on screen */
   render() {  
-  //console.log("CALL RENDER IN QUESTION_DEV_LINEAR_ALGEBRA")
-  // Some convenience definitions
   var question = this.props.questionData;
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
@@ -319,35 +430,11 @@ export default class QuestionDevLinearAlgebra extends Component {
   // System state data
   var lastAnswer = state.getIn(['answer'], ''); // Last saved answer in database, same format as passed to the submitFunction
   //var correct = state.getIn(['response','correct'], Null) || state.getIn(['correct'], Null); // Boolean indicating if the grader reported correct answer
- // console.log("state correct = ",  state.getIn(['correct'], null )  )
- // console.log("response correct = ",  state.getIn(['response','correct'], null ) ) 
  var correct = state.getIn(['response','correct'], null ) || state.getIn(['correct'], null ); // Boolean indicating if the grader reported correct answer
  var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
-  // console.log("correct = ", correct );
-  //console.log("state = ", state)
-  //console.log("question = ", question)
-  // Custom state data
-  //console.log(" ASTATE ", JSON.stringify( state ) );
-  //console.log(" B QUESTION", JSON.stringify( question) );
   var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts']) ) 
   var used_variable_list =   state.getIn(['response','used_variable_list'] , question.getIn(['used_variable_list']) ) 
-  //console.log("QUESTION_DEV_LINEAR_ALGEBRA: question used_variable_list = ",  question.getIn(['used_variable_list']) ) 
-  //console.log("QUESTION_DEV_LINEAR_ALGEBRA: state used_variable_list = ", state.getIn(['response','used_variable_list'] ))
-  // console.log("QUESTION_DEV_LINEAR_ALGEBRA: used_variable_list = ", JSON.stringify( used_variable_list))
   var previous_answers = state.getIn(['response','previous_answers'] , question.getIn(['previous_answers']) );
-  //console.log("feedback = ", feedback, typeof( feedback) )
-  //console.log("correct = ", correct)
-  // THIS ENTIRE SECTION WAS CUT OUT TO DISABLE THE XML TAG FEEDBACK
-  // var feedback =  state.getIn(['response','feedback'] , question.getIn(['feedback'],true) ) 
-  // if( feedback == 'true' ){
-  //       //console.log("feedback will be set to true ");
-  //       feedback = true;
-  //       }
-  // if( feedback == 'false' ){
-  //       //console.log("feedback will be set to false ");
-  //       feedback  = false;
-  //       }
-  // override default true xml of feedback with options
   if( state.getIn(['correct'], null ) == null ){
        var feedback = false
         } else {
@@ -521,7 +608,7 @@ export default class QuestionDevLinearAlgebra extends Component {
             <a onClick={() => this.setMathSize('large')}>A</a>
           </div>
         </div>
-         { renderedResult.error && <span className="uk-text-danger"> {t('check syntax') } </span> }
+         { ! this.isUnclosed && renderedResult.error && <span className="uk-text-danger"> {t('check syntax') } </span> }
         { /*mathjsError*/ }
         { renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning"/>}
         </div>
@@ -531,5 +618,6 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 //Register the question component with the system
 registerQuestionType('devLinearAlgebra', QuestionDevLinearAlgebra);
+registerQuestionType('symbolic', QuestionDevLinearAlgebra);
 
 export {absify}

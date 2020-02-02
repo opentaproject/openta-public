@@ -24,9 +24,7 @@ class BaseQuestion extends Component {
     var questionType = question.getIn(['@attr', 'type'], undefined);
     var questionState = exerciseState.getIn(['question', questionKey], immutable.Map({}))
     var okornot = questionState.getIn( ['response','correct'], null )
-    console.log("OKORNOT  = ", okornot)
     var iscorrect = questionState.getIn(['correct'],'undefined')
-    console.log("iscorrect = ",iscorrect)
     if(questionType && questionType in questionDispatch) {
       var globals = json.getIn(['exercise','global'], immutable.List([])).find( q => {
         return q.getIn(['@attr','type']) === questionType || (!q.hasIn(['@attr', 'type']));
@@ -70,8 +68,8 @@ class BaseQuestion extends Component {
             cname = "question uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top unchecked notcorrect ready"
             yescorrect = 'notcorrect'
             }
-      console.log(exerciseKey + ' ' + questionKey + " okornot , YESCORRECT = " +  okornot + ' ' +   yescorrect  )
-      console.log(exerciseKey + ' ' + questionKey + " cname = " +  cname)
+      //console.log(exerciseKey + ' ' + questionKey + " okornot , YESCORRECT = " +  okornot + ' ' +   yescorrect  )
+      //console.log(exerciseKey + ' ' + questionKey + " cname = " +  cname)
       var topDOM = React.createElement('div', {
         className: cname,
         id: questionKey,

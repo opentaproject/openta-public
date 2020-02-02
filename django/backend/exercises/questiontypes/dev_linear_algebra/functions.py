@@ -2,8 +2,11 @@ import sympy
 import numpy
 import types
 import sys
+from pprint import pprint
 from sympy import *
-from sympy.abc import _clash1, _clash2, _clash
+
+# from sympy.abc import _clash1, _clash2, _clash, x, y, z
+from sympy.abc import x, y, z, t
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
@@ -26,21 +29,6 @@ from .unithelpers import *
 from sympy import DiagonalOf
 
 logger = logging.getLogger(__name__)
-
-# meter, second, kg , ampere , kelvin, mole, candela = sympy.symbols('meter,second,kg,ampere,kelvin,mole,candela', real=True, positive=True)
-
-# see http://iamit.in/sympy/coverage-report/matrices/sympy_matrices_expressions_diagonal_py.html
-# see https://pypkg.com/pypi/sympy/f/sympy/matrices/expressions/diagonal.py/
-
-
-# class Dot(sympy.Function):
-##    nargs = (2)
-#    @classmethod
-#    def eval(cls, x,y):
-#        if ( isinstance(x, sympy.MatrixBase  ) and isinstance(y, sympy.MatrixBase )):
-#            return conjugate(x).dot(y)
-#        else:
-#            return None
 
 
 class Norm(sympy.Function):
@@ -373,31 +361,27 @@ class logicalnot(sympy.Function):
             return None
 
 
-#            'gt' : lambda x,y: Gt( x , y ),
-#            'ge' : lambda x,y: Ge( x , y ),
-#            'lt' : lambda x,y: Lt( x , y ),
-#            'le' : lambda x,y: Le( x , y ),
-#            'eq' : lambda x,y: Equality( x,y ),
-#            'neq' : lambda x,y: ( x != y ),
-#            'aeq' : lambda x,y: ( abs( x - y ) < 1e-6 ),
-#            'naeq' : lambda x,y: ( abs( x - y ) > 1e-6 ),
-#            'and' : lambda x,y:  sympy.And( x, y ),
-#            'not' : lambda x: ( Not(x) ),
-#            'or'  : lambda x,y: ( x | y ),
-#            'norm': numpy.linalg.norm,
-
-
 class Dot(sympy.Function):
-    nargs = 2
+    nargs = (1, 2)
 
     @classmethod
-    def eval(cls, x, y):
-        if str(x) == '0' or str(y) == '0':
-            return 0
-        elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
-            return conjugate(x).dot(y)
-        else:
-            return None
+    def eval(cls, *arg):
+        from sympy.abc import x, y, z, t
+
+        if len(arg) == 1:
+            print("DOT WITH ARGUMENT 1 ")
+            t = sympify('t')
+            return diff(arg[0], t)
+        if len(arg) == 2:
+            print("DOT WITH ARGUMENT 2 ")
+            x = arg[0]
+            y = arg[1]
+            if str(x) == '0' or str(y) == '0':
+                return 0
+            elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
+                return conjugate(x).dot(y)
+            else:
+                return None
 
 
 class Times(sympy.Function):
@@ -423,6 +407,54 @@ class IsDiagonal(sympy.Function):
                 return sympy.sympify('0')
 
 
+class grad(sympy.Function):
+    nargs = 1
+
+    @classmethod
+    def eval(cls, fun):
+        from sympy.abc import x, y, z, t
+
+        res = [diff(fun, x), diff(fun, y), diff(fun, z)]
+        return sympy.sympify(Matrix(res))
+
+class del2(sympy.Function):
+    nargs = 1
+    @classmethod
+    def eval(cls, fun):
+        from sympy.abc import x, y, z, t
+        res = diff(fun, x,x ) + diff(fun,y,y) + diff(fun,z,z)
+        return res
+
+
+class curl(sympy.Function):
+    nargs = 1
+
+
+class curl(sympy.Function):
+    nargs = 1
+
+    @classmethod
+    def eval(cls, M):
+        res = [
+            diff(M[2], y) - diff(M[1], z),
+            diff(M[0], z) - diff(M[2], x),
+            diff(M[1], x) - diff(M[0], y),
+        ]
+        return sympy.sympify(Matrix(res))
+
+
+class div(sympy.Function):
+    nargs = 1
+
+    @classmethod
+    def eval(cls, M):
+        if isinstance(M, sympy.MatrixBase):
+            from sympy.abc import x, y, z
+
+            res = diff(M[0], x) + diff(M[1], y) + diff(M[2], z)
+            return sympy.sympify(res)
+
+
 class IsDiagonalizable(sympy.Function):
     nargs = 1
 
@@ -433,6 +465,58 @@ class IsDiagonalizable(sympy.Function):
                 return sympy.sympify('1')
             else:
                 return sympy.sympify('0')
+
+
+class prime(sympy.Function):
+    nargs = (1, 2, 3, 4, 5)
+
+    @classmethod
+    def eval(cls, *arg):
+        first = arg[0]
+        fourth = arg[3]
+        order = int(arg[2])
+        qqq = sympy.symbols('qqq')
+        corefunc = 'FunctionClass' in str(type(arg[3]))
+        if not corefunc:
+            deriv = fourth
+            # qqq = list(fourth.free_symbols)[0]
+            deriv = deriv.func(qqq)
+            while order > 0:
+                order = order - 1
+                deriv = diff(deriv, qqq)
+            result = deriv.subs(qqq, arg[1]).doit()
+        else:
+            fun = fourth
+            deriv = fun(qqq)
+            while order > 0:
+                order = order - 1
+                deriv = diff(deriv, qqq)
+            result = deriv.subs(qqq, arg[1])
+        return result
+
+
+class partial(sympy.Function):
+    nargs = (0, 1, 2, 3, 4, 5)
+
+    @classmethod
+    def eval(cls, *f):
+        if len(f) < 1:
+            return sympy.sympify('derivative or partial used withouth argument')  # }}}
+        elif len(f) == 1:
+            fun = f[0]
+            x = list(fun.free_symbols)[0]
+            return diff(fun, x)
+        elif len(f) < 6:
+            fun = f[0]
+            x = list(fun.free_symbols)
+            res = fun
+            ind = 1
+            while ind < len(f):
+                res = diff(res, f[ind])
+                ind = ind + 1
+            return res
+        else:
+            return sympy.sympify('derivative or partial used with too many arguments')  # }}}
 
 
 class Braket(sympy.Function):

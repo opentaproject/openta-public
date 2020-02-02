@@ -112,7 +112,7 @@ class BaseExercise extends Component {
 
   renderQuestionMath = (itemjson, json, meta, exerciseKey) => {
     var question = itemjson;
-    var type =  question.getIn(['@attr','type'], 'linearAlgebra')
+    var type =  question.getIn(['@attr','type'], 'symbolic')
     return (
       <span key={"qmath" + nextUnstableKey()}>
         <QMath exerciseKey={exerciseKey} questionType={type} expression={itemjson.get('$', '')}/>
@@ -339,7 +339,7 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
       <span className="uk-text-bold uk-text-primary">
         Exercise file path: {filename}
       </span>);
-    var exerciseDOM = <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" id={key} ref="exercise" key={key}>
+    var exerciseDOM = <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left uk-width uk-width-1-1" id={key} ref="exercise" key={key}>
         {canViewXML && showResponseAwaits && <i className="uk-text-danger uk-margin-small-left uk-icon uk-icon uk-icon-envelope" />}
         {error && canViewXML && <Alert message={error} type="error" />}
         {canViewXML && filenameDOM}

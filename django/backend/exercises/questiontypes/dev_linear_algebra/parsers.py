@@ -1,11 +1,13 @@
 from sympy import *
-from sympy.abc import _clash1, _clash2, _clash
+
+# from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
 import random
 import itertools
 from sympy.core import S
+from .unithelpers import baseunits
 
 from exercises.questiontypes.safe_run import safe_run
 import logging
@@ -22,7 +24,7 @@ from .unithelpers import *
 from .functions import *
 
 
-def parse_sample_variables(variables):
+def parse_sample_variables(variables, funcsubs={}):
     """
     Parses a list of asciimath defined variables into correct sympy representations.
 
@@ -44,20 +46,25 @@ def parse_sample_variables(variables):
     varsubs_sympify = {}
     sample_variables = []
     matrix_symbols = {}
-    # print("PARSE SAMPLE VARIABLES vars_ = ", variables )
     vars_ = []
     for vardict in variables:
         if not vardict['name'] in units:
             vars_ = vars_ + [vardict]
-    # print("PARSE SAMPLE VARIABLES NOW vars_ = ", vars_)
     for var in vars_:
-        expr = sympify_with_custom(ascii_to_sympy(var['value']), matrix_symbols)
+        name = str(var['name'])
+        # raise TypeError("A variable cannot be named " + name )
+        expr = sympify_with_custom(
+            ascii_to_sympy(var['value']), varsubs_sympify, funcsubs, 'PARSE_SAMPLE_VARIABLES'
+        )
+        nexpr = simplify(expr.subs(baseunits))
         if hasattr(expr, 'shape'):
-            sym[var['name']] = sympy.MatrixSymbol(var['name'], *expr.shape)
-            matrix_symbols[var['name']] = sym[var['name']]
+            sym[name] = sympy.MatrixSymbol(name, *expr.shape)
+            matrix_symbols[name] = expr
+        elif nexpr.is_Atom:
+            sym[name] = sympy.Symbol(name)
         else:
-            sym[var['name']] = sympy.Symbol(var['name'])
-        varsubs_sympify[var['name']] = sym[var['name']]
+            sym[name] = expr  # sympy.Symbol(var['name'])
+        varsubs_sympify[name] = expr
         if expr.has(sympy.Function('sample')):
             [sample] = expr.find(sympy.Function('sample'))
             sample_points = list(sample.args)
@@ -65,21 +72,18 @@ def parse_sample_variables(variables):
                 expr.replace(sympy.Function('sample'), lambda *args: point).doit()
                 for point in sample_points
             ]
-            sample_variables.append({'symbol': sym[var['name']], 'around': sample_around})
+            sample_variables.append({'symbol': sym[name], 'around': sample_around})
         else:
-            subs_rules.append((sym[var['name']], expr))
+            subs_rules.append((sym[name], expr))
     varsubs = list(reversed(subs_rules))
     varsubs_sympify_new = {}
     for key, val in varsubs_sympify.items():
         varsubs_sympify_new[key] = val.subs(varsubs).doit()
     varsubs_sympify = varsubs_sympify_new
-    # print("subs_rules = ", subs_rules)
-    # print("varsubs_sympify = ", varsubs_sympify)
-    # print("sample_variables = ", sample_variables)
     return (varsubs, varsubs_sympify, sample_variables)
 
 
-def sympify_with_custom(expression, varsubs):
+def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     """
     Convert asciimath expression into sympy using extra context
     Args:
@@ -89,7 +93,7 @@ def sympify_with_custom(expression, varsubs):
     Returns:
         Sympy expression
     """
-    # print("SYMPIFY WITH CUSTOM", expression)
+    sexpr = ascii_to_sympy(expression, funcsubs)
     scope = {
         'abs': Norm,  # sympy.Function('norm')
         'Abs': Norm,  # sympy.Function('norm')
@@ -109,6 +113,15 @@ def sympify_with_custom(expression, varsubs):
         'Le': le,
         'Or': logicalor,
         'And': logicaland,
+        'curl': curl,
+        'div': div,
+        'grad': grad,
+        'xhat': sympy.sympify(Matrix([1, 0, 0])),
+        'yhat': sympy.sympify(Matrix([0, 1, 0])),
+        'zhat': sympy.sympify(Matrix([0, 0, 1])),
+        'Partial': partial,
+        'partial': partial,
+        'prime': prime,
         'Not': logicalnot,
         'IsEqual': eq,
         'IsNotEqual': neq,
@@ -121,6 +134,7 @@ def sympify_with_custom(expression, varsubs):
         'False': sympy.sympify('0'),
         'times': Times,
         'dot': Dot,
+        'del2': del2,
         'sort': Sort,
         'Sort': Sort,
         'norm': Norm,
@@ -129,11 +143,16 @@ def sympify_with_custom(expression, varsubs):
         'Braket': Braket,
         'NullRank': nullrank,
     }
+
     scope.update(ns)
     scope.update(varsubs)
-    # print("LINEAR_ALGEBRA expression= ", expression)
-    # print("LINEAR_ALGEBRA ascii_to_sympy = ", ascii_to_sympy(expression) )
-    # print("LINEAR_ALGEBRA varsubs= ", varsubs)
-    # print("LINEAR_ALGEBRA scope= ", scope)
-    sexpr = sympy.sympify(ascii_to_sympy(expression), scope)
+    sexpr = sympy.sympify(sexpr, scope)
+    scope_symbolic = {
+        'x': sympy.sympify('x'),
+        'y': sympy.sympify('y'),
+        'z': sympy.sympify('z'),
+        't': sympy.sympify('t'),
+    }
+    sexpr = sympy.sympify(sexpr, scope_symbolic).doit()
+
     return sexpr

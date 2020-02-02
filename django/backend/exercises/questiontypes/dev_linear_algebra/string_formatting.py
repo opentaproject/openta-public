@@ -4,6 +4,7 @@ Various functions needed to convert input asciimath into something that sympy ca
 
 """
 import re as resub
+from sympy import *
 
 
 def insert_implicit_multiply(expression):  # {{{
@@ -14,41 +15,148 @@ def insert_implicit_multiply(expression):  # {{{
     return result  # }}}
 
 
-def ascii_to_sympy(expression):  # {{{
+def index_of_matching_right_paren(beg, expression):
+    level = 1
+    ind = beg + 1
+    while level > 0 and ind < len(expression):
+        if expression[ind] == ')':
+            level = level - 1
+        elif expression[ind] == '(':
+            level = level + 1
+        ind = ind + 1
+    return ind - 1
+
+
+def replace_user_defined_functions(expression, funcsubs):
+    defs = list(funcsubs.keys())
+    if len(defs) == 0:
+        return expression
+    searchstring = '(' + '|'.join(defs) + ')'
+    # expression = 'ff\'\'(gg(z))*gg\'(z) '
+    # expression = resub.sub(r'('+searchstring+')',r" \1",expression)
+    p = resub.compile(r'(^|\s|\()' + searchstring + "[\']*(?=\()")
+    allm = list(p.finditer(expression))
+    it = 0
+    while len(allm) > 0 and it < 50:
+        m = allm[0]
+        (beg, end) = m.span()
+        if expression[beg] == '(':
+            beg = beg + 1
+        ind = index_of_matching_right_paren(end, expression)
+        head = expression[beg:end].strip()
+        arg = expression[end : ind + 1]
+        ex1 = expression[0:beg]
+        ex2 = expression[beg : ind + 1]
+        ex3 = expression[ind + 1 :]
+        add_paren = False
+        if ex3:
+            if ex3[0] == "\'":
+                ex3 = ex3[1:]
+                add_paren = True
+        fun = (resub.sub(r'\'*', '', head)).strip()
+        rep = funcsubs[fun]
+        order = str(head.count('\''))
+        fun = '#' + fun
+        middle = ' prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
+        expression = ex1 + middle + ex3
+        if add_paren:
+            expression = '(' + expression + ')\''
+        allm = list(p.finditer(expression))
+        it = it + 1
+    # expression = resub.sub(r'#','',expression)
+    expression = resub.sub(r'#' + searchstring, r"\1", expression)
+    return expression
+
+
+def replace_primes(expression, funcsubs):
+    searchstring = '([A-z0-9_]+)'
+    # expression = 'ff\'\'(gg(z))*gg\'(z) '
+    # expression = resub.sub(r'('+searchstring+')',r" \1",expression)
+    p = resub.compile(r'(^|\s|\()' + searchstring + "[\']+(?=\()")
+    allm = list(p.finditer(expression))
+    it = 0
+    while len(allm) > 0 and it < 50:
+        m = allm[0]
+        (beg, end) = m.span()
+        if expression[beg] == '(':
+            beg = beg + 1
+        ind = index_of_matching_right_paren(end, expression)
+        head = expression[beg:end].strip()
+        arg = expression[end : ind + 1]
+        ex1 = expression[0:beg]
+        ex2 = expression[beg : ind + 1]
+        ex3 = expression[ind + 1 :]
+        add_paren = False
+        if ex3:
+            if ex3[0] == "\'":
+                ex3 = ex3[1:]
+                add_paren = True
+        fun = (resub.sub(r'\'*', '', head)).strip()
+        rep = funcsubs.get(fun, fun)
+        order = str(head.count('\''))
+        fun = '#' + fun
+        middle = ' prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
+        expression = ex1 + middle + ex3
+        if add_paren:
+            expression = '(' + expression + ')\''
+        allm = list(p.finditer(expression))
+        it = it + 1
+    # expression = resub.sub(r'#','',expression)
+    expression = resub.sub(r'#' + searchstring, r"\1", expression)
+    return expression
+
+
+def index_of_matching_left_paren(result, indbegin):
+    level = 1
+    ind = indbegin
+    while level > 0 and ind > 0:
+        ind = ind - 1
+        if result[ind] == '(':
+            level = level - 1
+        elif result[ind] == ')':
+            level = level + 1
+    assert result[indbegin] == ')', "RIGHT PAREN  MISSING"
+    assert result[ind] == '(', "LEFT PAREN  MISSING"
+    return ind
+
+
+def ascii_to_sympy(expression, funcsubs={}):  # {{{
     result = expression
     result = resub.sub(r"([^=]+)==([^=]+)", r"(\1) - (\2)", result)
     dict = {'^': '**'}
 
     result = resub.sub(r"\|([^>]+)>\s*<([^|]+)\|", r" ( KetBra(\1,\2)  ) ", result)
     result = resub.sub(r"\|([^>]+)>([^<]+)<([^|]+)\|", r" ( KetBra(\1,\2,\3) ) ", result)
-    # print("BRAKETIFY FOLLOWING ", result );
     result = braketify(result)
-    # print("MATRIXIFY FOLLOWING ", result );
     if "Matrix" not in result:
         result = matrixify(result)
-    # print("ABSIFY FOLLOWING ",  result);
     result = absify(result)
-    # result = absify(matrixify(braketify(result)))
     result = insert_implicit_multiply(result)
-    # print("STRING_FORMATTING result = ", result)
-    # result = resub.sub(r"cross", r"Cross", result)
-    # result = resub.sub(r"norm", r"Norm", result)
-    # result = resub.sub(r"dot", r"Dot", result)
-    # result = declash(result)
     for old, new in dict.items():
         result = result.replace(old, new)
-    result = resub.sub(
-        r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result
-    )  # PUT IN IMPLICITY MULTIPLY IN VARIABLE DEFS WITH UNITS
-    # print("ASCII_TO_SYMPY result = ", result )
+    result = resub.sub(r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result)
+    result = replace_user_defined_functions(result, funcsubs)
+    result = replace_primes(result, funcsubs)
+    it = 0
+    # REPLACE ALL )\' CONSTRUCTIONS
+    while result.find(')\'') > 0 and it < 20:
+        indend = result.index(')\'')
+        indbegin = index_of_matching_left_paren(result, indend)
+        ind = indbegin
+        while ind > 0 and not result[ind - 1] in ' +-/*':
+            ind = ind - 1
+        left = result[0 : max(0, ind - 1)]
+        middle = result[ind : indend + 1]
+        right = result[indend + 2 :]
+        result = left + 'Partial(' + middle + ")" + right
+        it = it + 1
+
     return result  # }}}
 
 
 def matrixify(expression):  # # {{{
     """PUT A MATRIX( ) around outer square brackets
     """
-    # print("VVVVVVVVVVVVVVVVVVVVVVVVVVVVV");
-    # print("MATRIXIFY expression = ", expression )
     l = len(expression)
     i = 0
     s = ''
@@ -65,8 +173,6 @@ def matrixify(expression):  # # {{{
         if c == ']' and depth == 0:
             s += ")"
         i += 1
-    # print("MATRIXIFY, s = ", s )
-    # print("^^^^^^^^^^^^^^^^^^^^^^^");
     return s  # }}}
 
 
@@ -102,7 +208,6 @@ def braketify(expression):  # {{{
     l = len(expression)
     i = 0
     s = ''
-    # print("STR1 = ",expression)
     depth = 0
     while i < l:
         c = expression[i]
@@ -115,7 +220,6 @@ def braketify(expression):  # {{{
         if c == '>':
             cr = ''
             depth += 1
-        # print( i,c, depth, s )
         s += cr
         if c == '>' and depth == 0:
             s += ")"
@@ -129,5 +233,6 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     result = resub.sub(r"FF", r"variableFF", result)
     result = resub.sub(r"ff", r"variableff", result)
     result = resub.sub(r"lambda", r"variablelambda", result)
+    result = resub.sub(r" d\(", r" partial(", result)
 
     return result  # }}}
