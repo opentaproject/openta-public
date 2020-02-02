@@ -161,10 +161,10 @@ class Course(models.Model):
         
 
     def clean(self):
-        if self.use_auto_translation  and self.google_auth_string == '':
+        if False and self.use_auto_translation  and self.google_auth_string == '':
             raise ValidationError( {'use_auto_translation': _('Auto translation cannot be enabled with a blank Google auth string.') } ,
                      code='invalid')
-        if self.use_auto_translation and self.languages == '' :
+        if self.use_auto_translation and ( self.languages == ''  or self.languages == None ) :
             raise ValidationError( {'use_auto_translation': _('Auto translation can only be enabled if Languages is nonempty.') } ,
                      code='invalid')
 
@@ -178,6 +178,7 @@ class Course(models.Model):
                  credentials = service_account.Credentials.from_service_account_info( service_account_info)
                  translate_client = translate.Client( credentials=credentials)
                  should_be_en = translate_client.detect_language( 'This is a statement in english')['language'] 
+                 print("SHOULD BE = ", should_be_en)
                  assert 'en' == should_be_en 
             except :
                  raise ValidationError({'google_auth_string': _('Google Auth string does not pass validation. Set it to blank to avoid error. ') } ,

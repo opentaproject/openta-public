@@ -20,9 +20,13 @@ def google_auth_string_is_valid(value):
     try:
         print("VALUE = ", value)
         credentialstring = patch_credential_string(value)
+        print("A1")
         service_account_info = json.load(io.StringIO(credentialstring))
+        print("A2")
         credentials = service_account.Credentials.from_service_account_info(service_account_info)
+        print("A3")
         translate_client = translate.Client(credentials=credentials)
+        print("A4")
         should_be_en = translate_client.detect_language('This is a statement in english')[
             'language'
         ]
@@ -224,6 +228,15 @@ class CourseFormFrontend(forms.ModelForm):
                     )
 
         if data['use_auto_translation']:
+            print("USE AUTO TRANSLATION IS SET")
+            if  data.get('languages') == None :
+                 raise ValidationError(
+                        {
+                            'use_auto_translation': 'Cannot be checked if languages are blank',
+                        },
+                        code='invalid',
+                    )
+
             if not data.get('google_auth_string', False):
                 if 'use_auto_translation' not in self.changed_data:
                     print("BLANK GOOGLE AUTH STRING")
