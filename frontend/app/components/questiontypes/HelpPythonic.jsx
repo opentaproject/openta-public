@@ -17,5 +17,5 @@ export default class HelpLinearAlgebra extends Component {
 
   componentWillMount = () => {
     this.id = uniqueId('help');
-  }
+  } 
 }

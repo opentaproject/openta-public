@@ -44,12 +44,10 @@ def parse_sample_variables(variables):
     varsubs_sympify = {}
     sample_variables = []
     matrix_symbols = {}
-    # print("PARSE SAMPLE VARIABLES vars_ = ", variables )
     vars_ = []
     for vardict in variables:
         if not vardict['name'] in units:
             vars_ = vars_ + [vardict]
-    # print("PARSE SAMPLE VARIABLES NOW vars_ = ", vars_)
     for var in vars_:
         expr = sympify_with_custom(ascii_to_sympy(var['value']), matrix_symbols)
         if hasattr(expr, 'shape'):
@@ -73,13 +71,10 @@ def parse_sample_variables(variables):
     for key, val in varsubs_sympify.items():
         varsubs_sympify_new[key] = val.subs(varsubs).doit()
     varsubs_sympify = varsubs_sympify_new
-    # print("subs_rules = ", subs_rules)
-    # print("varsubs_sympify = ", varsubs_sympify)
-    # print("sample_variables = ", sample_variables)
     return (varsubs, varsubs_sympify, sample_variables)
 
 
-def sympify_with_custom(expression, varsubs):
+def sympify_with_custom(expression, varsubs, funcsubs={}):
     """
     Convert asciimath expression into sympy using extra context
     Args:
@@ -89,7 +84,7 @@ def sympify_with_custom(expression, varsubs):
     Returns:
         Sympy expression
     """
-    # print("SYMPIFY WITH CUSTOM", expression)
+    sexpr = ascii_to_sympy(expression, funcsubs)
     scope = {
         'abs': Norm,  # sympy.Function('norm')
         'Abs': Norm,  # sympy.Function('norm')
@@ -109,6 +104,12 @@ def sympify_with_custom(expression, varsubs):
         'Le': le,
         'Or': logicalor,
         'And': logicaland,
+        'xhat': sympy.sympify(Matrix([1, 0, 0])),
+        'yhat': sympy.sympify(Matrix([0, 1, 0])),
+        'zhat': sympy.sympify(Matrix([0, 0, 1])),
+        'Partial': partial,
+        'D': partial,
+        'prime': prime,
         'Not': logicalnot,
         'IsEqual': eq,
         'IsNotEqual': neq,
@@ -129,11 +130,8 @@ def sympify_with_custom(expression, varsubs):
         'Braket': Braket,
         'NullRank': nullrank,
     }
+
     scope.update(ns)
     scope.update(varsubs)
-    # print("LINEAR_ALGEBRA expression= ", expression)
-    # print("LINEAR_ALGEBRA ascii_to_sympy = ", ascii_to_sympy(expression) )
-    # print("LINEAR_ALGEBRA varsubs= ", varsubs)
-    # print("LINEAR_ALGEBRA scope= ", scope)
-    sexpr = sympy.sympify(ascii_to_sympy(expression), scope)
-    return sexpr
+    ssexpr = sympy.sympify(sexpr, scope)
+    return ssexpr

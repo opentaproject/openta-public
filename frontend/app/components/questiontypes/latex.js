@@ -30,11 +30,17 @@ exports.symbols = {
   Chi: 'X',       chi: '\\chi',
   Psi: '\\Psi',      psi: '\\psi',
   Omega: '\\Omega',    omega: '\\omega',
+  xhat: '\\hat{x}' , yhat: '\\hat{y}', zhat: '\\hat{z}' , 
+  x: '\\underline{x}' , 
+  y: '\\underline{y}' , 
+  z: '\\underline{z}' , 
+  t: '\\underline{t}' , 
   //logic
   'true': '\\mathrm{True}',
   'false': '\\mathrm{False}',
   //other
   i: 'i', //TODO use \i ??
+  sin: '\\sin',
   I: '\\underline{i}' ,
   hbar: '\\hbar',
   inf: '\\infty',

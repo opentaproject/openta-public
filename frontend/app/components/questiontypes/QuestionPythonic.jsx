@@ -9,12 +9,12 @@ import PropTypes from "prop-types";
 import { registerQuestionType } from "./question_type_dispatch.js"; // Register function used at the bottom of this file to let the system know of the question type
 import Alert from "../Alert.jsx"; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import Badge from "../Badge.jsx"; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
-import HelpSymbolic from "./HelpSymbolic.jsx";
+import HelpPythonic from "./HelpPythonic.jsx";
 import T from "../Translation.jsx";
 import t from "../../translations.js";
 import { throttle } from "lodash";
 
-export default class QuestionSymbolic extends Component {
+export default class QuestionPythonic extends Component {
   static propTypes = {
     questionData: PropTypes.object, // Data from exercise XML file, i.e. whats inside the <question> tag
     questionState: PropTypes.object, // Current question state together with response data from server
@@ -172,7 +172,7 @@ export default class QuestionSymbolic extends Component {
     var itemjson = question.getIn(["text"], undefined);
     var questiontext = this.props.renderText(itemjson)
     var questionkey = question.getIn(['@attr', 'key']);
-    var msg1 = "QuestionType QuestionSymbolic";
+    var msg1 = "QuestionType QuestionPythonic";
     return (
       <div className="">
         {questiontext}
@@ -181,7 +181,7 @@ export default class QuestionSymbolic extends Component {
           [ {feedback} {n_attempts} <T>attempts</T> ]{" "}
         </span>
 
-        <HelpSymbolic />
+        <HelpPythonic />
         <span data-uk-tooltip title={msg1} />
         {hasChanged && lastAnswer !== "" && (
           <Badge
@@ -230,6 +230,5 @@ export default class QuestionSymbolic extends Component {
 }
 
 //Register the question component with the system
-registerQuestionType("demo", QuestionSymbolic);
-registerQuestionType("symbolic", QuestionSymbolic);
-registerQuestionType("pythonic", QuestionSymbolic);
+registerQuestionType("pythonic", QuestionPythonic);
+registerQuestionType("demo", QuestionPythonic);
