@@ -65,7 +65,7 @@ HELP_TEXTS = {
     'email_reply_to': _('For instance CID@chalmers.se'),
     'email_host_user': _('Email of smtp account owner ,i.e. CID@chalmers.se'),
     'email_username': _('Usually CID, but is net.chalmers.se\CID at chalmers'),
-    'google_auth_string': 'Credentials for google translate, obtained from a google service account. ',
+    'google_auth_string': 'Credentials for google translate, obtained from a google service account. GoogleCloudPlatform->ServiceAccounts-> (select project) -> Actions=... -> CreateKey-> JSON',
     'difficulties': _('List of labels which can be displayed as option for each exercise.'),
     'languages': _(
         'Languages for translations in the course:'
