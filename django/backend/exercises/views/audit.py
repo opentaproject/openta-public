@@ -234,7 +234,7 @@ def send_audit(request, pk):
     print("EMAIL ACTIVATED")
     if not audit.exercise.course.use_email:
         print("EMAIL NOT ACTIVATED")
-        return Response({'warning': 'use_email is not activated'} ) 
+        return Response({'warning': 'use_email is not activated'})
     course_url = audit.exercise.course.url
     mail_message_template = (
         "{message}"

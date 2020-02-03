@@ -20,4 +20,6 @@ class Command(BaseCommand):
                 students_results(force=True, course=course)
                 logger.info('Finished calculating results and statistics')
             else:
-                logger.info("Skip calculating results for unpublished course {}".format( course.course_name ) )
+                logger.info(
+                    "Skip calculating results for unpublished course {}".format(course.course_name)
+                )

@@ -243,6 +243,7 @@ def question_json_get(path, question_key, usermacros={}):
     exercise_key = exercise_key_get(path)
     return question_json_get_from_raw_json(raw_json, exercise_key, question_key, usermacros)
 
+
 def question_json_get_from_raw_json(raw_json, exercise_key, question_key, usermacros={}):
     questions = deep_get(raw_json, 'exercise', 'question')
     found = list(

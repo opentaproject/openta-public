@@ -152,7 +152,7 @@ def login_status(request):
     dbgroups = request.user.groups.all()
     for group in dbgroups:
         groups.append(group.name)
-    if request.user.is_superuser :
+    if request.user.is_superuser:
         groups.append('SuperUser')
     lti_login = request.session.get('lti_login', False)
     nonlti_login = request.session.get('nonlti_login', False)
@@ -211,7 +211,9 @@ def login(request, course_name=None):
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
         return auth_views.login(request, extra_context=extra)
     else:
-        return render(request, 'login rate_limit.html', context={'rate': _('5 times per 30 seconds')})
+        return render(
+            request, 'login rate_limit.html', context={'rate': _('5 times per 30 seconds')}
+        )
 
 
 def activate(request, username, token):
@@ -352,7 +354,9 @@ class RegisterByPassword(RatelimitMixin, FormView):
     def form_valid(self, form):
         if getattr(self.request, 'limited', False) and (not settings.RUNNING_DEVSERVER):
             return render(
-                self.request, 'register rate_limit.html', context={'rate': _('5 times per 30 seconds')}
+                self.request,
+                'register rate_limit.html',
+                context={'rate': _('5 times per 30 seconds')},
             )
         course = Course.objects.get(pk=self.kwargs['course_pk'])
         kwargs = {'course_pk': self.kwargs['course_pk']}
