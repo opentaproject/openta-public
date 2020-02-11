@@ -312,7 +312,7 @@ class DevLinearAlgebraTest(TestCase):
 
     def test_equality(self):
         print("TESTING EQUALITY")
-        precision = 1e-6
+        precision = 1e-4
         variables = [
             {'name': 'omega', 'value': '3.1 / second'},
             {'name': 'r0', 'value': '2  / meter'},

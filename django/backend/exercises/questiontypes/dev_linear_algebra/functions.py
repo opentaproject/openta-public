@@ -4,7 +4,7 @@ import types
 import sys
 from pprint import pprint
 from sympy import *
-from sympy.abc import _clash1, _clash2, _clash
+from sympy.abc import _clash1, _clash2, _clash, x, y, z
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
@@ -393,6 +393,46 @@ class IsDiagonal(sympy.Function):
                 return sympy.sympify('1')
             else:
                 return sympy.sympify('0')
+
+
+class grad(sympy.Function):
+    nargs = 1
+
+    @classmethod
+    def eval(cls, fun):
+        from sympy.abc import x, y, z
+
+        print("FUN = ", fun)
+        res = [diff(fun, x), diff(fun, y), diff(fun, z)]
+        print("RES = ", res)
+        return sympy.sympify(Matrix(res))
+
+
+class curl(sympy.Function):
+    nargs = 1
+
+    @classmethod
+    def eval(cls, M):
+        print("M = ", M)
+        res = [
+            diff(M[2], y) - diff(M[1], z),
+            diff(M[0], z) - diff(M[2], x),
+            diff(M[1], x) - diff(M[0], y),
+        ]
+        print("RES = ", res)
+        return sympy.sympify(Matrix(res))
+
+
+class div(sympy.Function):
+    nargs = 1
+
+    @classmethod
+    def eval(cls, M):
+        if isinstance(M, sympy.MatrixBase):
+            from sympy.abc import x, y, z
+
+            res = diff(M[0], x) + diff(M[1], y) + diff(M[2], z)
+            return sympy.sympify(res)
 
 
 class IsDiagonalizable(sympy.Function):

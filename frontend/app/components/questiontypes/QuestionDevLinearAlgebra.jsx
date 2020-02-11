@@ -159,6 +159,20 @@ export default class QuestionDevLinearAlgebra extends Component {
           return '|\\,' + tex0 +" \\, \\rangle \\, " + tex1 + "\\, \\langle \\," + tex2 + " \\,|"
         }
       }
+      else if( node.name === 'curl'  ){
+        var tex0 = node.args[0].toTex(options);
+         return '\\nabla \\times (' + tex0 + ')'
+        }
+      else if( node.name === 'div'  ){
+        var tex0 = node.args[0].toTex(options);
+         return '\\nabla \\cdot(' + tex0 + ')'
+        }
+      
+      else if( node.name === 'grad'  ){
+        var tex0 = node.args[0].toTex(options);
+         return '\\nabla (' + tex0 + ')'
+        }
+
       else {
         //console.log("UNIDENTIFIED FUNCTION NODE ", node.name )
         var ret =  node._toTex(options);

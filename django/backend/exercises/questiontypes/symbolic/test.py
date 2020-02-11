@@ -176,12 +176,12 @@ class SymbolicTest(TestCase):
             True,
         )
         eqs = [
-            "D( gg( ff(x) ) , x ) == gg\'( ff(x) ) ff\'(x)",
+            "partial( gg( ff(x) ) , x ) == gg\'( ff(x) ) ff\'(x)",
             ' ( cos( gg(x) ) )\' ==  - sin( gg(x) ) gg\'(x) ',
             '( gg( ff( gg(x) ) ))\' == gg\'(  ff( gg( x )  ) )  ff\'( gg(x)  ) gg\'( x ) ',
         ]
         for eq in eqs:
-            print("\nTESTING \n ", eq )
+            print("\nTESTING \n ", eq)
             self.assertEqual(
                 symbolic_compare_expressions(
                     precision, variables, eq, '0==0', False, [], ['x'], funcsubs

@@ -127,6 +127,7 @@ def question_check_linear_algebra(question_json, question_xmltree, answer_data, 
         question_json, question_xmltree, answer_data, global_xmltree, linear_algebra_expression
     )
 
+
 def get_functions_from_obj(variablesobj, foundvariables=[]):
     vars_ = variablesobj.get('func', {})
     if not isinstance(vars_, list):
@@ -139,7 +140,6 @@ def get_functions_from_obj(variablesobj, foundvariables=[]):
         except:
             pass
     return foundvariables
-
 
 
 def get_more_variables_from_obj(variablesobj, foundvariables=[]):

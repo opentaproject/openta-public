@@ -1,6 +1,7 @@
 '''
 This is the server side implementation of the question type symbolic.
 '''
+from exercises.questiontypes.dev_linear_algebra.unithelpers import ns
 
 from exercises.question import (
     register_question_type,
@@ -62,7 +63,6 @@ def symbolic_json_hook(safe_question, full_question, question_id, user_id, *args
         blacklist = full_question.get('blacklist')
     if not blacklist is None:
         variablelist = remove_blacklist_variables_from_obj(blacklist, variablelist)
-    # print("variablelist = ", variablelist)
     # print("DEV_INIT question_variables = ", full_question.get('variables',{} ) )
     # print("DEV_INIT global_variables = ", full_question.get('global', {} ) )
     # DISABLE feedback XML in quesiton

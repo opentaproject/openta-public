@@ -71,7 +71,14 @@ def symbolic_compare_expressions(
     used_variables=[],
     funcsubs={},
 ):
-    # print("ARGS = ",  locals() )
+    all_variables =  [ x['name'] for x in variables]
+    illegalvars = list( set( list( ns.keys() ) ).intersection( set( all_variables) )  )
+    if len( illegalvars) > 0 :
+        response = {}
+        response['correct'] = False
+        response['warning'] = 'Illegal variable '  +  ','.join( illegalvars )  + '.'
+        response['debug'] = " Clashes with sympy predefined variables " 
+        return response
     variables = list(
         filter(lambda item: (item['name'] in used_variables), variables)
     )  # GET RID OF CLASHES WITH FUNCTIONS
@@ -81,7 +88,7 @@ def symbolic_compare_expressions(
         funcsubs_[sub['name']] = sympify(sub['value'])
     funcsubs = funcsubs_
     try:
-        varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
+        varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables, funcsubs)
         correct_is_equality = len(correct.split('==')) > 1
         student_answer_is_equality = len(student_answer.split('==')) > 1
         if student_answer_is_equality and correct_is_equality:
@@ -103,7 +110,9 @@ def symbolic_compare_expressions(
         response['warning'] = rhs
         try:
             teststring = '(' + ')-('.join(student_answer.split('==')) + ')'
-            prelhs = sympify_with_custom(teststring, varsubs_sympify, funcsubs)
+            prelhs = sympify_with_custom(
+                teststring, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
+            )
             # for var in used_variables:
             #    diff_ = diff(prelhs, sympify(var))
             #    diff_ = diff_.subs(varsubs)
@@ -113,13 +122,23 @@ def symbolic_compare_expressions(
             #    #        'error': 'Answer has no mmeaningful dependence on the variable ' + str(var)
             #    #    }
 
-        except Exception as e:
+        except SympifyError as e:
             if '@' in str(e):
                 explanation = 'The character @ appears in author expression; check for macros with missing semicolon separator or missing :=  in macro definition'
             else:
-                explanation = ''
-            response = dict(error=_("ERROR IN AUTHOR EXPRESSION. " + explanation))
+                explanation = 'Error in expression'
+            response = dict(error=_(explanation),
+                            debug="SympifyError : " + str(e))
             return response
+        except TypeError as e:
+            explanation = " Type Error: for example forbidden adding matrices and scalars" 
+            response = dict(error=_( explanation),
+                            debug=(type(e).__name__ + ": " + str(e) ))
+            return response
+        except Exception as e:
+            response = dict(error=_("ERROR IN AUTHOR EXPRESSION. " + explanation),
+                            debug=(type(e).__name__ + ": " + str(e) )
+                        )
         if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
             if lhs.shape != rhs.shape:
                 return {
@@ -181,9 +200,18 @@ def symbolic_compare_expressions(
         response['debug'] = str(e)
         return response
 
-    lhs = sympify_with_custom(lhs, varsubs_sympify, funcsubs).doit()
-    rhs = sympify_with_custom(rhs, varsubs_sympify, funcsubs).doit()
-    return symbolic_check_equality(precision, lhs, rhs, sample_variables, check_units=check_units)
+    lhs = sympify_with_custom(
+        lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
+    ).doit()
+    rhs = sympify_with_custom(
+        rhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-3'
+    ).doit()
+    try : 
+        res = symbolic_check_equality(precision, lhs, rhs, sample_variables, check_units=check_units)
+        return res
+    except Exception as e:
+        response = dict(error=str(e) , debug=str(e) )
+        return response
 
 
 def symbolic_internal(expression1, expression2):  # {{{
@@ -278,7 +306,6 @@ def symbolic_expression(
     for i in invalid_strings:
         if i in student_answer:
             return {'error': _('Answer contains invalid character ') + i}
-    # print(compare_numeric_internal(variables, expression1, expression2))
     return safe_run(
         symbolic_expression_runner,
         args=(

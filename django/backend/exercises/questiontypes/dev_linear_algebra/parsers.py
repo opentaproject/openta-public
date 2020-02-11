@@ -6,6 +6,7 @@ import traceback
 import random
 import itertools
 from sympy.core import S
+from .unithelpers import baseunits
 
 from exercises.questiontypes.safe_run import safe_run
 import logging
@@ -22,7 +23,7 @@ from .unithelpers import *
 from .functions import *
 
 
-def parse_sample_variables(variables):
+def parse_sample_variables(variables, funcsubs={}):
     """
     Parses a list of asciimath defined variables into correct sympy representations.
 
@@ -49,13 +50,20 @@ def parse_sample_variables(variables):
         if not vardict['name'] in units:
             vars_ = vars_ + [vardict]
     for var in vars_:
-        expr = sympify_with_custom(ascii_to_sympy(var['value']), matrix_symbols)
+        name = str( var['name'])
+        #raise TypeError("A variable cannot be named " + name )
+        expr = sympify_with_custom(
+            ascii_to_sympy(var['value']), matrix_symbols, funcsubs, 'PARSE_SAMPLE_VARIABLES'
+            )
+        nexpr = simplify(expr.subs(baseunits))
         if hasattr(expr, 'shape'):
-            sym[var['name']] = sympy.MatrixSymbol(var['name'], *expr.shape)
-            matrix_symbols[var['name']] = sym[var['name']]
+            sym[name] = sympy.MatrixSymbol(name, *expr.shape)
+            matrix_symbols[name] = expr
+        elif nexpr.is_Atom:
+            sym[name] = sympy.Symbol(name)
         else:
-            sym[var['name']] = sympy.Symbol(var['name'])
-        varsubs_sympify[var['name']] = sym[var['name']]
+            sym[name] = expr  # sympy.Symbol(var['name'])
+        varsubs_sympify[name] = expr
         if expr.has(sympy.Function('sample')):
             [sample] = expr.find(sympy.Function('sample'))
             sample_points = list(sample.args)
@@ -63,9 +71,9 @@ def parse_sample_variables(variables):
                 expr.replace(sympy.Function('sample'), lambda *args: point).doit()
                 for point in sample_points
             ]
-            sample_variables.append({'symbol': sym[var['name']], 'around': sample_around})
+            sample_variables.append({'symbol': sym[name], 'around': sample_around})
         else:
-            subs_rules.append((sym[var['name']], expr))
+            subs_rules.append((sym[name], expr))
     varsubs = list(reversed(subs_rules))
     varsubs_sympify_new = {}
     for key, val in varsubs_sympify.items():
@@ -74,7 +82,7 @@ def parse_sample_variables(variables):
     return (varsubs, varsubs_sympify, sample_variables)
 
 
-def sympify_with_custom(expression, varsubs, funcsubs={}):
+def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     """
     Convert asciimath expression into sympy using extra context
     Args:
@@ -104,11 +112,14 @@ def sympify_with_custom(expression, varsubs, funcsubs={}):
         'Le': le,
         'Or': logicalor,
         'And': logicaland,
+        'curl': curl,
+        'div': div,
+        'grad': grad,
         'xhat': sympy.sympify(Matrix([1, 0, 0])),
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
         'Partial': partial,
-        'D': partial,
+        'partial': partial,
         'prime': prime,
         'Not': logicalnot,
         'IsEqual': eq,
@@ -133,5 +144,13 @@ def sympify_with_custom(expression, varsubs, funcsubs={}):
 
     scope.update(ns)
     scope.update(varsubs)
-    ssexpr = sympy.sympify(sexpr, scope)
-    return ssexpr
+    sexpr = sympy.sympify(sexpr, scope)
+    scope_symbolic = {
+        'x': sympy.sympify('x'),
+        'y': sympy.sympify('y'),
+        'z': sympy.sympify('z'),
+        't': sympy.sympify('t'),
+    }
+    sexpr = sympy.sympify(sexpr, scope_symbolic).doit()
+
+    return sexpr

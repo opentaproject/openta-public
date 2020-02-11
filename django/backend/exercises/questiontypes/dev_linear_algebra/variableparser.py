@@ -166,7 +166,7 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         blacklist.update(parse_blacklist(question_xmltree))
     except Exception as e:
         raise NameError("CANNOT PARSE VARIABLES" + str(e))
-    ret['used_variables'] = used_variable_list 
+    ret['used_variables'] = used_variable_list
     if not exposeglobals:
         variables = list(
             filter(lambda item: (item['name'] in used_variable_list), variables)
