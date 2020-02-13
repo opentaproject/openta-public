@@ -112,7 +112,7 @@ class BaseExercise extends Component {
 
   renderQuestionMath = (itemjson, json, meta, exerciseKey) => {
     var question = itemjson;
-    var type =  question.getIn(['@attr','type'], 'linearAlgebra')
+    var type =  question.getIn(['@attr','type'], 'symbolic')
     return (
       <span key={"qmath" + nextUnstableKey()}>
         <QMath exerciseKey={exerciseKey} questionType={type} expression={itemjson.get('$', '')}/>

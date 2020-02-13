@@ -100,7 +100,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         //console.log("FUNCTION NODE .. ", node.args[0])
         }
       // Will print in red
-      if(node.name === 'fail') {
+      if(node.name === 'fail' && !options.ignore_undefined) {
         this.mathjserror = true;
         this.mathjswarning += " : error1";
         return '\\color{red}{' + node.args[0].value + '}';
@@ -140,9 +140,13 @@ export default class QuestionDevLinearAlgebra extends Component {
       else if( node.name === 'dot'  ){
         if( node.args.length == 1 ){
           var tex0 = node.args[0].toTex(options);
-          return "\\left(" + tex0 + "\\right)\\circ";
-        }
-        if( node.args.length == 2 ){
+          var child = node.args[0]
+        if ( child.type ==  'SymbolNode' ){
+          return "\\dot{" + tex0 + "}"
+          } else {
+          return "\\frac{d}{dt} " + tex0 
+          }
+        } else  {
           var tex0 = node.args[0].toTex(options);
           var tex1 = node.args[1].toTex(options);
           return "\\left(" + tex0 + "\\right)\\circ\\left(" + tex1 + "\\right)";
@@ -161,17 +165,16 @@ export default class QuestionDevLinearAlgebra extends Component {
       }
       else if( node.name === 'curl'  ){
         var tex0 = node.args[0].toTex(options);
-        var child = node.args[0]
+         var child = node.args[0]
          if ( child.type ==  'SymbolNode' ){
             return '\\nabla \\times ' + tex0 + ''
             }
-         else {
-            return '\\nabla \\times (' + tex0 + ')'
-            }
-            
+          else {
+         return '\\nabla \\times (' + tex0 + ')'
         }
+      }
       else if( node.name === 'div'  ){
-         var child = node.args[0]
+        var child = node.args[0]
          var tex0 = child.toTex(options);
          if ( child.type ==  'SymbolNode' ){
             return '\\nabla \\circ ' + tex0 + ''
@@ -179,8 +182,8 @@ export default class QuestionDevLinearAlgebra extends Component {
          else {
             return '\\nabla \\circ(' + tex0 + ')'
             }
-            
-        }
+      }
+
       else if( node.name === 'partial'  ){
         if ( node.args.length == 2  ){
           var tex0 = node.args[0].toTex(options);
@@ -195,8 +198,7 @@ export default class QuestionDevLinearAlgebra extends Component {
           var targ = largs.join('\\,\\partial ')
           return '\\frac{ {\\partial}^{' + order + '} '  + tex0 + '}{ \\partial '  + targ + '}'
           }
-        }
-      
+        }      
       
       else if( node.name === 'grad'  ){
         var tex0 = node.args[0].toTex(options);
@@ -207,6 +209,9 @@ export default class QuestionDevLinearAlgebra extends Component {
          else {
             return '\\nabla  (' + tex0 + ')'
         }
+      }
+
+      else {
         //console.log("UNIDENTIFIED FUNCTION NODE ", node.name )
         var ret =  node._toTex(options);
         if( node.name == 'erf'){

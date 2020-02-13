@@ -79,17 +79,26 @@ def symbolic_compare_expressions(
         response['warning'] = 'Illegal variable '  +  ','.join( illegalvars )  + '.'
         response['debug'] = " Clashes with sympy predefined variables " 
         return response
+    #variables = list(
+    #    filter(lambda item: (item['name'] in dir( sympy.functions) ), variables)
+    #)  # GET RID OF CLASHES WITH FUNCTIONS
+    ok = list( set( all_variables ) - set( list( dir( sympy.functions) ) ) ) 
     variables = list(
-        filter(lambda item: (item['name'] in used_variables), variables)
+        filter(lambda item: (item['name'] in ok ), variables)
     )  # GET RID OF CLASHES WITH FUNCTIONS
     response = {}
     funcsubs_ = {}
     for sub in funcsubs:
         funcsubs_[sub['name']] = sympify(sub['value'])
     funcsubs = funcsubs_
+    prelhs = 'PRELHS'
     try:
+        correct_is_equality = len(correct.split('==')) >  1
+        if '=' in student_answer  and not '==' in student_answer:
+            response['error'] = 'single equal sign cannot appear in expression'
+            response['debug'] = student_answer
+            return response
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables, funcsubs)
-        correct_is_equality = len(correct.split('==')) > 1
         student_answer_is_equality = len(student_answer.split('==')) > 1
         if student_answer_is_equality and correct_is_equality:
             [lhs, rhs] = student_answer.split('==')
@@ -117,7 +126,7 @@ def symbolic_compare_expressions(
             elif trhs == '0' :
                 teststring = tlhs
             else  :
-                teststring = '('.join(student_answer.split('==')) + ')'
+                teststring = '(' + ')-('.join(student_answer.split('==')) + ')'
             prelhs = sympify_with_custom(
                 teststring, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
             )
@@ -253,10 +262,16 @@ def symbolic_internal(expression1, expression2):  # {{{
         logger.error([str(e), expression1, expression2])
         response['debug'] = str(e)
         response['error'] = _("Failed to evaluate expression.")
+    except TypeError as e:
+        logger.error([str(e), expression1, expression2])
+        response['debug'] = "Type Error in symbolic_internal :" + str(e)
+        if "cannot add " in str(e) :
+            cls = re.sub(r"<class \'sympy\.core\.([^\\']+).*","\\1",str(e) )
+            response['error'] = "Illegal operation: incompatible types " + cls
     except Exception as e:
         logger.error([str(e), expression1, expression2])
         response['error'] = _("Unknown error2, check your expression.")
-        response['debug'] = str(e)
+        response['debug'] =  debug=(type(e).__name__ + ": " + str(e) )
     return response  # }}}
 
 

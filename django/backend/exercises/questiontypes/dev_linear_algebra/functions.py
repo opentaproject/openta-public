@@ -360,16 +360,22 @@ class logicalnot(sympy.Function):
 
 
 class Dot(sympy.Function):
-    nargs = 2
+    nargs = (1,2)
 
     @classmethod
-    def eval(cls, x, y):
-        if str(x) == '0' or str(y) == '0':
-            return 0
-        elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
-            return conjugate(x).dot(y)
-        else:
-            return None
+    def eval(cls, *arg):
+        if len(arg) == 1 :
+            t = sympify('t')
+            return diff( arg[0], t )
+        if len(arg) == 2 :
+            x = arg[0]
+            y = arg[1]
+            if str(x) == '0' or str(y) == '0':
+                return 0
+            elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
+                return conjugate(x).dot(y)
+            else:
+                return None
 
 
 class Times(sympy.Function):

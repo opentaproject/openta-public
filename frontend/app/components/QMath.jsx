@@ -35,7 +35,7 @@ class BaseQMath extends Component {
     }
   }
   render() {
-    var renderedMath = this.mathTag.renderAsciiMath(this.props.expression);
+    var renderedMath = this.mathTag.renderAsciiMath(this.props.expression,true);
     return (<MathSpan message={"$" + renderedMath.out + "$"}/>);
   }
 
