@@ -161,19 +161,52 @@ export default class QuestionDevLinearAlgebra extends Component {
       }
       else if( node.name === 'curl'  ){
         var tex0 = node.args[0].toTex(options);
-         return '\\nabla \\times (' + tex0 + ')'
+        var child = node.args[0]
+         if ( child.type ==  'SymbolNode' ){
+            return '\\nabla \\times ' + tex0 + ''
+            }
+         else {
+            return '\\nabla \\times (' + tex0 + ')'
+            }
+            
         }
       else if( node.name === 'div'  ){
-        var tex0 = node.args[0].toTex(options);
-         return '\\nabla \\cdot(' + tex0 + ')'
+         var child = node.args[0]
+         var tex0 = child.toTex(options);
+         if ( child.type ==  'SymbolNode' ){
+            return '\\nabla \\circ ' + tex0 + ''
+            }
+         else {
+            return '\\nabla \\circ(' + tex0 + ')'
+            }
+            
         }
+      else if( node.name === 'partial'  ){
+        if ( node.args.length == 2  ){
+          var tex0 = node.args[0].toTex(options);
+          var tex1 = node.args[1].toTex(options);
+          return '\\frac{ \\partial ' + tex0 + '}{ \\partial ' + tex1 + '}'
+          }
+        else if ( node.args.length > 2  ){
+          var tex0 = node.args[0].toTex(options);
+          node.args.shift()
+          var order = node.args.length
+          var largs = node.args.map( item => item.toTex(options) )
+          var targ = largs.join('\\,\\partial ')
+          return '\\frac{ {\\partial}^{' + order + '} '  + tex0 + '}{ \\partial '  + targ + '}'
+          }
+        }
+      
       
       else if( node.name === 'grad'  ){
         var tex0 = node.args[0].toTex(options);
-         return '\\nabla (' + tex0 + ')'
+        var child = node.args[0]
+         if ( child.type ==  'SymbolNode' ){
+            return '\\nabla ' + tex0 + ''
+            }
+         else {
+            return '\\nabla  (' + tex0 + ')'
         }
-
-      else {
         //console.log("UNIDENTIFIED FUNCTION NODE ", node.name )
         var ret =  node._toTex(options);
         if( node.name == 'erf'){

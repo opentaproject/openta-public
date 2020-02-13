@@ -108,8 +108,16 @@ def symbolic_compare_expressions(
             [lhs, rhs] = [correct, student_answer]
         response['error'] = lhs
         response['warning'] = rhs
+        explanation = ''
         try:
             teststring = '(' + ')-('.join(student_answer.split('==')) + ')'
+            [tlhs,trhs] =  [ x.strip() for x in student_answer.split('==') ]
+            if tlhs == '0' :
+                teststring = trhs
+            elif trhs == '0' :
+                teststring = tlhs
+            else  :
+                teststring = '('.join(student_answer.split('==')) + ')'
             prelhs = sympify_with_custom(
                 teststring, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
             )
@@ -216,6 +224,8 @@ def symbolic_compare_expressions(
 
 def symbolic_internal(expression1, expression2):  # {{{
     # Do some initial formatting
+    print("EXPRESSION1 = ", expression1)
+    print("EXPRESSION2 = ", expression2)
     number_of_points = 10
     response = {}
     try:
@@ -227,7 +237,13 @@ def symbolic_internal(expression1, expression2):  # {{{
         if logger.isEnabledFor(logging.DEBUG):
             logger.debug('Expression 1: ' + str(sympy1))
             logger.debug('Expression 2: ' + str(sympy2))
-        diffy = Norm(simplify(powdenest(factor(simplify(sympy1 - sympy2)), force=True)))
+        if sexpression1 == 0 :
+            zero = sympy2
+        elif sexpression2 == 0 :
+            zero = sympy1
+        else :
+            zero = sympy1 - sympy2
+        diffy = Norm(simplify(powdenest(factor(simplify(zero)), force=True)))
         if diffy == 0:
             response['correct'] = True
         else:
