@@ -10,7 +10,12 @@ units = units.split(',')
 sympy_units = [meter, second, kg, ampere, kelvin, mole, candela]
 
 ns = {}
-ns.update(_clash)
+syms = ['C', 'O', 'Q', 'N', 'I', 'E', 'S', 'beta', 'zeta', 'gamma', 'pi']
+syms = ['N', 'I', 'E', 'pi']
+syms = ['N']
+myclash = dict([( x , _clash[x] ) for x in syms ])
+
+#ns.update(myclash)
 ns.update(
     {
         'meter': meter,
@@ -25,11 +30,13 @@ ns.update(
         'I': sympy.I,
         'ff': sympy.Symbol('ff'),
         'FF': sympy.Symbol('FF'),
+        'N' : sympy.Symbol('N')
     }
 )
 
 # Sympy substitution rule for removing units from an expression
 baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
+
 derivedunits = {
     'joule': kg * meter ** 2 / second ** 2,
     'Newton': kg * meter / second ** 2,

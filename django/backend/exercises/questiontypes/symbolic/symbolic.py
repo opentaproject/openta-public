@@ -3,13 +3,12 @@ import numpy
 import types
 import sys
 from sympy import *
-from sympy.abc import _clash1, _clash2, _clash
+#from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
 import random
 import itertools
-from sympy.core import S
 
 from exercises.questiontypes.safe_run import safe_run
 import logging
@@ -82,6 +81,7 @@ def symbolic_compare_expressions(
     #variables = list(
     #    filter(lambda item: (item['name'] in dir( sympy.functions) ), variables)
     #)  # GET RID OF CLASHES WITH FUNCTIONS
+    print(list( dir( sympy.functions) ) )
     ok = list( set( all_variables ) - set( list( dir( sympy.functions) ) ) ) 
     variables = list(
         filter(lambda item: (item['name'] in ok ), variables)

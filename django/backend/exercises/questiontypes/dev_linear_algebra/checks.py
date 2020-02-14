@@ -1,5 +1,5 @@
 from sympy import *
-from sympy.abc import _clash1, _clash2, _clash
+#from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback

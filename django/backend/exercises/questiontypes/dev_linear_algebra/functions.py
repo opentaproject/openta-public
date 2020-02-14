@@ -4,7 +4,8 @@ import types
 import sys
 from pprint import pprint
 from sympy import *
-from sympy.abc import _clash1, _clash2, _clash, x, y, z
+#from sympy.abc import _clash1, _clash2, _clash, x, y, z
+from sympy.abc import x, y, z, t
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
