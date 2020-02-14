@@ -4,7 +4,8 @@ import types
 import sys
 from pprint import pprint
 from sympy import *
-#from sympy.abc import _clash1, _clash2, _clash, x, y, z
+
+# from sympy.abc import _clash1, _clash2, _clash, x, y, z
 from sympy.abc import x, y, z, t
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
@@ -361,14 +362,18 @@ class logicalnot(sympy.Function):
 
 
 class Dot(sympy.Function):
-    nargs = (1,2)
+    nargs = (1, 2)
 
     @classmethod
     def eval(cls, *arg):
-        if len(arg) == 1 :
+        from sympy.abc import x, y, z, t
+
+        if len(arg) == 1:
+            print("DOT WITH ARGUMENT 1 ")
             t = sympify('t')
-            return diff( arg[0], t )
-        if len(arg) == 2 :
+            return diff(arg[0], t)
+        if len(arg) == 2:
+            print("DOT WITH ARGUMENT 2 ")
             x = arg[0]
             y = arg[1]
             if str(x) == '0' or str(y) == '0':
@@ -407,11 +412,9 @@ class grad(sympy.Function):
 
     @classmethod
     def eval(cls, fun):
-        from sympy.abc import x, y, z
+        from sympy.abc import x, y, z, t
 
-        print("FUN = ", fun)
         res = [diff(fun, x), diff(fun, y), diff(fun, z)]
-        print("RES = ", res)
         return sympy.sympify(Matrix(res))
 
 
@@ -420,13 +423,11 @@ class curl(sympy.Function):
 
     @classmethod
     def eval(cls, M):
-        print("M = ", M)
         res = [
             diff(M[2], y) - diff(M[1], z),
             diff(M[0], z) - diff(M[2], x),
             diff(M[1], x) - diff(M[0], y),
         ]
-        print("RES = ", res)
         return sympy.sympify(Matrix(res))
 
 
@@ -455,7 +456,7 @@ class IsDiagonalizable(sympy.Function):
 
 
 class prime(sympy.Function):
-    nargs = (2, 3, 4, 5)
+    nargs = (1, 2, 3, 4, 5)
 
     @classmethod
     def eval(cls, *arg):
@@ -466,11 +467,12 @@ class prime(sympy.Function):
         corefunc = 'FunctionClass' in str(type(arg[3]))
         if not corefunc:
             deriv = fourth
-            qqq = list(fourth.free_symbols)[0]
+            # qqq = list(fourth.free_symbols)[0]
+            deriv = deriv.func(qqq)
             while order > 0:
                 order = order - 1
                 deriv = diff(deriv, qqq)
-            result = deriv.subs(qqq, arg[1])
+            result = deriv.subs(qqq, arg[1]).doit()
         else:
             fun = fourth
             deriv = fun(qqq)
@@ -482,7 +484,7 @@ class prime(sympy.Function):
 
 
 class partial(sympy.Function):
-    nargs = (0, 1, 2, 3)
+    nargs = (0, 1, 2, 3, 4, 5)
 
     @classmethod
     def eval(cls, *f):
@@ -492,10 +494,15 @@ class partial(sympy.Function):
             fun = f[0]
             x = list(fun.free_symbols)[0]
             return diff(fun, x)
-        elif len(f) == 2:
+        elif len(f) < 6:
             fun = f[0]
-            x = f[1]
-            return diff(fun, x)
+            x = list(fun.free_symbols)
+            res = fun
+            ind = 1
+            while ind < len(f):
+                res = diff(res, f[ind])
+                ind = ind + 1
+            return res
         else:
             return sympy.sympify('derivative or partial used with too many arguments')  # }}}
 

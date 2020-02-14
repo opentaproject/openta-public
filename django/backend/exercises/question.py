@@ -205,9 +205,9 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         correct = False
         if 'correct' in result:
             correct = result['correct']
-        if user.groups.filter(name='Author').exists() and result.get('debug', False) :
+        if user.groups.filter(name='Author').exists() and result.get('debug', False):
             result['warning'] = result.get('warning', '') + " DEBUG: " + result.get('debug')
-                
+
         else:
             result.pop('debug', None)
         if user.has_perm('exercises.log_question'):

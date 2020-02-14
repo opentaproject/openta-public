@@ -46,11 +46,15 @@ class SymbolicTest(TestCase):
             {'name': 'v1', 'value': '[1,1,0]'},
             {'name': 'v2', 'value': '[0,1,0]'},
             {'name': 'v3', 'value': '[0,0,1]'},
+            {'name': 'phi', 'value': 'x + y + z '},
+            {'name': 'vE', 'value': 'grad(phi)'},
         ]
         # True equalities
         funcsubs = [
             {'name': 'ff', 'value': 'sinh(x)', 'tex': 'TeX'},
             {'name': 'gg', 'value': 'cosh(x)', 'tex': 'TeX'},
+            {'name': 'FF', 'value': 'F(x)', 'tex': 'TeX'},
+            {'name': 'GG', 'value': 'G(x)', 'tex': 'TeX'},
         ]
         var = '[[1,1 + I ], [ 1 - I, 1 ]  ]'
         self.assertEqual(
@@ -167,7 +171,7 @@ class SymbolicTest(TestCase):
             symbolic_compare_expressions(
                 precision,
                 variables,
-                'tanh(cosh(x))\'',
+                '(tanh(cosh(x)))\'',
                 'sinh(x) / cosh( cosh(x) )^2 ',
                 False,
                 [],
@@ -175,10 +179,19 @@ class SymbolicTest(TestCase):
             )['correct'],
             True,
         )
+
         eqs = [
             "partial( gg( ff(x) ) , x ) == gg\'( ff(x) ) ff\'(x)",
             ' ( cos( gg(x) ) )\' ==  - sin( gg(x) ) gg\'(x) ',
             '( gg( ff( gg(x) ) ))\' == gg\'(  ff( gg( x )  ) )  ff\'( gg(x)  ) gg\'( x ) ',
+            '( GG( FF( GG(x) ) ))\' == GG\'(  FF( GG( x )  ) )  FF\'( GG(x)  ) GG\'( x ) ',
+            'gg( ff( gg(x) ) )\' == gg\'(  ff( gg( x )  ) )  ff\'( gg(x)  ) gg\'( x ) ',
+            '( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'(x)',
+            '( ff( cosh(x) ) )\' == ff\'( cosh(x) ) cosh\'(x)',
+            '( tanh( ff(x) ) )\' == tanh\'( ff(x) ) ff\'(x)',
+            '( FF( cosh(x) ) )\' == FF\'( cosh(x) ) cosh\'(x)',
+            '( tanh( FF(x) ) )\' == tanh\'( FF(x) ) FF\'(x)',
+            ' vE == [1,1,1] ',
         ]
         for eq in eqs:
             print("\nTESTING \n ", eq)
@@ -189,3 +202,40 @@ class SymbolicTest(TestCase):
                 True,
             )
             print("\nEND\n")
+
+        variables = [
+            {"name": "c", "value": "1", "tex": "TeX"},
+            {"name": "A", "value": "-y xhat + x yhat + 2 cos( t - z ) xhat", "tex": "TeX"},
+            {"name": "pphi", "value": "1 / sqrt( x^2 + y^2 + z^2 )", "tex": "TeX"},
+            {"name": "B", "value": "curl(A)", "tex": "TeX"},
+            {"name": "E", "value": "- grad( pphi)  - 1/ c  dot(A)", "tex": "TeX"},
+            {"name": "J", "value": "1/( 4 pi )  ( curl(B) - dot(E) )", "tex": "TeX"},
+            {"name": "rho", "value": "1/( 4 pi )  div(E)", "tex": "TeX"},
+        ]
+        self.assertEqual(
+            symbolic_compare_expressions(
+                1e-06, variables, "curl(B) ", " 4 pi J + 1/c dot(E)", False, ["A"], []
+            )['correct'],
+            True,
+        )
+
+        self.assertEqual(
+            symbolic_compare_expressions(
+                1e-06, variables, "div(E) ", " 4 pi rho ", False, ["A"], []
+            )['correct'],
+            True,
+        )
+
+        self.assertEqual(
+            symbolic_compare_expressions(1e-06, variables, "div(B) ", " 0 ", False, ["A"], [])[
+                'correct'
+            ],
+            True,
+        )
+
+        self.assertEqual(
+            symbolic_compare_expressions(
+                1e-06, variables, "curl(E) ", "  -  1/c dot(B)", False, ["A"], []
+            )['correct'],
+            True,
+        )

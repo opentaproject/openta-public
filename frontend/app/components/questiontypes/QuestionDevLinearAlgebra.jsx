@@ -195,9 +195,21 @@ export default class QuestionDevLinearAlgebra extends Component {
           node.args.shift()
           var order = node.args.length
           var largs = node.args.map( item => item.toTex(options) )
-          var targ = largs.join('\\,\\partial ')
-          return '\\frac{ {\\partial}^{' + order + '} '  + tex0 + '}{ \\partial '  + targ + '}'
-          }
+          var i  = 0
+          var texstring = ''
+          var supercript = 1
+          while( i < order- 1 ){
+              if(  largs[i] == largs[i+1] ){
+                    supercript = supercript + 1 
+                   } else {
+                    texstring = supercript == 1 ? ( texstring + '\\partial '  +  largs[i] )  : ( texstring + '\\partial^{' + supercript.toString() +'}'  +  largs[i]  )
+                    supercript = 1;
+                 }
+             i = i + 1
+             }
+          texstring = supercript == 1 ? ( texstring + '\\partial '  +  largs[i] )  : ( texstring + '\\partial^{' + supercript.toString() +'}'  +  largs[i]  )
+          return '\\frac{ {\\partial}^{' + order + '}'  + tex0 + '}{' + texstring +  '}'
+         }
         }      
       
       else if( node.name === 'grad'  ){
@@ -210,6 +222,20 @@ export default class QuestionDevLinearAlgebra extends Component {
             return '\\nabla  (' + tex0 + ')'
         }
       }
+    else if( node.name === 'del_2'  ){
+        var tex0 = node.args[0].toTex(options);
+        var child = node.args[0]
+         if ( child.type ==  'SymbolNode' ){
+            return '\\nabla^2 ' + tex0 + ''
+            }
+         else {
+            return '\\nabla^2  (' + tex0 + ')'
+        }
+      }
+
+
+
+
 
       else {
         //console.log("UNIDENTIFIED FUNCTION NODE ", node.name )
@@ -239,6 +265,8 @@ export default class QuestionDevLinearAlgebra extends Component {
     }
     // Render green if allowed variable otherwise red
     else if(node.type === 'SymbolNode') {
+      if ( options.ignore_undefined ){
+        }
       const origVar = node.name.replace(/\_/g, '');
       // console.log("origVar = ", origVar );
       const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : 
@@ -249,7 +277,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         this.mathjserror = true;
         return '\\color{orange}{' + texSymbol + '}';
           }
-      if(this.varsList.indexOf(origVar) !== -1 || this.validSymbols.indexOf(origVar) !== -1)
+      if(this.varsList.indexOf(origVar) !== -1 || this.validSymbols.indexOf(origVar) !== -1 || options.ignore_undefined)
         return '\\color{green}{' + texSymbol + '}';
       else 
         this.mathjserror = true;
@@ -332,7 +360,7 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 
 
-  renderAsciiMath = (asciitext) => {
+  renderAsciiMath = (asciitext,ignore_undefined=false) => {
       
       var cursorComplete = false;
       var cursorPos = this.state.cursor;
@@ -359,6 +387,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         var mParsed = mathjs.parse(parsed).toTex({
           parenthesis: 'keep', // The keep options keeps parenthesis from input expression, seems to work best.
           handler: this.customLatex, // Custom latex node handler
+          ignore_undefined: ignore_undefined,
         });
         mParsed = mParsed.replace(/prime}~ /g,'prime}');
         mParsed = mParsed.replace(/}~ /g,'}');

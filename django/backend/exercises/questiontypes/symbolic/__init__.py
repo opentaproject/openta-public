@@ -56,7 +56,9 @@ def symbolic_json_hook(safe_question, full_question, question_id, user_id, *args
     if not blacklist is None:
         variablelist = remove_blacklist_variables_from_obj(blacklist, variablelist)
     safe_question['username'] = user_id
-    safe_question['used_variable_list'] = variablelist 
+    safe_question['used_variable_list'] = (
+        variablelist if safe_question['exposeglobals'] else used_variable_list
+    )
     safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)
     safe_question['previous_answers'] = get_previous_answers(question_id, user_id, 5)
     return safe_question

@@ -15,7 +15,7 @@ def insert_implicit_multiply(expression):  # {{{
     return result  # }}}
 
 
-def index_of_matching_paren(beg, expression):
+def index_of_matching_right_paren(beg, expression):
     level = 1
     ind = beg + 1
     while level > 0 and ind < len(expression):
@@ -42,23 +42,82 @@ def replace_user_defined_functions(expression, funcsubs):
         (beg, end) = m.span()
         if expression[beg] == '(':
             beg = beg + 1
-        ind = index_of_matching_paren(end, expression)
+        ind = index_of_matching_right_paren(end, expression)
         head = expression[beg:end].strip()
         arg = expression[end : ind + 1]
         ex1 = expression[0:beg]
         ex2 = expression[beg : ind + 1]
         ex3 = expression[ind + 1 :]
+        add_paren = False
+        if ex3:
+            if ex3[0] == "\'":
+                ex3 = ex3[1:]
+                add_paren = True
         fun = (resub.sub(r'\'*', '', head)).strip()
         rep = funcsubs[fun]
         order = str(head.count('\''))
         fun = '#' + fun
         middle = ' prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
         expression = ex1 + middle + ex3
+        if add_paren:
+            expression = '(' + expression + ')\''
         allm = list(p.finditer(expression))
         it = it + 1
     # expression = resub.sub(r'#','',expression)
     expression = resub.sub(r'#' + searchstring, r"\1", expression)
     return expression
+
+
+def replace_primes(expression, funcsubs):
+    searchstring = '([A-z0-9_]+)'
+    # expression = 'ff\'\'(gg(z))*gg\'(z) '
+    # expression = resub.sub(r'('+searchstring+')',r" \1",expression)
+    p = resub.compile(r'(^|\s|\()' + searchstring + "[\']+(?=\()")
+    allm = list(p.finditer(expression))
+    it = 0
+    while len(allm) > 0 and it < 50:
+        m = allm[0]
+        (beg, end) = m.span()
+        if expression[beg] == '(':
+            beg = beg + 1
+        ind = index_of_matching_right_paren(end, expression)
+        head = expression[beg:end].strip()
+        arg = expression[end : ind + 1]
+        ex1 = expression[0:beg]
+        ex2 = expression[beg : ind + 1]
+        ex3 = expression[ind + 1 :]
+        add_paren = False
+        if ex3:
+            if ex3[0] == "\'":
+                ex3 = ex3[1:]
+                add_paren = True
+        fun = (resub.sub(r'\'*', '', head)).strip()
+        rep = funcsubs.get(fun, fun)
+        order = str(head.count('\''))
+        fun = '#' + fun
+        middle = ' prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
+        expression = ex1 + middle + ex3
+        if add_paren:
+            expression = '(' + expression + ')\''
+        allm = list(p.finditer(expression))
+        it = it + 1
+    # expression = resub.sub(r'#','',expression)
+    expression = resub.sub(r'#' + searchstring, r"\1", expression)
+    return expression
+
+
+def index_of_matching_left_paren(result, indbegin):
+    level = 1
+    ind = indbegin
+    while level > 0 and ind > 0:
+        ind = ind - 1
+        if result[ind] == '(':
+            level = level - 1
+        elif result[ind] == ')':
+            level = level + 1
+    assert result[indbegin] == ')', "RIGHT PAREN  MISSING"
+    assert result[ind] == '(', "LEFT PAREN  MISSING"
+    return ind
 
 
 def ascii_to_sympy(expression, funcsubs={}):  # {{{
@@ -75,41 +134,22 @@ def ascii_to_sympy(expression, funcsubs={}):  # {{{
     result = insert_implicit_multiply(result)
     for old, new in dict.items():
         result = result.replace(old, new)
-    result = resub.sub(
-        r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result
-    )  # PUT IN IMPLICITY MULTIPLY IN VARIABLE DEFS WITH UNITS
-
-    def my_replace(match):
-        match1 = match.group(1)
-        fun = str(match1)
-        match2 = match.group(2)
-        match3 = match.group(3)
-        val = funcsubs.get(fun, fun)
-        order = str(len(match2))
-        ret = "prime(" + match1 + match3 + ',' + match3 + ',' + order + ',' + str(val) + ')'
-        return ret
-
+    result = resub.sub(r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result)
     result = replace_user_defined_functions(result, funcsubs)
-    result = resub.sub(r"([A-z]+)([\']+)(\([^\)]+\))", my_replace, result)
-    result = resub.sub(r"(^|\s)d\(", '\1 Partial(', result)
-    while result.find(')\'') > 0:
-        ind = result.index(')\'')
-        level = 1
-        indbegin = ind
-        while level > 0 and ind > 0:
+    result = replace_primes(result, funcsubs)
+    it = 0
+    # REPLACE ALL )\' CONSTRUCTIONS
+    while result.find(')\'') > 0 and it < 20:
+        indend = result.index(')\'')
+        indbegin = index_of_matching_left_paren(result, indend)
+        ind = indbegin
+        while ind > 0 and not result[ind - 1] in ' +-/*':
             ind = ind - 1
-            if result[ind] == '(':
-                level = level - 1
-            elif result[ind] == ')':
-                level = level + 1
-        indend = ind
-        while ind > 0 and ' +-/*'.find(result[ind - 1]) == -1:
-            ind = ind - 1
-        head = result[0:ind]
-        piece1 = result[ind:indend]
-        piece2 = result[indend:indbegin]
-        tail = ')' + result[indbegin + 2 :]
-        result = head + ' Partial( ' + piece1 + piece2 + ' ) ' + tail
+        left = result[0 : max(0, ind - 1)]
+        middle = result[ind : indend + 1]
+        right = result[indend + 2 :]
+        result = left + 'Partial(' + middle + ")" + right
+        it = it + 1
 
     return result  # }}}
 
@@ -194,7 +234,5 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     result = resub.sub(r"ff", r"variableff", result)
     result = resub.sub(r"lambda", r"variablelambda", result)
     result = resub.sub(r" d\(", r" partial(", result)
-    
-    
 
     return result  # }}}

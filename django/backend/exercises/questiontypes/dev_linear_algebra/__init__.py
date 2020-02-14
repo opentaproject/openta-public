@@ -47,6 +47,7 @@ def parse_variables(variables):  # {{{
 
 
 def question_check(question_json, question_xmltree, answer_data, global_xmltree, symex):
+    print("DEV LINEAR ALGEBRA QUESTION_CHECK")
     hints = parsehints(question_xmltree, global_xmltree, answer_data)
     result = {}
     if hints is not None:
@@ -54,6 +55,7 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
             return hints
     check_units = True
     ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
+    print("RET = ", ret)
     used_variables = list(ret['used_variables'])
     variables = ret['variables']
     funcsubs = ret['functions']

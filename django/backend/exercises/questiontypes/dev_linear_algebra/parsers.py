@@ -1,5 +1,6 @@
 from sympy import *
-#from sympy.abc import _clash1, _clash2, _clash
+
+# from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
@@ -50,11 +51,11 @@ def parse_sample_variables(variables, funcsubs={}):
         if not vardict['name'] in units:
             vars_ = vars_ + [vardict]
     for var in vars_:
-        name = str( var['name'])
-        #raise TypeError("A variable cannot be named " + name )
+        name = str(var['name'])
+        # raise TypeError("A variable cannot be named " + name )
         expr = sympify_with_custom(
-            ascii_to_sympy(var['value']), matrix_symbols, funcsubs, 'PARSE_SAMPLE_VARIABLES'
-            )
+            ascii_to_sympy(var['value']), varsubs_sympify, funcsubs, 'PARSE_SAMPLE_VARIABLES'
+        )
         nexpr = simplify(expr.subs(baseunits))
         if hasattr(expr, 'shape'):
             sym[name] = sympy.MatrixSymbol(name, *expr.shape)

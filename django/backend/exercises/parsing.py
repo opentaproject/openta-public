@@ -222,6 +222,11 @@ def question_validate_xmltree(question):
     return True
 
 
+def exercise_xmltree_from_xml(xml):
+    root = etree.fromstring(xml)
+    return root
+
+
 def exercise_xmltree(path):
     xml_path = os.path.join(path, paths.EXERCISE_XML)
     parser = etree.XMLParser(remove_blank_text=True)

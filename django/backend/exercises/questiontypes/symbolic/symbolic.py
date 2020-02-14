@@ -3,7 +3,8 @@ import numpy
 import types
 import sys
 from sympy import *
-#from sympy.abc import _clash1, _clash2, _clash
+
+# from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
@@ -70,21 +71,22 @@ def symbolic_compare_expressions(
     used_variables=[],
     funcsubs={},
 ):
-    all_variables =  [ x['name'] for x in variables]
-    illegalvars = list( set( list( ns.keys() ) ).intersection( set( all_variables) )  )
-    if len( illegalvars) > 0 :
+    s1 = student_answer
+    s2 = correct
+    all_variables = [x['name'] for x in variables]
+    illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
+    if len(illegalvars) > 0:
         response = {}
         response['correct'] = False
-        response['warning'] = 'Illegal variable '  +  ','.join( illegalvars )  + '.'
-        response['debug'] = " Clashes with sympy predefined variables " 
+        response['warning'] = 'Illegal variable ' + ','.join(illegalvars) + '.'
+        response['debug'] = str(illegalvars) + " Clashes with sympy predefined variables "
         return response
-    #variables = list(
+    # variables = list(
     #    filter(lambda item: (item['name'] in dir( sympy.functions) ), variables)
-    #)  # GET RID OF CLASHES WITH FUNCTIONS
-    print(list( dir( sympy.functions) ) )
-    ok = list( set( all_variables ) - set( list( dir( sympy.functions) ) ) ) 
+    # )  # GET RID OF CLASHES WITH FUNCTIONS
+    ok = list(set(all_variables) - set(list(dir(sympy.functions))))
     variables = list(
-        filter(lambda item: (item['name'] in ok ), variables)
+        filter(lambda item: (item['name'] in ok), variables)
     )  # GET RID OF CLASHES WITH FUNCTIONS
     response = {}
     funcsubs_ = {}
@@ -93,8 +95,8 @@ def symbolic_compare_expressions(
     funcsubs = funcsubs_
     prelhs = 'PRELHS'
     try:
-        correct_is_equality = len(correct.split('==')) >  1
-        if '=' in student_answer  and not '==' in student_answer:
+        correct_is_equality = len(correct.split('==')) > 1
+        if '=' in student_answer and not '==' in student_answer:
             response['error'] = 'single equal sign cannot appear in expression'
             response['debug'] = student_answer
             return response
@@ -120,12 +122,12 @@ def symbolic_compare_expressions(
         explanation = ''
         try:
             teststring = '(' + ')-('.join(student_answer.split('==')) + ')'
-            [tlhs,trhs] =  [ x.strip() for x in student_answer.split('==') ]
-            if tlhs == '0' :
+            [tlhs, trhs] = [x.strip() for x in student_answer.split('==')]
+            if '0' == tlhs:
                 teststring = trhs
-            elif trhs == '0' :
+            elif '0' == trhs:
                 teststring = tlhs
-            else  :
+            else:
                 teststring = '(' + ')-('.join(student_answer.split('==')) + ')'
             prelhs = sympify_with_custom(
                 teststring, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
@@ -144,18 +146,17 @@ def symbolic_compare_expressions(
                 explanation = 'The character @ appears in author expression; check for macros with missing semicolon separator or missing :=  in macro definition'
             else:
                 explanation = 'Error in expression'
-            response = dict(error=_(explanation),
-                            debug="SympifyError : " + str(e))
+            response = dict(error=_(explanation), debug="SympifyError : " + str(e))
             return response
         except TypeError as e:
-            explanation = " Type Error: for example forbidden adding matrices and scalars" 
-            response = dict(error=_( explanation),
-                            debug=(type(e).__name__ + ": " + str(e) ))
+            explanation = " Type Error: for example forbidden adding matrices and scalars"
+            response = dict(error=_(explanation), debug=(type(e).__name__ + ": " + str(e)))
             return response
         except Exception as e:
-            response = dict(error=_("ERROR IN AUTHOR EXPRESSION. " + explanation),
-                            debug=(type(e).__name__ + ": " + str(e) )
-                        )
+            response = dict(
+                error=_("ERROR IN AUTHOR EXPRESSION. " + explanation),
+                debug=(type(e).__name__ + ": " + str(e)),
+            )
         if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
             if lhs.shape != rhs.shape:
                 return {
@@ -216,25 +217,24 @@ def symbolic_compare_expressions(
         response = dict(error=_("Unknown error, check your expression."))
         response['debug'] = str(e)
         return response
-
     lhs = sympify_with_custom(
         lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
     ).doit()
     rhs = sympify_with_custom(
         rhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-3'
     ).doit()
-    try : 
-        res = symbolic_check_equality(precision, lhs, rhs, sample_variables, check_units=check_units)
+    try:
+        res = symbolic_check_equality(
+            precision, lhs, rhs, sample_variables, check_units=check_units
+        )
         return res
     except Exception as e:
-        response = dict(error=str(e) , debug=str(e) )
+        response = dict(error=str(e), debug=str(e))
         return response
 
 
 def symbolic_internal(expression1, expression2):  # {{{
     # Do some initial formatting
-    print("EXPRESSION1 = ", expression1)
-    print("EXPRESSION2 = ", expression2)
     number_of_points = 10
     response = {}
     try:
@@ -243,14 +243,14 @@ def symbolic_internal(expression1, expression2):  # {{{
         nvars = {}
         sympy1 = powdenest(factor(sympify(sexpression1, ns)), force=True)
         sympy2 = powdenest(factor(sympify(sexpression2, ns)), force=True)
-        if logger.isEnabledFor(logging.DEBUG):
-            logger.debug('Expression 1: ' + str(sympy1))
-            logger.debug('Expression 2: ' + str(sympy2))
-        if sexpression1 == 0 :
+        # if logger.isEnabledFor(logging.DEBUG):
+        #    logger.debug('Expression 1: ' + str(sympy1))
+        #    logger.debug('Expression 2: ' + str(sympy2))
+        if sympy1 == 0:
             zero = sympy2
-        elif sexpression2 == 0 :
+        elif sympy2 == 0:
             zero = sympy1
-        else :
+        else:
             zero = sympy1 - sympy2
         diffy = Norm(simplify(powdenest(factor(simplify(zero)), force=True)))
         if diffy == 0:
@@ -265,13 +265,13 @@ def symbolic_internal(expression1, expression2):  # {{{
     except TypeError as e:
         logger.error([str(e), expression1, expression2])
         response['debug'] = "Type Error in symbolic_internal :" + str(e)
-        if "cannot add " in str(e) :
-            cls = re.sub(r"<class \'sympy\.core\.([^\\']+).*","\\1",str(e) )
+        if "cannot add " in str(e):
+            cls = re.sub(r"<class \'sympy\.core\.([^\\']+).*", "\\1", str(e))
             response['error'] = "Illegal operation: incompatible types " + cls
     except Exception as e:
         logger.error([str(e), expression1, expression2])
         response['error'] = _("Unknown error2, check your expression.")
-        response['debug'] =  debug=(type(e).__name__ + ": " + str(e) )
+        response['debug'] = debug = type(e).__name__ + ": " + str(e)
     return response  # }}}
 
 
