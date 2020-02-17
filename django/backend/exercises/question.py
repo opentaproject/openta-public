@@ -117,7 +117,7 @@ def register_question_type(
 
 
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
-    print("QUESTION CHECK ANSER_DATA = ", answer_data)
+    # print("QUESTION CHECK ANSER_DATA = ", answer_data)
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
@@ -191,59 +191,61 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         ):
             error_msg = _('Answer rate exceeded, ' 'please wait before trying again. (Rate: ')
             return {'error': error_msg + rate + ')'}
+    try:
+        if dbquestion.type in question_check_dispatch:
+            result = {}
+            try:
+                result = question_check_dispatch[dbquestion.type](
+                    question_json, question_xmltree, answer_data, global_xmltree
+                )
+            except QuestionError as e:
+                return {'error': "XML error: " + str(e)}
+            if 'zerodivision' in result:
+                logger.error(['zerodivision', dbexercise.name, question_key])
+            correct = False
+            if 'correct' in result:
+                correct = result['correct']
+            if user.groups.filter(name='Author').exists() and result.get('debug', False):
+                result['warning'] = result.get('warning', '') + " DEBUG: " + result.get('debug')
 
-    if dbquestion.type in question_check_dispatch:
-        result = {}
-        try:
-            result = question_check_dispatch[dbquestion.type](
-                question_json, question_xmltree, answer_data, global_xmltree
-            )
-        except QuestionError as e:
-            return {'error': "XML error: " + str(e)}
-        if 'zerodivision' in result:
-            logger.error(['zerodivision', dbexercise.name, question_key])
-        correct = False
-        if 'correct' in result:
-            correct = result['correct']
-        if user.groups.filter(name='Author').exists() and result.get('debug', False):
-            result['warning'] = result.get('warning', '') + " DEBUG: " + result.get('debug')
+            else:
+                result.pop('debug', None)
+            if user.has_perm('exercises.log_question'):
+                Answer.objects.create(
+                    user=user,
+                    question=dbquestion,
+                    # question_key=dbquestion.question_key,
+                    # exercise_key=dbexercise.exercise_key,
+                    answer=answer_data,
+                    grader_response=json.dumps(result),
+                    correct=correct,
+                    user_agent=user_agent,
+                )
 
+            usermacros = get_usermacros(user, exercise_key, question_key)
+            previous_answers = get_previous_answers(dbquestion.pk, user.pk)
+            result['previous_answers'] = previous_answers
+            result['n_attempts'] = usermacros['@nattempts']
+            try:
+                result['used_variable_list'] = question_json['used_variable_list']
+            except:
+                result['used_variable_list'] = []
+            usermacros['@call'] = 'question_check'
+            xmltree = exercise_xmltree(dbexercise.get_full_path())
+            # NOTE MUST KEEP THIS IN CASE random is updated
+            question_xmltree = question_xmltree_get(xmltree, question_key, usermacros)
+            if not request.user.has_perm("exercises.view_solution"):
+                question_xmltree = hide_sensitive_tags_in_question(question_xmltree)
+            bfdata = bf.data(question_xmltree)
+            result['question'] = bfdata['question']
+
+            if not dbexercise.meta.feedback:
+                result['correct'] = None
+            return result
         else:
-            result.pop('debug', None)
-        if user.has_perm('exercises.log_question'):
-            Answer.objects.create(
-                user=user,
-                question=dbquestion,
-                # question_key=dbquestion.question_key,
-                # exercise_key=dbexercise.exercise_key,
-                answer=answer_data,
-                grader_response=json.dumps(result),
-                correct=correct,
-                user_agent=user_agent,
-            )
-
-        usermacros = get_usermacros(user, exercise_key, question_key)
-        previous_answers = get_previous_answers(dbquestion.pk, user.pk)
-        result['previous_answers'] = previous_answers
-        result['n_attempts'] = usermacros['@nattempts']
-        try:
-            result['used_variable_list'] = question_json['used_variable_list']
-        except:
-            result['used_variable_list'] = []
-        usermacros['@call'] = 'question_check'
-        xmltree = exercise_xmltree(dbexercise.get_full_path())
-        # NOTE MUST KEEP THIS IN CASE random is updated
-        question_xmltree = question_xmltree_get(xmltree, question_key, usermacros)
-        if not request.user.has_perm("exercises.view_solution"):
-            question_xmltree = hide_sensitive_tags_in_question(question_xmltree)
-        bfdata = bf.data(question_xmltree)
-        result['question'] = bfdata['question']
-
-        if not dbexercise.meta.feedback:
-            result['correct'] = None
-        return result
-    else:
-        return {'error': 'No grading function for question type ' + dbquestion.type}
+            return {'error': 'No grading function for question type ' + dbquestion.type}
+    except Exception as e:
+        raise NameError(str(e))
 
 
 def question_json_hook(safe_question, full_question, question_id, user_id, exercise_key):

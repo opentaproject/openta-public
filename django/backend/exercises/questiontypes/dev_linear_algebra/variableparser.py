@@ -7,6 +7,8 @@ from exercises.util import compose
 from lxml import etree
 import logging
 import re
+from django.core.cache import cache
+from exercises.util import get_hash_from_string
 
 
 def get_used_variable_list(correct_answer):
@@ -22,7 +24,7 @@ def get_used_variable_list(correct_answer):
     [
         used_variable_list.append(item)
         for item in lis
-        if ((item not in used_variable_list) and (item not in ['e', 'E', 'pi', 'I']))
+        if ((item not in used_variable_list) and (item not in ['e', 'E', 'pi', 'I', 'ff', 'FF']))
     ]  # SELECT UNIQUE ITEMS
     return used_variable_list
 
@@ -66,6 +68,8 @@ def parse_xml_variables(node):
     variables = node.findall('var')
     for var in variables:
         token = ((var.find('token')).text).strip()
+        if token in ['ff', 'FF', 'I']:
+            raise NameError('Variable ' + token + ' is disallowed')
         value = None
         if not (var.find('value')) is None:
             value = ((var.find('value')).text).strip()
@@ -89,11 +93,16 @@ def parse_xml_functions(node):
     variables = node.findall('func')
     for var in variables:
         token = ((var.find('token')).text).strip()
+        if token in ['ff', 'FF', 'I']:
+            raise NameError('Function name ' + token + ' is disallowed')
         value = None
         if not (var.find('value')) is None:
             value = ((var.find('value')).text).strip()
+        args = []
+        if not (var.find('args')) is None:
+            args = ((var.find('args')).text).strip()
         if token is not None and value is not None:
-            ress.append({'name': token, 'value': value, 'tex': 'TeX'})
+            ress.append({'name': token, 'args': args, 'value': value, 'tex': 'TeX'})
     # print("RESS = ", ress )
     return ress
 
@@ -117,6 +126,15 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
     blacklist allows cherrypicking of variables from the globals list,
         both disallowing use and exposure.
         '''
+    bigstring = 'getallvariables'
+    if global_xmltree  is not None:
+        bigstring =  etree.tostring(global_xmltree,encoding='UTF-8')   
+    if question_xmltree is not None:
+          bigstring = bigstring +  etree.tostring(question_xmltree,encoding='UTF-8')  
+    varhash = get_hash_from_string( str( bigstring) )
+    ret = cache.get(varhash)
+    if ret is not None:
+        return ret
     variables = []
     blacklist = set([])
     correct_answer = ''
@@ -173,10 +191,10 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         )  # GET RID OF CLASHES WITH FUNCTIONS
     # print("GETALL VARIABLESS = ", variables )
     funs = parse_xml_functions(global_xmltree)
-    # print("FUNCTIONS = ", funs )
     ret['variables'] = variables
     ret['authorvariables'] = variables
     ret['blacklist'] = blacklist
     ret['correct_answer'] = correct_answer
     ret['functions'] = funs
+    cache.set(varhash, ret, 60 * 60 ) 
     return ret

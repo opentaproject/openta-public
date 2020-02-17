@@ -8,6 +8,7 @@ import random
 import itertools
 from sympy.core import S
 from .unithelpers import baseunits
+from sympy.core.function import AppliedUndef
 
 from exercises.questiontypes.safe_run import safe_run
 import logging
@@ -22,6 +23,27 @@ from .string_formatting import (
 )
 from .unithelpers import *
 from .functions import *
+
+
+def replace_funcs_once(sexpr, funcsubs):
+    for sub in funcsubs:
+        func_def = sympy.Function(sub['name'])
+        argnames = ','.join([item.name for item in sub['args']])
+        funcdefstring = sub['name'] + '(' + argnames + ')'
+        func_def = sympy.sympify(funcdefstring)
+        func_body = sympy.sympify(sub['value'])
+        sexpr = func_sub(sexpr, func_def, func_body)
+    return sexpr
+
+
+def replace_funcs(sexpr, funcsubs):
+    # print("INCOMING = ", sexpr)
+    while True:
+        prev = sexpr
+        sexpr = replace_funcs_once(sexpr, funcsubs)
+        if sexpr == prev:
+            # print("OUTGOING = ", sexpr)
+            return sexpr
 
 
 def parse_sample_variables(variables, funcsubs={}):
@@ -83,7 +105,35 @@ def parse_sample_variables(variables, funcsubs={}):
     return (varsubs, varsubs_sympify, sample_variables)
 
 
-def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
+def func_sub_single(expr, func_def, func_body):
+    # Find the expression to be replaced, return if not there
+    for unknown_func in expr.atoms(AppliedUndef):
+        # print("REPLACING ", unknown_func , " IN ", expr )
+        if unknown_func.func == func_def.func:
+            replacing_func = unknown_func
+            break
+    else:
+        # print("RETURNING ", expr )
+        return expr
+    arg_sub = {from_arg: to_arg for from_arg, to_arg in zip(func_def.args, replacing_func.args)}
+    func_body_subst = func_body.subs(arg_sub)
+    ret = expr.subs(replacing_func, func_body_subst)
+    # print("RETURNING ", ret )
+    return ret
+
+
+def func_sub(expr, func_def, func_body):
+    if any(func_def.func == body_func.func for body_func in func_body.atoms(AppliedUndef)):
+        raise ValueError('Function may not be recursively defined')
+
+    while True:
+        prev = expr
+        expr = func_sub_single(expr, func_def, func_body)
+        if prev == expr:
+            return expr
+
+
+def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
     """
     Convert asciimath expression into sympy using extra context
     Args:
@@ -93,7 +143,6 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     Returns:
         Sympy expression
     """
-    sexpr = ascii_to_sympy(expression, funcsubs)
     scope = {
         'abs': Norm,  # sympy.Function('norm')
         'Abs': Norm,  # sympy.Function('norm')
@@ -121,7 +170,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
         'Partial': partial,
         'partial': partial,
-        'prime': prime,
+        'Prime': Prime,
         'Not': logicalnot,
         'IsEqual': eq,
         'IsNotEqual': neq,
@@ -142,17 +191,33 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'KetMBra': KetMBra,
         'Braket': Braket,
         'NullRank': nullrank,
+        'sample' : sample,
     }
-
+    if source == "PARSE_SAMPLE_VARIABLES"  :
+        scope.update({ 'sample' : sample } )
+    #print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM",source)
+    #print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM",expression)
+    #print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
+    sexpr = ascii_to_sympy(declash(expression), {})
+    # print("NS = ", ns )
     scope.update(ns)
     scope.update(varsubs)
-    sexpr = sympy.sympify(sexpr, scope)
     scope_symbolic = {
         'x': sympy.sympify('x'),
         'y': sympy.sympify('y'),
         'z': sympy.sympify('z'),
         't': sympy.sympify('t'),
     }
-    sexpr = sympy.sympify(sexpr, scope_symbolic).doit()
+    # print("SCOPE = ", scope )
+    sexpr = sympy.sympify(sexpr, scope)
+    #print("4 EXPRESSION 2 AFTER FUNCSUB",sexpr)
+    sexpr = replace_funcs(sexpr, funcsubs).doit()
+    #print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
+    scope.update(scope_symbolic)
+    sexpr = sympy.sympify(str(sexpr), scope).doit()
+    #print("6 EXPRESSION 2 AFTER FUNCSUB",sexpr)
+    # print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
+    sexpr = sexpr.doit()
+    #print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
 
     return sexpr

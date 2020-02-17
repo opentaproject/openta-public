@@ -29,6 +29,7 @@ from exercises.questiontypes.dev_linear_algebra.checks import *
 from exercises.questiontypes.dev_linear_algebra.parsers import *
 import re
 import inspect
+from sympy.printing.mathml import *
 
 
 logger = logging.getLogger(__name__)
@@ -89,9 +90,13 @@ def symbolic_compare_expressions(
         filter(lambda item: (item['name'] in ok), variables)
     )  # GET RID OF CLASHES WITH FUNCTIONS
     response = {}
-    funcsubs_ = {}
+    funcsubs_ = []
     for sub in funcsubs:
-        funcsubs_[sub['name']] = sympify(sub['value'])
+        fsub = {}
+        fsub['name'] = sub['name']
+        fsub['args'] = [sympify(item.strip()) for item in sub['args'].split(',')]
+        fsub['value'] = sub['value']
+        funcsubs_ = funcsubs_ + [fsub]
     funcsubs = funcsubs_
     prelhs = 'PRELHS'
     try:
@@ -252,12 +257,13 @@ def symbolic_internal(expression1, expression2):  # {{{
             zero = sympy1
         else:
             zero = sympy1 - sympy2
-        diffy = Norm(simplify(powdenest(factor(simplify(zero)), force=True)))
+        shouldbezero =  simplify(powdenest(factor(simplify(zero)), force=True))
+        diffy = Norm(shouldbezero)
         if diffy == 0:
             response['correct'] = True
         else:
             response['correct'] = False
-            response['debug'] = "diff reduces to " + str(diffy)
+            response['debug'] = "diff reduces to $" + latex(shouldbezero) + '$'
     except SympifyError as e:
         logger.error([str(e), expression1, expression2])
         response['debug'] = str(e)
@@ -266,8 +272,11 @@ def symbolic_internal(expression1, expression2):  # {{{
         logger.error([str(e), expression1, expression2])
         response['debug'] = "Type Error in symbolic_internal :" + str(e)
         if "cannot add " in str(e):
-            cls = re.sub(r"<class \'sympy\.core\.([^\\']+).*", "\\1", str(e))
-            response['error'] = "Illegal operation: incompatible types " + cls
+            cls = re.sub(r"<class \'sympy\.core\.[^\.]*\.*([^\\']+).*", "\\1", str(e))
+            cls = re.sub(r"matrix","matrix or vector",cls)
+            cls = re.sub(r"(Mul|Add)",'something else ', cls)
+            cls = re.sub(r"(NegativeOne)",'integer ', cls)
+            response['error'] = "Incompatible types: " + cls
     except Exception as e:
         logger.error([str(e), expression1, expression2])
         response['error'] = _("Unknown error2, check your expression.")
