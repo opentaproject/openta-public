@@ -42,6 +42,7 @@ from utils import response_from_messages
 from django.utils.translation import ugettext as _
 from django.http import StreamingHttpResponse
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.cache import cache
 from django.contrib.auth.decorators import permission_required
 from django.template.response import TemplateResponse
 from django.template import loader
@@ -52,7 +53,7 @@ from ratelimit.decorators import ratelimit
 from django.views.decorators.cache import never_cache
 from PIL import Image
 import exercises.paths as paths
-import datetime
+import datetime, hashlib
 import PyPDF2
 import logging
 from django.conf import settings
@@ -332,38 +333,49 @@ def exercise_xml(request, exercise):
 
 
 def validate_exercise_globals(xml):
-    messages = []
-    obj = exercise_xml_to_json(xml)
+    #
+    # CHECK EXERCISE GLOBALS AND QUESTIONS IF GLOBALS CHANGE
+    # DONT BOTHER CHECKING QUESTIONS IF QUESTIONS CHANGE
+    # SINCE AUTHOR TYPICALLY CHECKS THIS ANYWAY
+    #
+    cache_seconds = 60 * 60
     parser = etree.XMLParser(recover=True)
     root = etree.fromstring(xml, parser=parser)
     global_xpath = (
         '/exercise/global[@type="{type}"] | /exercise/global[not(@type)] | /exercise/global'
     )
     global_xmltree = (root.xpath(global_xpath) or [None])[0]
+    globalhash = (
+        hashlib.md5(
+            re.sub(r"\s+", ' ', str(etree.tostring(global_xmltree))).encode('utf-8')
+        ).hexdigest()
+    )[:10]
+    messages = cache.get(globalhash)
+    if messages is not None:
+        return messages
+    else:
+        messages = []
+    messages = []
     xml_variables = parse_xml_variables(global_xmltree)
-    # print("XML VARIABLES = ", xml_variables)
     funcsubs = parse_xml_functions(global_xmltree)
-    # print("xml_variables = ", xml_variables)
+    obj = exercise_xml_to_json(xml)
     questions = obj['exercise']['question']
     types_to_check = []
     for question in questions:
         types_to_check = types_to_check + [question['@attr']['type']]
     types_to_check = list(set(types_to_check))
-    print("TYPES TO CHECK = ", types_to_check)
-    # types_to_check = ['symbolic' ]
     expressions = [x['name'] + ' == ' + x['value'] for x in xml_variables]
-    # print("EXPRESSIONS = ", expressions)
     try:
         for question_type in types_to_check:
             symex = compare_function[question_type]
             variables = xml_variables
             funcsubs = parse_xml_functions(global_xmltree)
             precision = 1.0e-6
+            result = {}
             for expression in expressions:
                 expr = "QuestionType " + question_type + " :Error in global definitions: "
                 result = symex(precision, variables, expression, '0 == 0', True, [], [], funcsubs)
                 if (not result.get('correct')) or result.get('error'):
-                    print("ERROR = ", result)
                     msg = expr + result.get('error', '') + result.get('debug', '')
                     msg = re.sub(r"[\'<>]", '', msg)
                     messages.append(('error', msg))
@@ -372,55 +384,55 @@ def validate_exercise_globals(xml):
             question_xmltrees = root.findall(
                 './question[@type="{type}"]'.format(type=question_type)
             )
-            for question_xmltree in question_xmltrees:
-                ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
-                used_variables = list(ret['used_variables'])
-                variables = ret['variables']
-                funcsubs = ret['functions']
-                authorvariables = ret['authorvariables']
-                blacklist = ret['blacklist']
-                correct_answer = ret['correct_answer']
-                precision = 1.0e-6
-                try:
-                    expr = correct_answer + '  '
-                    result = symex(
-                        precision,
-                        variables,
-                        correct_answer,
-                        correct_answer,
-                        True,
-                        [],
-                        used_variables,
-                        funcsubs,
-                    )
-                    if result.get('error'):
-                        msg = (
-                            "Error in question with answer "
-                            + expr
-                            + ":   "
-                            + result.get('debug', '')
-                        )
-                        msg = re.sub(r"[\'<>]", '', msg)
-                        messages.append(('error', msg))
-                        return messages
-                    else:
-                        pass
-
-                except:
+        for question_xmltree in question_xmltrees:
+            result = {}
+            ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
+            used_variables = list(ret['used_variables'])
+            variables = ret['variables']
+            funcsubs = ret['functions']
+            authorvariables = ret['authorvariables']
+            blacklist = ret['blacklist']
+            correct_answer = ret['correct_answer']
+            precision = 1.0e-6
+            question_type = question['@attr']['type']
+            symex = compare_function[question_type]
+            try:
+                expr = correct_answer + '  '
+                result = symex(
+                    precision,
+                    variables,
+                    correct_answer,
+                    correct_answer,
+                    True,
+                    [],
+                    used_variables,
+                    funcsubs,
+                )
+                if result.get('error'):
                     msg = "Error in question with answer " + expr + ":   " + result.get('debug', '')
                     msg = re.sub(r"[\'<>]", '', msg)
                     messages.append(('error', msg))
                     return messages
+                else:
+                    pass
+
+            except:
+                msg = "Error in question with answer " + expr + ":   " + result.get('debug', '')
+                msg = re.sub(r"[\'<>]", '', msg)
+                messages.append(('error', msg))
+                return messages
     except Exception as e:
-        messages.append(('error', str(e)))
+        messages.append(('error', type(e).__name__ + str(e)))
         return messages
-    return []
+    cache.set(globalhash, messages, cache_seconds)
+    return messages
 
 
 def validate_exercise_xml(xml):
-    messages = validate_exercise_globals(xml)
-    xmlschema = etree.XMLSchema(etree.parse(paths.EXERCISE_XSD))
+    messages = []
     try:
+        messages = validate_exercise_globals(xml)
+        xmlschema = etree.XMLSchema(etree.parse(paths.EXERCISE_XSD))
         parser = etree.XMLParser(recover=True)
         root = etree.fromstring(xml, parser=parser)
         xmlschema.assert_(root)
@@ -438,6 +450,10 @@ def validate_exercise_xml(xml):
         elif 'Element \'asciimath\': This element is not expected' in msg:
             msg = msg + ' You may need to wrap the element with &lt;text&gt tag '
         messages.append(('error', 'XML Error: ' + msg))
+    except NameError as e:
+        messages.append(
+            ('error', "From validate_exercise_xml: " + type(e).__name__ + "  :  " + str(e))
+        )
     return messages
 
 
@@ -474,7 +490,6 @@ def exercise_check(request, exercise, question):
     if not dbexercise.meta.published and not request.user.has_perm('exercises.edit_exercise'):
         return Response({'error': _('Exercise not activated.')}, status.HTTP_403_FORBIDDEN)
 
-    print("RUNNING_DEVSERVER = ", settings.RUNNING_DEVSERVER)
     if (
         getattr(request, 'limited', False)
         and not request.user.is_staff
@@ -491,8 +506,7 @@ def exercise_check(request, exercise, question):
         )
         return Response(result)
     except NameError as e:
-        print("Name Error ", str(e))
-        return Response({'error': str(e)})
+        return Response({'error': "Origin: exercise_check. " + str(e)})
 
 
 @never_cache
@@ -532,7 +546,6 @@ def upload_answer_image(request, exercise):
             filetype=ImageAnswer.IMAGE,
         )
         extension = image_answer.image.path.split('.')[-1]
-        print("EXTENSION = ", extension)
         image_answer.save()
         # if  not 'tif' in extension :
         image_answer.compress()
@@ -628,7 +641,6 @@ def image_answers_get(request, exercise):
 
 @api_view(['POST'])
 def image_answer_delete(request, pk):
-    print("TRY DELETION")
     try:
         image_answer = ImageAnswer.objects.get(pk=pk)
     except ObjectDoesNotExist:

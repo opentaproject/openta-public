@@ -22,7 +22,7 @@ def get_used_variable_list(correct_answer):
     [
         used_variable_list.append(item)
         for item in lis
-        if ((item not in used_variable_list) and (item not in ['e', 'E', 'pi', 'I']))
+        if ((item not in used_variable_list) and (item not in ['e', 'E', 'pi', 'I', 'ff', 'FF']))
     ]  # SELECT UNIQUE ITEMS
     return used_variable_list
 
@@ -66,6 +66,8 @@ def parse_xml_variables(node):
     variables = node.findall('var')
     for var in variables:
         token = ((var.find('token')).text).strip()
+        if token in ['ff', 'FF', 'I']:
+            raise NameError('Variable ' + token + ' is disallowed')
         value = None
         if not (var.find('value')) is None:
             value = ((var.find('value')).text).strip()
@@ -89,11 +91,16 @@ def parse_xml_functions(node):
     variables = node.findall('func')
     for var in variables:
         token = ((var.find('token')).text).strip()
+        if token in ['ff', 'FF', 'I']:
+            raise NameError('Function name ' + token + ' is disallowed')
         value = None
         if not (var.find('value')) is None:
             value = ((var.find('value')).text).strip()
+        args = []
+        if not (var.find('args')) is None:
+            args = ((var.find('args')).text).strip()
         if token is not None and value is not None:
-            ress.append({'name': token, 'value': value, 'tex': 'TeX'})
+            ress.append({'name': token, 'args': args, 'value': value, 'tex': 'TeX'})
     # print("RESS = ", ress )
     return ress
 
@@ -173,7 +180,6 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         )  # GET RID OF CLASHES WITH FUNCTIONS
     # print("GETALL VARIABLESS = ", variables )
     funs = parse_xml_functions(global_xmltree)
-    # print("FUNCTIONS = ", funs )
     ret['variables'] = variables
     ret['authorvariables'] = variables
     ret['blacklist'] = blacklist

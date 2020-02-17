@@ -1,7 +1,8 @@
 import sympy
 import numpy
 from sympy import sympify, symbols
-from sympy.abc import _clash1, _clash2, _clash
+
+# from sympy.abc import _clash1, _clash2, _clash
 
 units = 'meter,second,kg,ampere,kelvin,mole,candela'
 
@@ -13,7 +14,7 @@ ns = {}
 syms = ['C', 'O', 'Q', 'N', 'I', 'E', 'S', 'beta', 'zeta', 'gamma', 'pi']
 syms = ['N', 'I', 'E', 'pi']
 syms = ['N']
-myclash = dict([(x, _clash[x]) for x in syms])
+# myclash = dict([(x, _clash[x]) for x in syms])
 
 # ns.update(myclash)
 ns.update(
@@ -28,8 +29,8 @@ ns.update(
         'pi': sympy.pi,
         'e': sympy.E,
         'I': sympy.I,
-        'ff': sympy.Symbol('ff'),
-        'FF': sympy.Symbol('FF'),
+        #'ff': sympy.Symbol('ff'),
+        #'FF': sympy.Symbol('FF'),
         'N': sympy.Symbol('N'),
     }
 )

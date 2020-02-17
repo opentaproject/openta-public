@@ -57,7 +57,7 @@ def replace_user_defined_functions(expression, funcsubs):
         rep = funcsubs[fun]
         order = str(head.count('\''))
         fun = '#' + fun
-        middle = ' prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
+        middle = ' Prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
         expression = ex1 + middle + ex3
         if add_paren:
             expression = '(' + expression + ')\''
@@ -95,7 +95,7 @@ def replace_primes(expression, funcsubs):
         rep = funcsubs.get(fun, fun)
         order = str(head.count('\''))
         fun = '#' + fun
-        middle = ' prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
+        middle = ' Prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
         expression = ex1 + middle + ex3
         if add_paren:
             expression = '(' + expression + ')\''
@@ -135,7 +135,7 @@ def ascii_to_sympy(expression, funcsubs={}):  # {{{
     for old, new in dict.items():
         result = result.replace(old, new)
     result = resub.sub(r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result)
-    result = replace_user_defined_functions(result, funcsubs)
+    # result = replace_user_defined_functions(result, funcsubs)
     result = replace_primes(result, funcsubs)
     it = 0
     # REPLACE ALL )\' CONSTRUCTIONS

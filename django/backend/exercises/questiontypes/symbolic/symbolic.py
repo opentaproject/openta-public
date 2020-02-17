@@ -89,9 +89,13 @@ def symbolic_compare_expressions(
         filter(lambda item: (item['name'] in ok), variables)
     )  # GET RID OF CLASHES WITH FUNCTIONS
     response = {}
-    funcsubs_ = {}
+    funcsubs_ = []
     for sub in funcsubs:
-        funcsubs_[sub['name']] = sympify(sub['value'])
+        fsub = {}
+        fsub['name'] = sub['name']
+        fsub['args'] = [sympify(item.strip()) for item in sub['args'].split(',')]
+        fsub['value'] = sub['value']
+        funcsubs_ = funcsubs_ + [fsub]
     funcsubs = funcsubs_
     prelhs = 'PRELHS'
     try:

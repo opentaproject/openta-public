@@ -50,13 +50,16 @@ class SymbolicTest(TestCase):
             {'name': 'vE', 'value': 'grad(phi)'},
         ]
         # True equalities
-        funcsubs = [
-            {'name': 'ff', 'value': 'sinh(x)', 'tex': 'TeX'},
-            {'name': 'gg', 'value': 'cosh(x)', 'tex': 'TeX'},
-            {'name': 'FF', 'value': 'F(x)', 'tex': 'TeX'},
-            {'name': 'GG', 'value': 'G(x)', 'tex': 'TeX'},
+        nfuncsubs = [
+            {'name': 'fg', 'args': 'x', 'value': 'sinh(x)', 'tex': 'TeX'},
+            {'name': 'gg', 'args': 'x', 'value': 'cosh(x)', 'tex': 'TeX'},
+            {'name': 'FG', 'args': 'x', 'value': 'F(x)', 'tex': 'TeX'},
+            {'name': 'GG', 'args': 'x', 'value': 'G(x)', 'tex': 'TeX'},
+            {'name': 'squared', 'args': 'x', 'value': 'x**2', 'tex': 'TeX'},
         ]
+
         var = '[[1,1 + I ], [ 1 - I, 1 ]  ]'
+
         self.assertEqual(
             symbolic_compare_expressions(
                 precision, variables, ' IsHermitian([[1,I],[-I,1]]) ', ' 1 '
@@ -181,23 +184,49 @@ class SymbolicTest(TestCase):
         )
 
         eqs = [
-            "partial( gg( ff(x) ) , x ) == gg\'( ff(x) ) ff\'(x)",
+            "partial( gg( fg(x) ) , x ) == gg\'( fg(x) ) fg\'(x)",
             ' ( cos( gg(x) ) )\' ==  - sin( gg(x) ) gg\'(x) ',
-            '( gg( ff( gg(x) ) ))\' == gg\'(  ff( gg( x )  ) )  ff\'( gg(x)  ) gg\'( x ) ',
-            '( GG( FF( GG(x) ) ))\' == GG\'(  FF( GG( x )  ) )  FF\'( GG(x)  ) GG\'( x ) ',
-            'gg( ff( gg(x) ) )\' == gg\'(  ff( gg( x )  ) )  ff\'( gg(x)  ) gg\'( x ) ',
+            '( gg( fg( gg(x) ) ))\' == gg\'(  fg( gg( x )  ) )  fg\'( gg(x)  ) gg\'( x ) ',
+            '( GG( FG( GG(x) ) ))\' == GG\'(  FG( GG( x )  ) )  FG\'( GG(x)  ) GG\'( x ) ',
+            'gg( fg( gg(x) ) )\' == gg\'(  fg( gg( x )  ) )  fg\'( gg(x)  ) gg\'( x ) ',
             '( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'(x)',
-            '( ff( cosh(x) ) )\' == ff\'( cosh(x) ) cosh\'(x)',
-            '( tanh( ff(x) ) )\' == tanh\'( ff(x) ) ff\'(x)',
-            '( FF( cosh(x) ) )\' == FF\'( cosh(x) ) cosh\'(x)',
-            '( tanh( FF(x) ) )\' == tanh\'( FF(x) ) FF\'(x)',
+            '( fg( cosh(x) ) )\' == fg\'( cosh(x) ) cosh\'(x)',
+            '( tanh( fg(x) ) )\' == tanh\'( fg(x) ) fg\'(x)',
+            '( FG( cosh(x) ) )\' == FG\'( cosh(x) ) cosh\'(x)',
+            '( tanh( FG(x) ) )\' == tanh\'( FG(x) ) FG\'(x)',
             ' vE == [1,1,1] ',
+            ' squared(x^2)  == x^4 ',
         ]
+        # self.assertEqual(
+        #        symbolic_compare_expressions(
+        #            precision, [] ,  " tanh( cosh(x) ) )\'" , "tanh\'( cosh(x) ) cosh\'(x)",False, [], [], nfuncsubs
+        #        )['correct'],
+        #        True,
+        #    )
+
+        funcsubs = [
+            {"name": "f", "args": "x", "value": "F(x)", "tex": "TeX"},
+            {"name": "g", "args": "x", "value": "G(x)", "tex": "TeX"},
+            {"name": "fg", "args": "x", "value": "sinh(x)", "tex": "TeX"},
+            {"name": "gg", "args": "x", "value": "cosh(x)", "tex": "TeX"},
+            {"name": "FG", "args": "x", "value": "F(x)", "tex": "TeX"},
+            {"name": "GG", "args": "x", "value": "G(x)", "tex": "TeX"},
+        ]
+        expressions = ["( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )"]
+
+        for expression in expressions:
+            self.assertEqual(
+                symbolic_compare_expressions(
+                    precision, [], expression, " 0 == 0 ", True, [], [], funcsubs
+                )['correct'],
+                True,
+            )
+
         for eq in eqs:
             print("\nTESTING \n ", eq)
             self.assertEqual(
                 symbolic_compare_expressions(
-                    precision, variables, eq, '0==0', False, [], ['x'], funcsubs
+                    precision, variables, eq, '0==0', False, [], [], nfuncsubs
                 )['correct'],
                 True,
             )

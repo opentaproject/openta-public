@@ -417,12 +417,15 @@ class grad(sympy.Function):
         res = [diff(fun, x), diff(fun, y), diff(fun, z)]
         return sympy.sympify(Matrix(res))
 
+
 class del2(sympy.Function):
     nargs = 1
+
     @classmethod
     def eval(cls, fun):
         from sympy.abc import x, y, z, t
-        res = diff(fun, x,x ) + diff(fun,y,y) + diff(fun,z,z)
+
+        res = diff(fun, x, x) + diff(fun, y, y) + diff(fun, z, z)
         return res
 
 
@@ -467,32 +470,52 @@ class IsDiagonalizable(sympy.Function):
                 return sympy.sympify('0')
 
 
-class prime(sympy.Function):
-    nargs = (1, 2, 3, 4, 5)
+class Prime(sympy.Function):
+    nargs = (1, 2, 3, 4, 5, 6)
 
     @classmethod
     def eval(cls, *arg):
+        # print(" INTO PRIME WITH ", arg )
         first = arg[0]
         fourth = arg[3]
         order = int(arg[2])
+        # print("first= ", first)
+        # print("second = ", arg[1] )
+        # print("third = ", arg[2] )
+        # print("FOURTH = ", fourth )
         qqq = sympy.symbols('qqq')
-        corefunc = 'FunctionClass' in str(type(arg[3]))
-        if not corefunc:
-            deriv = fourth
-            # qqq = list(fourth.free_symbols)[0]
-            deriv = deriv.func(qqq)
-            while order > 0:
-                order = order - 1
-                deriv = diff(deriv, qqq)
-            result = deriv.subs(qqq, arg[1]).doit()
-        else:
-            fun = fourth
-            deriv = fun(qqq)
-            while order > 0:
-                order = order - 1
-                deriv = diff(deriv, qqq)
-            result = deriv.subs(qqq, arg[1])
+        fun = fourth
+        deriv = fun(qqq)
+        while order > 0:
+            order = order - 1
+            deriv = diff(deriv, qqq)
+        result = deriv.subs(qqq, arg[1]).doit()
+        # print("PRIME RESULT IS ", result)
         return result
+
+
+class Partial(sympy.Function):
+    nargs = (1, 2, 3, 4, 5)
+
+    @classmethod
+    def eval(cls, *f):
+        if len(f) < 1:
+            return sympy.sympify('derivative or partial used withouth argument')  # }}}
+        elif len(f) == 1:
+            fun = f[0]
+            x = list(fun.free_symbols)[0]
+            return diff(fun, x)
+        elif len(f) < 6:
+            fun = f[0]
+            x = list(fun.free_symbols)
+            res = fun
+            ind = 1
+            while ind < len(f):
+                res = diff(res, f[ind])
+                ind = ind + 1
+            return res
+        else:
+            return sympy.sympify('derivative or partial used with too many arguments')  # }}}
 
 
 class partial(sympy.Function):
