@@ -134,6 +134,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'False': sympy.sympify('0'),
         'times': Times,
         'dot': Dot,
+        'del2': del2,
         'sort': Sort,
         'Sort': Sort,
         'norm': Norm,

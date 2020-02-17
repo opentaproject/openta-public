@@ -417,6 +417,18 @@ class grad(sympy.Function):
         res = [diff(fun, x), diff(fun, y), diff(fun, z)]
         return sympy.sympify(Matrix(res))
 
+class del2(sympy.Function):
+    nargs = 1
+    @classmethod
+    def eval(cls, fun):
+        from sympy.abc import x, y, z, t
+        res = diff(fun, x,x ) + diff(fun,y,y) + diff(fun,z,z)
+        return res
+
+
+class curl(sympy.Function):
+    nargs = 1
+
 
 class curl(sympy.Function):
     nargs = 1
