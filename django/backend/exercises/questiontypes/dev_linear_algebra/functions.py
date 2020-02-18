@@ -366,12 +366,12 @@ class Dot(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-        from sympy.abc import x, y, z, t
 
         if len(arg) == 1:
+            from sympy.abc import x, y, z, t
             print("DOT WITH ARGUMENT 1 ")
             t = sympify('t')
-            return diff(arg[0], t)
+            return diff(arg[0], t).doit()
         if len(arg) == 2:
             print("DOT WITH ARGUMENT 2 ")
             x = arg[0]
@@ -415,7 +415,9 @@ class grad(sympy.Function):
         from sympy.abc import x, y, z, t
 
         res = [diff(fun, x), diff(fun, y), diff(fun, z)]
-        return sympy.sympify(Matrix(res))
+        res = sympy.sympify(Matrix(res))
+        res = res.doit()
+        return res
 
 
 class del2(sympy.Function):
@@ -423,14 +425,11 @@ class del2(sympy.Function):
 
     @classmethod
     def eval(cls, fun):
+        print("ENTERED del2")
         from sympy.abc import x, y, z, t
-
         res = diff(fun, x, x) + diff(fun, y, y) + diff(fun, z, z)
+        res = res.doit()
         return res
-
-
-class curl(sympy.Function):
-    nargs = 1
 
 
 class curl(sympy.Function):

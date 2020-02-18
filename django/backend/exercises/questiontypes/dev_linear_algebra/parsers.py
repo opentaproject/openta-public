@@ -193,9 +193,9 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'NullRank': nullrank,
     }
 
-    # print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM",source)
-    # print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM",expression)
-    # print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
+    print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM",source)
+    print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM",expression)
+    print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
     sexpr = ascii_to_sympy(declash(expression), {})
     # print("NS = ", ns )
     scope.update(ns)
@@ -208,13 +208,14 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     }
     # print("SCOPE = ", scope )
     sexpr = sympy.sympify(sexpr, scope)
-    # print("5 EXPRESSION 2 AFTER FUNCSUB",sexpr)
+    print("4 EXPRESSION 2 AFTER FUNCSUB",sexpr)
     sexpr = replace_funcs(sexpr, funcsubs).doit()
-    # print("5.1 EXPRSSION  AFTER FUNCSUB ", sexpr)
+    print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
     scope.update(scope_symbolic)
     sexpr = sympy.sympify(sexpr, scope).doit()
-    # print("5 EXPRESSION 2 AFTER FUNCSUB",sexpr)
+    print("6 EXPRESSION 2 AFTER FUNCSUB",sexpr)
     # print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
     sexpr = sexpr.doit()
+    print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
 
     return sexpr

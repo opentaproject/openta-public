@@ -37,7 +37,7 @@ from exercises.modelhelpers import serialize_exercise_with_question_data
 from exercises.modelhelpers import exercise_folder_structure, exercise_test
 from exercises.views.file_handling import serve_file
 from exercises.time import before_deadline
-from exercises.util import deep_get
+from exercises.util import deep_get,get_hash_from_string
 from utils import response_from_messages
 from django.utils.translation import ugettext as _
 from django.http import StreamingHttpResponse
@@ -345,11 +345,7 @@ def validate_exercise_globals(xml):
         '/exercise/global[@type="{type}"] | /exercise/global[not(@type)] | /exercise/global'
     )
     global_xmltree = (root.xpath(global_xpath) or [None])[0]
-    globalhash = (
-        hashlib.md5(
-            re.sub(r"\s+", ' ', str(etree.tostring(global_xmltree))).encode('utf-8')
-        ).hexdigest()
-    )[:10]
+    globalhash =  get_hash_from_string(   str( etree.tostring(global_xmltree,encoding=str) )  )
     messages = cache.get(globalhash)
     if messages is not None:
         return messages
