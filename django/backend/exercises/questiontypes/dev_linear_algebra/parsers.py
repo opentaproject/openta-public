@@ -133,7 +133,7 @@ def func_sub(expr, func_def, func_body):
             return expr
 
 
-def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
+def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
     """
     Convert asciimath expression into sympy using extra context
     Args:
@@ -191,11 +191,13 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'KetMBra': KetMBra,
         'Braket': Braket,
         'NullRank': nullrank,
+        'sample' : sample,
     }
-
-    print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM",source)
-    print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM",expression)
-    print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
+    if source == "PARSE_SAMPLE_VARIABLES"  :
+        scope.update({ 'sample' : sample } )
+    #print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM",source)
+    #print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM",expression)
+    #print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
     sexpr = ascii_to_sympy(declash(expression), {})
     # print("NS = ", ns )
     scope.update(ns)
@@ -208,14 +210,14 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     }
     # print("SCOPE = ", scope )
     sexpr = sympy.sympify(sexpr, scope)
-    print("4 EXPRESSION 2 AFTER FUNCSUB",sexpr)
+    #print("4 EXPRESSION 2 AFTER FUNCSUB",sexpr)
     sexpr = replace_funcs(sexpr, funcsubs).doit()
-    print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
+    #print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
     scope.update(scope_symbolic)
     sexpr = sympy.sympify(str(sexpr), scope).doit()
-    print("6 EXPRESSION 2 AFTER FUNCSUB",sexpr)
+    #print("6 EXPRESSION 2 AFTER FUNCSUB",sexpr)
     # print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
     sexpr = sexpr.doit()
-    print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
+    #print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
 
     return sexpr

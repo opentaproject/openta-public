@@ -359,7 +359,9 @@ def validate_exercise_globals(xml):
     types_to_check = []
     for question in questions:
         types_to_check = types_to_check + [question['@attr']['type']]
-    types_to_check = list(set(types_to_check))
+    types_to_check = list(set(types_to_check).intersection( set(['symbolic','devLinearAlgebra']) ) )
+    if len( types_to_check ) == 0 :
+        return []
     expressions = [x['name'] + ' == ' + x['value'] for x in xml_variables]
     try:
         for question_type in types_to_check:
