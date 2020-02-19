@@ -212,7 +212,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     sexpr = replace_funcs(sexpr, funcsubs).doit()
     print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
     scope.update(scope_symbolic)
-    sexpr = sympy.sympify(sexpr, scope).doit()
+    sexpr = sympy.sympify(str(sexpr), scope).doit()
     print("6 EXPRESSION 2 AFTER FUNCSUB",sexpr)
     # print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
     sexpr = sexpr.doit()
