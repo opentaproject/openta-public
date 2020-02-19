@@ -3,6 +3,7 @@ from collections import OrderedDict
 import functools
 import random
 import operator
+from .parsers import ascii_to_sympy
 from exercises.util import compose
 from lxml import etree
 import logging
@@ -97,7 +98,7 @@ def parse_xml_functions(node):
             raise NameError('Function name ' + token + ' is disallowed')
         value = None
         if not (var.find('value')) is None:
-            value = ((var.find('value')).text).strip()
+            value = ascii_to_sympy( ((var.find('value')).text).strip() )
         args = []
         if not (var.find('args')) is None:
             args = ((var.find('args')).text).strip()

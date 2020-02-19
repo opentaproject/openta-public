@@ -164,7 +164,7 @@
   </xs:element>
 
 <xs:element name="token" type="xs:NCName"/>
-<xs:element name="args" type="xs:NCName"/>
+<xs:element name="args" type="xs:string"/>
 
 
  

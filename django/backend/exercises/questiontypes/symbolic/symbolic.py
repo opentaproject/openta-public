@@ -94,7 +94,8 @@ def symbolic_compare_expressions(
     for sub in funcsubs:
         fsub = {}
         fsub['name'] = sub['name']
-        fsub['args'] = [sympify(item.strip()) for item in sub['args'].split(',')]
+        args = sub['args'].lstrip('[').rstrip(']')
+        fsub['args'] = [sympify(item.strip()) for item in args.split(',')]
         fsub['value'] = sub['value']
         funcsubs_ = funcsubs_ + [fsub]
     funcsubs = funcsubs_
