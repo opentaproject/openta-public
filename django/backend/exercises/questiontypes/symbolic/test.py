@@ -211,8 +211,11 @@ class SymbolicTest(TestCase):
             {"name": "gg", "args": "x", "value": "cosh(x)", "tex": "TeX"},
             {"name": "FG", "args": "x", "value": "F(x)", "tex": "TeX"},
             {"name": "GG", "args": "x", "value": "G(x)", "tex": "TeX"},
+            {"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
         ]
-        expressions = ["( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )"]
+        expressions = ["( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
+                        " iden(xhat) == xhat ",
+                        ]
 
         for expression in expressions:
             self.assertEqual(

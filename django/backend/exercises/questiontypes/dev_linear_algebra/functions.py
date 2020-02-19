@@ -13,6 +13,7 @@ import traceback
 import random
 import itertools
 from sympy.core import S
+from sympy.matrices import Matrix
 
 from exercises.questiontypes.safe_run import safe_run
 import logging
