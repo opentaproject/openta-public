@@ -369,11 +369,9 @@ class Dot(sympy.Function):
 
         if len(arg) == 1:
             from sympy.abc import x, y, z, t
-            print("DOT WITH ARGUMENT 1 ")
             t = sympify('t')
             return diff(arg[0], t).doit()
         if len(arg) == 2:
-            print("DOT WITH ARGUMENT 2 ")
             x = arg[0]
             y = arg[1]
             if str(x) == '0' or str(y) == '0':
