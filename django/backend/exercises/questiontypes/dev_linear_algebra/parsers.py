@@ -23,6 +23,7 @@ from .string_formatting import (
 )
 from .unithelpers import *
 from .functions import *
+from sympy.matrices import Matrix
 
 
 def replace_funcs_once(sexpr, funcsubs):
@@ -193,6 +194,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
         'NullRank': nullrank,
         'sample' : sample,
     }
+    myscope = scope
     if source == "PARSE_SAMPLE_VARIABLES"  :
         scope.update({ 'sample' : sample } )
     #print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM",source)
@@ -208,15 +210,25 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
         'z': sympy.sympify('z'),
         't': sympy.sympify('t'),
     }
-    # print("SCOPE = ", scope )
-    sexpr = sympy.sympify(sexpr, scope)
-    #print("4 EXPRESSION 2 AFTER FUNCSUB",sexpr)
+    
+    #print("3.2 EXPRESSION ", sexpr )
+    try :
+        # HACK TODO
+        # print("SCOPE = ", scope )
+        #  TYPE ERROR WHEN DEFININ f(xhat) == xhat
+        #  and f i identify function 
+        #
+        sexpr = sympy.sympify(sexpr, scope)
+        #print("4 EXPRESSION 2 AFTER FUNCSUB",sexpr)
+    except TypeError as e :
+        #print("ERROR = ", str(e), type(e).__name__ )
+        pass
     sexpr = replace_funcs(sexpr, funcsubs).doit()
     #print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
     scope.update(scope_symbolic)
     sexpr = sympy.sympify(str(sexpr), scope).doit()
     #print("6 EXPRESSION 2 AFTER FUNCSUB",sexpr)
-    # print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
+    #print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
     sexpr = sexpr.doit()
     #print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
 
