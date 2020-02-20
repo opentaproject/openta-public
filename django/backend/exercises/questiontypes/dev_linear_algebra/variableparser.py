@@ -98,7 +98,7 @@ def parse_xml_functions(node):
             raise NameError('Function name ' + token + ' is disallowed')
         value = None
         if not (func.find('value')) is None:
-            value = ascii_to_sympy( ((func.find('value')).text).strip() )
+            value = ascii_to_sympy(((func.find('value')).text).strip())
         args = []
         if not (func.find('args')) is None:
             args = ((func.find('args')).text).strip()
@@ -128,11 +128,11 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         both disallowing use and exposure.
         '''
     bigstring = 'getallvariables'
-    if global_xmltree  is not None:
-        bigstring =  etree.tostring(global_xmltree,encoding='UTF-8')   
+    if global_xmltree is not None:
+        bigstring = etree.tostring(global_xmltree, encoding='UTF-8')
     if question_xmltree is not None:
-          bigstring = bigstring +  etree.tostring(question_xmltree,encoding='UTF-8')  
-    varhash = get_hash_from_string( str( bigstring) )
+        bigstring = bigstring + etree.tostring(question_xmltree, encoding='UTF-8')
+    varhash = get_hash_from_string(str(bigstring))
     ret = cache.get(varhash)
     if ret is not None:
         return ret
@@ -197,5 +197,5 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
     ret['blacklist'] = blacklist
     ret['correct_answer'] = correct_answer
     ret['functions'] = funs
-    cache.set(varhash, ret, 60 * 60 ) 
+    cache.set(varhash, ret, 60 * 60)
     return ret

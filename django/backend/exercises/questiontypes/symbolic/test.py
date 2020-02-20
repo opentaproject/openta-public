@@ -213,9 +213,12 @@ class SymbolicTest(TestCase):
             {"name": "GG", "args": "x", "value": "G(x)", "tex": "TeX"},
             {"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
         ]
-        expressions = ["( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
-                        " iden(xhat) == xhat ",
-                        ]
+        expressions = [
+            "( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
+            " iden(xhat) == xhat ",
+            #" iden(xhat) -  xhat == 0 ",
+            #" iden(xhat) - 2 xhat == [-1,0,0]",
+        ]
 
         for expression in expressions:
             self.assertEqual(
@@ -226,14 +229,13 @@ class SymbolicTest(TestCase):
             )
 
         for eq in eqs:
-            print("\nTESTING \n ", eq)
+            print("TESTING ", eq)
             self.assertEqual(
                 symbolic_compare_expressions(
                     precision, variables, eq, '0==0', False, [], [], nfuncsubs
                 )['correct'],
                 True,
             )
-            print("\nEND\n")
 
         variables = [
             {"name": "c", "value": "1", "tex": "TeX"},
@@ -271,3 +273,31 @@ class SymbolicTest(TestCase):
             )['correct'],
             True,
         )
+
+        maxwell_varsubs = [{"name": "c", "value": "5", "tex": "TeX"},
+             {"name": "A", "value": "-y   xhat + x yhat + 2  cos( c t -  z ) xhat", "tex": "TeX"},
+             {"name": "pphi", "value": "1 / sqrt( x^2 + y^2 + z^2 )", "tex": "TeX"},
+             {"name": "B", "value": "curl(A)", "tex": "TeX"}, 
+             {"name": "E", "value": "- grad( pphi)  - 1/ c  dot(A)", "tex": "TeX"}, 
+             {"name": "J", "value": "1/( 4 pi )  ( curl(B) - 1/c dot(E) )", "tex": "TeX"}, 
+             {"name": "rho", "value": "1/( 4 pi )  div(E)", "tex": "TeX"}]
+     
+        maxwell_funcsubs = [{"name": "d4", "args": "[Q]", "value": "del2(Q) - 1/c**2 * dot(dot(Q) )", "tex": "TeX"}, 
+            {"name": "ckit", "args": "Q", "value": "Q", "tex": "TeX"}] 
+        
+        print("DOING MAXWELL")
+        eqs = ['curl(E) + 1/c dot(B) == 0' ,
+               'del2(A) == 1/c^2 partial(A,t,t)',
+               'd4(A) == 0 ',
+               'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  '
+              ]
+        for eq in eqs :
+            [eq1,eq2] = eq.split('==')
+            print("DOING ", eq1,eq2 )
+            self.assertEqual(
+                symbolic_compare_expressions(
+                    1e-06, maxwell_varsubs, eq1 ,eq2, False, [],[], maxwell_funcsubs
+                )['correct'],
+                True,
+            )
+

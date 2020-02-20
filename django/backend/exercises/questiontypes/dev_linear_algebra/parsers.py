@@ -4,6 +4,7 @@ from sympy import *
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
+import re as resub
 import random
 import itertools
 from sympy.core import S
@@ -29,10 +30,10 @@ from sympy.matrices import Matrix
 def replace_funcs_once(sexpr, funcsubs):
     for sub in funcsubs:
         func_def = sympy.Function(sub['name'])
-        args =  ( sub['args'] ).lstrip('[').rstrip(']')
-        funcdefstring = sub['name'] + '(' + args+ ')'
-        func_def = sympy.sympify(funcdefstring)
-        func_body = sympy.sympify(sub['value'])
+        args = (sub['args']).lstrip('[').rstrip(']')
+        funcdefstring = sub['name'] + '(' + args + ')'
+        func_def = sympy.sympify(funcdefstring )
+        func_body = sympy.sympify(sub['value'] )
         sexpr = func_sub(sexpr, func_def, func_body)
     return sexpr
 
@@ -108,22 +109,24 @@ def parse_sample_variables(variables, funcsubs={}):
 
 def func_sub_single(expr, func_def, func_body):
     # Find the expression to be replaced, return if not there
+    #print("DO FUNC_SUB_SINGLE")
     for unknown_func in expr.atoms(AppliedUndef):
         # print("REPLACING ", unknown_func , " IN ", expr )
         if unknown_func.func == func_def.func:
             replacing_func = unknown_func
             break
     else:
-        # print("RETURNING ", expr )
+        #print("RETURNING ", expr)
         return expr
     arg_sub = {from_arg: to_arg for from_arg, to_arg in zip(func_def.args, replacing_func.args)}
     func_body_subst = func_body.subs(arg_sub)
     ret = expr.subs(replacing_func, func_body_subst)
-    # print("RETURNING ", ret )
+    #print("RETURNING ", ret)
     return ret
 
 
 def func_sub(expr, func_def, func_body):
+    #print("FUNCSUB", expr)
     if any(func_def.func == body_func.func for body_func in func_body.atoms(AppliedUndef)):
         raise ValueError('Function may not be recursively defined')
 
@@ -134,7 +137,7 @@ def func_sub(expr, func_def, func_body):
             return expr
 
 
-def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
+def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     """
     Convert asciimath expression into sympy using extra context
     Args:
@@ -166,9 +169,9 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
         'curl': curl,
         'div': div,
         'grad': grad,
-        'xhat': sympy.sympify(Matrix([1, 0, 0])),
-        'yhat': sympy.sympify(Matrix([0, 1, 0])),
-        'zhat': sympy.sympify(Matrix([0, 0, 1])),
+        #'xhat': sympy.sympify(Matrix([1, 0, 0])),
+        #'yhat': sympy.sympify(Matrix([0, 1, 0])),
+        #'zhat': sympy.sympify(Matrix([0, 0, 1])),
         'Partial': partial,
         'partial': partial,
         'Prime': Prime,
@@ -192,15 +195,15 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
         'KetMBra': KetMBra,
         'Braket': Braket,
         'NullRank': nullrank,
-        'sample' : sample,
+        'sample': sample,
     }
     myscope = scope
-    if source == "PARSE_SAMPLE_VARIABLES"  :
-        scope.update({ 'sample' : sample } )
-    #print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM",source)
-    print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM",expression)
-    print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
-    print("3 IN SYMPIFY WITH CUSTOM VARSUBS = ", varsubs )
+    if source == "PARSE_SAMPLE_VARIABLES":
+        scope.update({'sample': sample})
+    #print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM", source)
+    #print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM", expression)
+    #print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
+    #print("4 IN SYMPIFY WITH CUSTOM VARSUBS = ", varsubs)
     sexpr = ascii_to_sympy(declash(expression), {})
     # print("NS = ", ns )
     scope.update(ns)
@@ -210,67 +213,68 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
         'y': sympy.sympify('y'),
         'z': sympy.sympify('z'),
         't': sympy.sympify('t'),
+        'xhat': sympy.sympify(Matrix([1, 0, 0])),
+        'yhat': sympy.sympify(Matrix([0, 1, 0])),
+        'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-    
+
     #print("3.2 EXPRESSION ", sexpr )
-    try :
-        # HACK TODO
-        # print("SCOPE = ", scope )
-        #  TYPE ERROR WHEN DEFININ f(xhat) == xhat
-        #  and f i identify function 
-        #
-        sexpr = sympy.sympify(sexpr, scope)
-        #print("4 EXPRESSION 2 AFTER FUNCSUB",sexpr)
-    except TypeError as e :
-        print("ERROR = ", str(e), type(e).__name__ )
-        pass
+    sexpr = sympy.sympify(sexpr, scope)
+    #print("3.3 EXPRESSION ", sexpr )
     sexpr = replace_funcs(sexpr, funcsubs).doit()
     #print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
     scope.update(scope_symbolic)
     sexpr = sympy.sympify(str(sexpr), scope).doit()
-    #print("6 EXPRESSION 2 AFTER FUNCSUB",sexpr)
-    #print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
+    #print("6 EXPRESSION 2 AFTER scope ", sexpr)
+    # print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
     sexpr = sexpr.doit()
-    #print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
+    # print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
 
     return sexpr
 
-def pre(expr,level=0):
-     name = 'NONAME' if not hasattr(expr,'name') else  getattr(expr,'name') 
-     newargs = None
-     if expr.is_Function :
-            if str(expr.func) == "tanh" :
-                print("TANH FOUND")
-                expr = Function('cosh')(*expr.args)
-            print("FOUND FUNCTION", expr.func)
-     elif expr.is_Symbol :
-            #if name == "x" :
-            #    expr.name = name + 'j'
-            #else :
-            #    expr = expr
-            expr = expr
-            print("FOUND SYMBOL ", name)
-     elif expr.is_Atom:
-            expr = expr
-            print("ATOM FOUND", name)
-     else :
-            print("COMPLEX EXPRESSION", expr )
-            newargs = [ pre(item, level) for item in expr.args]
-            expr = expr.__class__( *newargs)
-     print("NEW = ", expr)
-     return expr
 
-def test( expression ):
-    pre( expression)
+def pre(expr, level=0):
+    '''
+     #
+     # TEST WITH 
+     from sympy import *
+     pre( sympify('1 + tanh(x)')
+     #
+     '''
+    name = 'NONAME' if not hasattr(expr, 'name') else getattr(expr, 'name')
+    newargs = None
+    if expr.is_Function:
+        if str(expr.func) == "tanh":
+            print("TANH FOUND")
+            expr = Function('cosh')(*expr.args)
+        print("FOUND FUNCTION", expr.func)
+    elif expr.is_Symbol:
+        # if name == "x" :
+        #    expr.name = name + 'j'
+        # else :
+        #    expr = expr
+        expr = expr
+        print("FOUND SYMBOL ", name)
+    elif expr.is_Atom:
+        expr = expr
+        print("ATOM FOUND", name)
+    else:
+        print("COMPLEX EXPRESSION", expr)
+        newargs = [pre(item, level) for item in expr.args]
+        expr = expr.__class__(*newargs)
+    print("NEW = ", expr)
+    return expr
 
+
+def test(expression):
+    pre(expression)
 
 
 #'''
-#from exercises.questiontypes.dev_linear_algebra.parsers import *
-#funcsubs = [{'name': 'f', 'args': '[q]', 'value': '3 * q'}, {'name': 'g', 'args': '[x,y]', 'value': 'G(x)'}]
-#expression = '(f(yhat) )-( yhat)'
-#expression = 'f(q)'
-#sexpr = sympify( expression )
-#sympify_with_custom(expression,{}, funcsubs)
+# from exercises.questiontypes.dev_linear_algebra.parsers import *
+# funcsubs = [{'name': 'f', 'args': '[q]', 'value': '3 * q'}, {'name': 'g', 'args': '[x,y]', 'value': 'G(x)'}]
+# expression = '(f(yhat) )-( yhat)'
+# expression = 'f(q)'
+# sexpr = sympify( expression )
+# sympify_with_custom(expression,{}, funcsubs)
 #'''
-
