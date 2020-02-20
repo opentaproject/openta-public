@@ -235,6 +235,36 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
 
     return sexpr
 
+def pre(expr,level=0):
+     name = 'NONAME' if not hasattr(expr,'name') else  getattr(expr,'name') 
+     newargs = None
+     if expr.is_Function :
+            if str(expr.func) == "tanh" :
+                print("TANH FOUND")
+                expr = Function('cosh')(*expr.args)
+            print("FOUND FUNCTION", expr.func)
+     elif expr.is_Symbol :
+            #if name == "x" :
+            #    expr.name = name + 'j'
+            #else :
+            #    expr = expr
+            expr = expr
+            print("FOUND SYMBOL ", name)
+     elif expr.is_Atom:
+            expr = expr
+            print("ATOM FOUND", name)
+     else :
+            print("COMPLEX EXPRESSION", expr )
+            newargs = [ pre(item, level) for item in expr.args]
+            expr = expr.__class__( *newargs)
+     print("NEW = ", expr)
+     return expr
+
+def test( expression ):
+    pre( expression)
+
+
+
 #'''
 #from exercises.questiontypes.dev_linear_algebra.parsers import *
 #funcsubs = [{'name': 'f', 'args': '[q]', 'value': '3 * q'}, {'name': 'g', 'args': '[x,y]', 'value': 'G(x)'}]
