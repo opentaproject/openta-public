@@ -173,6 +173,24 @@ export default class QuestionDevLinearAlgebra extends Component {
          return '\\nabla \\times (' + tex0 + ')'
         }
       }
+
+    
+      else if( node.name === 'cross'  ){
+        var tex0 = node.args[0].toTex(options);
+        var tex1 = node.args[1].toTex(options);
+        
+         var child = node.args[0]
+         if ( child.type ==  'SymbolNode' ){
+            return  tex0 + ' \\times ' + tex1 + ''
+            }
+          else {
+         return '(' + tex0 + ' \\times ' + tex1 + ')'
+        }
+      }
+
+
+
+
       else if( node.name === 'div'  ){
         var child = node.args[0]
          var tex0 = child.toTex(options);
