@@ -29,8 +29,8 @@ from sympy.matrices import Matrix
 def replace_funcs_once(sexpr, funcsubs):
     for sub in funcsubs:
         func_def = sympy.Function(sub['name'])
-        argnames = ','.join([item.name for item in sub['args']])
-        funcdefstring = sub['name'] + '(' + argnames + ')'
+        args =  ( sub['args'] ).lstrip('[').rstrip(']')
+        funcdefstring = sub['name'] + '(' + args+ ')'
         func_def = sympy.sympify(funcdefstring)
         func_body = sympy.sympify(sub['value'])
         sexpr = func_sub(sexpr, func_def, func_body)
@@ -198,8 +198,9 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
     if source == "PARSE_SAMPLE_VARIABLES"  :
         scope.update({ 'sample' : sample } )
     #print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM",source)
-    #print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM",expression)
-    #print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
+    print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM",expression)
+    print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
+    print("3 IN SYMPIFY WITH CUSTOM VARSUBS = ", varsubs )
     sexpr = ascii_to_sympy(declash(expression), {})
     # print("NS = ", ns )
     scope.update(ns)
@@ -221,7 +222,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
         sexpr = sympy.sympify(sexpr, scope)
         #print("4 EXPRESSION 2 AFTER FUNCSUB",sexpr)
     except TypeError as e :
-        #print("ERROR = ", str(e), type(e).__name__ )
+        print("ERROR = ", str(e), type(e).__name__ )
         pass
     sexpr = replace_funcs(sexpr, funcsubs).doit()
     #print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
@@ -233,3 +234,13 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN' ) :
     #print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
 
     return sexpr
+
+#'''
+#from exercises.questiontypes.dev_linear_algebra.parsers import *
+#funcsubs = [{'name': 'f', 'args': '[q]', 'value': '3 * q'}, {'name': 'g', 'args': '[x,y]', 'value': 'G(x)'}]
+#expression = '(f(yhat) )-( yhat)'
+#expression = 'f(q)'
+#sexpr = sympify( expression )
+#sympify_with_custom(expression,{}, funcsubs)
+#'''
+

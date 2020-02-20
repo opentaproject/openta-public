@@ -88,20 +88,20 @@ def parse_xml_functions(node):
     res = []
     textvariables = []
     # if not node.text is None:
-    #    ress = ress + new_parse_variables(node.text)
+    #    ress = ress + new_parse_functions(node.text)
     if not node.find('functions') is None:
         node = node.find('functions')
-    variables = node.findall('func')
-    for var in variables:
-        token = ((var.find('token')).text).strip()
+    functions = node.findall('func')
+    for func in functions:
+        token = ((func.find('token')).text).strip()
         if token in ['ff', 'FF', 'I']:
             raise NameError('Function name ' + token + ' is disallowed')
         value = None
-        if not (var.find('value')) is None:
-            value = ascii_to_sympy( ((var.find('value')).text).strip() )
+        if not (func.find('value')) is None:
+            value = ascii_to_sympy( ((func.find('value')).text).strip() )
         args = []
-        if not (var.find('args')) is None:
-            args = ((var.find('args')).text).strip()
+        if not (func.find('args')) is None:
+            args = ((func.find('args')).text).strip()
         if token is not None and value is not None:
             ress.append({'name': token, 'args': args, 'value': value, 'tex': 'TeX'})
     # print("RESS = ", ress )

@@ -90,15 +90,16 @@ def symbolic_compare_expressions(
         filter(lambda item: (item['name'] in ok), variables)
     )  # GET RID OF CLASHES WITH FUNCTIONS
     response = {}
-    funcsubs_ = []
-    for sub in funcsubs:
-        fsub = {}
-        fsub['name'] = sub['name']
-        args = sub['args'].lstrip('[').rstrip(']')
-        fsub['args'] = [sympify(item.strip()) for item in args.split(',')]
-        fsub['value'] = sub['value']
-        funcsubs_ = funcsubs_ + [fsub]
-    funcsubs = funcsubs_
+    #funcsubs_ = []
+    #for sub in funcsubs:
+    #    fsub = {}
+    #    fsub['name'] = sub['name']
+    #    #args = sub['args'].lstrip('[').rstrip(']')
+    #    #fsub['args'] = [sympify(item.strip()) for item in args.split(',')]
+    #    fsub['args'] = sub['args']
+    #    fsub['value'] = sub['value']
+    #    funcsubs_ = funcsubs_ + [fsub]
+    #funcsubs = funcsubs_
     prelhs = 'PRELHS'
     try:
         correct_is_equality = len(correct.split('==')) > 1
