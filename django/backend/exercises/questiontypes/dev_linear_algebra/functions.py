@@ -370,6 +370,7 @@ class Dot(sympy.Function):
 
         if len(arg) == 1:
             from sympy.abc import x, y, z, t
+
             t = sympify('t')
             return diff(arg[0], t).doit()
         if len(arg) == 2:
@@ -404,16 +405,19 @@ class IsDiagonal(sympy.Function):
                 return sympy.sympify('1')
             else:
                 return sympy.sympify('0')
+
+
 #
 # INCLUDE THIS IN SCOPE OF symbolic
 # SO THAT SYMBOLIC QUESTION IS BACKWARD COMPATIBLE
 # SINCE SYMBOLIC DOES NOT DO sample
 #
 
-class sample( sympy.Function ) :
+
+class sample(sympy.Function):
     @classmethod
     def eval(cls, x):
-            return x
+        return x
 
 
 class grad(sympy.Function):
@@ -436,6 +440,7 @@ class del2(sympy.Function):
     def eval(cls, fun):
         print("ENTERED del2")
         from sympy.abc import x, y, z, t
+
         res = diff(fun, x, x) + diff(fun, y, y) + diff(fun, z, z)
         res = res.doit()
         return res

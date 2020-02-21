@@ -90,8 +90,8 @@ def symbolic_compare_expressions(
         filter(lambda item: (item['name'] in ok), variables)
     )  # GET RID OF CLASHES WITH FUNCTIONS
     response = {}
-    #funcsubs_ = []
-    #for sub in funcsubs:
+    # funcsubs_ = []
+    # for sub in funcsubs:
     #    fsub = {}
     #    fsub['name'] = sub['name']
     #    #args = sub['args'].lstrip('[').rstrip(']')
@@ -99,7 +99,7 @@ def symbolic_compare_expressions(
     #    fsub['args'] = sub['args']
     #    fsub['value'] = sub['value']
     #    funcsubs_ = funcsubs_ + [fsub]
-    #funcsubs = funcsubs_
+    # funcsubs = funcsubs_
     prelhs = 'PRELHS'
     try:
         correct_is_equality = len(correct.split('==')) > 1
@@ -141,7 +141,7 @@ def symbolic_compare_expressions(
             )
             # for var in used_variables:
             #    diff_ = diff(prelhs, sympify(var))
-            #    diff_ = diff_.subs(varsubs)
+            #    diff_ = diff_.subs(varubs)
             #    print("DIFF = ", diff_)
             #    #if  Norm(diff_) == 0:
             #    #    return {
@@ -156,8 +156,12 @@ def symbolic_compare_expressions(
             response = dict(error=_(explanation), debug="SympifyError : " + str(e))
             return response
         except TypeError as e:
-            explanation = " Type Error: for example forbidden adding matrices and scalars"
-            response = dict(error=_(explanation), debug=(type(e).__name__ + ": " + str(e)))
+            explanation = " Type Error: i.e. for instance adding matrices and scalars "
+            #explanation = explanation + str( student_answer)
+            p = re.compile('(x|y|z)hat') 
+            if p.search( str(student_answer ) ) :
+                explanation = 'TypeError:  coordinates xhat,yhat,zhat cannot be mixed with explicit vectors'
+            response = dict(error=_(explanation), debug=(type(e).__name__ + ": " + str(e) + ' : Functions cannot return Matrix type'))
             return response
         except Exception as e:
             response = dict(
@@ -259,7 +263,7 @@ def symbolic_internal(expression1, expression2):  # {{{
             zero = sympy1
         else:
             zero = sympy1 - sympy2
-        shouldbezero =  simplify(powdenest(factor(simplify(zero)), force=True))
+        shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
         diffy = Norm(shouldbezero)
         if diffy == 0:
             response['correct'] = True
@@ -275,9 +279,9 @@ def symbolic_internal(expression1, expression2):  # {{{
         response['debug'] = "Type Error in symbolic_internal :" + str(e)
         if "cannot add " in str(e):
             cls = re.sub(r"<class \'sympy\.core\.[^\.]*\.*([^\\']+).*", "\\1", str(e))
-            cls = re.sub(r"matrix","matrix or vector",cls)
-            cls = re.sub(r"(Mul|Add)",'something else ', cls)
-            cls = re.sub(r"(NegativeOne)",'integer ', cls)
+            cls = re.sub(r"matrix", "matrix or vector", cls)
+            cls = re.sub(r"(Mul|Add)", 'something else ', cls)
+            cls = re.sub(r"(NegativeOne)", 'integer ', cls)
             response['error'] = "Incompatible types: " + cls
     except Exception as e:
         logger.error([str(e), expression1, expression2])

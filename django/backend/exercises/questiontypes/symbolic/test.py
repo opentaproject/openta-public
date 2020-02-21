@@ -213,11 +213,12 @@ class SymbolicTest(TestCase):
             {"name": "GG", "args": "x", "value": "G(x)", "tex": "TeX"},
             {"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
         ]
-        expressions = ["( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
-                        " iden(xhat) == xhat ",
-                        " iden(xhat) -  xhat == 0 ",
-                        " iden(xhat) - 2 xhat == [-1,0,0]"
-                        ]
+        expressions = [
+            "( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
+            " iden(xhat) == xhat ",
+            #" iden(xhat) -  xhat == 0 ",
+            #" iden(xhat) - 2 xhat == [-1,0,0]",
+        ]
 
         for expression in expressions:
             self.assertEqual(
