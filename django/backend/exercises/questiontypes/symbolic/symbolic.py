@@ -156,7 +156,7 @@ def symbolic_compare_expressions(
             response = dict(error=_(explanation), debug="SympifyError : " + str(e))
             return response
         except TypeError as e:
-            explanation = " Type Error: i.e. for instance adding matrices and scalars "
+            explanation = " Type Error: i.e. for instance adding or comparing matrices and scalars "
             #explanation = explanation + str( student_answer)
             p = re.compile('(x|y|z)hat') 
             if p.search( str(student_answer ) ) :
