@@ -131,14 +131,17 @@ def symbolic_compare_expressions(
             teststring = '(' + ')-('.join(student_answer.split('==')) + ')'
             [tlhs, trhs] = [x.strip() for x in student_answer.split('==')]
             if '0' == tlhs:
-                teststring = trhs
+                prelhs = sympify_with_custom(
+                    trhs , varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
+                )
             elif '0' == trhs:
-                teststring = tlhs
+                prelhs = sympify_with_custom(
+                    tlhs , varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
+                )
             else:
-                teststring = '(' + ')-('.join(student_answer.split('==')) + ')'
-            prelhs = sympify_with_custom(
-                teststring, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
-            )
+                prelhs = (sympify_with_custom( trhs , varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1') - 
+                    sympify_with_custom( tlhs , varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1') 
+                )
             # for var in used_variables:
             #    diff_ = diff(prelhs, sympify(var))
             #    diff_ = diff_.subs(varubs)
@@ -254,6 +257,8 @@ def symbolic_internal(expression1, expression2):  # {{{
         nvars = {}
         sympy1 = powdenest(factor(sympify(sexpression1, ns)), force=True)
         sympy2 = powdenest(factor(sympify(sexpression2, ns)), force=True)
+        #print("SYMPY1 = ", sympy1 )
+        #print("SYMPY2 = ", sympy2 )
         # if logger.isEnabledFor(logging.DEBUG):
         #    logger.debug('Expression 1: ' + str(sympy1))
         #    logger.debug('Expression 2: ' + str(sympy2))

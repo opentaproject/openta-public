@@ -218,8 +218,9 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
 
-    # print("3.2 EXPRESSION ", sexpr )
+    #print("3.2 EXPRESSION ", sexpr )
     sexpr = sympy.sympify(sexpr, scope)
+    #print("3.3 EXPRESSION ", sexpr )
     sexpr = replace_funcs(sexpr, funcsubs).doit()
     #print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
     scope.update(scope_symbolic)

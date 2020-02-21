@@ -274,7 +274,7 @@ class SymbolicTest(TestCase):
             True,
         )
 
-        maxwell_varsubs = [{"name": "c", "value": "sample( 2.7283 )", "tex": "TeX"},
+        maxwell_varsubs = [{"name": "c", "value": "5", "tex": "TeX"},
              {"name": "A", "value": "-y   xhat + x yhat + 2  cos( c t -  z ) xhat", "tex": "TeX"},
              {"name": "pphi", "value": "1 / sqrt( x^2 + y^2 + z^2 )", "tex": "TeX"},
              {"name": "B", "value": "curl(A)", "tex": "TeX"}, 
@@ -287,14 +287,16 @@ class SymbolicTest(TestCase):
         
         print("DOING MAXWELL")
         eqs = ['curl(E) + 1/c dot(B) == 0' ,
-               'del2(A) - 1/c^2 partial(A,t,t)',
-               'd4(A) == 0 '
+               'del2(A) == 1/c^2 partial(A,t,t)',
+               'd4(A) == 0 ',
+               'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  '
               ]
         for eq in eqs :
-            print("DOING ", eq )
+            [eq1,eq2] = eq.split('==')
+            print("DOING ", eq1,eq2 )
             self.assertEqual(
                 symbolic_compare_expressions(
-                    1e-06, maxwell_varsubs, "curl(E) ", "  -  1/c dot(B)", False, [],[], maxwell_funcsubs
+                    1e-06, maxwell_varsubs, eq1 ,eq2, False, [],[], maxwell_funcsubs
                 )['correct'],
                 True,
             )
