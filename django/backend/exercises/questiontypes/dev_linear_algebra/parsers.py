@@ -32,8 +32,8 @@ def replace_funcs_once(sexpr, funcsubs):
         func_def = sympy.Function(sub['name'])
         args = (sub['args']).lstrip('[').rstrip(']')
         funcdefstring = sub['name'] + '(' + args + ')'
-        func_def = sympy.sympify(funcdefstring, evaluate=False)
-        func_body = sympy.sympify(sub['value'], evaluate=False)
+        func_def = sympy.sympify(funcdefstring )
+        func_body = sympy.sympify(sub['value'] )
         sexpr = func_sub(sexpr, func_def, func_body)
     return sexpr
 
