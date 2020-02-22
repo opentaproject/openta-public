@@ -122,7 +122,7 @@ class IsDiagonalizationOf(sympy.Function):
             return None
 
 
-class Transpose(sympy.Function):
+class localTranspose(sympy.Function):
     @classmethod
     def eval(cls, x):
         if isinstance(x, sympy.MatrixBase):
@@ -172,6 +172,22 @@ class IsHermitian(sympy.Function):
                 return sympy.sympify('0')
         else:
             return None
+
+
+class crossfunc(sympy.Function):
+    nargs = (1, 2)
+
+    @classmethod
+    def eval(cls, *arg):
+
+        if len(arg) == 2:
+            x = arg[0]
+            y = arg[1]
+            if str(x) == '0' or str(y) == '0':
+                return 0
+            return Cross(x, y)
+        else:
+            raise TypeError('cross product needs two arguments')
 
 
 class Cross(sympy.MatrixExpr):
@@ -438,7 +454,6 @@ class del2(sympy.Function):
 
     @classmethod
     def eval(cls, fun):
-        print("ENTERED del2")
         from sympy.abc import x, y, z, t
 
         res = diff(fun, x, x) + diff(fun, y, y) + diff(fun, z, z)
@@ -459,7 +474,7 @@ class curl(sympy.Function):
         return sympy.sympify(Matrix(res))
 
 
-class div(sympy.Function):
+class localdiv(sympy.Function):
     nargs = 1
 
     @classmethod

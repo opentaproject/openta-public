@@ -23,4 +23,37 @@ def compose(*funcs):
 def get_hash_from_string(string):
     string_to_hash = str(re.sub(r'(\s|\\n)*', '', str(string)))
     globalhash = (hashlib.md5(string_to_hash.encode('utf-8')).hexdigest())[:10]
-    return globalhash
+    res = ''
+    for c in globalhash:
+        if c.isdigit():
+            c = chr(int(c) + 97)
+        res = res + c
+    return res
+
+
+def index_of_matching_right_paren(beg, expression):
+    level = 1
+    ind = beg + 1
+    while level > 0 and ind < len(expression):
+        if expression[ind] == ')':
+            level = level - 1
+        elif expression[ind] == '(':
+            level = level + 1
+        ind = ind + 1
+    assert expression[beg] == '(', 'LEFT PAREN WRONG'
+    assert expression[ind - 1] == ')', 'RIGHT PAREN WRONG'
+    return ind
+
+
+def index_of_matching_left_paren(result, indbegin):
+    level = 1
+    ind = indbegin
+    while level > 0 and ind > 0:
+        ind = ind - 1
+        if result[ind] == '(':
+            level = level - 1
+        elif result[ind] == ')':
+            level = level + 1
+    assert result[indbegin] == ')', "RIGHT PAREN  MISSING"
+    assert result[ind] == '(', "LEFT PAREN  MISSING"
+    return ind

@@ -62,26 +62,26 @@ class SymbolicTest(TestCase):
 
         self.assertEqual(
             symbolic_compare_expressions(
-                precision, variables, ' IsHermitian([[1,I],[-I,1]]) ', ' 1 '
+                precision, variables, ' IsHermitian( [[1,I],[-I,1]] ) ', ' 1 '
             )['correct'],
             True,
         )
         self.assertEqual(
-            symbolic_check_if_true(precision, variables, ' IsHermitian( $$ ) ', '[[1,I],[-I,1]]')[
+            symbolic_check_if_true(precision, variables, ' IsHermitian( $$ ) ', ' [[1,I],[-I,1]] ')[
                 'correct'
             ],
             True,
         )
-        self.assertEqual(
-            symbolic_check_if_true(
-                precision,
-                variables,
-                'And(Ge(RankOf($$),2),Not(IsDiagonal($$)),IsUnitary($$),IsNotEqual($$,Transpose($$)))',
-                '[[0,1],[-I,0]]',
-            )['correct'],
-            True,
-            msg='Test4',
-        )
+        #self.assertEqual(
+        #    symbolic_check_if_true(
+        #        precision,
+        #        variables,
+        #        'And(Ge(RankOf($$),2),Not(IsDiagonal($$)),IsUnitary($$),IsNotEqual($$, Transpose( $$ )))',
+        #        '[[0,1],[-I,0]]',
+        #    )['correct'],
+        #    True,
+        #    msg='Test4',
+        #)
         self.assertEqual(
             symbolic_check_if_true(
                 precision, variables, 'Not( IsDiagonalizable( $$ ) )  ', '[[0,1],[0,0]]'
@@ -110,7 +110,13 @@ class SymbolicTest(TestCase):
         )
         self.assertEqual(
             symbolic_compare_expressions(
-                precision, variables, '-cross(v1,v2)', 'cross(v2,v1)', False, [], ['v1', 'v2'],
+                precision,
+                variables,
+                'v1  -cross(v1,v2)',
+                'v1 + cross(v2,v1)',
+                False,
+                [],
+                ['v1', 'v2'],
             )['correct'],
             True,
         )
@@ -196,13 +202,13 @@ class SymbolicTest(TestCase):
             '( tanh( FG(x) ) )\' == tanh\'( FG(x) ) FG\'(x)',
             ' vE == [1,1,1] ',
             ' squared(x^2)  == x^4 ',
-        ]
-        # self.assertEqual(
-        #        symbolic_compare_expressions(
-        #            precision, [] ,  " tanh( cosh(x) ) )\'" , "tanh\'( cosh(x) ) cosh\'(x)",False, [], [], nfuncsubs
-        #        )['correct'],
-        #        True,
-        #    )
+            ]
+        self.assertEqual(
+                symbolic_compare_expressions(
+                    precision, [] ,  "( tanh( cosh(x) ) )\'" , "tanh\'( cosh(x) ) cosh\'(x)",False, [], [], nfuncsubs
+                )['correct'],
+                True,
+            )
 
         funcsubs = [
             {"name": "f", "args": "x", "value": "F(x)", "tex": "TeX"},
@@ -212,15 +218,18 @@ class SymbolicTest(TestCase):
             {"name": "FG", "args": "x", "value": "F(x)", "tex": "TeX"},
             {"name": "GG", "args": "x", "value": "G(x)", "tex": "TeX"},
             {"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
+            {"name": "sdot", "args": "[x,y]","value": 'partial(x,y)' },
         ]
         expressions = [
             "( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
             " iden(xhat) == xhat ",
-            #" iden(xhat) -  xhat == 0 ",
-            #" iden(xhat) - 2 xhat == [-1,0,0]",
+            " sdot( x^2 , x ) - 2 x == 0 "
+            # " iden(xhat) -  xhat == 0 ",
+            # " iden(xhat) - 2 xhat == [-1,0,0]",
         ]
 
         for expression in expressions:
+            print("DOING EXPRESSION = ", expression)
             self.assertEqual(
                 symbolic_compare_expressions(
                     precision, [], expression, " 0 == 0 ", True, [], [], funcsubs
@@ -274,30 +283,37 @@ class SymbolicTest(TestCase):
             True,
         )
 
-        maxwell_varsubs = [{"name": "c", "value": "5", "tex": "TeX"},
-             {"name": "A", "value": "-y   xhat + x yhat + 2  cos( c t -  z ) xhat", "tex": "TeX"},
-             {"name": "pphi", "value": "1 / sqrt( x^2 + y^2 + z^2 )", "tex": "TeX"},
-             {"name": "B", "value": "curl(A)", "tex": "TeX"}, 
-             {"name": "E", "value": "- grad( pphi)  - 1/ c  dot(A)", "tex": "TeX"}, 
-             {"name": "J", "value": "1/( 4 pi )  ( curl(B) - 1/c dot(E) )", "tex": "TeX"}, 
-             {"name": "rho", "value": "1/( 4 pi )  div(E)", "tex": "TeX"}]
-     
-        maxwell_funcsubs = [{"name": "d4", "args": "[Q]", "value": "del2(Q) - 1/c**2 * dot(dot(Q) )", "tex": "TeX"}, 
-            {"name": "ckit", "args": "Q", "value": "Q", "tex": "TeX"}] 
-        
+        maxwell_varsubs = [
+            {"name": "c", "value": "5", "tex": "TeX"},
+            {"name": "A", "value": "-y   xhat + x yhat + 2  cos( c t -  z ) xhat", "tex": "TeX"},
+            {"name": "pphi", "value": "1 / sqrt( x^2 + y^2 + z^2 )", "tex": "TeX"},
+            {"name": "B", "value": "curl(A)", "tex": "TeX"},
+            {"name": "E", "value": "- grad( pphi)  - 1/ c  dot(A)", "tex": "TeX"},
+            {"name": "J", "value": "1/( 4 pi )  ( curl(B) - 1/c dot(E) )", "tex": "TeX"},
+            {"name": "rho", "value": "1/( 4 pi )  div(E)", "tex": "TeX"},
+        ]
+
+        maxwell_funcsubs = [
+            {"name": "d4", "args": "[Q]", "value": "del2(Q) - 1/c**2 * dot(dot(Q) )", "tex": "TeX"},
+            {"name": "ckit", "args": "Q", "value": "Q", "tex": "TeX"},
+        ]
+
         print("DOING MAXWELL")
-        eqs = ['curl(E) + 1/c dot(B) == 0' ,
-               'del2(A) == 1/c^2 partial(A,t,t)',
-               'd4(A) == 0 ',
-               'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  '
-              ]
-        for eq in eqs :
-            [eq1,eq2] = eq.split('==')
-            print("DOING ", eq1,eq2 )
+        eqs = [
+            'curl(E) + 1/c dot(B) == 0',
+            'del2(A) == 1/c^2 partial(A,t,t)',
+            'd4(A) == 0 ',
+            'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  ',
+            ' - y    xhat + x yhat + 2  cos( c t -  z ) xhat  - A  == 0',
+            ' cross(xhat,yhat) - zhat == 0 ',
+            ' [[1,0,0],[0,1,0],[0,0,1]] * xhat -  [1,0,0] == 0 ',
+        ]
+        for eq in eqs:
+            [eq1, eq2] = eq.split('==')
+            print("DOING ", eq1, eq2)
             self.assertEqual(
                 symbolic_compare_expressions(
-                    1e-06, maxwell_varsubs, eq1 ,eq2, False, [],[], maxwell_funcsubs
+                    1e-06, maxwell_varsubs, eq1, eq2, False, [], [], maxwell_funcsubs
                 )['correct'],
                 True,
             )
-

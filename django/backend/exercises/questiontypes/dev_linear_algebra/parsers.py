@@ -1,4 +1,5 @@
 from sympy import *
+from exercises.util import get_hash_from_string
 
 # from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
@@ -10,6 +11,7 @@ import itertools
 from sympy.core import S
 from .unithelpers import baseunits
 from sympy.core.function import AppliedUndef
+from exercises.util import index_of_matching_right_paren
 
 from exercises.questiontypes.safe_run import safe_run
 import logging
@@ -27,22 +29,22 @@ from .functions import *
 from sympy.matrices import Matrix
 
 
-def replace_funcs_once(sexpr, funcsubs):
+def replace_funcs_once(sexpr, funcsubs, subrule):
     for sub in funcsubs:
         func_def = sympy.Function(sub['name'])
         args = (sub['args']).lstrip('[').rstrip(']')
         funcdefstring = sub['name'] + '(' + args + ')'
-        func_def = sympy.sympify(funcdefstring )
-        func_body = sympy.sympify(sub['value'] )
-        sexpr = func_sub(sexpr, func_def, func_body)
+        func_def = sympy.sympify(funcdefstring)
+        func_body = sympy.sympify(sub['value'])
+        sexpr = func_sub(sexpr, func_def, func_body, subrule)
     return sexpr
 
 
-def replace_funcs(sexpr, funcsubs):
+def replace_funcs(sexpr, funcsubs, subrule):
     # print("INCOMING = ", sexpr)
     while True:
         prev = sexpr
-        sexpr = replace_funcs_once(sexpr, funcsubs)
+        sexpr = replace_funcs_once(sexpr, funcsubs, subrule)
         if sexpr == prev:
             # print("OUTGOING = ", sexpr)
             return sexpr
@@ -107,34 +109,78 @@ def parse_sample_variables(variables, funcsubs={}):
     return (varsubs, varsubs_sympify, sample_variables)
 
 
-def func_sub_single(expr, func_def, func_body):
+def func_sub_single(expr, func_def, func_body, subrule):
     # Find the expression to be replaced, return if not there
-    #print("DO FUNC_SUB_SINGLE")
-    for unknown_func in expr.atoms(AppliedUndef):
+    # print("DO FUNC_SUB_SINGLE")
+    funcatoms = expr.atoms(AppliedUndef)
+    if len(funcatoms) == 0:
+        return expr
+    for unknown_func in funcatoms:
         # print("REPLACING ", unknown_func , " IN ", expr )
         if unknown_func.func == func_def.func:
             replacing_func = unknown_func
             break
     else:
-        #print("RETURNING ", expr)
-        return expr
+        # print("RETURNING ", expr)
+        return expr.subs(subrule).doit()
     arg_sub = {from_arg: to_arg for from_arg, to_arg in zip(func_def.args, replacing_func.args)}
     func_body_subst = func_body.subs(arg_sub)
     ret = expr.subs(replacing_func, func_body_subst)
-    #print("RETURNING ", ret)
+    # ret = sympify( str(ret), myscope )
+    ret = ret.subs(subrule).doit()
     return ret
 
 
-def func_sub(expr, func_def, func_body):
-    #print("FUNCSUB", expr)
+def func_sub(expr, func_def, func_body, myscope):
+    # print("FUNCSUB", expr)
     if any(func_def.func == body_func.func for body_func in func_body.atoms(AppliedUndef)):
         raise ValueError('Function may not be recursively defined')
 
     while True:
         prev = expr
-        expr = func_sub_single(expr, func_def, func_body)
+        expr = func_sub_single(expr, func_def, func_body, myscope)
         if prev == expr:
             return expr
+
+
+def tokenify(xtest,vsubs=[]):
+    try:
+        nit = 0
+        vsubs = []
+        while True:
+            vsub = {}
+            previous = xtest
+            p = resub.compile(r'Matrix')
+            allm = list(p.finditer(xtest))
+            if len(allm) == 0:
+                break
+            m = allm[0]
+            (ibeg, ileft) = m.span()
+            iright = index_of_matching_right_paren(ileft, xtest)
+            head = xtest[0:ibeg]
+            body = xtest[ibeg:iright]
+            tail = xtest[iright:]
+            bodyhash = get_hash_from_string(body)
+            vsub['name'] = bodyhash ;
+            vsub['value'] = sympify(body);
+            xtest = head + 'vq(\'' + bodyhash + '\')' + tail
+            vsubs = vsubs + [vsub]
+            nit = nit + 1
+
+        # xtest = resub.sub('div','mydiv',xtest)
+        # xtest = resub.sub('And','gAnd',xtest)
+        # xtest = resub.sub('Nnd','gNot',xtest)
+        stest = sympify(xtest, evaluate=False)
+    except:
+        print("FAILED WITH ", xtest)
+        raise TypeError("FAILED WITH " + xtest)
+    return (xtest, vsubs)
+
+
+class iden(sympy.Function):
+    @classmethod
+    def eval(cls, x):
+        return x
 
 
 def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
@@ -151,7 +197,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'abs': Norm,  # sympy.Function('norm')
         'Abs': Norm,  # sympy.Function('norm')
         'Trace': Trace,
-        'Transpose': Transpose,
+        'Transpose': localTranspose,
+        'localTranspose': localTranspose,
         'Conjugate': conjugate,
         'AreEigenvaluesOf': eigenvaluesof,
         'AreEigenvaluesOf': AreEigenvaluesOf,
@@ -159,23 +206,24 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'IsHermitian': IsHermitian,
         'RankOf': rankof,
         'IsUnitary': isunitary,
-        'cross': Cross,
+        'cross': crossfunc,
         'Gt': gt,
         'Ge': ge,
         'Lt': lt,
         'Le': le,
         'Or': logicalor,
+        'localOr': logicalor,
         'And': logicaland,
+        'localAnd': logicaland,
         'curl': curl,
-        'div': div,
+        'div': localdiv,
+        'localdiv': localdiv,
         'grad': grad,
-        #'xhat': sympy.sympify(Matrix([1, 0, 0])),
-        #'yhat': sympy.sympify(Matrix([0, 1, 0])),
-        #'zhat': sympy.sympify(Matrix([0, 0, 1])),
         'Partial': partial,
         'partial': partial,
         'Prime': Prime,
         'Not': logicalnot,
+        'localNot': logicalnot,
         'IsEqual': eq,
         'IsNotEqual': neq,
         'diagonalpart': diagonalof,
@@ -198,14 +246,16 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'sample': sample,
     }
     myscope = scope
+    subrule = []
+    for key, val in myscope.items():
+        if 'Function' in str(type(val)):
+            subrule = subrule + [(Function(key), val)]
+        else:
+            subrule = subrule + [(Symbol(key), val)]
+
     if source == "PARSE_SAMPLE_VARIABLES":
         scope.update({'sample': sample})
-    #print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM", source)
-    #print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM", expression)
-    #print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
-    #print("4 IN SYMPIFY WITH CUSTOM VARSUBS = ", varsubs)
     sexpr = ascii_to_sympy(declash(expression), {})
-    # print("NS = ", ns )
     scope.update(ns)
     scope.update(varsubs)
     scope_symbolic = {
@@ -217,19 +267,58 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-
-    #print("3.2 EXPRESSION ", sexpr )
-    sexpr = sympy.sympify(sexpr, scope)
-    #print("3.3 EXPRESSION ", sexpr )
-    sexpr = replace_funcs(sexpr, funcsubs).doit()
-    #print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
-    scope.update(scope_symbolic)
-    sexpr = sympy.sympify(str(sexpr), scope).doit()
-    #print("6 EXPRESSION 2 AFTER scope ", sexpr)
-    # print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
-    sexpr = sexpr.doit()
-    # print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
-
+    vals = [str(item) for item in varsubs.values()]
+    (xtest, vsubs) = tokenify(sexpr)
+    msubs = {}
+    for item in vsubs:
+        msubs[ item['name'] ] =  item['value']  
+    msubs = [(Symbol(item['name'] ) , item['value']) for item in vsubs ]
+    sxtest = sympify( xtest)
+    try :
+        restored = sxtest.subs(msubs).doit() # .replace(Function('vq'),sample) 
+        print("RESTORED = ", restored)
+    except :
+        print("xtest = ", xtest )
+        print("msubs = ", msubs )
+        print("sxtest = ", sxtest )
+        raise TypeError("expr  = ", sexpr )
+    try:
+        location = 'A'
+        if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:
+            location += 'B'
+            scope.update(scope_symbolic)
+            location += 'C'
+            sexpr = sympy.sympify(sexpr, scope)
+            location += 'D'
+        else:
+            location += 'E'
+            if 'dalem' in sexpr and len(sexpr.split('-')) == 2:
+                [s1, s2] = sexpr.split('-')
+                print("S1 = ", s1)
+                print("S2 = ", s2)
+                s1s = sympy.sympify(s1, scope)
+                s1s = replace_funcs(s1s, funcsubs, subrule)
+                s2s = sympy.sympify(s2, scope)
+                s2s = replace_funcs(s2s, funcsubs, subrule)
+                print("S1s = ", s1s)
+                print("S2s = ", s2s)
+                sexpr = s1s - s2s
+            else:
+                sexpr = sympy.sympify(sexpr, scope)
+            location += 'F'
+        if len(funcsubs) > 0:
+            location += 'G'
+            sexpr = replace_funcs(sexpr, funcsubs, subrule)
+            location += 'H'
+        location += 'I'
+        sexpr = sexpr.subs(scope_symbolic)
+        location += 'J'
+        sexpr = sexpr.subs(varsubs)
+        location += 'K'
+        sexpr = sexpr.doit()
+        location += 'L'
+    except:
+        raise TypeError("path " + location + 'failed with expression ' + sexpr)
     return sexpr
 
 

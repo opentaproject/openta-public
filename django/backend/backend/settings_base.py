@@ -156,10 +156,16 @@ LOGGING = {
     'loggers': {'django': {'handlers': ['file', 'stderr'], 'level': 'ERROR', 'propagate': True}},
 }
 
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+#        'LOCATION': '/tmp/django_cache',
+#    }
+#}
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '/tmp/django_cache',
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
     }
 }
 
