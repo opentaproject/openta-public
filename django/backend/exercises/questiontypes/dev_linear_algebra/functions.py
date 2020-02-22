@@ -497,7 +497,7 @@ class Prime(sympy.Function):
         # print("third = ", arg[2] )
         # print("FOURTH = ", fourth )
         qqq = sympy.symbols('qqq')
-        fun = fourth
+        fun = first.func
         deriv = fun(qqq)
         while order > 0:
             order = order - 1
