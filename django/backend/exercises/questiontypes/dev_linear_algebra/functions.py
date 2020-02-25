@@ -459,7 +459,7 @@ class curl(sympy.Function):
         return sympy.sympify(Matrix(res))
 
 
-class div(sympy.Function):
+class localdiv(sympy.Function):
     nargs = 1
 
     @classmethod

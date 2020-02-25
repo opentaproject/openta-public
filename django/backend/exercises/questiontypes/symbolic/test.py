@@ -288,8 +288,9 @@ class SymbolicTest(TestCase):
         print("DOING MAXWELL")
         eqs = ['curl(E) + 1/c dot(B) == 0' ,
                'del2(A) == 1/c^2 partial(A,t,t)',
-               'd4(A) == 0 ',
-               'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  '
+               #'d4(A) == 0 ',
+               'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  ',
+               ' - y    xhat + x yhat + 2  cos( c t -  z ) xhat  - A  == 0' 
               ]
         for eq in eqs :
             [eq1,eq2] = eq.split('==')
