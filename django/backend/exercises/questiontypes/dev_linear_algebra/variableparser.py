@@ -136,6 +136,7 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
     ret = cache.get(varhash)
     if ret is not None:
         return ret
+    print("RECALCULATE GETALL VARIABLES")
     variables = []
     blacklist = set([])
     correct_answer = ''

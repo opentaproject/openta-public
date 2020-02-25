@@ -110,7 +110,11 @@ def parse_sample_variables(variables, funcsubs={}):
 def func_sub_single(expr, func_def, func_body, subrule):
     # Find the expression to be replaced, return if not there
     # print("DO FUNC_SUB_SINGLE")
-    for unknown_func in expr.atoms(AppliedUndef):
+    funcatoms = expr.atoms(AppliedUndef)  
+    if len( funcatoms) == 0 :
+        return expr
+    print("FUNCATOMS = ", funcatoms, len( funcatoms) )
+    for unknown_func in funcatoms :
         # print("REPLACING ", unknown_func , " IN ", expr )
         if unknown_func.func == func_def.func:
             replacing_func = unknown_func
@@ -208,12 +212,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
 
     if source == "PARSE_SAMPLE_VARIABLES":
         scope.update({'sample': sample})
-    # print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM", source)
-    # print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM", expression)
-    # print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
-    # print("4 IN SYMPIFY WITH CUSTOM VARSUBS = ", varsubs)
     sexpr = ascii_to_sympy(declash(expression), {})
-    # print("NS = ", ns )
     scope.update(ns)
     scope.update(varsubs)
     scope_symbolic = {
@@ -226,29 +225,31 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
     vals = [str(item) for item in varsubs.values()]
-    if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in 'sexpr' :
-        scope.update(scope_symbolic)
-        sexpr = sympy.sympify(sexpr, scope)
-    else:
-        sexpr = sympy.sympify(sexpr, scope)
-    if len(funcsubs) > 0:
-        sexpr = replace_funcs(sexpr, funcsubs, subrule)
-    sexpr = sexpr.subs(scope_symbolic)
-    sexpr = sexpr.subs(varsubs)
-    sexpr = sexpr.doit()
-
-    # print("3.2 EXPRESSION ", sexpr )
-    # sexpr = sympy.sympify(sexpr, scope)
-    # print("3.3 EXPRESSION ", sexpr )
-    # sexpr = replace_funcs(sexpr, funcsubs).doit()
-    # print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
-    # scope.update(scope_symbolic)
-    # sexpr = sympy.sympify(str(sexpr), scope).doit()
-    # print("6 EXPRESSION 2 AFTER scope ", sexpr)
-    # print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
-    # sexpr = sexpr.doit()
-    # print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
-
+    try :
+        location = 'A'
+        if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr :
+            location += 'B'
+            scope.update(scope_symbolic)
+            location += 'C'
+            sexpr = sympy.sympify(sexpr, scope)
+            location += 'D'
+        else:
+            location += 'E'
+            sexpr = sympy.sympify(sexpr, scope)
+            location += 'F'
+        if len(funcsubs) > 0:
+            location += 'G'
+            sexpr = replace_funcs(sexpr, funcsubs, subrule)
+            location += 'H'
+        location += 'I'
+        sexpr = sexpr.subs(scope_symbolic)
+        location += 'J'
+        sexpr = sexpr.subs(varsubs)
+        location += 'K'
+        sexpr = sexpr.doit()
+        location += 'L'
+    except :
+        raise TypeError("path " + location + 'failed with expression '  + sexpr  )
     return sexpr
 
 

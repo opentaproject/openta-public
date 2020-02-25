@@ -454,9 +454,7 @@ class del2(sympy.Function):
 
     @classmethod
     def eval(cls, fun):
-        print("ENTERED del2")
         from sympy.abc import x, y, z, t
-
         res = diff(fun, x, x) + diff(fun, y, y) + diff(fun, z, z)
         res = res.doit()
         return res
