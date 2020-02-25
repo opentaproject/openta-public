@@ -237,8 +237,8 @@ class SymbolicTest(TestCase):
         for eq in eqs:
             print("TESTING ", eq)
             self.assertEqual(
-                symbolic_compare_expressions(
-                    precision, variables, eq, '0==0', False, [], [], nfuncsubs
+                    symbolic_compare_expressions(
+                        precision, variables, eq, '0==0', False, [], [], nfuncsubs
                 )['correct'],
                 True,
             )
@@ -303,6 +303,7 @@ class SymbolicTest(TestCase):
             'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  ',
             ' - y    xhat + x yhat + 2  cos( c t -  z ) xhat  - A  == 0',
             ' cross(xhat,yhat) - zhat == 0 ',
+            ' [[1,0,0],[0,1,0],[0,0,1]] * xhat -  [1,0,0] == 0 '
         ]
         for eq in eqs:
             [eq1, eq2] = eq.split('==')

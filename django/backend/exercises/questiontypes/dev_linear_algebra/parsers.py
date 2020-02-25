@@ -226,8 +226,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
     vals = [str(item) for item in varsubs.values()]
-    if resub.search(r'[xyz]hat', sexpr):
-        scope = scope.update(scope_symbolic)
+    if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in 'sexpr' :
+        scope.update(scope_symbolic)
         sexpr = sympy.sympify(sexpr, scope)
     else:
         sexpr = sympy.sympify(sexpr, scope)
