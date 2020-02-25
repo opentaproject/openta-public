@@ -372,7 +372,7 @@ def validate_exercise_globals(xml):
             result = {}
             for expression in expressions:
                 expr = "QuestionType " + question_type + " :Error in global definitions: "
-                print("TESTING EXPRSSION ", expression )
+                print("TESTING EXPRSSION ", expression)
                 result = symex(precision, variables, expression, '0 == 0', True, [], [], funcsubs)
                 if (not result.get('correct')) or result.get('error'):
                     print("FAILED")

@@ -27,22 +27,22 @@ from .functions import *
 from sympy.matrices import Matrix
 
 
-def replace_funcs_once(sexpr, funcsubs,subrule):
+def replace_funcs_once(sexpr, funcsubs, subrule):
     for sub in funcsubs:
         func_def = sympy.Function(sub['name'])
         args = (sub['args']).lstrip('[').rstrip(']')
         funcdefstring = sub['name'] + '(' + args + ')'
-        func_def = sympy.sympify(funcdefstring )
-        func_body = sympy.sympify(sub['value'] )
-        sexpr = func_sub(sexpr, func_def, func_body,subrule)
+        func_def = sympy.sympify(funcdefstring)
+        func_body = sympy.sympify(sub['value'])
+        sexpr = func_sub(sexpr, func_def, func_body, subrule)
     return sexpr
 
 
-def replace_funcs(sexpr, funcsubs,subrule):
+def replace_funcs(sexpr, funcsubs, subrule):
     # print("INCOMING = ", sexpr)
     while True:
         prev = sexpr
-        sexpr = replace_funcs_once(sexpr, funcsubs,subrule)
+        sexpr = replace_funcs_once(sexpr, funcsubs, subrule)
         if sexpr == prev:
             # print("OUTGOING = ", sexpr)
             return sexpr
@@ -107,33 +107,33 @@ def parse_sample_variables(variables, funcsubs={}):
     return (varsubs, varsubs_sympify, sample_variables)
 
 
-def func_sub_single(expr, func_def, func_body,subrule):
+def func_sub_single(expr, func_def, func_body, subrule):
     # Find the expression to be replaced, return if not there
-    #print("DO FUNC_SUB_SINGLE")
+    # print("DO FUNC_SUB_SINGLE")
     for unknown_func in expr.atoms(AppliedUndef):
         # print("REPLACING ", unknown_func , " IN ", expr )
         if unknown_func.func == func_def.func:
             replacing_func = unknown_func
             break
     else:
-        #print("RETURNING ", expr)
+        # print("RETURNING ", expr)
         return expr.subs(subrule).doit()
     arg_sub = {from_arg: to_arg for from_arg, to_arg in zip(func_def.args, replacing_func.args)}
     func_body_subst = func_body.subs(arg_sub)
     ret = expr.subs(replacing_func, func_body_subst)
-    #ret = sympify( str(ret), myscope )
+    # ret = sympify( str(ret), myscope )
     ret = ret.subs(subrule).doit()
     return ret
 
 
-def func_sub(expr, func_def, func_body,myscope):
-    #print("FUNCSUB", expr)
+def func_sub(expr, func_def, func_body, myscope):
+    # print("FUNCSUB", expr)
     if any(func_def.func == body_func.func for body_func in func_body.atoms(AppliedUndef)):
         raise ValueError('Function may not be recursively defined')
 
     while True:
         prev = expr
-        expr = func_sub_single(expr, func_def, func_body,myscope)
+        expr = func_sub_single(expr, func_def, func_body, myscope)
         if prev == expr:
             return expr
 
@@ -200,18 +200,18 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     }
     myscope = scope
     subrule = []
-    for key,val in myscope.items() :
-        if 'Function' in str( type(val) ) :
-                subrule = subrule + [(Function(key), val)]
-        else :
-                subrule = subrule + [(Symbol(key), val)]
+    for key, val in myscope.items():
+        if 'Function' in str(type(val)):
+            subrule = subrule + [(Function(key), val)]
+        else:
+            subrule = subrule + [(Symbol(key), val)]
 
     if source == "PARSE_SAMPLE_VARIABLES":
         scope.update({'sample': sample})
-    #print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM", source)
-    #print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM", expression)
-    #print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
-    #print("4 IN SYMPIFY WITH CUSTOM VARSUBS = ", varsubs)
+    # print("1 EXPRESSION INTO SYMPIFY WITH CUSTOM", source)
+    # print("2 EXPRESSION INTO SYMPIFY WITH CUSTOM", expression)
+    # print("3 IN SYMPIFY WITH CUSTOM FUNCSUBS = ", funcsubs)
+    # print("4 IN SYMPIFY WITH CUSTOM VARSUBS = ", varsubs)
     sexpr = ascii_to_sympy(declash(expression), {})
     # print("NS = ", ns )
     scope.update(ns)
@@ -225,27 +225,26 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-    try :
-        sexpr = sympy.sympify(sexpr, scope) 
+    try:
+        sexpr = sympy.sympify(sexpr, scope)
     except TypeError as e:
-        scope = scope.update( scope_symbolic)
-        sexpr = sympy.sympify(sexpr, scope) 
-    sexpr = replace_funcs(sexpr, funcsubs,subrule)
-    sexpr = sexpr.subs( scope_symbolic)
-    sexpr = sexpr.subs( varsubs)
+        scope = scope.update(scope_symbolic)
+        sexpr = sympy.sympify(sexpr, scope)
+    sexpr = replace_funcs(sexpr, funcsubs, subrule)
+    sexpr = sexpr.subs(scope_symbolic)
+    sexpr = sexpr.subs(varsubs)
     sexpr = sexpr.doit()
 
-
-    #print("3.2 EXPRESSION ", sexpr )
-    #sexpr = sympy.sympify(sexpr, scope)
-    #print("3.3 EXPRESSION ", sexpr )
-    #sexpr = replace_funcs(sexpr, funcsubs).doit()
-    #print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
-    #scope.update(scope_symbolic)
-    #sexpr = sympy.sympify(str(sexpr), scope).doit()
-    #print("6 EXPRESSION 2 AFTER scope ", sexpr)
+    # print("3.2 EXPRESSION ", sexpr )
+    # sexpr = sympy.sympify(sexpr, scope)
+    # print("3.3 EXPRESSION ", sexpr )
+    # sexpr = replace_funcs(sexpr, funcsubs).doit()
+    # print("5 EXPRSSION  AFTER FUNCSUB ", sexpr)
+    # scope.update(scope_symbolic)
+    # sexpr = sympy.sympify(str(sexpr), scope).doit()
+    # print("6 EXPRESSION 2 AFTER scope ", sexpr)
     # print(" 6 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
-    #sexpr = sexpr.doit()
+    # sexpr = sexpr.doit()
     # print("7 EXPRESSION3 SYMPIFY_WITH_CUSTOM RESULT IS ", sexpr )
 
     return sexpr

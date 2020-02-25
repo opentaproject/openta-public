@@ -132,15 +132,17 @@ def symbolic_compare_expressions(
             [tlhs, trhs] = [x.strip() for x in student_answer.split('==')]
             if '0' == tlhs:
                 prelhs = sympify_with_custom(
-                    trhs , varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
+                    trhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
                 )
             elif '0' == trhs:
                 prelhs = sympify_with_custom(
-                    tlhs , varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
+                    tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
                 )
             else:
-                prelhs = (sympify_with_custom( trhs , varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1') - 
-                    sympify_with_custom( tlhs , varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1') 
+                prelhs = sympify_with_custom(
+                    trhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
+                ) - sympify_with_custom(
+                    tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
                 )
             # for var in used_variables:
             #    diff_ = diff(prelhs, sympify(var))
@@ -160,11 +162,16 @@ def symbolic_compare_expressions(
             return response
         except TypeError as e:
             explanation = " Type Error: i.e. for instance adding or comparing matrices and scalars "
-            #explanation = explanation + str( student_answer)
-            p = re.compile('(x|y|z)hat') 
-            if p.search( str(student_answer ) ) :
-                explanation = 'TypeError:  coordinates xhat,yhat,zhat cannot be mixed with explicit vectors'
-            response = dict(error=_(explanation), debug=(type(e).__name__ + ": " + str(e) + ' : Functions cannot return Matrix type'))
+            # explanation = explanation + str( student_answer)
+            p = re.compile('(x|y|z)hat')
+            if p.search(str(student_answer)):
+                explanation = (
+                    'TypeError:  coordinates xhat,yhat,zhat cannot be mixed with explicit vectors'
+                )
+            response = dict(
+                error=_(explanation),
+                debug=(type(e).__name__ + ": " + str(e) + ' : Functions cannot return Matrix type'),
+            )
             return response
         except Exception as e:
             response = dict(
@@ -257,8 +264,8 @@ def symbolic_internal(expression1, expression2):  # {{{
         nvars = {}
         sympy1 = powdenest(factor(sympify(sexpression1, ns)), force=True)
         sympy2 = powdenest(factor(sympify(sexpression2, ns)), force=True)
-        #print("SYMPY1 = ", sympy1 )
-        #print("SYMPY2 = ", sympy2 )
+        # print("SYMPY1 = ", sympy1 )
+        # print("SYMPY2 = ", sympy2 )
         # if logger.isEnabledFor(logging.DEBUG):
         #    logger.debug('Expression 1: ' + str(sympy1))
         #    logger.debug('Expression 2: ' + str(sympy2))
