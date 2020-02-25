@@ -110,7 +110,7 @@ class SymbolicTest(TestCase):
         )
         self.assertEqual(
             symbolic_compare_expressions(
-                precision, variables, '-cross(v1,v2)', 'cross(v2,v1)', False, [], ['v1', 'v2'],
+                precision, variables, 'v1  -cross(v1,v2)', 'v1 + cross(v2,v1)', False, [], ['v1', 'v2'],
             )['correct'],
             True,
         )
@@ -288,9 +288,10 @@ class SymbolicTest(TestCase):
         print("DOING MAXWELL")
         eqs = ['curl(E) + 1/c dot(B) == 0' ,
                'del2(A) == 1/c^2 partial(A,t,t)',
-               #'d4(A) == 0 ',
+               'd4(A) == 0 ',
                'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  ',
-               ' - y    xhat + x yhat + 2  cos( c t -  z ) xhat  - A  == 0' 
+               ' - y    xhat + x yhat + 2  cos( c t -  z ) xhat  - A  == 0' ,
+               ' cross(xhat,yhat) - zhat == 0 '
               ]
         for eq in eqs :
             [eq1,eq2] = eq.split('==')

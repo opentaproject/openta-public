@@ -117,12 +117,12 @@ def func_sub_single(expr, func_def, func_body,subrule):
             break
     else:
         #print("RETURNING ", expr)
-        return expr
+        return expr.subs(subrule).doit()
     arg_sub = {from_arg: to_arg for from_arg, to_arg in zip(func_def.args, replacing_func.args)}
     func_body_subst = func_body.subs(arg_sub)
     ret = expr.subs(replacing_func, func_body_subst)
     #ret = sympify( str(ret), myscope )
-    ret = ret.subs(subrule)
+    ret = ret.subs(subrule).doit()
     return ret
 
 
@@ -160,7 +160,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'IsHermitian': IsHermitian,
         'RankOf': rankof,
         'IsUnitary': isunitary,
-        'cross': Cross,
+        'cross': crossfunc,
         'Gt': gt,
         'Ge': ge,
         'Lt': lt,
@@ -201,13 +201,10 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     myscope = scope
     subrule = []
     for key,val in myscope.items() :
-        try :
-            if val.is_Function :
+        if 'Function' in str( type(val) ) :
                 subrule = subrule + [(Function(key), val)]
-            else :
+        else :
                 subrule = subrule + [(Symbol(key), val)]
-        except :
-            subrule = subrule + [(Symbol(key), val)]
 
     if source == "PARSE_SAMPLE_VARIABLES":
         scope.update({'sample': sample})
@@ -228,26 +225,14 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-
-    if True :
-        #
-        # THIS BRANCH DELAYS CONVERSION TO MATRIX
-        # AS LONG AS POSSIBLE AND FAILS WITH USER-DEFINED
-        # LAPLACIAN
-        #
-        try :
-            sexpr = sympy.sympify(sexpr, scope) 
-        except TypeError as e:
-            scope = scope.update( scope_symbolic)
-            sexpr = sympy.sympify(sexpr, scope) 
-        sexpr = replace_funcs(sexpr, funcsubs,subrule)
-        sexpr = sexpr.subs( scope_symbolic)
-        sexpr = sexpr.subs( varsubs)
-    else :
-        sexpr = sympy.sympify(sexpr, scope)
-        sexpr = replace_funcs(sexpr, funcsubs).doit()
-        scope.update(scope_symbolic)
-        sexpr = sympify(str(sexpr), scope).doit()
+    try :
+        sexpr = sympy.sympify(sexpr, scope) 
+    except TypeError as e:
+        scope = scope.update( scope_symbolic)
+        sexpr = sympy.sympify(sexpr, scope) 
+    sexpr = replace_funcs(sexpr, funcsubs,subrule)
+    sexpr = sexpr.subs( scope_symbolic)
+    sexpr = sexpr.subs( varsubs)
     sexpr = sexpr.doit()
 
 

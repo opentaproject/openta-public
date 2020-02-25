@@ -173,6 +173,20 @@ class IsHermitian(sympy.Function):
         else:
             return None
 
+class crossfunc(sympy.Function):
+    nargs = (1, 2)
+
+    @classmethod
+    def eval(cls, *arg):
+
+        if len(arg) == 2:
+            x = arg[0]
+            y = arg[1]
+            if str(x) == '0' or str(y) == '0':
+                return 0
+            return Cross( x,y )
+
+
 
 class Cross(sympy.MatrixExpr):
     def __new__(cls, arg1, arg2):
