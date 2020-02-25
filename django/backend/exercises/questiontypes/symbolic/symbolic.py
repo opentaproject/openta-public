@@ -238,13 +238,13 @@ def symbolic_compare_expressions(
         response = dict(error=_("Unknown error, check your expression."))
         response['debug'] = str(e)
         return response
-    lhs = sympify_with_custom(
-        lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
-    ).doit()
-    rhs = sympify_with_custom(
-        rhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-3'
-    ).doit()
-    try:
+    try :
+        lhs = sympify_with_custom(
+            lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
+        ).doit()
+        rhs = sympify_with_custom(
+            rhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-3'
+        ).doit()
         res = symbolic_check_equality(
             precision, lhs, rhs, sample_variables, check_units=check_units
         )

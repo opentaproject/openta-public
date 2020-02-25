@@ -186,6 +186,8 @@ class crossfunc(sympy.Function):
             if str(x) == '0' or str(y) == '0':
                 return 0
             return Cross(x, y)
+        else :
+            raise TypeError('cross product needs two arguments')
 
 
 class Cross(sympy.MatrixExpr):

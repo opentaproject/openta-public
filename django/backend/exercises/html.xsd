@@ -33,6 +33,7 @@
       <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element ref="b"/>
         <xs:element ref="qmath"/>
+	<xs:element ref="em"/>
       </xs:choice>
     </xs:complexType>
   </xs:element>
