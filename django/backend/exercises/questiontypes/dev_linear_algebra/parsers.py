@@ -225,12 +225,14 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-    try:
-        sexpr = sympy.sympify(sexpr, scope)
-    except TypeError as e:
+    vals = [str(item) for item in varsubs.values()]
+    if resub.search(r'[xyz]hat', sexpr):
         scope = scope.update(scope_symbolic)
         sexpr = sympy.sympify(sexpr, scope)
-    sexpr = replace_funcs(sexpr, funcsubs, subrule)
+    else:
+        sexpr = sympy.sympify(sexpr, scope)
+    if len(funcsubs) > 0:
+        sexpr = replace_funcs(sexpr, funcsubs, subrule)
     sexpr = sexpr.subs(scope_symbolic)
     sexpr = sexpr.subs(varsubs)
     sexpr = sexpr.doit()
