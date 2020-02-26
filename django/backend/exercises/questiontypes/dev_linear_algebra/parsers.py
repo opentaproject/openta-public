@@ -11,6 +11,7 @@ import itertools
 from sympy.core import S
 from .unithelpers import baseunits
 from sympy.core.function import AppliedUndef
+from exercises.util import index_of_matching_right_paren
 
 from exercises.questiontypes.safe_run import safe_run
 import logging
@@ -26,20 +27,6 @@ from .string_formatting import (
 from .unithelpers import *
 from .functions import *
 from sympy.matrices import Matrix
-
-def index_of_matching_right_paren(beg, expression):
-    level = 1
-    ind = beg + 1
-    while level > 0 and ind < len(expression):
-        if expression[ind] == ')':
-            level = level - 1
-        elif expression[ind] == '(':
-            level = level + 1
-        ind = ind + 1
-    assert expression[beg] == '(', 'LEFT PAREN WRONG'
-    assert expression[ind-1] == ')', 'RIGHT PAREN WRONG'
-    return ind 
-
 
 
 def replace_funcs_once(sexpr, funcsubs, subrule):
@@ -156,6 +143,36 @@ def func_sub(expr, func_def, func_body, myscope):
         if prev == expr:
             return expr
 
+def tokenify( xtest ) :
+    try :
+        nit = 0
+        vsub = {}
+        while True : 
+            previous = xtest
+            p = resub.compile(r'Matrix')
+            allm = list(p.finditer(xtest))
+            if len(allm) == 0 :
+                    break
+            m = allm[0]
+            (ibeg, ileft) = m.span()
+            iright =  index_of_matching_right_paren(ileft,xtest)
+            head = xtest[0:ibeg]
+            body = xtest[ibeg:iright];
+            tail = xtest[iright: ]
+            bodyhash = get_hash_from_string(body)
+            vsub[bodyhash] = sympify( body )
+            xtest = head + 'vq(\'' + bodyhash + '\')' + tail  
+            nit = nit + 1
+            
+        xtest = resub.sub('div','mydiv',xtest)
+        xtest = resub.sub('And','gAnd',xtest)
+        xtest = resub.sub('Nnd','gNot',xtest)
+        stest = sympify( xtest ,evaluate=False)
+    except :
+        print("FAILED WITH ", xtest )
+        raise TypeError("FAILED WITH " + xtest )
+    return (xtest, vsub )
+
 
 def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     """
@@ -240,41 +257,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
     vals = [str(item) for item in varsubs.values()]
+    (xtest,vsub) = tokenify( sexpr )
     xtest = sexpr
-    try :
-        nit = 0
-        vsub = {}
-        while True : 
-            previous = xtest
-            p = resub.compile(r'Matrix')
-            allm = list(p.finditer(xtest))
-            if len(allm) == 0 :
-                    break
-            m = allm[0]
-            (ibeg, ileft) = m.span()
-            iright =  index_of_matching_right_paren(ileft,xtest)
-            head = xtest[0:ibeg]
-            body = xtest[ibeg:iright];
-            tail = xtest[iright: ]
-            print("HEAD = ", head)
-            print("BODY = ", body )
-            print("TAIL = ", tail )
-            bodyhash = get_hash_from_string(body)
-            bodyhash = resub.sub(r'[0-9]','',bodyhash)
-            print("BODY = ", body , bodyhash)
-            vsub[bodyhash] = sympify( body )
-            xtest = head + 'vq(\'' + bodyhash + '\')' + tail  
-            nit = nit + 1
-            
-        xtest = resub.sub('div','mydiv',xtest)
-        xtest = resub.sub('And','gAnd',xtest)
-        xtest = resub.sub('Nnd','gNot',xtest)
-        stest = sympify( xtest ,evaluate=False)
-        print("DID", srepr( stest ) )
-        print("VSUB = ", vsub )
-    except :
-        print("FAILED WITH ", xtest )
-        raise TypeError("FAILED WITH " + xtest )
     try :
         location = 'A'
         if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr :

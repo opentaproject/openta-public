@@ -5,6 +5,7 @@ Various functions needed to convert input asciimath into something that sympy ca
 """
 import re as resub
 from sympy import *
+from exercises.util import  index_of_matching_left_paren, index_of_matching_right_paren
 
 
 def insert_implicit_multiply(expression):  # {{{
@@ -15,16 +16,16 @@ def insert_implicit_multiply(expression):  # {{{
     return result  # }}}
 
 
-def index_of_matching_right_paren(beg, expression):
-    level = 1
-    ind = beg + 1
-    while level > 0 and ind < len(expression):
-        if expression[ind] == ')':
-            level = level - 1
-        elif expression[ind] == '(':
-            level = level + 1
-        ind = ind + 1
-    return ind - 1
+#def index_of_matching_right_paren(beg, expression):
+#    level = 1
+#    ind = beg + 1
+#    while level > 0 and ind < len(expression):
+#        if expression[ind] == ')':
+#            level = level - 1
+#        elif expression[ind] == '(':
+#            level = level + 1
+#        ind = ind + 1
+#    return ind - 1
 
 
 def replace_user_defined_functions(expression, funcsubs):
@@ -106,18 +107,18 @@ def replace_primes(expression, funcsubs):
     return expression
 
 
-def index_of_matching_left_paren(result, indbegin):
-    level = 1
-    ind = indbegin
-    while level > 0 and ind > 0:
-        ind = ind - 1
-        if result[ind] == '(':
-            level = level - 1
-        elif result[ind] == ')':
-            level = level + 1
-    assert result[indbegin] == ')', "RIGHT PAREN  MISSING"
-    assert result[ind] == '(', "LEFT PAREN  MISSING"
-    return ind
+#def index_of_matching_left_paren(result, indbegin):
+#    level = 1
+#    ind = indbegin
+#    while level > 0 and ind > 0:
+#        ind = ind - 1
+#        if result[ind] == '(':
+#            level = level - 1
+#        elif result[ind] == ')':
+#            level = level + 1
+#    assert result[indbegin] == ')', "RIGHT PAREN  MISSING"
+##    assert result[ind] == '(', "LEFT PAREN  MISSING"
+#    return ind
 
 
 def ascii_to_sympy(expression, funcsubs={}):  # {{{
