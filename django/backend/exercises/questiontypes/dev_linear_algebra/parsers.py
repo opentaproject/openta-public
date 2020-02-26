@@ -115,7 +115,6 @@ def func_sub_single(expr, func_def, func_body, subrule):
     funcatoms = expr.atoms(AppliedUndef)  
     if len( funcatoms) == 0 :
         return expr
-    print("FUNCATOMS = ", funcatoms, len( funcatoms) )
     for unknown_func in funcatoms :
         # print("REPLACING ", unknown_func , " IN ", expr )
         if unknown_func.func == func_def.func:
@@ -209,9 +208,6 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'div': localdiv,
         'localdiv': localdiv,
         'grad': grad,
-        #'xhat': sympy.sympify(Matrix([1, 0, 0])),
-        #'yhat': sympy.sympify(Matrix([0, 1, 0])),
-        #'zhat': sympy.sympify(Matrix([0, 0, 1])),
         'Partial': partial,
         'partial': partial,
         'Prime': Prime,
@@ -273,7 +269,6 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
             location += 'D'
         else:
             location += 'E'
-            print("sexpr = ", sexpr)
             if 'dalem' in sexpr and len( sexpr.split('-') ) == 2 :
                 [s1,s2] = sexpr.split('-')
                 print("S1 = ", s1 )
