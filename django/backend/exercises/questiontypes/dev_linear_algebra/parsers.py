@@ -268,20 +268,20 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
     vals = [str(item) for item in varsubs.values()]
-    (xtest, vsubs) = tokenify(sexpr)
-    msubs = {}
-    for item in vsubs:
-        msubs[ item['name'] ] =  item['value']  
-    msubs = [(Symbol(item['name'] ) , item['value']) for item in vsubs ]
-    sxtest = sympify( xtest)
-    try :
-        restored = sxtest.subs(msubs).doit() # .replace(Function('vq'),sample) 
-        print("RESTORED = ", restored)
-    except :
-        print("xtest = ", xtest )
-        print("msubs = ", msubs )
-        print("sxtest = ", sxtest )
-        raise TypeError("expr  = ", sexpr )
+    #(xtest, vsubs) = tokenify(sexpr)
+    #msubs = {}
+    #for item in vsubs:
+    #    msubs[ item['name'] ] =  item['value']  
+    #msubs = [(Symbol(item['name'] ) , item['value']) for item in vsubs ]
+    #sxtest = sympify( xtest)
+    #try :
+    #    restored = sxtest.subs(msubs).doit() # .replace(Function('vq'),sample) 
+    #    print("RESTORED = ", restored)
+    #except :
+    #    print("xtest = ", xtest )
+    #    print("msubs = ", msubs )
+    #    print("sxtest = ", sxtest )
+    #    raise TypeError("expr  = ", sexpr )
     try:
         location = 'A'
         if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:

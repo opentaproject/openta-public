@@ -250,6 +250,11 @@ export default class QuestionDevLinearAlgebra extends Component {
             return '\\nabla^2  (' + tex0 + ')'
         }
       }
+  
+    else if( node.name === 'sqrt'  ){
+        var tex0 = node.args[0].toTex(options);
+            return '\\sqrt{' + tex0 + '}'
+      }
 
 
 
