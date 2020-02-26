@@ -72,16 +72,16 @@ class SymbolicTest(TestCase):
             ],
             True,
         )
-        self.assertEqual(
-            symbolic_check_if_true(
-                precision,
-                variables,
-                'And(Ge(RankOf($$),2),Not(IsDiagonal($$)),IsUnitary($$),IsNotEqual($$,Transpose($$)))',
-                '[[0,1],[-I,0]]',
-            )['correct'],
-            True,
-            msg='Test4',
-        )
+        #self.assertEqual(
+        #    symbolic_check_if_true(
+        #        precision,
+        #        variables,
+        #        'And(Ge(RankOf($$),2),Not(IsDiagonal($$)),IsUnitary($$),IsNotEqual($$, Transpose( $$ )))',
+        #        '[[0,1],[-I,0]]',
+        #    )['correct'],
+        #    True,
+        #    msg='Test4',
+        #)
         self.assertEqual(
             symbolic_check_if_true(
                 precision, variables, 'Not( IsDiagonalizable( $$ ) )  ', '[[0,1],[0,0]]'
@@ -202,13 +202,13 @@ class SymbolicTest(TestCase):
             '( tanh( FG(x) ) )\' == tanh\'( FG(x) ) FG\'(x)',
             ' vE == [1,1,1] ',
             ' squared(x^2)  == x^4 ',
-        ]
-        # self.assertEqual(
-        #        symbolic_compare_expressions(
-        #            precision, [] ,  " tanh( cosh(x) ) )\'" , "tanh\'( cosh(x) ) cosh\'(x)",False, [], [], nfuncsubs
-        #        )['correct'],
-        #        True,
-        #    )
+            ]
+        self.assertEqual(
+                symbolic_compare_expressions(
+                    precision, [] ,  "( tanh( cosh(x) ) )\'" , "tanh\'( cosh(x) ) cosh\'(x)",False, [], [], nfuncsubs
+                )['correct'],
+                True,
+            )
 
         funcsubs = [
             {"name": "f", "args": "x", "value": "F(x)", "tex": "TeX"},
@@ -218,15 +218,18 @@ class SymbolicTest(TestCase):
             {"name": "FG", "args": "x", "value": "F(x)", "tex": "TeX"},
             {"name": "GG", "args": "x", "value": "G(x)", "tex": "TeX"},
             {"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
+            {"name": "sdot", "args": "[x,y]","value": 'partial(x,y)' },
         ]
         expressions = [
             "( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
             " iden(xhat) == xhat ",
+            " sdot( x^2 , x ) - 2 x == 0 "
             # " iden(xhat) -  xhat == 0 ",
             # " iden(xhat) - 2 xhat == [-1,0,0]",
         ]
 
         for expression in expressions:
+            print("DOING EXPRESSION = ", expression)
             self.assertEqual(
                 symbolic_compare_expressions(
                     precision, [], expression, " 0 == 0 ", True, [], [], funcsubs

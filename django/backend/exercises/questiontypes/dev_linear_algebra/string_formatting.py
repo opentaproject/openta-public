@@ -240,6 +240,7 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
         {'div': 'localdiv'},
         {'Or': 'localOr'},
         {'d': 'partial'},
+        {'Transpose':'localTranspose'},
     ]
     for clash in clashes:
         key = list(clash.keys())[0]

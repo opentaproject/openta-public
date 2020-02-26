@@ -143,11 +143,12 @@ def func_sub(expr, func_def, func_body, myscope):
             return expr
 
 
-def tokenify(xtest):
+def tokenify(xtest,vsubs=[]):
     try:
         nit = 0
-        vsub = {}
+        vsubs = []
         while True:
+            vsub = {}
             previous = xtest
             p = resub.compile(r'Matrix')
             allm = list(p.finditer(xtest))
@@ -160,8 +161,10 @@ def tokenify(xtest):
             body = xtest[ibeg:iright]
             tail = xtest[iright:]
             bodyhash = get_hash_from_string(body)
-            vsub[bodyhash] = sympify(body)
+            vsub['name'] = bodyhash ;
+            vsub['value'] = sympify(body);
             xtest = head + 'vq(\'' + bodyhash + '\')' + tail
+            vsubs = vsubs + [vsub]
             nit = nit + 1
 
         # xtest = resub.sub('div','mydiv',xtest)
@@ -171,7 +174,13 @@ def tokenify(xtest):
     except:
         print("FAILED WITH ", xtest)
         raise TypeError("FAILED WITH " + xtest)
-    return (xtest, vsub)
+    return (xtest, vsubs)
+
+
+class iden(sympy.Function):
+    @classmethod
+    def eval(cls, x):
+        return x
 
 
 def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
@@ -188,7 +197,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'abs': Norm,  # sympy.Function('norm')
         'Abs': Norm,  # sympy.Function('norm')
         'Trace': Trace,
-        'Transpose': Transpose,
+        'Transpose': localTranspose,
+        'localTranspose': localTranspose,
         'Conjugate': conjugate,
         'AreEigenvaluesOf': eigenvaluesof,
         'AreEigenvaluesOf': AreEigenvaluesOf,
@@ -258,8 +268,20 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
     vals = [str(item) for item in varsubs.values()]
-    (xtest, vsub) = tokenify(sexpr)
-    xtest = sexpr
+    (xtest, vsubs) = tokenify(sexpr)
+    msubs = {}
+    for item in vsubs:
+        msubs[ item['name'] ] =  item['value']  
+    msubs = [(Symbol(item['name'] ) , item['value']) for item in vsubs ]
+    sxtest = sympify( xtest)
+    try :
+        restored = sxtest.subs(msubs).doit() # .replace(Function('vq'),sample) 
+        print("RESTORED = ", restored)
+    except :
+        print("xtest = ", xtest )
+        print("msubs = ", msubs )
+        print("sxtest = ", sxtest )
+        raise TypeError("expr  = ", sexpr )
     try:
         location = 'A'
         if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:

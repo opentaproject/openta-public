@@ -122,7 +122,7 @@ class IsDiagonalizationOf(sympy.Function):
             return None
 
 
-class Transpose(sympy.Function):
+class localTranspose(sympy.Function):
     @classmethod
     def eval(cls, x):
         if isinstance(x, sympy.MatrixBase):
