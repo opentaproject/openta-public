@@ -30,7 +30,7 @@ def index_of_matching_left_paren( indbegin,result):
 def parenparse( ex , level=0 ):
     indbegin = ex.find('(')
     if indbegin == -1 :
-        return  '[' + ex + ']' if len(ex) > 0 else ''
+        return  'leaf_node[' + ex + ']' if len(ex) > 0 else ''
     funbegin, _ = resub.search(r'[0-9A-Za-z_]*[\']*\(',ex).span()
     head = ex[0:funbegin]
     fun_name = ex[funbegin:indbegin]
@@ -45,14 +45,11 @@ def parenparse( ex , level=0 ):
     primes = ex[ prime_beg:prime_end]
     tail = ex[ prime_end :]
     pieces = ">" + head + '<>' + fun_name + "<>"  + body + '<>' +  primes  + '<>' + tail
-    assert ex == head + fun_name + '(' + bodybody + ')' + primes + tail, "PIECES DONT ADD UP"
-    print("BODYBODY = ", bodybody)
-    return head + fun_name + '(' + parenparse(bodybody) + ')'  + primes + tail
-    #return parenparse(head ,level+1) + ' function_node[' +  fun_name + parenparse(bodybody,level+1)  + primes + '] '  + parenparse(  tail,level+1 ) + ' '
+    assert ex == head + fun_name + body + primes + tail, "PIECES DONT ADD UP"
+    return parenparse(head ,level+1) + ' function_node[' +  fun_name + parenparse(bodybody,level+1)  + primes + '] '  + parenparse(  tail,level+1 ) + ' '
     
     
 ex1 = " ( q + sin( 42 y ) + cos''( 35 x ) - ( 93  sin( 45 x )'' + 3 )^5  )"
-ex2 = " dalem(A) - ( A )  - A  "
 
     
 

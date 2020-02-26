@@ -23,4 +23,9 @@ def compose(*funcs):
 def get_hash_from_string(string):
     string_to_hash = str(re.sub(r'(\s|\\n)*', '', str(string)))
     globalhash = (hashlib.md5(string_to_hash.encode('utf-8')).hexdigest())[:10]
-    return globalhash
+    res = ''
+    for c in globalhash :
+        if c.isdigit() :
+            c = chr(int(c) + 97 ) 
+        res = res + c
+    return res 

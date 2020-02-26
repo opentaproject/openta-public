@@ -72,8 +72,8 @@ def symbolic_compare_expressions(
     used_variables=[],
     funcsubs={},
 ):
-    s1 = student_answer
-    s2 = correct
+    s1 = ascii_to_sympy( student_answer )
+    s2 = ascii_to_sympy( correct )
     all_variables = [x['name'] for x in variables]
     illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
     if len(illegalvars) > 0:
