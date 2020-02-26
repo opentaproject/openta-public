@@ -164,9 +164,9 @@ def tokenify( xtest ) :
             xtest = head + 'vq(\'' + bodyhash + '\')' + tail  
             nit = nit + 1
             
-        xtest = resub.sub('div','mydiv',xtest)
-        xtest = resub.sub('And','gAnd',xtest)
-        xtest = resub.sub('Nnd','gNot',xtest)
+        #xtest = resub.sub('div','mydiv',xtest)
+        #xtest = resub.sub('And','gAnd',xtest)
+        #xtest = resub.sub('Nnd','gNot',xtest)
         stest = sympify( xtest ,evaluate=False)
     except :
         print("FAILED WITH ", xtest )
@@ -202,9 +202,12 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'Lt': lt,
         'Le': le,
         'Or': logicalor,
+        'localOr': logicalor,
         'And': logicaland,
+        'localAnd': logicaland,
         'curl': curl,
         'div': localdiv,
+        'localdiv': localdiv,
         'grad': grad,
         #'xhat': sympy.sympify(Matrix([1, 0, 0])),
         #'yhat': sympy.sympify(Matrix([0, 1, 0])),
@@ -213,6 +216,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'partial': partial,
         'Prime': Prime,
         'Not': logicalnot,
+        'localNot': logicalnot,
         'IsEqual': eq,
         'IsNotEqual': neq,
         'diagonalpart': diagonalof,

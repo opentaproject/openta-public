@@ -234,6 +234,10 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     result = resub.sub(r"FF", r"variableFF", result)
     result = resub.sub(r"ff", r"variableff", result)
     result = resub.sub(r"lambda", r"variablelambda", result)
-    result = resub.sub(r" d\(", r" partial(", result)
+    result = resub.sub(r"(\A|\s|\()d\(", r" partial(", result)
+    result = resub.sub(r"(\A|\s|\()And\(", r" localAnd(", result)
+    result = resub.sub(r"(\A|\s|\()Not\(", r" localNot(", result)
+    result = resub.sub(r"(\A|\s|\()div\(", r" localdiv(", result)
+    result = resub.sub(r"(\A|\s|\()Or\(", r" localOr(", result)
 
     return result  # }}}
