@@ -1,5 +1,5 @@
 from sympy import *
-from exercises.util import  get_hash_from_string
+from exercises.util import get_hash_from_string
 
 # from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
@@ -112,10 +112,10 @@ def parse_sample_variables(variables, funcsubs={}):
 def func_sub_single(expr, func_def, func_body, subrule):
     # Find the expression to be replaced, return if not there
     # print("DO FUNC_SUB_SINGLE")
-    funcatoms = expr.atoms(AppliedUndef)  
-    if len( funcatoms) == 0 :
+    funcatoms = expr.atoms(AppliedUndef)
+    if len(funcatoms) == 0:
         return expr
-    for unknown_func in funcatoms :
+    for unknown_func in funcatoms:
         # print("REPLACING ", unknown_func , " IN ", expr )
         if unknown_func.func == func_def.func:
             replacing_func = unknown_func
@@ -142,35 +142,36 @@ def func_sub(expr, func_def, func_body, myscope):
         if prev == expr:
             return expr
 
-def tokenify( xtest ) :
-    try :
+
+def tokenify(xtest):
+    try:
         nit = 0
         vsub = {}
-        while True : 
+        while True:
             previous = xtest
             p = resub.compile(r'Matrix')
             allm = list(p.finditer(xtest))
-            if len(allm) == 0 :
-                    break
+            if len(allm) == 0:
+                break
             m = allm[0]
             (ibeg, ileft) = m.span()
-            iright =  index_of_matching_right_paren(ileft,xtest)
+            iright = index_of_matching_right_paren(ileft, xtest)
             head = xtest[0:ibeg]
-            body = xtest[ibeg:iright];
-            tail = xtest[iright: ]
+            body = xtest[ibeg:iright]
+            tail = xtest[iright:]
             bodyhash = get_hash_from_string(body)
-            vsub[bodyhash] = sympify( body )
-            xtest = head + 'vq(\'' + bodyhash + '\')' + tail  
+            vsub[bodyhash] = sympify(body)
+            xtest = head + 'vq(\'' + bodyhash + '\')' + tail
             nit = nit + 1
-            
-        #xtest = resub.sub('div','mydiv',xtest)
-        #xtest = resub.sub('And','gAnd',xtest)
-        #xtest = resub.sub('Nnd','gNot',xtest)
-        stest = sympify( xtest ,evaluate=False)
-    except :
-        print("FAILED WITH ", xtest )
-        raise TypeError("FAILED WITH " + xtest )
-    return (xtest, vsub )
+
+        # xtest = resub.sub('div','mydiv',xtest)
+        # xtest = resub.sub('And','gAnd',xtest)
+        # xtest = resub.sub('Nnd','gNot',xtest)
+        stest = sympify(xtest, evaluate=False)
+    except:
+        print("FAILED WITH ", xtest)
+        raise TypeError("FAILED WITH " + xtest)
+    return (xtest, vsub)
 
 
 def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
@@ -257,11 +258,11 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
     vals = [str(item) for item in varsubs.values()]
-    (xtest,vsub) = tokenify( sexpr )
+    (xtest, vsub) = tokenify(sexpr)
     xtest = sexpr
-    try :
+    try:
         location = 'A'
-        if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr :
+        if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:
             location += 'B'
             scope.update(scope_symbolic)
             location += 'C'
@@ -269,18 +270,18 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
             location += 'D'
         else:
             location += 'E'
-            if 'dalem' in sexpr and len( sexpr.split('-') ) == 2 :
-                [s1,s2] = sexpr.split('-')
-                print("S1 = ", s1 )
-                print("S2 = ", s2 )
-                s1s = sympy.sympify(s1,scope)
+            if 'dalem' in sexpr and len(sexpr.split('-')) == 2:
+                [s1, s2] = sexpr.split('-')
+                print("S1 = ", s1)
+                print("S2 = ", s2)
+                s1s = sympy.sympify(s1, scope)
                 s1s = replace_funcs(s1s, funcsubs, subrule)
-                s2s = sympy.sympify(s2,scope)
+                s2s = sympy.sympify(s2, scope)
                 s2s = replace_funcs(s2s, funcsubs, subrule)
-                print("S1s = ", s1s )
-                print("S2s = ", s2s )
+                print("S1s = ", s1s)
+                print("S2s = ", s2s)
                 sexpr = s1s - s2s
-            else :
+            else:
                 sexpr = sympy.sympify(sexpr, scope)
             location += 'F'
         if len(funcsubs) > 0:
@@ -294,8 +295,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         location += 'K'
         sexpr = sexpr.doit()
         location += 'L'
-    except :
-        raise TypeError("path " + location + 'failed with expression '  + sexpr  )
+    except:
+        raise TypeError("path " + location + 'failed with expression ' + sexpr)
     return sexpr
 
 

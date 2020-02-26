@@ -5,7 +5,7 @@ Various functions needed to convert input asciimath into something that sympy ca
 """
 import re as resub
 from sympy import *
-from exercises.util import  index_of_matching_left_paren, index_of_matching_right_paren
+from exercises.util import index_of_matching_left_paren, index_of_matching_right_paren
 
 
 def insert_implicit_multiply(expression):  # {{{
@@ -16,7 +16,7 @@ def insert_implicit_multiply(expression):  # {{{
     return result  # }}}
 
 
-#def index_of_matching_right_paren(beg, expression):
+# def index_of_matching_right_paren(beg, expression):
 #    level = 1
 #    ind = beg + 1
 #    while level > 0 and ind < len(expression):
@@ -107,7 +107,7 @@ def replace_primes(expression, funcsubs):
     return expression
 
 
-#def index_of_matching_left_paren(result, indbegin):
+# def index_of_matching_left_paren(result, indbegin):
 #    level = 1
 #    ind = indbegin
 #    while level > 0 and ind > 0:
@@ -234,9 +234,15 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     result = resub.sub(r"FF", r"variableFF", result)
     result = resub.sub(r"ff", r"variableff", result)
     result = resub.sub(r"lambda", r"variablelambda", result)
-    clashes = [{'And' : 'localAnd'},{'Not': 'localNot' },{'div':'localdiv'},{'Or': 'localOr'},{'d':'partial'} ]
+    clashes = [
+        {'And': 'localAnd'},
+        {'Not': 'localNot'},
+        {'div': 'localdiv'},
+        {'Or': 'localOr'},
+        {'d': 'partial'},
+    ]
     for clash in clashes:
-        key = list( clash.keys() )[0]
-        if key in expression :
-            result = resub.sub(r"(\A|\s|\()" + key+ "\(", r" " + clash[key] +"(", result)
+        key = list(clash.keys())[0]
+        if key in expression:
+            result = resub.sub(r"(\A|\s|\()" + key + "\(", r" " + clash[key] + "(", result)
     return result  # }}}

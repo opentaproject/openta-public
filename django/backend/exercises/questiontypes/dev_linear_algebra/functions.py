@@ -186,7 +186,7 @@ class crossfunc(sympy.Function):
             if str(x) == '0' or str(y) == '0':
                 return 0
             return Cross(x, y)
-        else :
+        else:
             raise TypeError('cross product needs two arguments')
 
 
@@ -455,6 +455,7 @@ class del2(sympy.Function):
     @classmethod
     def eval(cls, fun):
         from sympy.abc import x, y, z, t
+
         res = diff(fun, x, x) + diff(fun, y, y) + diff(fun, z, z)
         res = res.doit()
         return res

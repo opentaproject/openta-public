@@ -72,8 +72,8 @@ def symbolic_compare_expressions(
     used_variables=[],
     funcsubs={},
 ):
-    s1 = ascii_to_sympy( student_answer )
-    s2 = ascii_to_sympy( correct )
+    s1 = ascii_to_sympy(student_answer)
+    s2 = ascii_to_sympy(correct)
     all_variables = [x['name'] for x in variables]
     illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
     if len(illegalvars) > 0:
@@ -238,7 +238,7 @@ def symbolic_compare_expressions(
         response = dict(error=_("Unknown error, check your expression."))
         response['debug'] = str(e)
         return response
-    try :
+    try:
         lhs = sympify_with_custom(
             lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
         ).doit()

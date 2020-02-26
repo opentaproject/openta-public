@@ -24,11 +24,12 @@ def get_hash_from_string(string):
     string_to_hash = str(re.sub(r'(\s|\\n)*', '', str(string)))
     globalhash = (hashlib.md5(string_to_hash.encode('utf-8')).hexdigest())[:10]
     res = ''
-    for c in globalhash :
-        if c.isdigit() :
-            c = chr(int(c) + 97 ) 
+    for c in globalhash:
+        if c.isdigit():
+            c = chr(int(c) + 97)
         res = res + c
-    return res 
+    return res
+
 
 def index_of_matching_right_paren(beg, expression):
     level = 1
@@ -40,8 +41,9 @@ def index_of_matching_right_paren(beg, expression):
             level = level + 1
         ind = ind + 1
     assert expression[beg] == '(', 'LEFT PAREN WRONG'
-    assert expression[ind-1] == ')', 'RIGHT PAREN WRONG'
-    return ind 
+    assert expression[ind - 1] == ')', 'RIGHT PAREN WRONG'
+    return ind
+
 
 def index_of_matching_left_paren(result, indbegin):
     level = 1
@@ -55,4 +57,3 @@ def index_of_matching_left_paren(result, indbegin):
     assert result[indbegin] == ')', "RIGHT PAREN  MISSING"
     assert result[ind] == '(', "LEFT PAREN  MISSING"
     return ind
-

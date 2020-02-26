@@ -1,5 +1,6 @@
 import re as resub
 
+
 def index_of_matching_right_paren(beg, expression):
     level = 1
     ind = beg + 1
@@ -10,10 +11,11 @@ def index_of_matching_right_paren(beg, expression):
             level = level + 1
         ind = ind + 1
     assert expression[beg] == '(', 'LEFT PAREN WRONG'
-    assert expression[ind-1] == ')', 'RIGHT PAREN WRONG'
-    return ind 
+    assert expression[ind - 1] == ')', 'RIGHT PAREN WRONG'
+    return ind
 
-def index_of_matching_left_paren( indbegin,result):
+
+def index_of_matching_left_paren(indbegin, result):
     level = 1
     ind = indbegin
     while level > 0 and ind > 0:
@@ -27,34 +29,33 @@ def index_of_matching_left_paren( indbegin,result):
     return ind
 
 
-def parenparse( ex , level=0 ):
+def parenparse(ex, level=0):
     indbegin = ex.find('(')
-    if indbegin == -1 :
-        return  '[' + ex + ']' if len(ex) > 0 else ''
-    funbegin, _ = resub.search(r'[0-9A-Za-z_]*[\']*\(',ex).span()
+    if indbegin == -1:
+        return '[' + ex + ']' if len(ex) > 0 else ''
+    funbegin, _ = resub.search(r'[0-9A-Za-z_]*[\']*\(', ex).span()
     head = ex[0:funbegin]
     fun_name = ex[funbegin:indbegin]
-    indend = index_of_matching_right_paren(indbegin,ex)
+    indend = index_of_matching_right_paren(indbegin, ex)
     body = ex[indbegin:indend]
-    bodybody = ex[ indbegin+1:indend-1]
+    bodybody = ex[indbegin + 1 : indend - 1]
     tail = ex[indend:]
-    prime_beg , prime_end  = resub.search(r"[\']*",tail).span()
+    prime_beg, prime_end = resub.search(r"[\']*", tail).span()
     prime_beg = prime_beg + indend
     prime_end = prime_end + indend
     tail = ex[prime_end:]
-    primes = ex[ prime_beg:prime_end]
-    tail = ex[ prime_end :]
-    pieces = ">" + head + '<>' + fun_name + "<>"  + body + '<>' +  primes  + '<>' + tail
+    primes = ex[prime_beg:prime_end]
+    tail = ex[prime_end:]
+    pieces = ">" + head + '<>' + fun_name + "<>" + body + '<>' + primes + '<>' + tail
     assert ex == head + fun_name + '(' + bodybody + ')' + primes + tail, "PIECES DONT ADD UP"
     print("BODYBODY = ", bodybody)
-    return head + fun_name + '(' + parenparse(bodybody) + ')'  + primes + tail
-    #return parenparse(head ,level+1) + ' function_node[' +  fun_name + parenparse(bodybody,level+1)  + primes + '] '  + parenparse(  tail,level+1 ) + ' '
-    
-    
+    return head + fun_name + '(' + parenparse(bodybody) + ')' + primes + tail
+    # return parenparse(head ,level+1) + ' function_node[' +  fun_name + parenparse(bodybody,level+1)  + primes + '] '  + parenparse(  tail,level+1 ) + ' '
+
+
 ex1 = " ( q + sin( 42 y ) + cos''( 35 x ) - ( 93  sin( 45 x )'' + 3 )^5  )"
 ex2 = " dalem(A) - ( A )  - A  "
 
-    
 
 def replace_user_defined_functions(expression, funcsubs):
     defs = list(funcsubs.keys())
@@ -95,5 +96,3 @@ def replace_user_defined_functions(expression, funcsubs):
     # expression = resub.sub(r'#','',expression)
     expression = resub.sub(r'#' + searchstring, r"\1", expression)
     return expression
-
-
