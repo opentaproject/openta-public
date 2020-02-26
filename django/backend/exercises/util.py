@@ -43,14 +43,16 @@ def index_of_matching_right_paren(beg, expression):
     assert expression[ind-1] == ')', 'RIGHT PAREN WRONG'
     return ind 
 
-def index_of_matching_right_paren(beg, expression):
+def index_of_matching_left_paren(result, indbegin):
     level = 1
-    ind = beg + 1
-    while level > 0 and ind < len(expression):
-        if expression[ind] == ')':
+    ind = indbegin
+    while level > 0 and ind > 0:
+        ind = ind - 1
+        if result[ind] == '(':
             level = level - 1
-        elif expression[ind] == '(':
+        elif result[ind] == ')':
             level = level + 1
-        ind = ind + 1
-    return ind - 1
+    assert result[indbegin] == ')', "RIGHT PAREN  MISSING"
+    assert result[ind] == '(', "LEFT PAREN  MISSING"
+    return ind
 

@@ -117,7 +117,7 @@ def replace_primes(expression, funcsubs):
 #        elif result[ind] == ')':
 #            level = level + 1
 #    assert result[indbegin] == ')', "RIGHT PAREN  MISSING"
-##    assert result[ind] == '(', "LEFT PAREN  MISSING"
+#    assert result[ind] == '(', "LEFT PAREN  MISSING"
 #    return ind
 
 
