@@ -58,7 +58,7 @@ def replace_user_defined_functions(expression, funcsubs):
         rep = funcsubs[fun]
         order = str(head.count('\''))
         fun = '#' + fun
-        middle = ' Prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
+        middle = ' Prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + '()) '
         expression = ex1 + middle + ex3
         if add_paren:
             expression = '(' + expression + ')\''
@@ -96,7 +96,7 @@ def replace_primes(expression, funcsubs):
         rep = funcsubs.get(fun, fun)
         order = str(head.count('\''))
         fun = '#' + fun
-        middle = ' Prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
+        middle = ' Prime(' + fun + arg + ',' + arg + ',' + order + ')'# + ',' + str(rep) + '(x)) '
         expression = ex1 + middle + ex3
         if add_paren:
             expression = '(' + expression + ')\''
@@ -234,16 +234,21 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     result = resub.sub(r"FF", r"variableFF", result)
     result = resub.sub(r"ff", r"variableff", result)
     result = resub.sub(r"lambda", r"variablelambda", result)
+    result = resub.sub(r"(\W|\A)e\^", r"\1 E^", result)
     clashes = [
         {'And': 'localAnd'},
         {'Not': 'localNot'},
         {'div': 'localdiv'},
         {'Or': 'localOr'},
+        {'Ge': 'localGe'},
         {'d': 'partial'},
+        {'cross': 'crossfunc'},
         {'Transpose':'localTranspose'},
     ]
+    expression = resub.sub(r',',' ,',expression)
     for clash in clashes:
         key = list(clash.keys())[0]
         if key in expression:
-            result = resub.sub(r"(\A|\s|\()" + key + "\(", r" " + clash[key] + "(", result)
+            result = resub.sub(r"(\A|\s|,|\()" + key + "\(", r"\1 " + clash[key] + "(", result)
+    result = resub.sub(r' ,',',',result)
     return result  # }}}

@@ -8,6 +8,8 @@ import random
 import itertools
 from sympy.core import S
 from .unithelpers import units, sympy_units
+from exercises.questiontypes.dev_linear_algebra.sympify_with_custom import sympify_with_custom
+
 
 
 from .variableparser import getallvariables, get_used_variable_list

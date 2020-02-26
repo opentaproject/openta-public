@@ -72,19 +72,37 @@ class SymbolicTest(TestCase):
             ],
             True,
         )
-        #self.assertEqual(
-        #    symbolic_check_if_true(
-        #        precision,
-        #        variables,
-        #        'And(Ge(RankOf($$),2),Not(IsDiagonal($$)),IsUnitary($$),IsNotEqual($$, Transpose( $$ )))',
-        #        '[[0,1],[-I,0]]',
-        #    )['correct'],
-        #    True,
-        #    msg='Test4',
-        #)
         self.assertEqual(
             symbolic_check_if_true(
-                precision, variables, 'Not( IsDiagonalizable( $$ ) )  ', '[[0,1],[0,0]]'
+                precision,
+                variables,
+                ' And( Ge( RankOf($$),2), Not(IsDiagonal($$)), IsUnitary($$), IsNotEqual($$, Transpose( $$ )))',
+                '[[0,1],[-I,0]]',
+            )['correct'],
+            True,
+            msg='Test4',
+        )
+
+        
+        self.assertEqual(
+            symbolic_check_if_true(
+                precision,
+                variables,
+                ' And( Ge( RankOf($$),2), Not(IsDiagonal($$)), IsUnitary($$), IsNotEqual($$, Transpose( $$ )))',
+                '[[0,e^( I ) ],[e^(-I) ,0]]',
+            )['correct'],
+            True,
+            msg='Test4',
+        )
+
+
+
+
+
+
+        self.assertEqual(
+            symbolic_check_if_true(
+                precision, variables, ' Not( IsDiagonalizable( $$ ) )  ', '[[0,1],[0,0]]'
             )['correct'],
             True,
             'Test5',
@@ -217,12 +235,12 @@ class SymbolicTest(TestCase):
             {"name": "gg", "args": "x", "value": "cosh(x)", "tex": "TeX"},
             {"name": "FG", "args": "x", "value": "F(x)", "tex": "TeX"},
             {"name": "GG", "args": "x", "value": "G(x)", "tex": "TeX"},
-            {"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
+            #{"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
             {"name": "sdot", "args": "[x,y]","value": 'partial(x,y)' },
         ]
         expressions = [
             "( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
-            " iden(xhat) == xhat ",
+            #" iden(xhat) == xhat ",
             " sdot( x^2 , x ) - 2 x == 0 "
             # " iden(xhat) -  xhat == 0 ",
             # " iden(xhat) - 2 xhat == [-1,0,0]",
@@ -276,21 +294,21 @@ class SymbolicTest(TestCase):
             True,
         )
 
-        self.assertEqual(
-            symbolic_compare_expressions(
-                1e-06, variables, "curl(E) ", "  -  1/c dot(B)", False, ["A"], []
-            )['correct'],
-            True,
-        )
+        #self.assertEqual(
+        #    symbolic_compare_expressions(
+        #        1e-06, variables, "curl(E) ", "  -  1/c dot(B)", False, ["A"], []
+        #    )['correct'],
+        #    True,
+        #)
 
         maxwell_varsubs = [
             {"name": "c", "value": "5", "tex": "TeX"},
             {"name": "A", "value": "-y   xhat + x yhat + 2  cos( c t -  z ) xhat", "tex": "TeX"},
             {"name": "pphi", "value": "1 / sqrt( x^2 + y^2 + z^2 )", "tex": "TeX"},
             {"name": "B", "value": "curl(A)", "tex": "TeX"},
-            {"name": "E", "value": "- grad( pphi)  - 1/ c  dot(A)", "tex": "TeX"},
-            {"name": "J", "value": "1/( 4 pi )  ( curl(B) - 1/c dot(E) )", "tex": "TeX"},
-            {"name": "rho", "value": "1/( 4 pi )  div(E)", "tex": "TeX"},
+            {"name": "vE", "value": "- grad( pphi)  - 1/ c  dot(A)", "tex": "TeX"},
+            {"name": "J", "value": "1/( 4 pi )  ( curl(B) - 1/c dot(vE) )", "tex": "TeX"},
+            {"name": "rho", "value": "1/( 4 pi )  div(vE)", "tex": "TeX"},
         ]
 
         maxwell_funcsubs = [
@@ -300,7 +318,7 @@ class SymbolicTest(TestCase):
 
         print("DOING MAXWELL")
         eqs = [
-            'curl(E) + 1/c dot(B) == 0',
+            'curl(vE) + 1/c dot(B) == 0',
             'del2(A) == 1/c^2 partial(A,t,t)',
             'd4(A) == 0 ',
             'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  ',

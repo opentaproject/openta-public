@@ -338,6 +338,7 @@ def validate_exercise_globals(xml):
     # DONT BOTHER CHECKING QUESTIONS IF QUESTIONS CHANGE
     # SINCE AUTHOR TYPICALLY CHECKS THIS ANYWAY
     #
+    return []
     cache_seconds = 60 * 60
     parser = etree.XMLParser(recover=True)
     root = etree.fromstring(xml, parser=parser)
@@ -430,6 +431,7 @@ def validate_exercise_globals(xml):
 
 def validate_exercise_xml(xml):
     messages = []
+    return messages
     try:
         messages = validate_exercise_globals(xml)
         xmlschema = etree.XMLSchema(etree.parse(paths.EXERCISE_XSD))

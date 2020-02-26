@@ -9,6 +9,7 @@ from lxml import etree
 import logging
 import re
 from django.core.cache import cache
+from django.conf import settings
 from exercises.util import get_hash_from_string
 
 
@@ -104,7 +105,7 @@ def parse_xml_functions(node):
             args = ((func.find('args')).text).strip()
         if token is not None and value is not None:
             ress.append({'name': token, 'args': args, 'value': value, 'tex': 'TeX'})
-    # print("RESS = ", ress )
+    print("RESS = ", ress )
     return ress
 
 
@@ -131,12 +132,13 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
     if global_xmltree is not None:
         bigstring = etree.tostring(global_xmltree, encoding='UTF-8')
     if question_xmltree is not None:
-        bigstring = bigstring + etree.tostring(question_xmltree, encoding='UTF-8')
+        qstring = etree.tostring(question_xmltree, encoding='UTF-8')
+        bigstring = bigstring + qstring
     varhash = get_hash_from_string(str(bigstring))
     ret = cache.get(varhash)
-    if ret is not None:
+    if settings.DO_CACHE and  ( ret is not None ):
         return ret
-    print("RECALCULATE GETALL VARIABLES")
+    print("RECALCULATE GETALL VARIABLES", varhash )
     variables = []
     blacklist = set([])
     correct_answer = ''

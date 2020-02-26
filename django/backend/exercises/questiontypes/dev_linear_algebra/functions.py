@@ -8,28 +8,18 @@ from sympy import *
 # from sympy.abc import _clash1, _clash2, _clash, x, y, z
 from sympy.abc import x, y, z, t
 from sympy.core.sympify import SympifyError
-from django.utils.translation import ugettext as _
 import traceback
 import random
 import itertools
 from sympy.core import S
 from sympy.matrices import Matrix
 
-from exercises.questiontypes.safe_run import safe_run
 import logging
 import traceback
-from .string_formatting import (
-    absify,
-    insert_implicit_multiply,
-    ascii_to_sympy,
-    matrixify,
-    braketify,
-    declash,
-)
-from .unithelpers import *
 from sympy import DiagonalOf
 
 logger = logging.getLogger(__name__)
+
 
 
 class Norm(sympy.Function):
@@ -121,6 +111,17 @@ class IsDiagonalizationOf(sympy.Function):
         else:
             return None
 
+class mymul(sympy.Function ):
+    nargs=(1,2,3,4,5)
+    
+    @classmethod
+    def eval(cls,*arg) :
+        print("MYMUL ENTERED", *arg )
+        for a in arg :
+            if not isinstance(a , sympy.MatrixBase ) :
+                return None
+        return sympy.MatMul( *arg)
+
 
 class localTranspose(sympy.Function):
     @classmethod
@@ -135,10 +136,12 @@ class rankof(sympy.Function):
     @classmethod
     def eval(cls, x):
         if isinstance(x, sympy.MatrixBase):
+            print("MATREIX FOUND RANKOF", x )
             sp = x.shape
             rank = sp[1]
             return sympy.sympify(rank)
         else:
+            print("MATREIX FOUND RANKOF", x )
             return None
 
 
@@ -152,6 +155,7 @@ class isunitary(sympy.Function):
             zer = (x * conjugate(x.T)) - target
             # print("zer = ", zer )
             zer = zer.evalf(6, chop=True)
+            print("ZER = ", zer )
             if zer.is_zero:
                 return sympy.sympify('1')
             else:
@@ -179,13 +183,15 @@ class crossfunc(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-
         if len(arg) == 2:
             x = arg[0]
             y = arg[1]
+            if not  ( isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase) ):
+                return None
+
             if str(x) == '0' or str(y) == '0':
                 return 0
-            return Cross(x, y)
+            return x.cross(y)
         else:
             raise TypeError('cross product needs two arguments')
 
@@ -261,21 +267,50 @@ class lt(sympy.Function):
         else:
             return None
 
-
-class ge(sympy.Function):
-    nargs = 2
+class localge(sympy.Function):
+    nargs = (1,2,3,4,5)
 
     @classmethod
     def eval(cls, x, y):
-        if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
-            x = x.doit()
-            y = y.doit()
-            if Ge(x, y):
-                return sympy.sympify('1')
+        try:
+            if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
+                try :
+                    x = x.doit()
+                    y = y.doit()
+                    if Ge(x, y):
+                        return sympy.sympify('1')
+                    else:
+                        return sympy.sympify('0')
+                except:
+                    return None
             else:
-                return sympy.sympify('0')
-        else:
-            return None
+                return None
+        except:
+            return sympy.sympify('1')
+
+
+
+class ge(sympy.Function):
+    nargs = (1,2,3,4,5)
+
+    @classmethod
+    def eval(cls, x, y):
+        try:
+            return sympy.sympify('1')
+            if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
+                try :
+                    x = x.doit()
+                    y = y.doit()
+                    if Ge(x, y):
+                        return sympy.sympify('1')
+                    else:
+                        return sympy.sympify('0')
+                except:
+                    return None
+            else:
+                return None
+        except:
+            return sympy.sympify('1')
 
 
 class le(sympy.Function):
@@ -442,7 +477,6 @@ class grad(sympy.Function):
     @classmethod
     def eval(cls, fun):
         from sympy.abc import x, y, z, t
-
         res = [diff(fun, x), diff(fun, y), diff(fun, z)]
         res = sympy.sympify(Matrix(res))
         res = res.doit()
@@ -466,12 +500,15 @@ class curl(sympy.Function):
 
     @classmethod
     def eval(cls, M):
-        res = [
-            diff(M[2], y) - diff(M[1], z),
-            diff(M[0], z) - diff(M[2], x),
-            diff(M[1], x) - diff(M[0], y),
-        ]
-        return sympy.sympify(Matrix(res))
+        if M.is_Matrix :
+            res = [
+                diff(M[2], y) - diff(M[1], z),
+                diff(M[0], z) - diff(M[2], x),
+                diff(M[1], x) - diff(M[0], y),
+                ]
+            return sympy.sympify(Matrix(res))
+        else :
+            return None
 
 
 class localdiv(sympy.Function):
@@ -491,11 +528,43 @@ class IsDiagonalizable(sympy.Function):
 
     @classmethod
     def eval(cls, x):
+        print("IS DIAGONALIZABLE ",  x )
         if isinstance(x, sympy.MatrixBase):
             if x.is_diagonalizable():
                 return sympy.sympify('1')
             else:
                 return sympy.sympify('0')
+        else :
+            return None
+
+class oldPrime(sympy.Function):
+    nargs = (1, 2, 3, 4, 5)
+
+    @classmethod
+    def eval(cls, *arg):
+        print("PRIME ENTERED", flush=True)
+        first = arg[0]
+        fourth = arg[3]
+        order = int(arg[2])
+        qqq = sympy.symbols('qqq')
+        corefunc = 'FunctionClass' in str(type(arg[3]))
+        if not corefunc:
+            deriv = fourth
+            # qqq = list(fourth.free_symbols)[0]
+            deriv = deriv.func(qqq)
+            while order > 0:
+                order = order - 1
+                deriv = diff(deriv, qqq)
+            result = deriv.subs(qqq, arg[1]).doit()
+        else:
+            fun = fourth
+            deriv = fun(qqq)
+            while order > 0:
+                order = order - 1
+                deriv = diff(deriv, qqq)
+            result = deriv.subs(qqq, arg[1])
+        return result
+
 
 
 class Prime(sympy.Function):
@@ -503,22 +572,23 @@ class Prime(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-        # print(" INTO PRIME WITH ", arg )
+        print(" INTO PRIME WITH ", *arg , flush=True)
         first = arg[0]
-        fourth = arg[3]
+        #fourth = arg[3]
         order = int(arg[2])
-        # print("first= ", first)
-        # print("second = ", arg[1] )
-        # print("third = ", arg[2] )
-        # print("FOURTH = ", fourth )
+        print("first= ", first)
+        print("second = ", arg[1] )
+        print("third = ", arg[2] )
+        #print("FOURTH = ", fourth )
         qqq = sympy.symbols('qqq')
         fun = first.func
+        print("FUN = ", srepr(fun), flush=True )
         deriv = fun(qqq)
         while order > 0:
             order = order - 1
             deriv = diff(deriv, qqq)
         result = deriv.subs(qqq, arg[1]).doit()
-        # print("PRIME RESULT IS ", result)
+        print("PRIME RESULT IS ", result, srepr( result ) )
         return result
 
 
@@ -723,3 +793,60 @@ class nullrank(Function):  # {{{
         except Exception as e:
             # print("RETURNING 99")
             return sympy.sympify('UKNOWNERROR')  # }}}
+
+openta_scope = {
+        'abs': Norm,  # sympy.Function('norm')
+        'Abs': Norm,  # sympy.Function('norm')
+        'Trace': Trace,
+        'Transpose': localTranspose,
+        'localTranspose': localTranspose,
+        'Conjugate': conjugate,
+        'AreEigenvaluesOf': eigenvaluesof,
+        'AreEigenvaluesOf': AreEigenvaluesOf,
+        'IsDiagonalizationOf': IsDiagonalizationOf,
+        'IsHermitian': IsHermitian,
+        'RankOf': rankof,
+        'mymul' : mymul,
+        'IsUnitary': isunitary,
+        'cross': crossfunc,
+        'crossfunc': crossfunc,
+        'Gt': gt,
+        'localGt': gt,
+        'Ge': ge,
+        'localGe': localge,
+        'Lt': lt,
+        'Le': le,
+        'Or': logicalor,
+        'localOr': logicalor,
+        'And': logicaland,
+        'localAnd': logicaland,
+        'curl': curl,
+        'div': localdiv,
+        'localdiv': localdiv,
+        'grad': grad,
+        'Partial': partial,
+        'partial': partial,
+        'Prime': Prime,
+        'Not': logicalnot,
+        'localNot': logicalnot,
+        'IsEqual': eq,
+        'IsNotEqual': neq,
+        'diagonalpart': diagonalof,
+        'IsDiagonal': IsDiagonal,
+        'IsDiagonalizable': IsDiagonalizable,
+        'true': sympy.sympify('1'),
+        'false': sympy.sympify('0'),
+        'True': sympy.sympify('1'),
+        'False': sympy.sympify('0'),
+        'times': Times,
+        'dot': Dot,
+        'del2': del2,
+        'sort': Sort,
+        'Sort': Sort,
+        'norm': Norm,
+        'KetBra': KetBra,
+        'KetMBra': KetMBra,
+        'Braket': Braket,
+        'NullRank': nullrank,
+        'sample': sample,
+    }
