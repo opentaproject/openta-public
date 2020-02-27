@@ -1,4 +1,5 @@
 from sympy import *
+from sympy.matrices import *
 from exercises.util import get_hash_from_string
 
 # from sympy.abc import _clash1, _clash2, _clash
@@ -163,14 +164,9 @@ def tokenify(xtest,vsubs=[]):
             bodyhash = get_hash_from_string(body)
             vsub['name'] = bodyhash ;
             vsub['value'] = sympify(body);
-            xtest = head + 'vq(\'' + bodyhash + '\')' + tail
+            xtest = head + '(' + bodyhash + ')' + tail
             vsubs = vsubs + [vsub]
             nit = nit + 1
-
-        # xtest = resub.sub('div','mydiv',xtest)
-        # xtest = resub.sub('And','gAnd',xtest)
-        # xtest = resub.sub('Nnd','gNot',xtest)
-        stest = sympify(xtest, evaluate=False)
     except:
         print("FAILED WITH ", xtest)
         raise TypeError("FAILED WITH " + xtest)
@@ -181,6 +177,25 @@ class iden(sympy.Function):
     @classmethod
     def eval(cls, x):
         return x
+
+def dematrixify( sexpr,varsubs) :
+    matrix_subs = {}
+    matrix_subs['xhat'] = Matrix([1,0,0])
+    matrix_subs['yhat'] = Matrix([0,1,0])
+    matrix_subs['zhat'] = Matrix([0,0,1])
+    newvarsubs = {}
+    vsubs = []
+    for key,val in varsubs.items() :
+        (newval,vsub) = tokenify(str(val) )
+        newvarsubs[key] = sympify( newval )
+        for item in vsub:
+            (n,m) = item['value'].shape
+            matrix_subs[ item['name']] =  item['value']  
+    (xtest, vsubs) = tokenify(sexpr)
+    for item in vsubs:
+        (n,m) = item['value'].shape
+        matrix_subs[ item['name'] ] =  item['value']  
+    return (xtest, newvarsubs, matrix_subs)
 
 
 def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
@@ -205,6 +220,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'IsDiagonalizationOf': IsDiagonalizationOf,
         'IsHermitian': IsHermitian,
         'RankOf': rankof,
+        'mymul' : mymul,
         'IsUnitary': isunitary,
         'cross': crossfunc,
         'Gt': gt,
@@ -267,19 +283,39 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-    vals = [str(item) for item in varsubs.values()]
-    #(xtest, vsubs) = tokenify(sexpr)
-    #msubs = {}
-    #for item in vsubs:
-    #    msubs[ item['name'] ] =  item['value']  
-    #msubs = [(Symbol(item['name'] ) , item['value']) for item in vsubs ]
-    #sxtest = sympify( xtest)
+    (xtest,newvarsubs, matrix_subs ) = dematrixify( sexpr , varsubs)
+    for key,val in newvarsubs.items() :
+        print("NEWVARSUBS KEY = ", srepr(key) )
+        print("NEWVARSUBS VALUE = ", srepr(val) )
+
+    print("VARUSB = ", varsubs)
+    print("NEWVARSUBS = ", newvarsubs)
+    print("MATRIX_SUBS= ", matrix_subs)
+    print("XTEST = ", xtest )
+    abc = {
+        'x': sympy.sympify('x'),
+        'y': sympy.sympify('y'),
+        'z': sympy.sympify('z'),
+        't': sympy.sympify('t'),
+        }
+ 
+    newvarsubs.update( abc )
+    sxtest = sympify(xtest, newvarsubs)
+    print("1 SXTEST = ", srepr( sxtest) )
+    sxtest = sxtest.subs(matrix_subs).doit() 
+    print("2 SXTEST = ", srepr( sxtest ) )
+    print("3 SXTEST = ", sxtest.replace(Function('mymul'), MatMul ).doit() )
+    rep = []
+    for key,val in myscope.items()  :
+        rep = rep + [( Function(key), val )]
+    print("4 SXTEST = ", sxtest.subs( rep  ).doit() )
     #try :
-    #    restored = sxtest.subs(msubs).doit() # .replace(Function('vq'),sample) 
-    #    print("RESTORED = ", restored)
+    #    restored = sxtest.subs(matrix_subs).doit() # .replace(Function('vq'),sample) 
+    #    #print("RESTORED = ", restored)
+    #    #print("matrix_subs = ",  matrix_subs )
     #except :
     #    print("xtest = ", xtest )
-    #    print("msubs = ", msubs )
+    #    print("matrix_subs = ", matrix_subs )
     #    print("sxtest = ", sxtest )
     #    raise TypeError("expr  = ", sexpr )
     try:

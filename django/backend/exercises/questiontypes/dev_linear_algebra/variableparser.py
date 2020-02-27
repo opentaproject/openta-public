@@ -131,12 +131,13 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
     if global_xmltree is not None:
         bigstring = etree.tostring(global_xmltree, encoding='UTF-8')
     if question_xmltree is not None:
-        bigstring = bigstring + etree.tostring(question_xmltree, encoding='UTF-8')
+        qstring = etree.tostring(question_xmltree, encoding='UTF-8')
+        bigstring = bigstring + qstring
     varhash = get_hash_from_string(str(bigstring))
     ret = cache.get(varhash)
     if ret is not None:
         return ret
-    print("RECALCULATE GETALL VARIABLES")
+    print("RECALCULATE GETALL VARIABLES", varhash )
     variables = []
     blacklist = set([])
     correct_answer = ''

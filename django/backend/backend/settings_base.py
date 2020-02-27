@@ -185,3 +185,4 @@ RQ_QUEUES = {
 }
 UNITTESTS = False
 EXERCISES_PATH = '../../exercises'
+REFRESH_SEED_ON_CORRECT_ANSWER = False

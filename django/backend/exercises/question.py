@@ -343,7 +343,7 @@ def get_seed(user_id, exercise_key=None, question_id=None):
     else:
         random.seed(exercise_key)
     r = random.randrange(123, 55321, 1)
-    if question_id:
+    if settings.REFRESH_SEED_ON_CORRECT_ANSWER and question_id:
         return str(r + get_number_of_correct_attempts(question_id, user_id) + user_id)
     else:
         return str(r + user_id)

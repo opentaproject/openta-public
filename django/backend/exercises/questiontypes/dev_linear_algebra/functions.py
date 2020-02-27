@@ -121,6 +121,15 @@ class IsDiagonalizationOf(sympy.Function):
         else:
             return None
 
+class mymul(sympy.Function ):
+    nargs=(1,2,3,4,5)
+    
+    @classmethod
+    def eval(cls,*arg) :
+        print("MYMUL ENTERED")
+        return sympy.MatMul( *arg)
+
+
 
 class localTranspose(sympy.Function):
     @classmethod
@@ -497,13 +506,42 @@ class IsDiagonalizable(sympy.Function):
             else:
                 return sympy.sympify('0')
 
+class oldPrime(sympy.Function):
+    nargs = (1, 2, 3, 4, 5)
+
+    @classmethod
+    def eval(cls, *arg):
+        print("PRIME ENTERED", flush=True)
+        first = arg[0]
+        fourth = arg[3]
+        order = int(arg[2])
+        qqq = sympy.symbols('qqq')
+        corefunc = 'FunctionClass' in str(type(arg[3]))
+        if not corefunc:
+            deriv = fourth
+            # qqq = list(fourth.free_symbols)[0]
+            deriv = deriv.func(qqq)
+            while order > 0:
+                order = order - 1
+                deriv = diff(deriv, qqq)
+            result = deriv.subs(qqq, arg[1]).doit()
+        else:
+            fun = fourth
+            deriv = fun(qqq)
+            while order > 0:
+                order = order - 1
+                deriv = diff(deriv, qqq)
+            result = deriv.subs(qqq, arg[1])
+        return result
+
+
 
 class Prime(sympy.Function):
     nargs = (1, 2, 3, 4, 5, 6)
 
     @classmethod
     def eval(cls, *arg):
-        # print(" INTO PRIME WITH ", arg )
+        print(" INTO PRIME WITH ", *arg , flush=True)
         first = arg[0]
         fourth = arg[3]
         order = int(arg[2])
@@ -513,6 +551,7 @@ class Prime(sympy.Function):
         # print("FOURTH = ", fourth )
         qqq = sympy.symbols('qqq')
         fun = first.func
+        print("FUN = ", srepr(fun), flush=True )
         deriv = fun(qqq)
         while order > 0:
             order = order - 1
