@@ -190,10 +190,12 @@ class crossfunc(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-
         if len(arg) == 2:
             x = arg[0]
             y = arg[1]
+            if not  ( isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase) ):
+                return None
+
             if str(x) == '0' or str(y) == '0':
                 return 0
             return Cross(x, y)
