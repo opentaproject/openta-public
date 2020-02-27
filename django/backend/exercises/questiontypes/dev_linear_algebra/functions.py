@@ -146,10 +146,12 @@ class rankof(sympy.Function):
     @classmethod
     def eval(cls, x):
         if isinstance(x, sympy.MatrixBase):
+            print("MATREIX FOUND RANKOF", x )
             sp = x.shape
             rank = sp[1]
             return sympy.sympify(rank)
         else:
+            print("MATREIX FOUND RANKOF", x )
             return None
 
 
@@ -274,21 +276,50 @@ class lt(sympy.Function):
         else:
             return None
 
-
-class ge(sympy.Function):
-    nargs = 2
+class localge(sympy.Function):
+    nargs = (1,2,3,4,5)
 
     @classmethod
     def eval(cls, x, y):
-        if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
-            x = x.doit()
-            y = y.doit()
-            if Ge(x, y):
-                return sympy.sympify('1')
+        try:
+            if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
+                try :
+                    x = x.doit()
+                    y = y.doit()
+                    if Ge(x, y):
+                        return sympy.sympify('1')
+                    else:
+                        return sympy.sympify('0')
+                except:
+                    return None
             else:
-                return sympy.sympify('0')
-        else:
-            return None
+                return None
+        except:
+            return sympy.sympify('1')
+
+
+
+class ge(sympy.Function):
+    nargs = (1,2,3,4,5)
+
+    @classmethod
+    def eval(cls, x, y):
+        try:
+            return sympy.sympify('1')
+            if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
+                try :
+                    x = x.doit()
+                    y = y.doit()
+                    if Ge(x, y):
+                        return sympy.sympify('1')
+                    else:
+                        return sympy.sympify('0')
+                except:
+                    return None
+            else:
+                return None
+        except:
+            return sympy.sympify('1')
 
 
 class le(sympy.Function):

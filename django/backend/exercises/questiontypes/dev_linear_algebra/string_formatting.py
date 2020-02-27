@@ -239,11 +239,14 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
         {'Not': 'localNot'},
         {'div': 'localdiv'},
         {'Or': 'localOr'},
+        {'Ge': 'localGe'},
         {'d': 'partial'},
         {'Transpose':'localTranspose'},
     ]
+    expression = resub.sub(r',',' ,',expression)
     for clash in clashes:
         key = list(clash.keys())[0]
         if key in expression:
             result = resub.sub(r"(\A|\s|\()" + key + "\(", r" " + clash[key] + "(", result)
+    result = resub.sub(r' ,',',',result)
     return result  # }}}
