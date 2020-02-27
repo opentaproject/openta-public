@@ -1,6 +1,7 @@
 from sympy import *
 from sympy.matrices import *
 from exercises.util import get_hash_from_string
+from copy import deepcopy
 
 # from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
@@ -273,6 +274,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         scope.update({'sample': sample})
     sexpr = ascii_to_sympy(declash(expression), {})
     scope.update(ns)
+    newscope = deepcopy( scope )
     scope.update(varsubs)
     scope_symbolic = {
         'x': sympy.sympify('x'),
@@ -299,12 +301,13 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         't': sympy.sympify('t'),
         }
  
-    newvarsubs.update( abc )
-    sxtest = sympify(xtest, newvarsubs)
+    newscope.update( abc )
+    sxtest = sympify(xtest, newscope)
     print("1 SXTEST = ", srepr( sxtest) )
-    sxtest = sxtest.subs(matrix_subs).doit() 
+    sxtest = sxtest.subs(newvarsubs)
     print("2 SXTEST = ", srepr( sxtest ) )
-    print("3 SXTEST = ", sxtest.replace(Function('mymul'), MatMul ).doit() )
+    sxtest = sxtest.subs(matrix_subs)
+    print("3 SXTEST = ", sxtest.replace(Function('matmul'), MatMul ).doit() )
     rep = []
     for key,val in myscope.items()  :
         rep = rep + [( Function(key), val )]
