@@ -304,6 +304,12 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         }
  
     newscope.update( abc )
+    test1 = sympify( xtest, ns )
+    print("0 TESTING = ", test1 )
+    test2 = test1.subs(newvarsubs)
+    test2 = test2.replace(Add, Function('myadd') )
+    print("1 TEST2 = ", test2 )
+    print("1 TEST2 = ", srepr( test2 ) )
     sxtest = sympify(xtest, newscope)
     print("1 SXTEST = ", srepr( sxtest) )
     sxtest = sxtest.subs(newvarsubs)
@@ -314,6 +320,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     for key,val in myscope.items()  :
         rep = rep + [( Function(key), val )]
     print("4 SXTEST = ", sxtest.subs( rep  ).doit() )
+    print("FUNCSUBS = ", funcsubs )
     #try :
     #    restored = sxtest.subs(matrix_subs).doit() # .replace(Function('vq'),sample) 
     #    #print("RESTORED = ", restored)
