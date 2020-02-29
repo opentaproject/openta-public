@@ -28,6 +28,7 @@ from .functions import *
 from .checks import *
 from .parsers import *
 from .variableparser import getallvariables, get_used_variable_list
+from .sympify_with_custom import sympify_with_custom
 
 
 logger = logging.getLogger(__name__)

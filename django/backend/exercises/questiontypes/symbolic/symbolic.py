@@ -27,6 +27,7 @@ from sympy import DiagonalOf
 from exercises.questiontypes.dev_linear_algebra.functions import *
 from exercises.questiontypes.dev_linear_algebra.checks import *
 from exercises.questiontypes.dev_linear_algebra.parsers import *
+from exercises.questiontypes.dev_linear_algebra.sympify_with_custom import sympify_with_custom
 import re
 import inspect
 from sympy.printing.mathml import *
