@@ -104,7 +104,7 @@ def parse_xml_functions(node):
             args = ((func.find('args')).text).strip()
         if token is not None and value is not None:
             ress.append({'name': token, 'args': args, 'value': value, 'tex': 'TeX'})
-    # print("RESS = ", ress )
+    print("RESS = ", ress )
     return ress
 
 

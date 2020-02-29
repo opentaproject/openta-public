@@ -209,61 +209,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     Returns:
         Sympy expression
     """
-    scope = {
-        'abs': Norm,  # sympy.Function('norm')
-        'Abs': Norm,  # sympy.Function('norm')
-        'Trace': Trace,
-        'Transpose': localTranspose,
-        'localTranspose': localTranspose,
-        'Conjugate': conjugate,
-        'AreEigenvaluesOf': eigenvaluesof,
-        'AreEigenvaluesOf': AreEigenvaluesOf,
-        'IsDiagonalizationOf': IsDiagonalizationOf,
-        'IsHermitian': IsHermitian,
-        'RankOf': rankof,
-        'mymul' : mymul,
-        'IsUnitary': isunitary,
-        'cross': crossfunc,
-        'Gt': gt,
-        'localGt': gt,
-        'Ge': ge,
-        'localGe': localge,
-        'Lt': lt,
-        'Le': le,
-        'Or': logicalor,
-        'localOr': logicalor,
-        'And': logicaland,
-        'localAnd': logicaland,
-        'curl': curl,
-        'div': localdiv,
-        'localdiv': localdiv,
-        'grad': grad,
-        'Partial': partial,
-        'partial': partial,
-        'Prime': Prime,
-        'Not': logicalnot,
-        'localNot': logicalnot,
-        'IsEqual': eq,
-        'IsNotEqual': neq,
-        'diagonalpart': diagonalof,
-        'IsDiagonal': IsDiagonal,
-        'IsDiagonalizable': IsDiagonalizable,
-        'true': sympy.sympify('1'),
-        'false': sympy.sympify('0'),
-        'True': sympy.sympify('1'),
-        'False': sympy.sympify('0'),
-        'times': Times,
-        'dot': Dot,
-        'del2': del2,
-        'sort': Sort,
-        'Sort': Sort,
-        'norm': Norm,
-        'KetBra': KetBra,
-        'KetMBra': KetMBra,
-        'Braket': Braket,
-        'NullRank': nullrank,
-        'sample': sample,
-    }
+    scope = openta_scope
     myscope = scope
     subrule = []
     for key, val in myscope.items():
@@ -292,35 +238,35 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         print("NEWVARSUBS KEY = ", srepr(key) )
         print("NEWVARSUBS VALUE = ", srepr(val) )
 
-    print("VARUSB = ", varsubs)
-    print("NEWVARSUBS = ", newvarsubs)
-    print("MATRIX_SUBS= ", matrix_subs)
-    print("XTEST = ", xtest )
-    abc = {
-        'x': sympy.sympify('x'),
-        'y': sympy.sympify('y'),
-        'z': sympy.sympify('z'),
-        't': sympy.sympify('t'),
-        }
+    #print("VARUSB = ", varsubs)
+    #print("NEWVARSUBS = ", newvarsubs)
+    #print("MATRIX_SUBS= ", matrix_subs)
+    #print("XTEST = ", xtest )
+    #abc = {
+    #    'x': sympy.sympify('x'),
+    #    'y': sympy.sympify('y'),
+    #    'z': sympy.sympify('z'),
+    #    't': sympy.sympify('t'),
+    #    }
  
-    newscope.update( abc )
-    test1 = sympify( xtest, ns )
-    print("0 TESTING = ", test1 )
-    test2 = test1.subs(newvarsubs)
-    test2 = test2.replace(Add, Function('myadd') )
-    print("1 TEST2 = ", test2 )
-    print("1 TEST2 = ", srepr( test2 ) )
-    sxtest = sympify(xtest, newscope)
-    print("1 SXTEST = ", srepr( sxtest) )
-    sxtest = sxtest.subs(newvarsubs)
-    print("2 SXTEST = ", srepr( sxtest ) )
-    sxtest = sxtest.subs(matrix_subs)
-    print("3 SXTEST = ", sxtest.replace(Function('matmul'), MatMul ).doit() )
-    rep = []
-    for key,val in myscope.items()  :
-        rep = rep + [( Function(key), val )]
-    print("4 SXTEST = ", sxtest.subs( rep  ).doit() )
-    print("FUNCSUBS = ", funcsubs )
+    #newscope.update( abc )
+    #test1 = sympify( xtest, ns )
+    #print("0 TESTING = ", test1 )
+    #test2 = test1.subs(newvarsubs)
+    #test2 = test2.replace(Add, Function('myadd') )
+    #print("1 TEST2 = ", test2 )
+    #print("1 TEST2 = ", srepr( test2 ) )
+    #sxtest = sympify(xtest, newscope)
+    #print("1 SXTEST = ", srepr( sxtest) )
+    #sxtest = sxtest.subs(newvarsubs)
+    #print("2 SXTEST = ", srepr( sxtest ) )
+    #sxtest = sxtest.subs(matrix_subs)
+    #print("3 SXTEST = ", sxtest.replace(Function('matmul'), MatMul ).doit() )
+    #rep = []
+    #for key,val in myscope.items()  :
+    #    rep = rep + [( Function(key), val )]
+    #print("4 SXTEST = ", sxtest.subs( rep  ).doit() )
+    #print("FUNCSUBS = ", funcsubs )
     #try :
     #    restored = sxtest.subs(matrix_subs).doit() # .replace(Function('vq'),sample) 
     #    #print("RESTORED = ", restored)

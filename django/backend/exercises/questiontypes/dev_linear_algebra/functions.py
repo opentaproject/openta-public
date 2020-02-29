@@ -8,28 +8,18 @@ from sympy import *
 # from sympy.abc import _clash1, _clash2, _clash, x, y, z
 from sympy.abc import x, y, z, t
 from sympy.core.sympify import SympifyError
-from django.utils.translation import ugettext as _
 import traceback
 import random
 import itertools
 from sympy.core import S
 from sympy.matrices import Matrix
 
-from exercises.questiontypes.safe_run import safe_run
 import logging
 import traceback
-from .string_formatting import (
-    absify,
-    insert_implicit_multiply,
-    ascii_to_sympy,
-    matrixify,
-    braketify,
-    declash,
-)
-from .unithelpers import *
 from sympy import DiagonalOf
 
 logger = logging.getLogger(__name__)
+
 
 
 class Norm(sympy.Function):
@@ -486,7 +476,6 @@ class grad(sympy.Function):
     @classmethod
     def eval(cls, fun):
         from sympy.abc import x, y, z, t
-
         res = [diff(fun, x), diff(fun, y), diff(fun, z)]
         res = sympy.sympify(Matrix(res))
         res = res.doit()
@@ -510,12 +499,15 @@ class curl(sympy.Function):
 
     @classmethod
     def eval(cls, M):
-        res = [
-            diff(M[2], y) - diff(M[1], z),
-            diff(M[0], z) - diff(M[2], x),
-            diff(M[1], x) - diff(M[0], y),
-        ]
-        return sympy.sympify(Matrix(res))
+        if M.is_Matrix :
+            res = [
+                diff(M[2], y) - diff(M[1], z),
+                diff(M[0], z) - diff(M[2], x),
+                diff(M[1], x) - diff(M[0], y),
+                ]
+            return sympy.sympify(Matrix(res))
+        else :
+            return None
 
 
 class localdiv(sympy.Function):
@@ -797,3 +789,59 @@ class nullrank(Function):  # {{{
         except Exception as e:
             # print("RETURNING 99")
             return sympy.sympify('UKNOWNERROR')  # }}}
+
+openta_scope = {
+        'abs': Norm,  # sympy.Function('norm')
+        'Abs': Norm,  # sympy.Function('norm')
+        'Trace': Trace,
+        'Transpose': localTranspose,
+        'localTranspose': localTranspose,
+        'Conjugate': conjugate,
+        'AreEigenvaluesOf': eigenvaluesof,
+        'AreEigenvaluesOf': AreEigenvaluesOf,
+        'IsDiagonalizationOf': IsDiagonalizationOf,
+        'IsHermitian': IsHermitian,
+        'RankOf': rankof,
+        'mymul' : mymul,
+        'IsUnitary': isunitary,
+        'cross': crossfunc,
+        'Gt': gt,
+        'localGt': gt,
+        'Ge': ge,
+        'localGe': localge,
+        'Lt': lt,
+        'Le': le,
+        'Or': logicalor,
+        'localOr': logicalor,
+        'And': logicaland,
+        'localAnd': logicaland,
+        'curl': curl,
+        'div': localdiv,
+        'localdiv': localdiv,
+        'grad': grad,
+        'Partial': partial,
+        'partial': partial,
+        'Prime': Prime,
+        'Not': logicalnot,
+        'localNot': logicalnot,
+        'IsEqual': eq,
+        'IsNotEqual': neq,
+        'diagonalpart': diagonalof,
+        'IsDiagonal': IsDiagonal,
+        'IsDiagonalizable': IsDiagonalizable,
+        'true': sympy.sympify('1'),
+        'false': sympy.sympify('0'),
+        'True': sympy.sympify('1'),
+        'False': sympy.sympify('0'),
+        'times': Times,
+        'dot': Dot,
+        'del2': del2,
+        'sort': Sort,
+        'Sort': Sort,
+        'norm': Norm,
+        'KetBra': KetBra,
+        'KetMBra': KetMBra,
+        'Braket': Braket,
+        'NullRank': nullrank,
+        'sample': sample,
+    }
