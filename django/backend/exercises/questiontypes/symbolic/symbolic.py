@@ -3,6 +3,7 @@ import numpy
 import types
 import sys
 from sympy import *
+import time
 
 # from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
@@ -73,6 +74,7 @@ def symbolic_compare_expressions(
     used_variables=[],
     funcsubs={},
 ):
+    tbeg = time.time()
     s1 = ascii_to_sympy(student_answer)
     s2 = ascii_to_sympy(correct)
     all_variables = [x['name'] for x in variables]
@@ -249,6 +251,8 @@ def symbolic_compare_expressions(
         res = symbolic_check_equality(
             precision, lhs, rhs, sample_variables, check_units=check_units
         )
+        tend = time.time()
+        print("TOTAL TIME IN COMPARE EXPRESSIONS", ( tend - tbeg ) * 1000  , " MILLISECONDS" )
         return res
     except Exception as e:
         response = dict(error=str(e), debug=str(e))

@@ -527,11 +527,14 @@ class IsDiagonalizable(sympy.Function):
 
     @classmethod
     def eval(cls, x):
+        print("IS DIAGONALIZABLE ",  x )
         if isinstance(x, sympy.MatrixBase):
             if x.is_diagonalizable():
                 return sympy.sympify('1')
             else:
                 return sympy.sympify('0')
+        else :
+            return None
 
 class oldPrime(sympy.Function):
     nargs = (1, 2, 3, 4, 5)
