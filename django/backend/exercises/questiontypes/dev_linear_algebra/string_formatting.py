@@ -247,6 +247,6 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     for clash in clashes:
         key = list(clash.keys())[0]
         if key in expression:
-            result = resub.sub(r"(\A|\s|\()(,*)" + key + "\(", r"\1\2 " + clash[key] + "(", result)
+            result = resub.sub(r"(\A|\s|,|\()" + key + "\(", r"\1 " + clash[key] + "(", result)
     result = resub.sub(r' ,',',',result)
     return result  # }}}
