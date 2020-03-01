@@ -570,12 +570,12 @@ class Prime(sympy.Function):
     def eval(cls, *arg):
         print(" INTO PRIME WITH ", *arg , flush=True)
         first = arg[0]
-        fourth = arg[3]
+        #fourth = arg[3]
         order = int(arg[2])
-        # print("first= ", first)
-        # print("second = ", arg[1] )
-        # print("third = ", arg[2] )
-        # print("FOURTH = ", fourth )
+        print("first= ", first)
+        print("second = ", arg[1] )
+        print("third = ", arg[2] )
+        #print("FOURTH = ", fourth )
         qqq = sympy.symbols('qqq')
         fun = first.func
         print("FUN = ", srepr(fun), flush=True )
@@ -584,7 +584,7 @@ class Prime(sympy.Function):
             order = order - 1
             deriv = diff(deriv, qqq)
         result = deriv.subs(qqq, arg[1]).doit()
-        # print("PRIME RESULT IS ", result)
+        print("PRIME RESULT IS ", result, srepr( result ) )
         return result
 
 

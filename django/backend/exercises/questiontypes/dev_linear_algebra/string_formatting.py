@@ -58,7 +58,7 @@ def replace_user_defined_functions(expression, funcsubs):
         rep = funcsubs[fun]
         order = str(head.count('\''))
         fun = '#' + fun
-        middle = ' Prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
+        middle = ' Prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + '()) '
         expression = ex1 + middle + ex3
         if add_paren:
             expression = '(' + expression + ')\''
@@ -96,7 +96,7 @@ def replace_primes(expression, funcsubs):
         rep = funcsubs.get(fun, fun)
         order = str(head.count('\''))
         fun = '#' + fun
-        middle = ' Prime(' + fun + arg + ',' + arg + ',' + order + ',' + str(rep) + ') '
+        middle = ' Prime(' + fun + arg + ',' + arg + ',' + order + ')'# + ',' + str(rep) + '(x)) '
         expression = ex1 + middle + ex3
         if add_paren:
             expression = '(' + expression + ')\''
