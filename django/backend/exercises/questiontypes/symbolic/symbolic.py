@@ -3,6 +3,7 @@ import numpy
 import types
 import sys
 from sympy import *
+import random 
 import time
 
 # from sympy.abc import _clash1, _clash2, _clash
@@ -275,13 +276,20 @@ def symbolic_internal(expression1, expression2):  # {{{
     number_of_points = 10
     response = {}
     tbeg = time.time()
+    # 
+    # SWITCH BETWEEN SYMBOLIC AND NOT
+    # NUMERIC IS PROBABLY THE WAY TO GO
+    #
+    doNumeric = False
     try:
-        sexpression1 = expression1
-        sexpression2 = expression2
-        nvars = {}
-        sympy1 = powdenest(factor(sympify(sexpression1, ns)), force=True)
-        #print("INTERNAL SPLIT1  = " , ( time.time() - tbeg  )  * 1000 )
-        sympy2 = powdenest(factor(sympify(sexpression2, ns)), force=True)
+        #sexpression1 = expression1
+        #sexpression2 = expression2
+        ##sympy1 = powdenest(factor(sympify(sexpression1, ns)), force=True)
+        sympy1 = expression1
+        sympy2 = expression2 
+        if not doNumeric :
+            sympy1 = powdenest(factor(sympify(expression1, ns)), force=True)
+            sympy2 = powdenest(factor(sympify(expression2, ns)), force=True)
         #print("INTERNAL SPLIT2  = " , ( time.time() - tbeg  )  * 1000 )
         # if logger.isEnabledFor(logging.DEBUG):
         #    logger.debug('Expression 1: ' + str(sympy1))
@@ -298,18 +306,23 @@ def symbolic_internal(expression1, expression2):  # {{{
         # USING simplify ONLY DOES NOT DO MUCH  ; IT IS STILL SLOW
         #
 
-        shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
-        #print("INTERNAL SPLIT3  = " , ( time.time() - tbeg  )  * 1000 )
-        diffy = Norm(shouldbezero)
+        if doNumeric :
+            symbs = zero.free_symbols
+            symsub = [ ( sym, random.random() )  for sym in symbs ]
+            nzero = zero.subs( symsub )
+            diffy = Norm(nzero)
+        else :
+            shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
+            diffy = Norm(shouldbezero)
         #print("INTERNAL SPLIT4  = " , ( time.time() - tbeg  )  * 1000 )
         if not diffy.is_Number :
             response['correct'] = False 
-            response['debug'] = "diff reduces to $" + latex(shouldbezero) + '$'
+            response['debug'] = "diff reduces to $" + latex(zero) + '$'
         elif  abs( diffy * 1.0 ) < 1e-6 :
             response['correct'] = True
         else:
             response['correct'] = False
-            response['debug'] = "diff reduces to $" + latex(shouldbezero) + '$'
+            response['debug'] = "diff reduces to $" + latex(zero) + '$'
     except SympifyError as e:
         logger.error([str(e), expression1, expression2])
         response['debug'] = str(e)
@@ -327,7 +340,7 @@ def symbolic_internal(expression1, expression2):  # {{{
         logger.error([str(e), expression1, expression2])
         response['error'] = _("Unknown error2, check your expression.")
         response['debug'] = debug = type(e).__name__ + ": " + str(e)
-    #print("TOTAL TIME IN INTERNAL", ( time.time() - tbeg) * 1000 )
+    print("TOTAL TIME IN INTERNAL", ( time.time() - tbeg) * 1000 )
     return response  # }}}
 
 

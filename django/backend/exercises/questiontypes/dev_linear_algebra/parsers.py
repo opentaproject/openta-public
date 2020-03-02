@@ -1,6 +1,7 @@
 from sympy import *
 from sympy.matrices import *
 from exercises.util import get_hash_from_string
+from django.conf import settings
 from copy import deepcopy
 from django.core.cache import cache as core_cache
 from exercises.util import get_hash_from_string
@@ -53,7 +54,7 @@ def parse_sample_variables(variables, funcsubs={}):
     sym = {}
     varhash = get_hash_from_string( str(variables) + str(funcsubs) )
     ret = core_cache.get(varhash)
-    if ret is not None:
+    if settings.DO_CACHE and ( ret is not None ):
         return ret
     vars_ = variables
     subs_rules = []

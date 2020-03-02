@@ -3,6 +3,7 @@ import hashlib
 from sympy.matrices import *
 from django.core.cache import cache as core_cache
 from exercises.util import get_hash_from_string
+from django.conf import settings
 from copy import deepcopy
 
 # from sympy.abc import _clash1, _clash2, _clash
@@ -181,7 +182,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     """
     varhash = get_hash_from_string( expression + str(varsubs) + str(funcsubs) )
     ret = core_cache.get(varhash)
-    if ret is not None:
+    if settings.DO_CACHE and ret is not None:
         return ret
     tbeg = time.time() 
     scope = openta_scope
@@ -210,24 +211,28 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         #print("CUSTOM SPLIT1 = ", ( time.time() - tbeg ) * 1000 )
         rep = [ (Function(key), val ) for key,val in myscope.items() ]
         sexpr = ascii_to_sympy(declash(expression), {})
-        #print("CUSTOM SPLIT2 = ", ( time.time() - tbeg ) * 1000 )
+        print( "CUSTOM SPLIT2 = ", ( time.time() - tbeg ) * 1000 , sexpr)
         new = sexpr
         (xtest,newvarsubs, matrix_subs ) = dematrixify( sexpr , varsubs)
-        #print("CUSTOM SPLIT3 = ", ( time.time() - tbeg ) * 1000 )
+        print( "CUSTOM SPLIT3 = ", ( time.time() - tbeg ) * 1000 , xtest )
         new = xtest 
         func_subs = {  sub['name'] : {
                 'args' :  [  Symbol(arg) for arg  in  sub['args'].lstrip('[').rstrip(']').split(',') ] , 
                 'value' : sympify( sub['value']  )  }  for sub in funcsubs}
-        #print("CUSTOM SPLIT4 = ", ( time.time() - tbeg ) * 1000 )
+        print("CUSTOM SPLIT4 = ", ( time.time() - tbeg ) * 1000 , new )
         xtest = sympify(xtest,ns).replace(Add,Function('myadd') )
-        #print("CUSTOM SPLIT5 = ", ( time.time() - tbeg ) * 1000 )
+        print(  "CUSTOM SPLIT5 = ", ( time.time() - tbeg ) * 1000 , xtest)
         new = xtest
         ##################################
         #### THE NEXT LINE IS BOTTLENECK
+        print("VARSUBS = ", varsubs )
+        print("NEWVARSUBS = ", newvarsubs)
+        print("MATRIX_SUBS = ", matrix_subs)
+        print("FUNCSUBS = ", func_subs)
         new = pre(xtest,newvarsubs, matrix_subs,func_subs,rep) 
         #############
         ##################################
-        #print("CUSTOM SPLIT6 = ", ( time.time() - tbeg ) * 1000 )
+        print( "CUSTOM SPLIT6 = ", ( time.time() - tbeg ) * 1000 , new)
         new = new.replace(Function('myadd'), Add).doit() 
         #print("CUSTOM SPLIT7 = ", ( time.time() - tbeg ) * 1000 )
         #new = simplify( new )
@@ -236,8 +241,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         tend = time.time()
         core_cache.set(varhash, new , 60 * 60)
         print("HASH = ", varhash , ": TIME SPENT IN SYMPIFY WITH CUSTOM = ", (tend - tbeg) * 1000 , " MILLISECONDS parsing ", expression)
-    except :
-        pass
+    except Exception as e :
+        print("ERROR WITH new = ", new )
     #print("NEW AGAIN = ", new ) 
     #print("XTEST = ", xtest )
     #abc = {

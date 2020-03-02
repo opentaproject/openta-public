@@ -9,6 +9,7 @@ from lxml import etree
 import logging
 import re
 from django.core.cache import cache
+from django.conf import settings
 from exercises.util import get_hash_from_string
 
 
@@ -135,7 +136,7 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         bigstring = bigstring + qstring
     varhash = get_hash_from_string(str(bigstring))
     ret = cache.get(varhash)
-    if ret is not None:
+    if settings.DO_CACHE and  ( ret is not None ):
         return ret
     print("RECALCULATE GETALL VARIABLES", varhash )
     variables = []
