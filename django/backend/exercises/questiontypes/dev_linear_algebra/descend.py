@@ -106,35 +106,28 @@ def pre(expr, newvarsubs, matrix_sub ,func_subs , rep , level=0):
         expr = expr.replace(Add, Function('myadd') )
     name = 'NONAME' if not hasattr(expr, 'name') else getattr(expr, 'name')
     newargs = None
-    print("PARSING ", expr )
     if expr.is_Function:
-        print("FOUND THE  FUNCTION", str(expr.func))
-        #if str(expr.func) == "myadd":
-        #    print("myadd ")
-        #    expr = Function('newadd')(*expr.args)
         if len( func_subs) > 0 :
             expr = new_func_replace(expr,func_subs)
         newargs = [pre(item, newvarsubs,  matrix_sub, func_subs , rep,level + 1) for item in expr.args]
         expr = expr.__class__(*newargs)
-        print( level , " FOUND FUNCTION", expr.func , " IN ", expr )
     elif expr.is_Symbol:
-        print("FOUND SYMBOL", expr.name )
         while True :
             prev = expr 
             expr = expr.subs(newvarsubs).doit()
             expr = expr.subs(matrix_sub).doit()
             if expr == prev:
                 break
-        print(level, " FOUND SYMBOL ", name)
+        expr = expr.subs( rep ).doit()
     elif expr.is_Atom:
         expr = expr
-        print("FOUND ATOM", name)
     else:
-        print("COMPLEX EXPRESSION NAME = ", name , expr, "FUNC = ", expr.func, "ARGS = ", expr.args)
+        #print("COMPLEX EXPRESSION NAME = ", name , expr, "FUNC = ", expr.func, "ARGS = ", expr.args)
         newargs = [pre(item, newvarsubs, matrix_sub, func_subs, rep,  level + 1) for item in expr.args]
         expr = expr.__class__(*newargs)
     #tend = datetime.datetime.now()
     #print("TIMEING = " ( tend - tbegin).milliseconds )
+    expr = expr.subs(rep)
     return expr
 
 '''

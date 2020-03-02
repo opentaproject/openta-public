@@ -146,7 +146,7 @@ def expr_are_equal( ex1, ex2 ):
     ex1 = sympy.sympify(ex1)
     ex2 = sympy.sympify(ex2)
     try: 
-        print("COMPARE ", srepr(ex1), srepr(ex2) )
+        #print("COMPARE ", srepr(ex1), srepr(ex2) )
         if ex1.is_Matrix and ex2.is_Matrix :
             return sympy.simplify( ex1 - ex2 ).norm() == 0 
         elif ex1.is_Matrix :
@@ -201,43 +201,30 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     }
     try :
         tbeg = time.time() 
-        print("ORIG IS ", declash(expression) )
         rep = [ (Function(key), val ) for key,val in myscope.items() ]
         sexpr = ascii_to_sympy(declash(expression), {})
         new = sexpr
         (xtest,newvarsubs, matrix_subs ) = dematrixify( sexpr , varsubs)
         new = xtest 
-        print("XTEST IS ", xtest )
-        #for key,val in newvarsubs.items() :
-        #    print("NEWVARSUBS KEY = ", srepr(key) )
-        #    print("NEWVARSUBS VALUE = ", srepr(val) )
-        print("newvarsubs = ", newvarsubs)
-        print("matrix_subs = ", matrix_subs)
         func_subs = {  sub['name'] : {
                 'args' :  [  Symbol(arg) for arg  in  sub['args'].lstrip('[').rstrip(']').split(',') ] , 
                 'value' : sympify( sub['value']  )  }  for sub in funcsubs}
-        print("func_subs = ", func_subs)
         xtest = sympify(xtest,ns).replace(Add,Function('myadd') )
         new = xtest
-        print("xtest = ", srepr( xtest ) )
         new1 = pre(xtest,newvarsubs, matrix_subs,func_subs,rep) 
         new = new1
-        print("NEW1 = ", new1 )
-        #print("REP = ", rep )
-        new2 = new1.subs(rep)
+        new2 = new1 # .subs(rep)
         new = new2
-        print("NEW2 = ", new2 )
         new3 = new2.replace(Function('myadd'), Add).doit() 
         new = new3
-        print("NEW3 = ", new3 )
         new4 = simplify( new3 )
         new = new4
-        print("NEW4 = ", new4)
+        #print("NEW4 = ", new4)
         tend = time.time()
         print("TIME SPENT IN SYMPIFY WITH CUSTOM = ", (tend - tbeg) * 1000 , " MILLISECONDS")
     except :
         pass
-    print("NEW AGAIN = ", new ) 
+    #print("NEW AGAIN = ", new ) 
     #print("XTEST = ", xtest )
     #abc = {
     #    'x': sympy.sympify('x'),
