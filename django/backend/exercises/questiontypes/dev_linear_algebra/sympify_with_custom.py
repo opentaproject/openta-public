@@ -202,6 +202,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     try :
         tbeg = time.time() 
         print("ORIG IS ", declash(expression) )
+        rep = [ (Function(key), val ) for key,val in myscope.items() ]
         sexpr = ascii_to_sympy(declash(expression), {})
         new = sexpr
         (xtest,newvarsubs, matrix_subs ) = dematrixify( sexpr , varsubs)
@@ -219,10 +220,9 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         xtest = sympify(xtest,ns).replace(Add,Function('myadd') )
         new = xtest
         print("xtest = ", srepr( xtest ) )
-        new1 = pre(xtest,newvarsubs, matrix_subs,func_subs,myscope) 
+        new1 = pre(xtest,newvarsubs, matrix_subs,func_subs,rep) 
         new = new1
         print("NEW1 = ", new1 )
-        rep = [ (Function(key), val ) for key,val in myscope.items() ]
         #print("REP = ", rep )
         new2 = new1.subs(rep)
         new = new2

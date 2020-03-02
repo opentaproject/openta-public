@@ -93,7 +93,7 @@ def new_func_replace(expr,func_subs):
         return expr
 
 
-def pre(expr, newvarsubs, matrix_sub ,func_subs , myscope , level=0):
+def pre(expr, newvarsubs, matrix_sub ,func_subs , rep , level=0):
     '''
      #
      # TEST WITH 
@@ -114,7 +114,7 @@ def pre(expr, newvarsubs, matrix_sub ,func_subs , myscope , level=0):
         #    expr = Function('newadd')(*expr.args)
         if len( func_subs) > 0 :
             expr = new_func_replace(expr,func_subs)
-        newargs = [pre(item, newvarsubs,  matrix_sub, func_subs , myscope,level + 1) for item in expr.args]
+        newargs = [pre(item, newvarsubs,  matrix_sub, func_subs , rep,level + 1) for item in expr.args]
         expr = expr.__class__(*newargs)
         print( level , " FOUND FUNCTION", expr.func , " IN ", expr )
     elif expr.is_Symbol:
@@ -131,7 +131,7 @@ def pre(expr, newvarsubs, matrix_sub ,func_subs , myscope , level=0):
         print("FOUND ATOM", name)
     else:
         print("COMPLEX EXPRESSION NAME = ", name , expr, "FUNC = ", expr.func, "ARGS = ", expr.args)
-        newargs = [pre(item, newvarsubs, matrix_sub, func_subs, myscope,  level + 1) for item in expr.args]
+        newargs = [pre(item, newvarsubs, matrix_sub, func_subs, rep,  level + 1) for item in expr.args]
         expr = expr.__class__(*newargs)
     #tend = datetime.datetime.now()
     #print("TIMEING = " ( tend - tbegin).milliseconds )
@@ -155,10 +155,10 @@ func_subs = {  sub['name'] : {
     'args' :  [  Symbol(arg) for arg  in  sub['args'].lstrip('[').rstrip(']').split(',') ] , 
     'value' : sympify( sub['value']  )  }  for sub in funcdefs }
 
-myscope = { 'grad': mygrad , }
+rep = { 'grad': mygrad , }
 newvarsubs = {} 
-rep = [ (Function(key), val ) for key,val in myscope.items() ]
-new1 = pre(xtest,newvarsubs, matrix_sub,func_subs,myscope)
+rep = [ (Function(key), val ) for key,val in rep.items() ]
+new1 = pre(xtest,newvarsubs, matrix_sub,func_subs,rep)
 new2 = new1.subs(rep)
 new3 = new2.replace(Function('myadd'), Add).doit() 
 new4 = simplify( new3 )
