@@ -350,7 +350,7 @@ def linear_algebra_expression(
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
-    invalid_strings = ['_']
+    invalid_strings = ['_','#','@','&','?','"']
     for i in invalid_strings:
         if i in student_answer:
             return {'error': _('Answer contains invalid character ') + i}

@@ -102,20 +102,20 @@ def pre(expr, newvarsubs, matrix_sub ,func_subs , rep , level=0):
      #
      '''
     #tbegin  = datetime.datetime.now()
-    print("PARSING expr = ", expr)
+    #print("PARSING expr = ", expr)
     if level == 0 :
         expr = expr.replace(Add, Function('myadd') )
     name = 'NONAME' if not hasattr(expr, 'name') else getattr(expr, 'name')
     newargs = None
     if expr.is_Function:
-        print("FOUND FUNCTION ")
+        #print("FOUND FUNCTION ")
         if len( func_subs) > 0 :
             expr = new_func_replace(expr,func_subs)
         newargs = [pre(item, newvarsubs,  matrix_sub, func_subs , rep,level + 1) for item in expr.args]
         expr = expr.__class__(*newargs)
     elif expr.is_Symbol:
-        print("FOUND SYMBOL" , srepr( expr ) )
-        print("NEWVARSUBS GETS CALLED")
+        #print("FOUND SYMBOL" , srepr( expr ) )
+        #print("NEWVARSUBS GETS CALLED")
         while True :
             prev = expr
             expr = expr.subs(newvarsubs).doit()
@@ -124,13 +124,13 @@ def pre(expr, newvarsubs, matrix_sub ,func_subs , rep , level=0):
                 break
         #if not expr.is_Symbol :
         #    expr = pre( expr, newvarsubs, matrix_sub, func_subs,rep, level + 1 )
-        print("AFTER PRE ", expr )
+        #print("AFTER PRE ", expr )
         expr = expr.subs( rep ).doit()
     elif expr.is_Atom:
-        print("FOUND ATOM")
+        #print("FOUND ATOM")
         expr = expr
     else:
-        print("COMPLEX EXPRESSION NAME = ", name , expr, "FUNC = ", expr.func, "ARGS = ", expr.args)
+        #print("COMPLEX EXPRESSION NAME = ", name , expr, "FUNC = ", expr.func, "ARGS = ", expr.args)
         newargs = [pre(item, newvarsubs, matrix_sub, func_subs, rep,  level + 1) for item in expr.args]
         expr = expr.__class__(*newargs)
     #tend = datetime.datetime.now()
@@ -163,7 +163,7 @@ new1 = pre(xtest,newvarsubs, matrix_sub,func_subs,rep)
 new2 = new1.subs(rep)
 new3 = new2.replace(Function('myadd'), Add).doit() 
 new4 = simplify( new3 )
-print("NEW4 = ", new4 )
+#print("NEW4 = ", new4 )
 
 expr = sympify( 'g( y**2 )' )
 new5 = new_func_replace(expr, func_subs)

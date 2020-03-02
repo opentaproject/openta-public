@@ -41,6 +41,28 @@ logger = logging.getLogger(__name__)
 # see http://iamit.in/sympy/coverage-report/matrices/sympy_matrices_expressions_diagonal_py.html
 # List of special handling in the conversion from sympy to numpy expressions for final evaluation
 
+def expr_are_equal( ex1, ex2 ):
+    try: 
+        #print("COMPARE ", srepr(ex1), srepr(ex2) )
+        if ex1.is_Matrix and ex2.is_Matrix :
+            return sympy.simplify( ex1 - ex2 ).norm() < 1.e-8 
+        elif ex1.is_Matrix :
+            if ex2 == sympy.sympify('0') and ex1.norm()  < 1.e-8:
+                return True
+            else:
+                return False
+        elif ex2.is_Matrix :
+            if ex1 == sympy.sympify('0') and ex2.norm() < 1.e-8 :
+                return True
+            else:
+                return False
+        else :
+            diff1 = abs( ex1 - ex2 )
+            return diff1 < 1.e-8
+    except Exception as e :
+        print("ERROR WAS " + str(e) )
+        return False 
+
 
 def symbolic_check_if_true(
     precision,
@@ -87,6 +109,15 @@ def symbolic_compare_expressions(
         response['warning'] = 'Illegal variable ' + ','.join(illegalvars) + '.'
         response['debug'] = str(illegalvars) + " Clashes with sympy predefined variables "
         return response
+    #illegalchars = ['_','#','@','&','?','"']
+    #for ch in student_answer :
+    #    if ch in illegalchars :
+    #        response = {}
+    #        response['correct'] = False
+    #        response['warning'] = 'Illegal character ' + ch  + ' in expression ' + student_answer
+    #        return response
+    
+    
     # variables = list(
     #    filter(lambda item: (item['name'] in dir( sympy.functions) ), variables)
     # )  # GET RID OF CLASHES WITH FUNCTIONS
@@ -146,11 +177,10 @@ def symbolic_compare_expressions(
                     tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
                 )
             else:
-                prelhs = sympify_with_custom(
-                    trhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
-                ) - sympify_with_custom(
-                    tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
-                )
+                print("PRELHS THRS ",  trhs )
+                print("PRELHS TLHS ",  tlhs )
+                prerhs = sympify_with_custom( trhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1') 
+                prelhs = sympify_with_custom( tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1')
             #print("SPLIT1b = " , ( time.time() - tbeg  )  * 1000 )
             # for var in used_variables:
             #    diff_ = diff(prelhs, sympify(var))
@@ -280,7 +310,7 @@ def symbolic_internal(expression1, expression2):  # {{{
     # SWITCH BETWEEN SYMBOLIC AND NOT
     # NUMERIC IS PROBABLY THE WAY TO GO
     #
-    doNumeric = False
+    doNumeric = True
     try:
         #sexpression1 = expression1
         #sexpression2 = expression2
@@ -294,6 +324,8 @@ def symbolic_internal(expression1, expression2):  # {{{
         # if logger.isEnabledFor(logging.DEBUG):
         #    logger.debug('Expression 1: ' + str(sympy1))
         #    logger.debug('Expression 2: ' + str(sympy2))
+        print("COMNPARE SYMPY1 ", sympy1 )
+        print("COMNPARE SYMPY2 ", sympy2 )
         if sympy1 == 0:
             zero = sympy2
         elif sympy2 == 0:
@@ -306,23 +338,24 @@ def symbolic_internal(expression1, expression2):  # {{{
         # USING simplify ONLY DOES NOT DO MUCH  ; IT IS STILL SLOW
         #
 
+        print("ZER0 = ", simplify( zero ) )
         if doNumeric :
             symbs = zero.free_symbols
             symsub = [ ( sym, random.random() )  for sym in symbs ]
             nzero = zero.subs( symsub )
-            diffy = Norm(nzero)
+            diffy = Norm( N( nzero) )
         else :
             shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
             diffy = Norm(shouldbezero)
         #print("INTERNAL SPLIT4  = " , ( time.time() - tbeg  )  * 1000 )
         if not diffy.is_Number :
             response['correct'] = False 
-            response['debug'] = "diff reduces to $" + latex(zero) + '$'
+            response['debug'] = "diff reduces to $" + latex(zero) + '$' + str( diffy )
         elif  abs( diffy * 1.0 ) < 1e-6 :
             response['correct'] = True
         else:
             response['correct'] = False
-            response['debug'] = "diff reduces to $" + latex(zero) + '$'
+            response['debug'] = "diff reduces to $" + latex(zero ) + '$'
     except SympifyError as e:
         logger.error([str(e), expression1, expression2])
         response['debug'] = str(e)
@@ -402,7 +435,7 @@ def symbolic_expression(
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
-    invalid_strings = ['_']
+    invalid_strings = ['_','#','@','&','?','"']
     for i in invalid_strings:
         if i in student_answer:
             return {'error': _('Answer contains invalid character ') + i}

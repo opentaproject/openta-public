@@ -211,28 +211,28 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         #print("CUSTOM SPLIT1 = ", ( time.time() - tbeg ) * 1000 )
         rep = [ (Function(key), val ) for key,val in myscope.items() ]
         sexpr = ascii_to_sympy(declash(expression), {})
-        print( "CUSTOM SPLIT2 = ", ( time.time() - tbeg ) * 1000 , sexpr)
+        #print( "CUSTOM SPLIT2 = ", ( time.time() - tbeg ) * 1000 , sexpr)
         new = sexpr
         (xtest,newvarsubs, matrix_subs ) = dematrixify( sexpr , varsubs)
-        print( "CUSTOM SPLIT3 = ", ( time.time() - tbeg ) * 1000 , xtest )
+        #print( "CUSTOM SPLIT3 = ", ( time.time() - tbeg ) * 1000 , xtest )
         new = xtest 
         func_subs = {  sub['name'] : {
                 'args' :  [  Symbol(arg) for arg  in  sub['args'].lstrip('[').rstrip(']').split(',') ] , 
                 'value' : sympify( sub['value']  )  }  for sub in funcsubs}
-        print("CUSTOM SPLIT4 = ", ( time.time() - tbeg ) * 1000 , new )
+        #print("CUSTOM SPLIT4 = ", ( time.time() - tbeg ) * 1000 , new )
         xtest = sympify(xtest,ns).replace(Add,Function('myadd') )
-        print(  "CUSTOM SPLIT5 = ", ( time.time() - tbeg ) * 1000 , xtest)
+        #print(  "CUSTOM SPLIT5 = ", ( time.time() - tbeg ) * 1000 , xtest)
         new = xtest
         ##################################
         #### THE NEXT LINE IS BOTTLENECK
-        print("VARSUBS = ", varsubs )
-        print("NEWVARSUBS = ", newvarsubs)
-        print("MATRIX_SUBS = ", matrix_subs)
-        print("FUNCSUBS = ", func_subs)
+        #print("VARSUBS = ", varsubs )
+        #print("NEWVARSUBS = ", newvarsubs)
+        #print("MATRIX_SUBS = ", matrix_subs)
+        #print("FUNCSUBS = ", func_subs)
         new = pre(xtest,newvarsubs, matrix_subs,func_subs,rep) 
         #############
         ##################################
-        print( "CUSTOM SPLIT6 = ", ( time.time() - tbeg ) * 1000 , new)
+        #print( "CUSTOM SPLIT6 = ", ( time.time() - tbeg ) * 1000 , new)
         new = new.replace(Function('myadd'), Add).doit() 
         #print("CUSTOM SPLIT7 = ", ( time.time() - tbeg ) * 1000 )
         #new = simplify( new )
