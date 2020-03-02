@@ -112,12 +112,12 @@ def pre(expr, newvarsubs, matrix_sub ,func_subs , rep , level=0):
         newargs = [pre(item, newvarsubs,  matrix_sub, func_subs , rep,level + 1) for item in expr.args]
         expr = expr.__class__(*newargs)
     elif expr.is_Symbol:
-        while True :
-            prev = expr 
+        assert hasattr(expr,'name') , 'NONAME : ' + srepr( expr )
+        if newvarsubs.get(name) :
             expr = expr.subs(newvarsubs).doit()
-            expr = expr.subs(matrix_sub).doit()
-            if expr == prev:
-                break
+        expr = expr.subs(matrix_sub).doit()
+        if not expr.is_Symbol: 
+                expr = pre( expr, newvarsubs, matrix_sub, func_subs,rep, level + 1 )
         expr = expr.subs( rep ).doit()
     elif expr.is_Atom:
         expr = expr
