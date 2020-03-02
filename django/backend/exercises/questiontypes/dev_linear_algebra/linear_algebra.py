@@ -95,15 +95,25 @@ def linear_algebra_compare_expressions(
             student_answer = 'abs( (' + equality[0] + ') - ( ' + equality[1] + '))'
         try:
             unparsedstudentanswer = sympify_with_custom(
-                ascii_to_sympy(student_answer), varsubs_sympify
+                ascii_to_sympy(student_answer),
+                varsubs_sympify,
+                {},
+                'linear_algebra_compare_expressions',
             )
         except Exception as e:
-            test = sympify_with_custom(ascii_to_sympy(student_answer_orig), varsubs_sympify).doit()
+            test = sympify_with_custom(
+                ascii_to_sympy(student_answer_orig),
+                varsubs_sympify,
+                {},
+                'linear_algebra_compare_expressions',
+            ).doit()
             testatoms = list(test.atoms(sympy.Function))
             testsymbols = list(test.atoms(sympy.Symbol))
             return {'error': '(G) Error : ' + str(testatoms) + str(testsymbols)}
         try:
-            prelhs = sympify_with_custom(student_answer, varsubs_sympify)
+            prelhs = sympify_with_custom(
+                student_answer, varsubs_sympify, {}, 'linear_algebra_compare_expressions'
+            )
         except Exception as e:
             response = dict(
                 error=_(
@@ -117,7 +127,9 @@ def linear_algebra_compare_expressions(
             return response
         lhs = prelhs.doit().subs(varsubs).subs(varsubs).subs(varsubs).doit()
         try:
-            prerhs = sympify_with_custom(correct, varsubs_sympify)
+            prerhs = sympify_with_custom(
+                correct, varsubs_sympify, {}, 'linear_algebra_compare_expressions'
+            )
             rhs = prerhs.doit().subs(varsubs).subs(varsubs).subs(varsubs).doit()
         except Exception as e:
             if '@' in str(e):
@@ -200,6 +212,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         sympy1 = sympy1_units.subs(baseunits)
         sympy2 = sympy2_units.subs(baseunits)
         subs_neighbours = []
+        print("LOC1")
         for i in range(0, number_of_points):
             subs_neighbour = []
             for var in sample_variables:
@@ -222,6 +235,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         undefined_variables = sympy1.subs(one_point).free_symbols - set(
             [kg, second, meter, ampere, kelvin, mole, candela, sympy.I, sympy.E]
         )
+        print("LOC2")
         if len(undefined_variables) > 0:
             unrecognised = ', '.join(list(map(str, undefined_variables)))
             response['error'] = unrecognised + _(' are not valid variables.')
@@ -243,16 +257,20 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
                 # response['warning'] = "NO SAMPLING"
             return response
 
+        print("LOC3")
         nsympy1 = sympy1.subs(eval_point).doit()
         nsympy2 = sympy2.subs(eval_point).doit()
+        print("LOC3.1")
         nnsympy2 = numpy.linalg.norm(sympy.lambdify([], nsympy2, modules=lambdifymodules)())
         if check_units:
             if nsympy2 == 0 or nnsympy2 < 1e-12:
                 check_units = False
+        print("LOC3.2")
         test_evaluation = numpy.linalg.norm(
             sympy.lambdify([], nsympy1 - nsympy2, modules=lambdifymodules)()
         )
         inner = "A"
+        print("LOC3.5")
         if check_units:
             try:
                 inner = inner + '1'
@@ -265,6 +283,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
                 return response
 
         diffs = []
+        print("LOC4")
         for sample_point in subs_neighbours:
             inner = inner + 'C'
             nsympy1 = sympy1.subs(sample_point).doit()
@@ -289,11 +308,12 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
             inner = inner + 'G'
             diffs.append(correct)
             inner = inner + 'H'
+        print("LOC5")
         if diffs.count(True) >= len(subs_neighbours) * 0.9:
             response['correct'] = True
         else:
             inner = inner + 'J'
-            # response['warning'] = inner
+            response['debug'] = inner
             response['correct'] = False
     except SympifyError as e:
         inner = ''
@@ -303,6 +323,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         parts = str(e).split('attribute')
         response['error'] = str(parts[1]) + ' is undefined '
     except NameError as e:
+        print("ERROR 3 ", str(e))
         response['error'] = str(e)
     except Exception as e:
         # print("error caught = ", str(e) )
@@ -350,7 +371,7 @@ def linear_algebra_expression(
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
-    invalid_strings = ['_']
+    invalid_strings = ['_', '#', '@', '&', '?', '"']
     for i in invalid_strings:
         if i in student_answer:
             return {'error': _('Answer contains invalid character ') + i}

@@ -34,7 +34,7 @@ class DevLinearAlgebraTest(TestCase):
             '[[0, e^( 2 I )],[e^(-2 I), 0 ]]',
             ' And( Ge( RankOf( $$ ), 2 ), And( And(  Not( IsDiagonal( $$)  ) , IsUnitary( $$ ) ) , IsNotEqual( $$, Transpose($$) ) ) ) == 1 ',
         )
-        #self.assertEqual(res['correct'], True)
+        # self.assertEqual(res['correct'], True)
         res = linear_algebra_compare_expressions(
             precision,
             variables,
@@ -214,14 +214,17 @@ class DevLinearAlgebraTest(TestCase):
         print("TESTING SHORTEST-4")
         self.assertEqual(
             linear_algebra_compare_expressions(
-                precision, variables, 'cross( a1 - b1 ,a2 - b1)', '[0,6,-6]'
+                precision, variables, 'cross( a1 - b1 ,a2 - b1)', '[0.0,6.0,-6.0]'
             )['correct'],
             True,
         )
         print("TESTING SHORTEST-5")
         self.assertEqual(
             linear_algebra_compare_expressions(
-                precision, variables, 'cross( a1 - b1 ,a2 - b1)/| a1 - a2 | ', 'sqrt(3) [ 0,1,-1 ] '
+                precision,
+                variables,
+                'cross( a1 - b1 ,a2 - b1)/| a1 - a2 | ',
+                'sqrt(3.0) [ 0,1,-1 ] ',
             )['correct'],
             True,
         )

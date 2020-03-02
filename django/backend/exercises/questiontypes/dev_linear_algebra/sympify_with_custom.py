@@ -1,5 +1,5 @@
 from sympy import *
-import hashlib 
+import hashlib
 from sympy.matrices import *
 from django.core.cache import cache as core_cache
 from exercises.util import get_hash_from_string
@@ -35,6 +35,7 @@ from .functions import *
 from sympy.matrices import Matrix
 from .descend import dematrixify, tokenify, new_func_replace, pre
 
+
 def replace_funcs_once(sexpr, funcsubs, subrule):
     for sub in funcsubs:
         func_def = sympy.Function(sub['name'])
@@ -54,7 +55,6 @@ def replace_funcs(sexpr, funcsubs, subrule):
         if sexpr == prev:
             # print("OUTGOING = ", sexpr)
             return sexpr
-
 
 
 def func_sub_single(expr, func_def, func_body, subrule):
@@ -91,7 +91,7 @@ def func_sub(expr, func_def, func_body, myscope):
             return expr
 
 
-def tokenify(xtest,vsubs=[]):
+def tokenify(xtest, vsubs=[]):
     try:
         nit = 0
         vsubs = []
@@ -109,8 +109,8 @@ def tokenify(xtest,vsubs=[]):
             body = xtest[ibeg:iright]
             tail = xtest[iright:]
             bodyhash = get_hash_from_string(body)
-            vsub['name'] = bodyhash ;
-            vsub['value'] = sympify(body);
+            vsub['name'] = bodyhash
+            vsub['value'] = sympify(body)
             xtest = head + '(' + bodyhash + ')' + tail
             vsubs = vsubs + [vsub]
             nit = nit + 1
@@ -125,50 +125,51 @@ class iden(sympy.Function):
     def eval(cls, x):
         return x
 
-def dematrixify( sexpr,varsubs) :
+
+def dematrixify(sexpr, varsubs):
     matrix_subs = {}
-    matrix_subs['xhat'] = Matrix([1,0,0])
-    matrix_subs['yhat'] = Matrix([0,1,0])
-    matrix_subs['zhat'] = Matrix([0,0,1])
+    matrix_subs['xhat'] = Matrix([1, 0, 0])
+    matrix_subs['yhat'] = Matrix([0, 1, 0])
+    matrix_subs['zhat'] = Matrix([0, 0, 1])
     newvarsubs = {}
     vsubs = []
-    for key,val in varsubs.items() :
-        (newval,vsub) = tokenify(str(val) )
-        newvarsubs[key] = sympify( newval )
+    for key, val in varsubs.items():
+        (newval, vsub) = tokenify(str(val))
+        newvarsubs[key] = sympify(newval)
         for item in vsub:
-            (n,m) = item['value'].shape
-            matrix_subs[ item['name']] =  item['value']  
+            (n, m) = item['value'].shape
+            matrix_subs[item['name']] = item['value']
     (xtest, vsubs) = tokenify(sexpr)
     for item in vsubs:
-        (n,m) = item['value'].shape
-        matrix_subs[ item['name'] ] =  item['value']  
+        (n, m) = item['value'].shape
+        matrix_subs[item['name']] = item['value']
     return (xtest, newvarsubs, matrix_subs)
 
 
-def expr_are_equal( ex1, ex2 ):
+def expr_are_equal(ex1, ex2):
     ex1 = sympy.sympify(ex1)
     ex2 = sympy.sympify(ex2)
-    try: 
-        #print("COMPARE ", srepr(ex1), srepr(ex2) )
-        if ex1.is_Matrix and ex2.is_Matrix :
-            return sympy.simplify( ex1 - ex2 ).norm() == 0 
-        elif ex1.is_Matrix :
-            if ex2 == sympy.sympify('0') and ex1.norm() == 0 :
+    try:
+        # print("COMPARE ", srepr(ex1), srepr(ex2) )
+        if ex1.is_Matrix and ex2.is_Matrix:
+            return sympy.simplify(ex1 - ex2).norm() == 0
+        elif ex1.is_Matrix:
+            if ex2 == sympy.sympify('0') and ex1.norm() == 0:
                 return True
             else:
                 return False
-        elif ex2.is_Matrix :
-            if ex1 == sympy.sympify('0') and ex2.norm() == 0 :
+        elif ex2.is_Matrix:
+            if ex1 == sympy.sympify('0') and ex2.norm() == 0:
                 return True
             else:
                 return False
-        else :
-            diff1 = sympy.simplify( ex1 - ex2 )
-            return diff1.is_zero 
-    except Exception as e :
-        print("ERROR WAS " + str(e) )
-        return False 
-        
+        else:
+            diff1 = sympy.simplify(ex1 - ex2)
+            return diff1.is_zero
+    except Exception as e:
+        print("ERROR WAS " + str(e))
+        return False
+
 
 def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     """
@@ -180,13 +181,18 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     Returns:
         Sympy expression
     """
-    varhash = get_hash_from_string( expression + str(varsubs) + str(funcsubs) )
+    print("SOURCE = ", source)
+    varhash = get_hash_from_string(expression + str(varsubs) + str(funcsubs))
+    dohash = (not 'linear_algebra_compare_expressions' is source) and (settings.DO_CACHE)
+    print("DOHASH IN SYMPIFY = ", dohash)
+    print("SOURCE = ", source)
+    print("DOCACHE SETTINS ", settings.DO_CACHE)
     ret = core_cache.get(varhash)
-    if settings.DO_CACHE and ret is not None:
-        return ret
-    tbeg = time.time() 
+    if dohash and ret is not None:
+        return sympify(ret)
+    tbeg = time.time()
     scope = openta_scope
-    myscope = deepcopy( scope )
+    myscope = deepcopy(scope)
     subrule = []
     for key, val in myscope.items():
         if 'Function' in str(type(val)):
@@ -207,79 +213,91 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-    try :
-        #print("CUSTOM SPLIT1 = ", ( time.time() - tbeg ) * 1000 )
-        rep = [ (Function(key), val ) for key,val in myscope.items() ]
+    if True:
+        # print("CUSTOM SPLIT1 = ", ( time.time() - tbeg ) * 1000 )
+        rep = [(Function(key), val) for key, val in myscope.items()]
         sexpr = ascii_to_sympy(declash(expression), {})
-        print( "CUSTOM SPLIT2 = ", ( time.time() - tbeg ) * 1000 , sexpr)
+        # print( "CUSTOM SPLIT2 = ", ( time.time() - tbeg ) * 1000 , sexpr)
         new = sexpr
-        (xtest,newvarsubs, matrix_subs ) = dematrixify( sexpr , varsubs)
-        print( "CUSTOM SPLIT3 = ", ( time.time() - tbeg ) * 1000 , xtest )
-        new = xtest 
-        func_subs = {  sub['name'] : {
-                'args' :  [  Symbol(arg) for arg  in  sub['args'].lstrip('[').rstrip(']').split(',') ] , 
-                'value' : sympify( sub['value']  )  }  for sub in funcsubs}
-        print("CUSTOM SPLIT4 = ", ( time.time() - tbeg ) * 1000 , new )
-        xtest = sympify(xtest,ns).replace(Add,Function('myadd') )
-        print(  "CUSTOM SPLIT5 = ", ( time.time() - tbeg ) * 1000 , xtest)
+        (xtest, newvarsubs, matrix_subs) = dematrixify(sexpr, varsubs)
+        # print( "CUSTOM SPLIT3 = ", ( time.time() - tbeg ) * 1000 , xtest )
+        new = xtest
+        func_subs = {
+            sub['name']: {
+                'args': [Symbol(arg) for arg in sub['args'].lstrip('[').rstrip(']').split(',')],
+                'value': sympify(sub['value']),
+            }
+            for sub in funcsubs
+        }
+        # print("CUSTOM SPLIT4 = ", ( time.time() - tbeg ) * 1000 , new )
+        xtest = sympify(xtest, ns).replace(Add, Function('myadd'))
+        # print(  "CUSTOM SPLIT5 = ", ( time.time() - tbeg ) * 1000 , xtest)
         new = xtest
         ##################################
         #### THE NEXT LINE IS BOTTLENECK
-        print("VARSUBS = ", varsubs )
-        print("NEWVARSUBS = ", newvarsubs)
-        print("MATRIX_SUBS = ", matrix_subs)
-        print("FUNCSUBS = ", func_subs)
-        new = pre(xtest,newvarsubs, matrix_subs,func_subs,rep) 
+        # print("VARSUBS = ", varsubs )
+        # print("NEWVARSUBS = ", newvarsubs)
+        # print("MATRIX_SUBS = ", matrix_subs)
+        # print("FUNCSUBS = ", func_subs)
+        new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep, dohash)
         #############
         ##################################
-        print( "CUSTOM SPLIT6 = ", ( time.time() - tbeg ) * 1000 , new)
-        new = new.replace(Function('myadd'), Add).doit() 
-        #print("CUSTOM SPLIT7 = ", ( time.time() - tbeg ) * 1000 )
-        #new = simplify( new )
-        #print("CUSTOM SPLIT8 = ", ( time.time() - tbeg ) * 1000 )
-        #print("NEW4 = ", new4)
+        # print( "CUSTOM SPLIT6 = ", ( time.time() - tbeg ) * 1000 , new)
+        new = new.replace(Function('myadd'), Add).doit()
+        # print("CUSTOM SPLIT7 = ", ( time.time() - tbeg ) * 1000 )
+        # new = simplify( new )
+        # print("CUSTOM SPLIT8 = ", ( time.time() - tbeg ) * 1000 )
+        # print("NEW4 = ", new4)
         tend = time.time()
-        core_cache.set(varhash, new , 60 * 60)
-        print("HASH = ", varhash , ": TIME SPENT IN SYMPIFY WITH CUSTOM = ", (tend - tbeg) * 1000 , " MILLISECONDS parsing ", expression)
-    except Exception as e :
-        print("ERROR WITH new = ", new )
-    #print("NEW AGAIN = ", new ) 
-    #print("XTEST = ", xtest )
-    #abc = {
+        if dohash:
+            core_cache.set(varhash, srepr(new), 60 * 60)
+        print(
+            "HASH = ",
+            varhash,
+            ": TIME SPENT IN SYMPIFY WITH CUSTOM = ",
+            (tend - tbeg) * 1000,
+            " MILLISECONDS parsing ",
+            expression,
+        )
+    # except Exception as e:
+    #    print("ERROR WITH new = ", new, str(e))
+    # print("NEW AGAIN = ", new )
+    # print("XTEST = ", xtest )
+    # abc = {
     #    'x': sympy.sympify('x'),
     #    'y': sympy.sympify('y'),
     #    'z': sympy.sympify('z'),
     #    't': sympy.sympify('t'),
     #    }
- 
-    #newscope.update( abc )
-    #test1 = sympify( xtest, ns )
-    #print("0 TESTING = ", test1 )
-    #test2 = test1.subs(newvarsubs)
-    #test2 = test2.replace(Add, Function('myadd') )
-    #print("1 TEST2 = ", test2 )
-    #print("1 TEST2 = ", srepr( test2 ) )
-    #sxtest = sympify(xtest, newscope)
-    #print("1 SXTEST = ", srepr( sxtest) )
-    #sxtest = sxtest.subs(newvarsubs)
-    #print("2 SXTEST = ", srepr( sxtest ) )
-    #sxtest = sxtest.subs(matrix_subs)
-    #print("3 SXTEST = ", sxtest.replace(Function('matmul'), MatMul ).doit() )
-    #rep = []
-    #for key,val in myscope.items()  :
+
+    # newscope.update( abc )
+    # test1 = sympify( xtest, ns )
+    # print("0 TESTING = ", test1 )
+    # test2 = test1.subs(newvarsubs)
+    # test2 = test2.replace(Add, Function('myadd') )
+    # print("1 TEST2 = ", test2 )
+    # print("1 TEST2 = ", srepr( test2 ) )
+    # sxtest = sympify(xtest, newscope)
+    # print("1 SXTEST = ", srepr( sxtest) )
+    # sxtest = sxtest.subs(newvarsubs)
+    # print("2 SXTEST = ", srepr( sxtest ) )
+    # sxtest = sxtest.subs(matrix_subs)
+    # print("3 SXTEST = ", sxtest.replace(Function('matmul'), MatMul ).doit() )
+    # rep = []
+    # for key,val in myscope.items()  :
     #    rep = rep + [( Function(key), val )]
-    #print("4 SXTEST = ", sxtest.subs( rep  ).doit() )
-    #print("FUNCSUBS = ", funcsubs )
-    #try :
-    #    restored = sxtest.subs(matrix_subs).doit() # .replace(Function('vq'),sample) 
+    # print("4 SXTEST = ", sxtest.subs( rep  ).doit() )
+    # print("FUNCSUBS = ", funcsubs )
+    # try :
+    #    restored = sxtest.subs(matrix_subs).doit() # .replace(Function('vq'),sample)
     #    #print("RESTORED = ", restored)
     #    #print("matrix_subs = ",  matrix_subs )
-    #except :
+    # except :
     #    print("xtest = ", xtest )
     #    print("matrix_subs = ", matrix_subs )
     #    print("sxtest = ", sxtest )
     #    raise TypeError("expr  = ", sexpr )
-    if False  :
+    if False:
         location = 'A'
         if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:
             location += 'B'
@@ -302,8 +320,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         location += 'K'
         sexpr = sexpr.doit()
         location += 'L'
-    return  new
-
+    return new
 
 
 #'''

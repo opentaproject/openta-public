@@ -11,13 +11,13 @@ import logging
 logging.disable(logging.DEBUG)
 
 
-class SymbolicTest(TestCase):
-    def test_ascii_to_sympy(self):
+class SymbolicTest2(TestCase):
+    def test2_ascii_to_sympy(self):
         # Note that the matrix implicit multiplication works because it gets wrapped in Matrix before the implicit multiply formatting is applied
         self.assertEqual(ascii_to_sympy("[1,2,3] [[4,5,6]]"), "Matrix([1,2,3]) * Matrix([[4,5,6]])")
         self.assertEqual(ascii_to_sympy("2x + 1 == 3y"), "(2*x + 1 ) - ( 3*y)")
 
-    def test_implicit_multiply(self):
+    def test2_implicit_multiply(self):
         self.assertEqual(iim("2x"), "2*x")
         self.assertEqual(iim("2 x"), "2 * x")
         self.assertEqual(iim("2x 3y"), "2*x * 3*y")
@@ -27,7 +27,7 @@ class SymbolicTest(TestCase):
         self.assertEqual(iim("sin(x) y"), "sin(x) * y")
         self.assertEqual(iim("sin(x)y"), "sin(x) * y ")
 
-    def test_variable(self):
+    def test2_variable(self):
         precision = 1e-6
         variables = [
             {'name': 'x', 'value': '2'},
@@ -39,7 +39,7 @@ class SymbolicTest(TestCase):
         )
         self.assertEqual(res['correct'], True)
 
-    def test_vector(self):
+    def test2_vector(self):
         precision = 1e-6
         variables = [
             {'name': 'a', 'value': '2'},
@@ -83,7 +83,6 @@ class SymbolicTest(TestCase):
             msg='Test4',
         )
 
-        
         self.assertEqual(
             symbolic_check_if_true(
                 precision,
@@ -94,11 +93,6 @@ class SymbolicTest(TestCase):
             True,
             msg='Test4',
         )
-
-
-
-
-
 
         self.assertEqual(
             symbolic_check_if_true(
@@ -220,13 +214,20 @@ class SymbolicTest(TestCase):
             '( tanh( FG(x) ) )\' == tanh\'( FG(x) ) FG\'(x)',
             ' vE == [1,1,1] ',
             ' squared(x^2)  == x^4 ',
-            ]
+        ]
         self.assertEqual(
-                symbolic_compare_expressions(
-                    precision, [] ,  "( tanh( cosh(x) ) )\'" , "tanh\'( cosh(x) ) cosh\'(x)",False, [], [], nfuncsubs
-                )['correct'],
-                True,
-            )
+            symbolic_compare_expressions(
+                precision,
+                [],
+                "( tanh( cosh(x) ) )\'",
+                "tanh\'( cosh(x) ) cosh\'(x)",
+                False,
+                [],
+                [],
+                nfuncsubs,
+            )['correct'],
+            True,
+        )
 
         funcsubs = [
             {"name": "f", "args": "x", "value": "F(x)", "tex": "TeX"},
@@ -235,12 +236,12 @@ class SymbolicTest(TestCase):
             {"name": "gg", "args": "x", "value": "cosh(x)", "tex": "TeX"},
             {"name": "FG", "args": "x", "value": "F(x)", "tex": "TeX"},
             {"name": "GG", "args": "x", "value": "G(x)", "tex": "TeX"},
-            #{"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
-            {"name": "sdot", "args": "[x,y]","value": 'partial(x,y)' },
+            # {"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
+            {"name": "sdot", "args": "[x,y]", "value": 'partial(x,y)'},
         ]
         expressions = [
             "( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
-            #" iden(xhat) == xhat ",
+            # " iden(xhat) == xhat ",
             " sdot( x^2 , x ) - 2 x == 0 "
             # " iden(xhat) -  xhat == 0 ",
             # " iden(xhat) - 2 xhat == [-1,0,0]",
@@ -269,20 +270,20 @@ class SymbolicTest(TestCase):
             {"name": "A", "value": "-y xhat + x yhat + 2 cos( t - z ) xhat", "tex": "TeX"},
             {"name": "pphi", "value": "1 / sqrt( x^2 + y^2 + z^2 )", "tex": "TeX"},
             {"name": "B", "value": "curl(A)", "tex": "TeX"},
-            {"name": "E", "value": "- grad( pphi)  - 1/ c  dot(A)", "tex": "TeX"},
-            {"name": "J", "value": "1/( 4 pi )  ( curl(B) - dot(E) )", "tex": "TeX"},
-            {"name": "rho", "value": "1/( 4 pi )  div(E)", "tex": "TeX"},
+            {"name": "vE", "value": "- grad( pphi)  - 1/ c  dot(A)", "tex": "TeX"},
+            {"name": "J", "value": "1/( 4 pi )  ( curl(B) - dot(vE) )", "tex": "TeX"},
+            {"name": "rho", "value": "1/( 4 pi )  div(vE)", "tex": "TeX"},
         ]
         self.assertEqual(
             symbolic_compare_expressions(
-                1e-06, variables, "curl(B) ", " 4 pi J + 1/c dot(E)", False, ["A"], []
+                1e-06, variables, "curl(B) ", " 4 pi J + 1/c dot(vE)", False, ["A"], []
             )['correct'],
             True,
         )
 
         self.assertEqual(
             symbolic_compare_expressions(
-                1e-06, variables, "div(E) ", " 4 pi rho ", False, ["A"], []
+                1e-06, variables, "div(vE) ", " 4 pi rho ", False, ["A"], []
             )['correct'],
             True,
         )
@@ -294,12 +295,12 @@ class SymbolicTest(TestCase):
             True,
         )
 
-        #self.assertEqual(
-        #    symbolic_compare_expressions(
-        #        1e-06, variables, "curl(E) ", "  -  1/c dot(B)", False, ["A"], []
-        #    )['correct'],
-        #    True,
-        #)
+        self.assertEqual(
+            symbolic_compare_expressions(
+                1e-06, variables, "curl(vE) ", "  -  1/c dot(B)", False, ["A"], []
+            )['correct'],
+            True,
+        )
 
         maxwell_varsubs = [
             {"name": "c", "value": "5", "tex": "TeX"},
@@ -334,4 +335,42 @@ class SymbolicTest(TestCase):
                     1e-06, maxwell_varsubs, eq1, eq2, False, [], [], maxwell_funcsubs
                 )['correct'],
                 True,
+            )
+
+        variables = [
+            {'name': 'B', 'value': 'curl(A)', 'tex': 'TeX'},
+            {'name': 'vE', 'value': '- grad( pphi )  -  dot(A)', 'tex': 'TeX'},
+            {'name': 'J', 'value': '1/( 4 pi )  ( curl(B) - dot(vE) )', 'tex': 'TeX'},
+        ]
+
+        new_funcsubs = [
+            {
+                "name": "A",
+                "args": "[x,y,z,t]",
+                "value": "funcy1(x,y,z,t) * xhat + funcy2(x,y,z,t) * yhat + funcy3(x,y,z,t) * zhat",
+                "tex": "TeX",
+            },
+            {"name": "pphi", "args": "[x,y,z,t]", "value": "pot(x,y,z,t)", "tex": "TeX"},
+        ]
+        # new_funcsubs = [
+        #    {"name": "A", "args": "[x,y,z,t]", "value": " funcy1(x,y,z,t) * xhat + funcy2(x,y,z,t)  * yhat + funcy3(x,y,z,t) * zhat" },
+        #    {"name": "pphi", "args": "[x,y,z,t]", "value": "pot[x,y,z,t]", "tex": "TeX"},
+        # ]
+
+        eqs = [
+            {
+                'div( A(x,y,z,t)  ) == partial( funcy1(x,y,z,t) ,x) + partial(funcy2(x,y,z,t),y) + partial(funcy3(x,y,z,t) ,z)': True
+            }
+        ]
+
+        for eqd in eqs:
+            eq = list(eqd.keys())[0]
+            val = list(eqd.values())[0]
+
+            print("DOING ", eq)
+            self.assertEqual(
+                symbolic_compare_expressions(
+                    1e-06, variables, eq, '0==0', False, [], [], new_funcsubs
+                )['correct'],
+                val,
             )

@@ -105,7 +105,7 @@ def parse_xml_functions(node):
             args = ((func.find('args')).text).strip()
         if token is not None and value is not None:
             ress.append({'name': token, 'args': args, 'value': value, 'tex': 'TeX'})
-    print("RESS = ", ress )
+    print("RESS = ", ress)
     return ress
 
 
@@ -136,9 +136,9 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         bigstring = bigstring + qstring
     varhash = get_hash_from_string(str(bigstring))
     ret = cache.get(varhash)
-    if settings.DO_CACHE and  ( ret is not None ):
+    if settings.DO_CACHE and (ret is not None):
         return ret
-    print("RECALCULATE GETALL VARIABLES", varhash )
+    # print("RECALCULATE GETALL VARIABLES", varhash )
     variables = []
     blacklist = set([])
     correct_answer = ''

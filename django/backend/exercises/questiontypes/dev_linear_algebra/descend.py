@@ -2,6 +2,9 @@ from sympy import *
 from sympy.abc import *
 from sympy.matrices import *
 from copy import deepcopy
+from exercises.util import get_hash_from_string
+from django.conf import settings
+from django.core.cache import cache as core_cache
 import time
 
 # from sympy.abc import _clash1, _clash2, _clash
@@ -19,35 +22,35 @@ from .string_formatting import (
 from .functions import *
 
 
-
-#xtest = Function('myadd')(Symbol('ddachfedic'), Symbol('ieeebggdeb'), Symbol('xhat'), Symbol('zhat'), Function('grad')(Pow(Function('myadd')(Pow(Symbol('x'), Integer(2)), Pow(Symbol('y'), Integer(2)), Pow(Symbol('z'), Integer(2))), Rational(-1, 2))))
+# xtest = Function('myadd')(Symbol('ddachfedic'), Symbol('ieeebggdeb'), Symbol('xhat'), Symbol('zhat'), Function('grad')(Pow(Function('myadd')(Pow(Symbol('x'), Integer(2)), Pow(Symbol('y'), Integer(2)), Pow(Symbol('z'), Integer(2))), Rational(-1, 2))))
 #
-#matrix_sub =  {'xhat': Matrix([ [1], [0], [0]]), 'yhat': Matrix([ [0], [1], [0]]), 'zhat': Matrix([ [0], [0], [1]]),
-#               'ddachfedic': Matrix([ [x/(x**2 + y**2 + z**2)**(3/2)], [y/(x**2 + y**2 + z**2)**(3/2)], [z/(x**2 + y**2 + z**2)**(3/2)]]), 
+# matrix_sub =  {'xhat': Matrix([ [1], [0], [0]]), 'yhat': Matrix([ [0], [1], [0]]), 'zhat': Matrix([ [0], [0], [1]]),
+#               'ddachfedic': Matrix([ [x/(x**2 + y**2 + z**2)**(3/2)], [y/(x**2 + y**2 + z**2)**(3/2)], [z/(x**2 + y**2 + z**2)**(3/2)]]),
 #               'ieeebggdeb': Matrix([ [0], [1], [0]])}
-#expr = xtest 
+# expr = xtest
 
-def dematrixify( sexpr,varsubs) :
+
+def dematrixify(sexpr, varsubs):
     matrix_subs = {}
-    matrix_subs['xhat'] = Matrix([1,0,0])
-    matrix_subs['yhat'] = Matrix([0,1,0])
-    matrix_subs['zhat'] = Matrix([0,0,1])
+    matrix_subs['xhat'] = Matrix([1, 0, 0])
+    matrix_subs['yhat'] = Matrix([0, 1, 0])
+    matrix_subs['zhat'] = Matrix([0, 0, 1])
     newvarsubs = {}
     vsubs = []
-    for key,val in varsubs.items() :
-        (newval,vsub) = tokenify(str(val) )
-        newvarsubs[key] = sympify( newval )
+    for key, val in varsubs.items():
+        (newval, vsub) = tokenify(str(val))
+        newvarsubs[key] = sympify(newval)
         for item in vsub:
-            (n,m) = item['value'].shape
-            matrix_subs[ item['name']] =  item['value']  
+            (n, m) = item['value'].shape
+            matrix_subs[item['name']] = item['value']
     (xtest, vsubs) = tokenify(sexpr)
     for item in vsubs:
-        (n,m) = item['value'].shape
-        matrix_subs[ item['name'] ] =  item['value']  
+        (n, m) = item['value'].shape
+        matrix_subs[item['name']] = item['value']
     return (xtest, newvarsubs, matrix_subs)
 
 
-def tokenify(xtest,vsubs=[]):
+def tokenify(xtest, vsubs=[]):
     try:
         nit = 0
         vsubs = []
@@ -65,8 +68,8 @@ def tokenify(xtest,vsubs=[]):
             body = xtest[ibeg:iright]
             tail = xtest[iright:]
             bodyhash = get_hash_from_string(body)
-            vsub['name'] = bodyhash ;
-            vsub['value'] = sympify(body);
+            vsub['name'] = bodyhash
+            vsub['value'] = sympify(body)
             xtest = head + '(' + bodyhash + ')' + tail
             vsubs = vsubs + [vsub]
             nit = nit + 1
@@ -76,24 +79,23 @@ def tokenify(xtest,vsubs=[]):
     return (xtest, vsubs)
 
 
-
-def new_func_replace(expr,func_subs):
-    name = str( expr.func )
-    if func_subs.get(name) :
-        newargs = list( expr.args )
+def new_func_replace(expr, func_subs):
+    name = str(expr.func)
+    if func_subs.get(name):
+        newargs = list(expr.args)
         oldargs = func_subs.get(name)['args']
         new = func_subs.get(name)['value']
-        subrule = zip( oldargs, newargs)
+        subrule = zip(oldargs, newargs)
         old = expr
         oldfunc = old.func
         arg_sub = {from_arg: to_arg for from_arg, to_arg in zip(oldargs, newargs)}
-        new = new.subs( arg_sub)
-        return new 
-    else :
+        new = new.subs(arg_sub)
+        return new
+    else:
         return expr
 
 
-def pre(expr, newvarsubs, matrix_sub ,func_subs , rep , level=0):
+def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
     '''
      #
      # TEST WITH 
@@ -101,42 +103,61 @@ def pre(expr, newvarsubs, matrix_sub ,func_subs , rep , level=0):
      pre( sympify('1 + tanh(x)')
      #
      '''
-    #tbegin  = datetime.datetime.now()
-    print("PARSING expr = ", expr)
-    if level == 0 :
-        expr = expr.replace(Add, Function('myadd') )
+    # tbegin  = datetime.datetime.now()
+    # print("PARSING expr = ", expr)
+    print("DOHASH = ", dohash)
+    varhash = get_hash_from_string('M' + str(expr) + str(matrix_sub) + str(func_subs))
+    ret = core_cache.get(varhash)
+    if expr.is_Number:
+        return expr
+    if dohash and ret is not None:
+        print("GRABBED ", str(ret))
+        return sympify(ret)
+    else:
+        print("COMPUTE HASH FOR ", varhash)
+    if level == 0:
+        expr = expr.replace(Add, Function('myadd'))
     name = 'NONAME' if not hasattr(expr, 'name') else getattr(expr, 'name')
     newargs = None
     if expr.is_Function:
-        print("FOUND FUNCTION ")
-        if len( func_subs) > 0 :
-            expr = new_func_replace(expr,func_subs)
-        newargs = [pre(item, newvarsubs,  matrix_sub, func_subs , rep,level + 1) for item in expr.args]
+        # print("FOUND FUNCTION ")
+        if len(func_subs) > 0:
+            expr = new_func_replace(expr, func_subs)
+        newargs = [
+            pre(item, newvarsubs, matrix_sub, func_subs, rep, dohash, level + 1)
+            for item in expr.args
+        ]
         expr = expr.__class__(*newargs)
     elif expr.is_Symbol:
-        print("FOUND SYMBOL" , srepr( expr ) )
-        print("NEWVARSUBS GETS CALLED")
-        while True :
+        print("FOUND SYMBOL", srepr(expr))
+        # print("NEWVARSUBS GETS CALLED")
+        while True:
             prev = expr
             expr = expr.subs(newvarsubs).doit()
             expr = expr.subs(matrix_sub).doit()
-            if prev == expr :
+            if prev == expr:
                 break
-        #if not expr.is_Symbol :
+        # if not expr.is_Symbol :
         #    expr = pre( expr, newvarsubs, matrix_sub, func_subs,rep, level + 1 )
-        print("AFTER PRE ", expr )
-        expr = expr.subs( rep ).doit()
+        # print("AFTER PRE ", expr )
+        expr = expr.subs(rep).doit()
     elif expr.is_Atom:
-        print("FOUND ATOM")
+        # print("FOUND ATOM")
         expr = expr
     else:
-        print("COMPLEX EXPRESSION NAME = ", name , expr, "FUNC = ", expr.func, "ARGS = ", expr.args)
-        newargs = [pre(item, newvarsubs, matrix_sub, func_subs, rep,  level + 1) for item in expr.args]
+        # print("COMPLEX EXPRESSION NAME = ", name , expr, "FUNC = ", expr.func, "ARGS = ", expr.args)
+        newargs = [
+            pre(item, newvarsubs, matrix_sub, func_subs, rep, dohash, level + 1)
+            for item in expr.args
+        ]
         expr = expr.__class__(*newargs)
-    #tend = datetime.datetime.now()
-    #print("TIMEING = " ( tend - tbegin).milliseconds )
+    # tend = datetime.datetime.now()
+    # print("TIMEING = " ( tend - tbegin).milliseconds )
     expr = expr.subs(rep)
+    core_cache.set(varhash, str(expr), 60 * 60)
+    print("SET CACHE FOR ", expr)
     return expr
+
 
 '''
 class mygrad(Function):
@@ -163,7 +184,7 @@ new1 = pre(xtest,newvarsubs, matrix_sub,func_subs,rep)
 new2 = new1.subs(rep)
 new3 = new2.replace(Function('myadd'), Add).doit() 
 new4 = simplify( new3 )
-print("NEW4 = ", new4 )
+#print("NEW4 = ", new4 )
 
 expr = sympify( 'g( y**2 )' )
 new5 = new_func_replace(expr, func_subs)
