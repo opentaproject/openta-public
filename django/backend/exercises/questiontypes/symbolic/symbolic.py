@@ -269,8 +269,8 @@ def symbolic_internal(expression1, expression2):  # {{{
         nvars = {}
         sympy1 = powdenest(factor(sympify(sexpression1, ns)), force=True)
         sympy2 = powdenest(factor(sympify(sexpression2, ns)), force=True)
-        # print("SYMPY1 = ", sympy1 )
-        # print("SYMPY2 = ", sympy2 )
+        print("SYMPY1 = ", sympy1 )
+        print("SYMPY2 = ", sympy2 )
         # if logger.isEnabledFor(logging.DEBUG):
         #    logger.debug('Expression 1: ' + str(sympy1))
         #    logger.debug('Expression 2: ' + str(sympy2))
@@ -280,8 +280,15 @@ def symbolic_internal(expression1, expression2):  # {{{
             zero = sympy1
         else:
             zero = sympy1 - sympy2
+        print("ZERO = ", zero )
         shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
         diffy = Norm(shouldbezero)
+        if not diffy.is_Number :
+            print("DIFFY IS NOT A NUMBER")
+            response['correct'] = False 
+            response['debug'] = "diff reduces to $" + latex(shouldbezero) + '$'
+            return response
+        print("DIFFY = ", diffy )
         if abs( diffy * 1.0 ) < 1e-6 :
             response['correct'] = True
         else:

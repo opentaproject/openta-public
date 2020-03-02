@@ -1,5 +1,7 @@
 from sympy import *
+import hashlib 
 from sympy.matrices import *
+from django.core.cache import cache as core_cache
 from exercises.util import get_hash_from_string
 from copy import deepcopy
 
@@ -200,11 +202,16 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
     try :
+        varhash = get_hash_from_string( expression + str(varsubs) + str(funcsubs) )
+        ret = core_cache.get(varhash)
+        if ret is not None:
+                return ret
         tbeg = time.time() 
         rep = [ (Function(key), val ) for key,val in myscope.items() ]
         sexpr = ascii_to_sympy(declash(expression), {})
         new = sexpr
         (xtest,newvarsubs, matrix_subs ) = dematrixify( sexpr , varsubs)
+        print("XTEST = ", xtest )
         new = xtest 
         func_subs = {  sub['name'] : {
                 'args' :  [  Symbol(arg) for arg  in  sub['args'].lstrip('[').rstrip(']').split(',') ] , 
@@ -221,7 +228,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         new = new4
         #print("NEW4 = ", new4)
         tend = time.time()
-        print("TIME SPENT IN SYMPIFY WITH CUSTOM = ", (tend - tbeg) * 1000 , " MILLISECONDS")
+        core_cache.set(varhash, new , 60 * 60)
+        print("HASH = ", varhash , ": TIME SPENT IN SYMPIFY WITH CUSTOM = ", (tend - tbeg) * 1000 , " MILLISECONDS parsing ", expression)
     except :
         pass
     #print("NEW AGAIN = ", new ) 
