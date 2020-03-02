@@ -179,6 +179,12 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     Returns:
         Sympy expression
     """
+    varhash = get_hash_from_string( expression + str(varsubs) + str(funcsubs) )
+    ret = core_cache.get(varhash)
+    if ret is not None:
+        print("CACHE GET CUSTOM SYMPIFY ", expression)
+        return ret
+    print("COMPUT CUSTOM SYMPY ", expression)
     scope = openta_scope
     myscope = deepcopy( scope )
     subrule = []
@@ -202,10 +208,6 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
     try :
-        varhash = get_hash_from_string( expression + str(varsubs) + str(funcsubs) )
-        ret = core_cache.get(varhash)
-        if ret is not None:
-                return ret
         tbeg = time.time() 
         rep = [ (Function(key), val ) for key,val in myscope.items() ]
         sexpr = ascii_to_sympy(declash(expression), {})

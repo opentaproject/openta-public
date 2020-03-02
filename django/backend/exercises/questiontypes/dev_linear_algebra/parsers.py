@@ -2,6 +2,8 @@ from sympy import *
 from sympy.matrices import *
 from exercises.util import get_hash_from_string
 from copy import deepcopy
+from django.core.cache import cache as core_cache
+from exercises.util import get_hash_from_string
 
 # from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
@@ -49,6 +51,12 @@ def parse_sample_variables(variables, funcsubs={}):
 
     """
     sym = {}
+    varhash = get_hash_from_string( str(variables) + str(funcsubs) )
+    ret = core_cache.get(varhash)
+    if ret is not None:
+        print("CACHE GET PARSERS", varhash, variables, funcsubs)
+        return ret
+    print("CACHE GET COMPUTE ", varhash, variables, funcsubs)
     vars_ = variables
     subs_rules = []
     varsubs_sympify = {}
@@ -88,5 +96,7 @@ def parse_sample_variables(variables, funcsubs={}):
     for key, val in varsubs_sympify.items():
         varsubs_sympify_new[key] = val.subs(varsubs).doit()
     varsubs_sympify = varsubs_sympify_new
-    return (varsubs, varsubs_sympify, sample_variables)
+    ret = (varsubs, varsubs_sympify, sample_variables)
+    core_cache.set(varhash, ret , 60 * 60)
+    return ret
 

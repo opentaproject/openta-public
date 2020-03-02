@@ -77,6 +77,7 @@ def symbolic_compare_expressions(
     tbeg = time.time()
     s1 = ascii_to_sympy(student_answer)
     s2 = ascii_to_sympy(correct)
+    print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
     all_variables = [x['name'] for x in variables]
     illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
     if len(illegalvars) > 0:
@@ -110,7 +111,9 @@ def symbolic_compare_expressions(
             response['error'] = 'single equal sign cannot appear in expression'
             response['debug'] = student_answer
             return response
+        print("SPLIT0 = " , ( time.time() - tbeg  )  * 1000 )
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables, funcsubs)
+        print("SPLIT1 = " , ( time.time() - tbeg  )  * 1000 )
         student_answer_is_equality = len(student_answer.split('==')) > 1
         if student_answer_is_equality and correct_is_equality:
             [lhs, rhs] = student_answer.split('==')
@@ -131,7 +134,6 @@ def symbolic_compare_expressions(
         response['warning'] = rhs
         explanation = ''
         try:
-            teststring = '(' + ')-('.join(student_answer.split('==')) + ')'
             [tlhs, trhs] = [x.strip() for x in student_answer.split('==')]
             if '0' == tlhs:
                 prelhs = sympify_with_custom(
@@ -241,6 +243,7 @@ def symbolic_compare_expressions(
         response = dict(error=_("Unknown error, check your expression."))
         response['debug'] = str(e)
         return response
+    print("SPLIT2 = " , ( time.time() - tbeg  )  * 1000 )
     try:
         lhs = sympify_with_custom(
             lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
@@ -269,8 +272,6 @@ def symbolic_internal(expression1, expression2):  # {{{
         nvars = {}
         sympy1 = powdenest(factor(sympify(sexpression1, ns)), force=True)
         sympy2 = powdenest(factor(sympify(sexpression2, ns)), force=True)
-        print("SYMPY1 = ", sympy1 )
-        print("SYMPY2 = ", sympy2 )
         # if logger.isEnabledFor(logging.DEBUG):
         #    logger.debug('Expression 1: ' + str(sympy1))
         #    logger.debug('Expression 2: ' + str(sympy2))
@@ -280,15 +281,12 @@ def symbolic_internal(expression1, expression2):  # {{{
             zero = sympy1
         else:
             zero = sympy1 - sympy2
-        print("ZERO = ", zero )
         shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
         diffy = Norm(shouldbezero)
         if not diffy.is_Number :
-            print("DIFFY IS NOT A NUMBER")
             response['correct'] = False 
             response['debug'] = "diff reduces to $" + latex(shouldbezero) + '$'
             return response
-        print("DIFFY = ", diffy )
         if abs( diffy * 1.0 ) < 1e-6 :
             response['correct'] = True
         else:
