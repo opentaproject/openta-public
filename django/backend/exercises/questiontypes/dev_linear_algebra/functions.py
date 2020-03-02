@@ -155,6 +155,7 @@ class isunitary(sympy.Function):
             zer = (x * conjugate(x.T)) - target
             # print("zer = ", zer )
             zer = zer.evalf(6, chop=True)
+            print("ZER = ", zer )
             if zer.is_zero:
                 return sympy.sympify('1')
             else:
@@ -190,7 +191,7 @@ class crossfunc(sympy.Function):
 
             if str(x) == '0' or str(y) == '0':
                 return 0
-            return Cross(x, y)
+            return x.cross(y)
         else:
             raise TypeError('cross product needs two arguments')
 
@@ -808,6 +809,7 @@ openta_scope = {
         'mymul' : mymul,
         'IsUnitary': isunitary,
         'cross': crossfunc,
+        'crossfunc': crossfunc,
         'Gt': gt,
         'localGt': gt,
         'Ge': ge,

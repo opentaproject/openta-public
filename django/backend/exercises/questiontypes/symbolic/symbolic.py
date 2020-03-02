@@ -282,7 +282,7 @@ def symbolic_internal(expression1, expression2):  # {{{
             zero = sympy1 - sympy2
         shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
         diffy = Norm(shouldbezero)
-        if diffy == 0:
+        if abs( diffy * 1.0 ) < 1e-6 :
             response['correct'] = True
         else:
             response['correct'] = False

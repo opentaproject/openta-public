@@ -82,6 +82,24 @@ class SymbolicTest(TestCase):
             True,
             msg='Test4',
         )
+
+        
+        self.assertEqual(
+            symbolic_check_if_true(
+                precision,
+                variables,
+                ' And( Ge( RankOf($$),2), Not(IsDiagonal($$)), IsUnitary($$), IsNotEqual($$, Transpose( $$ )))',
+                '[[0,e^( I ) ],[e^(-I) ,0]]',
+            )['correct'],
+            True,
+            msg='Test4',
+        )
+
+
+
+
+
+
         self.assertEqual(
             symbolic_check_if_true(
                 precision, variables, ' Not( IsDiagonalizable( $$ ) )  ', '[[0,1],[0,0]]'

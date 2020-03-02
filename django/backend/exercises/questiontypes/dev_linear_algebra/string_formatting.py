@@ -234,6 +234,7 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     result = resub.sub(r"FF", r"variableFF", result)
     result = resub.sub(r"ff", r"variableff", result)
     result = resub.sub(r"lambda", r"variablelambda", result)
+    result = resub.sub(r"(\W|\A)e\^", r"\1 E^", result)
     clashes = [
         {'And': 'localAnd'},
         {'Not': 'localNot'},
@@ -241,6 +242,7 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
         {'Or': 'localOr'},
         {'Ge': 'localGe'},
         {'d': 'partial'},
+        {'cross': 'crossfunc'},
         {'Transpose':'localTranspose'},
     ]
     expression = resub.sub(r',',' ,',expression)
