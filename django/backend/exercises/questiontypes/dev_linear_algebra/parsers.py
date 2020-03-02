@@ -54,9 +54,7 @@ def parse_sample_variables(variables, funcsubs={}):
     varhash = get_hash_from_string( str(variables) + str(funcsubs) )
     ret = core_cache.get(varhash)
     if ret is not None:
-        print("CACHE GET PARSERS", varhash, variables, funcsubs)
         return ret
-    print("CACHE GET COMPUTE ", varhash, variables, funcsubs)
     vars_ = variables
     subs_rules = []
     varsubs_sympify = {}

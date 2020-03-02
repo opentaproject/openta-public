@@ -182,9 +182,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     varhash = get_hash_from_string( expression + str(varsubs) + str(funcsubs) )
     ret = core_cache.get(varhash)
     if ret is not None:
-        print("CACHE GET CUSTOM SYMPIFY ", expression)
         return ret
-    print("COMPUT CUSTOM SYMPY ", expression)
+    tbeg = time.time() 
     scope = openta_scope
     myscope = deepcopy( scope )
     subrule = []
@@ -208,26 +207,31 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
     try :
-        tbeg = time.time() 
+        #print("CUSTOM SPLIT1 = ", ( time.time() - tbeg ) * 1000 )
         rep = [ (Function(key), val ) for key,val in myscope.items() ]
         sexpr = ascii_to_sympy(declash(expression), {})
+        #print("CUSTOM SPLIT2 = ", ( time.time() - tbeg ) * 1000 )
         new = sexpr
         (xtest,newvarsubs, matrix_subs ) = dematrixify( sexpr , varsubs)
-        print("XTEST = ", xtest )
+        #print("CUSTOM SPLIT3 = ", ( time.time() - tbeg ) * 1000 )
         new = xtest 
         func_subs = {  sub['name'] : {
                 'args' :  [  Symbol(arg) for arg  in  sub['args'].lstrip('[').rstrip(']').split(',') ] , 
                 'value' : sympify( sub['value']  )  }  for sub in funcsubs}
+        #print("CUSTOM SPLIT4 = ", ( time.time() - tbeg ) * 1000 )
         xtest = sympify(xtest,ns).replace(Add,Function('myadd') )
+        #print("CUSTOM SPLIT5 = ", ( time.time() - tbeg ) * 1000 )
         new = xtest
-        new1 = pre(xtest,newvarsubs, matrix_subs,func_subs,rep) 
-        new = new1
-        new2 = new1 # .subs(rep)
-        new = new2
-        new3 = new2.replace(Function('myadd'), Add).doit() 
-        new = new3
-        new4 = simplify( new3 )
-        new = new4
+        ##################################
+        #### THE NEXT LINE IS BOTTLENECK
+        new = pre(xtest,newvarsubs, matrix_subs,func_subs,rep) 
+        #############
+        ##################################
+        #print("CUSTOM SPLIT6 = ", ( time.time() - tbeg ) * 1000 )
+        new = new.replace(Function('myadd'), Add).doit() 
+        #print("CUSTOM SPLIT7 = ", ( time.time() - tbeg ) * 1000 )
+        #new = simplify( new )
+        #print("CUSTOM SPLIT8 = ", ( time.time() - tbeg ) * 1000 )
         #print("NEW4 = ", new4)
         tend = time.time()
         core_cache.set(varhash, new , 60 * 60)

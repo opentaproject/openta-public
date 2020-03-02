@@ -77,7 +77,7 @@ def symbolic_compare_expressions(
     tbeg = time.time()
     s1 = ascii_to_sympy(student_answer)
     s2 = ascii_to_sympy(correct)
-    print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
+    #print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
     all_variables = [x['name'] for x in variables]
     illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
     if len(illegalvars) > 0:
@@ -111,9 +111,9 @@ def symbolic_compare_expressions(
             response['error'] = 'single equal sign cannot appear in expression'
             response['debug'] = student_answer
             return response
-        print("SPLIT0 = " , ( time.time() - tbeg  )  * 1000 )
+        #print("SPLIT0 = " , ( time.time() - tbeg  )  * 1000 )
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables, funcsubs)
-        print("SPLIT1 = " , ( time.time() - tbeg  )  * 1000 )
+        #print("SPLIT1 = " , ( time.time() - tbeg  )  * 1000 )
         student_answer_is_equality = len(student_answer.split('==')) > 1
         if student_answer_is_equality and correct_is_equality:
             [lhs, rhs] = student_answer.split('==')
@@ -133,6 +133,7 @@ def symbolic_compare_expressions(
         response['error'] = lhs
         response['warning'] = rhs
         explanation = ''
+        #print("SPLIT1a = " , ( time.time() - tbeg  )  * 1000 )
         try:
             [tlhs, trhs] = [x.strip() for x in student_answer.split('==')]
             if '0' == tlhs:
@@ -149,6 +150,7 @@ def symbolic_compare_expressions(
                 ) - sympify_with_custom(
                     tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
                 )
+            #print("SPLIT1b = " , ( time.time() - tbeg  )  * 1000 )
             # for var in used_variables:
             #    diff_ = diff(prelhs, sympify(var))
             #    diff_ = diff_.subs(varubs)
@@ -183,6 +185,7 @@ def symbolic_compare_expressions(
                 error=_("ERROR IN AUTHOR EXPRESSION. " + explanation),
                 debug=(type(e).__name__ + ": " + str(e)),
             )
+        #print("SPLIT1c = " , ( time.time() - tbeg  )  * 1000 )
         if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
             if lhs.shape != rhs.shape:
                 return {
@@ -243,19 +246,24 @@ def symbolic_compare_expressions(
         response = dict(error=_("Unknown error, check your expression."))
         response['debug'] = str(e)
         return response
-    print("SPLIT2 = " , ( time.time() - tbeg  )  * 1000 )
+    #print("SPLIT2 = " , ( time.time() - tbeg  )  * 1000 )
     try:
         lhs = sympify_with_custom(
             lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
         ).doit()
+        #print("SPLIT2a = " , ( time.time() - tbeg  )  * 1000 )
+        # THE NEXT  BIT LINE IS 1/2 THE BOTTLENECK
+        # IT PROPAGEATES TO TIME SPENT IN pre
         rhs = sympify_with_custom(
             rhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-3'
         ).doit()
+        ##################
+        #print("SPLIT2b = " , ( time.time() - tbeg  )  * 1000 )
         res = symbolic_check_equality(
             precision, lhs, rhs, sample_variables, check_units=check_units
         )
         tend = time.time()
-        print("TOTAL TIME IN COMPARE EXPRESSIONS", ( tend - tbeg ) * 1000  , " MILLISECONDS" )
+        #print("TOTAL TIME IN COMPARE EXPRESSIONS", ( tend - tbeg ) * 1000  , " MILLISECONDS" )
         return res
     except Exception as e:
         response = dict(error=str(e), debug=str(e))
@@ -266,12 +274,15 @@ def symbolic_internal(expression1, expression2):  # {{{
     # Do some initial formatting
     number_of_points = 10
     response = {}
+    tbeg = time.time()
     try:
         sexpression1 = expression1
         sexpression2 = expression2
         nvars = {}
         sympy1 = powdenest(factor(sympify(sexpression1, ns)), force=True)
+        #print("INTERNAL SPLIT1  = " , ( time.time() - tbeg  )  * 1000 )
         sympy2 = powdenest(factor(sympify(sexpression2, ns)), force=True)
+        #print("INTERNAL SPLIT2  = " , ( time.time() - tbeg  )  * 1000 )
         # if logger.isEnabledFor(logging.DEBUG):
         #    logger.debug('Expression 1: ' + str(sympy1))
         #    logger.debug('Expression 2: ' + str(sympy2))
@@ -281,13 +292,20 @@ def symbolic_internal(expression1, expression2):  # {{{
             zero = sympy1
         else:
             zero = sympy1 - sympy2
+        #print("CHECKING IF ZERO ", zero )
+        #
+        # THE NEXT LINE IS BOTTLENET 1/2 OF TIME SPENT
+        # USING simplify ONLY DOES NOT DO MUCH  ; IT IS STILL SLOW
+        #
+
         shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
+        #print("INTERNAL SPLIT3  = " , ( time.time() - tbeg  )  * 1000 )
         diffy = Norm(shouldbezero)
+        #print("INTERNAL SPLIT4  = " , ( time.time() - tbeg  )  * 1000 )
         if not diffy.is_Number :
             response['correct'] = False 
             response['debug'] = "diff reduces to $" + latex(shouldbezero) + '$'
-            return response
-        if abs( diffy * 1.0 ) < 1e-6 :
+        elif  abs( diffy * 1.0 ) < 1e-6 :
             response['correct'] = True
         else:
             response['correct'] = False
@@ -309,6 +327,7 @@ def symbolic_internal(expression1, expression2):  # {{{
         logger.error([str(e), expression1, expression2])
         response['error'] = _("Unknown error2, check your expression.")
         response['debug'] = debug = type(e).__name__ + ": " + str(e)
+    #print("TOTAL TIME IN INTERNAL", ( time.time() - tbeg) * 1000 )
     return response  # }}}
 
 
