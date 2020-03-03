@@ -33,9 +33,13 @@ lambdifymodules = [
     {
         'cot': lambda x: 1.0 / numpy.tan(x),
         'norm': numpy.linalg.norm,
+        'logicaland': numpy.logical_and,
+        'logicalor': numpy.logical_or,
+        'eq' : numpy.equal,
         'Norm': numpy.linalg.norm,
         'abs': numpy.linalg.norm,
         'cross': lambda x, y: numpy.cross(x, y, axis=0),
+        'crossfunc': lambda x, y: numpy.cross(x, y, axis=0),
         'dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
         'Dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
         'zoo': numpy.inf,

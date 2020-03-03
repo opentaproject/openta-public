@@ -11,13 +11,13 @@ import logging
 logging.disable(logging.DEBUG)
 
 
-class SymbolicTest(TestCase):
-    def test_ascii_to_sympy(self):
+class SymbolicTest2(TestCase):
+    def test2_ascii_to_sympy(self):
         # Note that the matrix implicit multiplication works because it gets wrapped in Matrix before the implicit multiply formatting is applied
         self.assertEqual(ascii_to_sympy("[1,2,3] [[4,5,6]]"), "Matrix([1,2,3]) * Matrix([[4,5,6]])")
         self.assertEqual(ascii_to_sympy("2x + 1 == 3y"), "(2*x + 1 ) - ( 3*y)")
 
-    def test_implicit_multiply(self):
+    def test2_implicit_multiply(self):
         self.assertEqual(iim("2x"), "2*x")
         self.assertEqual(iim("2 x"), "2 * x")
         self.assertEqual(iim("2x 3y"), "2*x * 3*y")
@@ -27,7 +27,7 @@ class SymbolicTest(TestCase):
         self.assertEqual(iim("sin(x) y"), "sin(x) * y")
         self.assertEqual(iim("sin(x)y"), "sin(x) * y ")
 
-    def test_variable(self):
+    def test2_variable(self):
         precision = 1e-6
         variables = [
             {'name': 'x', 'value': '2'},
@@ -39,7 +39,7 @@ class SymbolicTest(TestCase):
         )
         self.assertEqual(res['correct'], True)
 
-    def test_vector(self):
+    def test2_vector(self):
         precision = 1e-6
         variables = [
             {'name': 'a', 'value': '2'},
@@ -335,3 +335,30 @@ class SymbolicTest(TestCase):
                 )['correct'],
                 True,
             )
+
+        variables = [{'name': 'B', 'value': 'curl(A)', 'tex': 'TeX'}, 
+                    {'name': 'vE', 'value': '- grad( pphi )  -  dot(A)', 'tex': 'TeX'}, 
+                    {'name': 'J', 'value': '1/( 4 pi )  ( curl(B) - dot(vE) )', 'tex': 'TeX'}]
+        
+        new_funcsubs = [{"name": "A", "args": "[x,y,z,t]", "value": "funcy1(x,y,z,t) * xhat + funcy2(x,y,z,t) * yhat + funcy3(x,y,z,t) * zhat", "tex": "TeX"}, {"name": "pphi", "args": "[x,y,z,t]", "value": "pot(x,y,z,t)", "tex": "TeX"}]
+        #new_funcsubs = [
+        #    {"name": "A", "args": "[x,y,z,t]", "value": " funcy1(x,y,z,t) * xhat + funcy2(x,y,z,t)  * yhat + funcy3(x,y,z,t) * zhat" },
+        #    {"name": "pphi", "args": "[x,y,z,t]", "value": "pot[x,y,z,t]", "tex": "TeX"},
+        #]
+        
+        eqs = [ 
+            {'div( A(x,y,z,t)  ) == partial( funcy1(x,y,z,t) ,x) + partial(funcy2(x,y,z,t),y) + partial(funcy3(x,y,z,t) ,z)' : True }
+            ]
+        
+        for eqd in eqs :
+            eq = list( eqd.keys() )[0]
+            val = list( eqd.values() )[0]
+            
+            print("DOING ", eq )
+            self.assertEqual(
+                symbolic_compare_expressions(
+                    1e-06, variables, eq, '0==0', False, [], [], new_funcsubs
+                )['correct'],
+                val,
+            )
+

@@ -180,10 +180,15 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     Returns:
         Sympy expression
     """
+    print("SOURCE = ", source )
     varhash = get_hash_from_string( expression + str(varsubs) + str(funcsubs) )
+    dohash = ( not 'linear_algebra_compare_expressions'  is source ) and (settings.DO_CACHE) 
+    print("DOHASH IN SYMPIFY = ", dohash )
+    print("SOURCE = ", source )
+    print("DOCACHE SETTINS ", settings.DO_CACHE )
     ret = core_cache.get(varhash)
-    if settings.DO_CACHE and ret is not None:
-        return ret
+    if dohash and ret is not None:
+            return sympify( ret )
     tbeg = time.time() 
     scope = openta_scope
     myscope = deepcopy( scope )
@@ -229,7 +234,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         #print("NEWVARSUBS = ", newvarsubs)
         #print("MATRIX_SUBS = ", matrix_subs)
         #print("FUNCSUBS = ", func_subs)
-        new = pre(xtest,newvarsubs, matrix_subs,func_subs,rep) 
+        new = pre(xtest,newvarsubs, matrix_subs,func_subs,rep,dohash) 
         #############
         ##################################
         #print( "CUSTOM SPLIT6 = ", ( time.time() - tbeg ) * 1000 , new)
@@ -239,10 +244,11 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         #print("CUSTOM SPLIT8 = ", ( time.time() - tbeg ) * 1000 )
         #print("NEW4 = ", new4)
         tend = time.time()
-        core_cache.set(varhash, new , 60 * 60)
+        if dohash:
+            core_cache.set(varhash, srepr( new ) , 60 * 60)
         print("HASH = ", varhash , ": TIME SPENT IN SYMPIFY WITH CUSTOM = ", (tend - tbeg) * 1000 , " MILLISECONDS parsing ", expression)
     except Exception as e :
-        print("ERROR WITH new = ", new )
+        print("ERROR WITH new = ", new , str(e) )
     #print("NEW AGAIN = ", new ) 
     #print("XTEST = ", xtest )
     #abc = {

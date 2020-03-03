@@ -43,3 +43,4 @@ HEADLESS = False
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 EXERCISES_PATH = 'media/exercise'
 RUNNING_DEVSERVER = True
+DO_CACHE = True

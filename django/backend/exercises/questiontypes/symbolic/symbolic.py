@@ -144,7 +144,11 @@ def symbolic_compare_expressions(
             response['debug'] = student_answer
             return response
         #print("SPLIT0 = " , ( time.time() - tbeg  )  * 1000 )
+        print("VARIABLES = ", variables )
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables, funcsubs)
+        varsubs = [ ( key,val.subs( baseunits).doit()  ) for key,val in varsubs ]
+        print("BASEUNITS = ", baseunits)
+        print("VARSUBS = ", varsubs )
         #print("SPLIT1 = " , ( time.time() - tbeg  )  * 1000 )
         student_answer_is_equality = len(student_answer.split('==')) > 1
         if student_answer_is_equality and correct_is_equality:
@@ -177,8 +181,8 @@ def symbolic_compare_expressions(
                     tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
                 )
             else:
-                print("PRELHS THRS ",  trhs )
-                print("PRELHS TLHS ",  tlhs )
+                #print("PRELHS THRS ",  trhs )
+                #print("PRELHS TLHS ",  tlhs )
                 prerhs = sympify_with_custom( trhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1') 
                 prelhs = sympify_with_custom( tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1')
             #print("SPLIT1b = " , ( time.time() - tbeg  )  * 1000 )
@@ -324,8 +328,8 @@ def symbolic_internal(expression1, expression2):  # {{{
         # if logger.isEnabledFor(logging.DEBUG):
         #    logger.debug('Expression 1: ' + str(sympy1))
         #    logger.debug('Expression 2: ' + str(sympy2))
-        print("COMNPARE SYMPY1 ", sympy1 )
-        print("COMNPARE SYMPY2 ", sympy2 )
+        #print("COMNPARE SYMPY1 ", sympy1 )
+        #print("COMNPARE SYMPY2 ", sympy2 )
         if sympy1 == 0:
             zero = sympy2
         elif sympy2 == 0:
@@ -338,7 +342,7 @@ def symbolic_internal(expression1, expression2):  # {{{
         # USING simplify ONLY DOES NOT DO MUCH  ; IT IS STILL SLOW
         #
 
-        print("ZER0 = ", simplify( zero ) )
+        #print("ZER0 = ", simplify( zero ) )
         if doNumeric :
             symbs = zero.free_symbols
             symsub = [ ( sym, random.random() )  for sym in symbs ]
