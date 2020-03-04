@@ -39,7 +39,7 @@ HELP_URL = 'https://opentaserver.com/'
 UNITTESTS = True
 
 
-HEADLESS = False
+HEADLESS = True
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 EXERCISES_PATH = 'media/exercise'
 RUNNING_DEVSERVER = True

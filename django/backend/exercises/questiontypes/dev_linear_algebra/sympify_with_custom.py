@@ -48,12 +48,10 @@ def replace_funcs_once(sexpr, funcsubs, subrule):
 
 
 def replace_funcs(sexpr, funcsubs, subrule):
-    # print("INCOMING = ", sexpr)
     while True:
         prev = sexpr
         sexpr = replace_funcs_once(sexpr, funcsubs, subrule)
         if sexpr == prev:
-            # print("OUTGOING = ", sexpr)
             return sexpr
 
 
@@ -92,6 +90,7 @@ def func_sub(expr, func_def, func_body, myscope):
 
 
 def tokenify(xtest, vsubs=[]):
+    orig = xtest
     try:
         nit = 0
         vsubs = []
@@ -116,7 +115,7 @@ def tokenify(xtest, vsubs=[]):
             nit = nit + 1
     except:
         print("FAILED WITH ", xtest)
-        raise TypeError("FAILED WITH " + xtest)
+        raise TypeError("Failed to parse" )
     return (xtest, vsubs)
 
 
@@ -181,12 +180,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     Returns:
         Sympy expression
     """
-    print("SOURCE = ", source)
     varhash = get_hash_from_string(expression + str(varsubs) + str(funcsubs))
     dohash = (not 'linear_algebra_compare_expressions' is source) and (settings.DO_CACHE)
-    print("DOHASH IN SYMPIFY = ", dohash)
-    print("SOURCE = ", source)
-    print("DOCACHE SETTINS ", settings.DO_CACHE)
     ret = core_cache.get(varhash)
     if dohash and ret is not None:
         return sympify(ret)
@@ -213,14 +208,11 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-    if True:
-        # print("CUSTOM SPLIT1 = ", ( time.time() - tbeg ) * 1000 )
+    try :
         rep = [(Function(key), val) for key, val in myscope.items()]
         sexpr = ascii_to_sympy(declash(expression), {})
-        # print( "CUSTOM SPLIT2 = ", ( time.time() - tbeg ) * 1000 , sexpr)
         new = sexpr
         (xtest, newvarsubs, matrix_subs) = dematrixify(sexpr, varsubs)
-        # print( "CUSTOM SPLIT3 = ", ( time.time() - tbeg ) * 1000 , xtest )
         new = xtest
         func_subs = {
             sub['name']: {
@@ -229,25 +221,10 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
             }
             for sub in funcsubs
         }
-        # print("CUSTOM SPLIT4 = ", ( time.time() - tbeg ) * 1000 , new )
-        xtest = sympify(xtest, ns).replace(Add, Function('myadd'))
-        # print(  "CUSTOM SPLIT5 = ", ( time.time() - tbeg ) * 1000 , xtest)
+        xtest = sympify(xtest, ns, evaluate=False).replace(Add, Function('myadd'))
         new = xtest
-        ##################################
-        #### THE NEXT LINE IS BOTTLENECK
-        # print("VARSUBS = ", varsubs )
-        # print("NEWVARSUBS = ", newvarsubs)
-        # print("MATRIX_SUBS = ", matrix_subs)
-        # print("FUNCSUBS = ", func_subs)
         new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep, dohash)
-        #############
-        ##################################
-        # print( "CUSTOM SPLIT6 = ", ( time.time() - tbeg ) * 1000 , new)
         new = new.replace(Function('myadd'), Add).doit()
-        # print("CUSTOM SPLIT7 = ", ( time.time() - tbeg ) * 1000 )
-        # new = simplify( new )
-        # print("CUSTOM SPLIT8 = ", ( time.time() - tbeg ) * 1000 )
-        # print("NEW4 = ", new4)
         tend = time.time()
         if dohash:
             core_cache.set(varhash, srepr(new), 60 * 60)
@@ -259,44 +236,10 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
             " MILLISECONDS parsing ",
             expression,
         )
-    # except Exception as e:
-    #    print("ERROR WITH new = ", new, str(e))
-    # print("NEW AGAIN = ", new )
-    # print("XTEST = ", xtest )
-    # abc = {
-    #    'x': sympy.sympify('x'),
-    #    'y': sympy.sympify('y'),
-    #    'z': sympy.sympify('z'),
-    #    't': sympy.sympify('t'),
-    #    }
-
-    # newscope.update( abc )
-    # test1 = sympify( xtest, ns )
-    # print("0 TESTING = ", test1 )
-    # test2 = test1.subs(newvarsubs)
-    # test2 = test2.replace(Add, Function('myadd') )
-    # print("1 TEST2 = ", test2 )
-    # print("1 TEST2 = ", srepr( test2 ) )
-    # sxtest = sympify(xtest, newscope)
-    # print("1 SXTEST = ", srepr( sxtest) )
-    # sxtest = sxtest.subs(newvarsubs)
-    # print("2 SXTEST = ", srepr( sxtest ) )
-    # sxtest = sxtest.subs(matrix_subs)
-    # print("3 SXTEST = ", sxtest.replace(Function('matmul'), MatMul ).doit() )
-    # rep = []
-    # for key,val in myscope.items()  :
-    #    rep = rep + [( Function(key), val )]
-    # print("4 SXTEST = ", sxtest.subs( rep  ).doit() )
-    # print("FUNCSUBS = ", funcsubs )
-    # try :
-    #    restored = sxtest.subs(matrix_subs).doit() # .replace(Function('vq'),sample)
-    #    #print("RESTORED = ", restored)
-    #    #print("matrix_subs = ",  matrix_subs )
-    # except :
-    #    print("xtest = ", xtest )
-    #    print("matrix_subs = ", matrix_subs )
-    #    print("sxtest = ", sxtest )
-    #    raise TypeError("expr  = ", sexpr )
+    except NameError as e:
+        raise NameError( str(e) )
+    #  raise TypeError("expr  = ", sexpr )
+    #  THIS IS THE OLD ROUTINE
     if False:
         location = 'A'
         if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:
@@ -322,12 +265,3 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         location += 'L'
     return new
 
-
-#'''
-# from exercises.questiontypes.dev_linear_algebra.parsers import *
-# funcsubs = [{'name': 'f', 'args': '[q]', 'value': '3 * q'}, {'name': 'g', 'args': '[x,y]', 'value': 'G(x)'}]
-# expression = '(f(yhat) )-( yhat)'
-# expression = 'f(q)'
-# sexpr = sympify( expression )
-# sympify_with_custom(expression,{}, funcsubs)
-#'''

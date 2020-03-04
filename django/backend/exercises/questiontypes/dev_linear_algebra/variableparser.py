@@ -43,6 +43,7 @@ def new_parse_variables(variables):  # {{{
         pipeline = compose(
             functools.partial(filter, operator.truth),
             functools.partial(map, lambda x: x.split('=')),
+            functools.partial(filter, lambda x : not '(' in x[0] ),
             functools.partial(
                 map, lambda x: {'name': x[0].strip(' \n\t'), 'value': x[1].strip(' \n\t')}
             ),
@@ -50,7 +51,34 @@ def new_parse_variables(variables):  # {{{
         variables = list(pipeline(rawvars))
         for var in variables:
             res[var.get('name')] = var.get('value')
-        return variables  # }}}
+        print("VARIABLES FROM TEXT = ", variables )
+        return variables
+    except IndexError:
+        raise QuestionError("Cannot parse variables")
+
+def new_parse_functions(variables):  # {{{
+    '''
+    Parses the variable field.
+    Takes a string with variables in the format "var1=x; var2=y; var3=z" and converts into a list of the form
+    [ { 'name': 'var1', 'value': 'x'}, ... ]
+    '''
+    rawvars = " ".join(variables.split()).split(';')
+    res = {}
+    try:
+        pipeline = compose(
+            functools.partial(filter, operator.truth),
+            functools.partial(map, lambda x: x.split('=')),
+            functools.partial(filter, lambda x : '(' in x[0] ),
+            functools.partial(
+                map, lambda x: {'name': ( x[0].strip(' \n\t') ).split('(')[0], 
+                                'args': '[' + ( ( x[0].strip(' \n\t') ).split('(') )[1].strip(')') + ']'  , 
+                                 'value': x[1].strip(' \n\t')}
+            ),
+        )
+        variables = list(pipeline(rawvars))
+        for var in variables:
+            res[var.get('name')] = var.get('value')
+        return variables
     except IndexError:
         raise QuestionError("Cannot parse variables")
 
@@ -88,8 +116,8 @@ def parse_xml_functions(node):
     ress = []
     res = []
     textvariables = []
-    # if not node.text is None:
-    #    ress = ress + new_parse_functions(node.text)
+    if not node.text is None:
+        ress = ress + new_parse_functions(node.text)
     if not node.find('functions') is None:
         node = node.find('functions')
     functions = node.findall('func')
@@ -105,7 +133,6 @@ def parse_xml_functions(node):
             args = ((func.find('args')).text).strip()
         if token is not None and value is not None:
             ress.append({'name': token, 'args': args, 'value': value, 'tex': 'TeX'})
-    print("RESS = ", ress)
     return ress
 
 
@@ -135,10 +162,11 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         qstring = etree.tostring(question_xmltree, encoding='UTF-8')
         bigstring = bigstring + qstring
     varhash = get_hash_from_string(str(bigstring))
+    print("GETALLVARIABLES WITH HASH ", varhash )
     ret = cache.get(varhash)
     if settings.DO_CACHE and (ret is not None):
         return ret
-    # print("RECALCULATE GETALL VARIABLES", varhash )
+    print("RECALCULATE GETALL VARIABLES", varhash )
     variables = []
     blacklist = set([])
     correct_answer = ''

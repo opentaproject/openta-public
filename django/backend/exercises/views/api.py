@@ -431,7 +431,6 @@ def validate_exercise_globals(xml):
 
 def validate_exercise_xml(xml):
     messages = []
-    return messages
     try:
         messages = validate_exercise_globals(xml)
         xmlschema = etree.XMLSchema(etree.parse(paths.EXERCISE_XSD))

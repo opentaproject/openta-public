@@ -116,7 +116,6 @@ class mymul(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-        print("MYMUL ENTERED", *arg)
         for a in arg:
             if not isinstance(a, sympy.MatrixBase):
                 return None

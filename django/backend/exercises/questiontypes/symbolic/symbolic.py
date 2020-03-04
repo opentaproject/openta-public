@@ -44,7 +44,9 @@ logger = logging.getLogger(__name__)
 
 def expr_are_equal(ex1, ex2):
     try:
-        # print("COMPARE ", srepr(ex1), srepr(ex2) )
+        zz = sympify('0.0').evalf()
+        ex1 = zz  if 'ZeroMatrix' in srepr( ex1 ) else ex1
+        ex2 = zz  if 'ZeroMatrix' in srepr( ex2 ) else ex2
         if ex1.is_Matrix and ex2.is_Matrix:
             return sympy.simplify(ex1 - ex2).norm() < 1.0e-8
         elif ex1.is_Matrix:
@@ -58,8 +60,14 @@ def expr_are_equal(ex1, ex2):
             else:
                 return False
         else:
-            diff1 = abs(ex1 - ex2)
-            return diff1 < 1.0e-8
+            diff1 =  sympify(ex1 - ex2).evalf() 
+            print("SREP DIFF = ", srepr( diff1 ) )
+            if 'Symbol' in srepr( diff1 ) :
+                #for key in dir( diff1 ):
+                #    print( "KEY  = ", key, "ATT = ", getattr(diff1, key) )
+                return False 
+            tval = ( diff1 == 0 ) or ( abs( diff1 ) < 1.0e-8 )
+            return tval 
     except Exception as e:
         print("ERROR WAS " + str(e))
         return False
@@ -144,11 +152,11 @@ def symbolic_compare_expressions(
             response['debug'] = student_answer
             return response
         # print("SPLIT0 = " , ( time.time() - tbeg  )  * 1000 )
-        print("VARIABLES = ", variables)
+        #print("VARIABLES = ", variables)
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables, funcsubs)
         varsubs = [(key, val.subs(baseunits).doit()) for key, val in varsubs]
-        print("BASEUNITS = ", baseunits)
-        print("VARSUBS = ", varsubs)
+        #print("BASEUNITS = ", baseunits)
+        #print("VARSUBS = ", varsubs)
         # print("SPLIT1 = " , ( time.time() - tbeg  )  * 1000 )
         student_answer_is_equality = len(student_answer.split('==')) > 1
         if student_answer_is_equality and correct_is_equality:
@@ -270,8 +278,8 @@ def symbolic_compare_expressions(
     except NameError as e:
         logger.error(traceback.format_exc())
         logger.error([str(e), str(student_answer), str(correct)])
-        response['debug'] = str(e)
-        response['error'] = str(e)
+        response['debug'] = str(e) + str( student_answer) 
+        response['error'] = str(e) + str( student_answer)
         return response
     except SympifyError as e:
         logger.error(traceback.format_exc())
@@ -290,9 +298,8 @@ def symbolic_compare_expressions(
         logger.error(traceback.format_exc())
         logger.error([str(e), str(student_answer), str(correct)])
         response = dict(error=_("Unknown error, check your expression."))
-        response['debug'] = str(e)
+        response['debug'] = str(e) + str( student_answer )
         return response
-    # print("SPLIT2 = " , ( time.time() - tbeg  )  * 1000 )
     try:
         lhs = sympify_with_custom(
             lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
@@ -327,20 +334,11 @@ def symbolic_internal(expression1, expression2):  # {{{
     #
     doNumeric = True
     try:
-        # sexpression1 = expression1
-        # sexpression2 = expression2
-        ##sympy1 = powdenest(factor(sympify(sexpression1, ns)), force=True)
         sympy1 = expression1
         sympy2 = expression2
         if not doNumeric:
             sympy1 = powdenest(factor(sympify(expression1, ns)), force=True)
             sympy2 = powdenest(factor(sympify(expression2, ns)), force=True)
-        # print("INTERNAL SPLIT2  = " , ( time.time() - tbeg  )  * 1000 )
-        # if logger.isEnabledFor(logging.DEBUG):
-        #    logger.debug('Expression 1: ' + str(sympy1))
-        #    logger.debug('Expression 2: ' + str(sympy2))
-        # print("COMNPARE SYMPY1 ", sympy1 )
-        # print("COMNPARE SYMPY2 ", sympy2 )
         if sympy1 == 0:
             zero = sympy2
         elif sympy2 == 0:
@@ -348,29 +346,30 @@ def symbolic_internal(expression1, expression2):  # {{{
         else:
             zero = sympy1 - sympy2
         # print("CHECKING IF ZERO ", zero )
-        #
         # THE NEXT LINE IS BOTTLENET 1/2 OF TIME SPENT
         # USING simplify ONLY DOES NOT DO MUCH  ; IT IS STILL SLOW
-        #
-
         # print("ZER0 = ", simplify( zero ) )
         if doNumeric:
             symbs = zero.free_symbols
+            #symbs.update( {sympy.Symbol('x') ,} )
+            #print("SYMBS = ", symbs)
             symsub = [(sym, random.random()) for sym in symbs]
-            nzero = zero.subs(symsub)
-            diffy = Norm(N(nzero))
-        else:
-            shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
-            diffy = Norm(shouldbezero)
-        # print("INTERNAL SPLIT4  = " , ( time.time() - tbeg  )  * 1000 )
-        if not diffy.is_Number:
+            ex1 = sympy1.subs(symsub).doit()
+            ex2 = sympy2.subs(symsub).doit()
+        else :
+            ex1 = sympy1
+            ex2 = sympy2
+            #shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
+            #diffy = Norm(shouldbezero)
+        are_same = expr_are_equal( ex1,ex2)
+        if not are_same :
             response['correct'] = False
-            response['debug'] = "diff reduces to $" + latex(zero) + '$' + str(diffy)
-        elif abs(diffy * 1.0) < 1e-6:
-            response['correct'] = True
-        else:
+            response['debug'] = "diff reduces to $" + latex(zero) + '$' + str(zero)
             response['correct'] = False
             response['debug'] = "diff reduces to $" + latex(zero) + '$'
+        else :
+            response['correct'] = True
+        return response
     except SympifyError as e:
         logger.error([str(e), expression1, expression2])
         response['debug'] = str(e)

@@ -58,12 +58,10 @@ def parse_sample_variables(variables, funcsubs={}):
     ret = core_cache.get(varhash)
     tbeg = time.time()
     if settings.DO_CACHE and (ret is not None):
-        print("GRABBED FROM CACHE ")
         (v, vs, sample_variables) = ret
-        varsubs_sympify = {key: sympify(val) for key, val in vs}
-        varsubs = [(key, sympify(val)) for key, val in v]
+        varsubs_sympify = {sympify(key): sympify(val) for key, val in vs}
+        varsubs = [(sympify(key), sympify(val)) for key, val in v]
         rets = (varsubs, varsubs_sympify, sample_variables)
-        print("TOOK FROM CACHE", (time.time() - tbeg) * 1000, " milliseconds")
         return rets
 
     vars_ = variables
@@ -106,14 +104,14 @@ def parse_sample_variables(variables, funcsubs={}):
         varsubs_sympify_new[key] = val.subs(varsubs).doit()
     varsubs_sympify = varsubs_sympify_new
     ret = (varsubs, varsubs_sympify, sample_variables)
-    print("TOOK WITYOUT CACHE ", (time.time() - tbeg) * 1000)
     try:
-        vs = [(key, srepr(val)) for key, val in varsubs_sympify.items()]
-        v = [(key, srepr(val)) for key, val in varsubs]
+        vs = [(srepr(key), srepr(val)) for key, val in varsubs_sympify.items()]
+        v = [(srepr(key), srepr(val)) for key, val in varsubs]
         rets = (v, vs, sample_variables)
         core_cache.set(varhash, rets, 60 * 60)
     except Exception as e:
         print("VARUSBS_SYMPIFY = ", varsubs_sympify)
         print("CACHIN ERROR  " + type(e).__name__ + ' : ' + str(e))
+        raise NameError("CANT CACHE ")
 
     return ret
