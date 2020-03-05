@@ -110,6 +110,8 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
     if expr.is_Number:
         return expr
     varhash = get_hash_from_string(str(newvarsubs) + str(expr) + str(matrix_sub) + str(func_subs) + str(rep) )
+    if level == 0 :
+        print("INCOMING LEVEL 0 ", expr )
     ret = core_cache.get(varhash)
     if dohash and ret is not None:
         return sympify(ret)
@@ -118,7 +120,12 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
     name = 'NONAME' if not hasattr(expr, 'name') else getattr(expr, 'name')
     newargs = None
     if expr.is_Function:
-        # print("FOUND FUNCTION ")
+        print("FOUND FUNCTION ",  name, expr )
+        if name == 'Partial' :
+                sfree = list( expr.free_symbols)
+                for sym in sfree :
+                    if newvarsubs.get(str(sym) ) :
+                        raise NameError('Cannot diffrentiate with assigned symbol '  + str(sym)  )
         if len(func_subs) > 0:
             expr = new_func_replace(expr, func_subs)
         newargs = [
@@ -138,9 +145,6 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
         #    expr = pre( expr, newvarsubs, matrix_sub, func_subs,rep, level + 1 )
         # print("AFTER PRE ", expr )
         expr = expr.subs(rep).doit()
-    elif expr.is_Atom:
-        # print("FOUND ATOM")
-        expr = expr
     else:
         print("ORIG EXPR.FUNC", expr.func)
         print("MATIX SUB = ", matrix_sub)
@@ -160,6 +164,8 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
         ]
         expr = expr.__class__(*newargs)
         print("BECAME EXPR.FUNC", expr.func )
+    if level == 0 :
+        print("OUTGOING LEVEL 0 expr = ", expr )
     expr = expr.subs(rep)
     core_cache.set(varhash, srepr(expr), 60 * 60)
     return expr

@@ -180,6 +180,9 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     Returns:
         Sympy expression
     """
+    should_be_end = index_of_matching_right_paren(0,'(' + expression + ')')
+    assert should_be_end == len( expression) + 2 , "MATCHING PAREN ERROR IN  SYMPIFY WITH CUSTOM " + expression
+    expression = ascii_to_sympy( declash( expression) )
     varhash = get_hash_from_string(expression + str(varsubs) + str(funcsubs))
     dohash = (not 'linear_algebra_compare_expressions' is source) and (settings.DO_CACHE)
     ret = core_cache.get(varhash)
@@ -210,6 +213,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     }
     try :
         rep = [(Function(key), val) for key, val in myscope.items()]
+        sexpr = ascii_to_sympy( expression )
         sexpr = ascii_to_sympy(declash(expression), {})
         new = sexpr
         (xtest, newvarsubs, matrix_subs) = dematrixify(sexpr, varsubs)
@@ -224,6 +228,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         xtest = sympify(xtest, ns, evaluate=False).replace(Add, Function('myadd'))
         new = xtest
         new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep, dohash)
+        new = new.replace(Function('mul'), MatMul).doit()
         new = new.replace(Function('myadd'), Add).doit()
         tend = time.time()
         if dohash:

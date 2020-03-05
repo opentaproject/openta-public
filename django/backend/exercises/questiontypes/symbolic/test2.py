@@ -88,7 +88,7 @@ class SymbolicTest2(TestCase):
                 precision,
                 variables,
                 ' And( Ge( RankOf($$),2), Not(IsDiagonal($$)), IsUnitary($$), IsNotEqual($$, Transpose( $$ )))',
-                '[[0,e^( I ) ],[e^(-I) ,0]]',
+                '[[0,E^( I ) ],[E^(-I) ,0]]',
             )['correct'],
             True,
             msg='Test4',
@@ -236,15 +236,15 @@ class SymbolicTest2(TestCase):
             {"name": "gg", "args": "x", "value": "cosh(x)", "tex": "TeX"},
             {"name": "FG", "args": "x", "value": "F(x)", "tex": "TeX"},
             {"name": "GG", "args": "x", "value": "G(x)", "tex": "TeX"},
-            # {"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
+            {"name": "iden", "args": "[Q]", "value": "Q", "tex": "TeX"},
             {"name": "sdot", "args": "[x,y]", "value": 'partial(x,y)'},
         ]
         expressions = [
             "( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
-            # " iden(xhat) == xhat ",
+            #" iden(xhat) == xhat ",
             " sdot( x^2 , x ) - 2 x == 0 "
-            # " iden(xhat) -  xhat == 0 ",
-            # " iden(xhat) - 2 xhat == [-1,0,0]",
+            #" iden(xhat) -  xhat == 0 ",
+            #" iden(xhat) - 2 xhat == [-1,0,0]",
         ]
 
         for expression in expressions:

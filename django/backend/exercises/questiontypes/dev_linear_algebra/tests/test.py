@@ -356,8 +356,8 @@ class DevLinearAlgebraTest(TestCase):
         res = linear_algebra_compare_expressions(
             precision,
             variables,
-            '2 hbar^2  * id +   4 I hbar x * p ',
-            'Or(  IsEqual( x * x - p * p , ( $$ )  )   ,  IsEqual( ( ( 2 hbar^2  * id  )  + ( 4 I hbar x * p )) , ( $$  ) ) )  ==  1 ',
+            '2 hbar^2  * id +   4 I hbar mul(x , p ) ',
+            'Or(  IsEqual( mul( x , x ) - mul( p , p ) , ( $$ )  )   ,  IsEqual( ( ( 2 hbar^2  * id  )  + ( 4 I hbar mul(x , p ) )) , ( $$  ) ) )  ==  1 ',
             False,
         )
         print('COMPLEX_MATRICES res = ', res)
@@ -365,8 +365,8 @@ class DevLinearAlgebraTest(TestCase):
         res = linear_algebra_compare_expressions(
             precision,
             variables,
-            'x * x - p * p ',
-            'Or(  IsEqual( x * x - p * p , ( $$ )  )   ,  IsEqual( ( ( 2 hbar^2  * id  )  + ( 4 I hbar x * p )) , ( $$  ) ) )  ==  1  ',
+            'mul(x , x ) - mul( p , p ) ',
+            'Or(  IsEqual( mul( x , x ) -  mul( p , p ) , ( $$ )  )   ,  IsEqual( ( ( 2 hbar^2  * id  )  + ( 4 I hbar mul( x , p ) )) , ( $$  ) ) )  ==  1  ',
             False,
         )
         print('COMPLEX_MATRICES res = ', res)
@@ -374,8 +374,8 @@ class DevLinearAlgebraTest(TestCase):
         res = linear_algebra_compare_expressions(
             precision,
             variables,
-            'x - p*p',
-            'Or(  IsEqual( x * x - p * p , ( $$ )  )   ,  IsEqual( ( ( 2 hbar^2  * id  )  + ( 4 I hbar x * p )) , ( $$  ) ) )   == 1  ',
+            'x - mul( p,p )',
+            'Or(  IsEqual( mul( x , x ) - mul( p , p ) , ( $$ )  )   ,  IsEqual( ( ( 2 hbar^2  * id  )  + ( 4 I hbar mul( x , p )  )) , ( $$  ) ) )   == 1  ',
             False,
         )
         print('COMPLEX_MATRICES res = ', res)

@@ -5,7 +5,7 @@
 "use strict"; // It is recommended to use strict javascript for easier debugging
 import React, { Component } from 'react'; // React specific import
 import PropTypes from 'prop-types';
-import { applyshortcuts } from './shortcuts.js'
+// import { applyshortcuts } from './shortcuts.js'
 
 import { registerQuestionType } from './question_type_dispatch.js' // Register function used at the bottom of this file to let the system know of the question type
 import Alert from '../Alert.jsx'; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
@@ -54,7 +54,17 @@ export default class QuestionDevLinearAlgebra extends Component {
     this.blacklist = [];
     if(this.props.canViewSolution)
       this.state.value = this.props.questionData.getIn(['expression','$'], '').replace(/;/g,'').trim();
+    this.sdispatch =  { 
+      // 'fail' : this.parse_fail(),
+      'mul' : this.parse_mul,
+        }
+    }
+
+  
+  dispatchElement = (node, options) => {
+      return this.itemDispatch[node.get('name')](node,options)
   }
+
 
   handleChange = (event) => {
     this.setState({value: event.target.value});
@@ -78,9 +88,34 @@ export default class QuestionDevLinearAlgebra extends Component {
   componentWillMount = () => {
     mathjs.import({ln: mathjs.log});
   }
+ 
+
+
+ parse_fail = (node,options) => {
+    if(node.name === 'fail' && !options.ignore_undefined) {
+        this.mathjserror = true;
+        this.mathjswarning += " : error1";
+        return "\\color{red}{" + node.args[0].value + "}";
+        }
+   }
+
+  parse_mul = (node,options) => {
+    console.log("NODE = ", node )
+    if( 'mul'  === node.name )  {
+          var order = node.args.length
+          var largs = node.args.map( item => item.toTex(options) )
+          console.log("largs = ", largs )
+          var i  = 0
+          var texstring = '(' + largs.join('\\bullet') +')'
+          return texstring
+
+      }
+  }
+
 
 
   customLatex = (node, options) => {
+
     if( node.op == '\''){
       //console.log("QUOTE OPERATOR NODE")
       if ( node.type === 'OperatorNode' ) {
@@ -96,6 +131,10 @@ export default class QuestionDevLinearAlgebra extends Component {
       }
         
     if(node.type === 'FunctionNode') {
+    /* if ( node.name in dispatch ){
+      return this.dispatch[node.name](node,options)
+      } 
+    */
       if ( node.op == '\''){
         //console.log("FUNCTION NODE .. ", node.args[0])
         }
@@ -146,11 +185,20 @@ export default class QuestionDevLinearAlgebra extends Component {
           } else {
           return "\\frac{d}{dt} " + tex0 
           }
-        } else  {
-          var tex0 = node.args[0].toTex(options);
-          var tex1 = node.args[1].toTex(options);
-          return "\\left(" + tex0 + "\\right)\\circ\\left(" + tex1 + "\\right)";
-        }
+        } 
+      }
+      else if( node.name == 'mul' )  {
+         console.log("NODE NAME = mul ")
+         ret = dispatch.get('mul')(node, options) 
+         console.log("RET = ", ret )
+         return ret
+         // var order = node.args.length
+         // var largs = node.args.map( item => item.toTex(options) )
+          //console.log("largs = ", largs )
+         // var i  = 0
+          //var texstring = '(' + largs.join('\\circ') +')'
+         // return texstring
+
       }
       else if( node.name === 'KetBra'  ){
         var tex0 = node.args[0].toTex(options);
@@ -181,7 +229,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         
          var child = node.args[0]
          if ( child.type ==  'SymbolNode' ){
-            return  tex0 + ' \\times ' + tex1 + ''
+            return  '(' + tex0 + ' \\times ' + tex1 + ')'
             }
           else {
          return '(' + tex0 + ' \\times ' + tex1 + ')'
@@ -324,6 +372,7 @@ export default class QuestionDevLinearAlgebra extends Component {
     }
     // Cursor handling by hooking into the bitwise not operator that has a very high precedence.
     else if(node.type === 'OperatorNode') {
+      console.log("DOTSYMBOL FOUND", node )
       if(node.fn === 'bitNot') {
         if(node.args[0].type === 'ParenthesisNode') {
           this.isUnclosed = false;
@@ -384,6 +433,7 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 
   renderAsciiMath = (asciitext,ignore_undefined=false) => {
+      console.log("asciitext = ", asciitext )
       
       var cursorComplete = false;
       var cursorPos = this.state.cursor;
@@ -396,6 +446,7 @@ export default class QuestionDevLinearAlgebra extends Component {
 
       if(cursorPos > asciitext.length)cursorPos = asciitext.length;
       var preParsed = asciiMathToMathJS(insertCursor(asciitext, cursorPos));
+      console.log("preParsed = ", preParsed )
       if ( preParsed.warnings  ){
             this.mathjswarning += preParsed.warnings;
             }
@@ -406,7 +457,9 @@ export default class QuestionDevLinearAlgebra extends Component {
       // var delimitersFixed = fixDelimiters(parsed);*/
       var parsed = preParsed.out;
       parsed = parsed + ' empty()';
+      parsed = parsed.replace(/\)\.\(/g,")**(",parsed)
       try {
+        console.log("SIMPLE PARSE = ",  JSON.stringify( mathjs.parse(parsed)  ) )
         var mParsed = mathjs.parse(parsed).toTex({
           parenthesis: 'keep', // The keep options keeps parenthesis from input expression, seems to work best.
           handler: this.customLatex, // Custom latex node handler
@@ -525,7 +578,7 @@ export default class QuestionDevLinearAlgebra extends Component {
   // console.log("QUESTION_DEV this.varsList = ", this.varsList )
   var graderResponse = null;
   var untrimmed_input = this.state.value;
-  untrimmed_input = applyshortcuts( untrimmed_input);
+  // untrimmed_input = applyshortcuts( untrimmed_input);
   var input = untrimmed_input.trim();
   var hasChanged = input !== lastAnswer;
   var nonEmpty = input !== "";

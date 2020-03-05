@@ -53,10 +53,17 @@ function applyshortcuts(input) {
  for ( var i=0 ; i < cross.length ; i++ ){
   input = input.replace( cross[i] , "cross($1,$2)")
   }
-
-  for ( var i=0 ; i < dots.length ; i++ ){
-    input = input.replace( dots[i] , "dot($1,$2)")
-    }
+ var it= 0
+  while( true ){
+    var prev = input
+    for ( var i=0 ; i < dots.length ; i++ ){
+      input = input.replace( dots[i] , "  dot( $1 , $2 ) ")
+      }
+    if( prev == input ){ break ; }
+    console.log( "INPUT = ", input )
+    it = it + 1 
+  }
+    
 
 
   return input

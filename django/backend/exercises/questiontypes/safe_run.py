@@ -1,5 +1,6 @@
 from multiprocessing import Queue, Process, Pool, TimeoutError
 from queue import Empty
+from django.conf import settings
 import logging
 import time
 import json
@@ -17,7 +18,7 @@ def safe_run(function, args):
     p.start()
     try:
         starttime = time.perf_counter()
-        response = q.get(True, 6)
+        response = q.get(True, settings.SAFE_RUN_TIMEOUT )
         timedelta = time.perf_counter() - starttime
         logger.debug(
             "Safe run of "

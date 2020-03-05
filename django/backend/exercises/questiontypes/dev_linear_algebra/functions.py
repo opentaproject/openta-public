@@ -621,6 +621,7 @@ class partial(sympy.Function):
 
     @classmethod
     def eval(cls, *f):
+        print("PARTIAL f = ", f )
         if len(f) < 1:
             return sympy.sympify('derivative or partial used withouth argument')  # }}}
         elif len(f) == 1:
@@ -807,7 +808,6 @@ openta_scope = {
     'IsDiagonalizationOf': IsDiagonalizationOf,
     'IsHermitian': IsHermitian,
     'RankOf': rankof,
-    'mymul': mymul,
     'IsUnitary': isunitary,
     'cross': crossfunc,
     'crossfunc': crossfunc,

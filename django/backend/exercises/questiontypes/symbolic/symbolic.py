@@ -61,7 +61,6 @@ def expr_are_equal(ex1, ex2):
                 return False
         else:
             diff1 =  sympify(ex1 - ex2).evalf() 
-            print("SREP DIFF = ", srepr( diff1 ) )
             if 'Symbol' in srepr( diff1 ) :
                 #for key in dir( diff1 ):
                 #    print( "KEY  = ", key, "ATT = ", getattr(diff1, key) )
@@ -107,8 +106,15 @@ def symbolic_compare_expressions(
     funcsubs={},
 ):
     tbeg = time.time()
+    should_be_end = index_of_matching_right_paren(0,'(' + student_answer+ ')')
+    assert should_be_end == len( student_answer) + 2 , "MATCHING PAREN ERROR IN STUDENT_ANSWER " + student_answer
+    should_be_end = index_of_matching_right_paren(0,'(' + correct + ')')
+    assert should_be_end == len( correct) + 2 , "MATCHING PAREN ERROR IN CORRECT " + correct
+
     s1 = ascii_to_sympy(student_answer)
     s2 = ascii_to_sympy(correct)
+    student_answer = s1
+    correct = s2 
     # print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
     all_variables = [x['name'] for x in variables]
     illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
@@ -118,32 +124,11 @@ def symbolic_compare_expressions(
         response['warning'] = 'Illegal variable ' + ','.join(illegalvars) + '.'
         response['debug'] = str(illegalvars) + " Clashes with sympy predefined variables "
         return response
-    # illegalchars = ['_','#','@','&','?','"']
-    # for ch in student_answer :
-    #    if ch in illegalchars :
-    #        response = {}
-    #        response['correct'] = False
-    #        response['warning'] = 'Illegal character ' + ch  + ' in expression ' + student_answer
-    #        return response
-
-    # variables = list(
-    #    filter(lambda item: (item['name'] in dir( sympy.functions) ), variables)
-    # )  # GET RID OF CLASHES WITH FUNCTIONS
     ok = list(set(all_variables) - set(list(dir(sympy.functions))))
     variables = list(
         filter(lambda item: (item['name'] in ok), variables)
     )  # GET RID OF CLASHES WITH FUNCTIONS
     response = {}
-    # funcsubs_ = []
-    # for sub in funcsubs:
-    #    fsub = {}
-    #    fsub['name'] = sub['name']
-    #    #args = sub['args'].lstrip('[').rstrip(']')
-    #    #fsub['args'] = [sympify(item.strip()) for item in args.split(',')]
-    #    fsub['args'] = sub['args']
-    #    fsub['value'] = sub['value']
-    #    funcsubs_ = funcsubs_ + [fsub]
-    # funcsubs = funcsubs_
     prelhs = 'PRELHS'
     try:
         correct_is_equality = len(correct.split('==')) > 1
@@ -151,13 +136,8 @@ def symbolic_compare_expressions(
             response['error'] = 'single equal sign cannot appear in expression'
             response['debug'] = student_answer
             return response
-        # print("SPLIT0 = " , ( time.time() - tbeg  )  * 1000 )
-        #print("VARIABLES = ", variables)
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables, funcsubs)
         varsubs = [(key, val.subs(baseunits).doit()) for key, val in varsubs]
-        #print("BASEUNITS = ", baseunits)
-        #print("VARSUBS = ", varsubs)
-        # print("SPLIT1 = " , ( time.time() - tbeg  )  * 1000 )
         student_answer_is_equality = len(student_answer.split('==')) > 1
         if student_answer_is_equality and correct_is_equality:
             [lhs, rhs] = student_answer.split('==')
@@ -175,64 +155,27 @@ def symbolic_compare_expressions(
         else:
             [lhs, rhs] = [correct, student_answer]
         response['error'] = lhs
-        response['warning'] = rhs
+        response['debug'] = 'ERROR IN symbolic_compare_expressions'
         explanation = ''
-        # print("SPLIT1a = " , ( time.time() - tbeg  )  * 1000 )
-        try:
-            [tlhs, trhs] = [x.strip() for x in student_answer.split('==')]
-            if '0' == tlhs:
-                prelhs = sympify_with_custom(
-                    trhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
-                )
-            elif '0' == trhs:
-                prelhs = sympify_with_custom(
-                    tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
-                )
-            else:
-                # print("PRELHS THRS ",  trhs )
-                # print("PRELHS TLHS ",  tlhs )
-                prerhs = sympify_with_custom(
-                    trhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
-                )
-                prelhs = sympify_with_custom(
-                    tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
-                )
-            # print("SPLIT1b = " , ( time.time() - tbeg  )  * 1000 )
-            # for var in used_variables:
-            #    diff_ = diff(prelhs, sympify(var))
-            #    diff_ = diff_.subs(varubs)
-            #    print("DIFF = ", diff_)
-            #    #if  Norm(diff_) == 0:
-            #    #    return {
-            #    #        'error': 'Answer has no mmeaningful dependence on the variable ' + str(var)
-            #    #    }
-
-        except SympifyError as e:
-            if '@' in str(e):
-                explanation = 'The character @ appears in author expression; check for macros with missing semicolon separator or missing :=  in macro definition'
-            else:
-                explanation = 'Error in expression'
-            response = dict(error=_(explanation), debug="SympifyError : " + str(e))
-            return response
-        except TypeError as e:
-            explanation = " Type Error: i.e. for instance adding or comparing matrices and scalars "
-            # explanation = explanation + str( student_answer)
-            p = re.compile('(x|y|z)hat')
-            if p.search(str(student_answer)):
-                explanation = (
-                    'TypeError:  coordinates xhat,yhat,zhat cannot be mixed with explicit vectors'
-                )
-            response = dict(
-                error=_(explanation),
-                debug=(type(e).__name__ + ": " + str(e) + ' : Functions cannot return Matrix type'),
+        if '$$' in lhs :
+            lhs = ('(' + student_answer + ')').join(lhs.split('$$'))
+            rhs = '0'
+        [tlhs, trhs] = [lhs,rhs]
+        if '0' == tlhs:
+            prelhs = sympify_with_custom(
+                trhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
             )
-            return response
-        except Exception as e:
-            response = dict(
-                error=_("ERROR IN AUTHOR EXPRESSION. " + explanation),
-                debug=(type(e).__name__ + ": " + str(e)),
+        elif '0' == trhs:
+            prelhs = sympify_with_custom(
+                tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
             )
-        # print("SPLIT1c = " , ( time.time() - tbeg  )  * 1000 )
+        else:
+            prerhs = sympify_with_custom(
+                trhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
+            )
+            prelhs = sympify_with_custom(
+                tlhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
+            )
         if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
             if lhs.shape != rhs.shape:
                 return {
@@ -274,33 +217,7 @@ def symbolic_compare_expressions(
                     return {'error': _('(F) Forbidden token: ') + strrep}
                 if funcstr in blacklist:
                     return {'error': _('(G) Forbidden token: ') + funcstr}
-
-    except NameError as e:
-        logger.error(traceback.format_exc())
-        logger.error([str(e), str(student_answer), str(correct)])
-        response['debug'] = str(e) + str( student_answer) 
-        response['error'] = str(e) + str( student_answer)
-        return response
-    except SympifyError as e:
-        logger.error(traceback.format_exc())
-        logger.error([str(e), str(student_answer), str(correct)])
-        response = dict(error=_("Failed to evaluate expression."))
-        response['debug'] = str(e)
-        return response
-    except ShapeError as e:
-        logger.error(traceback.format_exc())
-        response = dict(
-            error=_("There seems to be a vector or matrix operation with incompatible dimensions.")
-        )
-        response['debug'] = str(e)
-        return response
-    except Exception as e:
-        logger.error(traceback.format_exc())
-        logger.error([str(e), str(student_answer), str(correct)])
-        response = dict(error=_("Unknown error, check your expression."))
-        response['debug'] = str(e) + str( student_answer )
-        return response
-    try:
+    
         lhs = sympify_with_custom(
             lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
         ).doit()
@@ -318,9 +235,44 @@ def symbolic_compare_expressions(
         tend = time.time()
         # print("TOTAL TIME IN COMPARE EXPRESSIONS", ( tend - tbeg ) * 1000  , " MILLISECONDS" )
         return res
+
+
+    except SympifyError as e:
+        if '@' in str(e):
+            explanation = 'The character @ appears in author expression; check for macros with missing semicolon separator or missing :=  in macro definition'
+        else:
+            explanation = 'Error in expression'
+        response = dict(error=_(explanation), debug="SympifyError : " + str(e))
+    except TypeError as e:
+        explanation = " Type Error: i.e. for instance adding or comparing matrices and scalars "
+        # explanation = explanation + str( student_answer)
+        p = re.compile('(x|y|z)hat')
+        if p.search(str(student_answer)):
+            explanation = (
+                'TypeError:  coordinates xhat,yhat,zhat cannot be mixed with explicit vectors'
+            )
+        response = dict(
+            error=_(explanation),
+            debug=(type(e).__name__ + ": " + str(e) + ' : Functions cannot return Matrix type'),
+        )
+    except NameError as e:
+        logger.error(traceback.format_exc())
+        logger.error([str(e), str(student_answer), str(correct)])
+        response['debug'] = 'NAME ERROR in symbolic_compare_expressions' + str(e) + str( student_answer) 
+        response['error'] = str( e )
+    except ShapeError as e:
+        logger.error(traceback.format_exc())
+        response = dict(
+            error=_("There seems to be a vector or matrix operation with incompatible dimensions.")
+        )
+        response['debug'] = str(e)
     except Exception as e:
-        response = dict(error=str(e), debug=str(e))
-        return response
+        logger.error(traceback.format_exc())
+        logger.error([str(e), str(student_answer), str(correct)])
+        response = dict(error=_("Unknown error, check your expression."))
+        response['debug'] = 'Error1 in symbolic_compare_expressions: ' + type(e).__name__ + ': '  + str(e) + str( student_answer )
+
+    return response
 
 
 def symbolic_internal(expression1, expression2):  # {{{

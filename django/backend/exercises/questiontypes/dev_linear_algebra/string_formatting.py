@@ -16,19 +16,8 @@ def insert_implicit_multiply(expression):  # {{{
     return result  # }}}
 
 
-# def index_of_matching_right_paren(beg, expression):
-#    level = 1
-#    ind = beg + 1
-#    while level > 0 and ind < len(expression):
-#        if expression[ind] == ')':
-#            level = level - 1
-#        elif expression[ind] == '(':
-#            level = level + 1
-#        ind = ind + 1
-#    return ind - 1
 
-
-def replace_user_defined_functions(expression, funcsubs):
+def oldreplace_user_defined_functions(expression, funcsubs):
     defs = list(funcsubs.keys())
     if len(defs) == 0:
         return expression
@@ -43,7 +32,7 @@ def replace_user_defined_functions(expression, funcsubs):
         (beg, end) = m.span()
         if expression[beg] == '(':
             beg = beg + 1
-        ind = index_of_matching_right_paren(end, expression)
+        ind = oldindex_of_matching_right_paren(end, expression)
         head = expression[beg:end].strip()
         arg = expression[end : ind + 1]
         ex1 = expression[0:beg]
@@ -70,11 +59,13 @@ def replace_user_defined_functions(expression, funcsubs):
 
 
 def replace_primes(expression, funcsubs):
+    paren_check(expression,'INTO REPLACE_PRIMES')
     searchstring = '([A-z0-9_]+)'
     # expression = 'ff\'\'(gg(z))*gg\'(z) '
     # expression = resub.sub(r'('+searchstring+')',r" \1",expression)
-    p = resub.compile(r'(^|\s|\()' + searchstring + "[\']+(?=\()")
-    allm = list(p.finditer(expression))
+    p0 = resub.compile(r'(^|\s|\()' + searchstring + "[\']*(?=\()")
+    p1 = resub.compile(r'(^|\s|\()' + searchstring + "[\']+(?=\()")
+    allm = list(p1.finditer(expression))
     it = 0
     while len(allm) > 0 and it < 50:
         m = allm[0]
@@ -83,10 +74,10 @@ def replace_primes(expression, funcsubs):
             beg = beg + 1
         ind = index_of_matching_right_paren(end, expression)
         head = expression[beg:end].strip()
-        arg = expression[end : ind + 1]
+        arg = expression[end : ind ]
         ex1 = expression[0:beg]
         ex2 = expression[beg : ind + 1]
-        ex3 = expression[ind + 1 :]
+        ex3 = expression[ind  :]  # if ind < len(expression) else ''
         add_paren = False
         if ex3:
             if ex3[0] == "\'":
@@ -100,12 +91,12 @@ def replace_primes(expression, funcsubs):
         expression = ex1 + middle + ex3
         if add_paren:
             expression = '(' + expression + ')\''
-        allm = list(p.finditer(expression))
+        allm = list(p1.finditer(expression))
         it = it + 1
-    # expression = resub.sub(r'#','',expression)
+    expression = resub.sub(r'#','',expression)
     expression = resub.sub(r'#' + searchstring, r"\1", expression)
+    paren_check(expression,'OUT OF REPLACE_PRIMES')
     return expression
-
 
 # def index_of_matching_left_paren(result, indbegin):
 #    level = 1
@@ -120,8 +111,13 @@ def replace_primes(expression, funcsubs):
 #    assert result[ind] == '(', "LEFT PAREN  MISSING"
 #    return ind
 
+def paren_check(expression ,msg ):
+    should_be_end = index_of_matching_right_paren(0,'(' + expression + ')')
+    assert should_be_end == len( expression) + 2 ,  msg + " : " + expression
 
 def ascii_to_sympy(expression, funcsubs={}):  # {{{
+    should_be_end = index_of_matching_right_paren(0,'(' + expression + ')')
+    assert should_be_end == len( expression) + 2 , "MATCHING PAREN ERROR IN ASCII_TO_SYMPY " + expression
     result = expression
     result = resub.sub(r"([^=]+)==([^=]+)", r"(\1) - (\2)", result)
     dict = {'^': '**'}
@@ -135,9 +131,12 @@ def ascii_to_sympy(expression, funcsubs={}):  # {{{
     result = insert_implicit_multiply(result)
     for old, new in dict.items():
         result = result.replace(old, new)
-    result = resub.sub(r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result)
-    # result = replace_user_defined_functions(result, funcsubs)
+    
+    #result = resub.sub(r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result)
+    paren_check( result, 'CHECK1 ')
     result = replace_primes(result, funcsubs)
+    paren_check( result, 'CHECK2 ')
+
     it = 0
     # REPLACE ALL )\' CONSTRUCTIONS
     while result.find(')\'') > 0 and it < 20:
@@ -151,7 +150,8 @@ def ascii_to_sympy(expression, funcsubs={}):  # {{{
         right = result[indend + 2 :]
         result = left + 'Partial(' + middle + ")" + right
         it = it + 1
-
+    paren_check( result, 'MATCHING PAREN COMING OUT OF ASCII_TO_SYMPY ')
+ 
     return result  # }}}
 
 
@@ -235,6 +235,7 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     result = resub.sub(r"ff", r"variableff", result)
     result = resub.sub(r"lambda", r"variablelambda", result)
     result = resub.sub(r"(\W|\A)e\^", r"\1 E^", result)
+    result = resub.sub(r"(\W|\A)e\*\*", r"\1 E**", result)
     clashes = [
         {'And': 'localAnd'},
         {'Not': 'localNot'},

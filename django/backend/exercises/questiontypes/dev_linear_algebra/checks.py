@@ -152,14 +152,23 @@ def check_for_legal_answer(
                         'Syntax Error: You probably have a variable followed by a parenthesis without a space between. This is interpreted as a function call rather than implicit multiply and therefore  therefore fails.'
                     )
                 }
+        
+        except NameError as e:
+            return {
+                'error': str(e) 
+            }
+            # return {'error': 'Unidentified error: ' };
+
         except Exception as e:
             return {
-                'error': 'Unidentified error unidentified : >'
+                'error': 'Unidentified error : >'
                 + e.__class__.__name__
                 + '< '
                 + str(e)
             }
             # return {'error': 'Unidentified error: ' };
+
+
         try:
             prelhs = sympify_with_custom(student_answer, varsubs_sympify)
         except Exception as e:
