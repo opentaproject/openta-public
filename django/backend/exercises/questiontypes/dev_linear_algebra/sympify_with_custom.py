@@ -241,7 +241,6 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     }
     print("SPLIT1 ", ( time.time() - tbeg )*1000 )
     try :
-        raise NameError('skip')
         sexpr = ascii_to_sympy(declash(expression), {})
         location = 'A'
         if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:

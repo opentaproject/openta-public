@@ -127,9 +127,12 @@ export default class QuestionDevLinearAlgebra extends Component {
           }
         else
           var origVar = node.name
+          var largs = node.args.map( item => item.toTex(options) )
           const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : 
 			latex.toSymbol( insertImplicitSubscript( origVar),false);//node._toTex(options);
-          return '{' + texSymbol  + '}(  ' +  node.args[0].toTex(options) + ')'
+          var texstring = '(' + largs.join(',') +')'
+
+          return '{' + texSymbol  + '} ' +  texstring + ''
       }
     }
     // Render green if allowed variable otherwise red

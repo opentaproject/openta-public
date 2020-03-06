@@ -132,11 +132,11 @@
     <xs:complexType>
       <xs:sequence>
         <xs:element ref="token"/>
+	<xs:choice minOccurs="0" maxOccurs="unbounded">
 	<xs:element ref="args"/>
 	<xs:element ref="value"/>
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
           <xs:element ref="tex"/>
-        </xs:choice>
+	</xs:choice>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
