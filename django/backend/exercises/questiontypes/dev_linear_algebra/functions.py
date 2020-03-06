@@ -616,6 +616,32 @@ class Partial(sympy.Function):
             return sympy.sympify('derivative or partial used with too many arguments')  # }}}
 
 
+
+class carefuladd(sympy.Function):
+    nargs = (0,1,2,3,4,5,6,7)
+
+    @classmethod
+    def eval(cls, *args) :
+        print("CAREFUL ADD WITH ARGS ", args )
+        rank = 1
+        for arg in args :
+            if hasattr(arg,'shape') :
+                if arg.is_square :
+                    rank = (arg.shape)[0]
+        if not rank == 1 :
+            newargs = []
+            for arg in args:
+                if not hasattr(arg,'shape') :
+                    newargs =  newargs + [ eye(rank) * arg ] 
+                else :
+                    newargs = newargs + [ arg  ]
+            print("NEWARGS = ", newargs )
+            return Add( *newargs )
+        else :
+            return Add(*args )
+            
+            
+
 class partial(sympy.Function):
     nargs = (0, 1, 2, 3, 4, 5)
 
@@ -851,3 +877,7 @@ openta_scope = {
     'NullRank': nullrank,
     'sample': sample,
 }
+add_scope = {
+    'carefuladd': carefuladd,
+    }
+

@@ -90,7 +90,7 @@ def new_func_replace(expr, func_subs):
         old = expr
         oldfunc = old.func
         arg_sub = {from_arg: to_arg for from_arg, to_arg in zip(oldargs, newargs)}
-        new = new.subs(arg_sub)
+        new = new.subs(arg_sub,evaluate=False)
         return new
     else:
         return expr
@@ -106,12 +106,16 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
      '''
     # tbegin  = datetime.datetime.now()
     # print("PARSING expr = ", expr)
-    print("DOHASH = ", dohash)
+    if expr is None :
+        return expr
+    expr_orig = deepcopy( expr )
+    tbeg = time.time() 
+    #print("DOHASH = ", dohash)
     if expr.is_Number:
         return expr
     varhash = get_hash_from_string(str(newvarsubs) + str(expr) + str(matrix_sub) + str(func_subs) + str(rep) )
-    if level == 0 :
-        print("INCOMING LEVEL 0 ", expr )
+    #if level == 0 :
+    #    print("INCOMING LEVEL 0 ", expr )
     ret = core_cache.get(varhash)
     if dohash and ret is not None:
         return sympify(ret)
@@ -119,8 +123,10 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
         expr = expr.replace(Add, Function('myadd'))
     name = 'NONAME' if not hasattr(expr, 'name') else getattr(expr, 'name')
     newargs = None
+    print("PRE SPLIT 1 : ", ( time.time() - tbeg )*1000 )
+    tbeg_1 = time.time()
     if expr.is_Function:
-        print("FOUND FUNCTION ",  name, expr )
+        #print("FOUND FUNCTION ",  name, expr )
         if name == 'Partial' :
                 sfree = list( expr.free_symbols)
                 for sym in sfree :
@@ -133,6 +139,7 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
             for item in expr.args
         ]
         expr = expr.__class__(*newargs)
+        print("FUNC TIMING ", ( time.time() - tbeg_1 )*1000)
     elif expr.is_Symbol:
         # print("NEWVARSUBS GETS CALLED")
         while True:
@@ -144,10 +151,11 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
         # if not expr.is_Symbol :
         #    expr = pre( expr, newvarsubs, matrix_sub, func_subs,rep, level + 1 )
         # print("AFTER PRE ", expr )
-        expr = expr.subs(rep).doit()
+        #expr = expr.subs(rep).doit()
+        print("SYMBOL TIMING ", ( time.time() - tbeg_1)*1000)
     else:
-        print("ORIG EXPR.FUNC", expr.func)
-        print("MATIX SUB = ", matrix_sub)
+        #print("ORIG EXPR.FUNC", expr.func)
+        #print("MATIX SUB = ", matrix_sub)
         if 'Mul' in str( expr.func  ) :
             expargs = list( expr._args )
             n = 0
@@ -163,10 +171,19 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
             for item in expr.args
         ]
         expr = expr.__class__(*newargs)
-        print("BECAME EXPR.FUNC", expr.func )
-    if level == 0 :
-        print("OUTGOING LEVEL 0 expr = ", expr )
-    expr = expr.subs(rep)
+        print("ELSE TIMING ", ( time.time() - tbeg_1)*1000)
+        #print("BECAME EXPR.FUNC", expr.func )
+    #if level == 0 :
+    #    #print("OUTGOING LEVEL 0 expr = ", expr )
+    print("PRE SPLIT 2 : ", ( time.time() - tbeg )*1000 )
+    #expr = expr.subs(rep,evaluate=False)
+    expr = expr.replace(Function('mul'), MatMul).doit()
+    expr = expr.subs( [( Function('myadd') , Function('carefuladd')   ) ]  ).doit()
+    repadd = [(Function(key), val) for key, val in add_scope.items()]
+    expr = expr.subs(repadd ).doit()
+    #expr = expr.replace(Function('myadd'), Add).doit()
     core_cache.set(varhash, srepr(expr), 60 * 60)
+    print("PRE SPLIT 3 : ", ( time.time() - tbeg )*1000 )
+    print("TIME IN PRE : ", ( time.time() - tbeg )*1000 , " FOR ",  expr_orig) 
     return expr
 

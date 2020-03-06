@@ -5,6 +5,8 @@
 "use strict"; // It is recommended to use strict javascript for easier debugging
 import React, { Component } from 'react'; // React specific import
 import PropTypes from 'prop-types';
+// import {parse_mul,parse_fail,parse_prime,smalltext,unclosed,empty} from '../parse_latex.js'
+import * as p from '../parse_latex.js'
 // import { applyshortcuts } from './shortcuts.js'
 
 import { registerQuestionType } from './question_type_dispatch.js' // Register function used at the bottom of this file to let the system know of the question type
@@ -54,18 +56,16 @@ export default class QuestionDevLinearAlgebra extends Component {
     this.blacklist = [];
     if(this.props.canViewSolution)
       this.state.value = this.props.questionData.getIn(['expression','$'], '').replace(/;/g,'').trim();
-    this.sdispatch =  { 
+    this.parse_dispatch =  {
       // 'fail' : this.parse_fail(),
-      'mul' : this.parse_mul,
+      '\'' : p.prime,
+        }
+     for ( var item in  p ){
+        this.parse_dispatch[item.toString() ] = p[item.toString() ] 
         }
     }
 
   
-  dispatchElement = (node, options) => {
-      return this.itemDispatch[node.get('name')](node,options)
-  }
-
-
   handleChange = (event) => {
     this.setState({value: event.target.value});
   }
@@ -89,231 +89,29 @@ export default class QuestionDevLinearAlgebra extends Component {
     mathjs.import({ln: mathjs.log});
   }
  
-
-
- parse_fail = (node,options) => {
-    if(node.name === 'fail' && !options.ignore_undefined) {
-        this.mathjserror = true;
-        this.mathjswarning += " : error1";
-        return "\\color{red}{" + node.args[0].value + "}";
-        }
-   }
-
-  parse_mul = (node,options) => {
-    console.log("NODE = ", node )
-    if( 'mul'  === node.name )  {
-          var order = node.args.length
-          var largs = node.args.map( item => item.toTex(options) )
-          console.log("largs = ", largs )
-          var i  = 0
-          var texstring = '(' + largs.join('\\bullet') +')'
-          return texstring
-
-      }
-  }
+ 
 
 
 
   customLatex = (node, options) => {
 
-    if( node.op == '\''){
-      //console.log("QUOTE OPERATOR NODE")
-      if ( node.type === 'OperatorNode' ) {
-        var child = node.args[0]
-        if( child.type == 'SymbolNode'  ){
-            if ( this.validSymbols.indexOf( child.name ) < 0  ){
-                this.validSymbols.push( child.name )
-                }
-            }
-        return  '{' + child.toTex(options) + '^{\\prime} }'
-        }
-      return '{' + ( node.args[0].name ).toTex(options)+ '}^{\\prime}';
-      }
-        
-    if(node.type === 'FunctionNode') {
-    /* if ( node.name in dispatch ){
-      return this.dispatch[node.name](node,options)
+    
+    if ( node.op in this.parse_dispatch )  {
+      return this.parse_dispatch[node.op](node,options)
       } 
-    */
-      if ( node.op == '\''){
-        //console.log("FUNCTION NODE .. ", node.args[0])
-        }
-      // Will print in red
-      if(node.name === 'fail' && !options.ignore_undefined) {
-        this.mathjserror = true;
-        this.mathjswarning += " : error1";
-        return '\\color{red}{' + node.args[0].value + '}';
-      }
-      // Will print in small red text
-      else if(node.name === 'smalltext') {
-        this.mathjserror = true;
-        this.mathjswarning += " : error2";
-        
-        return '\\color{red}{\\text{\\small ' + node.args[0].value + '}}';
-      }
-      // Will not generate any output but is later used to find unmatched parenthesis
-      else if(node.name === 'unclosed') {
-        this.mathjserror = true;
-        this.mathjswarning += " : unclosed left paren";
-        return '';
-      }
-      else if(node.name === 'empty') {
-        return '';
-      }
-      else if(this.blacklist.indexOf(node.name) !== -1) {
+    if ( node.name in this.parse_dispatch )  {
+        return this.parse_dispatch[node.name](node,options)
+      } 
+
+    if(node.type === 'FunctionNode') {
+
+      if(this.blacklist.indexOf(node.name) !== -1) {
         this.mathjswarning += " : error5";
         this.mathjserror = true;
         return '\\color{orange}{' + node._toTex(options) + '}';
-      }
-      else if( node.name === 'Braket'  ){
-        var tex0 = node.args[0].toTex(options);
-        var tex1 = node.args[1].toTex(options);
-        if( node.args.length == 2 ){
-          return "\\langle  \\,"+ tex0 +"  \\,|  \\," + tex1 + "  \\,\\rangle"
-        }
-        else {
-          var tex2 = node.args[2].toTex(options);
-          return "\\langle \\, "+ tex0 +" \\ |  \\," + tex1 + " \\,| \\," + tex2 + " \\, \\rangle"
-        }
-      }
-      else if( node.name === 'dot'  ){
-        if( node.args.length == 1 ){
-          var tex0 = node.args[0].toTex(options);
-          var child = node.args[0]
-        if ( child.type ==  'SymbolNode' ){
-          return "\\dot{" + tex0 + "}"
-          } else {
-          return "\\frac{d}{dt} " + tex0 
-          }
-        } 
-      }
-      else if( node.name == 'mul' )  {
-         console.log("NODE NAME = mul ")
-         ret = dispatch.get('mul')(node, options) 
-         console.log("RET = ", ret )
-         return ret
-         // var order = node.args.length
-         // var largs = node.args.map( item => item.toTex(options) )
-          //console.log("largs = ", largs )
-         // var i  = 0
-          //var texstring = '(' + largs.join('\\circ') +')'
-         // return texstring
-
-      }
-      else if( node.name === 'KetBra'  ){
-        var tex0 = node.args[0].toTex(options);
-        var tex1 = node.args[1].toTex(options);
-        if( node.args.length == 2 ){
-          return '|\\,' + tex0 +" \\, \\rangle \\langle \\," + tex1 + " \\,|"
-        }
-        else {
-          var tex2 = node.args[2].toTex(options);
-          return '|\\,' + tex0 +" \\, \\rangle \\, " + tex1 + "\\, \\langle \\," + tex2 + " \\,|"
-        }
-      }
-      else if( node.name === 'curl'  ){
-        var tex0 = node.args[0].toTex(options);
-         var child = node.args[0]
-         if ( child.type ==  'SymbolNode' ){
-            return '\\nabla \\times ' + tex0 + ''
-            }
-          else {
-         return '\\nabla \\times (' + tex0 + ')'
-        }
-      }
-
-    
-      else if( node.name === 'cross'  ){
-        var tex0 = node.args[0].toTex(options);
-        var tex1 = node.args[1].toTex(options);
-        
-         var child = node.args[0]
-         if ( child.type ==  'SymbolNode' ){
-            return  '(' + tex0 + ' \\times ' + tex1 + ')'
-            }
-          else {
-         return '(' + tex0 + ' \\times ' + tex1 + ')'
-        }
-      }
-
-
-
-
-      else if( node.name === 'div'  ){
-        var child = node.args[0]
-         var tex0 = child.toTex(options);
-         if ( child.type ==  'SymbolNode' ){
-            return '\\nabla \\circ ' + tex0 + ''
-            }
-         else {
-            return '\\nabla \\circ(' + tex0 + ')'
-            }
-      }
-
-      else if( node.name === 'partial'  ){
-        if ( node.args.length == 2  ){
-          var tex0 = node.args[0].toTex(options);
-          var tex1 = node.args[1].toTex(options);
-          return '\\frac{ \\partial ' + tex0 + '}{ \\partial ' + tex1 + '}'
-          }
-        else if ( node.args.length > 2  ){
-          var tex0 = node.args[0].toTex(options);
-          node.args.shift()
-          var order = node.args.length
-          var largs = node.args.map( item => item.toTex(options) )
-          var i  = 0
-          var texstring = ''
-          var supercript = 1
-          while( i < order- 1 ){
-              if(  largs[i] == largs[i+1] ){
-                    supercript = supercript + 1 
-                   } else {
-                    texstring = supercript == 1 ? ( texstring + '\\partial '  +  largs[i] )  : ( texstring + '\\partial^{' + supercript.toString() +'}'  +  largs[i]  )
-                    supercript = 1;
-                 }
-             i = i + 1
-             }
-          texstring = supercript == 1 ? ( texstring + '\\partial '  +  largs[i] )  : ( texstring + '\\partial^{' + supercript.toString() +'}'  +  largs[i]  )
-          return '\\frac{ {\\partial}^{' + order + '}'  + tex0 + '}{' + texstring +  '}'
-         }
-        }      
-      
-      else if( node.name === 'grad'  ){
-        var tex0 = node.args[0].toTex(options);
-        var child = node.args[0]
-         if ( child.type ==  'SymbolNode' ){
-            return '\\nabla ' + tex0 + ''
-            }
-         else {
-            return '\\nabla  (' + tex0 + ')'
-        }
-      }
-    else if( node.name === 'del_2'  ){
-        var tex0 = node.args[0].toTex(options);
-        var child = node.args[0]
-         if ( child.type ==  'SymbolNode' ){
-            return '\\nabla^2 ' + tex0 + ''
-            }
-         else {
-            return '\\nabla^2  (' + tex0 + ')'
-        }
-      }
-  
-    else if( node.name === 'sqrt'  ){
-        var tex0 = node.args[0].toTex(options);
-            return '\\sqrt{' + tex0 + '}'
-      }
-
-
-
-
-
-      else {
+        } else {
         //console.log("UNIDENTIFIED FUNCTION NODE ", node.name )
         var ret =  node._toTex(options);
-        if( node.name == 'erf'){
-            ret = ret.replace(/^erf/,'\\mathrm{erf}') 
-            }
         this.isUnclosed = false;
         node.traverse( (node, path, parent) => {
           if(node.type === 'FunctionNode' && node.name === 'unclosed'){
@@ -372,7 +170,7 @@ export default class QuestionDevLinearAlgebra extends Component {
     }
     // Cursor handling by hooking into the bitwise not operator that has a very high precedence.
     else if(node.type === 'OperatorNode') {
-      console.log("DOTSYMBOL FOUND", node )
+      //console.log("DOTSYMBOL FOUND", node )
       if(node.fn === 'bitNot') {
         if(node.args[0].type === 'ParenthesisNode') {
           this.isUnclosed = false;
@@ -433,7 +231,6 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 
   renderAsciiMath = (asciitext,ignore_undefined=false) => {
-      console.log("asciitext = ", asciitext )
       
       var cursorComplete = false;
       var cursorPos = this.state.cursor;
@@ -446,7 +243,6 @@ export default class QuestionDevLinearAlgebra extends Component {
 
       if(cursorPos > asciitext.length)cursorPos = asciitext.length;
       var preParsed = asciiMathToMathJS(insertCursor(asciitext, cursorPos));
-      console.log("preParsed = ", preParsed )
       if ( preParsed.warnings  ){
             this.mathjswarning += preParsed.warnings;
             }
@@ -459,7 +255,6 @@ export default class QuestionDevLinearAlgebra extends Component {
       parsed = parsed + ' empty()';
       parsed = parsed.replace(/\)\.\(/g,")**(",parsed)
       try {
-        console.log("SIMPLE PARSE = ",  JSON.stringify( mathjs.parse(parsed)  ) )
         var mParsed = mathjs.parse(parsed).toTex({
           parenthesis: 'keep', // The keep options keeps parenthesis from input expression, seems to work best.
           handler: this.customLatex, // Custom latex node handler
