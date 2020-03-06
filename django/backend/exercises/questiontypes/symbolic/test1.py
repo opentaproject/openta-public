@@ -20,13 +20,24 @@ class SymbolicTest1(TestCase):
             {'name': 'J', 'value': '1/( 4 pi )  ( curl(B) - dot(vE) )', 'tex': 'TeX'},
         ]
         new_funcsubs = [
-            { "name": "fA", "args": "[x,y,z,t]", "value": "funcy1(x,y,z,t) * xhat + funcy2(x,y,z,t) * yhat + funcy3(x,y,z,t) * zhat", "tex": "TeX", },
+            {
+                "name": "fA",
+                "args": "[x,y,z,t]",
+                "value": "funcy1(x,y,z,t) * xhat + funcy2(x,y,z,t) * yhat + funcy3(x,y,z,t) * zhat",
+                "tex": "TeX",
+            },
             {"name": "pphi", "args": "[x,y,z,t]", "value": "pot(x,y,z,t)", "tex": "TeX"},
         ]
         eqs = [
-            { 'div( fA(x,y,z,t)  ) == partial( funcy1(x,y,z,t) ,x) + partial(funcy2(x,y,z,t),y) + partial(funcy3(x,y,z,t) ,z)': True },
-            { 'div( A ) == partial( funcy1(x,y,z,t) ,x) + partial(funcy2(x,y,z,t),y) + partial(funcy3(x,y,z,t) ,z)': True },
-            { '1.3 * div( A(x,y,z,t)  ) == partial( funcy1(x,y,z,t) ,x) + partial(funcy2(x,y,z,t),y) + partial(funcy3(x,y,z,t) ,z)': False },
+            {
+                'div( fA(x,y,z,t)  ) == partial( funcy1(x,y,z,t) ,x) + partial(funcy2(x,y,z,t),y) + partial(funcy3(x,y,z,t) ,z)': True
+            },
+            {
+                'div( A ) == partial( funcy1(x,y,z,t) ,x) + partial(funcy2(x,y,z,t),y) + partial(funcy3(x,y,z,t) ,z)': True
+            },
+            {
+                '1.3 * div( A(x,y,z,t)  ) == partial( funcy1(x,y,z,t) ,x) + partial(funcy2(x,y,z,t),y) + partial(funcy3(x,y,z,t) ,z)': False
+            },
             {'A - fA(x,y,z,t)  == 0 ': True},
             {'div(A) == div( fA(x,y,z,t) )': True},
             {'vE ==  - grad( pphi )  -  dot(fA) ': True},

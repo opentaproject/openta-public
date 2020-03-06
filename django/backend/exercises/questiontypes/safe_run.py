@@ -18,7 +18,7 @@ def safe_run(function, args):
     p.start()
     try:
         starttime = time.perf_counter()
-        response = q.get(True, settings.SAFE_RUN_TIMEOUT )
+        response = q.get(True, settings.SAFE_RUN_TIMEOUT)
         timedelta = time.perf_counter() - starttime
         logger.debug(
             "Safe run of "

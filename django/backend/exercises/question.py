@@ -13,6 +13,7 @@ from exercises.parsing import (
 )
 from exercises.views.asset import dispatch_asset_path
 
+import time
 from exercises.util import deep_get
 from lxml import etree
 import os
@@ -118,6 +119,7 @@ def register_question_type(
 
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
     # print("QUESTION CHECK ANSER_DATA = ", answer_data)
+    tbeg = time.time()
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
@@ -198,6 +200,9 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
                 result = question_check_dispatch[dbquestion.type](
                     question_json, question_xmltree, answer_data, global_xmltree
                 )
+                result['debug'] = (
+                    str(int((time.time() - tbeg) * 1000)) + ' ms' + result.get('debug', '')
+                )
             except QuestionError as e:
                 return {'error': "XML error: " + str(e)}
             if 'zerodivision' in result:
@@ -206,7 +211,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             if 'correct' in result:
                 correct = result['correct']
             if user.groups.filter(name='Author').exists() and result.get('debug', False):
-                result['warning'] = result.get('warning', '') + " DEBUG: " + result.get('debug')
+                result['warning'] = result.get('warning', '') + "info:  " + result.get('debug')
 
             else:
                 result.pop('debug', None)

@@ -43,7 +43,7 @@ def new_parse_variables(variables):  # {{{
         pipeline = compose(
             functools.partial(filter, operator.truth),
             functools.partial(map, lambda x: x.split('=')),
-            functools.partial(filter, lambda x : not '(' in x[0] ),
+            functools.partial(filter, lambda x: not '(' in x[0]),
             functools.partial(
                 map, lambda x: {'name': x[0].strip(' \n\t'), 'value': x[1].strip(' \n\t')}
             ),
@@ -51,10 +51,11 @@ def new_parse_variables(variables):  # {{{
         variables = list(pipeline(rawvars))
         for var in variables:
             res[var.get('name')] = var.get('value')
-        print("VARIABLES FROM TEXT = ", variables )
+        print("VARIABLES FROM TEXT = ", variables)
         return variables
     except IndexError:
         raise QuestionError("Cannot parse variables")
+
 
 def new_parse_functions(variables):  # {{{
     '''
@@ -68,11 +69,14 @@ def new_parse_functions(variables):  # {{{
         pipeline = compose(
             functools.partial(filter, operator.truth),
             functools.partial(map, lambda x: x.split('=')),
-            functools.partial(filter, lambda x : '(' in x[0] ),
+            functools.partial(filter, lambda x: '(' in x[0]),
             functools.partial(
-                map, lambda x: {'name': ( x[0].strip(' \n\t') ).split('(')[0], 
-                                'args': '[' + ( ( x[0].strip(' \n\t') ).split('(') )[1].strip(')') + ']'  , 
-                                 'value': x[1].strip(' \n\t')}
+                map,
+                lambda x: {
+                    'name': (x[0].strip(' \n\t')).split('(')[0],
+                    'args': '[' + ((x[0].strip(' \n\t')).split('('))[1].strip(')') + ']',
+                    'value': x[1].strip(' \n\t'),
+                },
             ),
         )
         variables = list(pipeline(rawvars))
@@ -162,11 +166,11 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         qstring = etree.tostring(question_xmltree, encoding='UTF-8')
         bigstring = bigstring + qstring
     varhash = get_hash_from_string(str(bigstring))
-    print("GETALLVARIABLES WITH HASH ", varhash )
+    print("GETALLVARIABLES WITH HASH ", varhash)
     ret = cache.get(varhash)
     if settings.DO_CACHE and (ret is not None):
         return ret
-    print("RECALCULATE GETALL VARIABLES", varhash )
+    print("RECALCULATE GETALL VARIABLES", varhash)
     variables = []
     blacklist = set([])
     correct_answer = ''

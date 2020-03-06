@@ -16,7 +16,6 @@ def insert_implicit_multiply(expression):  # {{{
     return result  # }}}
 
 
-
 def oldreplace_user_defined_functions(expression, funcsubs):
     defs = list(funcsubs.keys())
     if len(defs) == 0:
@@ -59,7 +58,7 @@ def oldreplace_user_defined_functions(expression, funcsubs):
 
 
 def replace_primes(expression, funcsubs):
-    paren_check(expression,'INTO REPLACE_PRIMES')
+    paren_check(expression, 'INTO REPLACE_PRIMES')
     searchstring = '([A-z0-9_]+)'
     # expression = 'ff\'\'(gg(z))*gg\'(z) '
     # expression = resub.sub(r'('+searchstring+')',r" \1",expression)
@@ -74,10 +73,10 @@ def replace_primes(expression, funcsubs):
             beg = beg + 1
         ind = index_of_matching_right_paren(end, expression)
         head = expression[beg:end].strip()
-        arg = expression[end : ind ]
+        arg = expression[end:ind]
         ex1 = expression[0:beg]
         ex2 = expression[beg : ind + 1]
-        ex3 = expression[ind  :]  # if ind < len(expression) else ''
+        ex3 = expression[ind:]  # if ind < len(expression) else ''
         add_paren = False
         if ex3:
             if ex3[0] == "\'":
@@ -93,10 +92,11 @@ def replace_primes(expression, funcsubs):
             expression = '(' + expression + ')\''
         allm = list(p1.finditer(expression))
         it = it + 1
-    expression = resub.sub(r'#','',expression)
+    expression = resub.sub(r'#', '', expression)
     expression = resub.sub(r'#' + searchstring, r"\1", expression)
-    paren_check(expression,'OUT OF REPLACE_PRIMES')
+    paren_check(expression, 'OUT OF REPLACE_PRIMES')
     return expression
+
 
 # def index_of_matching_left_paren(result, indbegin):
 #    level = 1
@@ -111,13 +111,17 @@ def replace_primes(expression, funcsubs):
 #    assert result[ind] == '(', "LEFT PAREN  MISSING"
 #    return ind
 
-def paren_check(expression ,msg ):
-    should_be_end = index_of_matching_right_paren(0,'(' + expression + ')')
-    assert should_be_end == len( expression) + 2 ,  msg + " : " + expression
+
+def paren_check(expression, msg):
+    should_be_end = index_of_matching_right_paren(0, '(' + expression + ')')
+    assert should_be_end == len(expression) + 2, msg + " : " + expression
+
 
 def ascii_to_sympy(expression, funcsubs={}):  # {{{
-    should_be_end = index_of_matching_right_paren(0,'(' + expression + ')')
-    assert should_be_end == len( expression) + 2 , "MATCHING PAREN ERROR IN ASCII_TO_SYMPY " + expression
+    should_be_end = index_of_matching_right_paren(0, '(' + expression + ')')
+    assert should_be_end == len(expression) + 2, (
+        "MATCHING PAREN ERROR IN ASCII_TO_SYMPY " + expression
+    )
     result = expression
     result = resub.sub(r"([^=]+)==([^=]+)", r"(\1) - (\2)", result)
     dict = {'^': '**'}
@@ -131,11 +135,11 @@ def ascii_to_sympy(expression, funcsubs={}):  # {{{
     result = insert_implicit_multiply(result)
     for old, new in dict.items():
         result = result.replace(old, new)
-    
-    #result = resub.sub(r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result)
-    paren_check( result, 'CHECK1 ')
+
+    # result = resub.sub(r"\]\s*([^\*]\w+)", r"]* 1.0 * \1", result)
+    paren_check(result, 'CHECK1 ')
     result = replace_primes(result, funcsubs)
-    paren_check( result, 'CHECK2 ')
+    paren_check(result, 'CHECK2 ')
 
     it = 0
     # REPLACE ALL )\' CONSTRUCTIONS
@@ -150,8 +154,8 @@ def ascii_to_sympy(expression, funcsubs={}):  # {{{
         right = result[indend + 2 :]
         result = left + 'Partial(' + middle + ")" + right
         it = it + 1
-    paren_check( result, 'MATCHING PAREN COMING OUT OF ASCII_TO_SYMPY ')
- 
+    paren_check(result, 'MATCHING PAREN COMING OUT OF ASCII_TO_SYMPY ')
+
     return result  # }}}
 
 

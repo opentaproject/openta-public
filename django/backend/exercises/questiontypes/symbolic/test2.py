@@ -241,10 +241,10 @@ class SymbolicTest2(TestCase):
         ]
         expressions = [
             "( tanh( cosh(x) ) )\' == tanh\'( cosh(x) ) cosh\'( x )",
-            #" iden(xhat) == xhat ",
+            # " iden(xhat) == xhat ",
             " sdot( x^2 , x ) - 2 x == 0 "
-            #" iden(xhat) -  xhat == 0 ",
-            #" iden(xhat) - 2 xhat == [-1,0,0]",
+            # " iden(xhat) -  xhat == 0 ",
+            # " iden(xhat) - 2 xhat == [-1,0,0]",
         ]
 
         for expression in expressions:

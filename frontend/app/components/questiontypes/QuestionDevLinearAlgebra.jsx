@@ -94,7 +94,19 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 
   customLatex = (node, options) => {
-
+    if( node.op == '\''){
+      //console.log("QUOTE OPERATOR NODE")
+      if ( node.type === 'OperatorNode' ) {
+        var child = node.args[0]
+        if( child.type == 'SymbolNode'  ){
+            if ( this.validSymbols.indexOf( child.name ) < 0  ){
+                this.validSymbols.push( child.name )
+                }
+            }
+        return  '{' + child.toTex(options) + '^{\\prime} }'
+        }
+      return '{' + ( node.args[0].name ).toTex(options)+ '}^{\\prime}';
+     } 
     
     if ( node.op in this.parse_dispatch )  {
       return this.parse_dispatch[node.op](node,options)
@@ -130,9 +142,20 @@ export default class QuestionDevLinearAlgebra extends Component {
           var largs = node.args.map( item => item.toTex(options) )
           const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : 
 			latex.toSymbol( insertImplicitSubscript( origVar),false);//node._toTex(options);
-          var texstring = '(' + largs.join(',') +')'
-
-          return '{' + texSymbol  + '} ' +  texstring + ''
+          
+          var pieces = texSymbol.split("*")
+          if ( pieces.length   ==  1  ){
+              var texstring = '(' + largs.join(',') +')'
+              return '{' + texSymbol  + '} ' +  texstring + ''
+            } else  {
+              var texstring = ''
+              for(  var i =  0; i < pieces.length -1 ; i++ ){
+                texstring = texstring + pieces[i] + largs[i]
+                }
+              return  texstring + pieces[i]
+            }
+  
+    
       }
     }
     // Render green if allowed variable otherwise red

@@ -45,8 +45,8 @@ logger = logging.getLogger(__name__)
 def expr_are_equal(ex1, ex2):
     try:
         zz = sympify('0.0').evalf()
-        ex1 = zz  if 'ZeroMatrix' in srepr( ex1 ) else ex1
-        ex2 = zz  if 'ZeroMatrix' in srepr( ex2 ) else ex2
+        ex1 = zz if 'ZeroMatrix' in srepr(ex1) else ex1
+        ex2 = zz if 'ZeroMatrix' in srepr(ex2) else ex2
         if ex1.is_Matrix and ex2.is_Matrix:
             return sympy.simplify(ex1 - ex2).norm() < 1.0e-8
         elif ex1.is_Matrix:
@@ -60,13 +60,13 @@ def expr_are_equal(ex1, ex2):
             else:
                 return False
         else:
-            diff1 =  sympify(ex1 - ex2).evalf() 
-            if 'Symbol' in srepr( diff1 ) :
-                #for key in dir( diff1 ):
+            diff1 = sympify(ex1 - ex2).evalf()
+            if 'Symbol' in srepr(diff1):
+                # for key in dir( diff1 ):
                 #    print( "KEY  = ", key, "ATT = ", getattr(diff1, key) )
-                return False 
-            tval = ( diff1 == 0 ) or ( abs( diff1 ) < 1.0e-8 )
-            return tval 
+                return False
+            tval = (diff1 == 0) or (abs(diff1) < 1.0e-8)
+            return tval
     except Exception as e:
         print("ERROR WAS " + str(e))
         return False
@@ -106,15 +106,17 @@ def symbolic_compare_expressions(
     funcsubs={},
 ):
     tbeg = time.time()
-    should_be_end = index_of_matching_right_paren(0,'(' + student_answer+ ')')
-    assert should_be_end == len( student_answer) + 2 , "MATCHING PAREN ERROR IN STUDENT_ANSWER " + student_answer
-    should_be_end = index_of_matching_right_paren(0,'(' + correct + ')')
-    assert should_be_end == len( correct) + 2 , "MATCHING PAREN ERROR IN CORRECT " + correct
+    should_be_end = index_of_matching_right_paren(0, '(' + student_answer + ')')
+    assert should_be_end == len(student_answer) + 2, (
+        "MATCHING PAREN ERROR IN STUDENT_ANSWER " + student_answer
+    )
+    should_be_end = index_of_matching_right_paren(0, '(' + correct + ')')
+    assert should_be_end == len(correct) + 2, "MATCHING PAREN ERROR IN CORRECT " + correct
 
     s1 = ascii_to_sympy(student_answer)
     s2 = ascii_to_sympy(correct)
     student_answer = s1
-    correct = s2 
+    correct = s2
     # print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
     all_variables = [x['name'] for x in variables]
     illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
@@ -157,10 +159,10 @@ def symbolic_compare_expressions(
         response['error'] = lhs
         response['debug'] = 'ERROR IN symbolic_compare_expressions'
         explanation = ''
-        if '$$' in lhs :
+        if '$$' in lhs:
             lhs = ('(' + student_answer + ')').join(lhs.split('$$'))
             rhs = '0'
-        [tlhs, trhs] = [lhs,rhs]
+        [tlhs, trhs] = [lhs, rhs]
         if '0' == tlhs:
             prelhs = sympify_with_custom(
                 trhs, varsubs_sympify, funcsubs, 'symbolic_compare_expressions-1'
@@ -217,7 +219,7 @@ def symbolic_compare_expressions(
                     return {'error': _('(F) Forbidden token: ') + strrep}
                 if funcstr in blacklist:
                     return {'error': _('(G) Forbidden token: ') + funcstr}
-    
+
         lhs = sympify_with_custom(
             lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
         ).doit()
@@ -235,7 +237,6 @@ def symbolic_compare_expressions(
         tend = time.time()
         # print("TOTAL TIME IN COMPARE EXPRESSIONS", ( tend - tbeg ) * 1000  , " MILLISECONDS" )
         return res
-
 
     except SympifyError as e:
         if '@' in str(e):
@@ -258,8 +259,10 @@ def symbolic_compare_expressions(
     except NameError as e:
         logger.error(traceback.format_exc())
         logger.error([str(e), str(student_answer), str(correct)])
-        response['debug'] = 'NAME ERROR in symbolic_compare_expressions' + str(e) + str( student_answer) 
-        response['error'] = str( e )
+        response['debug'] = (
+            'NAME ERROR in symbolic_compare_expressions' + str(e) + str(student_answer)
+        )
+        response['error'] = str(e)
     except ShapeError as e:
         logger.error(traceback.format_exc())
         response = dict(
@@ -270,7 +273,13 @@ def symbolic_compare_expressions(
         logger.error(traceback.format_exc())
         logger.error([str(e), str(student_answer), str(correct)])
         response = dict(error=_("Unknown error, check your expression."))
-        response['debug'] = 'Error1 in symbolic_compare_expressions: ' + type(e).__name__ + ': '  + str(e) + str( student_answer )
+        response['debug'] = (
+            'Error1 in symbolic_compare_expressions: '
+            + type(e).__name__
+            + ': '
+            + str(e)
+            + str(student_answer)
+        )
 
     return response
 
@@ -303,23 +312,23 @@ def symbolic_internal(expression1, expression2):  # {{{
         # print("ZER0 = ", simplify( zero ) )
         if doNumeric:
             symbs = zero.free_symbols
-            #symbs.update( {sympy.Symbol('x') ,} )
-            #print("SYMBS = ", symbs)
+            # symbs.update( {sympy.Symbol('x') ,} )
+            # print("SYMBS = ", symbs)
             symsub = [(sym, random.random()) for sym in symbs]
             ex1 = sympy1.subs(symsub).doit()
             ex2 = sympy2.subs(symsub).doit()
-        else :
+        else:
             ex1 = sympy1
             ex2 = sympy2
-            #shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
-            #diffy = Norm(shouldbezero)
-        are_same = expr_are_equal( ex1,ex2)
-        if not are_same :
+            # shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
+            # diffy = Norm(shouldbezero)
+        are_same = expr_are_equal(ex1, ex2)
+        if not are_same:
             response['correct'] = False
             response['debug'] = "diff reduces to $" + latex(zero) + '$' + str(zero)
             response['correct'] = False
             response['debug'] = "diff reduces to $" + latex(zero) + '$'
-        else :
+        else:
             response['correct'] = True
         return response
     except SympifyError as e:

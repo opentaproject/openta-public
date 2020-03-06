@@ -22,7 +22,8 @@ export   function fail(node,option) {
         }
   }
 
-export   function prime(node,options){
+/*
+  export   function prime(node,options){
   if( node.op == '\''){
       //console.log("QUOTE OPERATOR NODE")
       if ( node.type === 'OperatorNode' ) {
@@ -37,6 +38,7 @@ export   function prime(node,options){
       return '{' + ( node.args[0].name ).toTex(options)+ '}^{\\prime}';
       }
   }
+*/
 
 export   function smalltext(node,options) {
     if(node.name === 'smalltext') {
