@@ -1,4 +1,5 @@
 from rest_framework.decorators import api_view
+import openpyxl
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from rest_framework import status
@@ -42,28 +43,29 @@ def get_results_async(request, course_pk):
         return Response(messages)
 
 
-@permission_required('exercises.view_statistics')
-@api_view(['GET'])
-def get_results_excel(request, course_pk):
-    dbcourse = Course.objects.get(pk=course_pk)
-    results = students_results(course=dbcourse)
-    print("TYPE = ", type(results))
-    xlsx_data = create_xlsx_from_results_list(results)
-    if settings.UNITTESTS:
-        b = []
-        for item in results:
-            del item['pk']
-            b = b + [item]
-        with open("/tmp/results.txt", mode="w") as out:
-            out.write(str(b))
-    fp = open('/tmp/custom.xlsx','wb')
-    fp.write(xlsx_data)
-    fp.close()
-    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    response = HttpResponse(xlsx_data, content_type=content_type)
-    response['Content-Disposition'] = 'attachment; filename=results.xlsx'
-    return response
-
+#def oldget_results_excel(request, course_pk):
+#
+#    dbcourse = Course.objects.get(pk=course_pk)
+#    results = students_results(course=dbcourse)
+#    print("TYPE = ", type(results))
+#    print("RESULTS = ", results )
+#    xlsx_data = create_xlsx_from_results_list(results)
+#    print("XLSX_DATA", xlsx_data)
+#    if settings.UNITTESTS:
+#        b = []
+#        for item in results:
+#            del item['pk']
+#            b = b + [item]
+#        with open("/tmp/results.txt", mode="w") as out:
+#            out.write(str(b))
+#    fp = open('/tmp/custom.xlsx','wb')
+#    fp.write(xlsx_data)
+#    fp.close()
+#    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+#    response = HttpResponse(xlsx_data, content_type=content_type)
+#    response['Content-Disposition'] = 'attachment; filename=results.txt'
+#    return response
+#
 
 # @permission_required('exercises.view_statistics')
 # @api_view(['GET'])
@@ -75,25 +77,37 @@ def get_results_excel(request, course_pk):
 #    xlsx_data = create_xlsx_from_results_list(results)
 #    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 #    response = HttpResponse(xlsx_data, content_type=content_type)
-#    response['Content-Disposition'] = 'attachment; filename=results.xlsx'
+#    response['Content-Disposition'] = 'attachment; filename=results.txt'
 #    return response
+
+
+
+@permission_required('exercises.view_statistics')
+@api_view(['GET', 'POST'])
+def get_results_excel(request, course_pk):
+    dbcourse = Course.objects.get(pk=course_pk)
+    dbexercises = Exercise.objects.filter(course_id=course_pk,meta__published=True )
+    task_id = workqueue.enqueue_task(
+        "Custom results", excel_custom_results_pipeline, dbexercises, course=dbcourse
+    )
+    return Response({'task_id': task_id})
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET', 'POST'])
 def enqueue_custom_result_excel(request, course_pk):
     exercises = None
     if request.method == 'GET':
-        print("GET", str( request.query_params ) )
+        #print("GET", str( request.query_params ) )
         exercises = request.query_params.get('exercises').split(',')
     if request.method == 'POST':
-        print("POST", str( request.data ) )
+        #print("POST", str( request.data ) )
         exercises = request.data.get('exercises')
     if exercises is None:
         return Response({})
 
     dbcourse = Course.objects.get(pk=course_pk)
     dbexercises = Exercise.objects.filter(exercise_key__in=exercises)
-    print("DBEXERCISES = ", list( dbexercises.values_list('exercise_key', flat=True) ) )
+    #print("DBEXERCISES = ", list( dbexercises.values_list('exercise_key', flat=True) ) )
     task_id = workqueue.enqueue_task(
         "Custom results", excel_custom_results_pipeline, dbexercises, course=dbcourse
     )
