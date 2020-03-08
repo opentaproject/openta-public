@@ -83,7 +83,8 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
         exercise_key = exercise.exercise_key
         print("CLICK EXERCISE_KEY = ", exercise_key)
         sel = self.selenium
-        wait = WebDriverWait(sel, 20)
+        wait = WebDriverWait(sel, 2000)
+        print("WAITING FOR li.course-exercise-item[id=" + str(exercise_key)  +" ]")
         wait.until(
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, 'li.course-exercise-item[id=' + str(exercise_key) + ']')
@@ -93,8 +94,11 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
             'li.course-exercise-item[id=' + str(exercise_key) + ']'
         )
         exercise.click()
-        xp = '//article[contains(@id,\'' + str(exercise_key) + '\')]'
+        #xp = '//article[contains(@id,\'' + str(exercise_key) + '\')]'
+        xp = '//article' # [contains(@id,\'' + str(exercise_key) + '\')]'
+        print("NOW WAIT FOR ", xp )
         wait.until(EC.presence_of_element_located((By.XPATH, xp)))
+        print("FOUND THE EXERCISES: START CLICKING")
 
     def answerall(self, answerdict):
         sel = self.selenium

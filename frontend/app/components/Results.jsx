@@ -16,11 +16,14 @@ import Table from './Table.jsx';
 import StudentResults from './StudentResults.jsx';
 import CustomResult from './CustomResult.jsx';
 import CanvasGradebook from './CanvasGradebook.jsx';
+import { updateCustomResults } from '../actions.js';
 
 import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import { menuPositionAt, menuPositionUnder } from '../menu.js';
+
+import { fetchCustomResults, enqueueTask } from '../fetchers.js';
 
 
 function generateHist2dPlot(userResults) {//{{{
@@ -161,6 +164,11 @@ const BaseResults = ({menuPath,
                      selectedUser,
                      activeDetailExercise,
                      activeCourse,
+                     progress,
+                     onGenerateResults,
+                     done,
+                     taskId,
+                     exerciseState,
                      }) => {
   var renderResults = userResults.filter( item => (item.get('username') + ' ' + item.get('first_name') + ' ' + item.get('last_name')).toLowerCase().indexOf(filter.toLowerCase()) >= 0)
     .map( user => (immutable.Map({
@@ -250,9 +258,32 @@ const BaseResults = ({menuPath,
       </div>
     }
       { menuPositionUnder(menuPath, ['results', 'download']) && !pendingResults && 
-      <div className="uk-width-1-1 uk-text-center">
-        <h1><a href={SUBPATH + "/course/" + activeCourse + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o DownloadExcel"/></a></h1> 
+
+
+        <div className="uk-width-1-2 uk-text-center">
+          <div><a className="uk-button GenerateResults" onClick={() => onGenerateResults(exerciseState, activeCourse)}>GenerateResults</a></div>
+        <div className="uk-width-1-1 uk-margin-top">
+          { progress >= 0 && done !== true &&
+          <div className="uk-progress">
+            <div className="uk-progress-bar" style={{width: progress + "%"}}>{progress}%</div>
+          </div>
+          }
+        </div>
+        { done &&
+          <div>
+            <a className='DownloadExcel' href={SUBPATH + "/queuetask/" + taskId + "/resultfile"}>Download excel file</a>
+          </div>
+        }
       </div>
+ 
+
+
+
+
+
+      //<div className="uk-width-1-1 uk-text-center">
+      //  <h1><a href={SUBPATH + "/course/" + activeCourse + "/statistics/results/excel?" + excelParameters}><i className="uk-margin-left uk-icon uk-icon-file-excel-o DownloadExcel"/></a></h1> 
+      //</div>
       }
       { menuPositionUnder(menuPath, ['results', 'gradebook']) && !pendingResults &&
       <div className="uk-width-1-1 uk-text-center">
@@ -311,15 +342,23 @@ function handleUserClick(coursePk,userPk, deadline, imageDeadline) {
   }
 }
 
-const mapStateToProps = state => ({
+const mapStateToProps = ( state ) => { 
+  var taskId = state.getIn(['results', 'customResults', 'taskId']);
+  return(
+  {
+  taskId: taskId,
+  exerciseState: state.get('exerciseState'),
   menuPath: state.getIn(['menuPath']),
   userResults: state.getIn(['results', 'studentResults']),
   selectedUser: state.getIn(['results', 'selectedUser']),
   filter: state.getIn(['results', 'filters', 'text']),
   pendingResults: state.getIn(['pendingState', 'studentResults'], false),
   activeDetailExercise: state.getIn(['results', 'detailResultExercise'], false),
-  activeCourse: state.get('activeCourse')
-});
+  activeCourse: state.get('activeCourse'),
+  progress: state.getIn(['tasks', taskId, 'progress']),
+  done: state.getIn(['tasks', taskId, 'done']),
+  })
+}
 
 const handleRequiredDeadline = (value) => (dispatch) => {
     dispatch(setResultsFilter({ 'requiredKey': value}))
@@ -356,7 +395,17 @@ const mapDispatchToProps = dispatch => ({
   },
   onRequiredDeadline: (value) => dispatch(handleRequiredDeadline(value)), //dispatch(setResultsFilter({ 'requiredKey': value})),
   onBonusDeadline: (value) => dispatch(handleBonusDeadline(value)),//dispatch(setResultsFilter({ 'bonusKey': value})),
-  onUserClick: (coursePk, userPk,  deadline, imageDeadline) => dispatch(handleUserClick(coursePk,userPk, deadline, imageDeadline))
+  onUserClick: (coursePk, userPk,  deadline, imageDeadline) => dispatch(handleUserClick(coursePk,userPk, deadline, imageDeadline)),
+  onGenerateResults: (exerciseState, activeCourse) => {
+    dispatch(enqueueTask('/course/' + activeCourse + '/statistics/results/excel'  ))
+     .then( taskId => dispatch(updateCustomResults({taskId: taskId})) );
+  }
+ 
+
+
+
+
+
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseResults)

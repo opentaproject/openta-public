@@ -229,7 +229,7 @@ def get_unsafe_exercise_summary(user, course_pk, dbexercises):
     ags = Aggregation.objects.filter(user=user, course=course_pk, exercise__meta__published=True)
     if not dbexercises is None:
         ags = ags.filter(exercise__in=dbexercises)
-        logger.debug("DBEXERCISES COUNT = ", dbexercises.count())
+        logger.debug("DBEXERCISES COUNT = " + str(  dbexercises.count()) )
     else:
         logger.debug("DBEXERCISES IS NONE")
     sums = {}

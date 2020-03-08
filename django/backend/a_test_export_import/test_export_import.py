@@ -1,4 +1,8 @@
 from utils import OpenTAStaticLiveServerTestCase
+import pandas as pd
+from deepdiff import DeepDiff 
+import csv
+import openpyxl
 from exercises.aggregation import student_statistics_exercises, students_results
 import uuid
 import filecmp
@@ -21,6 +25,7 @@ from django.contrib.auth.models import User, Group, Permission
 from django.utils import timezone
 from django.conf import settings
 import django_rq
+import json
 
 LOGGER.setLevel(logging.WARNING)
 
@@ -161,10 +166,10 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
             LOGGER.info('Finished calculating results and statistics')
 
 
-        wait = WebDriverWait(sel, 20)
-        seq = ['Course', 'Export', 'CourseExport', 'Home', 'Results', 'Download', 'DownloadExcel']
+        wait = WebDriverWait(sel, 2000)
+        seq = ['Course', 'Export', 'CourseExport', 'Home', 'Results', 'Download','GenerateResults', 'DownloadExcel']
         self.do_click_sequence(wait, seq)
-        os.replace("/tmp/results.txt", "/tmp/results_export.txt")
+        os.replace("/tmp/results.xlsx", "/tmp/results_export.xlsx")
         self.logout()
 
     def wait_for_spinners(self, wait):
@@ -212,8 +217,8 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         self.wait_for(wait, 'Done')
         sel.refresh()
         self.do_click_sequence(wait, ['ChooseCourseToShow', 'code123'])
-        self.do_click_sequence(wait, ['Results', 'Download', 'DownloadExcel'])
-        os.replace("/tmp/results.txt", "/tmp/results_import.txt")
+        self.do_click_sequence(wait, ['Results', 'Download','GenerateResults', 'DownloadExcel'])
+        os.replace("/tmp/results.xlsx", "/tmp/results_import.xlsx")
         self.logout()
 
     # LOGIC IS test1 actively creates a course code123 and dumps server.zip into /tmp
@@ -222,17 +227,22 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
     # sure that the results are the same as that computed in test1
 
     def test1(self):
-        if os.path.exists("/tmp/results_export.txt"):
-            os.remove("/tmp/results_export.txt")
+        if os.path.exists("/tmp/results_export.xlsx"):
+            os.remove("/tmp/results_export.xlsx")
         self.setup(course_name='code123')
         print("COURSE 123 set up ")
         self.check_export_course()
 
     def test2(self):
-        if os.path.exists('/tmp/results_import.txt'):
-            os.remove("/tmp/results_import.txt")
+        if os.path.exists('/tmp/results_import.xlsx'):
+            os.remove("/tmp/results_import.xlsx")
         self.check_import_course()  # NOW IMPORTING code123 from before
-        assert filecmp.cmp('/tmp/results_export.txt', '/tmp/results_import.txt')
-        os.remove("/tmp/results_import.txt")
-        os.remove("/tmp/results_export.txt")
+        df = pd.read_excel('/tmp/results_import.xlsx', header=0)
+        df.to_csv('/tmp/results_import.csv', index=False, quotechar="'")
+        df = pd.read_excel('/tmp/results_export.xlsx', header=0)
+        df.to_csv('/tmp/results_export.csv', index=False, quotechar="'")
+        assert filecmp.cmp('/tmp/results_export.csv', '/tmp/results_import.csv')
+
+        #os.remove("/tmp/results_import.xlsx")
+        #os.remove("/tmp/results_export.xlsx")
         self.tearDown()

@@ -114,7 +114,7 @@ parseFolder = (folder, foldername, level = 0, displaystyle)  => {
         var meta = folder.getIn(["exercises", exercise, "meta"]);
         var published = meta.get('published', false )
         if ( published || ( ! this.compact ) ){
-        return (   <li className="course-exercise-item" key={exercise + 'asdf'} > 
+        return (   <li id={exercise} className="course-exercise-item" key={exercise + 'asdf'} > 
  
            <ExerciseItem 
           exercise={exercise} 
