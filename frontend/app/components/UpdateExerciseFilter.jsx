@@ -38,6 +38,9 @@ const mapDispatchToProps = dispatch => {
     return {
         onExerciseFilterChange: (exercisefilter,activeCourse,filter_toggle) => {
             exercisefilter[filter_toggle] = ! exercisefilter[filter_toggle]
+            var cookies = new Cookies()
+            console.log("UpdateExerciseFilter triggered")
+            cookies.set('exercisefilter',exercisefilter,{path : '/'} )
             dispatch(updateExerciseFilter(exercisefilter))
             dispatch(fetchExerciseTree(activeCourse) )
         }

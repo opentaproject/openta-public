@@ -38,8 +38,11 @@ const mapDispatchToProps = dispatch => {
 }
 
 const mapStateToProps = (state) => {
+  var cookies = new Cookies()
+  var displaystyle =  state.getIn(['displaystyle'],'horisontal')
+  cookies.set('DisplayStyle',  displaystyle  ,{path : '/'} )
     return {
-      displaystyle : state.get('displaystyle','horisontal')
+      displaystyle :  displaystyle,
     };
 }
 

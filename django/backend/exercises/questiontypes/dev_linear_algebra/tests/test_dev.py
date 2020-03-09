@@ -105,12 +105,16 @@ class SecondDevLinearAlgebraTest(OpenTAStaticLiveServerTestCase):
     def first_exercise(self):
         sel = self.selenium
         wait = WebDriverWait(sel, 200)
-        elements = sel.find_elements_by_css_selector('li')
-        elements = sel.find_elements_by_xpath('//div')
-        # print("elements = ", elements)
-        # for element in elements :
-        #    print("exercise elements = ", element.text )
-        #
+        #elements = sel.find_elements_by_css_selector('li')
+        elements = sel.find_elements_by_xpath('//button')
+        for element in elements :
+            print("exercise elements = ", element.text )
+
+        
+
+
+
+        wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'li.course-exercise-item')))
         exercises = sel.find_elements_by_css_selector('li.course-exercise-item')
         # print("exercises = ", exercises)
         exercise = exercises[0]
@@ -133,9 +137,7 @@ class SecondDevLinearAlgebraTest(OpenTAStaticLiveServerTestCase):
         print("B")
         answerarea.send_keys('sqrt(a^2 + b^2 )')
         print("C")
-        wait.until(
-            EC.presence_of_element_located((By.XPATH, '//i[contains(@class, \'uk-icon-send\')]'))
-        )
+        wait.until( EC.presence_of_element_located((By.XPATH, '//i[contains(@class, \'uk-icon-send\')]')))
         print("success")
         sendbutton = sel.find_element_by_xpath('//i[contains(@class, \'uk-icon-send\')]')
         WebDriverWait(sel, 10000)

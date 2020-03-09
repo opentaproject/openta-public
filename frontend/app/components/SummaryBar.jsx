@@ -1,10 +1,11 @@
 import React, { Component} from 'react';
 import { connect } from "react-redux";
 import { navigateMenuArray } from "../menu.js";
-import UpdateExerciseFilter from "./UpdateExerciseFilter.jsx";
 import T from "./Translation.jsx";
 import t from "../translations.js";
 import LoginInfo from "./LoginInfo.jsx"
+import Cookies from 'universal-cookie';
+
 
 import immutable from "immutable";
 import moment from "moment";
@@ -24,7 +25,13 @@ class BaseSummaryBar extends Component  {
 //  onExerciseFilterChange, activeCourse, exercisefilter }
   constructor() {
     super();
-   this.state = {'exercisefilter' : {} }
+   this.state = {'exercisefilter' : {
+            'required_exercises' : true, 
+            'optional_exercises': true, 
+            'bonus_exercises': true, 
+            'unpublished_exercises': true,
+            }
+    }
    this.handleToggle = this.handleToggle.bind(this)
 
   }
@@ -37,15 +44,25 @@ class BaseSummaryBar extends Component  {
 
 
   handleToggle(exercisefilter, filter_toggle,activeCourse) {
-    var newfilter = this.state.exercisefilter
+    var newfilter = this.props.exercisefilter
     newfilter[filter_toggle] = ! newfilter[filter_toggle]
     this.setState({'exercisefilter' :  newfilter} )
     this.props.onExerciseFilterChange( newfilter , activeCourse )
+    var cookies = new Cookies()
+    var clist = []
+    for ( var entry in newfilter  ){
+        if( newfilter[entry] && entry !== 'undefined' && entry !== '' ){
+          clist.push( entry )
+          }
+        }
+    cookies.set('exercisefilter',  clist.join(';') ,{path : '/'} )
+
+
     }
 
   render () {
   var show_edit_toggle = this.props.show_edit_toggle
-  var exercisefilter = this.state.exercisefilter;
+  var exercisefilter = this.props.exercisefilter;
   var summary = this.props.exerciseState.getIn(['summary'],'SUMMARY MISSING')
   var sums =  this.props.exerciseState.getIn(['sums'], immutable.List( []) )
   var sum01 = sums.getIn(['required','feedback','number_complete_by_deadline'],0)
@@ -126,25 +143,25 @@ class BaseSummaryBar extends Component  {
 
         {  show_edit_toggle && iconview && author && (
             <button  onClick={() => this.handleToggle(exercisefilter,'unpublished_exercises',this.props.activeCourse)} data-uk-tooltip="delay:1500 ;   pos: right " 
-            className="uk-button uk-button-small uk-width-1-4 uk-button-default"  >  
+            className="uk-button uk-button-small uk-width-1-4 uk-button-default unpublished_exercises"  >  
 <i className={iconedit} /> Edit
     </button>  
         ) }
     
         {  show_obligatory && (
             <button  onClick={() => this.handleToggle(exercisefilter,'required_exercises',this.props.activeCourse)} data-uk-tooltip="delay:1500 ;   pos: right " title={mess0} 
-            className="uk-button uk-button-small uk-text uk-text-small uk-width-1-4  blue ">  <i className={icon_required} /> {sum01}:{sum02}:{sum03}:{sum04} </button>  
+            className="uk-button uk-button-small uk-text uk-text-small uk-width-1-4  blue required_exercises ">  <i className={icon_required} /> {sum01}:{sum02}:{sum03}:{sum04} </button>  
         ) }
         { show_bonus && (
             <button  onClick={() => this.handleToggle(exercisefilter,'bonus_exercises',this.props.activeCourse)} 
             data-uk-tooltip="delay:1500; pos: right" title={mess1}
-            className="uk-button uk-width-1-4 uk-button-small   gold ">  <i className={icon_bonus} />
+            className="uk-button uk-width-1-4 uk-button-small   gold bonus_exercises ">  <i className={icon_bonus} />
         {sum11}:{sum12}:{sum13}:{sum14} </button>   
         )}
         { show_optional && (
             <button  onClick={() => this.handleToggle(exercisefilter,'optional_exercises',this.props.activeCourse)} 
             data-uk-tooltip="delay:1500; pos: right" title={mess2} 
-            className="uk-button uk-width-1-4 uk-button-small  green ">  <i className={icon_optional} />{sum21}:{sum22}:{sum23}:{sum24} </button>  
+            className="uk-button uk-width-1-4 uk-button-small  green optional_exercises ">  <i className={icon_optional} />{sum21}:{sum22}:{sum23}:{sum24} </button>  
         )}
         <button className="uk-button uk-hidden-small">{username}</button> 
     </span>

@@ -86,7 +86,7 @@ const BaseHeader = ({
       { ! show_home && (
         <div className="uk-button-group  uk-width-1-3">
         <a className="uk-button uk-hidden" href="#"> </a>
-        <SummaryBar show_edit_toggle={show_edit_toggle}  />
+        <SummaryBar exercisefilter={exercisefilter} show_edit_toggle={show_edit_toggle}  />
         </div>
       )}
 

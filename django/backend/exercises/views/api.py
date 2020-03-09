@@ -417,10 +417,7 @@ def exercise_tree(request, course_pk):
     """
     Get exercise tree
     """
-    defaultfilter = {'FROM_EXERCISE_TREE', True}
-    exercisefilter = request.data.get('exercisefilter', defaultfilter)
-    if exercisefilter == None:
-        exercisefilter = defaultfilter
+    exercisefilter = request.data.get('exercisefilter',{} )
     try:
         dbcourse = Course.objects.get(pk=course_pk)
     except Course.DoesNotExist:
