@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import sys, traceback
 from exercises.applymacros import MacroError
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
@@ -16,7 +17,7 @@ from exercises.parsing import (
     exercise_xml_to_json,
     exercise_xmltree_from_xml,
 )
-from exercises.questiontypes.dev_linear_algebra.variableparser import (
+from exercises.questiontypes.symbolic.variableparser import (
     parse_xml_variables,
     getallvariables,
     parse_xml_functions,
@@ -507,7 +508,8 @@ def exercise_check(request, exercise, question):
         )
         return Response(result)
     except NameError as e:
-        return Response({'error': "Origin: exercise_check. " + str(e)})
+        formatted_lines = traceback.format_exc()
+        return Response({'error': "Origin: question_check. " + str(e) + formatted_lines} )
 
 
 @never_cache

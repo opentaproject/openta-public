@@ -16,7 +16,7 @@ import itertools
 from exercises.questiontypes.safe_run import safe_run
 import logging
 import traceback
-from exercises.questiontypes.dev_linear_algebra.string_formatting import (
+from exercises.questiontypes.symbolic.string_formatting import (
     absify,
     insert_implicit_multiply,
     ascii_to_sympy,
@@ -24,12 +24,12 @@ from exercises.questiontypes.dev_linear_algebra.string_formatting import (
     braketify,
     declash,
 )
-from exercises.questiontypes.dev_linear_algebra.unithelpers import *
+from exercises.questiontypes.symbolic.unithelpers import *
 from sympy import DiagonalOf
-from exercises.questiontypes.dev_linear_algebra.functions import *
-from exercises.questiontypes.dev_linear_algebra.checks import *
-from exercises.questiontypes.dev_linear_algebra.parsers import *
-from exercises.questiontypes.dev_linear_algebra.sympify_with_custom import sympify_with_custom
+from exercises.questiontypes.symbolic.functions import *
+from exercises.questiontypes.symbolic.checks import *
+from exercises.questiontypes.symbolic.parsers import *
+from exercises.questiontypes.symbolic.sympify_with_custom import sympify_with_custom
 import re
 import inspect
 from sympy.printing.mathml import *

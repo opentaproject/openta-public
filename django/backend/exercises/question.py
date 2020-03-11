@@ -118,13 +118,14 @@ def register_question_type(
 
 
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
-    # print("QUESTION CHECK ANSER_DATA = ", answer_data)
+    print("QUESTION CHECK ANSER_DATA = ", answer_data)
     tbeg = time.time()
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         usermacros = get_usermacros(user, exercise_key, question_key)
         username = str(user)
+        print("USERMACROS = ", usermacros)
     except ObjectDoesNotExist:
         return {
             'error': 'Invalid question',
