@@ -14,7 +14,8 @@ from exercises import parsing
 #from exercises.parsing import xml_to_translationdict, update_translationdict_keys
 import exercises.question as question_module
 from exercises.modelhelpers import serialize_exercise_with_question_data
-from exercises.modelhelpers import exercise_folder_structure, exercise_test
+from exercises.folder_structure.modelhelpers import exercise_folder_structure
+from exercises.modelhelpers import  exercise_test
 from exercises.views.file_handling import serve_file
 from exercises.time import before_deadline
 from course.models import patch_credential_string
