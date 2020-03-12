@@ -161,10 +161,10 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         '''
     bigstring = 'getallvariables'
     if global_xmltree is not None:
-        bigstring = etree.tostring(global_xmltree, encoding='UTF-8')
+        bigstring = str( etree.tostring(global_xmltree, encoding='UTF-8') )
     if question_xmltree is not None:
         qstring = etree.tostring(question_xmltree, encoding='UTF-8')
-        bigstring = bigstring + qstring
+        bigstring = bigstring + str( qstring )
     varhash = get_hash_from_string(str(bigstring))
     print("GETALLVARIABLES WITH HASH ", varhash)
     ret = cache.get(varhash)
@@ -226,7 +226,9 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
             filter(lambda item: (item['name'] in used_variable_list), variables)
         )  # GET RID OF CLASHES WITH FUNCTIONS
     # print("GETALL VARIABLESS = ", variables )
-    funs = parse_xml_functions(global_xmltree)
+    funs = {} 
+    if not global_xmltree == None :
+        funs = parse_xml_functions(global_xmltree)
     ret['variables'] = variables
     ret['authorvariables'] = variables
     ret['blacklist'] = blacklist
