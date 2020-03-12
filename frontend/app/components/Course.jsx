@@ -113,7 +113,7 @@ parseFolder = (folder, foldername, level = 0, displaystyle)  => {
       exercises = folder.get("order").map(exercise => {
         var meta = folder.getIn(["exercises", exercise, "meta"]);
         var published = meta.get('published', false )
-        if ( published || ( ! this.compact ) ){
+        if ( published || ( ! this.compact ) || this.props.exercisefilter['unpublished_exercises']  ){
         return (   <li id={exercise} className="course-exercise-item" key={exercise + 'asdf'} > 
  
            <ExerciseItem 
