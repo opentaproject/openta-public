@@ -25,6 +25,7 @@ import {
   updateActiveExercise,
   setActiveCourse,
   updateExerciseFilter,
+  updateDisplayStyle,
 } from './actions.js';
 import { navigateMenuArray, menuPositionUnder } from './menu.js';
 import { SUBPATH ,help_url } from './settings.js';
@@ -82,7 +83,24 @@ const load = () => {
             //'published_exercises': true ,
             'unpublished_exercises': false,
             'FROM INITIALIZE': true}
-  store.dispatch(updateExerciseFilter(  defaultfilter) );
+var ck =   getcookie('exercisefilter')[0] 
+if(  ck  ){
+           var items =  unescape( ck ).split(';')
+           defaultfilter = {}
+           for ( var item in items ){
+              defaultfilter[ items[item] ] = true
+              }
+          }  
+ store.dispatch(updateExerciseFilter(  defaultfilter) );
+  var ck = getcookie( 'DisplayStyle')
+  if( ck == undefined   ){
+      var displaystyle = 'horisontal' 
+    } else if(  ck == [] ){
+      var displaystyle = 'horisontal' 
+      } else { var displaystyle = ck[0] 
+      }
+  
+  store.dispatch(updateDisplayStyle(displaystyle))
   store.dispatch( setTimezone(globalInit.timezone) );
   store.dispatch( setOpenTAVersion(globalInit.openTAVersion) );
   store.dispatch( setActiveCourse(globalInit.coursePk) );
