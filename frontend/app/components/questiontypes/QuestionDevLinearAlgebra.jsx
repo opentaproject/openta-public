@@ -329,6 +329,9 @@ export default class QuestionDevLinearAlgebra extends Component {
   //var correct = state.getIn(['response','correct'], Null) || state.getIn(['correct'], Null); // Boolean indicating if the grader reported correct answer
  var correct = state.getIn(['response','correct'], null ) || state.getIn(['correct'], null ); // Boolean indicating if the grader reported correct answer
  var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
+  //console.log("CORRECT = ", correct )
+  //console.log("STATE RESPONSE",  state.getIn(['response','correct'], 'NOTHING IN RESPONSE) )
+  //console.log("STATE CORRECT ",    state.getIn(['correct'], "NOTING IN CORRECT") )
   var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts']) ) 
   var used_variable_list =   state.getIn(['response','used_variable_list'] , question.getIn(['used_variable_list']) ) 
   var previous_answers = state.getIn(['response','previous_answers'] , question.getIn(['previous_answers']) );

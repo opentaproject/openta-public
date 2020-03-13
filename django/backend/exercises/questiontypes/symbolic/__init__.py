@@ -21,7 +21,7 @@ import re
 from .symbolic import symbolic_expression
 from .symbolic import symbolic_expression_blocking
 from exercises.questiontypes.symbolic.variableparser import get_used_variable_list,getallvariables
-from exercises.questiontypes.symbolic.parsehints import parsehints
+#from exercises.questiontypes.symbolic.parsehints import parsehints
 #from exercises.questiontypes.symbolic import (
 #    get_more_variables_from_obj,
 #    get_functions_from_obj,
@@ -59,12 +59,11 @@ def question_check_symbolic(question_json, question_xmltree, answer_data, global
 
 def question_check(question_json, question_xmltree, answer_data, global_xmltree, symex):
     print("DEV LINEAR ALGEBRA QUESTION_CHECK, ANSWER-DATA", answer_data)
-    hints = parsehints(question_xmltree, global_xmltree, answer_data)
-    hints = None
+    #hints = parsehints(question_xmltree, global_xmltree, answer_data)
     result = {}
-    if hints is not None:
-        if hints.get('correct', None) is not None:
-            return hints
+    #if hints is not None:
+    #    if hints.get('correct', None) is not None:
+    #        return hints
     check_units = True
     ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
     # print("RET = ", ret)
@@ -130,8 +129,8 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
         #    result['status'] = 'correct' if result['correct'] else 'incorrect'
         elif 'error' in list(result.keys()):
             result['status'] = 'error'
-    if hints is not None:
-        result.update(hints)
+    #if hints is not None:
+    #    result.update(hints)
     # print("final result = ", result)
     logger.debug("RETTURN RESULT = " + str(result))
     return result

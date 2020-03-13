@@ -27,6 +27,16 @@ import logging
 import random
 import xml.etree.ElementTree as ET
 
+from collections import OrderedDict
+import functools
+import operator
+import re
+from django.utils import translation
+from exercises.parsing import get_translations
+
+
+
+
 logger = logging.getLogger(__name__)
 
 question_check_dispatch = {}
@@ -42,6 +52,92 @@ class QuestionError(Exception):
 
     def __str__(self):
         return repr(self.value)
+
+def parsehints(question_xmltree, global_xmltree, answer_data):
+    #print("PARSEHINTS ANSWERDATA = ", answer_data)
+    #print("in parsehints question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
+    #print("in parsehints global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
+    lang = translation.get_language()
+    # print( "CURRENT LANGUAGE = ", lang)
+    xmllist = [question_xmltree, global_xmltree]
+    # hintstruc = [];
+    result = {}
+    for xmlentry in xmllist:
+        # print("XML ENTRY = ", xmlentry )
+        # print("in xmlentry ",  etree.tostring(xmlentry, pretty_print=True) )
+        if xmlentry is not None:
+            # print("xmlentry = ", xmlentry)
+            # print("xmlentry.tag", xmlentry.tag)
+            hints = xmlentry.findall('hint')
+            # print('hints= ', hints)
+            if hints:
+                if not isinstance(hints, list):
+                    hints = [hints]
+                try:
+                    for item in hints:
+                        #print("HINT iTEM = ", item )
+                        regex = item.find('regex').text
+                        reply = item.find('comment').text
+                        # alts = item.find('comment').findall('alt')
+                        # alts2  = get_translations( item.find('comment'))
+                        # print('alt2 = ', alts2)
+                        # print('translation', alts2.get(lang, reply) )
+                        tdict = get_translations(item.find('comment'))
+                        reply = tdict.get(lang, reply)
+                        # print("newreply = ", newreply)
+                        # if alts:
+                        #    print("alts = ", alts)
+                        #    for alt in alts:
+                        #        print("alt.get lang", alt.get('lang') )
+                        #        if alt.get('lang') == lang :
+                        #            reply = alt.text
+                        presence = 'forbidden'
+                        # print("p attrib = ", item.find('regex').attrib  )
+                        attributedict = item.find('regex').attrib
+                        if attributedict:
+                            presence = attributedict.get('present', 'forbidden')
+                            # print('presence = ', presence )
+                        if regex and reply:
+                            # found = re.search(regex, answer_data)
+                            found = re.search(
+                                r'{}'.format(regex), answer_data
+                            )  # Allow for special chars in regex hint i.ie. <regex> (\[|\]) </regex>
+                            found = False if found is None else True
+                            #print("REGEX FOUND AS WELL AS REPLY found = ", found)
+                            #print("PRESCENCE = ", presence )
+                            if presence == 'forbidden' and found:
+                                result['correct'] = False
+                                result['status'] = 'incorrect'
+                                result['comment'] = reply
+                                result['dict'] = tdict
+                                #print("RESULT = ", result )
+                                return result
+                            elif presence == 'allowed' and found:
+                                result['comment'] = reply
+                                result['dict'] = tdict
+                                return result
+                            elif presence == 'necessary' and not found:
+                                result['status'] = 'incorrect'
+                                result['correct'] = False
+                                result['comment'] = reply
+                                result['dict'] = tdict
+                                return result
+                            elif presence == 'required' and not found:
+                                result['status'] = 'incorrect'
+                                result['correct'] = False
+                                result['comment'] = reply
+                                result['dict'] = tdict
+                                return result
+
+                    # print("QSON ITEM regex",  item.get('regex') )
+                    # print("QSON ITEM comment",  item.get('comment') )
+                except:
+                    # print("SHOULD NOT GET HERE ANY MORE; qjson is not a list; see parsehints")
+                    result['correct'] = False
+                    result['comment'] = 'PROGRAMMING ERROR; please inform admin HINT TAGS ARE WRONG'
+                    return result
+    #
+    return None
 
 
 def get_all_answers(dbhooks):  # exercise_key, question_id, user_id ) :
@@ -133,7 +229,7 @@ def register_question_type(
 
 
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
-    print("QUESTION CHECK ANSER_DATA = ", answer_data)
+    #print("QUESTION CHECK ANSER_DATA = ", answer_data)
     tbeg = time.time()
     hijacked = request.session.get('hijacked', False)
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
@@ -141,7 +237,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         usermacros = get_usermacros(user, exercise_key, question_key)
         username = str(user)
-        print("USERMACROS = ", usermacros)
+        #print("USERMACROS = ", usermacros)
     except ObjectDoesNotExist:
         return {
             'error': 'Invalid question',
@@ -222,6 +318,10 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
                 )
             except QuestionError as e:
                 return {'error': "XML error: " + str(e)}
+            hints = parsehints(question_xmltree, global_xmltree, answer_data)
+            if not hints is None :
+                    result.update(hints)
+
             if 'zerodivision' in result:
                 logger.error(['zerodivision', dbexercise.name, question_key])
             correct = False
@@ -232,6 +332,8 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
 
             else:
                 result.pop('debug', None)
+            
+            #print("RESULT AFTER UPDATE  = ", result )
             if user.has_perm('exercises.log_question'):
                 Answer.objects.create(
                     user=user,
@@ -263,6 +365,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
 
             if not dbexercise.meta.feedback:
                 result['correct'] = None
+
             return result
         else:
             return {'error': 'No grading function for question type ' + dbquestion.type}
