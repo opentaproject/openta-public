@@ -257,6 +257,11 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         xmltree = exercise_xmltree(dbexercise.get_full_path())
     except NameError as e:
         return {'error': 'xmltree failed'}
+    question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
+    if question_xmltree.xpath('macros') :
+        refreshable_macros = True
+    else :
+        refreshable_macros = False
     [global_xmltree, question_xmltree] = global_and_question_xmltree_get(
         xmltree, question_key, usermacros
     )
@@ -325,8 +330,11 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             if 'zerodivision' in result:
                 logger.error(['zerodivision', dbexercise.name, question_key])
             correct = False
+            print("RESULT = ", result )
             if 'correct' in result:
                 correct = result['correct']
+                if correct and refreshable_macros :
+                    result['comment'] = ' Note that a new random question is now presented. '
             if user.groups.filter(name='Author').exists() and result.get('debug', False):
                 result['warning'] = result.get('warning', '') + "info:  " + result.get('debug')
 
