@@ -225,7 +225,6 @@ class Course(models.Model):
             return None
 
     def docheck(self):
-        return True
         course = Course.objects.filter(pk=self.pk)
         old_value = course.values('use_email').get()['use_email']
         nochange = True
