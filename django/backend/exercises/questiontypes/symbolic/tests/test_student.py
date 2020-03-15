@@ -1,4 +1,5 @@
 from utils import OpenTAStaticLiveServerTestCase
+from unittest.mock import patch
 import time
 from selenium import webdriver
 from backend.selenium_utils import create_selenium
@@ -127,7 +128,8 @@ class MacrosTest(OpenTAStaticLiveServerTestCase):
         print("BUTTONS = ", len(buttons))
         return [len( corrects), len( unchecked) ,len( notcorrects) ]
 
-    def test_1_symbolic_with_hints_and_macros(self):
+    @patch("exercises.question.get_seed")
+    def test_1_symbolic_with_hints_and_macros(self,get_seed=None):
         '''
         Publish an exercise and verify that a student can answer and upload an image.
         '''
@@ -139,9 +141,10 @@ class MacrosTest(OpenTAStaticLiveServerTestCase):
         print("CHANGE EXERCISE OPTIONS")
         exercises = Exercise.objects.all()
         answerdicts = {}
-        answerdicts['LEVEL0'] = collections.OrderedDict([('1', '-8 i + 4 j - 5 k '),
-                ('2','[-1,9,5]' ) ,
-                ('3','1/6 * sqrt( 105/3 ) '  ) ] )
+        answerdicts['LEVEL0'] = collections.OrderedDict([('1', '-6 i  -2 j - 11 k '),
+                ('2','[-6,-2,-11]' ) ,
+                ('3',' sqrt( 23/31 )'  ) ] )
+        get_seed.return_value = '45801'
         for exercise in exercises:
             print("NOW DO EXERCISE_PATH ", exercise.path)
             print("HANDLE EXERCISE_KEY = ", exercise.exercise_key)
@@ -159,10 +162,10 @@ class MacrosTest(OpenTAStaticLiveServerTestCase):
 
         #wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, \'nnready\')]')))
         sel = self.selenium
-        answerdicts = {}
-        answerdicts['LEVEL0'] = collections.OrderedDict([('1', '[-8,4,-5]'),
-                ('2','-1 i + 9 j + 5 k ' ) ,
-                ('3','1/6 * sqrt( 107/3 ) '  ) ] )
+        answerdicts2 = {}
+        answerdicts2['LEVEL0'] = collections.OrderedDict([('1', '[-6,-2,-11]'),
+                ('2','-6 i - 2 j - 11 k ' ) ,
+                ('3','sqrt( 23/30 )'  ) ] )
         for exercise in exercises:
             print("NOW DO EXERCISE_PATH ", exercise.path)
             print("HANDLE EXERCISE_KEY = ", exercise.exercise_key)
@@ -173,8 +176,10 @@ class MacrosTest(OpenTAStaticLiveServerTestCase):
             #self.click_exercise(exercise)
             print("EXERCISE PATH = ", exercise.path)
             print("ANSWER FIRST EXERCISE")
-            [corrects,unchecked,notcorrects] = self.answerall(answerdicts[exercise.path])
+            [corrects,unchecked,notcorrects] = self.answerall(answerdicts2[exercise.path])
             print("TRIPLE2 = ",  [corrects,unchecked,notcorrects] )
+            #wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, \'nnready\')]')))
             assert corrects == 3 
             print("LOGOUT")
         self.logout()
+        self.tearDown()

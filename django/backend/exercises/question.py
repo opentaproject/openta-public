@@ -363,6 +363,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             except:
                 result['used_variable_list'] = []
             usermacros['@call'] = 'question_check'
+            print("USERMACROS = ", usermacros )
             xmltree = exercise_xmltree(dbexercise.get_full_path())
             # NOTE MUST KEEP THIS IN CASE random is updated
             question_xmltree = question_xmltree_get(xmltree, question_key, usermacros)

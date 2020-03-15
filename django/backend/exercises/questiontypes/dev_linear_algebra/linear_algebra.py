@@ -212,7 +212,6 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         sympy1 = sympy1_units.subs(baseunits)
         sympy2 = sympy2_units.subs(baseunits)
         subs_neighbours = []
-        print("LOC1")
         for i in range(0, number_of_points):
             subs_neighbour = []
             for var in sample_variables:
@@ -235,7 +234,6 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         undefined_variables = sympy1.subs(one_point).free_symbols - set(
             [kg, second, meter, ampere, kelvin, mole, candela, sympy.I, sympy.E]
         )
-        print("LOC2")
         if len(undefined_variables) > 0:
             unrecognised = ', '.join(list(map(str, undefined_variables)))
             response['error'] = unrecognised + _(' are not valid variables.')
@@ -257,20 +255,16 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
                 # response['warning'] = "NO SAMPLING"
             return response
 
-        print("LOC3")
         nsympy1 = sympy1.subs(eval_point).doit()
         nsympy2 = sympy2.subs(eval_point).doit()
-        print("LOC3.1")
         nnsympy2 = numpy.linalg.norm(sympy.lambdify([], nsympy2, modules=lambdifymodules)())
         if check_units:
             if nsympy2 == 0 or nnsympy2 < 1e-12:
                 check_units = False
-        print("LOC3.2")
         test_evaluation = numpy.linalg.norm(
             sympy.lambdify([], nsympy1 - nsympy2, modules=lambdifymodules)()
         )
         inner = "A"
-        print("LOC3.5")
         if check_units:
             try:
                 inner = inner + '1'
@@ -283,7 +277,6 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
                 return response
 
         diffs = []
-        print("LOC4")
         for sample_point in subs_neighbours:
             inner = inner + 'C'
             nsympy1 = sympy1.subs(sample_point).doit()
@@ -308,7 +301,6 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
             inner = inner + 'G'
             diffs.append(correct)
             inner = inner + 'H'
-        print("LOC5")
         if diffs.count(True) >= len(subs_neighbours) * 0.9:
             response['correct'] = True
         else:
