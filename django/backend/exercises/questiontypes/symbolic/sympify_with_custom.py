@@ -238,7 +238,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
     # print("SPLIT1 ", ( time.time() - tbeg )*1000 )
-    try:
+    if False :
         sexpr = ascii_to_sympy(declash(expression), {})
         location = 'A'
         if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:
@@ -277,8 +277,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
             core_cache.set(varhash, srepr(new), 60 * 60)
         # print("SPLIT1b ", ( time.time() - tbeg )*1000 )
         return new
-    except:
-        pass
+    #except:
+    #    pass
     try:
         rep = [(Function(key), val) for key, val in myscope.items()]
         repadd = [(Function(key), val) for key, val in add_scope.items()]
