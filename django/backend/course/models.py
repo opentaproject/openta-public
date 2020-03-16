@@ -158,6 +158,12 @@ class Course(models.Model):
     use_auto_translation = models.BooleanField( default=False )
     google_auth_string = models.CharField(max_length=4096,blank=True,default='' ) #, validators=[validate_google_auth_string] )
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Call the "real" save() method.
+        defaultuser = User.objects.get(username='student')
+        defaultuser.opentauser.courses.add(self)
+        
+
         
 
     def clean(self):
@@ -225,6 +231,7 @@ class Course(models.Model):
             return None
 
     def docheck(self):
+        return True
         course = Course.objects.filter(pk=self.pk)
         old_value = course.values('use_email').get()['use_email']
         nochange = True
