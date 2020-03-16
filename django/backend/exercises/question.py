@@ -258,7 +258,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     except NameError as e:
         return {'error': 'xmltree failed'}
     question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
-    if question_xmltree.xpath('macros') :
+    if question_xmltree.xpath('macros')  and settings.REFRESH_SEED_ON_CORRECT_ANSWER :
         refreshable_macros = True
     else :
         refreshable_macros = False
