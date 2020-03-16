@@ -181,5 +181,8 @@ class MacrosTest(OpenTAStaticLiveServerTestCase):
             #wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, \'nnready\')]')))
             assert corrects == 3 
             print("LOGOUT")
+            wait.until(EC.presence_of_element_located((By.XPATH, '//button[contains(@class, \'onHome\')]')))
+            mainbutton = sel.find_element_by_xpath('//button[contains(@class, \'onHome\')]')
+            mainbutton.click()
         self.logout()
         self.tearDown()

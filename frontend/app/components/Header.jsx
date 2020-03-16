@@ -73,7 +73,7 @@ const BaseHeader = ({
         <div className="uk-button-group uk-width-1-3">
         <a className="uk-button uk-hidden" href="#"> </a>
         { show_logininfo_button && ( <button className="uk-width-1-3 uk-button " data-uk-toggle="{target:'.login-info'}"><i className="uk-icon-chevron-circle-up uk-hidden login-info"/>
-        <i className="uk-icon-chevron-circle-down uk-visible login-info"/></button> 
+        <i className="uk-icon-chevron-circle-down uk-visible login-info OpenHeader"/></button> 
         )}
         { !show_logininfo_button && ( <div className="uk-width-1-3"> </div>)}
         { ( show_home ) && (  <button className="uk-button onHome" onClick={onHome}> 
@@ -104,8 +104,8 @@ const BaseHeader = ({
 
         <div className="pix30">
 
-        {   show_logininfo &&       ( <div className=" uk-padding-remove uk-width-1-1  login-info"><LoginInfo /></div>   ) }
-        {   ! show_logininfo_button &&    ( <div className=" uk-margin-remove uk-padding-remove uk-width-1-1 uk-hidden login-info"><LoginInfo /></div>   )  }
+        {   show_logininfo &&       ( <div className=" uk-padding-remove uk-width-1-1  uk-hidden login-info"><LoginInfo /></div>   ) }
+        {   ! show_logininfo_button &&    ( <div className=" uk-margin-remove uk-padding-remove uk-width-1-1 uk-visible login-info"><LoginInfo /></div>   )  }
 
         </div>
 

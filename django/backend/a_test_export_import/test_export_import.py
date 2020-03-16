@@ -167,7 +167,7 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
 
 
         wait = WebDriverWait(sel, 2000)
-        seq = ['Course', 'Export', 'CourseExport', 'Home', 'Results', 'Download','GenerateResults', 'DownloadExcel']
+        seq = ['OpenHeader','Course', 'Export', 'CourseExport', 'Home', 'Results', 'Download','GenerateResults', 'DownloadExcel']
         self.do_click_sequence(wait, seq)
         os.replace("/tmp/results.xlsx", "/tmp/results_export.xlsx")
         self.logout()
@@ -211,12 +211,12 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
             students_results(force=True, course=course)
             LOGGER.info('Finished calculating results and statistics')
 
-        self.do_click_sequence(wait, ['Server', 'Import'])
+        self.do_click_sequence(wait, ['OpenHeader','Server', 'Import'])
         element = self.wait_for(wait, "UploadCourseZip")
         element.send_keys('/tmp/server.zip')
         self.wait_for(wait, 'Done')
         sel.refresh()
-        self.do_click_sequence(wait, ['ChooseCourseToShow', 'code123'])
+        self.do_click_sequence(wait, ['OpenHeader','ChooseCourseToShow', 'code123'])
         self.do_click_sequence(wait, ['Results', 'Download','GenerateResults', 'DownloadExcel'])
         os.replace("/tmp/results.xlsx", "/tmp/results_import.xlsx")
         self.logout()

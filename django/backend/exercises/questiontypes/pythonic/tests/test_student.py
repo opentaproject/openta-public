@@ -174,7 +174,7 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
         Publish an exercise and verify that a student can answer and upload an image.
         '''
         sel = self.selenium
-        wait = WebDriverWait(sel, 200)
+        wait = WebDriverWait(sel, 2000)
         print("OPEN SITE")
         self.open_site()
         print("CHANGE EXERCISE OPTIONS")
@@ -200,7 +200,8 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
             print("EXERCISE PATH = ", exercise.path)
             print("ANSWER FIRST EXERCISE")
             self.answerall(answerdicts[exercise.path])
-            mainbutton = sel.find_element_by_xpath('//a[contains(@class, \'uk-navbar-brand\')]')
+            wait.until(EC.presence_of_element_located((By.XPATH, '//button[contains(@class, \'onHome\')]')))
+            mainbutton = sel.find_element_by_xpath('//button[contains(@class, \'onHome\')]')
             mainbutton.click()
             print("LOGOUT")
         self.logout()

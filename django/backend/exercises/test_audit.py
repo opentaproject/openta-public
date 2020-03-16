@@ -112,6 +112,12 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
     def audit_goto_my_audits(self):
         sel = self.selenium
         wait = WebDriverWait(sel, 500)
+        print("WAIT FOR ", 'OpenHeader')
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'OpenHeader')))
+        print("FOUND ", 'OpenHeader')
+        self.selenium.find_element_by_class_name('OpenHeader').click()
+        print("CLICK", 'OpenHeader')
+
         sel.find_element_by_xpath('//a[contains(text(), \'Audit\')]').click()
         sel.find_element_by_xpath('//a[contains(text(), \'My audits\')]').click()
 
