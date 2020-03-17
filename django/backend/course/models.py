@@ -160,8 +160,12 @@ class Course(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)  # Call the "real" save() method.
-        defaultuser = User.objects.get(username='student')
-        defaultuser.opentauser.courses.add(self)
+        try :
+            defaultuser = User.objects.get_or_create(username='student')
+            #opentauser = OpenTAUser.objects.get_or_create(user=defaultuser)
+            defaultuser.opentauser.courses.add(self)
+        except:
+            pass
         
 
         
