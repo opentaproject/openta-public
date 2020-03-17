@@ -226,12 +226,13 @@ def exercise_xmltree_from_xml(xml):
     root = etree.fromstring(xml)
     return root
 
-
-def exercise_xmltree(path):
+def exercise_xmltree(path,usermacros={}):
     xml_path = os.path.join(path, paths.EXERCISE_XML)
     parser = etree.XMLParser(remove_blank_text=True)
     try:
         root = etree.parse(xml_path, parser)
+        if not usermacros == {} :
+            root = apply_macros_to_exercise(root.getroot() , usermacros )
         return root
     except etree.XMLSyntaxError as e:
         # print("PARSING: exercise_xmltree failed", xml )

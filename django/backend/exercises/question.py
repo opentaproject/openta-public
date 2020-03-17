@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
-from exercises.applymacros import apply_macros_to_node
+from exercises.applymacros import apply_macros_to_node, apply_macros_to_exercise
 from exercises.xmljson import BadgerFish
 from exercises.models import Exercise, Question, Answer
 from exercises.serializers import AnswerSerializer
@@ -253,10 +253,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         question_json = question_json_hooks[dbquestion.type](
             question_json, question_json, dbquestion.pk, user.pk, exercise_key
         )
-    try:
-        xmltree = exercise_xmltree(dbexercise.get_full_path())
-    except NameError as e:
-        return {'error': 'xmltree failed'}
+    xmltree = exercise_xmltree(dbexercise.get_full_path(),usermacros)
     question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
     if question_xmltree.xpath('macros')  and settings.REFRESH_SEED_ON_CORRECT_ANSWER :
         refreshable_macros = True
