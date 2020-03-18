@@ -6,7 +6,7 @@ from exercises.models import Exercise, ExerciseMeta
 from exercises.parsing import list_history
 from course.models import Course
 import exercises.parsing as parsing
-import os
+import os, re
 import logging
 
 logger = logging.getLogger(__name__)
@@ -23,6 +23,7 @@ def exercises_add(request):
         return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     path = os.path.join(*request.data.get('path').split('/'))
     name = request.data.get('name')
+    name = re.sub('[^\w]','',name) # MAKE SURE ONLY SIMPLY PARSED FILENAMES ARE CREATED
     res = parsing.exercise_add(os.path.join(dbcourse.get_exercises_path(), path), name)
     if 'error' in res:
         return Response(res, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
