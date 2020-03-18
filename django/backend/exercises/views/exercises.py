@@ -56,6 +56,7 @@ def exercise_delete(request, exercise):
 @permission_required('exercises.edit_exercise')
 def exercise_move(request, exercise):
     new_folder = request.data.get('new_folder')
+    new_folder = re.sub('[^\w\ :]','',new_folder)
     try:
         dbexercise = Exercise.objects.get(pk=exercise)
     except Exercise.DoesNotExist:
@@ -77,6 +78,7 @@ def exercise_move(request, exercise):
 def exercises_move_folder(request):
     old_folder = request.data.get('old_folder')
     new_folder = request.data.get('new_folder')
+    new_folder = re.sub('[^\w\ :]','',new_folder)
     dbexercises = Exercise.objects.filter(folder=old_folder) | Exercise.objects.filter(
         folder__startswith=old_folder + '/'
     )
@@ -103,6 +105,7 @@ def exercises_move_folder(request):
 def exercises_rename_folder(request):
     old_folder = request.data.get('old_folder')
     new_name = request.data.get('new_name')
+    new_name = re.sub('[^\w\ :]','',new_name)
     new_folder_list = old_folder.split('/')[:-1] + [new_name]
     new_folder = "/".join(new_folder_list)
     dbexercises = Exercise.objects.filter(folder=old_folder) | Exercise.objects.filter(
