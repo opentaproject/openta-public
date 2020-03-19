@@ -202,6 +202,13 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     Returns:
         Sympy expression
     """
+    varhash = get_hash_from_string(expression + str(varsubs) + str(funcsubs))
+    dohash = (not 'linear_algebra_compare_expressions' is source) and (settings.DO_CACHE)
+    ret = core_cache.get(varhash)
+    if dohash and ret is not None:
+        ret = sympify(ret)
+        return ret
+
     tbeg = time.time()
     should_be_end = index_of_matching_right_paren(0, '(' + expression + ')')
     assert should_be_end == len(expression) + 2, (
@@ -237,7 +244,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-    # print("SPLIT1 ", ( time.time() - tbeg )*1000 )
+    print("SPLIT1 ", ( time.time() - tbeg )*1000 )
     if False :
         sexpr = ascii_to_sympy(declash(expression), {})
         location = 'A'
@@ -295,11 +302,11 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         }
         xtest = sympify(xtest, ns, evaluate=False).replace(Add, Function('myadd'))
         new = xtest
-        # print("SPLIT1a ", ( time.time() - tbeg )*1000 )
+        print("SPLIT1a ", ( time.time() - tbeg )*1000 )
         new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep, dohash)
-        # print("SPLIT1b ", ( time.time() - tbeg )*1000 )
+        print("SPLIT1b ", ( time.time() - tbeg )*1000 )
         new = new.subs(rep)
-        # print("SPLIT1c ", ( time.time() - tbeg )*1000 )
+        print("SPLIT1c ", ( time.time() - tbeg )*1000 )
         # new = new.replace(Function('mul'), MatMul).doit()
         # print("NEW1 = ", new )
         # new = new.subs( [( Function('myadd') , Function('carefuladd')   ) ]  ).doit()

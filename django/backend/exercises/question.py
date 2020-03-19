@@ -4,6 +4,7 @@ from exercises.applymacros import apply_macros_to_node, apply_macros_to_exercise
 from exercises.xmljson import BadgerFish
 from exercises.models import Exercise, Question, Answer
 from exercises.serializers import AnswerSerializer
+import datetime
 from exercises.parsing import (
     question_json_get,
     exercise_xmltree,
@@ -230,7 +231,6 @@ def register_question_type(
 
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
     #print("QUESTION CHECK ANSER_DATA = ", answer_data)
-    tbeg = time.time()
     hijacked = request.session.get('hijacked', False)
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     try:
@@ -248,12 +248,17 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             ),
         }
     usermacros['@call'] = 'question_check'
+    tbeg = time.time()
+    tbeg = time.time()
     question_json = question_json_get(dbexercise.get_full_path(), question_key, usermacros)
+    #print("TIME1 = ",  ( time.time() - tbeg ) *1000 )
     if dbquestion.type in question_json_hooks:
         question_json = question_json_hooks[dbquestion.type](
             question_json, question_json, dbquestion.pk, user.pk, exercise_key
         )
+    #print("TIME2 = ",  ( time.time() - tbeg ) *1000 )
     xmltree = exercise_xmltree(dbexercise.get_full_path(),usermacros)
+    #print("TIME3 = ",  ( time.time() - tbeg ) *1000 )
     question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
     if question_xmltree.xpath('macros')  and settings.REFRESH_SEED_ON_CORRECT_ANSWER :
         refreshable_macros = True
@@ -308,6 +313,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         ):
             error_msg = _('Answer rate exceeded, ' 'please wait before trying again. (Rate: ')
             return {'error': error_msg + rate + ')'}
+    #print("TIME5 = ",  ( time.time() - tbeg ) *1000.0 )
     try:
         if dbquestion.type in question_check_dispatch:
             result = {}

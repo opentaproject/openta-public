@@ -108,7 +108,6 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
     # print("PARSING expr = ", expr)
     if expr is None:
         return expr
-    expr_orig = deepcopy(expr)
     tbeg = time.time()
     # print("DOHASH = ", dohash)
     if expr.is_Number:
@@ -146,8 +145,8 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
         # print("NEWVARSUBS GETS CALLED")
         while True:
             prev = expr
-            expr = expr.subs(newvarsubs).doit()
-            expr = expr.subs(matrix_sub).doit()
+            expr = expr.subs(newvarsubs)
+            expr = expr.subs(matrix_sub)
             if prev == expr:
                 break
         # if not expr.is_Symbol :

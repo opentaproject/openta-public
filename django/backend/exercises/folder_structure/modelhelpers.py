@@ -1,7 +1,6 @@
 from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
 from course.models import Course
 from exercises.parsing import exercise_xmltree, question_xmltree_get
-from exercises.question import question_check
 from django.contrib.auth.models import User
 from exercises.serializers import ExerciseSerializer, ExerciseMetaSerializer, AnswerSerializer
 from exercises.serializers import ImageAnswerSerializer, AuditExerciseSerializer

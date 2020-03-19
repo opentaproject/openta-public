@@ -31,7 +31,7 @@ ns.update(
         'I': sympy.I,
         #'ff': sympy.Symbol('ff'),
         #'FF': sympy.Symbol('FF'),
-        'N': sympy.Symbol('N'),
+        #'N': sympy.Symbol('N'),
     }
 )
 
