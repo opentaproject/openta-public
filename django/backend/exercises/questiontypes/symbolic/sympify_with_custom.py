@@ -304,8 +304,9 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         new = xtest
         print("SPLIT1a ", ( time.time() - tbeg )*1000 )
         new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep, dohash)
+        print("REP = ", rep ) 
         print("SPLIT1b ", ( time.time() - tbeg )*1000 )
-        new = new.subs(rep)
+        new = new.subs(rep).doit()
         print("SPLIT1c ", ( time.time() - tbeg )*1000 )
         # new = new.replace(Function('mul'), MatMul).doit()
         # print("NEW1 = ", new )

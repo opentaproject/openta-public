@@ -466,8 +466,9 @@ class IsDiagonal(sympy.Function):
 
 class sample(sympy.Function):
     @classmethod
-    def eval(cls, x):
-        return x
+    def eval(cls, *x):
+        print("ENTER SAMPLE ", x )
+        return x[0]
 
 
 class grad(sympy.Function):
