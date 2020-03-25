@@ -60,7 +60,7 @@ def question_check_symbolic(question_json, question_xmltree, answer_data, global
 
 
 def question_check(question_json, question_xmltree, answer_data, global_xmltree, symex):
-    print("DEV LINEAR ALGEBRA QUESTION_CHECK, ANSWER-DATA", answer_data)
+    #print("SYMBOLIC QUESTION_CHECK, ANSWER-DATA", answer_data)
     # hints = parsehints(question_xmltree, global_xmltree, answer_data)
     result = {}
     # if hints is not None:

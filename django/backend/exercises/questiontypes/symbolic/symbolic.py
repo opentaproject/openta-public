@@ -47,6 +47,8 @@ def expr_are_equal(ex1, ex2):
         zz = sympify('0.0').evalf()
         ex1 = zz if 'ZeroMatrix' in srepr(ex1) else ex1
         ex2 = zz if 'ZeroMatrix' in srepr(ex2) else ex2
+        ex1 = ex1.subs(baseunits).doit()
+        ex2 = ex2.subs(baseunits).doit()
         if ex1.is_Matrix and ex2.is_Matrix:
             return sympy.simplify(ex1 - ex2).norm() < 1.0e-8
         elif ex1.is_Matrix:
@@ -65,7 +67,7 @@ def expr_are_equal(ex1, ex2):
                 # for key in dir( diff1 ):
                 #    print( "KEY  = ", key, "ATT = ", getattr(diff1, key) )
                 return False
-            tval = (diff1 == 0) or (abs(diff1) < 1.0e-8)
+            tval = (diff1 == 0) or (abs( N( diff1 ) ) < 1.0e-8)
             return tval
     except Exception as e:
         print("ERROR WAS " + str(e))
@@ -105,18 +107,32 @@ def symbolic_compare_expressions(
     used_variables=[],
     funcsubs={},
 ):
-    tbeg = time.time()
+    
+    
     should_be_end = index_of_matching_right_paren(0, '(' + student_answer + ')')
-    assert should_be_end == len(student_answer) + 2, (
-        "MATCHING PAREN ERROR IN STUDENT_ANSWER " + student_answer
-    )
+    assert should_be_end == len(student_answer) + 2, ( "MATCHING PAREN ERROR IN STUDENT_ANSWER " + student_answer)
     should_be_end = index_of_matching_right_paren(0, '(' + correct + ')')
     assert should_be_end == len(correct) + 2, "MATCHING PAREN ERROR IN CORRECT " + correct
+    #print("CORRECT = ", correct )
+    correct_is_equality = "==" in correct
+    student_answer_is_equality = "==" in student_answer
+    response = {}
 
-    s1 = ascii_to_sympy(student_answer)
-    s2 = ascii_to_sympy(correct)
-    student_answer = s1
-    correct = s2
+    if '=' in student_answer and not '==' in student_answer:
+            response['error'] = 'single equal sign cannot appear in expression'
+            response['debug'] = student_answer
+            return response
+
+    if not correct_is_equality and student_answer_is_equality :
+        response['error'] = "equality not permitted in response"
+        response['debug'] = student_answer
+        return response
+
+
+    #s1 = ascii_to_sympy(student_answer)
+    #s2 = ascii_to_sympy(correct)
+    #student_answer = s1
+    #correct = s2
     # print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
     all_variables = [x['name'] for x in variables]
     illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
@@ -133,20 +149,11 @@ def symbolic_compare_expressions(
     response = {}
     prelhs = 'PRELHS'
     try:
-        correct_is_equality = len(correct.split('==')) > 1
-        if '=' in student_answer and not '==' in student_answer:
-            response['error'] = 'single equal sign cannot appear in expression'
-            response['debug'] = student_answer
-            return response
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables, funcsubs)
         varsubs = [(key, val.subs(baseunits).doit()) for key, val in varsubs]
         student_answer_is_equality = len(student_answer.split('==')) > 1
         if student_answer_is_equality and correct_is_equality:
             [lhs, rhs] = student_answer.split('==')
-        elif student_answer_is_equality and not correct_is_equality:
-            response['error'] = 'equality is not a valid answer'
-            response['debug'] = student_answer
-            return response
         elif correct_is_equality and not student_answer_is_equality:
             if len(correct.split('$$')) < 2:
                 response['error'] = 'equality expected'
@@ -159,9 +166,6 @@ def symbolic_compare_expressions(
         response['error'] = lhs
         response['debug'] = 'ERROR IN symbolic_compare_expressions'
         explanation = ''
-        if '$$' in lhs:
-            lhs = ('(' + student_answer + ')').join(lhs.split('$$'))
-            rhs = '0'
         [tlhs, trhs] = [lhs, rhs]
         if '0' == tlhs:
             prelhs = sympify_with_custom(
@@ -230,6 +234,8 @@ def symbolic_compare_expressions(
         rhs = sympify_with_custom(
             rhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-3'
         ).doit()
+        #print("LHS = ", lhs )
+        #print("RHS = ", rhs )
         ##################
         # print("SPLIT2b = " , ( time.time() - tbeg  )  * 1000 )
         res = symbolic_check_equality(
@@ -298,16 +304,27 @@ def symbolic_internal(expression1, expression2):  # {{{
     try:
         sympy1 = expression1
         sympy2 = expression2
+        #print("SYMPY1 = ", sympy1 )
+        #print("SYMPY2 = ", sympy2 )
+        
+        #ns.update( unitbaseunits)
+        #print("NS = ", ns )
+        sympy1 = sympify( expression1, ns ).doit()
+        sympy2 = sympify( expression2, ns ).doit()
+        #print("SYMPY1 = ", sympy1 )
+        #print("SYMPY2 = ", sympy2 )
         if not doNumeric:
-            sympy1 = powdenest(factor(sympify(expression1, ns)), force=True)
-            sympy2 = powdenest(factor(sympify(expression2, ns)), force=True)
-        if sympy1 == 0:
-            zero = sympy2
-        elif sympy2 == 0:
-            zero = sympy1
-        else:
-            zero = sympy1 - sympy2
-        # print("CHECKING IF ZERO ", zero )
+            sympy1 = simplify( powdenest(factor(sympy1, force=True) ))
+            sympy2 = simplify( powdenest(factor(sympy2, force=True) ))
+        try :
+            if sympy1 == 0:
+                zero = sympy2 
+            elif sympy2 == 0:
+                zero = sympy1
+            else:
+                zero = sympy1 - sympy2
+        except:
+            pass 
         # THE NEXT LINE IS BOTTLENET 1/2 OF TIME SPENT
         # USING simplify ONLY DOES NOT DO MUCH  ; IT IS STILL SLOW
         # print("ZER0 = ", simplify( zero ) )
@@ -323,12 +340,15 @@ def symbolic_internal(expression1, expression2):  # {{{
             ex2 = sympy2
             # shouldbezero = simplify(powdenest(factor(simplify(zero)), force=True))
             # diffy = Norm(shouldbezero)
+        #print(" NOW ex1 = ", ex1 )
+        #print(" NOW ex2 = ", ex2 )
         are_same = expr_are_equal(ex1, ex2)
         if not are_same:
+            print("ZERO = ", zero )
             response['correct'] = False
             response['debug'] = "diff reduces to $" + latex(zero) + '$' + str(zero)
             response['correct'] = False
-            response['debug'] = "diff reduces to $" + latex(zero) + '$'
+            response['debug'] = "diff reduces" +  str( zero )
         else:
             response['correct'] = True
         return response

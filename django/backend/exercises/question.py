@@ -332,7 +332,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             if 'zerodivision' in result:
                 logger.error(['zerodivision', dbexercise.name, question_key])
             correct = False
-            print("RESULT = ", result)
+            #print("RESULT = ", result)
             if 'correct' in result:
                 correct = result['correct']
                 if correct and refreshable_macros:
@@ -365,7 +365,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             except:
                 result['used_variable_list'] = []
             usermacros['@call'] = 'question_check'
-            print("USERMACROS = ", usermacros)
+            #print("USERMACROS = ", usermacros)
             xmltree = exercise_xmltree(dbexercise.get_full_path())
             # NOTE MUST KEEP THIS IN CASE random is updated
             question_xmltree = question_xmltree_get(xmltree, question_key, usermacros)

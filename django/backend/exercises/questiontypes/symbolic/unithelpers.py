@@ -37,7 +37,7 @@ ns.update(
 
 # Sympy substitution rule for removing units from an expression
 baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
-
+unitbaseunits = {'meter': 1.0 , 'second': 1.0, 'kg': 1.0, 'ampere': 1.0, 'kelvin': 1.0, 'mole': 1.0, 'candela': 1.0}
 derivedunits = {
     'joule': (kg * meter ** 2) / second ** 2,
     'newton': (kg * meter) / second ** 2,

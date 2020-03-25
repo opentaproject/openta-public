@@ -621,7 +621,6 @@ class carefuladd(sympy.Function):
 
     @classmethod
     def eval(cls, *args):
-        print("CAREFUL ADD WITH ARGS ", args)
         rank = 1
         for arg in args:
             if hasattr(arg, 'shape'):

@@ -121,7 +121,7 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
             result['status'] = 'error'
     # if hints is not None:
     #    result.update(hints)
-    print("final result = ", result)
+    #print("final result = ", result)
     logger.debug("RETTURN RESULT = " + str(result))
     return result
 

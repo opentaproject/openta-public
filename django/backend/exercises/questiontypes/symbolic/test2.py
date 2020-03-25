@@ -200,6 +200,7 @@ class SymbolicTest2(TestCase):
         )
 
         eqs = [
+            "(tanh(cosh(x)))\' -  sinh(x) / ( cosh( cosh(x)  ))^2  == 0", 
             "partial( gg( fg(x) ) , x ) == gg\'( fg(x) ) fg\'(x)",
             ' ( cos( gg(x) ) )\' ==  - sin( gg(x) ) gg\'(x) ',
             '( gg( fg( gg(x) ) ))\' == gg\'(  fg( gg( x )  ) )  fg\'( gg(x)  ) gg\'( x ) ',
