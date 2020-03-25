@@ -15,12 +15,13 @@ from exercises.util import get_hash_from_string
 
 def get_used_variable_list(correct_answer):
     caretless = re.sub('\'+', '', correct_answer)
+    # MOVED HERE SINCE the @ SIGN WAS BEING STRIPPED BEFORE MACROS IDENTIFIED
+    caretless = re.sub(r"@[A-z0-9]*", ' ', caretless)  # strip macros
     caretless = re.sub(r"\^", ' ', caretless)
     caretless = re.sub(r"[A-z][A-Za-z0-9]*\(", ' (', caretless)  # STRIP FUNCTIONS
     caretless = re.sub(r"[\[\]\.]", ' ', caretless)
     caretless = re.sub(r"[\,\+\-\*]", ' ', caretless)
     caretless = re.sub(r"\W+[0-9]+\W+", ' ', caretless)
-    caretless = re.sub(r"@[A-z0-9]*", ' ', caretless)  # strip macros
     lis = re.findall(r'([A-z][A-Za-z0-9]*)', caretless)  # get all variable names
     used_variable_list = []
     [
