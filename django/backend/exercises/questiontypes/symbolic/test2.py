@@ -1,9 +1,7 @@
 from django.test import TestCase
 from .symbolic import symbolic_compare_expressions
 from .symbolic import symbolic_check_if_true
-from exercises.questiontypes.symbolic.string_formatting import (
-    insert_implicit_multiply as iim,
-)
+from exercises.questiontypes.symbolic.string_formatting import insert_implicit_multiply as iim
 from exercises.questiontypes.symbolic.string_formatting import ascii_to_sympy
 
 import logging

@@ -244,8 +244,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-    #print("SPLIT1 ", ( time.time() - tbeg )*1000 )
-    if False :
+    # print("SPLIT1 ", ( time.time() - tbeg )*1000 )
+    if False:
         sexpr = ascii_to_sympy(declash(expression), {})
         location = 'A'
         if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:
@@ -284,7 +284,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
             core_cache.set(varhash, srepr(new), 60 * 60)
         # print("SPLIT1b ", ( time.time() - tbeg )*1000 )
         return new
-    #except:
+    # except:
     #    pass
     try:
         rep = [(Function(key), val) for key, val in myscope.items()]
@@ -302,12 +302,12 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         }
         xtest = sympify(xtest, ns, evaluate=False).replace(Add, Function('myadd'))
         new = xtest
-        #print("SPLIT1a ", ( time.time() - tbeg )*1000 )
+        # print("SPLIT1a ", ( time.time() - tbeg )*1000 )
         new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep, dohash)
-        #print("REP = ", rep ) 
-        #print("SPLIT1b ", ( time.time() - tbeg )*1000 )
+        # print("REP = ", rep )
+        # print("SPLIT1b ", ( time.time() - tbeg )*1000 )
         new = new.subs(rep).doit()
-        #print("SPLIT1c ", ( time.time() - tbeg )*1000 )
+        # print("SPLIT1c ", ( time.time() - tbeg )*1000 )
         # new = new.replace(Function('mul'), MatMul).doit()
         # print("NEW1 = ", new )
         # new = new.subs( [( Function('myadd') , Function('carefuladd')   ) ]  ).doit()
@@ -317,14 +317,14 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         tend = time.time()
         if dohash:
             core_cache.set(varhash, srepr(new), 60 * 60)
-        #print(
+        # print(
         #    "HASH = ",
         #    varhash,
         #    ": TIME SPENT IN SYMPIFY WITH CUSTOM = ",
         #    (tend - tbeg) * 1000,
         #    " MILLISECONDS parsing ",
         #    expression,
-        #)
+        # )
         # print("SPLIT2 ", ( time.time() - tbeg )*1000 )
     except NameError as e:
         raise NameError(str(e))

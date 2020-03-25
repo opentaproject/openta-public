@@ -518,11 +518,11 @@ class Answer(models.Model):
         date = instance.date
         grader_response = instance.grader_response
         if instance.question:
-                exercise = instance.question.exercise
-                course = exercise.course
-                answer_received.send(
+            exercise = instance.question.exercise
+            course = exercise.course
+            answer_received.send(
                 sender=self.__class__, user=user, exercise=exercise, course=course, date=date
-                )
+            )
 
     # def save(self, *args, **kwargs):
     #    if self.pk == None:

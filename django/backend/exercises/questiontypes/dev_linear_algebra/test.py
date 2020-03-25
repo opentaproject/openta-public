@@ -59,7 +59,7 @@ class DevLinearAlgebraTest(TestCase):
             )['correct'],
             True,
         )
-        #self.assertEqual(
+        # self.assertEqual(
         #    linear_algebra_check_if_true(
         #        precision,
         #        variables,
@@ -68,7 +68,7 @@ class DevLinearAlgebraTest(TestCase):
         #    )['correct'],
         #    True,
         #    msg='Test4',
-        #)
+        # )
         self.assertEqual(
             linear_algebra_check_if_true(
                 precision, variables, 'Not( IsDiagonalizable( $$ ) )  ', '[[0,1],[0,0]]'

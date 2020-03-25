@@ -84,7 +84,7 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
         print("CLICK EXERCISE_KEY = ", exercise_key)
         sel = self.selenium
         wait = WebDriverWait(sel, 2000)
-        print("WAITING FOR li.course-exercise-item[id=" + str(exercise_key)  +" ]")
+        print("WAITING FOR li.course-exercise-item[id=" + str(exercise_key) + " ]")
         wait.until(
             EC.presence_of_element_located(
                 (By.CSS_SELECTOR, 'li.course-exercise-item[id=' + str(exercise_key) + ']')
@@ -94,9 +94,9 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
             'li.course-exercise-item[id=' + str(exercise_key) + ']'
         )
         exercise.click()
-        #xp = '//article[contains(@id,\'' + str(exercise_key) + '\')]'
-        xp = '//article' # [contains(@id,\'' + str(exercise_key) + '\')]'
-        print("NOW WAIT FOR ", xp )
+        # xp = '//article[contains(@id,\'' + str(exercise_key) + '\')]'
+        xp = '//article'  # [contains(@id,\'' + str(exercise_key) + '\')]'
+        print("NOW WAIT FOR ", xp)
         wait.until(EC.presence_of_element_located((By.XPATH, xp)))
         print("FOUND THE EXERCISES: START CLICKING")
 
@@ -200,7 +200,9 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
             print("EXERCISE PATH = ", exercise.path)
             print("ANSWER FIRST EXERCISE")
             self.answerall(answerdicts[exercise.path])
-            wait.until(EC.presence_of_element_located((By.XPATH, '//button[contains(@class, \'onHome\')]')))
+            wait.until(
+                EC.presence_of_element_located((By.XPATH, '//button[contains(@class, \'onHome\')]'))
+            )
             mainbutton = sel.find_element_by_xpath('//button[contains(@class, \'onHome\')]')
             mainbutton.click()
             print("LOGOUT")

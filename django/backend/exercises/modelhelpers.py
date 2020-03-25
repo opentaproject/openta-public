@@ -293,7 +293,7 @@ def serialize_exercise_with_question_data(exercise, user, hijacked):
         Dictionary corresponding to a JSON representation of the exercise together with user data.
 
     """
-    #assert exercise.meta.published, "EXERCISE IS NOT PUBLISHED"
+    # assert exercise.meta.published, "EXERCISE IS NOT PUBLISHED"
     course = exercise.course
     (cache, cachekey) = get_cache_and_key(
         "serialized_exercise_with_question_data:", exercise.exercise_key, user.pk, course.id

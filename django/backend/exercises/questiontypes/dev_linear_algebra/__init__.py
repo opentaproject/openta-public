@@ -20,7 +20,8 @@ import re
 from .linear_algebra import linear_algebra_expression
 from .linear_algebra import linear_algebra_expression_blocking
 from .variableparser import getallvariables, get_used_variable_list
-#from .parsehints import parsehints
+
+# from .parsehints import parsehints
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +49,9 @@ def parse_variables(variables):  # {{{
 
 def question_check(question_json, question_xmltree, answer_data, global_xmltree, symex):
     print("DEV LINEAR ALGEBRA QUESTION_CHECK, ANSWER-DATA", answer_data)
-    #hints = parsehints(question_xmltree, global_xmltree, answer_data)
+    # hints = parsehints(question_xmltree, global_xmltree, answer_data)
     result = {}
-    #if hints is not None:
+    # if hints is not None:
     #    if hints.get('correct', None) is not None:
     #        return hints
     check_units = True
@@ -118,7 +119,7 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
         #    result['status'] = 'correct' if result['correct'] else 'incorrect'
         elif 'error' in list(result.keys()):
             result['status'] = 'error'
-    #if hints is not None:
+    # if hints is not None:
     #    result.update(hints)
     print("final result = ", result)
     logger.debug("RETTURN RESULT = " + str(result))

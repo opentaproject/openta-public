@@ -21,6 +21,7 @@ class ExerciseMetaUpdate(UpdateView):
         'feedback',
         'student_assets',
     ]
+
     def get_object(self, queryset=None):
         obj = self.model.objects.get(pk=self.kwargs['pk'])
         if 'difficulties' in self.kwargs:

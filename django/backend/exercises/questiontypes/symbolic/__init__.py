@@ -20,15 +20,17 @@ import logging
 import re
 from .symbolic import symbolic_expression
 from .symbolic import symbolic_expression_blocking
-from exercises.questiontypes.symbolic.variableparser import get_used_variable_list,getallvariables
-#from exercises.questiontypes.symbolic.parsehints import parsehints
-#from exercises.questiontypes.symbolic import (
+from exercises.questiontypes.symbolic.variableparser import get_used_variable_list, getallvariables
+
+# from exercises.questiontypes.symbolic.parsehints import parsehints
+# from exercises.questiontypes.symbolic import (
 #    get_more_variables_from_obj,
 #    get_functions_from_obj,
 #    remove_blacklist_variables_from_obj,
-#)
+# )
 
 logger = logging.getLogger(__name__)
+
 
 def parse_variables(variables):  # {{{
     '''
@@ -51,17 +53,17 @@ def parse_variables(variables):  # {{{
         raise QuestionError("Cannot parse variables")
 
 
-
 def question_check_symbolic(question_json, question_xmltree, answer_data, global_xmltree):
     return question_check(
         question_json, question_xmltree, answer_data, global_xmltree, symbolic_expression
     )
 
+
 def question_check(question_json, question_xmltree, answer_data, global_xmltree, symex):
     print("DEV LINEAR ALGEBRA QUESTION_CHECK, ANSWER-DATA", answer_data)
-    #hints = parsehints(question_xmltree, global_xmltree, answer_data)
+    # hints = parsehints(question_xmltree, global_xmltree, answer_data)
     result = {}
-    #if hints is not None:
+    # if hints is not None:
     #    if hints.get('correct', None) is not None:
     #        return hints
     check_units = True
@@ -129,12 +131,11 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
         #    result['status'] = 'correct' if result['correct'] else 'incorrect'
         elif 'error' in list(result.keys()):
             result['status'] = 'error'
-    #if hints is not None:
+    # if hints is not None:
     #    result.update(hints)
     # print("final result = ", result)
     logger.debug("RETTURN RESULT = " + str(result))
     return result
-
 
 
 def symbolic_json_hook(safe_question, full_question, question_id, user_id, *args):
@@ -213,7 +214,6 @@ def remove_blacklist_variables_from_obj(variablesobj, foundvariables=[]):
             if token in foundvariables:
                 foundvariables.remove(token)
     return foundvariables
-
 
 
 # This function call registers the question type with the system

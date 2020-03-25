@@ -15,8 +15,8 @@ def write_xlsx_from_results_list(filename, results):
 
 def create_xlsx_from_results_list(results):
     output = io.BytesIO()
-    #logger.error(str(results) )
-    #with open('/tmp/exceldata.py','w') as f :
+    # logger.error(str(results) )
+    # with open('/tmp/exceldata.py','w') as f :
     #    print(results,file=f)
     fp = open('/tmp/exceldata3.pkl', 'wb')
     pickle.dump(results, fp)
@@ -26,7 +26,7 @@ def create_xlsx_from_results_list(results):
     bold_format = workbook.add_format({'bold': True})
     right_border_format = workbook.add_format({'bold': True})
     right_border_format.set_right(1)
-    #print("CREATED WORKBOOK" )
+    # print("CREATED WORKBOOK" )
     worksheet = workbook.add_worksheet()
     ind = 0
     worksheet.write(0, ind, 'ID')
@@ -117,6 +117,6 @@ def create_xlsx_from_results_list(results):
     output.seek(0)
     xls = output.read()
     fp = open("/tmp/out.xlsx", "wb")
-    fp.write( xls )
+    fp.write(xls)
     fp.close()
     return xls

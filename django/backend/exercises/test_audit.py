@@ -200,7 +200,11 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
     def audit_goto_published(self):
         sel = self.selenium
         wait = WebDriverWait(sel, 2000)
-        wait.until(EC.presence_of_element_located((By.XPATH, '//div[@id="published-audits"]/a[text()[contains(., \'1\')]]') ) )
+        wait.until(
+            EC.presence_of_element_located(
+                (By.XPATH, '//div[@id="published-audits"]/a[text()[contains(., \'1\')]]')
+            )
+        )
         (
             sel.find_element_by_xpath(
                 '//div[@id="published-audits"]/a[text()[contains(., \'1\')]]'
@@ -265,5 +269,5 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
         self.first_exercise()
         self.audit_check_student_revision_not_needed()
         self.logout()
-    
-        self.tearDown() 
+
+        self.tearDown()

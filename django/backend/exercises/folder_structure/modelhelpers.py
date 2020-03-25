@@ -74,13 +74,13 @@ def exercise_folder_structure(manager, user, course, exercisefilter):
     else:
         exercises = manager.filter(meta__published=True, course=course).select_related('meta')
 
-    if not exercisefilter.get('unpublished_exercises',False):
+    if not exercisefilter.get('unpublished_exercises', False):
         exercises = exercises.filter(meta__published=True)
-    if not exercisefilter.get('required_exercises',False):
+    if not exercisefilter.get('required_exercises', False):
         exercises = exercises.filter(meta__required=False)
-    if not exercisefilter.get('bonus_exercises',False):
+    if not exercisefilter.get('bonus_exercises', False):
         exercises = exercises.filter(meta__bonus=False)
-    if not exercisefilter.get('optional_exercises',False):
+    if not exercisefilter.get('optional_exercises', False):
         optional = exercises.filter(meta__required=False, meta__bonus=False)
         exercises = exercises.difference(optional)
 

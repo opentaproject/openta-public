@@ -4,7 +4,11 @@ from exercises.applymacros import MacroError
 from users.models import User
 from rest_framework import status
 from rest_framework.decorators import api_view, parser_classes
-from exercises.applymacros import apply_macros_to_exercise, apply_macros_to_node, apply_macros_to_string
+from exercises.applymacros import (
+    apply_macros_to_exercise,
+    apply_macros_to_node,
+    apply_macros_to_string,
+)
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
 from rest_framework.exceptions import PermissionDenied
@@ -231,7 +235,7 @@ def get_unsafe_exercise_summary(user, course_pk, dbexercises):
     ags = Aggregation.objects.filter(user=user, course=course_pk, exercise__meta__published=True)
     if not dbexercises is None:
         ags = ags.filter(exercise__in=dbexercises)
-        logger.debug("DBEXERCISES COUNT = " + str(  dbexercises.count()) )
+        logger.debug("DBEXERCISES COUNT = " + str(dbexercises.count()))
     else:
         logger.debug("DBEXERCISES IS NONE")
     sums = {}
@@ -419,7 +423,7 @@ def exercise_tree(request, course_pk):
     """
     Get exercise tree
     """
-    exercisefilter = request.data.get('exercisefilter',{} )
+    exercisefilter = request.data.get('exercisefilter', {})
     try:
         dbcourse = Course.objects.get(pk=course_pk)
     except Course.DoesNotExist:
@@ -464,7 +468,7 @@ def exercise_json(request, exercise):
         errormsg = None
         hide_answers = not user.has_perm("exercises.view_solution")
         xml = parsing.exercise_xml(dbexercise.get_full_path())
-        if "@" in str( xml ):
+        if "@" in str(xml):
             usermacros = get_usermacros(user, exercise)
             usermacros['@call'] = 'exercise_json'
             usermacros['@combined_user_macros'] = get_combined_usermacros(exercise, xml, user)
@@ -537,7 +541,7 @@ def exercise_xml(request, exercise):
     return Response({'xml': parsing.exercise_xml(dbexercise.get_full_path())})
 
 
-def validate_exercise_globals(xml,user,exercise):
+def validate_exercise_globals(xml, user, exercise):
     #
     # CHECK EXERCISE GLOBALS AND QUESTIONS IF GLOBALS CHANGE
     # DONT BOTHER CHECKING QUESTIONS IF QUESTIONS CHANGE
@@ -548,21 +552,21 @@ def validate_exercise_globals(xml,user,exercise):
     parser = etree.XMLParser(recover=True)
     root = etree.fromstring(xml)
     if "@" in str(xml):
-            usermacros = get_usermacros(user, exercise)
-            usermacros['@exerciseseed'] = 5
-            usermacros['@questionseed'] = 5
-            usermacros['@call'] = 'exercise_json'
-            usermacros['@combined_user_macros'] = get_combined_usermacros(exercise, xml, user)
+        usermacros = get_usermacros(user, exercise)
+        usermacros['@exerciseseed'] = 5
+        usermacros['@questionseed'] = 5
+        usermacros['@call'] = 'exercise_json'
+        usermacros['@combined_user_macros'] = get_combined_usermacros(exercise, xml, user)
     else:
-            usermacros = {}  # if usermacros = {} then no macroparsing is done
+        usermacros = {}  # if usermacros = {} then no macroparsing is done
     root = apply_macros_to_exercise(root, usermacros)
     global_xpath = (
-            '/exercise/global[@type="{type}"] | /exercise/global[not(@type)] | /exercise/global'
-            )
+        '/exercise/global[@type="{type}"] | /exercise/global[not(@type)] | /exercise/global'
+    )
     global_xmltree = (root.xpath(global_xpath) or [None])[0]
-    #full_exercisejson = parsing.exercise_xml_to_json(xml)
-    #print("FULL_EXERCISE_JSON = ", full_exercisejson)
-    
+    # full_exercisejson = parsing.exercise_xml_to_json(xml)
+    # print("FULL_EXERCISE_JSON = ", full_exercisejson)
+
     globalhash = get_hash_from_string(str(etree.tostring(global_xmltree, encoding=str)))
     messages = cache.get(globalhash)
     if messages is not None:
@@ -600,7 +604,7 @@ def validate_exercise_globals(xml,user,exercise):
             question_xmltrees = root.findall(
                 './question[@type="{type}"]'.format(type=question_type)
             )
-        
+
         if "@" in str(xml):
             usermacros = get_usermacros(user, exercise)
             usermacros['@call'] = 'exercise_json'
@@ -610,9 +614,9 @@ def validate_exercise_globals(xml,user,exercise):
         root = etree.fromstring(xml)
         root = apply_macros_to_node(root, usermacros)
         xml = etree.tostring(root)
-        print("XML = ", xml )
-        if root.xpath('/exercise/macros') :
-            messages.append(('warning' ,'No question validation is done when using macros. '))
+        print("XML = ", xml)
+        if root.xpath('/exercise/macros'):
+            messages.append(('warning', 'No question validation is done when using macros. '))
             return messages
         for question_xmltree in question_xmltrees:
             result = {}
@@ -626,11 +630,14 @@ def validate_exercise_globals(xml,user,exercise):
             precision = 1.0e-6
             question_type = question['@attr']['type']
             symex = compare_function[question_type]
-            print("USERMACROS = ", usermacros )
-            print("TRY CORRECT UNMACROD CORRECT ANSWER ", correct_answer )
-            print("TRY CORRECT ANSWER ", apply_macros_to_string( '<txt>' + str(correct_answer ) + '</txt>' , [usermacros] ) )
-            #correct_answer  = apply_macros_to_string( str( correct_answer ), usermacros )
-            #print("TRY CORRECT ANSWER ", correct_answer )
+            print("USERMACROS = ", usermacros)
+            print("TRY CORRECT UNMACROD CORRECT ANSWER ", correct_answer)
+            print(
+                "TRY CORRECT ANSWER ",
+                apply_macros_to_string('<txt>' + str(correct_answer) + '</txt>', [usermacros]),
+            )
+            # correct_answer  = apply_macros_to_string( str( correct_answer ), usermacros )
+            # print("TRY CORRECT ANSWER ", correct_answer )
             try:
                 expr = correct_answer + '  '
                 result = symex(
@@ -660,14 +667,14 @@ def validate_exercise_globals(xml,user,exercise):
         messages.append(('error', type(e).__name__ + str(e)))
         return messages
     cache.set(globalhash, messages, cache_seconds)
-    messages.append( ('warning', 'Exercise checked and saved!') )
+    messages.append(('warning', 'Exercise checked and saved!'))
     return messages
 
 
-def validate_exercise_xml(xml,user,exercise):
+def validate_exercise_xml(xml, user, exercise):
     messages = []
     try:
-        messages = validate_exercise_globals(xml,user,exercise)
+        messages = validate_exercise_globals(xml, user, exercise)
         xmlschema = etree.XMLSchema(etree.parse(paths.EXERCISE_XSD))
         parser = etree.XMLParser(recover=True)
         root = etree.fromstring(xml, parser=parser)
@@ -713,7 +720,7 @@ def exercise_save(request, exercise):
         messages += update_exercise()
     except parsing.ExerciseParseError as e:
         messages.append(('warning', str(e)))
-    messages = messages + validate_exercise_xml(xml,request.user, exercise)
+    messages = messages + validate_exercise_xml(xml, request.user, exercise)
     result = response_from_messages(messages)
     return Response(result)
 
@@ -743,7 +750,7 @@ def exercise_check(request, exercise, question):
         return Response(result)
     except NameError as e:
         formatted_lines = traceback.format_exc()
-        return Response({'error': "Origin: question_check. " + str(e) + formatted_lines} )
+        return Response({'error': "Origin: question_check. " + str(e) + formatted_lines})
 
 
 @never_cache

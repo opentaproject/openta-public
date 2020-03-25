@@ -101,10 +101,10 @@ class MacrosTest(OpenTAStaticLiveServerTestCase):
             answerarea = sel.find_element_by_xpath(
                 '//textarea[contains(@id,\"' + questionkey + '\")]'
             )
-            i = 0;
-            while i < 30 :
-                 i += 1
-                 answerarea.send_keys( Keys.BACK_SPACE )
+            i = 0
+            while i < 30:
+                i += 1
+                answerarea.send_keys(Keys.BACK_SPACE)
             answerarea.send_keys(ans)
         buttons = sel.find_elements_by_xpath('//a//i[contains(@class, \'uk-icon-send\')]')
         print("NUMBER OF BUTTONS = ", len(buttons))
@@ -112,11 +112,11 @@ class MacrosTest(OpenTAStaticLiveServerTestCase):
             print("BUTTON = ", button.text)
             button.click()
             time.sleep(1)
-            #corrects = sel.find_elements_by_xpath('//div[contains(@class, \'yescorrect\')]')
-            #unchecked = sel.find_elements_by_xpath('//div[contains(@class, \'unchecked\')]')
-            #print(" NUMBER CORRECTS = ", len(corrects))
-            #print(" NUMBER UNCHECKED = ", len(unchecked))
-            #print("SUCCESS")
+            # corrects = sel.find_elements_by_xpath('//div[contains(@class, \'yescorrect\')]')
+            # unchecked = sel.find_elements_by_xpath('//div[contains(@class, \'unchecked\')]')
+            # print(" NUMBER CORRECTS = ", len(corrects))
+            # print(" NUMBER UNCHECKED = ", len(unchecked))
+            # print("SUCCESS")
         print("WAITING FOR READY")
         wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, \'ready\')]')))
         corrects = sel.find_elements_by_xpath('//div[contains(@class, \'yescorrect\')]')
@@ -126,14 +126,14 @@ class MacrosTest(OpenTAStaticLiveServerTestCase):
         print("NOTCORRECTS = ", len(notcorrects))
         print("UNCHECKED = ", len(unchecked))
         print("BUTTONS = ", len(buttons))
-        return [len( corrects), len( unchecked) ,len( notcorrects) ]
+        return [len(corrects), len(unchecked), len(notcorrects)]
 
     @patch("exercises.question.get_seed")
-    def test_1_symbolic_with_hints_and_macros(self,get_seed=None):
+    def test_1_symbolic_with_hints_and_macros(self, get_seed=None):
         '''
         Publish an exercise and verify that a student can answer and upload an image.
         '''
-        
+
         sel = self.selenium
         wait = WebDriverWait(sel, 2000)
         print("OPEN SITE")
@@ -141,9 +141,9 @@ class MacrosTest(OpenTAStaticLiveServerTestCase):
         print("CHANGE EXERCISE OPTIONS")
         exercises = Exercise.objects.all()
         answerdicts = {}
-        answerdicts['LEVEL0'] = collections.OrderedDict([('1', '-6 i  -2 j - 11 k '),
-                ('2','[-6,-2,-11]' ) ,
-                ('3',' sqrt( 23/31 )'  ) ] )
+        answerdicts['LEVEL0'] = collections.OrderedDict(
+            [('1', '-6 i  -2 j - 11 k '), ('2', '[-6,-2,-11]'), ('3', ' sqrt( 23/31 )')]
+        )
         get_seed.return_value = '45801'
         for exercise in exercises:
             print("NOW DO EXERCISE_PATH ", exercise.path)
@@ -155,33 +155,35 @@ class MacrosTest(OpenTAStaticLiveServerTestCase):
             self.click_exercise(exercise)
             print("EXERCISE PATH = ", exercise.path)
             print("ANSWER FIRST EXERCISE")
-            [corrects,unchecked,notcorrects] = self.answerall(answerdicts[exercise.path])
-            print("TRIPLE1 = ",  [corrects,unchecked,notcorrects] )
-            assert notcorrects == 3 
+            [corrects, unchecked, notcorrects] = self.answerall(answerdicts[exercise.path])
+            print("TRIPLE1 = ", [corrects, unchecked, notcorrects])
+            assert notcorrects == 3
             print("LOGOUT")
 
-        #wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, \'nnready\')]')))
+        # wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, \'nnready\')]')))
         sel = self.selenium
         answerdicts2 = {}
-        answerdicts2['LEVEL0'] = collections.OrderedDict([('1', '[-6,-2,-11]'),
-                ('2','-6 i - 2 j - 11 k ' ) ,
-                ('3','sqrt( 23/30 )'  ) ] )
+        answerdicts2['LEVEL0'] = collections.OrderedDict(
+            [('1', '[-6,-2,-11]'), ('2', '-6 i - 2 j - 11 k '), ('3', 'sqrt( 23/30 )')]
+        )
         for exercise in exercises:
             print("NOW DO EXERCISE_PATH ", exercise.path)
             print("HANDLE EXERCISE_KEY = ", exercise.exercise_key)
-            #self.change_exercise_options(exercise)
+            # self.change_exercise_options(exercise)
             print("LOGIN")
-            #self.login()
+            # self.login()
             print("DO FIRST EXERCISE")
-            #self.click_exercise(exercise)
+            # self.click_exercise(exercise)
             print("EXERCISE PATH = ", exercise.path)
             print("ANSWER FIRST EXERCISE")
-            [corrects,unchecked,notcorrects] = self.answerall(answerdicts2[exercise.path])
-            print("TRIPLE2 = ",  [corrects,unchecked,notcorrects] )
-            #wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, \'nnready\')]')))
-            assert corrects == 3 
+            [corrects, unchecked, notcorrects] = self.answerall(answerdicts2[exercise.path])
+            print("TRIPLE2 = ", [corrects, unchecked, notcorrects])
+            # wait.until(EC.presence_of_element_located((By.XPATH, '//div[contains(@class, \'nnready\')]')))
+            assert corrects == 3
             print("LOGOUT")
-            wait.until(EC.presence_of_element_located((By.XPATH, '//button[contains(@class, \'onHome\')]')))
+            wait.until(
+                EC.presence_of_element_located((By.XPATH, '//button[contains(@class, \'onHome\')]'))
+            )
             mainbutton = sel.find_element_by_xpath('//button[contains(@class, \'onHome\')]')
             mainbutton.click()
         self.logout()

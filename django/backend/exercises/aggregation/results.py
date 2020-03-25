@@ -81,7 +81,9 @@ def calculate_students_custom_results(dbexercises, task=None, course=None):
         if True or logger.isEnabledFor(logging.DEBUG):
             logger.debug("Adding result for " + student.username)
             if dbexercises:
-                logger.debug("CALCULATE STUDENTS CUSTOM RESULTS DBEXERCISEDS " + str(  dbexercises.count()) )
+                logger.debug(
+                    "CALCULATE STUDENTS CUSTOM RESULTS DBEXERCISEDS " + str(dbexercises.count())
+                )
     return results
 
 

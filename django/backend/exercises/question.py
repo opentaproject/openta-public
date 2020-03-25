@@ -36,8 +36,6 @@ from django.utils import translation
 from exercises.parsing import get_translations
 
 
-
-
 logger = logging.getLogger(__name__)
 
 question_check_dispatch = {}
@@ -54,10 +52,11 @@ class QuestionError(Exception):
     def __str__(self):
         return repr(self.value)
 
+
 def parsehints(question_xmltree, global_xmltree, answer_data):
-    #print("PARSEHINTS ANSWERDATA = ", answer_data)
-    #print("in parsehints question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
-    #print("in parsehints global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
+    # print("PARSEHINTS ANSWERDATA = ", answer_data)
+    # print("in parsehints question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
+    # print("in parsehints global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
     lang = translation.get_language()
     # print( "CURRENT LANGUAGE = ", lang)
     xmllist = [question_xmltree, global_xmltree]
@@ -76,7 +75,7 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                     hints = [hints]
                 try:
                     for item in hints:
-                        #print("HINT iTEM = ", item )
+                        # print("HINT iTEM = ", item )
                         regex = item.find('regex').text
                         reply = item.find('comment').text
                         # alts = item.find('comment').findall('alt')
@@ -104,14 +103,14 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                                 r'{}'.format(regex), answer_data
                             )  # Allow for special chars in regex hint i.ie. <regex> (\[|\]) </regex>
                             found = False if found is None else True
-                            #print("REGEX FOUND AS WELL AS REPLY found = ", found)
-                            #print("PRESCENCE = ", presence )
+                            # print("REGEX FOUND AS WELL AS REPLY found = ", found)
+                            # print("PRESCENCE = ", presence )
                             if presence == 'forbidden' and found:
                                 result['correct'] = False
                                 result['status'] = 'incorrect'
                                 result['comment'] = reply
                                 result['dict'] = tdict
-                                #print("RESULT = ", result )
+                                # print("RESULT = ", result )
                                 return result
                             elif presence == 'allowed' and found:
                                 result['comment'] = reply
@@ -230,14 +229,14 @@ def register_question_type(
 
 
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
-    #print("QUESTION CHECK ANSER_DATA = ", answer_data)
+    # print("QUESTION CHECK ANSER_DATA = ", answer_data)
     hijacked = request.session.get('hijacked', False)
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         usermacros = get_usermacros(user, exercise_key, question_key)
         username = str(user)
-        #print("USERMACROS = ", usermacros)
+        # print("USERMACROS = ", usermacros)
     except ObjectDoesNotExist:
         return {
             'error': 'Invalid question',
@@ -251,18 +250,18 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     tbeg = time.time()
     tbeg = time.time()
     question_json = question_json_get(dbexercise.get_full_path(), question_key, usermacros)
-    #print("TIME1 = ",  ( time.time() - tbeg ) *1000 )
+    # print("TIME1 = ",  ( time.time() - tbeg ) *1000 )
     if dbquestion.type in question_json_hooks:
         question_json = question_json_hooks[dbquestion.type](
             question_json, question_json, dbquestion.pk, user.pk, exercise_key
         )
-    #print("TIME2 = ",  ( time.time() - tbeg ) *1000 )
-    xmltree = exercise_xmltree(dbexercise.get_full_path(),usermacros)
-    #print("TIME3 = ",  ( time.time() - tbeg ) *1000 )
+    # print("TIME2 = ",  ( time.time() - tbeg ) *1000 )
+    xmltree = exercise_xmltree(dbexercise.get_full_path(), usermacros)
+    # print("TIME3 = ",  ( time.time() - tbeg ) *1000 )
     question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
-    if question_xmltree.xpath('macros')  and settings.REFRESH_SEED_ON_CORRECT_ANSWER :
+    if question_xmltree.xpath('macros') and settings.REFRESH_SEED_ON_CORRECT_ANSWER:
         refreshable_macros = True
-    else :
+    else:
         refreshable_macros = False
     [global_xmltree, question_xmltree] = global_and_question_xmltree_get(
         xmltree, question_key, usermacros
@@ -313,7 +312,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         ):
             error_msg = _('Answer rate exceeded, ' 'please wait before trying again. (Rate: ')
             return {'error': error_msg + rate + ')'}
-    #print("TIME5 = ",  ( time.time() - tbeg ) *1000.0 )
+    # print("TIME5 = ",  ( time.time() - tbeg ) *1000.0 )
     try:
         if dbquestion.type in question_check_dispatch:
             result = {}
@@ -327,24 +326,24 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             except QuestionError as e:
                 return {'error': "XML error: " + str(e)}
             hints = parsehints(question_xmltree, global_xmltree, answer_data)
-            if not hints is None :
-                    result.update(hints)
+            if not hints is None:
+                result.update(hints)
 
             if 'zerodivision' in result:
                 logger.error(['zerodivision', dbexercise.name, question_key])
             correct = False
-            print("RESULT = ", result )
+            print("RESULT = ", result)
             if 'correct' in result:
                 correct = result['correct']
-                if correct and refreshable_macros :
+                if correct and refreshable_macros:
                     result['comment'] = ' Note that a new random question is now presented. '
             if user.groups.filter(name='Author').exists() and result.get('debug', False):
                 result['warning'] = result.get('warning', '') + "info:  " + result.get('debug')
 
             else:
                 result.pop('debug', None)
-            
-            #print("RESULT AFTER UPDATE  = ", result )
+
+            # print("RESULT AFTER UPDATE  = ", result )
             if user.has_perm('exercises.log_question'):
                 Answer.objects.create(
                     user=user,
@@ -366,7 +365,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             except:
                 result['used_variable_list'] = []
             usermacros['@call'] = 'question_check'
-            print("USERMACROS = ", usermacros )
+            print("USERMACROS = ", usermacros)
             xmltree = exercise_xmltree(dbexercise.get_full_path())
             # NOTE MUST KEEP THIS IN CASE random is updated
             question_xmltree = question_xmltree_get(xmltree, question_key, usermacros)

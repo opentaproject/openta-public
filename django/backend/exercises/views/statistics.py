@@ -43,7 +43,7 @@ def get_results_async(request, course_pk):
         return Response(messages)
 
 
-#def oldget_results_excel(request, course_pk):
+# def oldget_results_excel(request, course_pk):
 #
 #    dbcourse = Course.objects.get(pk=course_pk)
 #    results = students_results(course=dbcourse)
@@ -81,33 +81,33 @@ def get_results_async(request, course_pk):
 #    return response
 
 
-
 @permission_required('exercises.view_statistics')
 @api_view(['GET', 'POST'])
 def get_results_excel(request, course_pk):
     dbcourse = Course.objects.get(pk=course_pk)
-    dbexercises = Exercise.objects.filter(course_id=course_pk,meta__published=True )
+    dbexercises = Exercise.objects.filter(course_id=course_pk, meta__published=True)
     task_id = workqueue.enqueue_task(
         "Custom results", excel_custom_results_pipeline, dbexercises, course=dbcourse
     )
     return Response({'task_id': task_id})
+
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET', 'POST'])
 def enqueue_custom_result_excel(request, course_pk):
     exercises = None
     if request.method == 'GET':
-        #print("GET", str( request.query_params ) )
+        # print("GET", str( request.query_params ) )
         exercises = request.query_params.get('exercises').split(',')
     if request.method == 'POST':
-        #print("POST", str( request.data ) )
+        # print("POST", str( request.data ) )
         exercises = request.data.get('exercises')
     if exercises is None:
         return Response({})
 
     dbcourse = Course.objects.get(pk=course_pk)
     dbexercises = Exercise.objects.filter(exercise_key__in=exercises)
-    #print("DBEXERCISES = ", list( dbexercises.values_list('exercise_key', flat=True) ) )
+    # print("DBEXERCISES = ", list( dbexercises.values_list('exercise_key', flat=True) ) )
     task_id = workqueue.enqueue_task(
         "Custom results", excel_custom_results_pipeline, dbexercises, course=dbcourse
     )
