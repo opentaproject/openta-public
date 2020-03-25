@@ -117,7 +117,7 @@ def symbolic_compare_expressions(
     s2 = ascii_to_sympy(correct)
     student_answer = s1
     correct = s2
-    print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
+    #print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
     all_variables = [x['name'] for x in variables]
     illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
     if len(illegalvars) > 0:
@@ -220,23 +220,23 @@ def symbolic_compare_expressions(
                 if funcstr in blacklist:
                     return {'error': _('(G) Forbidden token: ') + funcstr}
 
-        print("SPLIT2 = " , ( time.time() - tbeg  )  * 1000 )
+        #print("SPLIT2 = " , ( time.time() - tbeg  )  * 1000 )
         lhs = sympify_with_custom(
             lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
         ).doit()
-        print("SPLIT2a = " , ( time.time() - tbeg  )  * 1000 )
+        #print("SPLIT2a = " , ( time.time() - tbeg  )  * 1000 )
         # THE NEXT  BIT LINE IS 1/2 THE BOTTLENECK
         # IT PROPAGEATES TO TIME SPENT IN pre
         rhs = sympify_with_custom(
             rhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-3'
         ).doit()
         ##################
-        print("SPLIT2b = " , ( time.time() - tbeg  )  * 1000 )
+        #print("SPLIT2b = " , ( time.time() - tbeg  )  * 1000 )
         res = symbolic_check_equality(
             precision, lhs, rhs, sample_variables, check_units=check_units
         )
         tend = time.time()
-        print("TOTAL TIME IN COMPARE EXPRESSIONS", ( tend - tbeg ) * 1000  , " MILLISECONDS" )
+        #print("TOTAL TIME IN COMPARE EXPRESSIONS", ( tend - tbeg ) * 1000  , " MILLISECONDS" )
         return res
 
     except SympifyError as e:
@@ -349,7 +349,7 @@ def symbolic_internal(expression1, expression2):  # {{{
         logger.error([str(e), expression1, expression2])
         response['error'] = _("Unknown error2, check your expression.")
         response['debug'] = debug = type(e).__name__ + ": " + str(e)
-    print("TOTAL TIME IN INTERNAL", (time.time() - tbeg) * 1000)
+    #print("TOTAL TIME IN INTERNAL", (time.time() - tbeg) * 1000)
     return response  # }}}
 
 
