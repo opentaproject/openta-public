@@ -154,6 +154,7 @@ class BaseExercise extends Component {
   }
 
   renderText = (itemjson, json, meta, exerciseKey) => {
+    if (itemjson ){
     var childrenList = this.filterLanguage(itemjson.get('$children$', immutable.List([])));
 
     if(childrenList.filter( item => item.get('#name','') === 'figure').size == 1 &&
@@ -166,6 +167,9 @@ class BaseExercise extends Component {
         {children}
       </div>
     );
+    } else {
+    return (<Badge className={"uk-badge uk-text-medium uk-badge-danger"} > Text missing ! </Badge> )
+    }
   }
 
   renderFigure = (itemjson, json, meta, exerciseKey) => {
