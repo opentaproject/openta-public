@@ -116,6 +116,10 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                                 result['comment'] = reply
                                 result['dict'] = tdict
                                 return result
+                            elif presence == 'discouraged' and not found:
+                                result['comment'] = reply
+                                result['dict'] = tdict
+                                return result
                             elif presence == 'necessary' and not found:
                                 result['status'] = 'incorrect'
                                 result['correct'] = False
