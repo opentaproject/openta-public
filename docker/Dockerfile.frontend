@@ -2,11 +2,10 @@ FROM python:3.5
 MAINTAINER Hampus Linander
 
 # Recommended method for installing nodejs with package manager on Debian (minus sudo)
-RUN (curl -sL https://deb.nodesource.com/setup_8.x | bash -)\
+RUN (curl -sL https://deb.nodesource.com/setup_10.x | bash -)\
     && apt-get update \
     && apt-get install -y \
-    nodejs \
-    npm
+    nodejs
 
 RUN npm i npm@latest -g
 RUN npm install -g brunch

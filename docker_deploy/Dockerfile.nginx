@@ -4,3 +4,27 @@ RUN rm /etc/nginx/conf.d/default.conf
 COPY ./docker_deploy/configs/openta_nginx.conf /etc/nginx/conf.d/default.template
 
 Add ./django /srv/openta/django
+
+RUN chgrp -R 0 \
+  /etc/nginx/conf.d/ \
+  /var/cache/ \
+  /var/run \
+  /var/log/nginx
+
+RUN chmod -R g=u \
+  /etc/nginx/conf.d/ \
+  /var/cache/ \
+  /var/run \
+  /var/log/nginx
+
+RUN chmod -R o+w \
+  /etc/nginx/conf.d/ \
+  /var/cache/ \
+  /var/run \
+  /var/log/nginx
+
+RUN sed -i.bak 's/^user/#user/' /etc/nginx/nginx.conf
+
+RUN addgroup nginx root
+
+USER nginx

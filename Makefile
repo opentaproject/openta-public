@@ -116,11 +116,10 @@ deploy-docker-setup:
 
 .PHONY: build-deploy-docker
 build-deploy-docker: check-docker-repo-env build-docker frontend
-	docker build -f docker_deploy/Dockerfile.nginx -t ${DOCKER_REPO}/openta:nginx .
+	docker build -f docker_deploy/Dockerfile.nginx -t ${DOCKER_REPO}/nginx:${COMMIT} .
 	docker build -f docker_deploy/Dockerfile.backendDeploy -t ${DOCKER_REPO}/openta:${COMMIT} .
 	@echo "Push images with:"
-	@echo "docker push ${DOCKER_REPO}/openta:${COMMIT}"
-	@echo "docker push ${DOCKER_REPO}/openta:nginx"
+	@echo "docker push ${DOCKER_REPO}/openta:${COMMIT} && docker push ${DOCKER_REPO}/nginx:${COMMIT}"
 
 .PHONY: check-docker-repo-env
 check-docker-repo-env:

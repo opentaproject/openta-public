@@ -6,15 +6,15 @@ metadata:
     kompose.version: 1.17.0 (a74acad)
   creationTimestamp: null
   labels:
-    io.kompose.service: ${SUBPATH}
-  name: ${SUBPATH}
+    io.kompose.service: {{SUBPATH}}
+  name: {{SUBPATH}}
 spec:
   ports:
-  - name: "80"
-    port: 80
-    targetPort: 80
+  - name: "8080"
+    port: 8080
+    targetPort: 8080
   selector:
-    io.kompose.service: ${SUBPATH}
-  type: NodePort
+    io.kompose.service: {{SUBPATH}}
+  type: ClusterIP
 status:
   loadBalancer: {}
