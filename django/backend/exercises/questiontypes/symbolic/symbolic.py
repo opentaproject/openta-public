@@ -304,13 +304,13 @@ def symbolic_internal(expression1, expression2):  # {{{
     try:
         sympy1 = expression1
         sympy2 = expression2
-        #print("SYMPY1 = ", sympy1 )
-        #print("SYMPY2 = ", sympy2 )
         
-        #ns.update( unitbaseunits)
-        #print("NS = ", ns )
-        sympy1 = sympify( expression1, ns ).doit()
-        sympy2 = sympify( expression2, ns ).doit()
+        ns.update( unitbaseunits)
+        print("NS = ", ns )
+        sympy1 = expression1.subs(ns).doit()
+        sympy2 = expression2.subs(ns).doit()
+        print("SYMPY1 A = ", sympy1 )
+        print("SYMPY2 B = ", sympy2 )
         #print("SYMPY1 = ", sympy1 )
         #print("SYMPY2 = ", sympy2 )
         if not doNumeric:

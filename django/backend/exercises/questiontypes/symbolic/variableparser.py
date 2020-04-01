@@ -11,6 +11,7 @@ import re
 from django.core.cache import cache
 from django.conf import settings
 from exercises.util import get_hash_from_string
+from .string_formatting import declash
 
 
 def get_used_variable_list(correct_answer):
@@ -38,6 +39,7 @@ def new_parse_variables(variables):  # {{{
     Takes a string with variables in the format "var1=x; var2=y; var3=z" and converts into a list of the form
     [ { 'name': 'var1', 'value': 'x'}, ... ]
     '''
+    variables = declash( variables )
     rawvars = " ".join(variables.split()).split(';')
     res = {}
     try:

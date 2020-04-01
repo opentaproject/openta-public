@@ -215,14 +215,9 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         "MATCHING PAREN ERROR IN  SYMPIFY WITH CUSTOM " + expression
     )
     expression = ascii_to_sympy(declash(expression))
-    varhash = get_hash_from_string(expression + str(varsubs) + str(funcsubs))
-    dohash = (not 'linear_algebra_compare_expressions' is source) and (settings.DO_CACHE)
-    ret = core_cache.get(varhash)
-    if dohash and ret is not None:
-        ret = sympify(ret)
-        return ret
     tbeg = time.time()
     scope = openta_scope
+    scope.update( unitbaseunits )
     myscope = deepcopy(scope)
     subrule = []
     for key, val in myscope.items():
@@ -300,7 +295,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
             }
             for sub in funcsubs
         }
-        xtest = sympify(xtest, ns, evaluate=False).replace(Add, Function('myadd'))
+        xtest = sympify(xtest, ns, evaluate=False).subs(ns).doit().replace(Add, Function('myadd'))
         new = xtest
         # print("SPLIT1a ", ( time.time() - tbeg )*1000 )
         new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep, dohash)

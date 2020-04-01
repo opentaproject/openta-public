@@ -235,8 +235,8 @@ def braketify(expression):  # {{{
 def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions# {{{
     result = resub.sub(r"gamma", r"variableGamma", expression)
     result = resub.sub(r"beta", r"variableBeta", result)
-    result = resub.sub(r"FF", r"variableFF", result)
-    result = resub.sub(r"ff", r"variableff", result)
+    result = resub.sub(r"FF", r"variableEffEff", result)
+    result = resub.sub(r"ff", r"variableeffeff", result)
     result = resub.sub(r"lambda", r"variableLambda", result)
     result = resub.sub(r"(\W|\A)e\^", r"\1 E^", result)
     result = resub.sub(r"(\W|\A)e\*\*", r"\1 E**", result)
