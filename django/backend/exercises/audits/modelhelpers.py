@@ -17,6 +17,7 @@ from django.utils import timezone
 from django.conf import settings
 import pytz
 from aggregation.models import Aggregation
+from exercises.modelhelpers import duration_to_string
 from statistics import median, mean
 from exercises.modelhelpers import e_student_tried, get_all_who_tried, bonafide_students
 
@@ -121,6 +122,7 @@ def analyze_exercise_for_student(exercise, student_pk):
     tz = pytz.timezone('Europe/Stockholm')
     deadline_time = datetime.time(23, 59, 59)
     course = exercise.course
+    did_something = False
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
     questions = Question.objects.filter(exercise=exercise).select_related(
@@ -137,6 +139,8 @@ def analyze_exercise_for_student(exercise, student_pk):
     submitted_image = True
     submitted_image_on_time = True
     for question in questions:
+        if Answer.objects.filter(user__pk=student_pk, question=question).exists():
+                did_something = True
         if not Answer.objects.filter(user__pk=student_pk, question=question, correct=True).exists():
             passed_all = False
         if deadline_date is not None:
@@ -148,6 +152,8 @@ def analyze_exercise_for_student(exercise, student_pk):
 
     if not ImageAnswer.objects.filter(user__pk=student_pk, exercise=exercise).exists():
         submitted_image = False
+    else :
+        did_something = True
     if deadline_date is not None:
         image_before_deadline = ImageAnswer.objects.filter(
             user__pk=student_pk,
@@ -196,15 +202,13 @@ def analyze_exercise_for_student(exercise, student_pk):
             pass_ = False
             message = message + "Image missing. "
 
-    return (pass_, message)
+    return (pass_, message,did_something)
 
 
 def get_students_to_be_audited(exercise):
     analyze_results = analyze_exercise(exercise)
+    questions = Question.objects.filter(exercise=exercise).select_related( 'exercise', 'exercise__meta')
 
-    questions = Question.objects.filter(exercise=exercise).select_related(
-        'exercise', 'exercise__meta'
-    )
     students = get_all_who_tried(exercise)
     passed = set(students.values_list('pk', flat=True))
     if questions.count() > 0:
@@ -216,26 +220,17 @@ def get_students_to_be_audited(exercise):
 
 def get_students_not_active(exercise):
     """Get students that haven't answered the questions or uploaded an image."""
-    users = (
-        User.objects.filter(
-            opentauser__courses=exercise.course,
-            groups__name='Student',
-            is_active=True,
-            email__isnull=False,
-        )
-        .exclude(groups__name='View')
-        .exclude(groups__name='Admin')
-        .exclude(groups__name='Author')
-        .exclude(username='student')
-        .distinct()
-    )
+    users = bonafide_students
     ag = Aggregation.objects.filter(exercise=exercise, user__in=users)
     students_not_active = []
     for user in users:
-        cnt = Aggregation.objects.filter(exercise=exercise, user=user).count()
-        if cnt == 0:
-            students_not_active = students_not_active + [user]
-    return students_not_active
+        cnt = Aggregation.objects.filter(exercise=exercise, user=user).exists()
+        if not cnt :
+            students_not_active = students_not_active + [user.pk]
+        #else:
+        #    print("CNT = ", cnt , " user = ", user )
+    #print("NOT ACTIVE",  users.filter(pk__in=students_not_active) )
+    return users.filter(pk__in=students_not_active)
 
 
 def get_students_not_to_be_audited(exercise):

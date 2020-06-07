@@ -332,12 +332,14 @@ export default class QuestionLinearAlgebra extends Component {
             <textarea className={"uk-width-1-1 "} value={this.state.value} onSelect={this.handleSelect} onChange={this.handleChange} ></textarea>
           </div>
           </div>
+        { ! this.props.locked && (
           <div className="uk-width-1-6">
             <a onClick={(event) => submit(input)} className={ "uk-width-1-1 uk-button uk-padding-remove " + (nonEmpty && hasChanged && !renderedResult.error ? "uk-button-success" : "")}>
               { pending && <i className="uk-icon-cog uk-icon-spin"/> }
               { !pending && <i className="uk-icon uk-icon-send"/> }
             </a>
             </div>
+            )}
           </div>
           { error && !hasChanged && <Alert message={error} type="error" key="err"/> }
           { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }

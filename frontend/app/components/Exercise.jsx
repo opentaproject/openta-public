@@ -84,17 +84,19 @@ class BaseExercise extends Component {
     exerciseState: PropTypes.object,
     pendingState: PropTypes.object,
     onHome: PropTypes.func,
+    locked: PropTypes.bool
   };
 
   renderQuestion = (itemjson, json, meta, exerciseKey) => {
     var questions = json.getIn(['exercise', 'question'], immutable.List([]));
     var question = itemjson;
     var questionRenderText = (itemjson) => this.renderText(itemjson, json, meta, exerciseKey)
+    var locked = this.props.locked && ! this.props.author
     return (
           <div key={"q" + question.getIn(['@attr', 'key'])}>
           { questions.filter( q => q.getIn(['@attr','key']) == question.getIn(['@attr','key']) ).count() > 1 && this.props.admin && <Alert message="Duplicate question keys! (If you copied a question please change the key attribute)" type="error"/> }
           <form key={question.getIn(['@attr','key'])} className="uk-form" onSubmit={(event) => event.preventDefault()}>
-          {<Question exerciseKey={exerciseKey} renderText={questionRenderText} questionKey={question.getIn(['@attr','key'])}/>}
+          {<Question exerciseKey={exerciseKey} locked={locked} renderText={questionRenderText} questionKey={question.getIn(['@attr','key'])}/>}
           </form>
           </div>
             );
@@ -334,6 +336,12 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
   render() {
     var key = this.props.exerciseKey;
     var state = this.props.exerciseState;
+    //////////////////
+    //var locked = true
+    //if ( this.props.exercisemeta.size > 0 ){
+    //   var locked = this.props.exercisemeta.first().getIn(['meta'],{} ).getIn(['locked'],true)
+    //  }
+    var locked = this.props.locked && !this.props.author
     var pendingState = this.props.pendingState;
     var filename = this.basename(state.getIn(['path'], '') );
     var json = state.get('json', immutable.Map({}));
@@ -356,9 +364,9 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
         {/* <a className="uk-navbar-brand onHome" onClick={this.props.onHome}> <i className="uk-icon uk-icon-tiny uk-icon-mail-reply"></i> </a> */}
         {error && canViewXML && <Alert message={error} type="error" />}
         {canViewXML && filenameDOM}
-        {meta.get("student_assets") && <Assets />}
-        {canUpload && meta.get("image", false) && <div className="uk-float-right uk-margin-small-right">
-              <ExerciseImageUpload />
+        { meta.get("student_assets") && <Assets locked={locked}  />}
+        {  canUpload && meta.get("image", false) && <div className="uk-float-right uk-margin-small-right">
+              <ExerciseImageUpload  locked={locked} />
             </div>}
         {items}
       </article> </div>
@@ -388,7 +396,13 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
 }
 
 const mapStateToProps = state => {
+  var activeExercise = state.get('activeExercise')
   var activeExerciseState = state.getIn(['exerciseState',state.get('activeExercise')], immutable.Map({}));
+  var exercisemeta =  ( state.getIn(['exercises'], immutable.List([])).filter( item => ( item.get('exercise_key') == activeExercise) ) )
+  var locked = true
+  if ( exercisemeta.size > 0 ){
+      locked = exercisemeta.first().getIn(['meta'],{} ).getIn(['locked'],true)
+      }
   const defaultLanguage = state.getIn(['course', 'languages', 0], 'en');
   return (
   {
@@ -399,6 +413,7 @@ const mapStateToProps = state => {
     exerciseKey: state.get('activeExercise'),
     exerciseState: activeExerciseState,
     pendingState: state.get('pendingState'),
+    locked: locked
 
   })
 };

@@ -20,6 +20,7 @@ class ExerciseMetaUpdate(UpdateView):
         'sort_key',
         'feedback',
         'student_assets',
+        'locked',
     ]
 
     def get_object(self, queryset=None):

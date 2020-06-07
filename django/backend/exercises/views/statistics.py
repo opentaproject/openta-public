@@ -7,7 +7,7 @@ from django.http import HttpResponse
 from exercises.models import Exercise, Answer
 from exercises.aggregation import student_statistics_exercises, students_results
 from exercises.aggregation import create_xlsx_from_results_list, calculate_students_results
-from exercises.aggregation import excel_custom_results_pipeline, students_results_async_pipeline
+from exercises.aggregation import excel_custom_results_pipeline, students_results_async_pipeline 
 from course.models import Course
 from workqueue.models import QueueTask
 import workqueue.util as workqueue
@@ -42,43 +42,6 @@ def get_results_async(request, course_pk):
         messages = embed_messages([error(str(e))])
         return Response(messages)
 
-
-# def oldget_results_excel(request, course_pk):
-#
-#    dbcourse = Course.objects.get(pk=course_pk)
-#    results = students_results(course=dbcourse)
-#    print("TYPE = ", type(results))
-#    print("RESULTS = ", results )
-#    xlsx_data = create_xlsx_from_results_list(results)
-#    print("XLSX_DATA", xlsx_data)
-#    if settings.UNITTESTS:
-#        b = []
-#        for item in results:
-#            del item['pk']
-#            b = b + [item]
-#        with open("/tmp/results.txt", mode="w") as out:
-#            out.write(str(b))
-#    fp = open('/tmp/custom.xlsx','wb')
-#    fp.write(xlsx_data)
-#    fp.close()
-#    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-#    response = HttpResponse(xlsx_data, content_type=content_type)
-#    response['Content-Disposition'] = 'attachment; filename=results.txt'
-#    return response
-#
-
-# @permission_required('exercises.view_statistics')
-# @api_view(['GET'])
-# def nget_custom_result_excel(request):
-#    logging.info("GET_CUSTOM_RESULTS_EXCEL")
-#    exercises = request.query_params.get('exercises').split(',')
-#    dbexercises = Exercise.objects.filter(pk__in=exercises)
-#    results = calculate_students_results(dbexercises)
-#    xlsx_data = create_xlsx_from_results_list(results)
-#    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-#    response = HttpResponse(xlsx_data, content_type=content_type)
-#    response['Content-Disposition'] = 'attachment; filename=results.txt'
-#    return response
 
 
 @permission_required('exercises.view_statistics')

@@ -28,9 +28,12 @@ const BaseAuditOverview = ({menuPath, audits, pendingAudits, onAuditClick, activ
     .map( audit => (immutable.Map({
       'username': audit.get('student_username'),
       'pk': audit.get('pk'),
-      'auditor': audit.getIn(['auditor_data', 'first_name']) + ' ' + audit.getIn(['auditor_data', 'last_name']),
+      'auditor': audit.getIn(['auditor'],''),
+      'auditor_data': audit.getIn(['auditor_data', 'first_name']) + ' ' + audit.getIn(['auditor_data', 'last_name']),
       'passed': (!audit.get('revision_needed')) ? "Yes" : "No",
       'published': audit.get('published') ? 'Yes' : 'No',
+      'points': audit.get('points','') ,
+      'force_passed': audit.get('force_passed') ? 'Yes' : 'No',
       'message': trimMessage(audit.get('message', '')),
       'date': moment(audit.get('date')).format('YYYY-MM-DD HH:mm'),
     }))).toList();
@@ -39,26 +42,51 @@ const BaseAuditOverview = ({menuPath, audits, pendingAudits, onAuditClick, activ
     {
       name: 'Student',
       index: 'username',
+      classname: ''
     },
     {
       name: 'Auditor',
       index: 'auditor',
+      classname: ''
     },
+    
     {
-      name: 'Date',
+      name: 'Auditor_Data',
+      index: 'auditor_data',
+      classname: ''
+    },
+
+    {
+      name: '----Date----',
       index: 'date',
+    classname: ''  
     },
+  
     {
-      name: 'Passed (no revision needed)',
+      name: 'Final',
       index: 'passed',
+      classname: ''
     },
     {
       name: 'Published',
       index: 'published',
+      classname: ''
     },
     {
-      name: 'Message',
+      name: 'Points',
+      index: 'points',
+      classname: ''
+    },
+    
+    {
+      name: 'ForcePass',
+      index: 'force_passed',
+      classname: ''
+    },
+    {
+      name: ' --------------------------- Message ---------------------------',
       index: 'message',
+      classname: 'uk-width uk-width-1-3'
     },
   ];
 
@@ -74,7 +102,9 @@ const BaseAuditOverview = ({menuPath, audits, pendingAudits, onAuditClick, activ
           </h1>
         </div>
         { menuPositionUnder(menuPath, ['activeExercise', 'audit', 'overview']) && 
-          <div className="uk-scrollable-box uk-margin-bottom" style={{height:'70vh'}}><Table tableId='auditOverview' data={renderAudits} fields={tableFields} keyIndex={'pk'} onItem={(id) => onAuditClick(activeExercise, id)} activeItem={activeAudit}/></div>
+          <div className="uk-width-1-1 uk-scrollable-box uk-margin-bottom" style={{height:'70vh'}}>
+          <Table tableId='auditOverview' data={renderAudits} fields={tableFields} keyIndex={'pk'} 
+            onItem={(id) => onAuditClick(activeExercise, id)} activeItem={activeAudit}/></div>
         }
         { activeAudit &&
           <Audit/>

@@ -33,6 +33,7 @@ var defaultState = immutable.fromJS({
   exerciseTreeUI: {},
   results: {
     studentResults: [],
+    regradeResults: [],
     filters: {
       text: '',
       requiredKey: 'n_complete',

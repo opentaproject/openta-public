@@ -100,16 +100,16 @@ class BaseAuthorExercise extends Component {
     var gridClass = this.props.atMenu(['activeExercise', 'assets']) ? '' : 'admin';
     var canViewXML = this.props.author || this.props.view;
     var authorDOM = (
-      <div className="uk-grid">
-        <div className='uk-width-1-1 uk-width-expand'>
-	   <div className='uk-panel uk-panel-box'>
-          <Assets/>
-	   </div>
+      <div className="uk-grid uk-padding-large uk-width-5-6">
+        { !this.props.underMenu(['activeExercise', 'audit']) &&
+        ( <div className='uk-width-1-1'>
+	   <div className='uk-panel uk-panel-box'>  <Assets/> </div>
           </div>
+          ) }
         { !this.props.underMenu(['activeExercise', 'audit']) &&
           !this.props.atMenu(['activeExercise', 'xmlEditor']) &&
           !this.props.atMenu(['activeExercise', 'assets']) &&
-        <div key="exercise" className="exercise-admin">
+        <div key={key + "exercise-admin" } className="exercise-admin">
           <Tools savepending={savePending} savesuccess={!modified && saveError === false} saveerror={saveError} />
           <Exercise/>
         </div>
@@ -118,13 +118,13 @@ class BaseAuthorExercise extends Component {
         { !this.props.atMenu(['activeExercise','xmlEditor']) &&
           !this.props.underMenu(['activeExercise', 'audit']) &&
           !this.props.atMenu(['activeExercise', 'assets']) &&
-          <div key="xml" className="xmleditor">
+          <div key="xml-author-exercise" className="xmleditor">
           { loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) && <Spinner/> }
           { !loadingXML && this.props.atMenu(['activeExercise','xmlEditorSplit']) &&  canViewXML && <XMLEditor xmlCode={this.state.xml} onChange={ (editor, data, xml) => this.xmlUpdate(xml, key)}/> }
           { xmlError && this.props.atMenu(['activeExercise','xmlEditorSplit']) && <Alert type="error">{xmlError}</Alert>}
           { this.props.atMenu(['activeExercise','options']) && this.props.admin &&
             <div className="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-top">
-              <iframe key={key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/>
+              <iframe key={'edit-meta' + key} scrolling="no" className="options" src={SUBPATH + "/exercise/" + key + "/editmeta"} onLoad={event => this.handleIframeLoad(event, this.props.onOptionsSubmit)}/>
               </div>
           }
           { this.props.atMenu(['activeExercise','statistics']) && this.props.view && <Statistics/> }
@@ -142,19 +142,19 @@ class BaseAuthorExercise extends Component {
                   }
                   </div>
               </div>
-          <Assets/>
+              <Assets/> 
           </div>
         }
       {this.props.underMenu(['activeExercise','audit','myaudits']) &&
-       <div className="uk-width-1-1 uk-padding-remove">
+       ( <div className="uk-width-1-1 uk-padding-remove">
          <AuditCompactList />
-       </div>
-      }
-      { this.props.underMenu(['activeExercise','audit','myaudits']) && this.props.admin && <Audit/> }
+         <Audit />
+        </div>
+       )}
       { this.props.underMenu(['activeExercise','audit','overview']) && this.props.admin && <AuditOverview/> }
         { this.props.atMenu(['activeExercise','assets']) && canViewXML &&
           <div className="uk-margin-top">
-              <Assets/>
+               <Assets/>
           </div>
         }
       </div>

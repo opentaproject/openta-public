@@ -204,6 +204,7 @@ export default class QuestionPythonic extends Component {
               </div>
             )}
           </div>
+      { !this.props.locked && (
           <div className="uk-width-1-6">
             <a
               onClick={event => submit(input)}
@@ -216,6 +217,7 @@ export default class QuestionPythonic extends Component {
               {!pending && <i className="uk-icon uk-icon-send" />}
             </a>
           </div>
+        )}
         </div>
         {error && !hasChanged && <Alert message={error} type="error" key="err" />}
         {author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error" />}

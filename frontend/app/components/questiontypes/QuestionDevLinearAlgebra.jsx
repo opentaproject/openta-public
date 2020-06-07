@@ -317,6 +317,7 @@ export default class QuestionDevLinearAlgebra extends Component {
   var question = this.props.questionData;
   var state = this.props.questionState;
   var submit = this.props.submitFunction;
+  var locked = this.props.locked
   var pending = this.props.questionPending;
   // var lang = this.props.lang;
   if ( state.getIn(['response','question'] ) ) { question = state.getIn(['response','question']) }
@@ -484,12 +485,15 @@ export default class QuestionDevLinearAlgebra extends Component {
             <textarea id={questionkey} className={"uk-width-1-1 "} value={this.state.value} onSelect={this.handleSelect} onChange={this.handleChange} ></textarea>
           </div>
           </div>
+        { ! locked &&  (
           <div className="uk-width-1-6">
             <a onClick={(event) => submit(input)} className={ "uk-width-1-1 uk-button uk-padding-remove " + (nonEmpty && hasChanged && !renderedResult.error  && ! this.mathjserror ? "uk-button-success" : "")}>
-              { pending && <i className="uk-icon-cog uk-icon-spin"/> }
+              {  pending && <i className="uk-icon-cog uk-icon-spin"/> }
               { !pending && <i className="uk-icon uk-icon-send"/> }
             </a>
             </div>
+          )}
+
           </div>
           { error && !hasChanged && <Alert message={error} type="error" key="err"/> }
           { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }

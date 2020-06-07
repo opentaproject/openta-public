@@ -150,6 +150,8 @@ const BaseExerciseItem = ({ onExerciseClick, exercise, exerciseState, metaImmuta
   var audit_published = exerciseState.getIn([exercise, "audit_published"], false)
   var audit_passed = ! exerciseState.getIn([exercise, "response_awaits"], true)
   var answer_deltat = exerciseState.getIn([exercise, "answer_deltat"], null)
+  var points = exerciseState.getIn([exercise, "points"], null)
+  console.log("points = ", points)
   var exercisename = folder.getIn(["exercises", exercise, "name"])
   if (displaystyle == "detail"){
     var name=exerciseState.getIn([exercise,"name"],'NONAME')
@@ -236,8 +238,9 @@ const BaseExerciseItem = ({ onExerciseClick, exercise, exerciseState, metaImmuta
         <td className={"uk-hidden-small column_date 15"}>
          { image_deltat }
         </td>
-        <td className={"uk-hidden-small column_check 5"}   data-uk-tooltip="delay:500; pos: left" title={audit_message} >  <i className={"uk-icon "  + yesorno(feedback_safe, audit_published,audit_published) } />
-        <i className={"uk-icon "  + yesorno(feedback_safe,audit_passed,audit_published) } /></td>
+        <td className={"uk-hidden-small column_check 5"}   data-uk-tooltip="delay:500; pos: left" title={audit_message} > {points}  <i className={"uk-icon "  + yesorno(feedback_safe, audit_published,audit_published) } /> 
+        <i className={"uk-icon "  + yesorno(feedback_safe,audit_passed,audit_published) } />  </td>
+        <td> {points} </td>
 
 
 

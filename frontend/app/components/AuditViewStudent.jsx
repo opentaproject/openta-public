@@ -30,7 +30,7 @@ import {
   setDetailResultExercise,
 } from '../actions.js';
 
-const BaseAuditViewStudent = ({ activeExercise, hasAuditData, auditPk, auditor, auditFiles, subject, message, revisionNeeded, currentlyUpdated, onUpdated, pendingUpdate }) => {
+const BaseAuditViewStudent = ({ activeExercise, hasAuditData, auditPk, auditor, auditFiles, subject, message, revisionNeeded, currentlyUpdated, onUpdated, pendingUpdate,points }) => {
   var renderAuditFiles = auditFiles.map(
     auditResponse => (
       <li key={auditResponse.get('id')}>
@@ -50,19 +50,19 @@ const BaseAuditViewStudent = ({ activeExercise, hasAuditData, auditPk, auditor, 
     ));
   if(hasAuditData)
     return (
-        <div className="uk-block uk-block-primary uk-width-1-1 uk-contrast uk-margin-small-left uk-padding-bottom-remove">
+        <div className="uk-block uk-block-primary uk-width-1-1 uk-contrast uk-margin-small-left uk-padding-remove">
             <div className="uk-container">
                 <div className="uk-flex uk-margin-bottom">
                     <div className="uk-width-2-3">
                         <div className="uk-flex">
                             <div>
-                                <h3 className="uk-margin-small-bottom">
-                                    Granskning
-                                    { !revisionNeeded && <Badge type="success" className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-check" /><span id="revision-not-needed"/> Godkänd.</Badge> }
-                                    { revisionNeeded && <Badge type="error" className="uk-margin-left" ><span id="revision-needed"/>Uppdatering krävs.</Badge> }
+                                <h3 className="uk-margin-small-bottom"> 
+                                    Reviewed:   
+                                    { !revisionNeeded && <Badge className="uk-margin-left"><i className="uk-icon uk-icon-medium uk-icon-check" /><span id="revision-not-needed"/> Final comments </Badge> }
+                                    { revisionNeeded && <Badge type="error" className="uk-margin-left" ><span id="revision-needed"/> Return required for pass</Badge> }
                                 </h3>
                                 <div className="uk-text-small">
-                                    Granskad av <a href={"mailto:" + auditor.get('email')} className="uk-text-bold uk-contrast">{auditor.get('first_name')} {auditor.get('last_name')}</a>
+                                    Reviewed by <a href={"mailto:" + auditor.get('email')} className="uk-text-bold uk-contrast">{auditor.get('first_name')} {auditor.get('last_name')}</a>
                                 </div>
                             </div>
         { revisionNeeded &&
@@ -80,6 +80,7 @@ const BaseAuditViewStudent = ({ activeExercise, hasAuditData, auditPk, auditor, 
                         </div>
                         <hr/>
                         <h4>{subject}</h4>
+                        { points && ( <h4 className="uk-margin-small-bottom"> Points: {points} </h4> ) }
                         <div id="audit-message">{message}</div>
                     </div>
                     { renderAuditFiles.size > 0 && 
@@ -90,8 +91,6 @@ const BaseAuditViewStudent = ({ activeExercise, hasAuditData, auditPk, auditor, 
                           </ul>
                       </div>
                     }
-                </div>
-                <div className="uk-width-1-1">
                 </div>
             </div>
         </div>
@@ -112,6 +111,7 @@ const mapStateToProps = state => {
         auditFiles: auditData.get('responsefiles'),
         auditor: auditData.get('auditor_data'),
         message: auditData.get('message'),
+        points: auditData.get('points'),
         subject: auditData.get('subject'),
         revisionNeeded: auditData.get('revision_needed'),
         currentlyUpdated: auditData.get('updated'),

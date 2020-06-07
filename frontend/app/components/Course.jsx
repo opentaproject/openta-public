@@ -189,6 +189,8 @@ parseFolder = (folder, foldername, level = 0, displaystyle)  => {
         <td  className='uk-hidden-small uk-text-primary uk-text-bold column_date_plus'> autograded answers </td>
         <td  className='uk-hidden-small uk-text-primary uk-text-bold column_date_plus'> image answers </td>
         <td  className='uk-hidden-small column_check'> Audit</td>
+       
+       
         </tr>
         </tbody>
         </table>

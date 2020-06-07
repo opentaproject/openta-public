@@ -236,13 +236,14 @@ export default class QuestionMultipleChoice extends Component {
         <label className="uk-form-row uk-display-inline-block uk-margin-bottom">
           {questiontext} <HelpMultipleChoice />
         </label>
+      { ! this.props.locked && (
         <a
           onClick={event => submit(JSON.stringify(this.state.choices))}
-          className={"uk-width-1-1 uk-button uk-padding-remove uk-button-success uk-margin-bottom"}
-        >
+          className={"uk-width-1-1 uk-button uk-padding-remove uk-button-success uk-margin-bottom"} >
           {pending && <i className="uk-icon-cog uk-icon-spin" />}
           {!pending && <i className="uk-icon uk-icon-send" />}
         </a>
+        ) }
         {feedback && correct && (
           <Alert className="uk-margin-small-top uk-margin-small-bottom" type="success" key="input">
             {" "}

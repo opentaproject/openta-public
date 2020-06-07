@@ -27,15 +27,15 @@ import {
 } from '../actions.js';
 
 
-const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange, onOldMessageClick, onDeleteAudit, pendingDelete, onSubjectChange, onPublishAudit, pendingPublish, onPassAudit, onRevisionAudit, onSaveAudit, pendingRevision, userPk,use_email }, bccStatus, onBccClick) => {
+const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, auditData, pendingResults, onSendAudit, pendingSend, pendingSave, onMessageChange,onPointsChange, onOldMessageClick, onDeleteAudit, pendingDelete, onSubjectChange, onPublishAudit, pendingPublish, onPassAudit, onRevisionAudit, onSaveAudit, pendingRevision, userPk,use_email }, bccStatus, onBccClick) => {
   const auditsList = audits.filter( (audit) => audit.get('exercise') === activeExercise )
                            .filter( (audit) => audit.get('auditor') === userPk )
                            .toList()
                            .sort( (a, b) => a.get('date') > b.get('date') );
 
   var sendClass = audits.getIn([activeAudit, 'sent']) ? 'uk-button-primary' : 'uk-button-primary';
-  var sendName = audits.getIn([activeAudit, 'sent']) ? 'Resend' : 'Send';
-  var publishName = audits.getIn([activeAudit, 'published']) ? 'Retract' : 'Publish';
+  var sendName = audits.getIn([activeAudit, 'sent']) ? 'Resend Email Now ' : 'Send Email Now';
+  var publishName = audits.getIn([activeAudit, 'published']) ? 'Unpublish' : 'Publish';
   var publishClass = audits.getIn([activeAudit, 'published']) ? 'uk-button-primary' : 'uk-button-success';
   var revisionNeeded = audits.getIn([activeAudit, 'revision_needed']);
   if(audits.getIn([activeAudit, 'updated']))
@@ -63,17 +63,28 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
                   </label>
                 <input type="text" className="uk-width-1-1 uk-form-small" value={audits.getIn([activeAudit, 'subject'])} onChange={e => onSubjectChange(e, activeAudit)}/>
               </div>
+
               <div className="uk-form-row">
                 <label className="uk-form-label">Message</label>
                 <textarea className="uk-width-1-1" rows="5" onChange={e => onMessageChange(e, activeAudit)} value={audits.getIn([activeAudit, 'message'],'')} id="audit-message"></textarea>
               </div>
+              
+              <div className="uk-form-row">
+                <label className="uk-form-label">points</label>
+                <textarea className="uk-width-1-1" rows="1" onChange={e => onPointsChange(e, activeAudit)} value={audits.getIn([activeAudit, 'points'],'')} id="audit-points"></textarea>
+              </div>
+
+
               <div className="uk-form-row uk-margin-small-top">
                   <AuditResponseUpload/>
               </div>
+           { ! use_email && ( <button className={"uk-button uk-button-medium uk-margin-small-top uk-button-text uk-button-small uk-button-text"} type="button" 
+                        data-uk-tooltip > No email will be sent </button> ) }
+ 
 	   { use_email && 
               <div className="uk-form-row uk-margin-small-top">
                 <div className="uk-flex uk-flex-middle uk-flex-wrap uk-margin-small-top">
-                  <a className={"uk-button uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit, bccStatus)} data-uk-tooltip title="Send/resend email">{sendName} 
+                  <a className={"uk-button uk-button-small uk-margin-small-top uk-position-relative " + sendClass} onClick={() => onSendAudit(activeAudit, bccStatus)} data-uk-tooltip title="Send/resend email">{sendName} 
                   { pendingSend && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   <label data-uk-tooltip title="Send copy to auditor (and you if different)"><input type="checkbox" className="uk-margin-small-right uk-margin-left" checked={bccStatus} onChange={onBccClick}/>Bcc</label>
@@ -81,45 +92,55 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
               </div>
 	 	} 
 		  
-              <div className="uk-form-row uk-margin-small-top">
-                <div className="uk-button-group uk-flex uk-flex-center">
-                  <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-success " + passedClass} onClick={() => onRevisionAudit(activeAudit, false)} data-uk-tooltip title="The student has completed all tasks and no further action is required. Unless otherwise stated this means the student has passed." id="revision-not-needed">
-                    Passed { revisionNeeded === false && <i className="uk-icon uk-icon-check uk-icon-medium" id="revision-not-needed-done"/> }
+              <div className="uk-flex uk-flex-between uk-form-column uk-text-small uk-width-1-1 uk-margin-small-top">
+                  <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-small uk-button-success " + passedClass} onClick={() => onRevisionAudit(activeAudit, false)} data-uk-tooltip title="The student has completed all tasks and no further action is required. Unless otherwise stated this means the student has passed." id="revision-not-needed">
+                    Mark as final { revisionNeeded === false && <i className="uk-icon uk-icon-check uk-icon-small " id="revision-not-needed-done"/> }
                     { pendingRevision && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
-                  <a className={"uk-button uk-margin-small-top uk-position-relative uk-button-danger " + revisionClass} onClick={() => onRevisionAudit(activeAudit, true)} data-uk-tooltip title="Student need to amend their answer/files." id="revision-needed">
-                    Revision needed
-                    { revisionNeeded === true && <i className="uk-icon uk-icon-check uk-icon-medium"/> }
+                  <a className={"uk-button uk-margin-small-top uk-button-small uk-button-danger " + revisionClass} onClick={() => onRevisionAudit(activeAudit, true)} data-uk-tooltip title="Student need to amend their answer/files." id="revision-needed">
+                    Mark for revision
+                    { revisionNeeded === true && <i className="uk-icon uk-icon-check uk-icon-small"/> }
                   { pendingRevision && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
-                </div>
               </div>
-              <div className="uk-form-column uk-margin-small-top">
-                <div className="uk-flex uk-flex-middle uk-flex-space-between uk-flex-wrap uk-margin-small-top">
+
+
+              <div className="uk-form-column uk-width-1-1 uk-margin-small-top">
+                <div className="uk-flex  uk-flex-middle uk-flex-space-between uk-flex-wrap uk-margin-small-top">
                   { audits.getIn([activeAudit, 'revision_needed']) === null && <a 
-                      className="uk-button uk-text-muted" title="Please select status before publishing." 
+                      className="uk-button uk-button-small uk-text-muted" title="Please select status before publishing." 
                        data-uk-tooltip id="publish-single">Publish</a> }
                   { audits.getIn([activeAudit, 'revision_needed']) !== null &&
-                  <a className={"uk-button uk-margin-small-top uk-position-relative " + publishClass} 
+                  <a className={"uk-button uk-button-small uk-margin-small-top uk-position-relative " + publishClass} 
                       onClick={() => onPublishAudit(activeAudit, audits.getIn([activeAudit, 'published']), 
-                      audits.getIn([activeAudit, 'sent']), bccStatus)} data-uk-tooltip 
-                        title="The audit will become visible for the student and an email will be sent if first time." 
+                      audits.getIn([activeAudit, 'sent']), bccStatus,userPk)} data-uk-tooltip 
+                        title="The audit will become visible for the student and if email will be sent if first time and email is activated." 
                         id="publish-single">{publishName}
                   { pendingPublish && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                   }
-                  <a className="uk-button uk-button-danger uk-margin-small-top uk-position-relative" 
+                  <a className="uk-button uk-button-small uk-button-danger uk-margin-small-top uk-position-relative" 
                     onClick={() => onDeleteAudit(activeAudit)} data-uk-tooltip 
-                    title="Delete audit (no trace will remain and the result of the student will be unaffected)">Delete
+                    title="Delete audit (no trace will remain and the result of the student will be unaffected)">Delete from queue
                   { pendingDelete && <Spinner size="uk-icon-small uk-position-top-right"/> }
                   </a>
                 </div>
               </div>
               <div className="uk-form-row uk-margin-remove">
                 <div className="uk-flex uk-flex-space-between uk-flex-wrap uk-margin-small-top">
-                  <a className={"uk-button uk-button-small uk-margin-small-top uk-button-primary "} onClick={() => onPassAudit(activeAudit, audits.getIn([activeAudit, 'student']), audits.getIn([activeAudit, 'force_passed']))} data-uk-tooltip title="This will mark the student as passed even if certain required steps are missing.">Pass student
-                  { audits.getIn([activeAudit, 'force_passed']) && <i className="uk-icon uk-icon-circle uk-text-success uk-margin-small-left"/> }
-                  </a>
+                  { ! audits.getIn([activeAudit, 'force_passed'], false)  && (
+                  <a className={"uk-button uk-button-small uk-margin-small-top uk-width-1-1 uk-button-primary "} 
+                          onClick={() => onPassAudit(activeAudit, audits.getIn([activeAudit, 'student']), 
+                          audits.getIn([activeAudit, 'force_passed']))} 
+                          data-uk-tooltip title="This will mark the student as passed even if certain required steps are missing.">Force Pass
+</a>) 
+                  }
+                  { audits.getIn([activeAudit, 'force_passed'], false )  && (
+                  <a className={"uk-button uk-button-small uk-margin-small-top uk-width-1-1 uk-button-primary "} 
+                          onClick={() => onPassAudit(activeAudit, audits.getIn([activeAudit, 'student']), 
+                          audits.getIn([activeAudit, 'force_passed']))} 
+                          data-uk-tooltip title="This will mark the student as passed even if certain required steps are missing.">Undo Force Pass </a>) 
+                  }
                 </div>
               </div>
             </form>
@@ -127,6 +148,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
             );//}}}
 
   return (
+      <div className="uk-flex uk-padding-large uk-flex-center uk-width-1-1">
       <div className="uk-width-1-1 uk-margin-small-top uk-padding-remove">
         <div className="uk-panel uk-panel-box">
           <div className="uk-flex uk-flex-column">
@@ -165,6 +187,7 @@ const auditRender = ({ audits, activeAudit, activeExercise, exerciseState, audit
           </div>
         </div>
       </div>
+    </div>
   );
 }
 
@@ -182,7 +205,7 @@ const handleAuditSave = (auditPk) => (dispatch, getState) => {
       .then( () => dispatch(updatePendingStateIn(['audit', 'audits', auditPk, 'save'], false)))
       .catch( err => { 
         dispatch(updatePendingStateIn(['audit', 'audits', auditPk, 'save'], null));
-        throw "saveError";
+        // throw "saveError"; // SAVE ERROR WHEN ENTERING POINTS FOR THE FIRST TIME
       })
   } else {
     return console.log('No audit with that pk populated');
@@ -205,9 +228,9 @@ const handleAuditPass = (auditPk, studentPk, currentlyPassed) => dispatch => {
     .catch( err => console.dir(err));
 }
 
-const handleAuditPublish = (auditPk, currentlyPublished, sent, bcc) => (dispatch, getState) => {
+const handleAuditPublish = (auditPk, currentlyPublished, sent, bcc,auditor) => (dispatch, getState) => {
   dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], true));
-  dispatch(updateAudit(auditPk, { published: !currentlyPublished }))
+  dispatch(updateAudit(auditPk, { published: !currentlyPublished, auditor: auditor }))
   return dispatch(handleAuditSave(auditPk))
       .then(() => {
           if(!currentlyPublished && !sent)dispatch(handleAuditSend(auditPk, bcc));
@@ -216,15 +239,16 @@ const handleAuditPublish = (auditPk, currentlyPublished, sent, bcc) => (dispatch
     .catch( err => {
         var state = getState();
         var auditee = state.getIn(['audit', 'audits', auditPk, 'student_username'], '');
+        var auditor  = state.getIn(['audit', 'audits', auditPk, 'auditor'], '');
         UIkit.notify('An error occured while publishing audit for ' + auditee + ', please reload this page and try again.', { status: 'danger' });
       dispatch(updatePendingStateIn( ['audit', 'audits', auditPk, 'publish'], null))
-      dispatch(updateAudit(auditPk, { published: currentlyPublished }))
+      dispatch(updateAudit(auditPk, { published: currentlyPublished , auditor: auditor}))
     });
 }
 
 const handlePublishAndSend = (audits) => dispatch => {
   audits.forEach( audit => {
-    dispatch(handleAuditPublish(audit.get('pk'), false, audit.get('sent'), false))
+    dispatch(handleAuditPublish(audit.get('pk'), false, audit.get('sent'), false, audit.getIn(['auditor_data','id'] ) ))
       .then(() => dispatch(handleAuditSend(audit.get('pk'), false)));
   });
   /**/
@@ -281,16 +305,25 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => ({
   onSendAudit: (auditPk, bcc) => dispatch(handleAuditSend(auditPk, bcc)),
-  onPublishAudit: (auditPk, currentlyPublished, sent, bcc) => dispatch(handleAuditPublish(auditPk, currentlyPublished, sent, bcc)),
+  onPublishAudit: (auditPk, currentlyPublished, sent, bcc,auditor) => dispatch(handleAuditPublish(auditPk, currentlyPublished, sent, bcc,auditor)),
   onRevisionAudit: (auditPk, needRevision) => dispatch(handleAuditRevision(auditPk, needRevision)),
   onDeleteAudit: (auditPk) => dispatch(handleDeleteAudit(auditPk)),
   onPassAudit: (auditPk, studentPk, currentlyPassed) => dispatch(handleAuditPass(auditPk, studentPk, currentlyPassed)),
   onSaveAudit: (auditPk) => dispatch(handleAuditSave(auditPk)),
+
   onMessageChange: (e, pk) =>  {
     dispatch(updatePendingStateIn(['audit', 'audits', pk, 'save'], true));
     dispatch(updateAudit(pk, {'message': e.target.value, 'modified': moment().format()}))
     throttleSave(dispatch, pk);
   },
+
+  onPointsChange: (e, pk) =>  {
+    dispatch(updatePendingStateIn(['audit', 'audits', pk, 'save'], true));
+    dispatch(updateAudit(pk, {'points': e.target.value, 'modified': moment().format()}))
+    throttleSave(dispatch, pk);
+  },
+
+
   onSubjectChange: (e, pk) =>  {
     dispatch(updatePendingStateIn(['audit', 'audits', pk, 'save'], true));
     dispatch(updateAudit(pk, {'subject': e.target.value}))

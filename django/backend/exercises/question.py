@@ -317,9 +317,11 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             error_msg = _('Answer rate exceeded, ' 'please wait before trying again. (Rate: ')
             return {'error': error_msg + rate + ')'}
     # print("TIME5 = ",  ( time.time() - tbeg ) *1000.0 )
+    
     try:
         if dbquestion.type in question_check_dispatch:
             result = {}
+            #print("Q1")
             try:
                 result = question_check_dispatch[dbquestion.type](
                     question_json, question_xmltree, answer_data, global_xmltree
@@ -329,14 +331,16 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
                 )
             except QuestionError as e:
                 return {'error': "XML error: " + str(e)}
+            ##print("Q2")
             hints = parsehints(question_xmltree, global_xmltree, answer_data)
             if not hints is None:
                 result.update(hints)
 
             if 'zerodivision' in result:
                 logger.error(['zerodivision', dbexercise.name, question_key])
+            #print("Q3")
             correct = False
-            #print("RESULT = ", result)
+            ##print("RESULT = ", result)
             if 'correct' in result:
                 correct = result['correct']
                 if correct and refreshable_macros:
@@ -378,9 +382,10 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             bfdata = bf.data(question_xmltree)
             result['question'] = bfdata['question']
 
-            if not dbexercise.meta.feedback:
+            if not dbexercise.meta.feedback :
                 result['correct'] = None
 
+            #print("RETURN RESULT")
             return result
         else:
             return {'error': 'No grading function for question type ' + dbquestion.type}

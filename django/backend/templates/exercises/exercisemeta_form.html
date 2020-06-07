@@ -58,11 +58,22 @@
           <label class="uk-form-label" for={{ form.bonus.id_for_label }}>{{ form.bonus.label }}</label>
           <div class="uk-form-controls">{{ form.bonus }}</div>
         </div>
+
          <div class="uk-form-row">
           {{ form.feedback.errors }}
           <label class="uk-form-label" for={{ form.bonus.id_for_label }}>{{ form.feedback.label }}</label>
           <div class="uk-form-controls">{{ form.feedback}} </div>
         </div>
+
+	
+         <div class="uk-form-row">
+          {{ form.locked.errors }}
+          <label class="uk-form-label" for={{ form.bonus.id_for_label }}>{{ form.locked.label }}</label>
+          <div class="uk-form-controls">{{ form.locked}} </div>
+        </div>
+	
+	
+
 
         <div class="uk-form-row">
           {{ form.solution.errors }}

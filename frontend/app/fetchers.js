@@ -28,6 +28,13 @@ import {
   setImageAnswersData,
   setExerciseRecentResults,
 } from './actions.js';
+
+import {
+  setExerciseRegradeResults,
+  updateRegradeResults,
+ } from './actions/regrade.js'   ;
+
+  
 import {logImmutable} from 'immutablehelpers.js';
 import _ from 'lodash';
 import immutable from 'immutable';
@@ -432,11 +439,47 @@ function fetchAllExerciseStatistics(coursePk) {//{{{
   };
 }//}}}
 
+
+
+
+
+
+//function fetchExerciseRegradeResults() {
+//  console.log("fetchExerciseRegradeResults")
+//  return (dispatch, getState) => {
+//    var state = getState();
+//    var exercise = state.get('activeExercise');
+//    dispatch(setExerciseRegradeResults(exercise,  immutable.List([])) )
+//    dispatch(updatePendingStateIn( ['regradeResults'], true));
+//    var taskOptions = {
+//      progressAction: (progress,status) => dispatch => { dispatch(updatePendingStateIn(['regradeResults'], progress));
+//                                                  dispatch(updatePendingStateIn(['regradePreview','preview'], status));
+ //                                                 },
+ //     completeAction: (data) => dispatch => {
+ //       dispatch(updateRegradeResults(exercise,data));
+ //       dispatch(updatePendingStateIn(['regradeResults'], false));
+ //     }
+ //   };
+//
+ //  return dispatch(enqueueTask('/exercise/' + exercise + '/regrade_resultsasync', taskOptions))
+  //    .catch(err =>  dispatch(updatePendingStateIn( ['regradeResults'], false)))
+
+
+ //return jsonfetch('/exercise/' + exercise + '/regraderesults')
+ //      .then(response => response.json())
+ //     .then( json => dispatch(setExerciseRegradeResults(exercise, json)))
+ //     .then( () => dispatch(updatePendingStateIn( ['regradeResults'], false)))
+ //     .catch( err => console.log(err) );
+ // }
+//  }
+
+
 function fetchStudentResults(coursePk) {
   return (dispatch, getState) => {
     var state = getState();
     var coursePk = state.get('activeCourse');
     dispatch(updatePendingStateIn(['studentResults'], true));
+
     var taskOptions = {
       progressAction: (progress) => dispatch => dispatch(updatePendingStateIn(['studentResults'], progress)),
       completeAction: (data) => dispatch => {
@@ -454,8 +497,9 @@ function fetchStudentDetailResults(userPk, coursePk) {
   return (dispatch, getState) => {
     var state = getState();
     var coursePk = state.get('activeCourse');
+    var exerciseKey = state.get('activeExercise');
     dispatch(updatePendingStateIn( ['detailedResults', userPk], true));
-    return jsonfetch('/course/' + coursePk + '/results/user/' + userPk + '/')
+    return jsonfetch('/course/' + coursePk + '/results/user/' + userPk + '/' + exerciseKey)
       .then(response => response.json())
       .then(json => dispatch(updateStudentDetailResults(userPk, json)))
       .then( () => dispatch(updatePendingStateIn( ['detailedResults', userPk], false)))
@@ -564,3 +608,4 @@ export * from './fetchers/tasks.js'
 export * from './fetchers/course.js'
 export * from './fetchers/server.js'
 export * from './fetchers/canvas.js'
+export * from './fetchers/regrade.js'

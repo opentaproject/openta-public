@@ -1,6 +1,8 @@
 from exercises.models import Exercise, Question, Answer, ImageAnswer, AuditExercise
+import time
 from aggregation.models import Aggregation, get_cache_and_key, STATISTICS_CACHE_TIMEOUT
 from exercises.modelhelpers import serialize_exercise_with_question_data, get_exercise_render
+import json
 from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
 from django.conf import settings
 from exercises.views import get_exercise_list, get_unsafe_exercise_summary
@@ -9,6 +11,7 @@ from django.contrib.auth.models import User
 from django.db.models import Prefetch, Q
 from statistics import mean, median
 import datetime
+import pickle
 import time
 from django.core.cache import caches
 from exercises.modelhelpers import (
@@ -41,6 +44,11 @@ def students_results(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, task=N
     if cachekey:
         cache.set(cachekey, result)
     return result
+
+
+
+def student_statistics_exercises(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, course=None):
+    (cache, cachekey) = get_cache_and_key('student_statistics_exercises:', coursePk=course.pk)
 
 
 def student_statistics_exercises(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, course=None):
@@ -85,6 +93,7 @@ def calculate_students_custom_results(dbexercises, task=None, course=None):
                     "CALCULATE STUDENTS CUSTOM RESULTS DBEXERCISEDS " + str(dbexercises.count())
                 )
     return results
+
 
 
 def calculate_students_results(task=None, course=None):
@@ -153,7 +162,7 @@ def calculate_student_statistics_exercises(course):
     AGGREGATES =  {'max_1h': 0, 'max_24h': 0, 'max_1w': 4, 'max_all': 6}
     }
     '''
-    exercises = Exercise.objects.filter(course=course, meta__published=True)
+    exercises = Exercise.objects.filter(course=course)
     data = {}
     for exercise in exercises:
         data[exercise.exercise_key] = serialize_exercise_data_for_course(course, exercise)
@@ -181,12 +190,21 @@ def calculate_student_statistics_exercises(course):
 
 def get_exercises_render(user, course_pk):
     course = Course.objects.get(pk=course_pk)
-    exercises = Exercise.objects.filter(meta__published=True, course=course)
+    exercises = Exercise.objects.filter( course=course)
     exercises_render = {}
     for exercise in exercises:
         item = serialize_exercise_with_question_data(exercise, user, False)
         exercises_render[exercise.exercise_key] = item['exercise_render']
     return exercises_render
+
+
+def get_exercise_render(user, course_pk,exercise):
+    course = Course.objects.get(pk=course_pk)
+    exercises_render = {}
+    item = serialize_exercise_with_question_data(exercise, user, False)
+    exercises_render[exercise.exercise_key] = item['exercise_render']
+    return exercises_render
+
 
 
 def calculate_unsafe_user_summary(user_pk, course_pk, dbexercises):
@@ -237,6 +255,27 @@ def calculate_user_results(user_pk, course_pk):
         deadline_time = course.deadline_time
     exercises_render = get_exercises_render(user, course_pk)
     summary = get_unsafe_exercise_summary(user_pk, course_pk, None)
+
+    result = {
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'username': user.username,
+        'pk': user.pk,
+        'lti_user_id': user.opentauser.lti_user_id,
+        'exercises': exercises_render,
+        'summary': summary,
+    }
+    return result
+
+def calculate_user_exercise_results(user_pk, course_pk,exercise):
+    user = User.objects.get(pk=user_pk)
+    course = Course.objects.get(pk=course_pk)
+    tz = pytz.timezone('Europe/Stockholm')
+    deadline_time = datetime.time(23, 59, 59)
+    if course is not None and course.deadline_time is not None:
+        deadline_time = course.deadline_time
+    exercises_render = get_exercise_render(user, course_pk,exercise)
+    summary = get_unsafe_exercise_summary(user_pk, course_pk,None) 
 
     result = {
         'first_name': user.first_name,

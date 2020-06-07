@@ -41,12 +41,14 @@ const BaseTable = ({ data, fields, keyIndex, onSort, sortField, sortReverse, onI
         <tr>
           <th key='asdfa'> </th>
           { fields.map( field => (
-              <th key={field.name}>
+              <th key={field.name} className={field.classname}>
+                <div className={field.classname}>
                 { sortField && field.index === sortField && !sortReverse && <i className="uk-icon uk-icon-chevron-circle-down"/> }
                 { sortField && field.index === sortField && sortReverse && <i className="uk-icon uk-icon-chevron-circle-up"/> }
-                <a onClick={() => onSort(field.index, sortField, sortReverse)}>
+                <a  onClick={() => onSort(field.index, sortField, sortReverse)}>
                   {field.name}
                 </a>
+              </div>
               </th>
             )) }
         </tr>

@@ -4,9 +4,14 @@ from rest_framework.response import Response
 from rest_framework import status
 from exercises.models import Exercise, Question, Answer
 from exercises.serializers import AnswerSerializer
-from exercises.aggregation import calculate_user_results
+from exercises.question import question_check
+from exercises.aggregation import calculate_user_results, calculate_user_exercise_results
 from django.contrib.auth.models import User
 from itertools import groupby
+from django.http import HttpResponse
+import json
+import uuid
+import pickle
 
 
 @permission_required('exercises.view_statistics')
@@ -74,9 +79,21 @@ def get_recent_results(request, exercise):
     return Response(results)
 
 
-@api_view(['GET'])
+
+
+@api_view(['GET','POST'])
 def get_user_results(request, user_pk, course_pk):
     user = User.objects.get(pk=user_pk)
     if not request.user == user and not request.user.is_staff:
         return Response({'error': 'Permission denied'})
     return Response(calculate_user_results(user_pk, course_pk=course_pk))
+
+@api_view(['GET','POST'])
+def get_user_exercise_results(request, user_pk, course_pk,exercise):
+    user = User.objects.get(pk=user_pk)
+    dbexercise = Exercise.objects.get(exercise_key=exercise)
+    if not request.user == user and not request.user.is_staff:
+        return Response({'error': 'Permission denied'})
+    return Response(calculate_user_exercise_results(user_pk, course_pk=course_pk,exercise=dbexercise))
+
+

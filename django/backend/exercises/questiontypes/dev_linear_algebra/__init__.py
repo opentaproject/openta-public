@@ -199,6 +199,13 @@ def linear_algebra_json_hook(safe_question, full_question, question_id, user_id,
         blacklist = full_question.get('variables').get('blacklist')
     except:
         blacklist = full_question.get('blacklist')
+    # DISABLE feedback XML in quesiton
+    feedback = full_question.get('@attr').get('feedback',True)
+    safe_question['feedback'] = feedback
+    if feedback is False:
+           safe_question['correct'] = None
+           feedback = False
+
     if not blacklist is None:
         variablelist = remove_blacklist_variables_from_obj(blacklist, variablelist)
     safe_question['username'] = user_id

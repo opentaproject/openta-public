@@ -1,5 +1,6 @@
 import json as JSON
 import logging
+from lxml import etree
 import backend.settings as settings
 import os
 import uuid
@@ -470,7 +471,16 @@ class Question(models.Model):
     def __str__(self):
         return self.exercise.name + ": " + self.question_key
 
+    def points(self ,*args, **kwargs):
+        xmltree = exercise_xmltree(self.exercise.get_full_path(), {} )
+        question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=self.question_key))[0]
+        return  question_xmltree.get('points',None)
+        
+
+
     def post_save(self, *args, **kwargs):
+        #print("QUESTION POST_SAV ARGS", args)
+        #print("QUESTION POST_SAV KWARGS", kwargs)
         instance = kwargs['instance']
         question_key_has_changed = instance.tracker.has_changed('question_key')
         if question_key_has_changed:
@@ -513,6 +523,8 @@ class Answer(models.Model):
         )
 
     def post_save(self, *args, **kwargs):
+        #print("ANSWER POST_SAVE ARGS = ", args )
+        #print("ANSWER POST_SAVE KWARGS = ", kwargs)
         instance = kwargs['instance']
         user = instance.user
         date = instance.date
@@ -524,13 +536,16 @@ class Answer(models.Model):
                 sender=self.__class__, user=user, exercise=exercise, course=course, date=date
             )
 
-    # def save(self, *args, **kwargs):
-    #    if self.pk == None:
-    #        answers = Answer.objects.filter(user=self.user, question=self.question)
-    #        nattempt = 1 if answers == None else answers.count()
-    #        self.nattempt = nattempt
-    #    super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        #print("ANSSWER SAVE args = ", args )
+        #print("ANSWSER KWARGS = ", kwargs)
+        if self.pk == None:
+             answers = Answer.objects.filter(user=self.user, question=self.question)
+             nattempt = 1 if answers == None else answers.count()
+             self.nattempt = nattempt
+        super().save(*args, **kwargs)
 
+    
 
 def answer_image_filename(instance, filename):
     return '/'.join(
@@ -611,6 +626,7 @@ class ExerciseMeta(models.Model):
     bonus = models.BooleanField(default=False)
     server_reply_time = models.DurationField(default=None, null=True, blank=True)
     published = models.BooleanField(default=False)
+    locked = models.BooleanField(default=False)
     sort_key = models.CharField(max_length=255, default='', verbose_name='Sort order key')
     feedback = models.BooleanField(default=True, verbose_name='Feedback to student')
 
@@ -668,6 +684,7 @@ class AuditExercise(models.Model):
     updated = models.BooleanField(default=False)
     updated_date = models.DateTimeField(null=True, blank=True, default=None)
     modified = models.DateTimeField(auto_now=True)
+    points = models.TextField(default='',blank=True)
 
     objects = AuditManager()
 
@@ -678,6 +695,8 @@ class AuditExercise(models.Model):
         instance = kwargs['instance']
         user = instance.student
         date = instance.date
+        points = instance.points
+        #print("AUDIT EXERCISE POINTS = ", points)
         exercise = instance.exercise
         course = exercise.course
         answer_received.send(

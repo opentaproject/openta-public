@@ -16,6 +16,8 @@ class BaseQuestion extends Component {
     var questionType = this.props.questionType;
     var questionKey = this.props.questionKey;
     var exerciseKey = this.props.exerciseKey;
+    var exercisemeta = this.props.exercisemeta;
+    var locked = this.props.locked && ! this.props.author
     var exerciseState = this.props.exerciseState;
     var pendingState = this.props.pendingState;
     var onQuestionSubmit = this.props.onQuestionSubmit;
@@ -34,6 +36,7 @@ class BaseQuestion extends Component {
       if (globals) question = question.set('global', globals);
       var questionDOM = React.createElement(questionDispatch[questionType], {
         key: questionKey,
+        locked: locked,
         exerciseKey: exerciseKey,
         questionData: question,
         renderText: this.props.renderText || ((itemjson) => renderText(itemjson, null, this.props.lang)),

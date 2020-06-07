@@ -136,7 +136,8 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
     def audit_add_audit(self):
         sel = self.selenium
         wait = WebDriverWait(sel, 2)
-        sel.find_element_by_xpath('//button[contains(text(), \'Add student\')]').click()
+        # sel.find_element_by_xpath('//button[contains(text(), \'Queue student\')]').click()
+        sel.find_element_by_xpath('//button[contains(@class, \'queue-done-student\')]').click()
         wait.until(
             EC.presence_of_element_located(
                 (By.XPATH, '//div[@id="unfinished-audits"]/a[text()[contains(., \'1\')]]')

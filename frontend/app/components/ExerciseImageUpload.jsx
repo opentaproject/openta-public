@@ -13,7 +13,7 @@ import {
 } from '../fetchers.js';
 import {SUBPATH} from '../settings.js';
 
-const BaseComponent = ({exerciseKey, imageAnswers, imageAnswersData, uploaded, onUpload, uploadPending, uploadProgress, onImageAnswerDelete, imageAnswerDeletePending, showPDF}) => {
+const BaseComponent = ({exerciseKey, imageAnswers, imageAnswersData, uploaded, onUpload, uploadPending, uploadProgress, onImageAnswerDelete, imageAnswerDeletePending, showPDF,locked}) => {
   var renderImageAnswers = imageAnswersData.map(
     imageAnswer => (
       <div className="exercise-thumb-wrap" key={imageAnswer.get('pk')}>
@@ -27,12 +27,14 @@ const BaseComponent = ({exerciseKey, imageAnswers, imageAnswersData, uploaded, o
         <i className="uk-icon uk-icon-large uk-icon-file-pdf-o"/>
       </a>
       }
+    { ! locked && (
       <div className="exercise-thumb-badge">
         <a onClick={() => onImageAnswerDelete(imageAnswer.get('pk'))}><Badge className="uk-badge-notification">
         { !imageAnswerDeletePending.get(imageAnswer.get('pk'), false) && <i className="uk-icon uk-icon-trash"/> }
         { imageAnswerDeletePending.get(imageAnswer.get('pk'), false) && <Spinner/> }
         </Badge></a>
       </div>
+    ) }
       </div>
     )
   );
@@ -45,18 +47,20 @@ const BaseComponent = ({exerciseKey, imageAnswers, imageAnswersData, uploaded, o
         { renderImageAnswers }
     <div className="uk-button-group uk-align-medium-right"> 
         { uploadPending && <span className="uk-button">{progress}</span> }
+        { ! locked &&  (
         <div className="uk-form-file">
         <a type="file" className={"uk-button"} capture="camera">{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-camera"></i>)}
         </a>
         <input type="file" accept="image/*" onChange={(e) => onUpload(e, exerciseKey)}/>
         </div>
-        { showPDF && 
+        )}
+        { ! locked && ( showPDF && 
           <div className="uk-form-file">
           <a type="file" className={"uk-button"}>{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-file-pdf-o" title="PDF"></i>)}
           </a>
           <input type="file" accept="application/pdf" onChange={(e) => onUpload(e, exerciseKey)}/>
           </div>
-        }
+        )}
         <button data-uk-tooltip="{pos:'bottom-left'}" title="Denna uppgift kräver även bild på lösning. (Om du har en mobil enhet med kamera kan du välja att ta bilderna direkt.) Du kan ladda upp flera bilder samt ta bort de du laddat upp. Kontrollera att bilden är läsbar efter du laddat upp genom att klicka på den/dem." className="uk-button">
           <i className="uk-icon uk-icon-question-circle-o"/>
         </button>

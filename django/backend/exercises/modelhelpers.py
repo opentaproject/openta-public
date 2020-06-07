@@ -21,6 +21,7 @@ from aggregation.models import Aggregation, get_cache_and_key, STATISTICS_CACHE_
 from dateutil.relativedelta import relativedelta, MO
 from statistics import median, mean
 from django.core.cache import caches
+from random import randrange
 
 logger = logging.getLogger(__name__)
 
@@ -60,9 +61,10 @@ def e_student_activity(exercise):
     (cache, cachekey) = get_cache_and_key(
         'e_student_activity:', coursePk=coursePk, exercise_key=exercise.exercise_key
     )
-    print("E_STUDENT_ACTIVITY ", exercise.pk)
+    print("E_STUDENT_ACTIVITY; CACHE INQUIRY")
     if cache.has_key(cachekey):
         return cache.get(cachekey)
+    print("E_STUDENT_ACTIVITY; CACHE EXPIRED")
     t1h = timezone.now() - datetime.timedelta(hours=1)
     t24h = timezone.now() - datetime.timedelta(hours=24)
     t1w = timezone.now() - datetime.timedelta(days=7)
@@ -95,7 +97,7 @@ def e_student_activity(exercise):
     activity = {
         'activity': {'1h': activity_1h, '24h': activity_24h, '1w': activity_1w, 'all': activity_all}
     }
-    cache.set(cachekey, activity, STATISTICS_CACHE_TIMEOUT)
+    cache.set(cachekey, activity, STATISTICS_CACHE_TIMEOUT / 2 + randrange( STATISTICS_CACHE_TIMEOUT / 2 )    )
     return activity
 
 
@@ -255,6 +257,7 @@ def get_exercise_render(user, course_pk, exercise_key):
         render['image'] = False
         render['force_passed'] = False
         render['revision_needed'] = False
+        render['points'] = ''
         return render
 
     student_audits = AuditExercise.objects.filter(student=user, exercise=exercise)
@@ -278,6 +281,7 @@ def get_exercise_render(user, course_pk, exercise_key):
         render['questions'][question.question_key]['answers'] = answers.data
     render['correct'] = ag.user_is_correct
     render['tries'] = ag.attempt_count
+    render['points'] = ag.points or ag.correct_by_deadline
     return render
 
 
@@ -308,6 +312,7 @@ def serialize_exercise_with_question_data(exercise, user, hijacked):
         audit_published = ag.audit_published
         audit_needs_attention = ag.audit_needs_attention
         correct = ag.user_is_correct
+        points = ag.points
     except:
         tried_all = False
         audit_published = False
@@ -386,6 +391,7 @@ def serialize_exercise_with_question_data(exercise, user, hijacked):
         data['date_complete'] = (ag.date_complete).strftime("%Y-%m-%d at %H:%M")
         data['questions_exist'] = not ag.questionlist_is_empty
         data['passed'] = data['complete_by_deadline'] or force_passed
+        data['points']  = ag.points or data['passed']
     except:
         data['correct'] = False
         data['passed'] = False
@@ -396,6 +402,7 @@ def serialize_exercise_with_question_data(exercise, user, hijacked):
         data['tried_all'] = False
         data['show_check'] = False
         data['questions_exist'] = True
+        data['points'] = ''
     cache.set(cachekey, data, settings.CACHE_LIFETIME)
     return data
 

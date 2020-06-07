@@ -14,6 +14,9 @@ def write_xlsx_from_results_list(filename, results):
 
 
 def create_xlsx_from_results_list(results):
+    #fp = open('/tmp/exceldata3.json', 'wb')
+    #fp.write( b'abcdefg')
+    #fp.close()
     output = io.BytesIO()
     # logger.error(str(results) )
     # with open('/tmp/exceldata.py','w') as f :
@@ -21,6 +24,7 @@ def create_xlsx_from_results_list(results):
     fp = open('/tmp/exceldata3.pkl', 'wb')
     pickle.dump(results, fp)
     fp.close()
+    
     logger.debug("WROTE EXCELDATA3.pkl")
     workbook = xlsxwriter.Workbook(output, {'in_memory': True})
     bold_format = workbook.add_format({'bold': True})
@@ -65,6 +69,8 @@ def create_xlsx_from_results_list(results):
         ind += 1
         worksheet.write(0, ind, 'late')
         ind += 1
+        worksheet.write(0, ind, 'points')
+        ind += 1
     logger.debug("START ENUMERATION")
     for index, student in enumerate(results):
         required_late = (
@@ -108,10 +114,13 @@ def create_xlsx_from_results_list(results):
         exercises = student['exercises']
         for exercise in exercises:
             all_complete = exercise.get('all_complete', 0)
+            points = exercise.get('points','')
             complete_by_deadline = exercise.get('complete_by_deadline', 0)
             worksheet.write(index + 1, ind, complete_by_deadline)
             ind += 1
             worksheet.write(index + 1, ind, all_complete - complete_by_deadline)
+            ind += 1
+            worksheet.write(index + 1, ind, points)
             ind += 1
     workbook.close()
     output.seek(0)

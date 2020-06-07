@@ -76,11 +76,10 @@ const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, a
     else
       beforeDeadline = false;
   return <div className="uk-panel uk-panel-box">
-      <div className="uk-flex">
-        <div className="uk-width-2-3 uk-margin-small-right">
-          <ImageCollection srcs={srcs} badges={badges} types={types} />
-        </div>
-        <div className="uk-width-1-3">
+      <div className="uk-flex uk-flex-center">
+        <div className="uk-margin-small-right uk-width-1-1">
+
+
           <h3 className="uk-panel-title">
             {!anonymous && userResults.get("first_name") + " " + userResults.get("last_name")}
             {anonymous && userResults.get("username")}
@@ -89,9 +88,15 @@ const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, a
             {beforeDeadline !== null && <i className={"uk-margin-small-right uk-icon uk-icon-clock-o " + (beforeDeadline ? "uk-text-success" : "uk-text-danger")} title="Green: Answer (and image if required) submitted before deadline" />}
             {userResults.getIn(["exercises", activeExercise, "force_passed"], false) && <i className="uk-margin-small-right uk-icon uk-icon-exclamation-circle uk-text-success" title="Manually passed" />}
           </h3>
+
+    
+        
           <div className="uk-panel uk-panel-box uk-flex uk-flex-wrap uk-overflow-container uk-margin-small-left" style={{ maxHeight: "80vh" }}>
             {answers}
           </div>
+          <ImageCollection srcs={srcs} badges={badges} types={types} />
+
+
         </div>
       </div>
     </div>;

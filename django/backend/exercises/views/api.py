@@ -160,6 +160,12 @@ def exercise(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     hijacked = request.session.get('hijacked', False)
     data = serialize_exercise_with_question_data(dbexercise, request.user, hijacked)
+    if not data['meta']['feedback'] :
+        data['correct'] = None
+        data['correct_by_deadline'] = None
+        data['correct_deadline'] = None
+        data['exercise_render']['correct'] = None
+        data['exercise_render']['correct_by_deadline'] = None
     return Response(data)
 
 
@@ -901,6 +907,6 @@ def image_answer_delete(request, pk):
                 {'deleted': 0, 'error': _('You cannot delete after the deadline has passed.')}
             )
 
-    image_answer.remove()  # REMOVE THE FILE
+    image_answer.remove_file()  # REMOVE THE FILE
     deleted, deltype = image_answer.delete()  # REMOVE THE DATABASE ENTRY
     return Response({'deleted': deleted})

@@ -263,8 +263,9 @@ class AuditExerciseAdmin(admin.ModelAdmin):
         'published',
         'revision_needed',
         'force_passed',
+        'points',
     ]
-    list_filter = ['sent', 'published', 'force_passed', 'revision_needed']
+    list_filter = ['sent', 'published', 'force_passed', 'revision_needed','points']
     list_per_page = 20
     search_fields = ['student__username', 'auditor__username', 'exercise__name']
     ordering = ['date']

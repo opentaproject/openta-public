@@ -38,6 +38,7 @@ class ExerciseMetaSerializer(serializers.ModelSerializer):
             'allow_pdf',
             'feedback',
             'student_assets',
+            'locked',
         )
 
     def get_deadline_time(self, obj):
@@ -109,15 +110,18 @@ class AuditExerciseSerializer(serializers.ModelSerializer):
             'updated',
             'updated_date',
             'modified',
+            'points',
         )
 
     def update(self, instance, validated_data):
+        instance.points = validated_data.get('points', instance.points)
         instance.message = validated_data.get('message', instance.message)
         instance.subject = validated_data.get('subject', instance.subject)
         instance.published = validated_data.get('published', instance.published)
         instance.updated = validated_data.get('updated', instance.updated)
         instance.revision_needed = validated_data.get('revision_needed', instance.revision_needed)
         instance.force_passed = validated_data.get('force_passed', instance.force_passed)
+        instance.auditor = validated_data.get('auditor', instance.auditor)
         instance.save()
         return instance
 

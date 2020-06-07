@@ -89,9 +89,8 @@ urlpatterns = [
     url(r'^auditresponsefile/view/(?P<pk>[0-9]+)/$', views.audit_response_file_view),
     url(r'^auditresponsefile/view/(?P<pk>[0-9]+)/thumb$', views.audit_response_file_thumb_view),
     url(r'^auditresponsefile/delete/(?P<pk>[0-9]+)/$', views.delete_audit_response_file),
-    url(
-        r'^course/(?P<course_pk>[0-9]+)/results/user/(?P<user_pk>[0-9]+)/$', views.get_user_results
-    ),
+    url( r'^course/(?P<course_pk>[0-9]+)/results/user/(?P<user_pk>[0-9]+)/$', views.get_user_results),
+    url( r'^course/(?P<course_pk>[0-9]+)/results/user/(?P<user_pk>[0-9]+)/(?P<exercise>[\w\.-]+)/$', views.get_user_exercise_results),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/recentresults', views.get_recent_results),
 ]
 

@@ -28,17 +28,17 @@ class BaseAssets extends Component {
         this.setState({preview: e.target.checked});
     }
 
-    renderAsset = (asset) => {
+    renderAsset = (asset,locked) => {
         return (
-            <tr key={asset.get('filename')}>
+            <tr key={'abcde' + asset.get('filename')}>
             <td>
             { this.props.pendingState.getIn(['asset', 'delete', asset.get('filename')]) &&
               <Spinner size=""/>
             }
-            { !this.props.pendingState.getIn(['asset', 'delete', asset.get('filename')]) &&
+            { ! locked && (  !this.props.pendingState.getIn(['asset', 'delete', asset.get('filename')]) &&
                 <a onClick={(e) => UIkit.modal.confirm('Delete asset ' + asset.get('filename') + '?', () => this.props.handleDeleteAsset(this.props.activeExercise, asset.get('filename')))} className="uk-icon-hover uk-icon-trash">
                 </a>
-            }
+            ) }
             </td>
             <td>
                 <a href={SUBPATH + "/exercise/" + this.props.activeExercise + this.props.assetViewer + asset.get('filename')} target="_blank">
@@ -103,17 +103,18 @@ class BaseAssets extends Component {
            * Upload
         */
         const sortedAssets = this.props.assets.sort( (a, b) => a.get('filename') > b.get('filename'));
-        const renderedAssets = sortedAssets.map( asset => this.renderAsset(asset));
+        var locked = this.props.locked &&  ! this.props.author
+        const renderedAssets = sortedAssets.map( asset => this.renderAsset(asset,locked));
         return (
             <div>
 
             <div>
                 <button className="uk-button" data-uk-toggle="{target: '.toggle'}"> Assets </button>
-                <p className='toggle uk-hidden'>
+                <div className='toggle uk-hidden'>
                     <div className="uk-flex uk-width-1-1 uk-flex-space-between">
                          <div><form className="uk-form"><label><input type="checkbox" value={this.state.preview} onChange={this.handlePreviewChange}/> Preview</label></form>
                          </div>
-                    {this.renderUpload()}
+                    { ! locked && this.renderUpload()} 
                     {this.renderDownload()}
                     </div>
                     {this.props.pendingUpload && this.renderProgress() }
@@ -122,7 +123,7 @@ class BaseAssets extends Component {
                              {renderedAssets}
                          </tbody>
                     </table>
-                </p>
+                </div>
             </div>
         </div>
         )

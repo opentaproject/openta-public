@@ -76,12 +76,11 @@ const BaseAuditStatistics = ({
   }
 
   return <div>
-      <h3>
-        {nTried} tried this problem and {nTried - n_notReadyForAudit} are eligible for audit{" "}
-      </h3>
-      <div className="uk-button-group">
+      <div className="uk-button-group uk-flex uk-flex-column">
+
+
         <span data-uk-dropdown="{mode:'click'}">
-          <span className="uk-button uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
+          <span className="uk-button uk-width-1-1 uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
             {n_inOverview} in Overview {" "}
           </span>
           <div className="uk-dropdown" style={{ width: "auto" }}>
@@ -92,7 +91,7 @@ const BaseAuditStatistics = ({
         </span>
 
         <span data-uk-dropdown="{mode:'click'}">
-          <span className="uk-button uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
+          <span className="uk-button uk-width-1-1 uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
             {n_inHeapForAudit} Ready for audit {" "}
           </span>
           <div className="uk-dropdown" style={{ width: "auto" }}>
@@ -103,8 +102,8 @@ const BaseAuditStatistics = ({
         </span>
 
         <span data-uk-dropdown="{mode:'click'}">
-          <span className="uk-button uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
-            {n_notReadyForAudit} Students who are late or incorrect
+          <span className="uk-button uk-width-1-1 uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
+            {n_notReadyForAudit} Students who are incomplete
           </span>
           <div className="uk-dropdown" style={{ width: "auto" }}>
             <table className="uk-table uk-table-condensed uk-margin-remove">
@@ -114,7 +113,7 @@ const BaseAuditStatistics = ({
         </span>
 
         <span data-uk-dropdown="{mode:'click'}">
-          <span className="uk-button uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
+          <span className="uk-button uk-width-1-1 uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
             {n_notActive} Students not active
           </span>
           <div className="uk-dropdown" style={{ width: "auto" }}>
@@ -125,7 +124,7 @@ const BaseAuditStatistics = ({
         </span>
 
         <span data-uk-dropdown="{mode:'click'}">
-          <span className="uk-button uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
+          <span className="uk-button uk-width-1-1 uk-button-small uk-margin-small-top uk-button-primary" title="Click for more statistics">
             Stats
           </span>
           <div className="uk-dropdown" style={{ width: "auto" }}>

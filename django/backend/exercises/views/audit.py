@@ -150,7 +150,13 @@ def get_new_audit(request, exercise, heap, n_audits):
         targets = list(diff)
     elif heap == FROM_NOT_ACTIVE:
         students_not_active = get_students_not_active(dbexercise)
-        student_not_active_list = set(students_not_active.values_list('pk', flat=True).distinct())
+        print("STUDENTS NOT ACTIVE = ", students_not_active)
+        print("STUDENTS IN OVERVIEW PK = ", in_overview_pk)
+        if len( students_not_active) > 0 :
+            student_not_active_list = set( students_not_active.values_list('pk', flat=True).distinct())
+            # student_not_active_list = students_not_active
+        else:
+            student_not_active_list = []
         diff = set(student_not_active_list) - set(in_overview_pk)
         if len(diff) == 0:
             return Response({'error': 'The notActiveList has been emptied.'})
@@ -161,6 +167,7 @@ def get_new_audit(request, exercise, heap, n_audits):
     # Take n_audits or the left over, what ever is smallest
     student_pks = sample(targets, min(len(targets), int(n_audits)))
     audits = []
+    print("STUDENT_PKS = ", student_pks)
     for student_pk in student_pks:
         auditee = User.objects.get(pk=student_pk)
         course = dbexercise.course
@@ -170,10 +177,13 @@ def get_new_audit(request, exercise, heap, n_audits):
         audit = AuditExercise(
             auditor=request.user, student=auditee, exercise=dbexercise, subject=subject
         )
-        pass_, message = analyze_exercise_for_student(dbexercise, student_pk)
+        pass_, message,did_something = analyze_exercise_for_student(dbexercise, student_pk)
         if not pass_:
             audit.revision_needed = True
         audit.message = message
+        print("DID SOMETHING = ", did_something)
+        if not did_something :
+            audit.message = 'No data'
         audit.subject = 'Your exercise ' + dbexercise.name
         try:
             audit.save()
@@ -214,8 +224,8 @@ def update_audit(request, pk):
         audit = AuditExercise.objects.get(pk=pk)
     except AuditExercise.DoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    saudit = AuditExerciseSerializer(audit, data=request.data['audit'], partial=True)
+    data = request.data['audit']
+    saudit = AuditExerciseSerializer(audit, data,partial=True)
     if not saudit.is_valid():
         return Response(
             {'error': 'Not valid audit data', 'details': saudit.errors},
@@ -226,17 +236,16 @@ def update_audit(request, pk):
 
 
 @permission_required('exercises.administer_exercise')
-@api_view(['POST'])
+@api_view(['POST','GET'])
 def send_audit(request, pk):
-    print("SEND_AUDIT")
     try:
         audit = AuditExercise.objects.get(pk=pk)
     except AuditExercise.DoesNotExist:
         return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    print("EMAIL ACTIVATED")
+    except Exception as e:
+        print("EXCEPTION = ", str(e) )
+        return Response({'error': 'Invalid audit id'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     if not audit.exercise.course.use_email:
-        print("EMAIL NOT ACTIVATED")
         return Response({'warning': 'use_email is not activated'})
     course_url = audit.exercise.course.url
     mail_message_template = (

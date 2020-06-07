@@ -30,7 +30,7 @@ from course.models import Course
 import exercises
 from exercises.models import answer_received
 
-STATISTICS_CACHE_TIMEOUT = 60 * 30  # RECOMPUTE RECENT ACTIVITY
+STATISTICS_CACHE_TIMEOUT = 60 * 60  * 24   # RECOMPUTE RECENT ACTIVITY
 
 
 # answer_received = Signal(providing_args=["course", "user", "exercise"])
@@ -54,14 +54,17 @@ def handle_new_answer_available(sender, **kwargs):
     # MOVE TO ASYNC HANDLING
     #
     # timebegin = time.time()
+    #print("AGGREGATION KWARGS = ", kwargs)
     if user == None:
         aggregationentries = Aggregation.objects.filter(exercise=exercise)
         for ag in aggregationentries:
+            #print("AG SAVE FIRED SINCE USER WAS NONE")
             ag.save()
     else:
         date = kwargs['date']
+        #print("AG SAVE FIRED FOR USER ", user )
         gb, _ = Aggregation.objects.update_or_create(course=course, user=user, exercise=exercise)
-    # print("DELTAT HANDLE NEW ANSWSER", time.time() - timebegin)
+        
 
 
 answer_received.connect(handle_new_answer_available)
@@ -183,6 +186,9 @@ class Aggregation(models.Model):
     # PASS FLAGS
     force_passed = models.BooleanField(default=False)  # FORCE PASSED
     force_failed = models.BooleanField(default=False)  # FORCE FAIL
+    points = models.TextField(default='',blank=True)
+
+
 
     # def delete_caches( prefix, exercise_key=None, userPk=None, coursePk=None):
     #     for prefix in cache_prefixes:
@@ -208,7 +214,7 @@ class Aggregation(models.Model):
         )
 
     def save(self, *args, **kwargs):
-        # print("AGGREGATION_ANSWERS SAVE FIRED", args, kwargs,self)
+        #print("AGGREGATION_ANSWERS SAVE FIRED", args, kwargs,self)
         exercise = self.exercise
         if not exercise:
             return
@@ -234,6 +240,7 @@ class Aggregation(models.Model):
         course = self.course
         dosave = False
         self.all_complete = True
+        self.audit_needs_attention = False
         show = False
         # if user.username == 'devcha@student.chalmers.se' :
         #    print("SAVING DEVCHA EXERCISE ", exercise )
@@ -271,8 +278,8 @@ class Aggregation(models.Model):
                 datelist = datelist + [date]
             user_tried_all = user_tried_all and (answers.count() > 0)  # RESTORE THIS
             user_is_correct = user_is_correct and correct
-        if show:
-            print("DID QUEWSIONTS")
+        #if show:
+        #    #print("DID QUEWSIONTS")
         if len(datelist) > 0:
             self.answer_date = max(datelist)
         # print("TOTAL NUMBER OF QUESTIONS = ", nquestions)
@@ -361,21 +368,27 @@ class Aggregation(models.Model):
         audit_exists = False
         try:
             audit = exercises.models.AuditExercise.objects.get(student=user, exercise=exercise)
-            if audit.force_passed:
-                self.force_passed = True
-            if audit.published:
-                audit_exists = True
-                self.audit_published = True
-                self.audit_needs_attention = audit.revision_needed
-                if audit.revision_needed:
+            self.force_passed = audit.force_passed
+            self.audit_published = audit.published
+            self.audit_needs_attention = True if audit.revision_needed else False
+            if audit.revision_needed:
                     self.all_complete = False
                     self.complete_by_deadline = False
-                if audit.force_passed or not audit.revision_needed:
+            if audit.force_passed :
                     self.all_complete = True
                     self.complete_by_deadline = True
-                    self.audit_needs_attention = False
+                    self.image_by_deadline = True
+            if not audit.revision_needed:
+                    self.all_complete = True
+            if ( self.correct_by_deadline and self.image_by_deadline  and self.all_complete  ) or self.force_passed :
+                self.points = 1
+            else :
+                self.points = 0
+            if audit.points :
+                self.points = audit.points
             # if user.username == 'devcha@student.chalmers.se':
             #    print("AUDIT ADDED FOR USER = ", user, " AND EXERCISE ", exercise)
+            audit_exists  = True
         except ObjectDoesNotExist:
             pass
         if self.force_passed:
@@ -384,8 +397,11 @@ class Aggregation(models.Model):
         if self.force_failed:
             self.audit_needs_attention = False
             self.all_complete = False
+
         if (not self.image_exists) and (attempt_count == 0) and (not audit_exists):
             return
+        #if audit.points:
+        #    self.points = audit.points
         # if user.username == 'devcha@student.chalmers.se':
         #    print(
         #        "FINALLY SAVED ANSWSERS FOR ",

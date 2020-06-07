@@ -152,6 +152,7 @@ function setExerciseModifiedState(exercise, modified) {//{{{
 }//}}}
 
 function updatePendingState(pendingstate) {//{{{
+  console.log("updatePendingState pendingstate = ", pendingstate)
   return {
     type: 'UPDATE_PENDING_STATE',
     pendingstate: pendingstate
@@ -159,6 +160,7 @@ function updatePendingState(pendingstate) {//{{{
 }//}}}
 
 function updatePendingStateIn(path, pending) {//{{{
+  console.log("updatePendingStateIn pending = ", pending)
   var data = immutable.Map({});
   return {
     type: 'UPDATE_PENDING_STATE',
@@ -191,6 +193,15 @@ function setImageAnswersData(exercise, imageAnswersData) {//{{{
     imageAnswersData: imageAnswersData
   }
 }//}}}
+
+//function updateRegradeResults(exercise,json) {//{{{
+//  console.log("updateRegradeResults json = ", JSON.stringify( json  ) )
+//  return {
+//    type: 'UPDATE_REGRADE_RESULTS',
+//    results: json,
+//    exercise: exercise
+//  }
+// }
 
 function updateStudentResults(json) {//{{{
   return {
@@ -355,7 +366,7 @@ function setIFramed(iframed) {
   }
 }
 
-export { setOpenTAVersion, updateLoginStatus, updateExercises, setExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseActiveXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, setImageAnswersData,updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, updateAudit, setActiveAudit, setAuditExerciseStats, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise, setDetailResultsView, updateExerciseTreeUI, setExerciseRecentResults, setExerciseXMLError, setIFramed,
+export { setOpenTAVersion, updateLoginStatus, updateExercises, setExerciseTree, updateActiveExercise, updateExerciseXML, updateExerciseActiveXML, updateExerciseJSON, updateQuestionResponse, setSavePendingState, setSaveError, setResetPendingState, setExerciseModifiedState, updateExercisesState, updateExerciseState, updatePendingState, updatePendingStateIn, updateActiveAdminTool, setImageAnswers, setImageAnswersData,updateExerciseStatistics, updateMenuPath, updateMenuPathArray, updateMenuLeafDefaults, updateStudentResults, updateExercisesReloadMessages, updateAudits, updateAudit, setActiveAudit, setAuditExerciseStats, updateAggregateStatistics, setActivityRange, setTableSortField, setTableSortReverse, setResultsFilter, updateStudentDetailResults, setSelectedStudentResults, setDetailResultsFilter, setDetailResultExercise, setDetailResultsView, updateExerciseTreeUI, setExerciseRecentResults, setExerciseXMLError, setIFramed, 
 updateDisplayStyle, updateExerciseFilter
 }
 
