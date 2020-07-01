@@ -12,7 +12,7 @@ from exercises.parsing import (
     global_and_question_xmltree_get,
     get_questionkeys_from_xml,
 )
-from exercises.views.asset import dispatch_asset_path
+from exercises.views.asset import dispatch_asset_path, _dispatch_asset_path
 
 import time
 from exercises.util import deep_get
@@ -231,11 +231,11 @@ def register_question_type(
     sensitive_tags[question_type] = hide_tags
     sensitive_attrs[question_type] = hide_attrs
 
-
-def question_check(request, user, user_agent, exercise_key, question_key, answer_data):
-    # print("QUESTION CHECK ANSER_DATA = ", answer_data)
-    hijacked = request.session.get('hijacked', False)
+def question_check(request, user, user_agent, exercise_key, question_key, answer_data,old_answer_object=None):
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
+    hijacked = request.session.get('hijacked', False)
+    studentassetpath = _dispatch_asset_path(user, dbexercise)
+    print("STUDENTASSETPATH = ", studentassetpath)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         usermacros = get_usermacros(user, exercise_key, question_key)
@@ -250,6 +250,44 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
                 'can be evaluated.'
             ),
         }
+    xmltree = exercise_xmltree(dbexercise.get_full_path(), usermacros)
+    question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
+    rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
+    if (
+        (not settings.RUNNING_DEVSERVER)
+        and rate_limit is not None
+        and rate_limit.text is not None
+        and not user.is_staff
+    ):
+        rate = rate_limit.text.strip()
+        if (not settings.RUNNING_DEVSERVER) and is_ratelimited(
+            request, group='question_custom_rate', key='user', rate=rate, increment=True
+        ):
+            error_msg = _('Answer rate exceeded, ' 'please wait before trying again. (Rate: ')
+            return {'error': error_msg + rate + ')'}
+    view_solution_permission = request.user.has_perm("exercises.view_solution")
+    return( _question_check(hijacked, view_solution_permission, user, user_agent, exercise_key, question_key, answer_data,old_answer_object) )
+
+def _question_check(hijacked , view_solution_permission, user, user_agent, exercise_key, question_key, answer_data,old_answer_object):
+    # print("QUESTION CHECK ANSER_DATA = ", answer_data)
+    dbexercise = Exercise.objects.get(exercise_key=exercise_key)
+    studentassetpath = _dispatch_asset_path( user, dbexercise)
+    try:
+        dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
+        usermacros = get_usermacros(user, exercise_key, question_key)
+        username = str(user)
+        # print("USERMACROS = ", usermacros)
+    except ObjectDoesNotExist:
+        return {
+            'error': 'Invalid question',
+            'author_error': (
+                'You must save the exercise (save '
+                'button in toolbar) before the question '
+                'can be evaluated.'
+            ),
+        }
+
+
     usermacros['@call'] = 'question_check'
     tbeg = time.time()
     tbeg = time.time()
@@ -297,27 +335,28 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         'path', os.path.join(dbexercise.course.get_exercises_path(), dbexercise.path)
     )
     runtime_element.set('user', str(user))
-    studentassetpath = dispatch_asset_path(request, dbexercise)
     exerciseassetpath = os.path.join(dbexercise.course.get_exercises_path(), dbexercise.path)
     runtime_element.set('studentassetpath', studentassetpath)
     runtime_element.set('exerciseassetpath', exerciseassetpath)
     question_xmltree.append(runtime_element)
 
-    rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
-    if (
-        (not settings.RUNNING_DEVSERVER)
-        and rate_limit is not None
-        and rate_limit.text is not None
-        and not user.is_staff
-    ):
-        rate = rate_limit.text.strip()
-        if (not settings.RUNNING_DEVSERVER) and is_ratelimited(
-            request, group='question_custom_rate', key='user', rate=rate, increment=True
-        ):
-            error_msg = _('Answer rate exceeded, ' 'please wait before trying again. (Rate: ')
-            return {'error': error_msg + rate + ')'}
+
+    #rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
+    #if (
+    #    (not settings.RUNNING_DEVSERVER)
+    #    and rate_limit is not None
+    #    and rate_limit.text is not None
+    #    and not user.is_staff
+    #):
+    #    rate = rate_limit.text.strip()
+    #    if (not settings.RUNNING_DEVSERVER) and is_ratelimited(
+    #        request, group='question_custom_rate', key='user', rate=rate, increment=True
+    #    ):
+    #        error_msg = _('Answer rate exceeded, ' 'please wait before trying again. (Rate: ')
+    #        return {'error': error_msg + rate + ')'}
+
+
     # print("TIME5 = ",  ( time.time() - tbeg ) *1000.0 )
-    
     try:
         if dbquestion.type in question_check_dispatch:
             result = {}
@@ -351,19 +390,30 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             else:
                 result.pop('debug', None)
 
-            # print("RESULT AFTER UPDATE  = ", result )
-            if user.has_perm('exercises.log_question'):
-                Answer.objects.create(
-                    user=user,
-                    question=dbquestion,
-                    # question_key=dbquestion.question_key,
-                    # exercise_key=dbexercise.exercise_key,
-                    answer=answer_data,
-                    grader_response=json.dumps(result),
-                    correct=correct,
-                    user_agent=user_agent,
-                )
-
+            # #print("RESULT AFTER UPDATE  = ", result )
+            new = False # WHEN REGRADING FLAG NEW = False to ignor no_feedback
+            if old_answer_object == None :
+                if user.has_perm('exercises.log_question'):
+                    new = True
+                    #print("CREATE A NEW ANSWER OBJECT")
+                    Answer.objects.create(
+                        user=user,
+                        question=dbquestion,
+                        # question_key=dbquestion.question_key,
+                        # exercise_key=dbexercise.exercise_key,
+                        answer=answer_data,
+                        grader_response=json.dumps(result),
+                        correct=correct,
+                        user_agent=user_agent,
+                    )
+            else :
+                #grader_response = result
+                #old_answer_object.correct = correct
+                #old_answer_object.save()
+                #print("Q4")
+                #print("RESULT = ", result)
+                #print("CORRECT = ", correct)
+                return (result,correct)
             usermacros = get_usermacros(user, exercise_key, question_key)
             previous_answers = get_previous_answers(dbquestion.pk, user.pk)
             result['previous_answers'] = previous_answers
@@ -377,12 +427,12 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             xmltree = exercise_xmltree(dbexercise.get_full_path())
             # NOTE MUST KEEP THIS IN CASE random is updated
             question_xmltree = question_xmltree_get(xmltree, question_key, usermacros)
-            if not request.user.has_perm("exercises.view_solution"):
+            if not view_solution_permission:
                 question_xmltree = hide_sensitive_tags_in_question(question_xmltree)
             bfdata = bf.data(question_xmltree)
             result['question'] = bfdata['question']
 
-            if not dbexercise.meta.feedback :
+            if not dbexercise.meta.feedback and new :
                 result['correct'] = None
 
             #print("RETURN RESULT")

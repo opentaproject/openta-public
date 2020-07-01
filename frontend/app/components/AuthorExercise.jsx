@@ -8,6 +8,7 @@ import immutable from 'immutable';
 import XMLEditor from './XMLEditor.jsx';
 import Statistics from './Statistics.jsx';
 import ExerciseRecentResults from './ExerciseRecentResults.jsx';
+import ExerciseRegrade from './ExerciseRegrade.jsx';
 import xml2js from 'xml2js';
 import Spinner from './Spinner.jsx';
 import Audit from './Audit.jsx';
@@ -129,6 +130,7 @@ class BaseAuthorExercise extends Component {
           }
           { this.props.atMenu(['activeExercise','statistics']) && this.props.view && <Statistics/> }
           { this.props.atMenu(['activeExercise','recent']) && this.props.view && <ExerciseRecentResults/> }
+          { this.props.atMenu(['activeExercise','regrade']) && this.props.view && <ExerciseRegrade/> }
           </div>
         }
         { loadingXML && this.props.atMenu(['activeExercise','xmlEditor']) && <Spinner/> }

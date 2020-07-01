@@ -76,7 +76,19 @@ def get_recent_results(request, exercise):
                 dict(pk=user, username=dbuser.username, answers=unique[:5], n_answers=n_answers)
             )
 
-    return Response(results)
+    return results
+
+
+
+
+@permission_required('exercises.view_statistics')
+@api_view(['GET'])
+def get_recent_results(request, exercise):
+    results = _get_recent_results(exercise)
+    return Response( results )
+
+
+
 
 
 

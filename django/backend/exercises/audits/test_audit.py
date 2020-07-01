@@ -12,7 +12,7 @@ import datetime
 import exercises.paths as paths
 from exercises.setup_tests import create_exercise, create_database
 from backend.selenium_utils import create_selenium
-from .models import Exercise
+from exercises.models import Exercise
 from course.models import Course
 from django.utils import timezone
 from django.conf import settings

@@ -493,13 +493,12 @@ function fetchStudentResults(coursePk) {
 }
 
 function fetchStudentDetailResults(userPk, coursePk) {
-  console.log("fetchStudentDetailResults")
   return (dispatch, getState) => {
     var state = getState();
     var coursePk = state.get('activeCourse');
     var exerciseKey = state.get('activeExercise');
     dispatch(updatePendingStateIn( ['detailedResults', userPk], true));
-    return jsonfetch('/course/' + coursePk + '/results/user/' + userPk + '/' + exerciseKey)
+    return jsonfetch('/course/' + coursePk + '/results/user/' + userPk + '/' + exerciseKey+ '/')
       .then(response => response.json())
       .then(json => dispatch(updateStudentDetailResults(userPk, json)))
       .then( () => dispatch(updatePendingStateIn( ['detailedResults', userPk], false)))
@@ -563,6 +562,7 @@ function reloadExercises(iAmSure = false, coursePkIn=null) {
 
 
 function fetchExerciseRecentResults() {
+  // console.log("fetchExerciseRecentResults entered ")
   return (dispatch, getState) => {
     var state = getState();
     var exercise = state.get('activeExercise');
@@ -574,6 +574,8 @@ function fetchExerciseRecentResults() {
       .catch( err => console.log(err) );
   }
 }
+
+
 
 export {
   notify,

@@ -11,8 +11,10 @@ ASYNC = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
+	'OPTIONS': { 'timeout': 20,  },
         'TEST' : {
         'NAME': os.path.join(BASE_DIR, 'dbtest.sqlite3'),
+		'OPTIONS': { 'timeout': 20,  }
         }
     }
 }

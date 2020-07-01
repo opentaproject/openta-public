@@ -3,6 +3,7 @@ from django.conf.urls import url
 from exercises import views
 
 urlpatterns = [
+    # path('exercise/', include('exercises.regrade.urls') ),
     url(r'^course/(?P<course_pk>[0-9]+)/exercises/$', views.exercise_list),
     url(r'^course/(?P<course_pk>[0-9]+)/exercises/(?P<user_pk>[0-9]+)/$', views.user_exercise_list),
     url(r'^course/(?P<course_pk>[0-9]+)/exercises/reload/$', views.exercises_reload),
@@ -92,6 +93,7 @@ urlpatterns = [
     url( r'^course/(?P<course_pk>[0-9]+)/results/user/(?P<user_pk>[0-9]+)/$', views.get_user_results),
     url( r'^course/(?P<course_pk>[0-9]+)/results/user/(?P<user_pk>[0-9]+)/(?P<exercise>[\w\.-]+)/$', views.get_user_exercise_results),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/recentresults', views.get_recent_results),
+    url(r'^exercise/(?P<exercise>[\w\.-]+)/regrade_resultsasync', views.get_regrade_results_async),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

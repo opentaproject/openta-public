@@ -41,6 +41,10 @@ DEFAULT_THUMBNAIL_SIZE = 10
 
 
 def dispatch_asset_path(request, exercise):
+    user = request.user
+    return( _dispatch_asset_path( user, exercise) )
+
+def _dispatch_asset_path(user , exercise):
     """Dispatch asset path depending on user type.
 
     Args:
@@ -52,10 +56,10 @@ def dispatch_asset_path(request, exercise):
 
     """
     asset_path = None
-    if request.user.has_perm('exercises.edit_exercise'):
+    if user.has_perm('exercises.edit_exercise'):
         asset_path = exercise.get_full_path()
     else:
-        asset_path = paths.get_student_asset_path(request.user, exercise)
+        asset_path = paths.get_student_asset_path(user, exercise)
 
     return asset_path
 
