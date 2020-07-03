@@ -1,7 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import {
+  fetchRegradeTask,
+  fetchExerciseRegradeResults,
 } from '../fetchers.js';
+
 import {
 } from '../actions.js';
 import Spinner from './Spinner.jsx';
@@ -15,6 +18,10 @@ import {SUBPATH} from '../settings.js';
 import mathjs from 'mathjs';
 import {asciiMathToMathJS} from './mathrender/string_parse.js'
 
+var unstableKey = 0;
+const nextUnstableKey = () => unstableKey++;
+
+
 
 function renderExpression(expression) {
   try {
@@ -27,7 +34,7 @@ function renderExpression(expression) {
 }
 
 
-const BaseExerciseRegradeResults = ({activeExercise, exerciseState, regradeAnswers, pending, admin, exerciseKey,pendingState}) => {
+const BaseExerciseRegradeResults = ({activeExercise, exerciseState, regradeAnswers, pending, admin, exerciseKey,progress,preview,on_accept_regrade,regrade}) => {
 
   const getQuestionText = key => {
     const q = exerciseState.getIn([activeExercise, 'json', 'exercise', 'question'], immutable.List([])).find(q => q.getIn(['@attr', 'key']) === key, null);
@@ -72,34 +79,58 @@ const timeago = t =>  {
 
     
 
-  //console.log("pendingState= ", JSON.stringify( pendingState) )
   var txt = JSON.stringify( regradeAnswers, null, 2 )
-  //console.log("TXT  = ", txt )
-  var progress = pendingState.getIn(['regradeResults'],'99') 
   var pprogress= progress + '%'
-  var preview =  pendingState.getIn(['regradePreview','preview'],'NOTHING')
-  //console.log("PROGRESS = ", progress)
-  console.log("PREVIEW= ", JSON.stringify( preview) )
-  console.log("pending = ", pending)
-  if (! pending ){
-    preview = "Done"
-    }
-  
+  var detail = ( preview == 'Cancelled' ||  preview == 'Done' || preview == 'Old Regrade')  ? preview : ''
+  var lines =  preview.split('\n') 
+  lines.shift()
+  var finished = ( pending == 'finished' )
+  var show_accept_and_reject = (  preview == 'Done' || preview == 'Old Regrade' ) && ( ! finished )
+  var show_reject_only = ( preview == 'Cancelled')  && ( ! finished )
+  var show_accept_reject = ( ! ( detail == '' ) ) || ( preview == '' ) && ( ! finished )
+  var ekey = String( exerciseKey)
+  var waiting = ( progress == 0 )  && ( ! show_accept_reject )
+  show_reject_only = ( show_reject_only  || preview == 'Done' ) && ( ! finished)
   return (
     <div className="uk-panel uk-width-1-1 uk-panel-box uk-margin-top">
-        <h3 className="uk-panel-title uk-width-1-1">
-          Regrades  {progress}
-        </h3>
+        <h4 className="uk-panel-title uk-width-1-1">
+        <button  className="uk-button uk-button-primary" onClick={ () => regrade() }>  Regrade </button> 
+          { ! show_accept_reject && (
+          <button  className="uk-button uk-button-danger" onClick={ () => on_accept_regrade( ekey , 'cancel') }>  Cancel </button>
+          
+          ) }
+        </h4>
+        <h4>
+        
+        {waiting && ( <button className='uk-button '> Waiting </button> ) }
+      { show_reject_only  &&  ! show_accept_and_reject && (
+        <div>
+        <button   className="uk-button uk-button-danger"  onClick={ () => on_accept_regrade( ekey , 'no') }> Reset </button>
+        </div>
+        ) }
+      {! pending  && show_accept_and_reject && (
+        <div>
+      <button  className="uk-button uk-button-success" onClick={ () => on_accept_regrade( ekey , 'yes') }>  Accept </button>
+      <button  className="uk-button uk-button-danger" onClick={ () => on_accept_regrade( ekey , 'no') }>  Reject </button>
+        </div>
+        ) }
+      </h4>
       { pending && ( 
         <div className="uk-progress uk-width-1-1">
         <div className="uk-progress-bar" style={{'width': pprogress}}><span className="uk-text-bold">{pprogress}</span></div> 
         </div>
-            ) }
-        <h6 className="uk-width-1-1 uk-overflow-hidden"> {preview} </h6>
-      { ! pending && (  
+      )}
+      { pending && (
+        <div>
+            
+         <h6 className="uk-width-1-1 uk-overflow-hidden"><table><tbody>{ lines.map( ( line ) => ( <tr key={'lis' + nextUnstableKey() }><td className='uk-overflow-hidden'>  {line}  </td> </tr>  ) ) }</tbody></table>
+           </h6> 
+        </div>
+        ) }
+      { true && (
       regradeAnswers.map( (regrade,question) => (
         <div key={"regrade" + question} className="uk-scrollable-box uk-margin-bottom" style={{height:'70vh'}}>
-          <div className="uk-align-center"> <QMath  questionType="linearAlgebra" exerciseKey={exerciseKey} expression={getQuestionExpression(question)} />    </div>
+          <div className="uk-align-center"><QMath  questionType="linearAlgebra" exerciseKey={exerciseKey} expression={getQuestionExpression(question)} /></div>
           <table className="uk-table">
           <tbody>
           { regrade.map( (answer) => <tr key={answer.get('key')} ><td> <div className="uk-text uk-text-small uk-text-primary"> { answer.get('username').replace(/@[^@]*/,'')
@@ -123,11 +154,18 @@ const timeago = t =>  {
   )
 }
 
+const mapDispatchToProps = dispatch => ({
+ on_accept_regrade :  ( exercise, yesno ) => dispatch( fetchRegradeTask(exercise,yesno) ),
+ regrade:  ( exercise) => dispatch( fetchExerciseRegradeResults() )
+})
+
 const mapStateToProps = state => {
   var activeExercise = state.get('activeExercise');
   return ({
+    preview : state.getIn(['pendingState','regradePreview',activeExercise,'preview'],''),
     regradeAnswers: state.getIn(['results', 'exercises', activeExercise, 'regrade'] , immutable.Map({})),
-    pending: state.getIn(['pendingState', 'regradeResults'], false),
+    pending: state.getIn(['pendingState', 'regradeResults',activeExercise], false),
+    progress: state.getIn(['pendingState','regradeResults',activeExercise],'99') ,
     pendingState: state.getIn(['pendingState'],immutable.Map({}) ),
     activeExercise: activeExercise,
     exerciseState: state.get('exerciseState'),
@@ -136,7 +174,5 @@ const mapStateToProps = state => {
   });
 }
 
-const mapDispatchToProps = dispatch => ({
-});
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaseExerciseRegradeResults)

@@ -121,7 +121,7 @@ export default (state = defaultState, action) => {
       return state.setIn(['results', 'exercises', action.exercise, 'recent'], immutable.fromJS(action.data));
     case 'SET_EXERCISE_REGRADE_RESULTS':
       console.log("SET_EXERCISE_REGRADE_RESULTS action = ", JSON.stringify( action) )
-      state.setIn(['results', 'regradeResults'], immutable.fromJS(action.results));
+      state.setIn(['results', 'regradeResults',action.exercise], immutable.fromJS(action.results));
       return state.setIn(['results', 'exercises', action.exercise, 'regrade'], immutable.fromJS(action.data));
     case 'UPDATE_REGRADE_RESULTS':
       console.log("REALLY UPDATE_REGRADE_RESULTS action = ", JSON.stringify( action) )
@@ -168,6 +168,7 @@ export default (state = defaultState, action) => {
     case 'SET_EXERCISE_HISTORY':
         return state.setIn(['exerciseState', action.exercise, 'history'], immutable.fromJS(action.data));
     case 'UPDATE_TASK':
+      console.log("UPDATE_TASK ACTION = ",  action) 
       return state.mergeIn(['tasks', action.task], immutable.fromJS(action.data));
     case 'SET_TIMEZONE':
       return state.setIn(['timezone'], action.data);

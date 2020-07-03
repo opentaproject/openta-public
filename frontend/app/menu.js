@@ -192,7 +192,6 @@ var menuTree = immutable.fromJS({
           name: 'Regrade',
           key: 'regrade',
           reqGroup: ['Admin'],
-          onLoad: fetchExerciseRegradeResults(),
         },
 
 

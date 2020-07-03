@@ -358,7 +358,7 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
       <span className="uk-text-bold uk-text-primary">
         Exercise file path: {filename}
       </span>);
-    var exerciseDOM = <div> <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
+    var exerciseDOM = <div className="uk-width-1-1"> <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
         
         {canViewXML && showResponseAwaits && <i className="uk-text-danger uk-margin-small-left uk-icon uk-icon uk-icon-envelope" />}
         {/* <a className="uk-navbar-brand onHome" onClick={this.props.onHome}> <i className="uk-icon uk-icon-tiny uk-icon-mail-reply"></i> </a> */}

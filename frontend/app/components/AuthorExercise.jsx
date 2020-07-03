@@ -101,7 +101,7 @@ class BaseAuthorExercise extends Component {
     var gridClass = this.props.atMenu(['activeExercise', 'assets']) ? '' : 'admin';
     var canViewXML = this.props.author || this.props.view;
     var authorDOM = (
-      <div className="uk-grid uk-padding-large uk-width-5-6">
+      <div className="uk-grid uk-padding-large uk-width-1-1">
         { !this.props.underMenu(['activeExercise', 'audit']) &&
         ( <div className='uk-width-1-1'>
 	   <div className='uk-panel uk-panel-box'>  <Assets/> </div>

@@ -59,7 +59,11 @@ def get_task_result(request, task):
 
 @api_view(['GET'])
 def task_progress(request, task):
-    dbtask = QueueTask.objects.get(pk=task)
-    if dbtask.owner is not None and request.user is not dbtask.owner and not request.user.is_staff:
-        return Response({'error': 'You do not own this task'})
-    return Response({'status': dbtask.status, 'progress': dbtask.progress, 'done': dbtask.done})
+    try:
+        dbtask = QueueTask.objects.get(pk=task)
+        if dbtask.owner is not None and request.user is not dbtask.owner and not request.user.is_staff:
+            return Response({'error': 'You do not own this task'})
+        return Response({'status': dbtask.status, 'progress': dbtask.progress, 'done': dbtask.done})
+    except:
+        return Response({'status': 'Cancelled', 'progress': '100', 'done': True})
+        

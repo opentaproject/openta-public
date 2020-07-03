@@ -18,6 +18,7 @@ urlpatterns = [
     url(r'^exercise/(?P<exercise>[\w\.-]+)/samefolder$', views.other_exercises_from_folder),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/json$', views.exercise_json),
     url(r'^exercise/(?P<exercise>[\w\.-]+)$', views.exercise),
+    url(r'^exercise/(?P<exercise>[\w\.-]+)/$', views.exercise),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/test$', views.exercise_test_view),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/xml$', views.exercise_xml),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/history$', views.exercise_history),
@@ -94,6 +95,7 @@ urlpatterns = [
     url( r'^course/(?P<course_pk>[0-9]+)/results/user/(?P<user_pk>[0-9]+)/(?P<exercise>[\w\.-]+)/$', views.get_user_exercise_results),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/recentresults', views.get_recent_results),
     url(r'^exercise/(?P<exercise>[\w\.-]+)/regrade_resultsasync', views.get_regrade_results_async),
+    url(r'^exercise/(?P<exercise>[\w\.-]+)/accept_regrade/(?P<yesno>[\w.]+)', views.accept_regrade),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
