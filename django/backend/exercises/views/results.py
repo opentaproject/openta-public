@@ -14,9 +14,7 @@ import uuid
 import pickle
 
 
-@permission_required('exercises.view_statistics')
-@api_view(['GET'])
-def get_recent_results(request, exercise):
+def _get_recent_results( exercise):
     """# {{{
     Retrieve list of recent answers from users.
 
@@ -77,8 +75,6 @@ def get_recent_results(request, exercise):
             )
 
     return results
-
-
 
 
 @permission_required('exercises.view_statistics')
