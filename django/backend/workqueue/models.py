@@ -1,7 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from exercises.models import Exercise
+import os
 import redis
-from django.db.models.signals import post_delete, pre_save
+from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
 
 
@@ -35,23 +37,20 @@ class QueueTask(models.Model):
         default=None, blank=True, null=True, upload_to=result_file_name, max_length=512
     )
 
-    def save(self,*args,**kwargs):
-        r  = redis.Redis()
-        r.set(str(self.id),'1')
-        super(QueueTask, self).save(*args, **kwargs)
 
-
-@receiver(pre_save, sender=QueueTask)
-def _queuetask_save(sender, instance, **kwargs):
-    r  = redis.Redis()
-    r.set(str(instance.id),'1')
-
-
-@receiver(post_delete, sender=QueueTask)
-def _queuetask_delete(sender, instance, **kwargs):
-    print("deleting", instance.id)
-    r  = redis.Redis()
-    r.delete(str(instance.id))
+class RegradeTask( models.Model):
+    task_id = models.IntegerField(default=0)
+    exercise = models.ForeignKey(Exercise, default=None, null=True,on_delete=models.PROTECT)
+    resultsfile = models.CharField(max_length=255,default='')
+    pklfile = models.CharField(max_length=255,default='')
+    status = models.CharField(max_length=64,default='')
     
-    # TODO THIS SHOULD PROBABLY BE DONE WITH redis.pubsub
-    #
+    
+@receiver(pre_delete, sender=RegradeTask)
+def regrade_task(sender, instance, **kwargs):
+    pklfile= instance.pklfile
+    resultsfile = instance.resultsfile
+    if os.path.exists(resultsfile) : 
+        os.remove(resultsfile)
+    if os.path.exists(pklfile) : 
+        os.remove(pklfile)

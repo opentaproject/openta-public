@@ -12,14 +12,12 @@ from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from django.http import HttpResponse
 from aggregation.models import Aggregation, get_cache_and_key, STATISTICS_CACHE_TIMEOUT
-from workqueue.models import QueueTask
+from workqueue.models import  RegradeTask
 import workqueue.util as workqueue
 from messages import error, embed_messages
 from workqueue.exceptions import WorkQueueError
 import os
 import rq
-import redis
-import redis
 import pickle
 
 
@@ -32,12 +30,6 @@ def regrade_results_async_pipeline(task, exercise):
     task.done = True
     task.status = "Done"
     task.progress = 100
-    if old_regrade_exists:
-        task.status = 'Old Regrade'
-    r = redis.Redis()
-    r.get(str(task.pk))
-    if not r.get(str(task.pk)):
-        task.status = 'Cancelled'
     task.save()
     return result
 
@@ -45,28 +37,43 @@ def regrade_results_async_pipeline(task, exercise):
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
 def get_regrade_results_async(request, exercise):
-    r = redis.Redis()
-    if r.get(exercise):
-        task_id = r.get(exercise)
+    p = '/tmp/regrade/%s' % exercise
+    pklfile = p + '/regrade_items.pkl'
+    resultsfile = p +'/results.pkl' 
+    try: 
+        regrade_task  = RegradeTask.objects.get(exercise=exercise)
+        task_id = regrade_task.task_id
         messages = embed_messages([error('Task %s is still incomplete' % str(task_id))])
         return Response({'task_id': task_id})
-    else:
+    except RegradeTask.DoesNotExist :
         try:
             dbexercise = Exercise.objects.get(pk=exercise)
         except Exercise.DoesNotExist:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
-
         try:
             task_id = workqueue.enqueue_task(
                 "regrade_results", regrade_results_async_pipeline, exercise=dbexercise
             )
+            regrade_task = RegradeTask.objects.create(exercise=dbexercise,task_id=task_id,resultsfile=resultsfile,pklfile=pklfile,status='Waiting')
             return Response({'task_id': task_id})
         except WorkQueueError as e:
             messages = embed_messages([error(str(e))])
             return Response(messages)
 
+def cleanup_orphaned_tasks(exercise):
+    regrade_tasks = RegradeTask.objects.filter(exercise=exercise)
+    if len( regrade_tasks) > 1 :
+        i = 0
+        for regrade_task in regrade_tasks:
+            if i > 0 :
+                regrade_task.delete()
+            i = i + 1
+            
+        
 
-def regrade_students_results(task=None, exercise=None):
+
+def regrade_students_results(task, exercise):
+    cleanup_orphaned_tasks(exercise)
     results = {}
     try:
         dbexercise = Exercise.objects.get(pk=exercise.pk)
@@ -78,19 +85,16 @@ def regrade_students_results(task=None, exercise=None):
     for question in questions:
         question_key = question.question_key
         results[question_key] = []
-
     n_answers = len(all_answers)
     txt = "OK"
-    r = redis.Redis()
     regrade_items = []
-    p = '/tmp/regrade/%s' % exercise_key
-    pklfile = p + '/regrade_items.pkl'
-    resultsfile = p + '/results.pkl'
+    regrade_task = RegradeTask.objects.get(exercise=exercise_key)
+    resultsfile = regrade_task.resultsfile
+    pklfile = regrade_task.pklfile
+    if regrade_task.status == 'Waiting':
+        regrade_task.status = 'Running'
+        regrade_task.save()
     old_regrade_exists = os.path.isfile(resultsfile)
-    r = redis.Redis()
-    r.set(str(exercise_key), task.pk)
-    r.set(task.pk, str(exercise_key))
-
     if old_regrade_exists:
         results = pickle.load(open(resultsfile, 'rb'))
     for index, answer in enumerate(all_answers):
@@ -99,14 +103,8 @@ def regrade_students_results(task=None, exercise=None):
             task.progress = 100
             task.save
         else:
-            if r.get(str(task.pk)) or index == 0:
-                # THIS ALWAYS FAILS SINCE PERHAAPS FILE
-                # CREAED IN model.save IS NOT CREATED FAST ENOUGH
-                #
-                # if ( r.get(str(task.pk) )  == None   ) :
-                #    break
-                # if (  index > 0 and not os.path.isfile("/tmp/%s" % task.pk)  ):
-                #    break
+            regrade_task = RegradeTask.objects.get(exercise=dbexercise)
+            if  regrade_task.status == 'Running' :
                 grader_response = json.loads(answer.grader_response)
                 user_agent = answer.user_agent
                 answer_data = answer.answer
@@ -119,13 +117,10 @@ def regrade_students_results(task=None, exercise=None):
                 question_key = question.question_key
                 old_correct = grader_response.get('correct', False)
                 if task is not None:
-                    # task.status =  task.status + "\n" + str( answer_data )
-                    # task.status = task.status + str(i) + ","
                     task.status = (task.status + txt)[-245:]
                     task.progress = round(((index + 1) / n_answers) * 100)
                     task.save()
-                if r.get(str(task.pk)):
-                    (result, new_correct) = _question_check(
+                (result, new_correct) = _question_check(
                         hijacked,
                         view_solution_permission,
                         dbuser,
@@ -135,8 +130,6 @@ def regrade_students_results(task=None, exercise=None):
                         answer_data,
                         answer,
                     )
-                else:
-                    new_correct = old_correct
                 txt = (
                     str(dbuser)
                     + ' '
@@ -172,16 +165,18 @@ def regrade_students_results(task=None, exercise=None):
                             new=new_correct,
                         )
                     )
-        # else :
-        #    yield None
-    p = '/tmp/regrade/%s' % exercise_key
-    # if old_regrade_exists:
-    #    results['msg'] = 'Old regrades'
-    # else :
-    #    results['msg'] = 'New regrades'
-    os.makedirs(p, exist_ok=True)
-    pickle.dump(regrade_items, open(p + '/regrade_items.pkl', 'wb'))
-    pickle.dump(results, open(p + '/results.pkl', 'wb'))
+    try: 
+        regrade_task = RegradeTask.objects.get(exercise=exercise_key)
+        if regrade_task.status == 'Running' :
+            regrade_task.status = 'Finished'
+        regrade_task.save()
+        pklfile = regrade_task.pklfile
+        resultsfile = regrade_task.resultsfile
+        os.makedirs(os.path.dirname(pklfile), exist_ok=True)
+        pickle.dump(regrade_items, open(pklfile, 'wb'))
+        pickle.dump(results, open(resultsfile, 'wb'))
+    except RegradeTask.DoesNotExist:
+        pass
     return results
 
 
@@ -189,30 +184,20 @@ def regrade_students_results(task=None, exercise=None):
 @api_view(['GET'])
 def accept_regrade(request, exercise, yesno='no'):
     p = '/tmp/regrade/%s' % exercise
-    pklfile = p + '/regrade_items.pkl'
-    resultsfile = p + '/results.pkl'
+    dbexercise = Exercise.objects.get(pk=exercise)
+    regrade_task = RegradeTask.objects.get(exercise=dbexercise)
     if yesno == 'yes':
+        pklfile =  regrade_task.pklfile
         regrade_items = pickle.load(open(pklfile, 'rb'))
         for item in regrade_items:
             answer = Answer.objects.get(pk=item['pk'])
             answer.correct = item['correct']
             answer.grader_response = item['grader_response']
             answer.save()
-        os.remove(pklfile)
-        os.remove(resultsfile)
-        r = redis.Redis()
-        r.delete(exercise)
+        regrade_task.delete() 
     elif yesno == 'no':
-        os.remove(pklfile)
-        os.remove(resultsfile)
-        r = redis.Redis()
-        r.delete(exercise)
+         regrade_task.delete() 
     elif yesno == 'cancel':
-        r = redis.Redis()
-        pk = r.get(exercise)
-        r.delete(pk)
-        tasks = QueueTask.objects.filter(pk=pk)
-        if len(tasks) == 1:
-            tasks[0].delete()
+         regrade_task.status = 'Cancelled'
+         regrade_task.save()
     return redirect("../")
-    # return redirect("/" + settings.SUBPATH)

@@ -45,7 +45,12 @@ const BaseExerciseRegradeResults = ({activeExercise, exerciseState, regradeAnswe
   }
 
 const getQuestionExpression= key => {
-    return exerciseState.getIn([activeExercise, 'question',key,'answer'], '')
+    console.log("GET QUESTION EXPRESSIN key = ", key )
+    console.log("ACTIVE EXERCISE = ", activeExercise)
+    console.log("DATA = ",  exerciseState.getIn([activeExercise ]  ) )
+    var res = exerciseState.getIn([activeExercise, 'question',key,'answer'], 'Click submit to see correct answer')
+    console.log("RES = ", res )
+    return res
   }
 
 
@@ -130,7 +135,7 @@ const timeago = t =>  {
       { true && (
       regradeAnswers.map( (regrade,question) => (
         <div key={"regrade" + question} className="uk-scrollable-box uk-margin-bottom" style={{height:'70vh'}}>
-          <div className="uk-align-center"><QMath  questionType="linearAlgebra" exerciseKey={exerciseKey} expression={getQuestionExpression(question)} /></div>
+          <div className="uk-align-center"> <QMath  questionType="devLinearAlgebra" exerciseKey={exerciseKey} expression={getQuestionExpression(question)} />   </div>
           <table className="uk-table">
           <tbody>
           { regrade.map( (answer) => <tr key={answer.get('key')} ><td> <div className="uk-text uk-text-small uk-text-primary"> { answer.get('username').replace(/@[^@]*/,'')

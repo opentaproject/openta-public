@@ -44,16 +44,19 @@ def get_task_result_file(request, task):
 
 @api_view(['GET'])
 def get_task_result(request, task):
-    dbtask = QueueTask.objects.get(pk=task)
-    if dbtask.owner is not None and request.user is not dbtask.owner and not request.user.is_staff:
-        return Response({'error': 'You do not own this task'})
-    if not dbtask.done:
-        return Response({'error': 'Not done'})
-    if dbtask.result_file is None:
-        return Response({'error': 'There is no result file for this task'})
-    result = task_result(task)
+    try:
+        dbtask = QueueTask.objects.get(pk=task)
+        if dbtask.owner is not None and request.user is not dbtask.owner and not request.user.is_staff:
+            return Response({'error': 'You do not own this task'})
+        if not dbtask.done:
+            return Response({'error': 'Not done'})
+        if dbtask.result_file is None:
+            return Response({'error': 'There is no result file for this task'})
+        result = task_result(task)
+    except:
+        result = None
     if result is None:
-        return Response({})
+            return Response({})
     return Response(result)
 
 
