@@ -46,7 +46,11 @@ def get_task_result_file(request, task):
 def get_task_result(request, task):
     try:
         dbtask = QueueTask.objects.get(pk=task)
-        if dbtask.owner is not None and request.user is not dbtask.owner and not request.user.is_staff:
+        if (
+            dbtask.owner is not None
+            and request.user is not dbtask.owner
+            and not request.user.is_staff
+        ):
             return Response({'error': 'You do not own this task'})
         if not dbtask.done:
             return Response({'error': 'Not done'})
@@ -56,7 +60,7 @@ def get_task_result(request, task):
     except:
         result = None
     if result is None:
-            return Response({})
+        return Response({})
     return Response(result)
 
 
@@ -64,9 +68,12 @@ def get_task_result(request, task):
 def task_progress(request, task):
     try:
         dbtask = QueueTask.objects.get(pk=task)
-        if dbtask.owner is not None and request.user is not dbtask.owner and not request.user.is_staff:
+        if (
+            dbtask.owner is not None
+            and request.user is not dbtask.owner
+            and not request.user.is_staff
+        ):
             return Response({'error': 'You do not own this task'})
         return Response({'status': dbtask.status, 'progress': dbtask.progress, 'done': dbtask.done})
     except:
         return Response({'status': 'Cancelled', 'progress': '100', 'done': True})
-        

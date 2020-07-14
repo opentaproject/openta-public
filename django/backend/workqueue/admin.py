@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import QueueTask,RegradeTask
+from .models import QueueTask, RegradeTask
 
 
 class QueueTaskAdmin(admin.ModelAdmin):
@@ -12,11 +12,10 @@ class QueueTaskAdmin(admin.ModelAdmin):
 
 
 class RegradeTaskAdmin(admin.ModelAdmin):
-    list_display = ['pk','task_id', 'exercise','resultsfile','status']
+    list_display = ['pk', 'task_id', 'exercise', 'resultsfile', 'status']
     list_per_page = 20
     readonly_fields = ('pk',)
 
 
 admin.site.register(QueueTask, QueueTaskAdmin)
-admin.site.register(RegradeTask,RegradeTaskAdmin)
-
+admin.site.register(RegradeTask, RegradeTaskAdmin)

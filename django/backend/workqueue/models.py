@@ -7,9 +7,6 @@ from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
 
 
-
-
-
 def result_file_name(instance, filename):
     fullfile = '/'.join(
         [
@@ -25,7 +22,6 @@ def result_file_name(instance, filename):
     return fullfile
 
 
-
 class QueueTask(models.Model):
     owner = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
@@ -38,19 +34,19 @@ class QueueTask(models.Model):
     )
 
 
-class RegradeTask( models.Model):
+class RegradeTask(models.Model):
     task_id = models.IntegerField(default=0)
-    exercise = models.ForeignKey(Exercise, default=None, null=True,on_delete=models.PROTECT)
-    resultsfile = models.CharField(max_length=255,default='')
-    pklfile = models.CharField(max_length=255,default='')
-    status = models.CharField(max_length=64,default='')
-    
-    
+    exercise = models.ForeignKey(Exercise, default=None, null=True, on_delete=models.PROTECT)
+    resultsfile = models.CharField(max_length=255, default='')
+    pklfile = models.CharField(max_length=255, default='')
+    status = models.CharField(max_length=64, default='')
+
+
 @receiver(pre_delete, sender=RegradeTask)
 def regrade_task(sender, instance, **kwargs):
-    pklfile= instance.pklfile
+    pklfile = instance.pklfile
     resultsfile = instance.resultsfile
-    if os.path.exists(resultsfile) : 
+    if os.path.exists(resultsfile):
         os.remove(resultsfile)
-    if os.path.exists(pklfile) : 
+    if os.path.exists(pklfile):
         os.remove(pklfile)

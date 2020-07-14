@@ -12,7 +12,7 @@ from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from django.http import HttpResponse
 from aggregation.models import Aggregation, get_cache_and_key, STATISTICS_CACHE_TIMEOUT
-from workqueue.models import  RegradeTask
+from workqueue.models import RegradeTask
 import workqueue.util as workqueue
 from messages import error, embed_messages
 from workqueue.exceptions import WorkQueueError
@@ -39,13 +39,13 @@ def regrade_results_async_pipeline(task, exercise):
 def get_regrade_results_async(request, exercise):
     p = '/tmp/regrade/%s' % exercise
     pklfile = p + '/regrade_items.pkl'
-    resultsfile = p +'/results.pkl' 
-    try: 
-        regrade_task  = RegradeTask.objects.get(exercise=exercise)
+    resultsfile = p + '/results.pkl'
+    try:
+        regrade_task = RegradeTask.objects.get(exercise=exercise)
         task_id = regrade_task.task_id
         messages = embed_messages([error('Task %s is still incomplete' % str(task_id))])
         return Response({'task_id': task_id})
-    except RegradeTask.DoesNotExist :
+    except RegradeTask.DoesNotExist:
         try:
             dbexercise = Exercise.objects.get(pk=exercise)
         except Exercise.DoesNotExist:
@@ -54,22 +54,27 @@ def get_regrade_results_async(request, exercise):
             task_id = workqueue.enqueue_task(
                 "regrade_results", regrade_results_async_pipeline, exercise=dbexercise
             )
-            regrade_task = RegradeTask.objects.create(exercise=dbexercise,task_id=task_id,resultsfile=resultsfile,pklfile=pklfile,status='Waiting')
+            regrade_task = RegradeTask.objects.create(
+                exercise=dbexercise,
+                task_id=task_id,
+                resultsfile=resultsfile,
+                pklfile=pklfile,
+                status='Waiting',
+            )
             return Response({'task_id': task_id})
         except WorkQueueError as e:
             messages = embed_messages([error(str(e))])
             return Response(messages)
 
+
 def cleanup_orphaned_tasks(exercise):
     regrade_tasks = RegradeTask.objects.filter(exercise=exercise)
-    if len( regrade_tasks) > 1 :
+    if len(regrade_tasks) > 1:
         i = 0
         for regrade_task in regrade_tasks:
-            if i > 0 :
+            if i > 0:
                 regrade_task.delete()
             i = i + 1
-            
-        
 
 
 def regrade_students_results(task, exercise):
@@ -104,7 +109,7 @@ def regrade_students_results(task, exercise):
             task.save
         else:
             regrade_task = RegradeTask.objects.get(exercise=dbexercise)
-            if  regrade_task.status == 'Running' :
+            if regrade_task.status == 'Running':
                 grader_response = json.loads(answer.grader_response)
                 user_agent = answer.user_agent
                 answer_data = answer.answer
@@ -121,15 +126,15 @@ def regrade_students_results(task, exercise):
                     task.progress = round(((index + 1) / n_answers) * 100)
                     task.save()
                 (result, new_correct) = _question_check(
-                        hijacked,
-                        view_solution_permission,
-                        dbuser,
-                        user_agent,
-                        exercise_key,
-                        question_key,
-                        answer_data,
-                        answer,
-                    )
+                    hijacked,
+                    view_solution_permission,
+                    dbuser,
+                    user_agent,
+                    exercise_key,
+                    question_key,
+                    answer_data,
+                    answer,
+                )
                 txt = (
                     str(dbuser)
                     + ' '
@@ -165,9 +170,9 @@ def regrade_students_results(task, exercise):
                             new=new_correct,
                         )
                     )
-    try: 
+    try:
         regrade_task = RegradeTask.objects.get(exercise=exercise_key)
-        if regrade_task.status == 'Running' :
+        if regrade_task.status == 'Running':
             regrade_task.status = 'Finished'
         regrade_task.save()
         pklfile = regrade_task.pklfile
@@ -187,17 +192,17 @@ def accept_regrade(request, exercise, yesno='no'):
     dbexercise = Exercise.objects.get(pk=exercise)
     regrade_task = RegradeTask.objects.get(exercise=dbexercise)
     if yesno == 'yes':
-        pklfile =  regrade_task.pklfile
+        pklfile = regrade_task.pklfile
         regrade_items = pickle.load(open(pklfile, 'rb'))
         for item in regrade_items:
             answer = Answer.objects.get(pk=item['pk'])
             answer.correct = item['correct']
             answer.grader_response = item['grader_response']
             answer.save()
-        regrade_task.delete() 
+        regrade_task.delete()
     elif yesno == 'no':
-         regrade_task.delete() 
+        regrade_task.delete()
     elif yesno == 'cancel':
-         regrade_task.status = 'Cancelled'
-         regrade_task.save()
+        regrade_task.status = 'Cancelled'
+        regrade_task.save()
     return redirect("../")
