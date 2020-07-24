@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 import traceback
 import random
 import itertools
+from django.conf import settings
 
 from exercises.questiontypes.safe_run import safe_run
 import logging
@@ -295,20 +296,25 @@ def linear_algebra_compare_expressions(
                 if funcstr in blacklist:
                     return {'error': _('Forbidden token: ') + funcstr}
     except SympifyError as e:
-        logger.error(traceback.format_exc())
-        logger.error([str(e), str(student_answer), str(correct)])
+        #logger.error(traceback.format_exc())
+        #logger.error([str(e), str(student_answer), str(correct)])
         response = dict(error=_("Failed to evaluate expression."))
         return response
     except ShapeError as e:
-        logger.error(traceback.format_exc())
+        #logger.error(traceback.format_exc())
         response = dict(
             error=_("There seems to be a vector or matrix operation with incompatible dimensions.")
         )
         return response
+    except TypeError as e:
+        response = dict(error =_("Syntax error; only spaces give implicity multiply "))
+        return response
     except Exception as e:
         logger.error(traceback.format_exc())
-        logger.error([str(e), str(student_answer), str(correct)])
-        response = dict(error=_("Unknown error, check your expression."))
+        logger.error([ "310", type(e), str(e), str(student_answer), str(correct)])
+        print( "ERROR IN LINEAR_ALGEBRA ",  [ "310", type(e), str(e), str(student_answer), str(correct)] )
+        response = dict(error=_("Unidentified error 310 , check your expression. %s %s " % ( type(e), str(e) )  ))
+        response['debug'] = 'type = %s error = %s\n' % ( type(e), str(e) ) 
         return response
 
     return linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=check_units)
@@ -374,18 +380,21 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=True):
 
         eval_point = subs_neighbours[0] if subs_neighbours else []
 
-        test_evaluation = numpy.linalg.norm(
-            sympy.lambdify(
-                [],
-                (sympy1.subs(eval_point).doit() - sympy2.subs(eval_point).doit()),
-                modules=lambdifymodules,
-            )()
-        )
+        #test_evaluation = numpy.linalg.norm(
+        #    sympy.lambdify(
+        #        [],
+        #        (sympy1.subs(eval_point).doit() - sympy2.subs(eval_point).doit()),
+        #        modules=lambdifymodules,
+        #    )()
+        #)
         if check_units:
             try:
                 check_units_new(sympy1_units, sympy2_units, sample_variables)
             except LinearAlgebraUnitError as e:
                 response['warning'] = str(e)
+                response['error'] = 'LinearAlgebraUnitEerror 392  %s %s ' % ( type(e), str(e) )
+            except Exception as e:
+                response['error'] = 'Unidentified error 392  %s %s ' % ( type(e), str(e) )
 
         diffs = []
         for sample_point in subs_neighbours:
@@ -402,13 +411,25 @@ def linear_algebra_check_equality(lhs, rhs, sample_variables, check_units=True):
             response['correct'] = True
         else:
             response['correct'] = False
+
+    except NameError as e:
+        response['error'] = _("Name error. Hint: space necessary for implicit multiply ")
     except SympifyError as e:
-        logger.error([str(e), str(lhs), str(rhs)])
-        response['error'] = _("Failed to evaluate expression.")
+        logger.error(["405", str(e), str(lhs), str(rhs)])
+        response['error'] = str(e)
+    except TypeError as e:
+        logger.error(["405", str(e), str(lhs), str(rhs)])
+        response['error'] =  str(e)
+    except KeyError as e:
+        logger.error(["405", str(e), str(lhs), str(rhs)])
+        if 'ComplexInfinity' in str(e) :
+            response['error'] =  "Infinity!"
+        else :
+            response['error'] = _("Unidentified error 428 , check your expression. %s %s " % ( type(e), str(e) ) )
     except Exception as e:
-        logger.error([str(e), str(lhs), str(rhs)])
+        logger.error(["409", type(e), str(e), str(lhs), str(rhs)])
         logger.error(traceback.format_exc())
-        response['error'] = _("Unknown error, check your expression.")
+        response['error'] = _("Unidentified error 409 , check your expression. %s %s " % ( type(e), str(e) ) )
     return response  # }}}
 
 

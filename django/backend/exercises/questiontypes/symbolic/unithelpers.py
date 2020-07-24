@@ -1,5 +1,4 @@
 import sympy
-import numpy
 from sympy import sympify, symbols
 
 # from sympy.abc import _clash1, _clash2, _clash
@@ -8,7 +7,7 @@ units = 'meter,second,kg,ampere,kelvin,mole,candela'
 
 meter, second, kg, ampere, kelvin, mole, candela = sympy.symbols(units, real=True, positive=True)
 units = units.split(',')
-sympy_units = [meter, second, kg, ampere, kelvin, mole, candela]
+sympy_units = ['meter', 'second', 'kg', 'ampere', 'kelvin', 'mole', 'candela']
 
 ns = {}
 syms = ['C', 'O', 'Q', 'N', 'I', 'E', 'S', 'beta', 'zeta', 'gamma', 'pi']
@@ -36,7 +35,7 @@ ns.update(
 )
 
 # Sympy substitution rule for removing units from an expression
-baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
+baseunits = {'meter': 1, 'second': 1, 'kg': 1, 'ampere': 1, 'kelvin': 1, 'mole': 1, 'candela': 1}
 unitbaseunits = {'meter': 1.0 , 'second': 1.0, 'kg': 1.0, 'ampere': 1.0, 'kelvin': 1.0, 'mole': 1.0, 'candela': 1.0}
 derivedunits = {
     'joule': (kg * meter ** 2) / second ** 2,

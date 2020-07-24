@@ -45,11 +45,11 @@ const BaseExerciseRegradeResults = ({activeExercise, exerciseState, regradeAnswe
   }
 
 const getQuestionExpression= key => {
-    console.log("GET QUESTION EXPRESSIN key = ", key )
-    console.log("ACTIVE EXERCISE = ", activeExercise)
-    console.log("DATA = ",  exerciseState.getIn([activeExercise ]  ) )
+    //console.log("GET QUESTION EXPRESSIN key = ", key )
+    //console.log("ACTIVE EXERCISE = ", activeExercise)
+    //console.log("DATA = ",  exerciseState.getIn([activeExercise ]  ) )
     var res = exerciseState.getIn([activeExercise, 'question',key,'answer'], 'Click submit to see correct answer')
-    console.log("RES = ", res )
+    //console.log("RES = ", res )
     return res
   }
 
@@ -141,14 +141,14 @@ const timeago = t =>  {
           { regrade.map( (answer) => <tr key={answer.get('key')} ><td> <div className="uk-text uk-text-small uk-text-primary"> { answer.get('username').replace(/@[^@]*/,'')
           } </div>  </td>
               <td className="uk-text-small"> {timeago(answer.get('date')) } </td>
-          <td className={answer.get('new', false) ? 'uk-text-success' : 'uk-text-danger'} title={answer.get('answer')} data-uk-tooltip>
+          <td className={answer.get('new', false) ? 'uk-text-success' : 'uk-text-danger'} title={answer.get('answer')} data-uk-tooltip>  {answer.get('old') ? 'ok' : 'nok' } -> { answer.get('new') ? 'ok' : 'nok' }  
                              <i className={answer.get('new', false) ? 'uk-icon uk-icon-check uk-text-success' : 'uk-icon uk-icon-close uk-text-danger'} />
                                 </td>
  
 
               <td>    <QMath  questionType="linearAlgebra" exerciseKey={exerciseKey} expression={answer.get('answer')} />    
 </td>
-              <td> <div className='uk-text uk-text-small'> {answer.get('answer')} </div> </td>
+              <td> <div className='uk-text uk-text-small'> {answer.get('answer')} </div> </td> <td> {answer.get('error','') } </td>
                
               </tr> ) }
           </tbody>

@@ -553,6 +553,7 @@ def validate_exercise_globals(xml, user, exercise):
     # DONT BOTHER CHECKING QUESTIONS IF QUESTIONS CHANGE
     # SINCE AUTHOR TYPICALLY CHECKS THIS ANYWAY
     #
+    print("VALIDATE EXERCISE GLOBALS")
     messages = []
     cache_seconds = 60 * 60
     parser = etree.XMLParser(recover=True)
@@ -588,6 +589,7 @@ def validate_exercise_globals(xml, user, exercise):
     for question in questions:
         types_to_check = types_to_check + [question['@attr']['type']]
     types_to_check = list(set(types_to_check).intersection(set(['symbolic', 'devLinearAlgebra'])))
+    print("TYPES TO CHECK = ", types_to_check)
     if len(types_to_check) == 0:
         return []
     expressions = [x['name'] + ' == ' + x['value'] for x in xml_variables]
@@ -599,10 +601,10 @@ def validate_exercise_globals(xml, user, exercise):
             precision = 1.0e-6
             result = {}
             for expression in expressions:
-                expr = "QuestionType " + question_type + " :Error in global definitions: "
+                expr = "QuestionType " + question_type + ": Error in global definitions: "
                 result = symex(precision, variables, expression, '0 == 0', True, [], [], funcsubs)
                 if (not result.get('correct')) or result.get('error'):
-                    msg = expr + result.get('error', '') + result.get('debug', '')
+                    msg = expr + result.get(' error', '') + result.get(' debug', '')
                     msg = re.sub(r"[\'<>]", '', msg)
                     messages.append(('error', msg))
                     return messages
@@ -702,6 +704,10 @@ def validate_exercise_xml(xml, user, exercise):
     except NameError as e:
         messages.append(
             ('error', "From validate_exercise_xml: " + type(e).__name__ + "  :  " + str(e))
+        )
+    except Exception as e:
+        messages.append(
+            ('error', "Uncaught excption From validate_exercise_xml: " + type(e).__name__ + "  :  " + str(e))
         )
     return messages
 

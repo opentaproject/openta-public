@@ -163,7 +163,7 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
             for arg in expargs:
                 n = n + 1 if (str(newvarsubs.get(str(arg), 'NOT FOUND')) in matrix_sub) else n
             if n > 1:
-                raise NameError("Matrix multiplication must be explicit: violated in " + str(expr))
+                raise NameError("No implicit Matrix multiplication allowed: violated in " + str(expr) + " Use mul(A,B)" )
             # print(dir( expr) )
             # for key in dir(expr) :
             #    print(key, getattr( expr,key ) )

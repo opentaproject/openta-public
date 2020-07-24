@@ -9,6 +9,7 @@ from exercises.question import QuestionError
 from exercises.question import get_number_of_attempts, get_previous_answers
 
 # Below are imports that are specific to this question type
+import json
 import hashlib
 from collections import OrderedDict
 import functools
@@ -48,7 +49,7 @@ def parse_variables(variables):  # {{{
 
 
 def question_check(question_json, question_xmltree, answer_data, global_xmltree, symex):
-    print("DEV LINEAR ALGEBRA QUESTION_CHECK, ANSWER-DATA", answer_data)
+    #print("DEV LINEAR ALGEBRA QUESTION_CHECK, ANSWER-DATA", answer_data)
     # hints = parsehints(question_xmltree, global_xmltree, answer_data)
     result = {}
     # if hints is not None:
@@ -122,7 +123,7 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
     # if hints is not None:
     #    result.update(hints)
     #print("final result = ", result)
-    logger.debug("RETTURN RESULT = " + str(result))
+    logger.debug("RETTURN RESULT = " + json.dumps(result) )
     return result
 
 

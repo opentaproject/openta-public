@@ -7,8 +7,9 @@ import traceback
 import random
 import itertools
 from sympy.core import S
-from .unithelpers import units, sympy_units
+from .unithelpers import units, sympy_units, baseunits
 from exercises.questiontypes.symbolic.sympify_with_custom import sympify_with_custom
+from exercises.util import index_of_matching_left_paren, index_of_matching_right_paren
 
 
 from .variableparser import getallvariables, get_used_variable_list
@@ -26,17 +27,22 @@ from .string_formatting import (
 from .unithelpers import *
 from .parsers import *
 from .functions import *
+from numpy import tan, logical_or, equal, cross,dot,inf,complex
+import numpy.linalg
 
 
 lambdifymodules = [
     {
         'cot': lambda x: 1.0 / numpy.tan(x),
-        'norm': numpy.linalg.norm,
+        'exp': lambda x:  numpy.exp(x),
+        'sqrt': lambda x: numpy.sqrt(x),
+        'real': lambda x: numpy.real(x),
+        'norm': lambda x: numpy.linalg.norm(x),
         'logicaland': numpy.logical_and,
         'logicalor': numpy.logical_or,
         'eq': numpy.equal,
-        'Norm': numpy.linalg.norm,
-        'abs': numpy.linalg.norm,
+        'Norm': lambda x:  numpy.linalg.norm(x) ,
+        'abs':  lambda x:  numpy.linalg.norm(x) ,
         'cross': lambda x, y: numpy.cross(x, y, axis=0),
         'crossfunc': lambda x, y: numpy.cross(x, y, axis=0),
         'dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
@@ -69,13 +75,19 @@ def check_units_new(expression, correct, sample_variables):
     def perturb(value):
         return value + value * random.random() * 0.1
 
+    print("a")
     for item in sample_variables:
+        print("b")
         nvarsubs[item['symbol']] = item['symbol'] * item['around'][0]
         value = float(item['around'][0].subs(baseunits))
         sampled_value = value + random.random() * value * 0.1
         nsubs_values.append((item['symbol'], sampled_value))
+    print("c")
     nexpression = expression.subs(nvarsubs).doit()
+    print("NEXPRESSION = ", nexpression)
+    print("d")
     ncorrect = correct.subs(nvarsubs).doit()
+    print("e")
 
     checks = [
         [1, 1, 1, 1, 1, 1, 1],
@@ -89,34 +101,107 @@ def check_units_new(expression, correct, sample_variables):
     ]
     results = []
     for check in checks:
+        print("f")
         unit_values = list(map(lambda item: (item[1], item[0]), zip(check, sympy_units)))
+        print("1")
         allvalues = nsubs_values + unit_values
+        print("x")
+        print( nexpression.subs(allvalues) )
+        print("X")
+        print(" lambdifymodules= ",  lambdifymodules)
+        print(" allvalues = ",  allvalues )
+        print("Y")
+        try :
+            print( sympy.lambdify([], nexpression.subs(allvalues), modules=lambdifymodules)() )
+        except Exception as e :
+            print(traceback.format_exception(None, # <- type(e) by docs, but ignored 
+                                     e, e.__traceback__), file=sys.stderr, flush=True)
+        print("Z")
+        print("NEXPRESSION BEF = ", srepr( nexpression) )
+        nexpression = sympy.sympify( str( nexpression)  ) # THIS MUST BE A BUG IN SYMPY THIS EXPRESSION SHOULD BE A NOOP
+        print("NEXPRESSION NOW = ", srepr( nexpression) )
+        print("nexpression = ", nexpression)
+        allval =  [('meter', 1), ('second', 1), ('kg', 1), ('ampere', 1), ('kelvin', 1), ('mole', 1), ('candela', 1)]
+        further =  nexpression.subs(allval) 
+        #further = sympy.lambdify([], further.subs(allvalues), modules=lambdifymodules)() 
+        print("NEXPRESSION FURTHER ",  further)
         vale = numpy.linalg.norm(
             sympy.lambdify([], nexpression.subs(allvalues).doit(), modules=lambdifymodules)()
         )
+        print("3 vale = ", vale )
+        ncorrect = sympy.sympify( str( ncorrect) )
         valc = numpy.linalg.norm(
             sympy.lambdify([], ncorrect.subs(allvalues).doit(), modules=lambdifymodules)()
         )
+        print("4 valc" , valc)
         if valc != 0:
             results.append(vale / valc)
         else:
             results.append(vale)
+    print("g")
     for res in results:
         if numpy.absolute(res - results[0]) > 10e-5:
+            print("g")
             raise LinearAlgebraUnitError(_("Incorrect units"))
+
+def parens_are_balanced(expression):
+    level = 1
+    ind = 0
+    while level > 0 and ind < len(expression):
+        if expression[ind] == ')':
+            level = level - 1
+        elif expression[ind] == '(':
+            level = level + 1
+        ind = ind + 1
+    return ( level == 1 ) and ( ind == len(expression) )
+
 
 
 def check_for_legal_answer(
     precision, variables, student_answer, expression, check_units=True, blacklist=[]
 ):
     response = {}
+    #print("STUDENT ANSWER CHECK", student_answer, flush=True)
+    unparsedstudentanswer = student_answer
+    student_answer = insert_implicit_multiply( student_answer )
+    #print("STUDENT ANSWER CHECK", student_answer,flush=True)
+    #### INVALID STRINGS 
+    invalid_strings = ['_', '#', '@', '&', '?', '"',':','..',';']
+    for i in invalid_strings:
+        if i in student_answer:
+            return {'error': _('Answer contains invalid character ') + i}
+    ##### INVALID PATTERNS 
+    invalid_patterns= { "\)[\w]" : 'implicit multiply needs a space; right parenthesis cannot be followed by letter or number',
+                        "[0-9\.]+\(" : 'implicit multiply with a number needs a space' }
+    for i in invalid_patterns.keys() :
+        if not None == re.search(r'%s' % i  , student_answer)  :
+            return {'error': _('%s' %  invalid_patterns[i] ) }
+
+    ########## UNBALANCED PARENS
+    if not parens_are_balanced(student_answer) :
+        return {'error' : _("Unbalanced parenthesis") }
+    
+ 
     atoms = get_used_variable_list(student_answer)
-    # print("ATOMS = ", atoms )
+    ######### CHECK THAT VARIABLES ARE NOT USED AS FUNCTIONS ######
+    for variable in variables:
+        if re.search(r'(^|\W)%s\(' % variable['name'] , student_answer):
+            return dict(error='Variable %s cannot be used as a function; check implicit multiply.' % variable['name'])
+    #print("Student_answer = ", student_answer)
+    #print("VARIABLES = ", get_used_variable_list( expression) )
+    atomset = set(atoms)
+    vset = set( get_used_variable_list( expression) )
+    #print( atomset, vset )
+    #if len( atomset - vset ) > 0 :
+    #    return  dict(error=_("Illegal variable %s" %  list( atomset - vset ) ) ) 
+    #else :
+    #    pass
     for atom in atoms:
         strrep = str(atom)
         # funcstr = str(atom.func)
         if strrep in blacklist:
             return {'error': _('(A) Forbidden token: ') + strrep}
+    student_answer_orig = student_answer
     student_answer = declash(student_answer)
     if '==' in expression and not '$$' in expression:
         if not '==' in student_answer:
@@ -136,16 +221,16 @@ def check_for_legal_answer(
         return {'error': _('forbidden function') + m.group(1)}
     try:
         try:
-            sympyex = ascii_to_sympy(student_answer)
-            unparsedstudentanswer = sympify_with_custom(
-                ascii_to_sympy(student_answer), varsubs_sympify
-            )
-            sympy1 = unparsedstudentanswer.subs(baseunits)
+            #print("TRY student_answer ", type(student_answer), student_answer)
+            sympyex = sympy.sympify( ascii_to_sympy(student_answer)  )
+            #print("SYMPYEX = ", type(sympyex), sympyex, flush=True)
+            sympyex = sympy.sympify(sympyex).subs( varsubs_sympify).doit()
+            unparsedstudentanswer =  sympyex.subs(baseunits)
         except SympifyError as e:
-            return {'error': 'error in: ' + student_answer}
+            return {'error': 'error in: ' + student_answer_org}
         except TypeError as e:
             if 'required positional argument' in str(e):
-                return {'error': _('Syntax Error: a function is missing an argument')}
+                return {'error': _('Syntax Error: a function is missing an argument'), 'debug': str(e) }
             if 'callable' in str(e):
                 return {
                     'error': _(
@@ -157,23 +242,25 @@ def check_for_legal_answer(
             return {'error': str(e)}
             # return {'error': 'Unidentified error: ' };
 
+        except ShapeError as e:
+            return {'error': str(e) }
         except Exception as e:
             return {'error': 'Unidentified error : >' + e.__class__.__name__ + '< ' + str(e)}
             # return {'error': 'Unidentified error: ' };
 
-        try:
-            prelhs = sympify_with_custom(student_answer, varsubs_sympify)
-        except Exception as e:
-            response = dict(
-                error=_(
-                    "PROGRAMMING ERROR/ERROR \n "
-                    + str(student_answer)
-                    + "\n"
-                    + str(unparsedstudentanswer)
-                    + str(e)
-                )
-            )
-            return response
+        #try:
+        #    prelhs = sympify_with_custom(student_answer, varsubs_sympify)
+        #except Exception as e:
+        #    response = dict(
+        #        error=_(
+        #            "PROGRAMMING ERROR/ERROR \n "
+        #            + str(student_answer)
+        #            + "\n"
+        #            + str(unparsedstudentanswer)
+        #            + str(e)
+        #        )
+        #    )
+        #    return response
         if isinstance(prelhs, sympy.Basic) or isinstance(prelhs, sympy.MatrixBase):
             specials = [
                 ('cross', Cross),

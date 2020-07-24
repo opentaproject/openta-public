@@ -234,6 +234,7 @@ def register_question_type(
 def question_check(request, user, user_agent, exercise_key, question_key, answer_data,old_answer_object=None):
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     hijacked = request.session.get('hijacked', False)
+    view_solution_permission = request.user.has_perm("exercises.view_solution")
     studentassetpath = _dispatch_asset_path(user, dbexercise)
     print("STUDENTASSETPATH = ", studentassetpath)
     try:
@@ -265,7 +266,6 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         ):
             error_msg = _('Answer rate exceeded, ' 'please wait before trying again. (Rate: ')
             return {'error': error_msg + rate + ')'}
-    view_solution_permission = request.user.has_perm("exercises.view_solution")
     return( _question_check(hijacked, view_solution_permission, user, user_agent, exercise_key, question_key, answer_data,old_answer_object) )
 
 def _question_check(hijacked , view_solution_permission, user, user_agent, exercise_key, question_key, answer_data,old_answer_object):
@@ -324,7 +324,7 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
     )  ## NEED THIS
     question_xmltree.set('studentassetpath', studentassetpath)  ## NEED THIS
     question_xmltree.set('exerciseassetpath', exerciseassetpath)  ## NEED THIS
-    global_xpath = '/exercise/global[@type="{type}"] | /exercise/global[not(@type)]'
+    global_xpath = '/exercise/global[@type="{type}"] | /exercise/global[not(@type)] | /exercise/global '
     global_xmltree = (xmltree.xpath(global_xpath.format(type=dbquestion.type)) or [None])[0]
 
     # Add runtime information that can be used in question implementations

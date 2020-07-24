@@ -28,6 +28,8 @@ def parse_variables(variables):  # {{{
     Takes a string with variables in the format "var1=x; var2=y; var3=z" and converts into a list of the form
     [ { 'name': 'var1', 'value': 'x'}, ... ]
     '''
+    if variables == None :
+        return variables 
     rawvars = " ".join(variables.split()).split(';')
     try:
         pipeline = compose(

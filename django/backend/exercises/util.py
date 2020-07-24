@@ -40,8 +40,8 @@ def index_of_matching_right_paren(beg, expression):
         elif expression[ind] == '(':
             level = level + 1
         ind = ind + 1
-    assert expression[beg] == '(', 'LEFT PAREN WRONG'
-    assert expression[ind - 1] == ')', 'RIGHT PAREN WRONG'
+    assert expression[beg] == '(', 'LEFT PAREN WRONG beg = %s, expression = %s , [%s] '  % (beg,expression,expression[beg] )
+    assert expression[ind - 1] == ')', 'RIGHT PAREN WRONG = %s , expression= %s , [%s] ' % (ind-1,expression,expression[ind-1] )
     return ind
 
 

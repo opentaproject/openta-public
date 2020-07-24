@@ -1,5 +1,4 @@
 import sympy
-import numpy
 import types
 import sys
 from pprint import pprint
@@ -24,12 +23,14 @@ logger = logging.getLogger(__name__)
 class Norm(sympy.Function):
     @classmethod
     def eval(cls, x):
-        # print("Norm is entered with x = ", x )
-        # print("type = ", type(x) )
+        #print("Norm is entered with x = ", x )
+        #print("type = ", type(x) )
         if isinstance(x, sympy.MatrixBase):
             res = N(x.norm())
-            # print("result = ", res )
+            print("result = ", res )
             return res
+        #else:
+        #    return Abs(x)
         elif isinstance(x, Number):
             # print("identified float")
             return N(Abs(x))
@@ -186,7 +187,7 @@ class crossfunc(sympy.Function):
             x = arg[0]
             y = arg[1]
             if not (isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase)):
-                return None
+                raise TypeError('cross product has illegal arguments')
 
             if str(x) == '0' or str(y) == '0':
                 return 0
@@ -217,7 +218,7 @@ class Cross(sympy.MatrixExpr):
         elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
             return x.cross(y)
         else:
-            return self
+            raise TypeError('Illegal argument in cross product')
 
 
 class Sort(sympy.Function):
@@ -431,7 +432,7 @@ class Dot(sympy.Function):
             elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
                 return conjugate(x).dot(y)
             else:
-                return None
+                raise TypeError('Illegal argument of dot product')
 
 
 class Times(sympy.Function):
@@ -442,7 +443,8 @@ class Times(sympy.Function):
         if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
             return sympy.matrix_multiply_elementwise(x, y)
         else:
-            return None
+            raise TypeError('Illegal arguments of elementwise multiply')
+            
 
 
 class IsDiagonal(sympy.Function):
@@ -633,7 +635,6 @@ class carefuladd(sympy.Function):
                     newargs = newargs + [eye(rank) * arg]
                 else:
                     newargs = newargs + [arg]
-            print("NEWARGS = ", newargs)
             return Add(*newargs)
         else:
             return Add(*args)

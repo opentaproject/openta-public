@@ -7,6 +7,7 @@ import random
 import time
 
 # from sympy.abc import _clash1, _clash2, _clash
+import django.core.cache as djangocache
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
 import traceback
@@ -70,7 +71,7 @@ def expr_are_equal(ex1, ex2):
             tval = (diff1 == 0) or (abs( N( diff1 ) ) < 1.0e-8)
             return tval
     except Exception as e:
-        print("ERROR WAS " + str(e))
+        #print("ERROR WAS " + str(e))
         return False
 
 
@@ -107,16 +108,31 @@ def symbolic_compare_expressions(
     used_variables=[],
     funcsubs={},
 ):
+
+    student_answer_orig = student_answer
+    unparsedstudentanswer = student_answer
+    correct_answer = insert_implicit_multiply( correct )
+    compare_hash = get_hash_from_string( "s %s %s %s %s %s %s %s %s %s " % ( str(precision), str(variables), str(student_answer), 
+            str(correct), str(check_units), str(used_variables), str(blacklist), str(funcsubs)   , __file__ ) )
+    ret = djangocache.cache.get(compare_hash)
+    if not ret == None  and settings.DO_CACHE :
+        return ret
+    else:
+        pass
     
-    
-    should_be_end = index_of_matching_right_paren(0, '(' + student_answer + ')')
-    assert should_be_end == len(student_answer) + 2, ( "MATCHING PAREN ERROR IN STUDENT_ANSWER " + student_answer)
-    should_be_end = index_of_matching_right_paren(0, '(' + correct + ')')
-    assert should_be_end == len(correct) + 2, "MATCHING PAREN ERROR IN CORRECT " + correct
+    #should_be_end = index_of_matching_right_paren(0, '(' + student_answer + ')')
+    #assert should_be_end == len(student_answer) + 2, ( "MATCHING PAREN ERROR IN STUDENT_ANSWER " + student_answer)
+    #should_be_end = index_of_matching_right_paren(0, '(' + correct + ')')
+    #assert should_be_end == len(correct) + 2, "MATCHING PAREN ERROR IN CORRECT " + correct
     #print("CORRECT = ", correct )
     correct_is_equality = "==" in correct
     student_answer_is_equality = "==" in student_answer
     response = {}
+
+    if not index_of_matching_right_paren(0, '(' + student_answer + ')')  == len( student_answer) + 2 :
+        response['error'] = 'nonmatching parenthesis'
+        response['debug'] = student_answer
+        return response
 
     if '=' in student_answer and not '==' in student_answer:
             response['error'] = 'single equal sign cannot appear in expression'
@@ -129,26 +145,88 @@ def symbolic_compare_expressions(
         return response
 
 
-    #s1 = ascii_to_sympy(student_answer)
-    #s2 = ascii_to_sympy(correct)
-    #student_answer = s1
-    #correct = s2
-    # print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
-    all_variables = [x['name'] for x in variables]
-    illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
-    if len(illegalvars) > 0:
-        response = {}
-        response['correct'] = False
-        response['warning'] = 'Illegal variable ' + ','.join(illegalvars) + '.'
-        response['debug'] = str(illegalvars) + " Clashes with sympy predefined variables "
-        return response
-    ok = list(set(all_variables) - set(list(dir(sympy.functions))))
-    variables = list(
-        filter(lambda item: (item['name'] in ok), variables)
-    )  # GET RID OF CLASHES WITH FUNCTIONS
+    # REJECT ILLEGAL FUNCTIONS USAGE
+    try  :
+        atoms = re.findall(r'([a-zA-Z]+\w*)', student_answer_orig)
+        #print("ATOMS = ", atoms)
+        local_funcs = set( [ item.get('name') for item in  funcsubs]  )
+        openta_funcs = set( list(openta_scope.keys()  ) )
+        symbols = ( set(atoms) - set( local_funcs)   ) - openta_funcs
+        #print("SYMBOLS = ", symbols )
+        test = [ sympy.sympify(item)  for item in symbols ]
+        symbols = [ str(x) for x in list( filter( lambda x: isinstance(x, sympy.Symbol) , test ) )  ]
+        funcs   = list( set(atoms) - set( symbols)  ) 
+        funcs   = funcs - set(['pi','I'])
+        ok_symbols = [x['name'] for x in variables]
+        nok_symbols = list( set( symbols) - set( ok_symbols) )
+        ############# REJECT ILLEGAL SYMBOLS "
+        if len( nok_symbols ) > 0 :
+            return ( dict(correct=False, error="Illegal symbol %s " % str(','.join( nok_symbols) ) ))
+        patterns = ['((^|[+\/*\^\s0-9])' + item +')\('  for item in symbols]
+        ############# REJECT LEGAL SYMOLS USED AS FUNCTIONS #####
+        for pattern in patterns:
+            red  = re.findall(r"%s" % pattern , student_answer_orig)
+            if len(red) > 0 :
+                red = list( red[0]  )[0]
+                return ( dict(correct=False, error=('implict multiply not allowed with symbol %s' % str(red) ) ) )
+        patterns = ['((^|[+\/*\^\s0-9])' + item +')[^(]'  for item in funcs]
+        ############# REJECT FUNCTIONS WITHOUT ARGUMENTS #################
+        for pattern in patterns:
+            red  = re.findall(r"%s" % pattern , student_answer_orig)
+            if len(red) > 0 :
+                red = list( red[0]  )[0]
+                return ( dict(correct=False, error=('function %s lacks argument' % str(red) ) ) )
+    except :
+        pass
+    ############# REJECT LEGAL SYMOLS USED AS FUNCTIONS #####
+    #illegallist = ",".join([ str(item) for item in illegallist ] )
+    #if len( illegallist ) > 0 :
+    #    illegallist = "".join([ str(item) for item in illegallist ] )
+    #    return( dict(error='Undefined function %s ' % illegallist ) )
+    ################ FIND ILLEGAL VARIABLES ##########################3
+    #all_variables = [x['name'] for x in variables]
+    #ok = list(set(all_variables) - set(list(dir(sympy.functions))))
+    #variables = list( filter(lambda item: (item['name'] in ok), variables))  
+    ################### REJECT UNDEFINED SYMBOLS #############################
+    ##illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
+    ##if len(illegalvars) > 0:
+    ##    response = {}
+    ##    response['correct'] = False
+    ##    response['warning'] = 'Illegal variable ' + ','.join(illegalvars) + '.'
+    ##    response['debug'] = str(illegalvars) + " Clashes with sympy predefined variables "
+    ############# REJECT UNDEFINED FUNCTIONS ###############################
+    #funcpatterns = re.findall(r'([a-zA-z]+\w*)', student_answer)
+    #local_funcs = set( [ item.get('name') for item in  funcsubs]  )
+    #openta_funcs = set( list(openta_scope.keys()  ) )
+    #illegalfuncs = ( set(funcpatterns) - set( local_funcs)   ) - openta_funcs
+    #testillegal = [ sympy.sympify(item)  for item in illegalfuncs]
+    #illegallist = list( filter( lambda x: isinstance(x, sympy.Symbol) , testillegal) ) 
+    #illegallist = ",".join([ str(item) for item in illegallist ] )
+    #if len( illegallist ) > 0 :
+    #    illegallist = "".join([ str(item) for item in illegallist ] )
+    #    return( dict(error='Undefined function %s ' % illegallist ) )
+    #
+    #################################################################
+
+
+    #all_variables = [x['name'] for x in variables]
+    #illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
+    #if len(illegalvars) > 0:
+    #    response = {}
+    #    response['correct'] = False
+    #    response['warning'] = 'Illegal variable ' + ','.join(illegalvars) + '.'
+    #    response['debug'] = str(illegalvars) + " Clashes with sympy predefined variables "
+    #    return response
+    #ok = list(set(all_variables) - set(list(dir(sympy.functions))))
+    #variables = list(
+    #    filter(lambda item: (item['name'] in ok), variables)
+    #)  # GET RID OF CLASHES WITH FUNCTIONS
     response = {}
     prelhs = 'PRELHS'
     try:
+        precheck = check_for_legal_answer( precision, variables, student_answer, correct, check_units, blacklist)
+        if precheck is not None:
+            return precheck
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables, funcsubs)
         varsubs = [(key, val.subs(baseunits).doit()) for key, val in varsubs]
         student_answer_is_equality = len(student_answer.split('==')) > 1
@@ -243,6 +321,11 @@ def symbolic_compare_expressions(
         )
         tend = time.time()
         # print("TOTAL TIME IN COMPARE EXPRESSIONS", ( tend - tbeg ) * 1000  , " MILLISECONDS" )
+        try:
+            res['mathematica'] = "Math Expression: {%s , %s }" % (  mathematica_form(student_answer), mathematica_form( correct_answer) )
+        except:
+            res['mathematica' ] = "Cannot parse mathematica: [%s,%s]" % ( student_answer, correct_answer)
+        djangocache.cache.set(compare_hash, res , 600 )
         return res
 
     except SympifyError as e:
@@ -264,19 +347,26 @@ def symbolic_compare_expressions(
             debug=(type(e).__name__ + ": " + str(e) + ' : Functions cannot return Matrix type'),
         )
     except NameError as e:
-        logger.error(traceback.format_exc())
-        logger.error([str(e), str(student_answer), str(correct)])
+        #logger.(traceback.format_exc())
+        #logger.error([str(e), str(student_answer), str(correct)])
         response['debug'] = (
             'NAME ERROR in symbolic_compare_expressions' + str(e) + str(student_answer)
         )
         response['error'] = str(e)
     except ShapeError as e:
-        logger.error(traceback.format_exc())
+        #logger.error(traceback.format_exc())
         response = dict(
             error=_("There seems to be a vector or matrix operation with incompatible dimensions.")
         )
         response['debug'] = str(e)
+    
+    except AttributeError as e:
+        #logger.error(traceback.format_exc())
+        response = dict(debug=str(e) )
+        if 'tuple' in str(e): 
+            response['error'] = _("matrices are written with square brackes like [1,2,3] ")
     except Exception as e:
+        logger.error("ERROR SYMBOLIC 248\n")
         logger.error(traceback.format_exc())
         logger.error([str(e), str(student_answer), str(correct)])
         response = dict(error=_("Unknown error, check your expression."))
@@ -301,30 +391,27 @@ def symbolic_internal(expression1, expression2):  # {{{
     # NUMERIC IS PROBABLY THE WAY TO GO
     #
     doNumeric = True
+    szero = sympify(0)
     try:
         sympy1 = expression1
         sympy2 = expression2
         
         ns.update( unitbaseunits)
-        print("NS = ", ns )
         sympy1 = expression1.subs(ns).doit()
         sympy2 = expression2.subs(ns).doit()
-        print("SYMPY1 A = ", sympy1 )
-        print("SYMPY2 B = ", sympy2 )
+        #print("SYMPY1 A = ", sympy1 )
+        #print("SYMPY2 B = ", sympy2 )
         #print("SYMPY1 = ", sympy1 )
         #print("SYMPY2 = ", sympy2 )
         if not doNumeric:
             sympy1 = simplify( powdenest(factor(sympy1, force=True) ))
             sympy2 = simplify( powdenest(factor(sympy2, force=True) ))
-        try :
-            if sympy1 == 0:
+        if sympy1 == szero:
                 zero = sympy2 
-            elif sympy2 == 0:
+        elif sympy2 == szero:
                 zero = sympy1
-            else:
+        else:
                 zero = sympy1 - sympy2
-        except:
-            pass 
         # THE NEXT LINE IS BOTTLENET 1/2 OF TIME SPENT
         # USING simplify ONLY DOES NOT DO MUCH  ; IT IS STILL SLOW
         # print("ZER0 = ", simplify( zero ) )
@@ -344,7 +431,7 @@ def symbolic_internal(expression1, expression2):  # {{{
         #print(" NOW ex2 = ", ex2 )
         are_same = expr_are_equal(ex1, ex2)
         if not are_same:
-            print("ZERO = ", zero )
+            #print("ZERO = ", zero )
             response['correct'] = False
             response['debug'] = "diff reduces to $" + latex(zero) + '$' + str(zero)
             response['correct'] = False
@@ -353,21 +440,21 @@ def symbolic_internal(expression1, expression2):  # {{{
             response['correct'] = True
         return response
     except SympifyError as e:
-        logger.error([str(e), expression1, expression2])
+        #logger.error(["ERROR SYMPY 358", str(e), expression1, expression2])
+        #logger.error([str(e), expression1, expression2])
         response['debug'] = str(e)
-        response['error'] = _("Failed to evaluate expression.")
+        response['error'] = _("(e383) Failed to evaluate expression. ")
     except TypeError as e:
-        logger.error([str(e), expression1, expression2])
-        response['debug'] = "Type Error in symbolic_internal :" + str(e)
+        response['debug'] = "Type Error 448 in symbolic_internal :" + str(e) + str( traceback.format_exc()) 
         if "cannot add " in str(e):
             cls = re.sub(r"<class \'sympy\.core\.[^\.]*\.*([^\\']+).*", "\\1", str(e))
             cls = re.sub(r"matrix", "matrix or vector", cls)
             cls = re.sub(r"(Mul|Add)", 'something else ', cls)
             cls = re.sub(r"(NegativeOne)", 'integer ', cls)
-            response['error'] = "Incompatible types: " + cls
+            response['error'] = "(e390) Incompatible types: " + cls
     except Exception as e:
         logger.error([str(e), expression1, expression2])
-        response['error'] = _("Unknown error2, check your expression.")
+        response['error'] = _("(e393) Unknown error, check your expression.")
         response['debug'] = debug = type(e).__name__ + ": " + str(e)
     # print("TOTAL TIME IN INTERNAL", (time.time() - tbeg) * 1000)
     return response  # }}}
@@ -379,17 +466,17 @@ def symbolic_check_equality(precision, lhs, rhs, sample_variables, check_units=F
     except SympifyError as e:
         inner = ''
         logger.error([str(e), str(lhs), str(rhs)])
-        response['error'] = _("Failed to evaluate expression." + inner)
+        response['error'] = _("(e405)Failed to evaluate expression." + inner)
     except AttributeError as e:
         parts = str(e).split('attribute')
-        response['error'] = str(parts[1]) + ' is undefined '
+        response['error'] = '(e408) ' + str(parts[1]) + ' is undefined '
     except NameError as e:
-        response['error'] = str(e)
+        response['error'] = 'e(411) ' + str(e)
     except Exception as e:
         inner = ''
         logger.error([str(e), str(lhs), str(rhs)])
         logger.error(traceback.format_exc())
-        response['error'] = _("Unknown error 1, check your expression." + inner)
+        response['error'] = _("(e415) Unknown error, check your expression." + inner)
         response['debug'] = str(e)
     return response  # }}}
 

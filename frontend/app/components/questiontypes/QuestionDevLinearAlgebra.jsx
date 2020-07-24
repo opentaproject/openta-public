@@ -354,6 +354,9 @@ export default class QuestionDevLinearAlgebra extends Component {
   var status = state.getIn(['response','status'], 'none'); // Custom field containing the overall status of the answer, corresponds to the css class map inputClass above
   var comment = state.getIn(['response','comment'],'');
   var tdict = state.getIn(['response','dict'],'');
+  var  mathematica =  state.getIn(['response','mathematica'],'') 
+  var has_math = ( mathematica == '' )
+  console.log("mathematica", state.getIn(['response','mathematica'],'') )
   // console.log("dict = ", tdict )
   //console.log("COMMENT = ", comment)
     if(state.getIn(['response','detail']))
@@ -497,6 +500,7 @@ export default class QuestionDevLinearAlgebra extends Component {
           </div>
           { error && !hasChanged && <Alert message={error} type="error" key="err"/> }
           { author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error"/> }
+          { mathematica != '' && this.props.isAuthor && ( <div className="uk-text uk-text-small"> <Alert message={mathematica} type="warning" key="mathematica"/> </div> ) }
         { warning && !hasChanged && <Alert message={warning} type="warning" key="warning"/> }
         <div className="uk-flex">
         <span className={"uk-width-1-1 " + mathSizeClass}>{ graderResponse }</span>
