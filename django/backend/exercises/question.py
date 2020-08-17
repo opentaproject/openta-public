@@ -438,6 +438,7 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
             previous_answers = get_safe_previous_answers(dbquestion.pk, user.pk)
             result['previous_answers'] = previous_answers
             result['n_attempts'] = usermacros['@nattempts']
+            result['status'] = None
             try:
                 result['used_variable_list'] = question_json['used_variable_list']
             except:
