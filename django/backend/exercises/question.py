@@ -202,6 +202,26 @@ def get_other_answers(question_key, user_id, exercise_key):
     return all_answers
 
 
+def get_safe_previous_answers(question_id, user_id, n_answers=10):
+    """ Previous attempts (time ordered with most recent first) at the question by user.
+
+    Args:
+        question_id: question primary key
+        user_id: user primary key
+        n_answers: number of attempts to include (default: 10)
+    Returns:
+        List of serialized answers (see AnswerSerializer for fields)
+
+    """
+    answers = Answer.objects.filter(user__pk=user_id, question__pk=question_id)
+    last_answers = answers.order_by('-date')[:n_answers]
+    for answer in last_answers:
+        answer.correct = None
+        answer.grader_response = None
+    sanswers = AnswerSerializer(last_answers, many=True)
+    return sanswers.data
+
+
 def get_previous_answers(question_id, user_id, n_answers=10):
     """ Previous attempts (time ordered with most recent first) at the question by user.
 
@@ -365,7 +385,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
                 )
 
             usermacros = get_usermacros(user, exercise_key, question_key)
-            previous_answers = get_previous_answers(dbquestion.pk, user.pk)
+            previous_answers = get_safe_previous_answers(dbquestion.pk, user.pk)
             result['previous_answers'] = previous_answers
             result['n_attempts'] = usermacros['@nattempts']
             try:
