@@ -388,6 +388,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
             previous_answers = get_safe_previous_answers(dbquestion.pk, user.pk)
             result['previous_answers'] = previous_answers
             result['n_attempts'] = usermacros['@nattempts']
+	    result['status']  = None 
             try:
                 result['used_variable_list'] = question_json['used_variable_list']
             except:
