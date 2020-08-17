@@ -166,6 +166,17 @@ def exercise(request, exercise):
         data['correct_deadline'] = None
         data['exercise_render']['correct'] = None
         data['exercise_render']['correct_by_deadline'] = None
+        for key in data['exercise_render']['questions'].keys()  :
+            data['exercise_render']['questions'][key]['extra'] = 'EXTRA'
+            for answer in data['exercise_render']['questions'][key]['answers'] :
+                answer['correct'] =  None
+                answer['grader_response'] = None
+        for key in data['question'].keys()  :
+            data['question'][key]['grader_response'] = None
+            data['question'][key]['response'] = None
+
+
+            
     return Response(data)
 
 
