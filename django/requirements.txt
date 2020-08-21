@@ -1,5 +1,6 @@
 attrs==19.1.0
 backcall==0.1.0
+django-allauth==0.39.1
 backports-abc==0.5
 backports.csv==1.0.7
 bleach==3.1.0
@@ -9,7 +10,7 @@ Click==7.0
 decorator==4.4.0
 defusedxml==0.6.0
 diff-match-patch==20181111
-Django==2.0.4
+Django==2.2
 django-anymail==6.0
 django-appconf==1.0.3
 django-compat==1.0.15
