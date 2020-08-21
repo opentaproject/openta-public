@@ -1,4 +1,5 @@
 import logging
+from django.contrib.auth.views import LoginView
 from django.utils import translation
 from django.views.decorators.clickjacking import xframe_options_exempt, xframe_options_deny
 
@@ -226,7 +227,8 @@ def login(request, course_name=None):
         'course_name': course.course_name,
     }
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
-        return auth_views.login(request, extra_context=extra)
+        context = { 'extra_context': extra }
+        return LoginView.as_view(**context)(request)
     else:
         return render(
             request, 'login rate_limit.html', context={'rate': _('5 times per 30 seconds')}
@@ -248,7 +250,7 @@ def activate(request, username, token):
     except (BadSignature, SignatureExpired):
         return render(request, "activation_failed.html")
     messages.add_message(request, messages.SUCCESS, _('Activation successful, please login.'))
-    return auth_views.login(request, 'registration/login.html')
+    return LoginView.as_view()(request)
 
 
 def set_persistent_lang(course, request):
