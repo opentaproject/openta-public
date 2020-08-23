@@ -21,7 +21,6 @@ import os
 from exercises.views.asset import dispatch_asset_path
 from ratelimit.utils import is_ratelimited
 from django.utils.translation import ugettext as _
-import exercises.paths as paths
 import os
 import json
 import logging
@@ -338,7 +337,8 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
     )
     question_xmltree.set('user', str(user))
     # studentassetpath = os.path.join( paths.STUDENT_ASSET_PATH , str(user) , exercise_key ) ## NEED THIS
-    studentassetpath = paths.get_student_asset_path(user, dbexercise)
+    studentassetpath = _dispatch_asset_path(user, dbexercise)
+    #studentassetpath = paths.get_student_asset_path(user, dbexercise)
     exerciseassetpath = os.path.join(
         dbexercise.course.get_exercises_path(), dbexercise.path
     )  ## NEED THIS
@@ -516,14 +516,14 @@ def get_usermacros(user, exercise_key, question_key=None):
     usermacros['@userpk'] = str(user.pk)
     exerciseassetpath = os.path.join(dbexercise.course.get_exercises_path(), dbexercise.path)
     usermacros['@exerciseassetpath'] = exerciseassetpath
-    studentassetpath = paths.get_student_asset_path(user, dbexercise)
+    #studentassetpath = paths.get_student_asset_path(user, dbexercise)
+    studentassetpath = _dispatch_asset_path(user, dbexercise)
     usermacros['@studentassetpath'] = studentassetpath
     if question_key:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         n_attempts = get_number_of_attempts(dbquestion.pk, user.pk)
         n_correct = get_number_of_correct_attempts(dbquestion.pk, user.pk)
         usermacros['@exerciseassetpath'] = exerciseassetpath
-        studentassetpath = paths.get_student_asset_path(user, dbexercise)
         usermacros['@nattempts'] = str(n_attempts)
         usermacros['@ncorrect'] = str(n_correct)
         usermacros['@question_key'] = dbquestion.question_key
