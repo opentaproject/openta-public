@@ -59,8 +59,13 @@ INSTALLED_APPS = [
     'translations',
 ]
 
-MIDDLEWARE = [
-    'backend.middleware.SameSiteMiddleware', 
+if not RUNNING_DEVSERVER :
+	MIDDLEWARE = [ 'backend.middleware.SameSiteMiddleware', ]
+else:
+	MIDDLEWARE = [ ]
+
+MIDDLEWARE = MIDDLEWARE + [
+    #'backend.middleware.SameSiteMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',

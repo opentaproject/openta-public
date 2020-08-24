@@ -21,7 +21,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 
+
 internalurlpatterns = [
+    url(r'^trigger_error/(?P<msg>[\w.:\-_=]+)/?$', backendviews.trigger_error),
     url(r'^administration/', admin.site.urls),
     url(
         r'^activateandreset/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$',
@@ -66,12 +68,14 @@ internalurlpatterns = [
     url(r'^logout/(?P<course_name>[\w\.\ -]+)/(?P<lti_status>[\w]+)/$', backendviews.logout),
     url(r'^' + settings.MEDIA_TAG + '/(?P<asset>[\w\.\-\ \/]+)$', backendviews.serve_public_media),
     url(r'^(?P<course_name>[\w\.\ -]+)/?$', backendviews.login, name='login_course_short'),
-    url(r'^hijack/', include('hijack.urls',namespace='hijack')),
+    url(r'^hijack/', include('hijack.urls' )),
     url(r'^', include('translations.urls')),
 ]
-
-urlpatterns = [url(r'^' + settings.SUBPATH, include(internalurlpatterns))] + static(
-    settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
+urlpatterns = [
+    url(r'^' + settings.SUBPATH, include(internalurlpatterns)),
+    ] + static(
+    settings.MEDIA_URL, document_root=settings.MEDIA_ROOT,
+    
 )
 
 admin.site.site_header = 'OpenTA Admin'

@@ -487,6 +487,10 @@ def serve_public_media(request, asset):
 
     return serve_file(settings.MEDIA_URL + asset, asset.split('/')[-1])
 
+@xframe_options_exempt
+def trigger_error(request ,msg='SENTRY ERROR TRIGGERED' ):
+    assert 1 == 0 , msg
+    raise Http404("msg")
 
 @xframe_options_exempt  # NECESSARY TO KEEP FROM CRASHING IN CANVAS FRAME
 def logout(request, course_name=None, lti_status='no_lti'):
