@@ -64,8 +64,8 @@ if not RUNNING_DEVSERVER :
 else:
 	MIDDLEWARE = [ ]
 
-MIDDLEWARE = MIDDLEWARE + [
-    #'backend.middleware.SameSiteMiddleware', 
+MIDDLEWARE = [
+    'backend.middleware.SameSiteMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',

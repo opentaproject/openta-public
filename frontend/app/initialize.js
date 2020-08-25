@@ -31,7 +31,12 @@ import { navigateMenuArray, menuPositionUnder } from './menu.js';
 import { SUBPATH ,help_url } from './settings.js';
 import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js';
 import {store} from 'store.js';
+import * as Sentry from "@sentry/browser";
+// or use es6 import statements
+// import * as Sentry from '@sentry/node';
 
+// All integrations that come with an SDK can be found on the Sentry.Integrations object
+// Custom integrations must conform Integration interface: https://github.com/getsentry/sentry-javascript/blob/master/packages/types/src/index.ts
 
 if( getcookie('lang') !== undefined ){
     if( getcookie('lang')[0] !== '""'  ){
@@ -67,13 +72,16 @@ if (module.hot) {
     [].slice.apply(document.querySelector('#app').children).forEach(function(c) { c.remove() });
   });
 }
-
 const load = () => {
   var cookiesEnabled = getcookie('cookieTest');
   if (  !(cookiesEnabled !== undefined && cookiesEnabled[0] == 'enabled')) {
     ReactDOM.render( <CookiesNotEnabled help_url={help_url} />, document.querySelector('#app'));
     return;
   }
+
+
+Sentry.init({ dsn: "https://16a7ac5d65fd435db6005a3a620ad6ad@o319110.ingest.sentry.io/5401515" });
+
 
    var defaultfilter =  {
             'required_exercises' : true, 

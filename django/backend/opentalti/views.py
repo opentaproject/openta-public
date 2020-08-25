@@ -49,8 +49,13 @@ logger = logging.getLogger(__name__)
 
 
 @xframe_options_exempt
-def denied(r, msg=''):
-    return render(r, "denied.html", {'msg': msg})
+def denied(r, msg='',help_url=None):
+    if not help_url :
+        try: 
+            help_url = settings.HELP_URL
+        except:
+            help_url = ''
+    return render(r, "denied.html", {'msg': msg,'help_url': help_url})
 
 
 @csrf_exempt
@@ -62,6 +67,11 @@ def lti_main(request, course_pk=None):
     # THE RESULT OF ALL THIS IS TO MODIFY THE REQUEST
     # AND TO CALL auth
     #
+    if not request.COOKIES.get('cookieTest'):
+        return denied(
+            request,
+            "LTI: Cannot set necessary 3rd party cookies",
+        )
     syslogout(request)  # LOGOUT OF ANY OTHER USERS BEFORE AUTHENTICATIN NEW
     if request.user.is_authenticated:
         return backendviews.main(request, course_pk)
