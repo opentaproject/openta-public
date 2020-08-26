@@ -198,11 +198,11 @@ def exercise_list(request, course_pk):
     # in particular guscaich TODO
     # ALSO CORRECT + UNTRIED GIVES OK
     # CHECK AGGREGATIONS
-    if not request.COOKIES.get('cookieTest'):
-        return lti_denied(
-            request,
-            "LTI: Cannot set necessary 3rd party cookies",
-        )
+    #if not request.COOKIES.get('cookieTest'):
+    #    return lti_denied(
+    #        request,
+    #        "LTI: Cannot set necessary 3rd party cookies",
+    #    )
     request.session['course_pk'] = course_pk
     hijacked = request.session.get('hijacked', False)
     user = request.user
