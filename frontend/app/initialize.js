@@ -24,19 +24,12 @@ import {
 import {
   updateActiveExercise,
   setActiveCourse,
-  updateExerciseFilter,
-  updateDisplayStyle,
 } from './actions.js';
 import { navigateMenuArray, menuPositionUnder } from './menu.js';
-import { SUBPATH ,help_url } from './settings.js';
+import { SUBPATH  } from './settings.js';
 import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js';
 import {store} from 'store.js';
-import * as Sentry from "@sentry/browser";
-// or use es6 import statements
-// import * as Sentry from '@sentry/node';
 
-// All integrations that come with an SDK can be found on the Sentry.Integrations object
-// Custom integrations must conform Integration interface: https://github.com/getsentry/sentry-javascript/blob/master/packages/types/src/index.ts
 
 if( getcookie('lang') !== undefined ){
     if( getcookie('lang')[0] !== '""'  ){
@@ -44,22 +37,6 @@ if( getcookie('lang') !== undefined ){
           store.dispatch(updateLanguage( cookielang ) )
       }
    }
-
-store.dispatch( setTimezone(globalInit.timezone) );
-store.dispatch( setOpenTAVersion(globalInit.openTAVersion) );
-store.dispatch( setActiveCourse(globalInit.coursePk) );
-store.dispatch( fetchExercises(globalInit.coursePk) );
-store.dispatch( fetchExerciseTree(globalInit.coursePk) );
-store.dispatch( fetchLoginStatus(globalInit.coursePk) );
-store.dispatch( fetchCourse(globalInit.coursePk) );
-store.dispatch( fetchCourses() );
-store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
-
-
-
-
-
-
 
 if (module.hot) {
   module.hot.accept('./reducers', () => {
@@ -72,18 +49,15 @@ if (module.hot) {
     [].slice.apply(document.querySelector('#app').children).forEach(function(c) { c.remove() });
   });
 }
+
 const load = () => {
   var cookiesEnabled = getcookie('cookieTest');
-  if (  !(cookiesEnabled !== undefined && cookiesEnabled[0] == 'enabled')) {
-    ReactDOM.render( <CookiesNotEnabled help_url={help_url} />, document.querySelector('#app'));
+  if (!(cookiesEnabled !== undefined && cookiesEnabled[0] == 'enabled')) {
+    ReactDOM.render( <CookiesNotEnabled/>, document.querySelector('#app'));
     return;
   }
 
-
-Sentry.init({ dsn: "https://16a7ac5d65fd435db6005a3a620ad6ad@o319110.ingest.sentry.io/5401515" });
-
-
-   var defaultfilter =  {
+var defaultfilter =  {
             'required_exercises' : true, 
             'optional_exercises': true, 
             'bonus_exercises': true, 
@@ -108,6 +82,8 @@ if(  ck  ){
       } else { var displaystyle = ck[0] 
       }
   
+
+
   store.dispatch(updateDisplayStyle(displaystyle))
   store.dispatch( setTimezone(globalInit.timezone) );
   store.dispatch( setOpenTAVersion(globalInit.openTAVersion) );

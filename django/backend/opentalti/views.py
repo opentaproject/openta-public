@@ -67,11 +67,6 @@ def lti_main(request, course_pk=None):
     # THE RESULT OF ALL THIS IS TO MODIFY THE REQUEST
     # AND TO CALL auth
     #
-    #if not request.COOKIES.get('csrftoken%s' % settings.SUBPATH.strip('/') ):
-    #    return denied(
-    #        request,
-    #        "LTI: Cannot set necessary 3rd party cookies",
-    #    )
     syslogout(request)  # LOGOUT OF ANY OTHER USERS BEFORE AUTHENTICATIN NEW
     if request.user.is_authenticated:
         return backendviews.main(request, course_pk)

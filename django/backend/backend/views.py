@@ -335,6 +335,7 @@ def main(request, course_pk=None):
         msg = "Not enrolled in course"
     if not course.published:
         msg = "Course not published yet"
+    logging.debug("MSG = %s " % msg )
     if (
         request.user.groups.filter(name='Student').exists()
         and not published_and_enrolled
@@ -348,12 +349,17 @@ def main(request, course_pk=None):
             messages.add_message(request, messages.WARNING, _("Not enrolled!"))
             return redirect('/' + settings.SUBPATH + 'logout/' + course.course_name + '/')
 
+    logging.debug("GET COURSE SERIALIZER")
     course_data = CourseSerializer(course).data
     help_url = getattr(settings, 'HELP_URL', '')
     extra = dict(
-        course=course_data, timezone=settings.TIME_ZONE, subpath=settings.SUBPATH, help_url=help_url
+        course=course_data, 
+        timezone=settings.TIME_ZONE, 
+        subpath=settings.SUBPATH, 
+        help_url=help_url
     )
     lang = set_persistent_lang(course, request)
+    logging.debug('PERSISTENT LANG =  %s' % lang )
     response = render(request, "base_main.html", context=extra)
     if settings.CSRF_COOKIE_NAME:
         response.set_cookie(key='csrf_cookie_name', value=settings.CSRF_COOKIE_NAME)
@@ -367,6 +373,7 @@ def main(request, course_pk=None):
     subpath = settings.SUBPATH.strip('/')
     response.set_cookie(key='cookieTest', value='enabled', path='/')
     response.set_cookie(key='lang', value=lang, path='/')
+    logging.debug("RETURN RESPONSE  %s " % str( response) )
     return response
 
 
