@@ -24,6 +24,8 @@ import {
 import {
   updateActiveExercise,
   setActiveCourse,
+  updateExerciseFilter,
+  updateDisplayStyle,
 } from './actions.js';
 import { navigateMenuArray, menuPositionUnder } from './menu.js';
 import { SUBPATH  } from './settings.js';
