@@ -156,7 +156,7 @@ class RegisterUserDomain(CreateView):
         return redirect(reverse('login', kwargs=dict(course_name=course.course_name)))
 
 
-#@api_view(['GET'])
+@api_view(['GET'])
 def login_status(request):
     """Get login information for current user.
 
