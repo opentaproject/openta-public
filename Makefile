@@ -1,4 +1,4 @@
-SHELL=/bin/bash
+SHELL=/usr/bin/env bash
 UID:=$(shell id -u)
 GID:=$(shell id -g)
 REVISION:=$(shell git rev-parse HEAD)$(shell git diff --no-color | md5sum)
