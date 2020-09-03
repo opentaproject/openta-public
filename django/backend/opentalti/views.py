@@ -276,5 +276,7 @@ def amend_canvas_gradebook(request, course_pk):
         for chunk in request.FILES['file'].chunks():
             destination.write(chunk)
 
-    task_id = workqueue.enqueue_task("canvas_gradebook", canvas_gradebook_pipeline, course=dbcourse, csv_file=tmp_filename)
+    task_id = workqueue.enqueue_task(
+        "canvas_gradebook", canvas_gradebook_pipeline, course=dbcourse, csv_file=tmp_filename
+    )
     return Response({'task_id': task_id})

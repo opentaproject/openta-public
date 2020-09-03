@@ -143,7 +143,7 @@ class RegisterUserDomain(CreateView):
         return redirect(reverse('login', kwargs=dict(course_name=course.course_name)))
 
 
-@api_view(['GET','POST'])
+@api_view(['GET', 'POST'])
 def login_status(request):
     """Get login information for current user.
 
@@ -158,7 +158,7 @@ def login_status(request):
     dbgroups = request.user.groups.all()
     for group in dbgroups:
         groups.append(group.name)
-    if request.user.is_superuser :
+    if request.user.is_superuser:
         groups.append('SuperUser')
     lti_login = request.session.get('lti_login', False)
     nonlti_login = request.session.get('nonlti_login', False)
@@ -205,7 +205,7 @@ def login(request, course_name=None):
         'course_name': course.course_name,
     }
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
-        context = { 'extra_context': extra }
+        context = {'extra_context': extra}
         return LoginView.as_view(**context)(request)
     else:
         return render(request, 'rate_limit.html', context={'rate': _('5 times per 30 seconds')})

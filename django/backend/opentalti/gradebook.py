@@ -12,8 +12,10 @@ CANVAS_SIS_USER_ID = 'SIS User ID'
 CANVAS_SIS_LOGIN_ID = 'SIS Login ID'
 CANVAS_SECTION = 'Section'
 
+
 class GradeBookParseError(Exception):
     """Gradebook parse error"""
+
 
 def canvas_gradebook_pipeline(task, course, csv_file):
     try:
@@ -22,6 +24,7 @@ def canvas_gradebook_pipeline(task, course, csv_file):
         task.status = str(e)
         task.done = True
         task.save()
+
 
 def extract_required_fields(row):
     """Extract required fields from row.
@@ -45,6 +48,7 @@ def extract_required_fields(row):
 
     return new_row
 
+
 def get_header(row):
     header = [CANVAS_STUDENT, CANVAS_ID]
     if CANVAS_SIS_USER_ID in row:
@@ -53,6 +57,7 @@ def get_header(row):
         header.append(CANVAS_SIS_LOGIN_ID)
     header.append(CANVAS_SECTION)
     return header
+
 
 def collect_results(result_for_student):
     csv_results = [
@@ -63,21 +68,17 @@ def collect_results(result_for_student):
     ]
     return csv_results
 
+
 def get_results_header():
-    return [
-        "required-ontime",
-        "required-all",
-        "bonus-ontime",
-        "bonus-all"
-    ]
+    return ["required-ontime", "required-all", "bonus-ontime", "bonus-all"]
+
 
 def parse_canvas_gradebook(task, course, file_path):
     # Calculate OpenTA results
     results = students_results(task=task, course=course, force=True)
 
     # Create a map with lti_user_id as key
-    results_lti_id = { res['lti_user_id']: res for res in results }
-
+    results_lti_id = {res['lti_user_id']: res for res in results}
 
     # Parse and amend gradebook CSV
     with open(file_path) as file_handle:

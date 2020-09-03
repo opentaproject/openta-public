@@ -159,10 +159,9 @@ class ExerciseMetaResource(resources.ModelResource):
         import_id_fields = ('exercise',)
         # COMPUTE META FIELDS TO ADD
         # PLEASE RETAIN THIS COMMENT BLOCK
-        #newfields = [f.name for f in model._meta.get_fields()]
-        #newfields.remove('id')
-        #fields = tuple(newfields)
-        
+        # newfields = [f.name for f in model._meta.get_fields()]
+        # newfields.remove('id')
+        # fields = tuple(newfields)
 
     def __init__(self, *args, **kwargs):
         self._course = None
