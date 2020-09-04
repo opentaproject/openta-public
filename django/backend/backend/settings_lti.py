@@ -12,3 +12,6 @@ TIME_ZONE = 'Europe/Copenhagen'
 # THIS IS IMPORTANT SAFETY FEATURE SO THAT LOCAL MISCONFIGURATIONS
 # DO NOT ACCIDENTALL COMPROMISE OpenTA
 FORCE_ROLE_TO_STUDENT = True 
+
+# ROLES ALLOWED
+VALID_ROLES = ['ContentDeveloper', 'Learner', 'Student', 'Instructor', 'Observer','TeachingAssistant']

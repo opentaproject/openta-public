@@ -68,13 +68,16 @@ def lti_main(request, course_pk=None):
     if course_pk is None:
         course = Course.objects.order_by("-published", "-pk")[0]
         course_pk = course.pk
-    roles = (request.POST.get("roles", '')).split(',')
-    valid_roles = ['ContentDeveloper', 'Learner', 'Student', 'Instructor', 'Observer']
+    rolestring = request.POST.get("roles", '')
+    rolestring = re.sub(r"\/",",",rolestring)
+    rolestring = re.sub(r":",",",rolestring)
+    roles = rolestring.split(',') 
+    valid_roles = settings.VALID_ROLES # Formerly hardcoded as ['ContentDeveloper', 'Learner', 'Student', 'Instructor', 'Observer']
     proper_role = not set(roles).isdisjoint(valid_roles)
     if not proper_role:
         return denied(
             request,
-            "LTI : No  proper role is unassigned. You may be logged into the wrong Canvas or not properly registered in the course. Please contact course examiner with an email if you have questions.",
+            "LTI : The role %s is not valid. You may be logged into the wrong Canvas or not properly registered in the course. Please contact course examiner with an email if you have questions." %  request.POST.get("roles", ''),
         )
 
     logging.debug("LTI_MAIN course_pk = %s", course_pk)
