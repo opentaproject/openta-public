@@ -1,38 +1,127 @@
-"""Development settings."""
-
 from backend.settings_lti import *
+import logging
+
+INSTALLED_APPS = INSTALLED_APPS + ['aggregation']
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ALLOWED_HOSTS = ['*']
+with open('mailgun_key', 'r') as f:
+        ANYMAIL = {
+            "MAILGUN_API_KEY": f.read().strip(),
+            "MAILGUN_SENDER_DOMAIN": 'openta.se',
+        }
+        DEFAULT_FROM_EMAIL = "openta@openta.se"
+
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
 TIME_ZONE = 'Europe/Copenhagen'
 print("SYS", sys.argv)
 RUNNING_DEVSERVER = len(sys.argv) > 1 and sys.argv[1] == 'runserver'
 if RUNNING_DEVSERVER:
-        ASYNC = False
-else :
-        ASYNC = True
+    ASYNC = False
+else:
+    ASYNC = True
+ASYNC = True
 print("ASYNC = ", ASYNC)
-#ASYNC = True
-#DEBUG = False
-if ASYNC :
-    RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 0, 'DEFAULT_TIMEOUT': 360, 'ASYNC': ASYNC }}
-CSRF_FAILURE_VIEW = 'backend.views.csrf_failure'
-HELP_URL = 'https://opentaserver.com/'
-
+DEBUG = False
+if ASYNC:
+    RQ_QUEUES = {
+        'default': {
+            'HOST': 'localhost',
+            'PORT': 6379,
+            'DB': 0,
+            'DEFAULT_TIMEOUT': 360,
+            'ASYNC': ASYNC,
+        }
+    }
 DATABASES = {
     #'default': {
     #    'ENGINE': 'django.db.backends.sqlite3',
     #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    #}
+    # }
     'default': {
-            'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'openta_2019',
-            'USER': 'openta',
-            'PASSWORD': 'learning',
-            'HOST': 'localhost',
-            'PORT': '',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'openta_2020',
+        'USER': 'openta',
+        'PASSWORD': 'learning',
+        'HOST': 'localhost',
+        'PORT': '',
+        'OPTIONS': {
+           'sslmode': 'disable',
+        }
     }
 }
 
-ALLOWED_HOSTS = ['*']
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+#    }
+# }
+
+
+CSRF_FAILURE_VIEW = 'backend.views.csrf_failure'
+
+
+CSRF_FAILURE_VIEW = 'backend.views.csrf_failure'
+HELP_URL = 'https://opentaserver.com/cookies.html'
+
+# from redis import Redis
+# from rq import Queue
+# qfail = Queue("failed", connection=Redis() )
+# print( " FAILED = ",  qfail)
+# qfail.empty()
+# print( " FAILED NOW = ",  qfail.count  )
+
+
+# import sentry_sdk
+# from sentry_sdk.integrations.django import DjangoIntegration
+# SENTRY_DSN = "https://53c3de5df98b49da8ac1a334737a17b1@sentry.io/1807786"
+# sentry_sdk.init(
+#    dsn=SENTRY_DSN,
+#    integrations=[DjangoIntegration()]
+# )
+# CSRF_USE_SESSION = True
+
+CHECK_AGGREGATIONS = False
+CACHE_LIFETIME = 60 * 60 * 24 * 7
+DEBUG = False
+IGNORE_NO_FEEDBACK = False
+RUNTESTS = True
+DO_CACHE = True
+SAFE_RUN_TIMEOUT = 12
+REFRESH_SEED_ON_CORRECT_ANSWER = True
+CSRF_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
+#SESSION_COOKIE_SAMESITE_FORCE_ALL = True
+#SESSION_COOKIE_SAMESITE = None
+SESSION_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = None
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_SAVE_EVERY_REQUEST = True
+#X_FRAME_OPTIONS = 'ALLOWALL'
+#XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.rq import RqIntegration
+from sentry_sdk.integrations.redis import RedisIntegration
+
+
+
+sentry_sdk.init(
+    dsn="https://0627dccb45034182af9043a71d5f5b55@o319110.ingest.sentry.io/5401493",
+    integrations=[DjangoIntegration(),RqIntegration(),RedisIntegration()],
+    traces_sample_rate = 0.5,
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
+
+CSRF_COOKIE_SAMESITE = None
+SESSION_COOKIE_SAMESITE = None
+
+
+logging.getLogger("requests").setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+

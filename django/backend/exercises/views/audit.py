@@ -110,6 +110,7 @@ def get_current_audits_stats(request, exercise):
 @permission_required('exercises.administer_exercise')
 @api_view(['POST', 'GET'])
 def get_new_audit(request, exercise, heap, n_audits):
+    print("GET NEW AUDIT NAUDITS = ", n_audits)
     audits = AuditExercise.objects.filter(exercise__pk=exercise).prefetch_related('student__pk')
     in_overview_pk = list(set(audits.values_list('student__pk', flat=True).distinct()))
 
@@ -138,7 +139,7 @@ def get_new_audit(request, exercise, heap, n_audits):
             minimum = naudits_sorted[0]
         except IndexError:
             return Response({'error': 'No completed students available for audit.'})
-        targets = list(students_audits.filter(n_audits=minimum).values_list('pk', flat=True))
+        targets = list(students_audits.order_by('n_audits').values_list('pk', flat=True))
     elif heap == FROM_NOT_READY:
         students_not_to_be_audited = get_students_not_to_be_audited(dbexercise)
         student_not_audit_list = set(
@@ -165,6 +166,7 @@ def get_new_audit(request, exercise, heap, n_audits):
         return Response({'error': 'Invalid audit heap.'}, status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     # Take n_audits or the left over, what ever is smallest
+    print("LEN TARGETS = N_AUDTS = ", len( targets), int( n_audits) )
     student_pks = sample(targets, min(len(targets), int(n_audits)))
     audits = []
     print("STUDENT_PKS = ", student_pks)
@@ -198,6 +200,7 @@ def get_new_audit(request, exercise, heap, n_audits):
                 {'error': 'Duplicate audit for this student ' + auditee.username + ' and exercise'}
             )
     saudit = AuditExerciseSerializer(audits, many=True)
+    print("SAUDIT DATA = ", saudit.data)
     return Response(saudit.data)
 
 

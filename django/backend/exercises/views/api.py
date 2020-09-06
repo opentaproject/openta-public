@@ -3,6 +3,7 @@ import sys, traceback
 from exercises.applymacros import MacroError
 from users.models import User
 from rest_framework import status
+ 
 from rest_framework.decorators import api_view, parser_classes
 from exercises.applymacros import (
     apply_macros_to_exercise,
@@ -166,7 +167,27 @@ def exercise(request, exercise):
         data['correct_deadline'] = None
         data['exercise_render']['correct'] = None
         data['exercise_render']['correct_by_deadline'] = None
+        for key in data['exercise_render']['questions'].keys()  :
+            data['exercise_render']['questions'][key]['extra'] = 'EXTRA'
+            for answer in data['exercise_render']['questions'][key]['answers'] :
+                answer['correct'] =  None
+                answer['grader_response'] = None
+        for key in data['question'].keys()  :
+            data['question'][key]['grader_response'] = None
+            data['question'][key]['response'] = None
+
+
+            
     return Response(data)
+
+def lti_denied(r, msg='',help_url=None):
+    if not help_url :
+        try:
+            help_url = settings.HELP_URL
+        except:
+            help_url = ''
+    return render(r, "denied.html", {'msg': msg,'help_url': help_url})
+
 
 
 @never_cache
@@ -177,6 +198,11 @@ def exercise_list(request, course_pk):
     # in particular guscaich TODO
     # ALSO CORRECT + UNTRIED GIVES OK
     # CHECK AGGREGATIONS
+    #if not request.COOKIES.get('cookieTest'):
+    #    return lti_denied(
+    #        request,
+    #        "LTI: Cannot set necessary 3rd party cookies",
+    #    )
     request.session['course_pk'] = course_pk
     hijacked = request.session.get('hijacked', False)
     user = request.user

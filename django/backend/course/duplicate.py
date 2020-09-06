@@ -1,11 +1,15 @@
 import os
 from exercises.models import Exercise, Answer, Question
 from course.models import Course
+from datetime import timedelta
 from django.contrib.auth.models import User
 import shutil
 from pathlib import Path
+import datetime
 import uuid
+import logging
 
+logger = logging.getLogger(__name__)
 
 def file_get_contents(filename):
     with open(filename) as f:
@@ -16,6 +20,7 @@ def duplicate_course(course: Course, *args, **kwargs):
     data = kwargs['data']
     newname = data.get('newname', course.course_name)
     days = data.get('days', '0')
+    logger.warning("BEGGING DUPLICATE")
     yield ("Beginning", 0)
     if not newname == course.course_name:
         old_course = course
@@ -39,7 +44,8 @@ def duplicate_course(course: Course, *args, **kwargs):
             key_file.unlink()
         for index, _ in enumerate(Exercise.objects.sync_with_disc(course, i_am_sure=True)):
             if index % (n_exercises // 20 + 1) == 0:
-                yield ("Updating database...", index / n_exercises)
+                yield ("Populationg exercises ...", index / n_exercises)
+        logger.debug("UPDATED EXERCISES")
         new_exercises = Exercise.objects.filter(course=course)
         exercises_path = course.get_exercises_path()
         exerciselist = []
@@ -55,19 +61,26 @@ def duplicate_course(course: Course, *args, **kwargs):
                         exerciselist.append((name, relpath))
         nocopy = ['id', '_state', 'exercise_id']
         for (_, key_file) in exerciselist:
-            oldkey = file_get_contents(
-                '../../exercises/' + old_uuid + '/' + str(key_file) + '/' + 'exercisekey'
-            )
-            newkey = file_get_contents(
-                '../../exercises/' + new_uuid + '/' + str(key_file) + '/' + 'exercisekey'
-            )
-            old_exercise = Exercise.objects.get(exercise_key=oldkey)
-            new_exercise = Exercise.objects.get(exercise_key=newkey)
-            meta_names = list(old_exercise.meta.__dict__.keys())
-            for name in meta_names:
-                if not name in nocopy:
-                    setattr(new_exercise.meta, str(name), getattr(old_exercise.meta, str(name)))
-            new_exercise.meta.save()
+            try:
+                oldkey = file_get_contents(
+                    '../../exercises/' + old_uuid + '/' + str(key_file) + '/' + 'exercisekey'
+                )
+                newkey = file_get_contents(
+                    '../../exercises/' + new_uuid + '/' + str(key_file) + '/' + 'exercisekey'
+                )
+                old_exercise = Exercise.objects.get(exercise_key=oldkey)
+                new_exercise = Exercise.objects.get(exercise_key=newkey)
+                meta_names = list(old_exercise.meta.__dict__.keys())
+                for name in meta_names:
+                    if not name in nocopy:
+                        setattr(new_exercise.meta, str(name), getattr(old_exercise.meta, str(name)))
+                new_exercise.meta.save()
+            except Exception as e :
+                logger.error("FAILURE TO COPY META FOR =  %s %s %s" % (  str( new_exercise) , str( newkey) , str( meta_names)) )
+                logger.error("Error is  %s " % str(e) )
+                yield("Duplication error  for  %s " % str(new_exercise) , 0)
+                pass
+    yield("Modify Meta",0)
     alter_meta(course, data)
     return course
 
@@ -79,10 +92,12 @@ def alter_meta(course: Course, data):
         meta_date_names = ['deadline_date']
         for name in meta_date_names:
             olddate = getattr(exercise.meta, name)
+            print("OLDDATE = ", olddate)
             if not olddate == None:
-                newdate = getattr(exercise.meta, name) + timedelta(days=int(days))
+                newdate = getattr(exercise.meta, name) + datetime.timedelta(days=int(days))
             else:
                 newdate = None
+            print("NEWDATE = ", newdate)
             setattr(exercise.meta, str(name), newdate)
         for name, val in data.items():
             if (type(val) == bool) and ( not val ):

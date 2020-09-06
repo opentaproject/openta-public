@@ -25,6 +25,7 @@ class BaseCourseDuplicate extends Component  {
       bonus : null,
       published : null,
       feedback : null,
+      locked: null,
     }
   }
 

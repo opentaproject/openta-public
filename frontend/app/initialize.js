@@ -28,7 +28,7 @@ import {
   updateDisplayStyle,
 } from './actions.js';
 import { navigateMenuArray, menuPositionUnder } from './menu.js';
-import { SUBPATH ,help_url } from './settings.js';
+import { SUBPATH,help_url  } from './settings.js';
 import {jsonfetch, CSRF_TOKEN} from './fetch_backend.js';
 import {store} from 'store.js';
 
@@ -39,22 +39,6 @@ if( getcookie('lang') !== undefined ){
           store.dispatch(updateLanguage( cookielang ) )
       }
    }
-
-store.dispatch( setTimezone(globalInit.timezone) );
-store.dispatch( setOpenTAVersion(globalInit.openTAVersion) );
-store.dispatch( setActiveCourse(globalInit.coursePk) );
-store.dispatch( fetchExercises(globalInit.coursePk) );
-store.dispatch( fetchExerciseTree(globalInit.coursePk) );
-store.dispatch( fetchLoginStatus(globalInit.coursePk) );
-store.dispatch( fetchCourse(globalInit.coursePk) );
-store.dispatch( fetchCourses() );
-store.dispatch(updatePendingStateIn( ['course', 'loadingExercises'], true));
-
-
-
-
-
-
 
 if (module.hot) {
   module.hot.accept('./reducers', () => {
@@ -70,12 +54,12 @@ if (module.hot) {
 
 const load = () => {
   var cookiesEnabled = getcookie('cookieTest');
-  if (  !(cookiesEnabled !== undefined && cookiesEnabled[0] == 'enabled')) {
+  if (!(cookiesEnabled !== undefined && cookiesEnabled[0] == 'enabled')) {
     ReactDOM.render( <CookiesNotEnabled help_url={help_url} />, document.querySelector('#app'));
     return;
   }
 
-   var defaultfilter =  {
+var defaultfilter =  {
             'required_exercises' : true, 
             'optional_exercises': true, 
             'bonus_exercises': true, 
@@ -100,6 +84,8 @@ if(  ck  ){
       } else { var displaystyle = ck[0] 
       }
   
+
+
   store.dispatch(updateDisplayStyle(displaystyle))
   store.dispatch( setTimezone(globalInit.timezone) );
   store.dispatch( setOpenTAVersion(globalInit.openTAVersion) );

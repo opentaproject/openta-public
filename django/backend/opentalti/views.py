@@ -49,8 +49,13 @@ logger = logging.getLogger(__name__)
 
 
 @xframe_options_exempt
-def denied(r, msg=''):
-    return render(r, "denied.html", {'msg': msg})
+def denied(r, msg='',help_url=None):
+    if not help_url :
+        try: 
+            help_url = settings.HELP_URL
+        except:
+            help_url = ''
+    return render(r, "denied.html", {'msg': msg,'help_url': help_url})
 
 
 @csrf_exempt

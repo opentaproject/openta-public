@@ -63,7 +63,7 @@ const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, a
   const types = imageAnswers.map( ia => ia.get('filetype') ).toJS();
   const imageRequired = exerciseState.getIn(['meta', 'image'], false);
   const imageBeforeDeadline = userResults.getIn(["exercises", activeExercise, "image_deadline"], false);
-  const correctBeforeDeadline = userResults.getIn(["exercises", activeExercise, "correct_deadline"], false);
+  const correctBeforeDeadline = userResults.getIn(["exercises", activeExercise, "correct_by_deadline"], false);
   var beforeDeadline = null;
   if(imageRequired)
     if(imageBeforeDeadline && correctBeforeDeadline)

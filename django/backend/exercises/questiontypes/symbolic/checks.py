@@ -75,19 +75,19 @@ def check_units_new(expression, correct, sample_variables):
     def perturb(value):
         return value + value * random.random() * 0.1
 
-    print("a")
+    #print("a")
     for item in sample_variables:
-        print("b")
+        #print("b")
         nvarsubs[item['symbol']] = item['symbol'] * item['around'][0]
         value = float(item['around'][0].subs(baseunits))
         sampled_value = value + random.random() * value * 0.1
         nsubs_values.append((item['symbol'], sampled_value))
-    print("c")
+    #print("c")
     nexpression = expression.subs(nvarsubs).doit()
-    print("NEXPRESSION = ", nexpression)
-    print("d")
+    #print("NEXPRESSION = ", nexpression)
+    #print("d")
     ncorrect = correct.subs(nvarsubs).doit()
-    print("e")
+    #print("e")
 
     checks = [
         [1, 1, 1, 1, 1, 1, 1],
@@ -101,47 +101,47 @@ def check_units_new(expression, correct, sample_variables):
     ]
     results = []
     for check in checks:
-        print("f")
+        #print("f")
         unit_values = list(map(lambda item: (item[1], item[0]), zip(check, sympy_units)))
-        print("1")
+        #print("1")
         allvalues = nsubs_values + unit_values
-        print("x")
-        print( nexpression.subs(allvalues) )
-        print("X")
-        print(" lambdifymodules= ",  lambdifymodules)
-        print(" allvalues = ",  allvalues )
-        print("Y")
+        #print("x")
+        #print( nexpression.subs(allvalues) )
+        #print("X")
+        #print(" lambdifymodules= ",  lambdifymodules)
+        #print(" allvalues = ",  allvalues )
+        #print("Y")
         try :
             print( sympy.lambdify([], nexpression.subs(allvalues), modules=lambdifymodules)() )
         except Exception as e :
             print(traceback.format_exception(None, # <- type(e) by docs, but ignored 
                                      e, e.__traceback__), file=sys.stderr, flush=True)
-        print("Z")
-        print("NEXPRESSION BEF = ", srepr( nexpression) )
+        #print("Z")
+        #print("NEXPRESSION BEF = ", srepr( nexpression) )
         nexpression = sympy.sympify( str( nexpression)  ) # THIS MUST BE A BUG IN SYMPY THIS EXPRESSION SHOULD BE A NOOP
-        print("NEXPRESSION NOW = ", srepr( nexpression) )
-        print("nexpression = ", nexpression)
+        #print("NEXPRESSION NOW = ", srepr( nexpression) )
+        #print("nexpression = ", nexpression)
         allval =  [('meter', 1), ('second', 1), ('kg', 1), ('ampere', 1), ('kelvin', 1), ('mole', 1), ('candela', 1)]
         further =  nexpression.subs(allval) 
         #further = sympy.lambdify([], further.subs(allvalues), modules=lambdifymodules)() 
-        print("NEXPRESSION FURTHER ",  further)
+        #print("NEXPRESSION FURTHER ",  further)
         vale = numpy.linalg.norm(
             sympy.lambdify([], nexpression.subs(allvalues).doit(), modules=lambdifymodules)()
         )
-        print("3 vale = ", vale )
+        #print("3 vale = ", vale )
         ncorrect = sympy.sympify( str( ncorrect) )
         valc = numpy.linalg.norm(
             sympy.lambdify([], ncorrect.subs(allvalues).doit(), modules=lambdifymodules)()
         )
-        print("4 valc" , valc)
+        #print("4 valc" , valc)
         if valc != 0:
             results.append(vale / valc)
         else:
             results.append(vale)
-    print("g")
+    #print("g")
     for res in results:
         if numpy.absolute(res - results[0]) > 10e-5:
-            print("g")
+            #print("g")
             raise LinearAlgebraUnitError(_("Incorrect units"))
 
 def parens_are_balanced(expression):

@@ -1,4 +1,5 @@
 import logging
+from django.contrib.auth.views import LoginView
 from django.utils import translation
 from django.views.decorators.clickjacking import xframe_options_exempt, xframe_options_deny
 
@@ -226,7 +227,8 @@ def login(request, course_name=None):
         'course_name': course.course_name,
     }
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
-        return auth_views.login(request, extra_context=extra)
+        context = { 'extra_context': extra }
+        return LoginView.as_view(**context)(request)
     else:
         return render(
             request, 'login rate_limit.html', context={'rate': _('5 times per 30 seconds')}
@@ -248,7 +250,7 @@ def activate(request, username, token):
     except (BadSignature, SignatureExpired):
         return render(request, "activation_failed.html")
     messages.add_message(request, messages.SUCCESS, _('Activation successful, please login.'))
-    return auth_views.login(request, 'registration/login.html')
+    return LoginView.as_view()(request)
 
 
 def set_persistent_lang(course, request):
@@ -333,6 +335,7 @@ def main(request, course_pk=None):
         msg = "Not enrolled in course"
     if not course.published:
         msg = "Course not published yet"
+    logging.debug("MSG = %s " % msg )
     if (
         request.user.groups.filter(name='Student').exists()
         and not published_and_enrolled
@@ -346,12 +349,17 @@ def main(request, course_pk=None):
             messages.add_message(request, messages.WARNING, _("Not enrolled!"))
             return redirect('/' + settings.SUBPATH + 'logout/' + course.course_name + '/')
 
+    logging.debug("GET COURSE SERIALIZER")
     course_data = CourseSerializer(course).data
     help_url = getattr(settings, 'HELP_URL', '')
     extra = dict(
-        course=course_data, timezone=settings.TIME_ZONE, subpath=settings.SUBPATH, help_url=help_url
+        course=course_data, 
+        timezone=settings.TIME_ZONE, 
+        subpath=settings.SUBPATH, 
+        help_url=help_url
     )
     lang = set_persistent_lang(course, request)
+    logging.debug('PERSISTENT LANG =  %s' % lang )
     response = render(request, "base_main.html", context=extra)
     if settings.CSRF_COOKIE_NAME:
         response.set_cookie(key='csrf_cookie_name', value=settings.CSRF_COOKIE_NAME)
@@ -365,6 +373,7 @@ def main(request, course_pk=None):
     subpath = settings.SUBPATH.strip('/')
     response.set_cookie(key='cookieTest', value='enabled', path='/')
     response.set_cookie(key='lang', value=lang, path='/')
+    logging.debug("RETURN RESPONSE  %s " % str( response) )
     return response
 
 
@@ -485,6 +494,10 @@ def serve_public_media(request, asset):
 
     return serve_file(settings.MEDIA_URL + asset, asset.split('/')[-1])
 
+@xframe_options_exempt
+def trigger_error(request ,msg='SENTRY ERROR TRIGGERED' ):
+    assert 1 == 0 , msg
+    raise Http404("msg")
 
 @xframe_options_exempt  # NECESSARY TO KEEP FROM CRASHING IN CANVAS FRAME
 def logout(request, course_name=None, lti_status='no_lti'):

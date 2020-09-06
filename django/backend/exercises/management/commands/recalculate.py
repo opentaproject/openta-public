@@ -61,6 +61,14 @@ class Command(BaseCommand):
         accept = kwargs.get('accept', False)
         exercise = kwargs.get('exercise')
         suffix = kwargs.get('suffix')
+
+        pklfile = "/tmp/answer_errors/done.pkl"
+        if not os.path.exists(pklfile) :
+            done_answers = []
+        else :
+            done_answers = pickle.load( open(pklfile,'rb') )
+        print("ALREADY DONE ARE ", len( done_answers) )
+
             
         if not exercise  == None :
             print("EXERCISE SPECIFIED " , exercise)
@@ -154,15 +162,11 @@ class Command(BaseCommand):
         answers = list(answers)
         shuffle( answers)
         n = 0
-        pklfile = "/tmp/answer_errors/done.pkl"
-        if not os.path.exists(pklfile) :
-            done_answers = []
-        else :
-            done_answers = pickle.load( open(pklfile,'rb') )
-        #print("ALREADY DONE ARE ", len( done_answers) )
+
+
         for answer in answers:
             ind = ind + 1
-            if True or not str( answer.pk )  in done_answers:
+            if not str( answer.pk )  in done_answers:
                 error_message = None
                 did = False
                 try:
@@ -249,12 +253,13 @@ class Command(BaseCommand):
                             for fil in fils :
                                 if os.path.isfile(  fil ) :
                                     os.unlink( fil )
-                            fp = open(os.path.join( error_log_directory, str( answer.pk ) ) + "." + s1 + s2   ,"a")
-                            fp.write( txt)
-                            fp.close()
-                            if ( old_correct ==  new_correct ) :
-                                answer.grader_response = json.dumps(result) 
-                                answer.save()
+                            if not( s1 == s2 ):
+                                fp = open(os.path.join( error_log_directory, str( answer.pk ) ) + "." + s1 + s2   ,"a")
+                                fp.write( txt)
+                                fp.close()
+                                if ( old_correct ==  new_correct ) :
+                                    answer.grader_response = json.dumps(result) 
+                                    answer.save()
                         else :
                             did = False
                         n = n + 1
@@ -267,5 +272,8 @@ class Command(BaseCommand):
                     fp = open(pklfile,'wb')
                     pickle.dump( done_answers, fp)
                     fp.close()
-            if ind > 100000:
+
+            else :
+                print("OLD %s " % str( answer.pk ) )
+            if ind > 400000:
                 break

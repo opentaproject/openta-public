@@ -51,7 +51,7 @@ const BaseComponent = ({exerciseKey, imageAnswers, imageAnswersData, uploaded, o
         <div className="uk-form-file">
         <a type="file" className={"uk-button"} capture="camera">{uploadPending ? (<i className="uk-icon-cog uk-icon-spin"></i>) : (<i className="uk-icon-camera"></i>)}
         </a>
-        <input type="file" accept="image/*" onChange={(e) => onUpload(e, exerciseKey)}/>
+        <input type="file" accept="image/*" onChange={(e) => onUpload(e, exerciseKey)} capture/>
         </div>
         )}
         { ! locked && ( showPDF && 

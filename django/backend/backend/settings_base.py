@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # settings_example.js) Example: If the site is available at
 # http://domain.com/subpath/ this variable should be set to (note trailing
 # slash) SUBPATH = 'subpath/'
-SUBPATH = ''
+SUBPATH = 'beta/'
 VERSION = version.get_version_string()
 
 SECRET_KEY = 'this_should_be_set_to_a_generated_key!'
@@ -35,6 +35,7 @@ ALLOWED_HOSTS = []
 
 LOGIN_URL = '/' + SUBPATH + 'login/'
 LOGIN_REDIRECT_URL = '/' + SUBPATH
+LEVEL = 'INFO'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -59,7 +60,13 @@ INSTALLED_APPS = [
     'translations',
 ]
 
+#if not RUNNING_DEVSERVER :
+#	MIDDLEWARE = [ 'backend.middleware.SameSiteMiddleware', ]
+#else:
+#	MIDDLEWARE = [ ]
+
 MIDDLEWARE = [
+    'backend.middleware.SameSiteMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -145,9 +152,9 @@ LOGGING = {
         'simple': {'format': '%(levelname)s %(message)s'},
     },
     'handlers': {
-        'stderr': {'level': 'DEBUG', 'class': 'logging.StreamHandler', 'formatter': 'middle'},
+        'stderr': {'level': LEVEL, 'class': 'logging.StreamHandler', 'formatter': 'middle'},
         'file': {
-            'level': 'DEBUG',
+            'level': LEVEL,
             'class': 'logging.handlers.RotatingFileHandler',
             'backupCount': 4,
             'maxBytes': 5242880,
@@ -155,7 +162,7 @@ LOGGING = {
             'formatter': 'middle',
         },
     },
-    'root': {'handlers': ['file', 'stderr'], 'level': 'DEBUG'},
+    'root': {'handlers': ['file', 'stderr'], 'level': LEVEL},
     'loggers': {'django': {'handlers': ['file', 'stderr'], 'level': 'ERROR', 'propagate': True}},
 }
 

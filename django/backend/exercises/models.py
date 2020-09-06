@@ -494,11 +494,14 @@ class Question(models.Model):
         instance = kwargs['instance']
         question_key_has_changed = instance.tracker.has_changed('question_key')
         exercise = kwargs['instance'].exercise
-        course = exercise.course
-        if question_key_has_changed:
-            answer_received.send(
-                sender=self.__class__, user=None, exercise=exercise, course=course, date=None
-            )
+        try: 
+            course = exercise.course
+            if question_key_has_changed:
+                answer_received.send(
+                    sender=self.__class__, user=None, exercise=exercise, course=course, date=None
+                )
+        except:
+            pass
 
 
 class Answer(models.Model):
@@ -640,10 +643,13 @@ class ExerciseMeta(models.Model):
     def post_save(self, *args, **kwargs):
         instance = kwargs['instance']
         exercise = instance.exercise
-        course = exercise.course
-        answer_received.send(
-            sender=self.__class__, user=None, exercise=exercise, course=course, date=None
-        )
+        try:
+            course = exercise.course
+            answer_received.send(
+                sender=self.__class__, user=None, exercise=exercise, course=course, date=None
+            )
+        except:
+            pass
 
     def get_languages(self):
         return "ABCDEFG"

@@ -27,7 +27,7 @@ class Norm(sympy.Function):
         #print("type = ", type(x) )
         if isinstance(x, sympy.MatrixBase):
             res = N(x.norm())
-            print("result = ", res )
+            #print("result = ", res )
             return res
         #else:
         #    return Abs(x)
@@ -136,12 +136,12 @@ class rankof(sympy.Function):
     @classmethod
     def eval(cls, x):
         if isinstance(x, sympy.MatrixBase):
-            print("MATREIX FOUND RANKOF", x)
+            #print("MATREIX FOUND RANKOF", x)
             sp = x.shape
             rank = sp[1]
             return sympy.sympify(rank)
         else:
-            print("MATREIX FOUND RANKOF", x)
+            #print("MATREIX FOUND RANKOF", x)
             return None
 
 
@@ -155,7 +155,7 @@ class isunitary(sympy.Function):
             zer = (x * conjugate(x.T)) - target
             # print("zer = ", zer )
             zer = zer.evalf(6, chop=True)
-            print("ZER = ", zer)
+            #print("ZER = ", zer)
             if zer.is_zero:
                 return sympy.sympify('1')
             else:
@@ -530,7 +530,7 @@ class IsDiagonalizable(sympy.Function):
 
     @classmethod
     def eval(cls, x):
-        print("IS DIAGONALIZABLE ", x)
+        #print("IS DIAGONALIZABLE ", x)
         if isinstance(x, sympy.MatrixBase):
             if x.is_diagonalizable():
                 return sympy.sympify('1')
@@ -545,7 +545,7 @@ class oldPrime(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-        print("PRIME ENTERED", flush=True)
+        #print("PRIME ENTERED", flush=True)
         first = arg[0]
         fourth = arg[3]
         order = int(arg[2])
@@ -574,23 +574,23 @@ class Prime(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-        print(" INTO PRIME WITH ", *arg, flush=True)
+        #print(" INTO PRIME WITH ", *arg, flush=True)
         first = arg[0]
         # fourth = arg[3]
         order = int(arg[2])
-        print("first= ", first)
-        print("second = ", arg[1])
-        print("third = ", arg[2])
+        #print("first= ", first)
+        #print("second = ", arg[1])
+        #print("third = ", arg[2])
         # print("FOURTH = ", fourth )
         qqq = sympy.symbols('qqq')
         fun = first.func
-        print("FUN = ", srepr(fun), flush=True)
+        #print("FUN = ", srepr(fun), flush=True)
         deriv = fun(qqq)
         while order > 0:
             order = order - 1
             deriv = diff(deriv, qqq)
         result = deriv.subs(qqq, arg[1]).doit()
-        print("PRIME RESULT IS ", result, srepr(result))
+        #print("PRIME RESULT IS ", result, srepr(result))
         return result
 
 
@@ -645,7 +645,7 @@ class partial(sympy.Function):
 
     @classmethod
     def eval(cls, *f):
-        print("PARTIAL f = ", f)
+        #print("PARTIAL f = ", f)
         if len(f) < 1:
             return sympy.sympify('derivative or partial used withouth argument')  # }}}
         elif len(f) == 1:

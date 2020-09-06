@@ -21,7 +21,6 @@ import os
 from exercises.views.asset import dispatch_asset_path
 from ratelimit.utils import is_ratelimited
 from django.utils.translation import ugettext as _
-import exercises.paths as paths
 import os
 import json
 import logging
@@ -202,6 +201,26 @@ def get_other_answers(question_key, user_id, exercise_key):
     return all_answers
 
 
+def get_safe_previous_answers(question_id, user_id, n_answers=10):
+    """ Previous attempts (time ordered with most recent first) at the question by user.
+
+    Args:
+        question_id: question primary key
+        user_id: user primary key
+        n_answers: number of attempts to include (default: 10)
+    Returns:
+        List of serialized answers (see AnswerSerializer for fields)
+
+    """
+    answers = Answer.objects.filter(user__pk=user_id, question__pk=question_id)
+    last_answers = answers.order_by('-date')[:n_answers]
+    for answer in last_answers:
+        answer.correct = None
+        answer.grader_response = None
+    sanswers = AnswerSerializer(last_answers, many=True)
+    return sanswers.data
+
+
 def get_previous_answers(question_id, user_id, n_answers=10):
     """ Previous attempts (time ordered with most recent first) at the question by user.
 
@@ -318,7 +337,8 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
     )
     question_xmltree.set('user', str(user))
     # studentassetpath = os.path.join( paths.STUDENT_ASSET_PATH , str(user) , exercise_key ) ## NEED THIS
-    studentassetpath = paths.get_student_asset_path(user, dbexercise)
+    studentassetpath = _dispatch_asset_path(user, dbexercise)
+    #studentassetpath = paths.get_student_asset_path(user, dbexercise)
     exerciseassetpath = os.path.join(
         dbexercise.course.get_exercises_path(), dbexercise.path
     )  ## NEED THIS
@@ -415,9 +435,10 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
                 #print("CORRECT = ", correct)
                 return (result,correct)
             usermacros = get_usermacros(user, exercise_key, question_key)
-            previous_answers = get_previous_answers(dbquestion.pk, user.pk)
+            previous_answers = get_safe_previous_answers(dbquestion.pk, user.pk)
             result['previous_answers'] = previous_answers
             result['n_attempts'] = usermacros['@nattempts']
+            result['status'] = None
             try:
                 result['used_variable_list'] = question_json['used_variable_list']
             except:
@@ -495,14 +516,14 @@ def get_usermacros(user, exercise_key, question_key=None):
     usermacros['@userpk'] = str(user.pk)
     exerciseassetpath = os.path.join(dbexercise.course.get_exercises_path(), dbexercise.path)
     usermacros['@exerciseassetpath'] = exerciseassetpath
-    studentassetpath = paths.get_student_asset_path(user, dbexercise)
+    #studentassetpath = paths.get_student_asset_path(user, dbexercise)
+    studentassetpath = _dispatch_asset_path(user, dbexercise)
     usermacros['@studentassetpath'] = studentassetpath
     if question_key:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         n_attempts = get_number_of_attempts(dbquestion.pk, user.pk)
         n_correct = get_number_of_correct_attempts(dbquestion.pk, user.pk)
         usermacros['@exerciseassetpath'] = exerciseassetpath
-        studentassetpath = paths.get_student_asset_path(user, dbexercise)
         usermacros['@nattempts'] = str(n_attempts)
         usermacros['@ncorrect'] = str(n_correct)
         usermacros['@question_key'] = dbquestion.question_key

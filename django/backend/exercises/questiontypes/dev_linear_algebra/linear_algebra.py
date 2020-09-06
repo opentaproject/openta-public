@@ -117,7 +117,7 @@ def linear_algebra_compare_expressions(
     student_answer = insert_implicit_multiply( student_answer)
     correct_answer = insert_implicit_multiply( correct )
     compare_hash = get_hash_from_string( " %s %s %s %s %s %s %s %s %s " % ( str(precision), str(variables), str(student_answer), 
-            str(correct), str(check_units), str(used_variables), str(blacklist), str(funcsubs)   , __file__ ) )
+            str(correct_answer), str(check_units), str(used_variables), str(blacklist), str(funcsubs)   , __file__ ) )
     ret = djangocache.cache.get(compare_hash)
     #if not ret == None  and settings.DO_CACHE :
     #    return ret
@@ -175,11 +175,11 @@ def linear_algebra_compare_expressions(
         #    return {'error': 'Unidentified Error (G 116 ) : ' + str(e) }
         try:
            #print("VARSUBS_SYMPIFY = ", varsubs_sympify)
-           print("STUDENT_ANSWER", student_answer)
+           #print("STUDENT_ANSWER", student_answer)
            prelhs = sympify_with_custom(
                 student_answer, varsubs_sympify, {}, 'linear_algebra_compare_expressions'
            )
-           print("BECAME", prelhs)
+           #print("BECAME", prelhs)
            #print("POSITION 3", 1000 * ( time.time() - time_start ) );
         except TypeError as e:
             if 'required positional' in str(e) :
@@ -336,13 +336,13 @@ def linear_algebra_compare_expressions(
 
 
 def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_units=True):  # {{{
-    print("CHECK EQUALITY ", lhs, rhs )
+    #print("CHECK EQUALITY ", lhs, rhs )
     if rhs == 0 :
         rhs = 0 * lhs
-        print("RHS = 0", rhs )
+        #print("RHS = 0", rhs )
     if lhs == 0 :
         lhs = 0 * rhs
-        print("LHS == 0 ", lhs )
+        #print("LHS == 0 ", lhs )
     number_of_points = 5
     response = {}
     # response['ABC'] = 'ABC';
@@ -389,7 +389,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         inner = inner + 'h'
         if len(subs_neighbours) <= 1:
             inside = sympy1.subs(eval_point).doit() - sympy2.subs(eval_point).doit()
-            print("INSIDE = ", inside )
+            #print("INSIDE = ", inside )
             test_evaluation = numpy.linalg.norm(
                 sympy.lambdify(
                     [],
