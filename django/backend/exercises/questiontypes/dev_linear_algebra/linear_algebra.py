@@ -30,11 +30,12 @@ from .string_formatting import (
     declash,
     paren_check
 )
-from exercises.questiontypes.symbolic.string_formatting import insert_implicit_multiply 
+from .string_formatting import insert_implicit_multiply 
 from .unithelpers import *
 from sympy import DiagonalOf
 from .functions import *
-from exercises.questiontypes.symbolic.checks import *
+from .checks import check_for_legal_answer, lambdifymodules, LinearAlgebraUnitError, check_units_new
+import numpy
 from .parsers import *
 from .variableparser import getallvariables, get_used_variable_list
 from .sympify_with_custom import sympify_with_custom
@@ -94,50 +95,23 @@ def linear_algebra_compare_expressions(
     used_variables=[],
     funcsubs={},
 ):
-    """
-    Compare two asciimath expressions for equality.
-
-    Args:
-        variables: [ { name: string, value: asciimath }, ... ]
-        student_answer: asciimath
-        correct: asciimath
-        blacklist: [ string ] blacklisted tokens
-
-    Returns:
-        {
-            correct: boolean
-            error: string
-        }
-    """
-    illegal = reg.findall(r'(\^|\.)([0-9]+[a-zA-Z]+)(\^|\.)', student_answer)
-    if len(illegal) >  0 :
-        s = ",".join( [ "".join(item) for item in illegal])
-        return dict(error= _('Illegal pattern %s in %s ' % (s, student_answer)  ) ) 
- 
     student_answer = insert_implicit_multiply( student_answer)
     correct_answer = insert_implicit_multiply( correct )
     compare_hash = get_hash_from_string( " %s %s %s %s %s %s %s %s %s " % ( str(precision), str(variables), str(student_answer), 
             str(correct_answer), str(check_units), str(used_variables), str(blacklist), str(funcsubs)   , __file__ ) )
     ret = djangocache.cache.get(compare_hash)
-    #if not ret == None  and settings.DO_CACHE :
-    #    return ret
-    #else:
-    #    pass
     student_answer_orig = student_answer
     time_start = time.time()
     try:
-        #print("CHECK FOR LEGAL ANSWER")
+        #print("A")
         precheck = check_for_legal_answer( precision, variables, student_answer, correct, check_units, blacklist)
-        #print("POSITION 1", 1000 * ( time.time() - time_start ) );
-        #print("precheck = ", precheck)
+        #print("B")
         if precheck is not None:
             return precheck
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
-        #print("POSITION 1b", 1000 * ( time.time() - time_start ) );
         equality = correct.split('==')
         if len(equality) > 1 and '$$' in correct:
             correct = equality[1]
-            # student_answer_orig = student_answer
             student_answer = (equality[0]).replace('$$', '(' + student_answer + ')')
         if '==' in student_answer:
             equality = correct.split('==')
@@ -148,39 +122,12 @@ def linear_algebra_compare_expressions(
             equality = student_answer.split('==')
             student_answer = 'Abs( (' + equality[0] + ') - ( ' + equality[1] + '))'
         zero = '(' +  student_answer + ') -  (' +  correct + ')' 
-        #print("zero = ", zero)
         allvariables = get_used_variable_list( zero )
-        #print("allvariables = ", allvariables)
-        #print("POSITION 2", 1000 * ( time.time() - time_start ) );
-        #try:
-        #    unparsedstudentanswer = sympify_with_custom(
-        #        ascii_to_sympy(student_answer),
-        #        varsubs_sympify,
-        #        {},( xbis + m*deltabis / mtot + 2 k*x / mtot+4 * c / 2 xdot / mtot ) ==0
-        #        'linear_algebra_compare_expressions',
-        #    )
-        # 
-        #except TypeError as e:
-        #    return {'error': 'Error 104: '  + str(e) }
-        #
-        #except Exception as e:
-        #    #test = sympify_with_custom(
-        #    #    ascii_to_sympy(student_answer_orig),
-        #    #    varsubs_sympify,
-        #    #    {},
-        #    #    'linear_algebra_compare_expressions',
-        #    #).doit()
-        #    #testatoms = list(test.atoms(sympy.Function))
-        #    #testsymbols = list(test.atoms(sympy.Symbol))
-        #    return {'error': 'Unidentified Error (G 116 ) : ' + str(e) }
+        #print("C")
         try:
-           #print("VARSUBS_SYMPIFY = ", varsubs_sympify)
-           #print("STUDENT_ANSWER", student_answer)
            prelhs = sympify_with_custom(
                 student_answer, varsubs_sympify, {}, 'linear_algebra_compare_expressions'
            )
-           #print("BECAME", prelhs)
-           #print("POSITION 3", 1000 * ( time.time() - time_start ) );
         except TypeError as e:
             if 'required positional' in str(e) :
                 response = dict(
@@ -263,6 +210,7 @@ def linear_algebra_compare_expressions(
                     + " whereas  the answer requires the dimensions "
                     + str(rhs.shape)
                 }
+        #print("A6")
         if hasattr(lhs, 'shape') and not hasattr(rhs, 'shape') and ( not rhs == 0 ):
             return {
                 "error": _("incorrect dimensions")
@@ -273,6 +221,7 @@ def linear_algebra_compare_expressions(
                 "error": _("incorrect dimensions")
                 + ": your expression is a scalar; a vector or matrix answer is required."
             }
+        #print("A7")
         if isinstance(prelhs, sympy.Basic) or isinstance(prelhs, sympy.MatrixBase):
             specials = [
                 ('cross', Cross),
@@ -319,6 +268,7 @@ def linear_algebra_compare_expressions(
     #print("RHS = ", rhs)
     #print("RHS = ", sample_variables)
     ret = linear_algebra_check_equality( precision, lhs, rhs, sample_variables, check_units=check_units)
+    #print("POSITION6")
     try:
         ret['mathematica'] = "Math Expression: {%s , %s }" % (  mathematica_form(student_answer), mathematica_form( correct_answer) )
     except:
