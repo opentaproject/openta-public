@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ta#!/usr/bin/env python
 # -*- coding:utf-8 -*-
 #
 #  Based on django-auth-lti
@@ -73,8 +73,11 @@ def lti_main(request, course_pk=None):
     if course_pk is None:
         course = Course.objects.order_by("-published", "-pk")[0]
         course_pk = course.pk
-    roles = (request.POST.get("roles", '')).split(',')
-    valid_roles = ['ContentDeveloper', 'Learner', 'Student', 'Instructor', 'Observer']
+    rolestring = request.POST.get("roles", '')
+    rolestring = re.sub(r"\/",",",rolestring)
+    rolestring = re.sub(r":",",",rolestring)
+    roles = rolestring.split(',') 
+    valid_roles = settings.VALID_ROLES # Formerly hardcoded as ['ContentDeveloper', 'Learner', 'Student', 'Instructor', 'Observer']
     proper_role = not set(roles).isdisjoint(valid_roles)
     if not proper_role:
         return denied(
