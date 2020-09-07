@@ -1,4 +1,5 @@
 import sympy
+import numpy
 import types
 import sys
 from pprint import pprint
@@ -23,14 +24,12 @@ logger = logging.getLogger(__name__)
 class Norm(sympy.Function):
     @classmethod
     def eval(cls, x):
-        #print("Norm is entered with x = ", x )
-        #print("type = ", type(x) )
+        # print("Norm is entered with x = ", x )
+        # print("type = ", type(x) )
         if isinstance(x, sympy.MatrixBase):
             res = N(x.norm())
-            #print("result = ", res )
+            # print("result = ", res )
             return res
-        #else:
-        #    return Abs(x)
         elif isinstance(x, Number):
             # print("identified float")
             return N(Abs(x))
@@ -136,12 +135,12 @@ class rankof(sympy.Function):
     @classmethod
     def eval(cls, x):
         if isinstance(x, sympy.MatrixBase):
-            #print("MATREIX FOUND RANKOF", x)
+            # print("MATREIX FOUND RANKOF", x)
             sp = x.shape
             rank = sp[1]
             return sympy.sympify(rank)
         else:
-            #print("MATREIX FOUND RANKOF", x)
+            # print("MATREIX FOUND RANKOF", x)
             return None
 
 
@@ -155,7 +154,7 @@ class isunitary(sympy.Function):
             zer = (x * conjugate(x.T)) - target
             # print("zer = ", zer )
             zer = zer.evalf(6, chop=True)
-            #print("ZER = ", zer)
+            # print("ZER = ", zer)
             if zer.is_zero:
                 return sympy.sympify('1')
             else:
@@ -187,7 +186,7 @@ class crossfunc(sympy.Function):
             x = arg[0]
             y = arg[1]
             if not (isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase)):
-                raise TypeError('cross product has illegal arguments')
+                return None
 
             if str(x) == '0' or str(y) == '0':
                 return 0
@@ -218,7 +217,7 @@ class Cross(sympy.MatrixExpr):
         elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
             return x.cross(y)
         else:
-            raise TypeError('Illegal argument in cross product')
+            return self
 
 
 class Sort(sympy.Function):
@@ -432,7 +431,7 @@ class Dot(sympy.Function):
             elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
                 return conjugate(x).dot(y)
             else:
-                raise TypeError('Illegal argument of dot product')
+                return None
 
 
 class Times(sympy.Function):
@@ -443,8 +442,7 @@ class Times(sympy.Function):
         if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
             return sympy.matrix_multiply_elementwise(x, y)
         else:
-            raise TypeError('Illegal arguments of elementwise multiply')
-            
+            return None
 
 
 class IsDiagonal(sympy.Function):
@@ -469,6 +467,7 @@ class IsDiagonal(sympy.Function):
 class sample(sympy.Function):
     @classmethod
     def eval(cls, *x):
+        # print("ENTER SAMPLE ", x )
         return x[0]
 
 
@@ -530,7 +529,7 @@ class IsDiagonalizable(sympy.Function):
 
     @classmethod
     def eval(cls, x):
-        print("IS DIAGONALIZABLE ", x)
+        # print("IS DIAGONALIZABLE ", x)
         if isinstance(x, sympy.MatrixBase):
             if x.is_diagonalizable():
                 return sympy.sympify('1')
@@ -545,7 +544,7 @@ class oldPrime(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-        print("PRIME ENTERED", flush=True)
+        # print("PRIME ENTERED", flush=True)
         first = arg[0]
         fourth = arg[3]
         order = int(arg[2])
@@ -574,23 +573,23 @@ class Prime(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-        print(" INTO PRIME WITH ", *arg, flush=True)
+        # print(" INTO PRIME WITH ", *arg, flush=True)
         first = arg[0]
         # fourth = arg[3]
         order = int(arg[2])
-        print("first= ", first)
-        print("second = ", arg[1])
-        print("third = ", arg[2])
+        # print("first= ", first)
+        # print("second = ", arg[1])
+        # print("third = ", arg[2])
         # print("FOURTH = ", fourth )
         qqq = sympy.symbols('qqq')
         fun = first.func
-        print("FUN = ", srepr(fun), flush=True)
+        # print("FUN = ", srepr(fun), flush=True)
         deriv = fun(qqq)
         while order > 0:
             order = order - 1
             deriv = diff(deriv, qqq)
         result = deriv.subs(qqq, arg[1]).doit()
-        print("PRIME RESULT IS ", result, srepr(result))
+        # print("PRIME RESULT IS ", result, srepr(result))
         return result
 
 
@@ -623,6 +622,7 @@ class carefuladd(sympy.Function):
 
     @classmethod
     def eval(cls, *args):
+        # print("CAREFUL ADD WITH ARGS ", args)
         rank = 1
         for arg in args:
             if hasattr(arg, 'shape'):
@@ -635,6 +635,7 @@ class carefuladd(sympy.Function):
                     newargs = newargs + [eye(rank) * arg]
                 else:
                     newargs = newargs + [arg]
+            # print("NEWARGS = ", newargs)
             return Add(*newargs)
         else:
             return Add(*args)
@@ -645,7 +646,7 @@ class partial(sympy.Function):
 
     @classmethod
     def eval(cls, *f):
-        print("PARTIAL f = ", f)
+        # print("PARTIAL f = ", f)
         if len(f) < 1:
             return sympy.sympify('derivative or partial used withouth argument')  # }}}
         elif len(f) == 1:
@@ -822,6 +823,7 @@ class nullrank(Function):  # {{{
 
 openta_scope = {
     'abs': Norm,  # sympy.Function('norm')
+    'Abs': Norm,  # sympy.Function('norm')
     'Trace': Trace,
     'Transpose': localTranspose,
     'localTranspose': localTranspose,

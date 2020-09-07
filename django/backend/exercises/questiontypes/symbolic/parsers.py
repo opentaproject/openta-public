@@ -58,7 +58,6 @@ def parse_sample_variables(variables, funcsubs={}):
     ret = core_cache.get(varhash)
     tbeg = time.time()
     if settings.DO_CACHE and (ret is not None):
-       #print("GRABBED CACHE")
         (v, vs, sample_variables) = ret
         varsubs_sympify = {sympify(key): sympify(val) for key, val in vs}
         varsubs = [(sympify(key), sympify(val)) for key, val in v]
@@ -80,7 +79,6 @@ def parse_sample_variables(variables, funcsubs={}):
         expr = sympify_with_custom(
             ascii_to_sympy(var['value']), varsubs_sympify, funcsubs, 'PARSE_SAMPLE_VARIABLES'
         )
-        #print("EXPR = ", expr )
         nexpr = simplify(expr.subs(baseunits))
         if hasattr(expr, 'shape'):
             sym[name] = sympy.MatrixSymbol(name, *expr.shape)
@@ -103,7 +101,7 @@ def parse_sample_variables(variables, funcsubs={}):
     varsubs = list(reversed(subs_rules))
     varsubs_sympify_new = {}
     for key, val in varsubs_sympify.items():
-        varsubs_sympify_new[key] = N(val.subs(varsubs) ).doit()
+        varsubs_sympify_new[key] = val.subs(varsubs).doit()
     varsubs_sympify = varsubs_sympify_new
     ret = (varsubs, varsubs_sympify, sample_variables)
     try:
@@ -112,8 +110,8 @@ def parse_sample_variables(variables, funcsubs={}):
         rets = (v, vs, sample_variables)
         core_cache.set(varhash, rets, 60 * 60)
     except Exception as e:
-       #print("VARUSBS_SYMPIFY = ", varsubs_sympify)
-       #print("CACHIN ERROR  " + type(e).__name__ + ' : ' + str(e))
+        print("VARUSBS_SYMPIFY = ", varsubs_sympify)
+        print("CACHIN ERROR  " + type(e).__name__ + ' : ' + str(e))
         raise NameError("CANT CACHE ")
 
     return ret

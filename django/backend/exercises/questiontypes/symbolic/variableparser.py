@@ -168,7 +168,7 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
     if question_xmltree is not None:
         qstring = etree.tostring(question_xmltree, encoding='UTF-8')
         bigstring = bigstring + str(qstring)
-    varhash = get_hash_from_string(str(bigstring) + __file__ )
+    varhash = get_hash_from_string(str(bigstring))
     # print("GETALLVARIABLES WITH HASH ", varhash)
     ret = cache.get(varhash)
     if settings.DO_CACHE and (ret is not None):

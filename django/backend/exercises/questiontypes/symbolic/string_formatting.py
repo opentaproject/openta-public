@@ -9,18 +9,10 @@ from exercises.util import index_of_matching_left_paren, index_of_matching_right
 
 
 def insert_implicit_multiply(expression):  # {{{
-    #print("EXPRESSION ", expression)
     result = resub.sub(r"(?<=[\w)])\s+(?=[(\w])", r" * ", expression)
-    result = resub.sub(r"\)\(", r" ) ( ", result)
-    #print("aRESULT ", result)
     result = resub.sub(r"((?:\W|^)[0-9]+)([a-zA-Z]+)", r"\1*\2", result)
-    #print("bRESULT ", result)
     result = resub.sub(r"([a-zA-Z0-9\(\)])\)\(([a-zA-Z0-9\(\)\-])", r"\1)*(\2", result)
-    #print("cRESULT ", result)
-    result = resub.sub("\)([A-Za-z0-9]+)", r") * \1", result)
-    # FIX UNARY MINUS AT THE BEGINNING OF A LINE
-    result = resub.sub(r"^-([A-z])",r"- \1",result)
-    #print("dRESULT ", result)
+    result = resub.sub("\)([A-Za-z0-9]+)", r") * \1 ", result)
     return result  # }}}
 
 
@@ -126,7 +118,6 @@ def paren_check(expression, msg):
 
 
 def ascii_to_sympy(expression, funcsubs={}):  # {{{
-    #print("ASCII_TO_SYMPY expression = ", expression)
     should_be_end = index_of_matching_right_paren(0, '(' + expression + ')')
     assert should_be_end == len(expression) + 2, (
         "MATCHING PAREN ERROR IN ASCII_TO_SYMPY " + expression
@@ -164,7 +155,6 @@ def ascii_to_sympy(expression, funcsubs={}):  # {{{
         result = left + 'Partial(' + middle + ")" + right
         it = it + 1
     paren_check(result, 'MATCHING PAREN COMING OUT OF ASCII_TO_SYMPY ')
-    #print("ASCII_TO_SYMPY result = ", srepr( result) )
 
     return result  # }}}
 
@@ -243,16 +233,13 @@ def braketify(expression):  # {{{
 
 
 def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions# {{{
-    #print("DECLASH ", expression)
-    result = resub.sub(r"([^e]|^)gamma", r"\1variablegamma", expression)
-    result = resub.sub(r"([^e]|^)beta", r"\1variablebeta", result)
-    result = resub.sub(r"([^e]|^)zeta", r"\1variablezeta", result)
-    result = resub.sub(r"([^e]|^)FF", r"\1variableFF", result)
-    result = resub.sub(r"([^e]|^)ff", r"a\1variableff", result)
-    result = resub.sub(r"([^e]|^)lambda", r"\1variablelambda", result)
-    result = resub.sub(r"(\W|\A|^)e\^", r"\1 E^", result)
-    result = resub.sub(r"(\W|\A|^)e\*\*", r"\1 E**", result)
-    result = resub.sub(r"(\W|^)S(\W|$)", r"\1variableS\2", result)
+    result = resub.sub(r"gamma", r"variableGamma", expression)
+    result = resub.sub(r"beta", r"variableBeta", result)
+    result = resub.sub(r"FF", r"variableEffEff", result)
+    result = resub.sub(r"ff", r"variableeffeff", result)
+    result = resub.sub(r"lambda", r"variableLambda", result)
+    result = resub.sub(r"(\W|\A)e\^", r"\1 E^", result)
+    result = resub.sub(r"(\W|\A)e\*\*", r"\1 E**", result)
     clashes = [
         {'And': 'localAnd'},
         {'Not': 'localNot'},
@@ -261,8 +248,6 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
         {'Ge': 'localGe'},
         {'d': 'partial'},
         {'cross': 'crossfunc'},
-        {'real' : 're'},
-        {'imag' : 'im'},
         {'Transpose': 'localTranspose'},
     ]
     expression = resub.sub(r',', ' ,', expression)

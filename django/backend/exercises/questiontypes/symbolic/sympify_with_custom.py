@@ -1,5 +1,4 @@
 from sympy import *
-from sympy.matrices.matrices import  ShapeError
 import hashlib
 from sympy.matrices import *
 from django.core.cache import cache as core_cache
@@ -58,17 +57,17 @@ def replace_funcs(sexpr, funcsubs, subrule):
 
 def func_sub_single(expr, func_def, func_body, subrule):
     # Find the expression to be replaced, return if not there
-    # #print("DO FUNC_SUB_SINGLE")
+    # print("DO FUNC_SUB_SINGLE")
     funcatoms = expr.atoms(AppliedUndef)
     if len(funcatoms) == 0:
         return expr
     for unknown_func in funcatoms:
-        # #print("REPLACING ", unknown_func , " IN ", expr )
+        # print("REPLACING ", unknown_func , " IN ", expr )
         if unknown_func.func == func_def.func:
             replacing_func = unknown_func
             break
     else:
-        # #print("RETURNING ", expr)
+        # print("RETURNING ", expr)
         return expr
         # return expr.subs(subrule).doit()
     arg_sub = {from_arg: to_arg for from_arg, to_arg in zip(func_def.args, replacing_func.args)}
@@ -80,7 +79,7 @@ def func_sub_single(expr, func_def, func_body, subrule):
 
 
 def func_sub(expr, func_def, func_body, myscope):
-    # #print("FUNCSUB", expr)
+    # print("FUNCSUB", expr)
     if any(func_def.func == body_func.func for body_func in func_body.atoms(AppliedUndef)):
         raise ValueError('Function may not be recursively defined')
 
@@ -116,7 +115,7 @@ def tokenify(xtest, vsubs=[]):
             vsubs = vsubs + [vsub]
             nit = nit + 1
     except:
-        #print("FAILED WITH ", xtest)
+        print("FAILED WITH ", xtest)
         raise TypeError("Failed to parse")
     return (xtest, vsubs)
 
@@ -151,7 +150,7 @@ def expr_are_equal(ex1, ex2):
     ex1 = sympy.sympify(ex1)
     ex2 = sympy.sympify(ex2)
     try:
-        # #print("COMPARE ", srepr(ex1), srepr(ex2) )
+        # print("COMPARE ", srepr(ex1), srepr(ex2) )
         if ex1.is_Matrix and ex2.is_Matrix:
             return sympy.simplify(ex1 - ex2).norm() == 0
         elif ex1.is_Matrix:
@@ -203,16 +202,13 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     Returns:
         Sympy expression
     """
-    #print("SYMPIFY WITH CUSTOM ", expression)
-    expression_orig = expression
-    varhash = get_hash_from_string(expression + str(varsubs) + str(funcsubs) + source   + __file__ )
-    #dohash = (not 'linear_algebra_compare_expressions' is source) and (settings.DO_CACHE)
-    #dohash = settings.DO_CACHE
-    dohash = settings.DO_CACHE
-    ret =  core_cache.get(varhash) 
-    if not ret == None and dohash :
+    varhash = get_hash_from_string(expression + str(varsubs) + str(funcsubs))
+    dohash = (not 'linear_algebra_compare_expressions' is source) and (settings.DO_CACHE)
+    ret = core_cache.get(varhash)
+    if dohash and ret is not None:
+        ret = sympify(ret)
         return ret
-    #print("INITIALLY RET = ", ret )
+
     tbeg = time.time()
     should_be_end = index_of_matching_right_paren(0, '(' + expression + ')')
     assert should_be_end == len(expression) + 2, (
@@ -243,119 +239,91 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-    #print("SPLIT1 ", ( time.time() - tbeg )*1000 )
-    #if False:
-    #    sexpr = ascii_to_sympy(declash(expression), {})
-    #    location = 'A'
-    #    if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:
-    #        location += 'B'
-    #        scope.update(scope_symbolic)
-    #        location += 'C'
-    #        sexpr = sympy.sympify(sexpr, scope, evaluate=False).replace(Add, Function('myadd'))
-    #        location += 'D'
-    #    else:
-    #        location += 'E'
-    #        sexpr = sympy.sympify(sexpr, scope, evaluate=False).replace(Add, Function('myadd'))
-    #        location += 'F'
-    #    if len(funcsubs) > 0:
-    #        location += 'G'
-    #        funcnames = set([item['name'] for item in funcsubs])
-    #        funcatoms = set([str(item.func) for item in list(sexpr.atoms(AppliedUndef))])
-    #        if funcnames.intersection(funcatoms):
-    #            sexpr = replace_funcs(sexpr, funcsubs, subrule)
-    #        location += 'H'
-    #    sexpr = sexpr.subs(subrule)
-    #    location += 'I'
-    #    sexpr = sexpr.subs(scope_symbolic)
-    #    location += 'J'
-    #    sexpr = sexpr.subs(varsubs)
-    #    location += 'K'
-    #    sexpr = sexpr.replace(Function('mul'), MatMul).doit()
-    #    # #print(" TOP1  SEXPR = ", sexpr )
-    #    sexpr = sexpr.subs([(Function('myadd'), Function('carefuladd'))]).doit()
-    #    # #print(" TOP2  SEXPR = ", sexpr )
-    #    repadd = [(Function(key), val) for key, val in add_scope.items()]
-    #    sexpr = sexpr.subs(repadd).doit()
-    #    # #print(" TOP3  SEXPR = ", sexpr )
-    #    location += 'L'
-    #    new = sexpr
-    #    if dohash:
-    #        try: 
-    #            print("NEW = ", new )
-    #            print("retcheck = ", retcheck)
-    #            core_cache.set(varhash, srepr(new), 60 * 60)
-    #        except:
-    #            print("CANNOT CACHE ", new ) 
-    #            core_cache.set(varhash, None, 30 )
-    #    # #print("SPLIT1b ", ( time.time() - tbeg )*1000 )
-    #    return new
+    # print("SPLIT1 ", ( time.time() - tbeg )*1000 )
+    if False:
+        sexpr = ascii_to_sympy(declash(expression), {})
+        location = 'A'
+        if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:
+            location += 'B'
+            scope.update(scope_symbolic)
+            location += 'C'
+            sexpr = sympy.sympify(sexpr, scope, evaluate=False).replace(Add, Function('myadd'))
+            location += 'D'
+        else:
+            location += 'E'
+            sexpr = sympy.sympify(sexpr, scope, evaluate=False).replace(Add, Function('myadd'))
+            location += 'F'
+        if len(funcsubs) > 0:
+            location += 'G'
+            funcnames = set([item['name'] for item in funcsubs])
+            funcatoms = set([str(item.func) for item in list(sexpr.atoms(AppliedUndef))])
+            if funcnames.intersection(funcatoms):
+                sexpr = replace_funcs(sexpr, funcsubs, subrule)
+            location += 'H'
+        sexpr = sexpr.subs(subrule)
+        location += 'I'
+        sexpr = sexpr.subs(scope_symbolic)
+        location += 'J'
+        sexpr = sexpr.subs(varsubs)
+        location += 'K'
+        sexpr = sexpr.replace(Function('mul'), MatMul).doit()
+        # print(" TOP1  SEXPR = ", sexpr )
+        sexpr = sexpr.subs([(Function('myadd'), Function('carefuladd'))]).doit()
+        # print(" TOP2  SEXPR = ", sexpr )
+        repadd = [(Function(key), val) for key, val in add_scope.items()]
+        sexpr = sexpr.subs(repadd).doit()
+        # print(" TOP3  SEXPR = ", sexpr )
+        location += 'L'
+        new = sexpr
+        if dohash:
+            core_cache.set(varhash, srepr(new), 60 * 60)
+        # print("SPLIT1b ", ( time.time() - tbeg )*1000 )
+        return new
     # except:
     #    pass
-    #print("A")
-    rep = [(Function(key), val) for key, val in myscope.items()]
-    repadd = [(Function(key), val) for key, val in add_scope.items()]
-    sexpr = ascii_to_sympy(declash(expression), {})
-    new = sexpr
-    (xtest, newvarsubs, matrix_subs) = dematrixify(sexpr, varsubs)
-    #print("B")
-    new = xtest
-    func_subs = {
-        sub['name']: {
-            'args': [Symbol(arg) for arg in sub['args'].lstrip('[').rstrip(']').split(',')],
-            'value': sympify(sub['value']),
+    try:
+        rep = [(Function(key), val) for key, val in myscope.items()]
+        repadd = [(Function(key), val) for key, val in add_scope.items()]
+        sexpr = ascii_to_sympy(declash(expression), {})
+        new = sexpr
+        (xtest, newvarsubs, matrix_subs) = dematrixify(sexpr, varsubs)
+        new = xtest
+        func_subs = {
+            sub['name']: {
+                'args': [Symbol(arg) for arg in sub['args'].lstrip('[').rstrip(']').split(',')],
+                'value': sympify(sub['value']),
+            }
+            for sub in funcsubs
         }
-        for sub in funcsubs
-    }
-    #print("C")
-    xtest = sympify(xtest, ns, evaluate=False).subs(ns).doit().replace(Add, Function('myadd'))
-    new = xtest
-    #print("SPLIT1a ", ( time.time() - tbeg )*1000 ,new )
-    #try: 
-    new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep, dohash)
-    #except Exception as e:
-    #    #print("EXCEPTION RAISED IN PRE %s %s " % (type(e),  str(e) ) )
-    #    raise ShapeError( str(e) )
-    #print("D")
-    # #print("REP = ", rep )
-    #print("SPLIT1b ", ( time.time() - tbeg )*1000 , new )
-    new  = N(new)
-    #print("NEW = ", new )
-    #print("rep = ", rep )
-    new = new.subs(rep).doit()
-    #print("rep = ", new)
-    # #print("SPLIT1c ", ( time.time() - tbeg )*1000 )
-    # new = new.replace(Function('mul'), MatMul).doit()
-    #print("NEW1 = ", new )
-    # new = new.subs( [( Function('myadd') , Function('carefuladd')   ) ]  ).doit()
-    # new = new.subs(repadd).doit()
-    # #print("NEW2 = ", new )
-    # new = new.replace(Function('carefuladd'), Add).doit()
-    tend = time.time()
-    #print("E")
-    #print("DOHASH", dohash)
-    if dohash:
-        try :
-            #print("new = ", new )
-            #print("ret = ", ret )
-            core_cache.set(varhash, new , 60 * 60)
-        except:
-            pass
-            #core_cache.set(varhash, False , 60 * 60)
-            #print("COULD NOT CACHE CACHE ", new )
-    # #print(
-    #    "HASH = ",
-    #    varhash,
-    #    ": TIME SPENT IN SYMPIFY WITH CUSTOM = ",
-    #    (tend - tbeg) * 1000,
-    #    " MILLISECONDS parsing ",
-    #    expression,
-    # )
-    # #print("SPLIT2 ", ( time.time() - tbeg )*1000 )
-    #print("G")
-    #except Exception as e:
-    #    print("E350 excpetion:   " + type(e) + '  '  + str(expression_orig) )
-    #    raise NameError('(e350)  ' + expression_orig  + str(e)  + type(e) )
+        xtest = sympify(xtest, ns, evaluate=False).subs(ns).doit().replace(Add, Function('myadd'))
+        new = xtest
+        # print("SPLIT1a ", ( time.time() - tbeg )*1000 )
+        new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep, dohash)
+        # print("REP = ", rep )
+        # print("SPLIT1b ", ( time.time() - tbeg )*1000 )
+        new = new.subs(rep).doit()
+        # print("SPLIT1c ", ( time.time() - tbeg )*1000 )
+        # new = new.replace(Function('mul'), MatMul).doit()
+        # print("NEW1 = ", new )
+        # new = new.subs( [( Function('myadd') , Function('carefuladd')   ) ]  ).doit()
+        # new = new.subs(repadd).doit()
+        # print("NEW2 = ", new )
+        # new = new.replace(Function('carefuladd'), Add).doit()
+        tend = time.time()
+        if dohash:
+            core_cache.set(varhash, srepr(new), 60 * 60)
+        # print(
+        #    "HASH = ",
+        #    varhash,
+        #    ": TIME SPENT IN SYMPIFY WITH CUSTOM = ",
+        #    (tend - tbeg) * 1000,
+        #    " MILLISECONDS parsing ",
+        #    expression,
+        # )
+        # print("SPLIT2 ", ( time.time() - tbeg )*1000 )
+    except NameError as e:
+        raise NameError(str(e))
     #  raise TypeError("expr  = ", sexpr )
     #  THIS IS THE OLD ROUTINE
-    #print("SPLIT3 ", ( time.time() - tbeg )*1000 ,new)
+    # print("SPLIT3 ", ( time.time() - tbeg )*1000 )
     return new
