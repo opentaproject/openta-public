@@ -12,7 +12,7 @@ import datetime
 import exercises.paths as paths
 from exercises.setup_tests import create_exercise, create_database
 from backend.selenium_utils import create_selenium
-from .models import Exercise
+from exercises.models import Exercise
 from course.models import Course
 from django.utils import timezone
 from django.conf import settings
@@ -112,6 +112,9 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
     def audit_goto_my_audits(self):
         sel = self.selenium
         wait = WebDriverWait(sel, 500)
+        #wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'wait_forever')))
+        chevron = sel.find_elements_by_xpath('//i[contains(@class, \'OpenHeader\')]')[0]
+        chevron.click()
         sel.find_element_by_xpath('//a[contains(text(), \'Audit\')]').click()
         sel.find_element_by_xpath('//a[contains(text(), \'My audits\')]').click()
 
@@ -129,8 +132,9 @@ class AuditTest(OpenTAStaticLiveServerTestCase):
 
     def audit_add_audit(self):
         sel = self.selenium
-        wait = WebDriverWait(sel, 2)
-        sel.find_element_by_xpath('//button[contains(text(), \'Add student\')]').click()
+        wait = WebDriverWait(sel, 500)
+        #wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'wait_forever')))
+        sel.find_element_by_xpath('//button[contains(text(), \'Queue student who is done\')]').click()
         wait.until(
             EC.presence_of_element_located(
                 (By.XPATH, '//div[@id="unfinished-audits"]/a[text()[contains(., \'1\')]]')

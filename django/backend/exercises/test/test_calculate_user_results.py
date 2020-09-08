@@ -93,10 +93,11 @@ class TestRequiredExercise(BasicCourse):
         results = calculate_user_results(user_pk=self._student.pk, course_pk=self._course.pk)
         self.assertEqual(results['summary']['required']['n_correct'], 1)
         self.assertEqual(results['summary']['required']['n_deadline'], 1)
-        self.assertEqual(results['summary']['required']['n_image_deadline'], 0)
+        # IF NO IMAGE IS REQURED THEN n_image_deadline = 1 #
+        self.assertEqual(results['summary']['required']['n_image_deadline'], 1)
         self.assertEqual(results['summary']['required']['n_complete'], 1)
         self.assertEqual(results['summary']['total'], 1)
-        self.assertEqual(results['summary']['optional'], 0)
+        self.assertEqual(results['summary']['optional']['n_complete'], 0)
 
     def test_after_deadline(self):
         """Answer after deadline.
@@ -116,7 +117,7 @@ class TestRequiredExercise(BasicCourse):
         self.assertEqual(results['summary']['required']['n_image_deadline'], 0)
         self.assertEqual(results['summary']['required']['n_complete'], 0)
         self.assertEqual(results['summary']['total'], 1)
-        self.assertEqual(results['summary']['optional'], 0)
+        self.assertEqual(results['summary']['optional']['n_complete'], 0)
 
 
 class ImageRequired(BasicCourse):
@@ -155,7 +156,7 @@ class ImageRequired(BasicCourse):
         self.assertEqual(results['summary']['required']['n_image_deadline'], 0)
         self.assertEqual(results['summary']['required']['n_complete'], 0)
         self.assertEqual(results['summary']['total'], 0)
-        self.assertEqual(results['summary']['optional'], 0)
+        self.assertEqual(results['summary']['optional']['n_complete'], 0)
 
     def test_answer_before_deadline(self):
         """Answer before deadline.
@@ -179,7 +180,7 @@ class ImageRequired(BasicCourse):
         self.assertEqual(results['summary']['required']['n_image_deadline'], 0)
         self.assertEqual(results['summary']['required']['n_complete'], 0)
         self.assertEqual(results['summary']['total'], 1)
-        self.assertEqual(results['summary']['optional'], 0)
+        self.assertEqual(results['summary']['optional']['n_complete'], 0)
 
     def test_correct_after_deadline(self):
         """Answer after deadline.
@@ -203,7 +204,7 @@ class ImageRequired(BasicCourse):
         self.assertEqual(results['summary']['required']['n_image_deadline'], 0)
         self.assertEqual(results['summary']['required']['n_complete'], 0)
         self.assertEqual(results['summary']['total'], 1)
-        self.assertEqual(results['summary']['optional'], 0)
+        self.assertEqual(results['summary']['optional']['n_complete'], 0)
 
     def test_both_before_deadline(self):
         """Both before deadline.
@@ -227,4 +228,4 @@ class ImageRequired(BasicCourse):
         self.assertEqual(results['summary']['required']['n_image_deadline'], 1)
         self.assertEqual(results['summary']['required']['n_complete'], 1)
         self.assertEqual(results['summary']['total'], 1)
-        self.assertEqual(results['summary']['optional'], 0)
+        self.assertEqual(results['summary']['optional']['n_complete'], 0)
