@@ -46,7 +46,7 @@ class Command(BaseCommand):
         parser.add_argument('--whitelist',  type=str, help='List of exercises to recalculate' )
         parser.add_argument('--accept',  type=str, help='Choose to accept results in results.pkl' )
         parser.add_argument('--exercise',  default=None, type=str , help='filter by exercise' )
-        parser.add_argument('--suffix',  type=str , default='.yn' , help='filter by suffix' )
+        parser.add_argument('--suffix',  type=str , default=None , help='filter by suffix' )
         parser.add_argument('--answerpks',  type=str , default='' , help='filter by answerpks' )
 
 
@@ -55,40 +55,21 @@ class Command(BaseCommand):
         answers =  Answer.objects.all() 
         nobjects = answers.count()
         whitelist_filename = kwargs.get('whitelist',None)
-        #print("RUNNING_DEVSERVVER = ", settings.RUNNING_DEVSERVER)
-        #print("BLACKLIST = ", whitelist_filename)
         print("KWARGS = ", kwargs)
         accept = kwargs.get('accept', False)
         exercise = kwargs.get('exercise')
         suffix = kwargs.get('suffix')
-
-        pklfile = "/tmp/answer_errors/done.pkl"
-        if not os.path.exists(pklfile) :
-            done_answers = []
-        else :
-            done_answers = pickle.load( open(pklfile,'rb') )
-        print("ALREADY DONE ARE ", len( done_answers) )
-
-            
+        answerpks = []
         if not exercise  == None :
-            print("EXERCISE SPECIFIED " , exercise)
+            #print("EXERCISE SPECIFIED " , exercise)
             answerpks = []
             for filn in os.listdir(os.path.join(error_log_directory, exercise) ) :
+                suffix = kwargs.get('suffix','.yn')
                 if suffix  in filn :
                     pk = filn.split('.')[0]
                     answerpks.append(pk)
-        if not kwargs.get('answerpks') == '' :
+        if ( not kwargs.get('answerpks') == ''   ) and len( answerpks ) == 0 :
             answerpks =  ( kwargs.get('answerpks') ).split(',')
-        else :
-            exercises = os.listdir(os.path.join(error_log_directory ) )
-            answerpks = []
-            for  exercise in exercises :
-                fullpath = os.path.join(error_log_directory, exercise )
-                if os.path.isdir(fullpath) :
-                    for filn in os.listdir(fullpath)  :
-                        if suffix  in filn :
-                            pk = filn.split('.')[0]
-                            answerpks.append(pk)
         if whitelist_filename :
             whitelist = []
             with open(whitelist_filename) as fp:
@@ -101,72 +82,47 @@ class Command(BaseCommand):
         #answerpks = [17865,22207,23825]
         if not answerpks == [] :
             answers = list( answers.filter( pk__in=answerpks) )
+        else :
+            answers = get_new_answers()
         print("NUMBER OF  ANSWERS = ", len( answers ) )
         print("ACCEPT = ", accept )
         #print("ANSWERS = ", answers)
-        ind = 0
-        #{res : { user: lundand@student.chalmers.se, name: 		 Trig identities		 , type: symbolic, answer:  "|sqrt(90)/40|", old_correct: False,  new_correct :  True   },   error :{ "None"} }
-        if accept :
-            subdirs = os.listdir( error_log_directory)
-            ind = 0
-            accept_list = []
-            for subdir in subdirs :
-                #if ind > 4 :
-                #    break 
-                bigstring = ""
-                if os.path.isdir(  os.path.join(error_log_directory, subdir) ) :
-                    #print("SUBDIR = ", subdir)
-                    for pk in os.listdir(os.path.join(error_log_directory, subdir) ) :
-                        if re.match(r'[0-9]+\.(y|n)(y|n)$',pk) :
-                            #print("pk = ", pk)
-                            fullpath = os.path.join(error_log_directory, subdir, pk )
-                            with open(os.path.join(error_log_directory, subdir, pk )) as fp :
-                                for line in fp:
-                                    try: 
-                                        js = json.loads(line)
-                                        js['path'] =  fullpath
-                                        #print("JS = ", js )
-                                    except:
-                                        print("ERROR", line)
-                                        exit()
-                                accept_list.append(js)
-                                ind = ind + 1
-                    #print("bigstring = ", bigstring)
-                    #lines = bigstring.split("\n")
-            print(" FILES HANDLED = ", ind )
-            total = ind
-            ind = 0
-            for new in accept_list:
-                ind = ind + 1
-                pk = new.get("pk")
-                old = Answer.objects.get(pk=pk)
-                correct = new.get("correct")
-                fullpath = new.get("path")
-                grader_response = new.get("grader_response")
-                try: 
-                        #print("SAVE", pk, old.correct, correct, grader_response, fullpath)
-                        old.correct = correct
-                        old.grader_response = grader_response
-                        old.save()
-                        os.rename( fullpath, fullpath + ".done")
-                except:
-                        print("ERROR ", pk, old.correct, correct, grader_response, fullpath)
-                if ( ind % 100 ) == 0 :
-                        print("DONE ", ind , " of " , total)
-                        
-            print("NUMBER OF UPDATES", ind)        
-            exit()
-        ind = 0
-        interval = 4
-        #print("NUMBER OF DISTINCT ANSWERS = ", nobjects)
         answers = list(answers)
-        shuffle( answers)
+        redo(answers)
+
+def dotask() :
+    answers = get_new_answers()
+    redo( answers)
+
+def get_new_answers() :
+    answers =  Answer.objects.all() 
+    allpks = [ item.pk for item in answers ]
+    donepks = []
+    if os.path.exists("/tmp/recalculated.txt") :
+         with open("/tmp/recalculated.txt") as fp:
+              for line in fp:
+                  donepks.append(line.rstrip("\n") )
+    else :
+         donepks = []
+    print("donepks = ", donepks)
+    answerpks = list( set(allpks) - set(donepks) )
+    shuffle( answerpks )
+    answerpks = answerpks[0:10]
+    print("ANSWERPKKS = ", answerpks)
+    answers = list( answers.filter( pk__in=answerpks) )
+    return(answers)
+ 
+
+def redo( answers ):
+        print("DO REDO")
+        ind = 0
         n = 0
-
-
+        fp = open( "/tmp/recalculated.txt", 'a')
+        for answer in answers :
+             fp.write( "%s\n" % str( answer.pk ))
         for answer in answers:
             ind = ind + 1
-            if not str( answer.pk )  in done_answers:
+            if True : # not str( answer.pk )  in done_answers:
                 error_message = None
                 did = False
                 try:
@@ -203,7 +159,9 @@ class Command(BaseCommand):
                         name = exercise.name.replace("\n","")
                         if os.path.exists(full_path ):
                             question_json = question_json_get(exercise.get_full_path(), question_key, usermacros)
-                            (result, new_correct) = _question_check( hijacked, view_solution_permission, dbuser, user_agent, exercise_key, question_key, answer_data, answer,)
+                            (result, new_correct) = _question_check( hijacked, view_solution_permission, 
+                                    dbuser, user_agent, exercise_key, question_key, answer_data, answer,
+                                    )
                             did = True
                             if 'error' in result :
                                 error_log_directory ='/tmp/answer_errors/%s' % exercise.exercise_key
@@ -268,12 +226,63 @@ class Command(BaseCommand):
                         print(ind, "OK %s%s " % (s1,s2), name )
                 else:
                     print( "NOK %s%s" % (s1,s2) ,ind,tdiff,old_correct,new_correct, name, question_key, answer_data, "RESULT FAILED")
-                if ind % 100 == 0 :
-                    fp = open(pklfile,'wb')
-                    pickle.dump( done_answers, fp)
-                    fp.close()
+                #if ind % 100 == 0 :
+                #    fp = open(pklfile,'wb')
+                #    pickle.dump( done_answers, fp)
+                #    fp.close()
 
             else :
                 print("OLD %s " % str( answer.pk ) )
-            if ind > 400000:
-                break
+
+def accept_changes( accept) :
+    if accept :
+        subdirs = os.listdir( error_log_directory)
+        ind = 0
+        accept_list = []
+        for subdir in subdirs :
+            #if ind > 4 :
+            #    break 
+            bigstring = ""
+            if os.path.isdir(  os.path.join(error_log_directory, subdir) ) :
+                #print("SUBDIR = ", subdir)
+                for pk in os.listdir(os.path.join(error_log_directory, subdir) ) :
+                    if re.match(r'[0-9]+\.(y|n)(y|n)$',pk) :
+                        #print("pk = ", pk)
+                        fullpath = os.path.join(error_log_directory, subdir, pk )
+                        with open(os.path.join(error_log_directory, subdir, pk )) as fp :
+                            for line in fp:
+                                try: 
+                                    js = json.loads(line)
+                                    js['path'] =  fullpath
+                                    #print("JS = ", js )
+                                except:
+                                    print("ERROR", line)
+                                    exit()
+                            accept_list.append(js)
+                            ind = ind + 1
+                #print("bigstring = ", bigstring)
+                #lines = bigstring.split("\n")
+        print(" FILES HANDLED = ", ind )
+        total = ind
+        ind = 0
+        for new in accept_list:
+            ind = ind + 1
+            pk = new.get("pk")
+            old = Answer.objects.get(pk=pk)
+            correct = new.get("correct")
+            fullpath = new.get("path")
+            grader_response = new.get("grader_response")
+            try: 
+                    #print("SAVE", pk, old.correct, correct, grader_response, fullpath)
+                    old.correct = correct
+                    old.grader_response = grader_response
+                    old.save()
+                    os.rename( fullpath, fullpath + ".done")
+            except:
+                    print("ERROR ", pk, old.correct, correct, grader_response, fullpath)
+            if ( ind % 100 ) == 0 :
+                    print("DONE ", ind , " of " , total)
+                    
+        print("NUMBER OF UPDATES", ind)        
+
+ 
