@@ -316,15 +316,12 @@ def symbolic_internal(expression1, expression2):  # {{{
         if not doNumeric:
             sympy1 = simplify( powdenest(factor(sympy1, force=True) ))
             sympy2 = simplify( powdenest(factor(sympy2, force=True) ))
-        try :
-            if sympy1 == 0:
-                zero = sympy2 
-            elif sympy2 == 0:
-                zero = sympy1
-            else:
-                zero = sympy1 - sympy2
-        except:
-            pass 
+        if sympy1 == 0:
+            zero = sympy2 
+        elif sympy2 == 0:
+            zero = sympy1
+        else:
+            zero = sympy1 - sympy2
         # THE NEXT LINE IS BOTTLENET 1/2 OF TIME SPENT
         # USING simplify ONLY DOES NOT DO MUCH  ; IT IS STILL SLOW
         # print("ZER0 = ", simplify( zero ) )

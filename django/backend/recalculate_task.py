@@ -1,5 +1,4 @@
 import asyncio
-from codetiming import Timer
 import random
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
@@ -13,15 +12,15 @@ def cpu_heavy(num):
     print('Entering ', num)
     import time
     tbegin = time.time()
-    dotask()
+    dotask(20)
     print('Leaving ', num, 1000 * ( time.time() - tbegin ) )
     return num
 
 async def main(loop):
     print('entering main')
-    executor = ProcessPoolExecutor(max_workers=3)
+    executor = ProcessPoolExecutor(max_workers=12)
     data = await asyncio.gather(*(loop.run_in_executor(executor, cpu_heavy, num) 
-                                  for num in range(6)))
+                                  for num in range(10000)))
     print('got result', data)
     print('leaving main')
 

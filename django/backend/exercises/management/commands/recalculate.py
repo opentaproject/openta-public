@@ -90,11 +90,11 @@ class Command(BaseCommand):
         answers = list(answers)
         redo(answers)
 
-def dotask() :
-    answers = get_new_answers()
+def dotask(npks=10) :
+    answers = get_new_answers(npks)
     redo( answers)
 
-def get_new_answers() :
+def get_new_answers(npks) :
     answers =  Answer.objects.all() 
     allpks = [ item.pk for item in answers ]
     donepks = []
@@ -107,7 +107,7 @@ def get_new_answers() :
     print("donepks = ", donepks)
     answerpks = list( set(allpks) - set(donepks) )
     shuffle( answerpks )
-    answerpks = answerpks[0:10]
+    answerpks = answerpks[0:npks]
     print("ANSWERPKKS = ", answerpks)
     answers = list( answers.filter( pk__in=answerpks) )
     return(answers)
@@ -197,6 +197,8 @@ def redo( answers ):
                                         correct = new_correct,
                                         grader_response=result
                                     )
+                        s1 = 'y'
+                        s2 = 'n'
                         if True or not question_type == 'symbolic' :
                             s1 =  'y' if old_correct else 'n'
                             s2 =  'y' if new_correct else 'n'
