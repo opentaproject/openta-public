@@ -1,4 +1,5 @@
 import asyncio
+import time
 import random
 import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "backend.settings")
@@ -8,22 +9,23 @@ django.setup()
 from exercises.management.commands.recalculate import dotask
 from concurrent.futures import ProcessPoolExecutor
 
-def cpu_heavy(num):
-    print('Entering ', num)
-    import time
-    tbegin = time.time()
-    dotask(20)
-    print('Leaving ', num, 1000 * ( time.time() - tbegin ) )
+def longjob(num):
+    res = dotask(20)
+    k = 0
+    while len(res) > 0  :
+        k = k + 1
+        res = dotask(20)
     return num
 
-async def main(loop):
+async def main(loop) :
     print('entering main')
+    loop = asyncio.get_event_loop()
     executor = ProcessPoolExecutor(max_workers=12)
-    data = await asyncio.gather(*(loop.run_in_executor(executor, cpu_heavy, num) 
-                                  for num in range(10000)))
-    print('got result', data)
-    print('leaving main')
-
+    tasks = []
+    nworkers = 12;
+    for  i in range( nworkers) :
+        tasks.append( loop.run_in_executor(executor, longjob, i ) )
+    data = await asyncio.gather(*tasks)
 
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main(loop))

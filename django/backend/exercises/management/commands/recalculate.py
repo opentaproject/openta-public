@@ -90,9 +90,9 @@ class Command(BaseCommand):
         answers = list(answers)
         redo(answers)
 
-def dotask(npks=10) :
+def dotask(npks=20) :
     answers = get_new_answers(npks)
-    redo( answers)
+    return redo( answers)
 
 def get_new_answers(npks) :
     answers =  Answer.objects.all() 
@@ -101,25 +101,30 @@ def get_new_answers(npks) :
     if os.path.exists("/tmp/recalculated.txt") :
          with open("/tmp/recalculated.txt") as fp:
               for line in fp:
-                  donepks.append(line.rstrip("\n") )
+                  donepks.append(int( line.rstrip("\n") ))
     else :
          donepks = []
-    print("donepks = ", donepks)
-    answerpks = list( set(allpks) - set(donepks) )
+    answerpks = list( (set(allpks)).difference(set(donepks) ) )
+    if len(answerpks) == 0 :
+            return []
     shuffle( answerpks )
-    answerpks = answerpks[0:npks]
-    print("ANSWERPKKS = ", answerpks)
+    answerpks = answerpks[0:npks] 
     answers = list( answers.filter( pk__in=answerpks) )
     return(answers)
  
 
 def redo( answers ):
+        if answers == [] :
+                return None
         print("DO REDO")
         ind = 0
         n = 0
         fp = open( "/tmp/recalculated.txt", 'a')
         for answer in answers :
              fp.write( "%s\n" % str( answer.pk ))
+        fp.flush()
+        fp.close()
+        done_answers = []
         for answer in answers:
             ind = ind + 1
             if True : # not str( answer.pk )  in done_answers:
@@ -223,9 +228,9 @@ def redo( answers ):
                         else :
                             did = False
                         n = n + 1
-                    else :
-                        done_answers.append(str(answer.pk))
-                        print(ind, "OK %s%s " % (s1,s2), name )
+                    #else :
+                    #    done_answers.append(str(answer.pk))
+                    #    print(ind, "OK %s%s " % (s1,s2), name )
                 else:
                     print( "NOK %s%s" % (s1,s2) ,ind,tdiff,old_correct,new_correct, name, question_key, answer_data, "RESULT FAILED")
                 #if ind % 100 == 0 :
@@ -235,6 +240,7 @@ def redo( answers ):
 
             else :
                 print("OLD %s " % str( answer.pk ) )
+        return  answers
 
 def accept_changes( accept) :
     if accept :
