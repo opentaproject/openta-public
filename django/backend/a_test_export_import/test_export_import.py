@@ -26,6 +26,7 @@ from django.utils import timezone
 from django.conf import settings
 import django_rq
 import json
+import time
 
 LOGGER.setLevel(logging.WARNING)
 
@@ -49,7 +50,7 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         self.worker = django_rq.get_worker('default')
 
     def tearDown(self):
-        self.selenium.quit()
+        #self.selenium.quit()
         super().tearDown()
 
     def change_exercise_options(self):
@@ -167,8 +168,9 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
 
 
         wait = WebDriverWait(sel, 2000)
-        seq = ['OpenHeader','Course', 'Export', 'CourseExport', 'Home', 'Results', 'Download','GenerateResults', 'DownloadExcel']
+        seq = ['OpenHeader','Course', 'Export', 'CourseExport', 'Home' , 'Results' ,  'Download',  'GenerateResults' , 'DownloadExcel'] 
         self.do_click_sequence(wait, seq)
+        time.sleep(1)
         os.replace("/tmp/results.xlsx", "/tmp/results_export.xlsx")
         self.logout()
 
@@ -217,7 +219,8 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         self.wait_for(wait, 'Done')
         sel.refresh()
         self.do_click_sequence(wait, ['OpenHeader','ChooseCourseToShow', 'code123'])
-        self.do_click_sequence(wait, ['Results', 'Download','GenerateResults', 'DownloadExcel'])
+        self.do_click_sequence(wait, ['Results', 'Download','GenerateResults' , 'DownloadExcel'])
+        time.sleep(1)
         os.replace("/tmp/results.xlsx", "/tmp/results_import.xlsx")
         self.logout()
 
@@ -243,6 +246,6 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         df.to_csv('/tmp/results_export.csv', index=False, quotechar="'")
         assert filecmp.cmp('/tmp/results_export.csv', '/tmp/results_import.csv')
 
-        #os.remove("/tmp/results_import.xlsx")
-        #os.remove("/tmp/results_export.xlsx")
+        os.remove("/tmp/results_import.xlsx")
+        os.remove("/tmp/results_export.xlsx")
         self.tearDown()
