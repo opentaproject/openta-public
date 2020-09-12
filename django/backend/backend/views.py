@@ -276,6 +276,8 @@ def set_persistent_lang(course, request):
 #    request.session[translation.LANGUAGE_SESSION_KEY] = lang
 #    return lang
 
+def course_activate_and_reset(request, course_name, username, token):
+    return activate_and_reset(request,username,token)
 
 def activate_and_reset(request, username, token):
     """User activation with a form for choosing a password.

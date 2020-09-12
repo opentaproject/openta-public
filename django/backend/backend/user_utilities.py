@@ -58,17 +58,18 @@ def send_activation_mail(course, username, email, reverse_name='user-activation'
             base_url = base_url[: -len(settings.SUBPATH)]
         if base_url.endswith(subpath_name + '/'):
             base_url = base_url[: -(len(settings.SUBPATH) + 1)]
-    activate_url = create_activation_link(username, reverse_name)
-    course_email = course.email_reply_to.strip()
     template = get_localized_template('mail_activation')
+    token = TimestampSigner().sign(username).split(':', 1)[1]
+    course_email = course.email_reply_to.strip()
+    activate_url = "%s%s/%s/%s/" % (base_url, 'activateandreset',username,token)
     pcontext = {
         'course_name': 'OpenTA',
-        'course_url': 'https://openta.se',
+        'course_url': course_url,
         'username': username,
-        'activate_url': base_url + activate_url,
+        'activate_url': activate_url,
         'course_email': course_email,
     }
-    sender = "openta"
+    sender = course_email
     subject = "OpenTA"
 
     if course is not None:

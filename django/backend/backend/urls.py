@@ -30,6 +30,13 @@ internalurlpatterns = [
         backendviews.activate_and_reset,
         name='user-activation-and-reset',
     ),
+
+    
+    url(
+        r'^(?P<course_name>[ \w-]+)/activateandreset/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$',
+        backendviews.course_activate_and_reset,
+    ),
+
     url(
         r'^activate/(?P<username>[\w.@+-]+)/(?P<token>[\w.:\-_=]+)/$',
         backendviews.activate,
@@ -41,7 +48,7 @@ internalurlpatterns = [
     url(r'^password_reset/done/$', backendviews.password_reset_done, name='password-reset-done'),
     url(r'^reset/done/', backendviews.password_reset_complete, name='password-reset-complete'),
     url(r'^(?P<course_pk>[0-9]+)/?$', backendviews.main),
-    url(r'^(?P<course_name>[\w\.\ -]+)/login$', backendviews.login, name='login'),
+    url(r'^login/(?P<course_name>[\w\.\ -]+)/?$', backendviews.login, name='login'),
     url(r'^login/$', backendviews.login, name='login'),
     url(r'^', include('django.contrib.auth.urls')),
     path(
