@@ -67,6 +67,8 @@ const BaseHeader = ({
   
  var show_logininfo_button = true == (  author | runtests )
  var show_logininfo = true == ( author | runtests )
+ //var show_logininfo_button = true
+ //var show_logininfo = true
  return(
         <div className="border-top uk-width-1-1" >
         <div>

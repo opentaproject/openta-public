@@ -163,7 +163,7 @@ class BaseSummaryBar extends Component  {
             data-uk-tooltip="delay:1500; pos: right" title={mess2} 
             className="uk-button uk-width-1-4 uk-button-small  green optional_exercises ">  <i className={icon_optional} />{sum21}:{sum22}:{sum23}:{sum24} </button>  
         )}
-        <button className="uk-button uk-hidden-small">{username}</button> 
+	 {/* <button className="uk-button uk-hidden-small">{username}</button>  */}
     </span>
     )
   }

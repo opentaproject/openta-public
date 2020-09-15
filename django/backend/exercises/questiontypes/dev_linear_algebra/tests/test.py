@@ -360,7 +360,7 @@ class DevLinearAlgebraTest(TestCase):
             'Or(  IsEqual( mul( x , x ) - mul( p , p ) , ( $$ )  )   ,  IsEqual( ( ( 2 hbar^2  * id  )  + ( 4 I hbar mul(x , p ) )) , ( $$  ) ) )  ==  1 ',
             False,
         )
-        print('COMPLEX_MATRICES res = ', res)
+        print('COMPLEX_MATRICES1 res = ', res)
         self.assertEqual(res['correct'], True)
         res = linear_algebra_compare_expressions(
             precision,
@@ -369,7 +369,7 @@ class DevLinearAlgebraTest(TestCase):
             'Or(  IsEqual( mul( x , x ) -  mul( p , p ) , ( $$ )  )   ,  IsEqual( ( ( 2 hbar^2  * id  )  + ( 4 I hbar mul( x , p ) )) , ( $$  ) ) )  ==  1  ',
             False,
         )
-        print('COMPLEX_MATRICES res = ', res)
+        print('COMPLEX_MATRICES2 res = ', res)
         self.assertEqual(res['correct'], True)
         res = linear_algebra_compare_expressions(
             precision,
@@ -378,7 +378,7 @@ class DevLinearAlgebraTest(TestCase):
             'Or(  IsEqual( mul( x , x ) - mul( p , p ) , ( $$ )  )   ,  IsEqual( ( ( 2 hbar^2  * id  )  + ( 4 I hbar mul( x , p )  )) , ( $$  ) ) )   == 1  ',
             False,
         )
-        print('COMPLEX_MATRICES res = ', res)
+        print('COMPLEX_MATRICES3 res = ', res)
         self.assertEqual(res['correct'], False)
 
         # self.assertEqual(

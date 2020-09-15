@@ -95,6 +95,8 @@ def new_func_replace(expr, func_subs):
     else:
         return expr
 
+def traceprint(*exp) :
+    return ''
 
 def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
     '''
@@ -106,12 +108,18 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
      '''
     # tbegin  = datetime.datetime.now()
     # print("PARSING expr = ", expr)
+    spaces = ' %s'  % str(level) 
+    for i in range(0,level)  :
+        spaces += '    '
     if expr is None:
         return expr
+    exprin = resub.sub(r'\n','',str(expr) ) 
+    traceprint("PRE IN: %s" % spaces , exprin)
     expr_orig = deepcopy(expr)
     tbeg = time.time()
     # print("DOHASH = ", dohash)
     if expr.is_Number:
+        traceprint("PREOUT: %s" % spaces , exprin, ' -> ' , resub.sub(r'\n','',str(expr) ) )
         return expr
     varhash = get_hash_from_string(
         str(newvarsubs) + str(expr) + str(matrix_sub) + str(func_subs) + str(rep) + __file__
@@ -187,4 +195,5 @@ def pre(expr, newvarsubs, matrix_sub, func_subs, rep, dohash=True, level=0):
     core_cache.set(varhash, srepr(expr), 60 * 60)
     # print("PRE SPLIT 3 : ", ( time.time() - tbeg )*1000 )
     # print("TIME IN PRE : ", ( time.time() - tbeg )*1000 , " FOR ",  expr_orig)
+    traceprint("PREOUT: %s" % spaces , exprin, ' -> ' , resub.sub(r'\n','',str(expr) ) )
     return expr

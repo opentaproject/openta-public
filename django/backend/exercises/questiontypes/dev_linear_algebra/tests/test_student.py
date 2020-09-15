@@ -67,7 +67,10 @@ class DevLinearAlgebraTest(OpenTAStaticLiveServerTestCase):
         input_password.send_keys(pw)
         print("CLICK LOGIN")
         login.click()
-        print("NOW WAIT FOR APP TO COME UP")
+        print("NOW WAIT FOR OpenHeader TO COME UP")
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'OpenHeader')))
+        print("NOW WAIT FOR APP TEST_STUDENT.PY TO COME UP")
+        sel.find_element_by_class_name('OpenHeader').click()
         wait.until(EC.text_to_be_present_in_element((By.ID, 'app'), assert_role))
         print("ASSERT_ROLE", assert_role)
         assert assert_role in sel.page_source

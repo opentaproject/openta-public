@@ -38,27 +38,14 @@ from sympy.matrices import Matrix
 
 
 def parse_sample_variables(variables, funcsubs={}):
-    """
-    Parses a list of asciimath defined variables into correct sympy representations.
-
-    Args:
-        variables: [ { name: string, value: asciimath } , ... ]
-
-    Returns:
-        tuple ( subs_rules, varsubs_sympify, sample_variables )
-        subs_rules: list of 2-tuples [ (sympy symbol, sympy expression), ... ] used in .subs(...)
-        varsubs_sympify: { string(name): sympy symbol } used in sympify(...)
-        sample_variables: [ { symbol: sympy Symbol/MatrixSymbol,
-                              around: sympy expression ( a point around which to sample (might contain units))
-                              }, ... ]
-
-    """
+    #print("PARSE SAMPLE VARIABLES")
     sym = {}
     varhash = get_hash_from_string(str(variables) + str(funcsubs))
     ret = core_cache.get(varhash)
     tbeg = time.time()
-    if settings.DO_CACHE and (ret is not None):
-       #print("GRABBED CACHE")
+    docache = settings.DO_CACHE
+    if docache  and (ret is not None):
+        #print("GRABBED CACHE")
         (v, vs, sample_variables) = ret
         varsubs_sympify = {sympify(key): sympify(val) for key, val in vs}
         varsubs = [(sympify(key), sympify(val)) for key, val in v]
@@ -75,6 +62,7 @@ def parse_sample_variables(variables, funcsubs={}):
         if not vardict['name'] in units:
             vars_ = vars_ + [vardict]
     for var in vars_:
+        #print("VAR = ", var['name'] , '=' , var['value'] )
         name = str(var['name'])
         # raise TypeError("A variable cannot be named " + name )
         expr = sympify_with_custom(
@@ -90,16 +78,19 @@ def parse_sample_variables(variables, funcsubs={}):
         else:
             sym[name] = expr  # sympy.Symbol(var['name'])
         varsubs_sympify[name] = expr
-        if expr.has(sympy.Function('sample')):
-            [sample] = expr.find(sympy.Function('sample'))
-            sample_points = list(sample.args)
-            sample_around = [
-                expr.replace(sympy.Function('sample'), lambda *args: point).doit()
-                for point in sample_points
-            ]
-            sample_variables.append({'symbol': sym[name], 'around': sample_around})
-        else:
-            subs_rules.append((sym[name], expr))
+        #
+        #    DISABLE sample_variables at this level
+        #
+        #if expr.has(sympy.Function('sample')):
+        #    [sample] = expr.find(sympy.Function('sample'))
+        #    sample_points = list(sample.args)
+        #    sample_around = [
+        #        expr.replace(sympy.Function('sample'), lambda *args: point).doit()
+        #        for point in sample_points
+        #    ]
+        #    sample_variables.append({'symbol': sym[name], 'around': sample_around})
+        #else:
+        subs_rules.append((sym[name], expr))
     varsubs = list(reversed(subs_rules))
     varsubs_sympify_new = {}
     for key, val in varsubs_sympify.items():
@@ -112,8 +103,6 @@ def parse_sample_variables(variables, funcsubs={}):
         rets = (v, vs, sample_variables)
         core_cache.set(varhash, rets, 60 * 60)
     except Exception as e:
-       #print("VARUSBS_SYMPIFY = ", varsubs_sympify)
-       #print("CACHIN ERROR  " + type(e).__name__ + ' : ' + str(e))
-        raise NameError("CANT CACHE ")
+       raise NameError("CANT CACHE ")
 
     return ret

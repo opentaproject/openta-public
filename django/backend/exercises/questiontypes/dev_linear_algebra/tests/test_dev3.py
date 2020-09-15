@@ -92,6 +92,9 @@ class SecondDevLinearAlgebraTest(OpenTAStaticLiveServerTestCase):
         input_username.send_keys(username)
         input_password.send_keys(pw)
         login.click()
+        print("NOW WAIT FOR OpenHeader TO COME UP")
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'OpenHeader')))
+        sel.find_element_by_class_name('OpenHeader').click()
         wait.until(EC.text_to_be_present_in_element((By.ID, 'app'), assert_role))
         assert assert_role in sel.page_source
 
@@ -201,9 +204,15 @@ class SecondDevLinearAlgebraTest(OpenTAStaticLiveServerTestCase):
         '''
         Publish an exercise and verify that a student can answer and upload an image.
         '''
+        print("OPEN SITE DEV3")
         self.open_site()
+        print("OPEN OPTIONS CHANGE")
         self.change_exercise_options()
+        print("LOGIn")
         self.login()
+        print("FIRST")
         self.first_exercise()
+        print("ANSWSER")
         self.answer()
+        print("LOGOUT")
         self.logout()

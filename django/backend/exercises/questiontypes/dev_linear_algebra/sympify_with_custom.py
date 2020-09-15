@@ -194,30 +194,22 @@ class ncarefuladd(sympy.Function):
 
 
 def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
-    """
-    Convert asciimath expression into sympy using extra context
-    Args:
-        expression: asciimath
-        varsubs: { string(name): substitution, ... }
-
-    Returns:
-        Sympy expression
-    """
-    #print("SYMPIFY WITH CUSTOM ", expression)
+    #print("SYMPIFY_WITH_CUSTOM IN", expression)
+    tbeg = time.time()
     expression_orig = expression
     varhash = get_hash_from_string(expression + str(varsubs) + str(funcsubs) + source   + __file__ )
-    #dohash = (not 'linear_algebra_compare_expressions' is source) and (settings.DO_CACHE)
-    #dohash = settings.DO_CACHE
-    dohash = settings.DO_CACHE
+    docache = settings.DO_CACHE
     ret =  core_cache.get(varhash) 
-    if not ret == None and dohash :
+    if not ret == None and docache :
+        #print("RET = ", ret )
+        ret = sympy.sympify( ret  )
         return ret
-    #print("INITIALLY RET = ", ret )
     tbeg = time.time()
     should_be_end = index_of_matching_right_paren(0, '(' + expression + ')')
     assert should_be_end == len(expression) + 2, (
         "MATCHING PAREN ERROR IN  SYMPIFY WITH CUSTOM " + expression
     )
+    #print("     TIME A1 %s" , 1000 * ( time.time() - tbeg) )
     expression = ascii_to_sympy(declash(expression))
     tbeg = time.time()
     scope = openta_scope
@@ -230,8 +222,9 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         else:
             subrule = subrule + [(Symbol(key), val)]
 
-    if source == "PARSE_SAMPLE_VARIABLES":
-        scope.update({'sample': sample})
+    #if source == "PARSE_SAMPLE_VARIABLES":
+    #    scope.update({'sample': sample})
+    #print("     TIME A2 %s" , 1000 * ( time.time() - tbeg) )
     scope.update(ns)
     scope.update(varsubs)
     scope_symbolic = {
@@ -243,62 +236,13 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         'yhat': sympy.sympify(Matrix([0, 1, 0])),
         'zhat': sympy.sympify(Matrix([0, 0, 1])),
     }
-    #print("SPLIT1 ", ( time.time() - tbeg )*1000 )
-    #if False:
-    #    sexpr = ascii_to_sympy(declash(expression), {})
-    #    location = 'A'
-    #    if resub.search(r'[xyz]hat', sexpr) or 'Matrix' in sexpr:
-    #        location += 'B'
-    #        scope.update(scope_symbolic)
-    #        location += 'C'
-    #        sexpr = sympy.sympify(sexpr, scope, evaluate=False).replace(Add, Function('myadd'))
-    #        location += 'D'
-    #    else:
-    #        location += 'E'
-    #        sexpr = sympy.sympify(sexpr, scope, evaluate=False).replace(Add, Function('myadd'))
-    #        location += 'F'
-    #    if len(funcsubs) > 0:
-    #        location += 'G'
-    #        funcnames = set([item['name'] for item in funcsubs])
-    #        funcatoms = set([str(item.func) for item in list(sexpr.atoms(AppliedUndef))])
-    #        if funcnames.intersection(funcatoms):
-    #            sexpr = replace_funcs(sexpr, funcsubs, subrule)
-    #        location += 'H'
-    #    sexpr = sexpr.subs(subrule)
-    #    location += 'I'
-    #    sexpr = sexpr.subs(scope_symbolic)
-    #    location += 'J'
-    #    sexpr = sexpr.subs(varsubs)
-    #    location += 'K'
-    #    sexpr = sexpr.replace(Function('mul'), MatMul).doit()
-    #    # #print(" TOP1  SEXPR = ", sexpr )
-    #    sexpr = sexpr.subs([(Function('myadd'), Function('carefuladd'))]).doit()
-    #    # #print(" TOP2  SEXPR = ", sexpr )
-    #    repadd = [(Function(key), val) for key, val in add_scope.items()]
-    #    sexpr = sexpr.subs(repadd).doit()
-    #    # #print(" TOP3  SEXPR = ", sexpr )
-    #    location += 'L'
-    #    new = sexpr
-    #    if dohash:
-    #        try: 
-    #            print("NEW = ", new )
-    #            print("retcheck = ", retcheck)
-    #            core_cache.set(varhash, srepr(new), 60 * 60)
-    #        except:
-    #            print("CANNOT CACHE ", new ) 
-    #            core_cache.set(varhash, None, 30 )
-    #    # #print("SPLIT1b ", ( time.time() - tbeg )*1000 )
-    #    return new
-    # except:
-    #    pass
-    #print("A")
     rep = [(Function(key), val) for key, val in myscope.items()]
     repadd = [(Function(key), val) for key, val in add_scope.items()]
     sexpr = ascii_to_sympy(declash(expression), {})
     new = sexpr
     (xtest, newvarsubs, matrix_subs) = dematrixify(sexpr, varsubs)
-    #print("B")
     new = xtest
+    #print("     TIME A3 %s" , 1000 * ( time.time() -  tbeg) )
     func_subs = {
         sub['name']: {
             'args': [Symbol(arg) for arg in sub['args'].lstrip('[').rstrip(']').split(',')],
@@ -306,56 +250,39 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         }
         for sub in funcsubs
     }
-    #print("C")
+    #print("     TIME A4 %s" , 1000 * ( time.time() -  tbeg) )
     xtest = sympify(xtest, ns, evaluate=False).subs(ns).doit().replace(Add, Function('myadd'))
     new = xtest
-    #print("SPLIT1a ", ( time.time() - tbeg )*1000 ,new )
-    #try: 
-    new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep, dohash)
-    #except Exception as e:
-    #    #print("EXCEPTION RAISED IN PRE %s %s " % (type(e),  str(e) ) )
-    #    raise ShapeError( str(e) )
-    #print("D")
-    # #print("REP = ", rep )
-    #print("SPLIT1b ", ( time.time() - tbeg )*1000 , new )
+    #print("     TIME A5 %s" , 1000 * ( time.time() -  tbeg) )
+    #print("XTEST = ", xtest)
+    #print("NEWVARSUBS = ", newvarsubs)
+    #print("MATRIXSUBS = ", matrix_subs )
+    #print("REP = ", rep )
+    st = resub.sub(r'\d+','',str(xtest)  )
+    atoms1 = set( resub.findall(r'\w+',st) ) 
+    atoms2 = set( newvarsubs.keys() )
+    atoms3 = set( matrix_subs.keys() )
+    atoms = atoms1.union(atoms2.union(atoms3) ) 
+    rep_optimized = list( filter( lambda item : str( item[0] ) in atoms , rep) )
+    #print("REPNEW = ", rep_optimized )
+    new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep_optimized, docache)
+    #print("     TIME A6 %s" , 1000 * ( time.time() -  tbeg) )
     new  = N(new)
+    #st = resub.sub(r'\d+','',str(new)  )
+    #atoms = list( set( resub.findall(r'\w+',st) ) ) 
+    #print("ATOMES = ",  atoms)
+    #print("     TIME A7 %s" , 1000 * ( time.time() -  tbeg) )
     #print("NEW = ", new )
-    #print("rep = ", rep )
-    new = new.subs(rep).doit()
-    #print("rep = ", new)
-    # #print("SPLIT1c ", ( time.time() - tbeg )*1000 )
-    # new = new.replace(Function('mul'), MatMul).doit()
-    #print("NEW1 = ", new )
-    # new = new.subs( [( Function('myadd') , Function('carefuladd')   ) ]  ).doit()
-    # new = new.subs(repadd).doit()
-    # #print("NEW2 = ", new )
-    # new = new.replace(Function('carefuladd'), Add).doit()
+    #print("REP = ", rep )
+    #print("REPNEW = ", rep_optimized )
+    new = new.subs(rep_optimized).doit()
     tend = time.time()
-    #print("E")
-    #print("DOHASH", dohash)
-    if dohash:
+    #print("     TIME A8 %s" , 1000 * ( time.time() - tbeg) )
+    if docache:
+        #print("IN SYMPIFY WITH CUSTOM CACHE ", new )
         try :
-            #print("new = ", new )
-            #print("ret = ", ret )
-            core_cache.set(varhash, new , 60 * 60)
-        except:
-            pass
-            #core_cache.set(varhash, False , 60 * 60)
-            #print("COULD NOT CACHE CACHE ", new )
-    # #print(
-    #    "HASH = ",
-    #    varhash,
-    #    ": TIME SPENT IN SYMPIFY WITH CUSTOM = ",
-    #    (tend - tbeg) * 1000,
-    #    " MILLISECONDS parsing ",
-    #    expression,
-    # )
-    # #print("SPLIT2 ", ( time.time() - tbeg )*1000 )
-    #print("G")
-    #except Exception as e:
-    #    print("E350 excpetion:   " + type(e) + '  '  + str(expression_orig) )
-    #    raise NameError('(e350)  ' + expression_orig  + str(e)  + type(e) )
-    #  raise TypeError("expr  = ", sexpr )
-    #  THIS IS THE OLD ROUTINE
-    #print("SPLIT3 ", ( time.time() - tbeg )*1000 ,new)
+            core_cache.set(varhash,  srepr( new)  , 60 * 60)
+        except Exception as e :
+            print("COULD NOT CACHE ", type(e) , str(e) ) 
+    #print("SYMPIFY_WITH_CUSTOM OUT", new )
     return new

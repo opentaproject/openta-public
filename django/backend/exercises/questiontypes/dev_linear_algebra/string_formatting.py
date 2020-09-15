@@ -7,6 +7,23 @@ import re as resub
 from sympy import *
 from exercises.util import index_of_matching_left_paren, index_of_matching_right_paren
 
+def replace_sample_funcs( expression , scale=None) :
+    while 'sample' in expression :
+        m = resub.search(r'sample\(',expression) 
+        pbeg = m.end(0) - 1
+        pend = index_of_matching_right_paren(pbeg,expression)
+        samplearg = expression[pbeg+1:pend-1]
+        firstarg = samplearg.split(',')[0]
+        head = expression[0:pbeg-6]
+        tail = expression[pend:]
+        if scale :
+            expression = head + ' (' + scale  + ' *  ( ' + firstarg + ') )'  + tail 
+        else :
+            expression = head + firstarg + tail 
+        
+    return expression
+
+
 
 def insert_implicit_multiply(expression):  # {{{
     #print("EXPRESSION ", expression)
@@ -244,7 +261,6 @@ def braketify(expression):  # {{{
 
 
 def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions# {{{
-    #print("DECLASH ", expression)
     result = resub.sub(r"([^e]|^)gamma", r"\1variablegamma", expression)
     result = resub.sub(r"([^e]|^)beta", r"\1variablebeta", result)
     result = resub.sub(r"([^e]|^)zeta", r"\1variablezeta", result)
@@ -255,6 +271,8 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     result = resub.sub(r"(\W|\A|^)e\*\*", r"\1 E**", result)
     result = resub.sub(r"(\W|^)S(\W|$)", r"\1variableS\2", result)
     clashes = [
+        {'Gt': 'localGt'},
+        {'Lt': 'localLt'},
         {'And': 'localAnd'},
         {'Not': 'localNot'},
         {'div': 'localdiv'},

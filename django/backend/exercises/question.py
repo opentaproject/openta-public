@@ -255,7 +255,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     hijacked = request.session.get('hijacked', False)
     view_solution_permission = request.user.has_perm("exercises.view_solution")
     studentassetpath = _dispatch_asset_path(user, dbexercise)
-    print("STUDENTASSETPATH = ", studentassetpath)
+    #print("STUDENTASSETPATH = ", studentassetpath)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         usermacros = get_usermacros(user, exercise_key, question_key)

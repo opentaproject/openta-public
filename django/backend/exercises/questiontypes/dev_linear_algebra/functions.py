@@ -240,6 +240,7 @@ class gt(sympy.Function):
 
     @classmethod
     def eval(cls, x, y):
+        #print("GT ENTERED")
         if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
             x = x.doit()
             y = y.doit()
@@ -466,10 +467,10 @@ class IsDiagonal(sympy.Function):
 #
 
 
-class sample(sympy.Function):
-    @classmethod
-    def eval(cls, *x):
-        return x[0]
+#class sample(sympy.Function):
+#    @classmethod
+#    def eval(cls, *x):
+#        return x[0]
 
 
 class grad(sympy.Function):
@@ -873,7 +874,7 @@ openta_scope = {
     'KetMBra': KetMBra,
     'Braket': Braket,
     'NullRank': nullrank,
-    'sample': sample,
+    #'sample': sample,
 }
 add_scope = {
     'carefuladd': carefuladd,

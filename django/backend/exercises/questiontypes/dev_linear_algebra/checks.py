@@ -24,6 +24,7 @@ from .string_formatting import (
     matrixify,
     braketify,
     declash,
+    replace_sample_funcs
 )
 from .unithelpers import *
 from .parsers import *
@@ -162,6 +163,9 @@ def check_for_legal_answer(
     precision, variables, student_answer, expression, check_units=True, blacklist=[]
 ):
     response = {}
+    variables = [ replace_sample_funcs( item) for item in variables ]
+    expression = replace_sample_funcs(expression)
+    student_answer = replace_sample_funcs(student_answer)
     #print("STUDENT ANSWER CHECK", student_answer, flush=True)
     
     #print("STUDENT ANSWER CHECK", student_answer,flush=True)
@@ -196,11 +200,13 @@ def check_for_legal_answer(
 
 
     ###########  MAKE SURE NO BLACKLISTED VARIABLES ARE USED
-    atoms = get_used_variable_list(student_answer)
-    for atom in atoms:
+    studentatoms = get_used_variable_list(student_answer)
+    okatoms = [ item['name'] for item in variables ]
+    #print("STUDENTATOMS = ", studentatoms)
+    for atom in studentatoms:
         strrep = str(atom)
         # funcstr = str(atom.func)
-        if strrep in blacklist:
+        if strrep in blacklist or ( strrep not in okatoms ) :
             return {'error': _('(A) Forbidden token: ') + strrep}
 
 
@@ -227,73 +233,72 @@ def check_for_legal_answer(
     m = re.search(r'(print|sum)', student_answer)
     if m:
         return {'error': _('forbidden function') + m.group(1)}
-    try:
-        try:
-            #print("TRY student_answer ", type(student_answer), student_answer)
-            sympyex = sympy.sympify( ascii_to_sympy(student_answer)  )
-            #print("SYMPYEX = ", type(sympyex), sympyex, flush=True)
-            sympyex = sympy.sympify(sympyex).subs( varsubs_sympify).doit()
-            unparsedstudentanswer =  sympyex.subs(baseunits)
-        except SympifyError as e:
-            return {'error': 'error in: ' + student_answer_org}
-        except TypeError as e:
-            if 'required positional argument' in str(e):
-                return {'error': _('Syntax Error: a function is missing an argument'), 'debug': str(e) }
-            if 'callable' in str(e):
-                return {
-                    'error': _(
-                        'Syntax Error: You probably have a variable followed by a parenthesis without a space between. This is interpreted as a function call rather than implicit multiply and therefore  therefore fails.'
-                    )
-                }
+    #try:
+    #    try:
+    #        #print("TRY student_answer ", type(student_answer), student_answer)
+    #        sympyex = sympy.sympify( ascii_to_sympy(student_answer)  )
+    #        #print("SYMPYEX = ", type(sympyex), sympyex, flush=True)
+    #        sympyex = sympy.sympify(sympyex).subs( varsubs_sympify).doit()
+    #        unparsedstudentanswer =  sympyex.subs(baseunits)
+    #    except SympifyError as e:
+    #        return {'error': 'error in: ' + student_answer_org}
+    #    except TypeError as e:
+    #        if 'required positional argument' in str(e):
+    #            return {'error': _('Syntax Error: a function is missing an argument'), 'debug': str(e) }
+    #        if 'callable' in str(e):
+    #            return {
+    #                'error': _(
+    #                    'Syntax Error: You probably have a variable followed by a parenthesis without a space between. This is interpreted as a function call rather than implicit multiply and therefore  therefore fails.'
+    #                )
+    #            }
 
-        except NameError as e:
-            return {'error': str(e)}
-            # return {'error': 'Unidentified error: ' };
+    #    except NameError as e:
+    #        return {'error': str(e)}
+    #        # return {'error': 'Unidentified error: ' };
 
-        except ShapeError as e:
-            return {'error': str(e) }
-        except Exception as e:
-            return {'error': 'Unidentified error : >' + e.__class__.__name__ + '< ' + str(e)}
-        if isinstance(prelhs, sympy.Basic) or isinstance(prelhs, sympy.MatrixBase):
-            specials = [
-                ('cross', Cross),
-                ('dot', Dot),
-                ('norm', Norm),
-                ('Braket', Braket),
-                ('KetBra', KetBra),
-                ('KetMBra', KetMBra),
-                ('Trace', Trace),
-                ('gt', gt),
-                ('lt', lt),
-            ]
-            for special in specials:
-                if special[0] in blacklist and (special[0] in str(unparsedstudentanswer)):
-                    return {'error': _('(A) Forbidden token: ') + special[0]}
+    #    except ShapeError as e:
+    #        return {'error': str(e) }
+    #    except Exception as e:
+    #        return {'error': 'Unidentified error : >' + e.__class__.__name__ + '< ' + str(e)}
+    #    if isinstance(prelhs, sympy.Basic) or isinstance(prelhs, sympy.MatrixBase):
+    #        specials = [
+    #            ('cross', Cross),
+    #            ('dot', Dot),
+    #            ('norm', Norm),
+    #            ('Braket', Braket),
+    #            ('KetBra', KetBra),
+    #            ('KetMBra', KetMBra),
+    #            ('Trace', Trace),
+    #            ('gt', gt),
+    #            ('lt', lt),
+    #        ]
+    #        for special in specials:
+    #            if special[0] in blacklist and (special[0] in str(unparsedstudentanswer)):
+    #                return {'error': _('(A) Forbidden token: ') + special[0]}
+    #        sa = sympy.sympify(student_answer)
+    #        atoms = sa.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
+    #        for atom in atoms:
+    #            strrep = str(atom)
+    #            funcstr = str(atom.func)
+    #            if strrep in blacklist:
+    #                return {'error': _('(B) Forbidden token: ') + strrep}
+    #            if funcstr in blacklist:
+    #                return {'error': _('(C) Forbidden token: ') + funcstr}
 
-            sa = sympy.sympify(student_answer)
-            atoms = sa.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
-            for atom in atoms:
-                strrep = str(atom)
-                funcstr = str(atom.func)
-                if strrep in blacklist:
-                    return {'error': _('(B) Forbidden token: ') + strrep}
-                if funcstr in blacklist:
-                    return {'error': _('(C) Forbidden token: ') + funcstr}
-
-            varlist = []
-            reclash = {}
-            for var in variables:
-                name = declash(var['name'])
-                varlist.append(name)
-            symbolatoms = list(prelhs.atoms(sympy.Symbol))
-            varlist = varlist + units
-            for item in symbolatoms:
-                if str(item) not in varlist:
-                    response['correct'] = False
-                    response['error'] = _('(D) Forbidden token: ') + (str(item)).replace(
-                        'variable', ''
-                    )
-                    return response
-    except:
-        response['warning'] = 'warning'
+    #        varlist = []
+    #        reclash = {}
+    #        for var in variables:
+    #            name = declash(var['name'])
+    #            varlist.append(name)
+    #        symbolatoms = list(prelhs.atoms(sympy.Symbol))
+    #        varlist = varlist + units
+    #        for item in symbolatoms:
+    #            if str(item) not in varlist:
+    #                response['correct'] = False
+    #                response['error'] = _('(D) Forbidden token: ') + (str(item)).replace(
+    #                    'variable', ''
+    #                )
+    #                return response
+    #except:
+    #    response['warning'] = 'warning'
     return None

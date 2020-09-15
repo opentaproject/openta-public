@@ -707,6 +707,7 @@ def validate_exercise_globals(xml, user, exercise):
 
 def validate_exercise_xml(xml, user, exercise):
     messages = []
+    return messages
     try:
         messages = validate_exercise_globals(xml, user, exercise)
         xmlschema = etree.XMLSchema(etree.parse(paths.EXERCISE_XSD))
