@@ -15,6 +15,7 @@ from .admin import (
     lti_keys,
     verify_request,
 )
+import pprint
 import re
 import time
 import json
@@ -110,10 +111,10 @@ def update_user_profile(user, user_stub):
 def get_or_create_user(request, course):
     fp = open("/tmp/requests.txt",'a')
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    fp.write( now + ':' + str( request.body.decode('utf-8') ) )
+    user_stub = user_stub_from_request(request, course)
+    fp.write( now + ': PPRINT ' + re.sub(r'\n','',pprint.pformat( vars(user_stub))))
     fp.write("\n")
     fp.close()
-    user_stub = user_stub_from_request(request, course)
     user = None
     user_exists = False
     try:

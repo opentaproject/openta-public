@@ -77,6 +77,7 @@ class TestLTI(TestCase):
             resource_link_id="0",
             custom_user_id="$Custom",
             roles="Learner",
+            launch_presentation_return_url='launch_presentation_return_url',
         )
         url = "/" + settings.SUBPATH + LTI_LAUNCH
         response = self.client.post(url, data=data, **self._headers)
@@ -94,11 +95,13 @@ class TestLTI(TestCase):
             resource_link_id="0",
             custom_user_id="user_id",
             roles="Learner",
+            launch_presentation_return_url='launch_presentation_return_url',
         )
 
         url = "/" + settings.SUBPATH + LTI_LAUNCH
         print("URL TO GIVE = url = ", url)
         response = self.client.post(url, data=data, **self._headers)
+        print("RESPONSE = ", response)
         self.assertEqual(response.status_code, 200)
         self.assertTrue(User.objects.filter(opentauser__lti_user_id="user_id").exists())
         user = User.objects.get(opentauser__lti_user_id="user_id")
@@ -121,6 +124,7 @@ class TestLTI(TestCase):
             resource_link_id="0",
             custom_user_id="user_id",
             roles="Instructor",
+            launch_presentation_return_url='launch_presentation_return_url',
         )
 
         url = "/" + settings.SUBPATH + LTI_LAUNCH
@@ -147,6 +151,7 @@ class TestLTI(TestCase):
             resource_link_id="0",
             custom_user_id="user_id",
             roles="Learner",
+            launch_presentation_return_url='launch_presentation_return_url',
         )
 
         url = "/" + settings.SUBPATH + LTI_LAUNCH
