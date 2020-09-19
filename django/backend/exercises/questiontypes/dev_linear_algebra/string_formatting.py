@@ -29,6 +29,9 @@ def insert_implicit_multiply(expression):  # {{{
     #print("EXPRESSION ", expression)
     result = resub.sub(r"(?<=[\w)])\s+(?=[(\w])", r" * ", expression)
     result = resub.sub(r"\)\(", r" ) ( ", result)
+    result = resub.sub(r"\)([-+\/*])\(", r" ) \1 ( ", result)
+    result = resub.sub(r"\)([-+\/*])", r" ) \1 ", result)
+
     #print("aRESULT ", result)
     result = resub.sub(r"((?:\W|^)[0-9]+)([a-zA-Z]+)", r"\1*\2", result)
     #print("bRESULT ", result)
@@ -261,6 +264,7 @@ def braketify(expression):  # {{{
 
 
 def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions# {{{
+    #print("DECLASH ", expression )
     result = resub.sub(r"([^e]|^)gamma", r"\1variablegamma", expression)
     result = resub.sub(r"([^e]|^)beta", r"\1variablebeta", result)
     result = resub.sub(r"([^e]|^)zeta", r"\1variablezeta", result)
@@ -269,6 +273,7 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
     result = resub.sub(r"([^e]|^)lambda", r"\1variablelambda", result)
     result = resub.sub(r"(\W|\A|^)e\^", r"\1 E^", result)
     result = resub.sub(r"(\W|\A|^)e\*\*", r"\1 E**", result)
+    #result = resub.sub(r"(^|\W)(N)(\W|$)",r"\1 newton \3", result)
     result = resub.sub(r"(\W|^)S(\W|$)", r"\1variableS\2", result)
     clashes = [
         {'Gt': 'localGt'},
@@ -290,4 +295,5 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
         if key in expression:
             result = resub.sub(r"(\A|\s|,|\()" + key + "\(", r"\1 " + clash[key] + "(", result)
     result = resub.sub(r' ,', ',', result)
+    #print("RESULT = ", result)
     return result  # }}}

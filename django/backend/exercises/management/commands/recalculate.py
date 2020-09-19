@@ -94,7 +94,7 @@ def dotask(npks=20) :
     answers = get_new_answers(npks)
     return redo( answers)
 
-def get_new_answers(npks) :
+def get_new_answers(npks=20) :
     answers =  Answer.objects.all() 
     allpks = [ item.pk for item in answers ]
     donepks = []
@@ -116,7 +116,6 @@ def get_new_answers(npks) :
 def redo( answers ):
         if answers == [] :
                 return None
-        print("DO REDO")
         ind = 0
         n = 0
         fp = open( "/tmp/recalculated.txt", 'a')

@@ -32,12 +32,21 @@ from .functions import *
 from numpy import tan, logical_or, equal, cross,dot,inf,complex
 import numpy.linalg
 
+def mysqrt(x) :
+    try:
+        res = numpy.sqrt(x)
+        return res
+    except :
+        print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
+        return 0
+        #raise ValueError("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
+
 
 lambdifymodules = [
     {
         'cot': lambda x: 1.0 / numpy.tan(x),
         'exp': lambda x:  numpy.exp(x),
-        'sqrt': lambda x: numpy.sqrt(x),
+        'sqrt': lambda x: mysqrt(x),
         'real': lambda x: numpy.real(x),
         'norm': lambda x: numpy.linalg.norm(x),
         'logicaland': numpy.logical_and,
@@ -113,11 +122,11 @@ def check_units_new(expression, correct, sample_variables):
         #print(" lambdifymodules= ",  lambdifymodules)
         #print(" allvalues = ",  allvalues )
         #print("Y")
-        try :
-            tres = ( sympy.lambdify([], nexpression.subs(allvalues), modules=lambdifymodules)() )
-        except Exception as e :
-            print(traceback.format_exception(None, # <- type(e) by docs, but ignored 
-                                     e, e.__traceback__), file=sys.stderr, flush=True)
+        #try :
+        tres = ( sympy.lambdify([], nexpression.subs(allvalues), modules=lambdifymodules)() )
+        #except Exception as e :
+        #    #print(traceback.format_exception(None, # <- type(e) by docs, but ignored 
+        #                             e, e.__traceback__), file=sys.stderr, flush=True)
         #print("Z")
         #print("NEXPRESSION BEF = ", srepr( nexpression) )
         nexpression = sympy.sympify( str( nexpression)  ) # THIS MUST BE A BUG IN SYMPY THIS EXPRESSION SHOULD BE A NOOP
@@ -165,8 +174,14 @@ def check_for_legal_answer(
     response = {}
     variables = [ replace_sample_funcs( item) for item in variables ]
     expression = replace_sample_funcs(expression)
-    student_answer = replace_sample_funcs(student_answer)
+    student_answer = replace_sample_funcs(declash( student_answer) )
     #print("STUDENT ANSWER CHECK", student_answer, flush=True)
+    
+    #if not len( student_answer.split('==') ) == len( expression.split('==') ) : 
+    #    if  '==' in student_answer :
+    #        return dict(error=_('== is not allowed in  the answer') )
+    #    elif '==' in expression:
+    #        return dict(error=_('Equality not present in student answer %s' % str( student_answer ) ) )
     
     #print("STUDENT ANSWER CHECK", student_answer,flush=True)
     #### INVALID STRINGS 
@@ -174,11 +189,12 @@ def check_for_legal_answer(
     for i in invalid_strings:
         if i in student_answer:
             return {'error': _('Answer contains invalid character ') + i}
-
     illegal = reg.findall(r'(\^|\.)([0-9]+[a-zA-Z]+)(\^|\.)', student_answer)
     if len(illegal) >  0 :
         s = ",".join( [ "".join(item) for item in illegal])
         return dict(error= _('Illegal pattern %s in %s ' % (s, student_answer)  ) ) 
+    
+    
  
     ##### INVALID PATTERNS 
     invalid_patterns= { "\)[\w]" : 'implicit multiply needs a space; right parenthesis cannot be followed by letter or number',
@@ -191,7 +207,6 @@ def check_for_legal_answer(
     ########## UNBALANCED PARENS
     if not parens_are_balanced(student_answer) :
         return {'error' : _("Unbalanced parenthesis") }
-    
  
     ######### CHECK THAT VARIABLES ARE NOT USED AS FUNCTIONS ######
     for variable in variables:
@@ -201,7 +216,8 @@ def check_for_legal_answer(
 
     ###########  MAKE SURE NO BLACKLISTED VARIABLES ARE USED
     studentatoms = get_used_variable_list(student_answer)
-    okatoms = [ item['name'] for item in variables ]
+    okatoms = [ item['name'] for item in variables ] + ['kg','meter','second']
+    #print("okatoms = ", okatoms )
     #print("STUDENTATOMS = ", studentatoms)
     for atom in studentatoms:
         strrep = str(atom)

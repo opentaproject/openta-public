@@ -16,7 +16,7 @@ import re as resub
 import random
 import itertools
 from sympy.core import S
-from exercises.questiontypes.symbolic.unithelpers import baseunits
+from exercises.questiontypes.dev_linear_algebra.unithelpers import baseunits
 from .sympify_with_custom import sympify_with_custom
 from sympy.core.function import AppliedUndef
 from exercises.util import index_of_matching_right_paren
@@ -45,11 +45,13 @@ def parse_sample_variables(variables, funcsubs={}):
     tbeg = time.time()
     docache = settings.DO_CACHE
     if docache  and (ret is not None):
-        #print("GRABBED CACHE")
+        timebeg = time.time()
         (v, vs, sample_variables) = ret
         varsubs_sympify = {sympify(key): sympify(val) for key, val in vs}
         varsubs = [(sympify(key), sympify(val)) for key, val in v]
         rets = (varsubs, varsubs_sympify, sample_variables)
+        #print("GRABBED CACHE IN ", 1000 *(time.time() - timebeg) , " milliseconds")
+        #print("RETS = ", rets )
         return rets
 
     vars_ = variables

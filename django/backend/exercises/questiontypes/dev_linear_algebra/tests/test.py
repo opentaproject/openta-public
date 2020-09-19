@@ -43,7 +43,7 @@ class DevLinearAlgebraTest(TestCase):
         )
         self.assertEqual(res['correct'], True)
 
-    def notest_units(self):
+    def test_units(self):
         precision = 1e-5
         variables = [
             {'value': '[3, 5, 1] * meter', 'name': 'R1'},
@@ -59,7 +59,7 @@ class DevLinearAlgebraTest(TestCase):
             {'value': '0.13461329316885673', 'name': 'second'},
         ]
         student_answer = '( [5, 1, 2] + [5, 1, 2] ) N'
-        correct = ' ( [5, 1, 2] + [5, 1, 2] )kg meter / second^2 *N/N '
+        correct = ' ( [5, 1, 2] + [5, 1, 2] )kg meter / second^2 * N/N  '
         res = linear_algebra_compare_expressions(precision, variables, student_answer, correct)
         self.assertEqual(res['correct'], True)
         variables = [
@@ -79,6 +79,27 @@ class DevLinearAlgebraTest(TestCase):
         correct = '( cross([3, 5, 1],[5, 1, 2]) + cross([5, 1, 2],[5, 1, 2]) ) N /N kg meter^2 / second^2 '
         res = linear_algebra_compare_expressions(precision, variables, student_answer, correct)
         self.assertEqual(res['correct'], True)
+        precision = 1.e-6
+
+    def test_projection(self) :
+        precision = 1.e-6 
+        variables = [{'name':"X","value":"3"},
+            {'name':"Y","value":"2"},
+            {'name':"Z","value":"4"},
+            {'name':"d","value":".234234"},
+            {'name':"theta","value":"pi/5.232"},
+            {'name':"n","value":"[1.0,3.0,4.0]"},
+            {'name':"Zhat","value":"[0.0,0.0,1.0]"},
+            {'name':"p","value":"[0.1923,0.9752,0.71333]"},
+            {'name':"nhat","value":"n/abs(n)"},
+            {'name':"xhat","value":"cross(n,Zhat)/|cross(n,Zhat)|"},
+            {'name':"yhat","value":"cross(n,cross(n,Zhat))/|cross(n,cross(n,Zhat))|"}
+            ]
+        correct = "d / dot( p - n, nhat ) [ dot( p , xhat), dot( p , yhat ) ] "
+        student_answer = "d [ dot( p , xhat) /  dot( p - n, nhat ) , dot( p , yhat ) /  dot( p - n, nhat ) ]" 
+        res = linear_algebra_compare_expressions(precision, variables, student_answer, correct)
+        self.assertEqual(res['correct'], True)
+    
 
     def test_variable(self):
         precision = 1e-6

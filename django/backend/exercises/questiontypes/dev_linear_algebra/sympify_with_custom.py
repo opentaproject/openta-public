@@ -10,7 +10,6 @@ from copy import deepcopy
 # from sympy.abc import _clash1, _clash2, _clash
 from sympy.core.sympify import SympifyError
 from django.utils.translation import ugettext as _
-import traceback
 import re as resub
 import random
 import itertools
@@ -22,7 +21,6 @@ import time
 
 from exercises.questiontypes.safe_run import safe_run
 import logging
-import traceback
 from .string_formatting import (
     absify,
     insert_implicit_multiply,
@@ -194,15 +192,21 @@ class ncarefuladd(sympy.Function):
 
 
 def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
-    #print("SYMPIFY_WITH_CUSTOM IN", expression)
+    #print("SOURCE = ", source )
     tbeg = time.time()
     expression_orig = expression
     varhash = get_hash_from_string(expression + str(varsubs) + str(funcsubs) + source   + __file__ )
+    #print( varhash, " SYMPIFY_WITH_CUSTOM IN", expression)
     docache = settings.DO_CACHE
     ret =  core_cache.get(varhash) 
     if not ret == None and docache :
-        #print("RET = ", ret )
         ret = sympy.sympify( ret  )
+        if isinstance(ret, sympy.Float ):
+            if abs( ret - 1 ) < 1.e-12 :
+                ret = sympy.sympify( 1.0 )
+            elif abs( ret ) < 1.e-12 :
+                ret = sympy.sympify( 0.0 )
+        #print( varhash, " RET = ", ret )
         return ret
     tbeg = time.time()
     should_be_end = index_of_matching_right_paren(0, '(' + expression + ')')
@@ -267,7 +271,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     #print("REPNEW = ", rep_optimized )
     new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep_optimized, docache)
     #print("     TIME A6 %s" , 1000 * ( time.time() -  tbeg) )
-    new  = N(new)
+    #new  = N(new)
     #st = resub.sub(r'\d+','',str(new)  )
     #atoms = list( set( resub.findall(r'\w+',st) ) ) 
     #print("ATOMES = ",  atoms)
@@ -281,8 +285,8 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     if docache:
         #print("IN SYMPIFY WITH CUSTOM CACHE ", new )
         try :
-            core_cache.set(varhash,  srepr( new)  , 60 * 60)
+            core_cache.set(varhash,  str(new), 60 * 60)
         except Exception as e :
             print("COULD NOT CACHE ", type(e) , str(e) ) 
-    #print("SYMPIFY_WITH_CUSTOM OUT", new )
+    #print( varhash ,  " SYMPIFY_WITH_CUSTOM OUT", new )
     return new

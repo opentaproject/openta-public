@@ -21,7 +21,6 @@ from exercises.util import get_hash_from_string
 from sympy.utilities.lambdify import lambdify, implemented_function
 from exercises.questiontypes.safe_run import safe_run
 import logging
-import traceback
 from .string_formatting import (
     absify,
     ascii_to_sympy,
@@ -97,8 +96,8 @@ def equality_remap( student_answer, correct, varsubs_sympify):
     if '==' in student_answer:
             is_equality = True
             equality = correct.split('==')
-            if len(equality) != 2:
-                return {'error': 'Response is not an equality'}
+            if not len(equality) == 2 :
+                raise NameError("Error in equality syntax in student answer %s " % str(student_answer) )
             correct = 'Abs( (' + equality[0] + ') - ( ' + equality[1] + '))'
             correct = '0'
             equality = student_answer.split('==')
@@ -107,7 +106,7 @@ def equality_remap( student_answer, correct, varsubs_sympify):
         student_answer = replace_sample_funcs( student_answer )
         correct = replace_sample_funcs( correct )
         for key in varsubs_sympify.keys() :
-            dprint("KEY = ", key )
+            #dprint("KEY = ", key )
             varsubs_sympify[key] = sympy.sympify( replace_sample_funcs( str( varsubs_sympify[key]  ) ) )
     #print("TIME IN EQUALITY REMAP " , int( 1000 * (  time.time() - tbeg ) ) )
     return ( student_answer, correct ,varsubs_sympify)
@@ -118,14 +117,14 @@ def check_answer_structure( student_answer, correct , varsubs_sympify):
     tbeg = time.time()
     try:
        tstudent_answer = replace_sample_funcs( student_answer)
-       dprint("      TSTUDENTANSWER = ", tstudent_answer)
-       dprint("      TYPE VARSUBS_SUMPFIY = ", type( varsubs_sympify) )
+       #print("      TSTUDENTANSWER = ", tstudent_answer)
+       #print("      TYPE VARSUBS_SUMPFIY = ", type( varsubs_sympify) )
        tvarsubs_sympify = {}
        for key in varsubs_sympify.keys() :
-            dprint("     KEY = ", key )
+            #print("     KEY = ", key )
             tvarsubs_sympify[key] = sympy.sympify( replace_sample_funcs( str( varsubs_sympify[key]  ) ) )
-       dprint("      TVARSUBS_SYMPIFY = ", tvarsubs_sympify)
-       prelhs = sympify_with_custom( tstudent_answer, tvarsubs_sympify, {}, 'linear_algebra_compare_expressions')
+       #dprint("      TVARSUBS_SYMPIFY = ", tvarsubs_sympify)
+       prelhs = sympify_with_custom( tstudent_answer, tvarsubs_sympify, {}, 'check-answer-structure-linear_algebra_compare_expressions')
     except TypeError as e:
         if 'required positional' in str(e) :
             response = dict(
@@ -134,7 +133,7 @@ def check_answer_structure( student_answer, correct , varsubs_sympify):
         else:
             response = dict(
                 error=_( 'syntax error' ),
-                debug="Error 187: " +  str(e)
+                debug="Error 187: " +  str(e) + traceback.format_exc()
                 )
         #return response
     
@@ -202,7 +201,7 @@ def check_consistency(  lhs, rhs ,blacklist) :
             ('gt', gt),
         ]
         for special in specials:
-            if special[0] in blacklist and (special[0] in str(student_answer)):
+            if special[0] in blacklist and (special[0] in str(lhs)):
                 return {"error": _("(E) Forbidden token: ") + special[0]}
         atoms = lhs.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
         for atom in atoms:
@@ -235,11 +234,25 @@ def linear_algebra_compare_expressions(
     ):
     tbeg = time.time()
     _ , varsubs_sympify, sample_variables = parse_sample_variables(variables)
+    dprint("VARIABLES = ", variables )
     # #############################################
     # IF EQUALITY IS USED, SAMPLING IS DISABLED 
     # AND zero = LHS - RHS 
     # ############################################
     #print("TIME B0a" ,  1000 * ( time.time() - tbeg ) )
+    #print("STUDENT_ANSWER = ", student_answer)
+    #illegal = reg.findall(r'(^|\s|[+-/*\(\)])+[0-9\.]+[a-zA-Z]+', student_answer)
+    #if len(illegal) >  0 :
+    #    #print("WAS ILLEGAL",illegal)
+    #    s = ",".join( [ "".join(item) for item in illegal])
+    #    ret = dict(error= _('Illegal pattern %s in %s ' % (s, student_answer)  ) ) 
+    #    return ret
+    #if not  len(correct.split('==') )  == len( student_answer.split('==') ) :
+    #    response = {"error" : "inconsistent equality in %s . " % str(student_answer)  , 
+    #        "warning" : "must be consistent with %s " % correct }
+    #    return response
+    student_answer = declash( student_answer)
+    correct = declash( correct )
     (student_answer, correct ,varsubs_sympify ) = equality_remap( student_answer, correct ,varsubs_sympify)
     #print("TIME B0b" ,  1000 * ( time.time() - tbeg ) )
     student_answer = insert_implicit_multiply( student_answer)
@@ -247,18 +260,20 @@ def linear_algebra_compare_expressions(
     compare_hash = get_hash_from_string( " %s %s %s %s %s %s %s %s %s " % ( str(precision), str(variables), str(student_answer), 
             str(correct_answer), str(check_units), str(used_variables), str(blacklist), str(funcsubs)   , __file__ ) )
     ret = djangocache.cache.get(compare_hash)
+    if not ret == None :
+            return ret
     student_answer_orig = student_answer
     time_start = time.time()
-    dprint("LINEAR_ALGEBRA_COMPARE_EXPRESSIONS")
-    dprint("VARIABLES" , variables )
-    dprint("STUDENT_ANSWER", student_answer)
-    dprint("CORRECT", correct)
-    dprint("USED_VARIABLES", used_variables)
-    dprint("VARSUBS_SYMPIFYF ", varsubs_sympify)
+    #print("LINEAR_ALGEBRA_COMPARE_EXPRESSIONS")
+    #print("VARIABLES" , variables )
+    #print("STUDENT_ANSWER", student_answer)
+    #print("CORRECT", correct)
+    #print("USED_VARIABLES", used_variables)
+    #print("VARSUBS_SYMPIFYF ", varsubs_sympify)
     #print("TIME B0" ,  1000 * ( time.time() - tbeg ) )
     precheck = check_for_legal_answer( precision, variables, student_answer, correct, check_units, blacklist)
     #print("TIME B1" ,  1000 * ( time.time() - tbeg ) )
-    dprint("PRECHECK = ", precheck)
+    #print("PRECHECK = ", precheck)
     if precheck is not None:
         return precheck
     
@@ -270,10 +285,10 @@ def linear_algebra_compare_expressions(
         return response
     try :
         #print("TIME B3" ,  1000 * ( time.time() - tbeg ) )
-        prelhs = sympify_with_custom( student_answer , varsubs_sympify, {}, 'linear_algebra_compare_expressions' )
+        prelhs = sympify_with_custom( student_answer , varsubs_sympify, {}, 'linear_algebra_compare_expressions-2' )
         lhs = prelhs.doit()
         #print("TIME B4" ,  1000 * ( time.time() - tbeg ) )
-        prerhs = sympify_with_custom( correct, varsubs_sympify, {}, 'linear_algebra_compare_expressions' )
+        prerhs = sympify_with_custom( correct, varsubs_sympify, {}, 'linear_algebra_compare_expressions-3' )
         rhs = prerhs.doit()
         #print("TIME B5" ,  1000 * ( time.time() - tbeg ) )
     except Exception as e:
@@ -290,16 +305,16 @@ def linear_algebra_compare_expressions(
     if response :
         return response
     #print("TIME B7" ,  1000 * ( time.time() - tbeg ) )
-    #print("LHS = ", lhs )
-    #print("RHS = ", rhs)
+    #print("CHECK LHS = ", lhs )
+    #print("CHECK RHS = ", rhs)
     #print("SAMPPLE_VARIABLES = ", sample_variables)
     ret = linear_algebra_check_equality( precision, lhs, rhs, sample_variables, check_units=check_units)
     #print("POSITION6")
     #print("TIME B8" ,  1000 * ( time.time() - tbeg ) )
-    try:
-        ret['mathematica'] = "Math Expression: {%s , %s }" % (  mathematica_form(student_answer), mathematica_form( correct_answer) )
-    except:
-        ret['mathematica' ] = "Cannot parse mathematica: [%s,%s]" % ( student_answer, correct_answer)
+    #try:
+    #    ret['mathematica'] = "Math Expression: {%s , %s }" % (  mathematica_form(student_answer), mathematica_form( correct_answer) )
+    #except:
+    #    ret['mathematica' ] = "Cannot parse mathematica: [%s,%s]" % ( student_answer, correct_answer)
     #print("TIME B9" ,  1000 * ( time.time() - tbeg ) )
     #ret['mathematica'] =  str( mathematica_form(correct_answer)  )
     #print("RET = ", ret )
@@ -311,9 +326,9 @@ def linear_algebra_compare_expressions(
     djangocache.cache.set(compare_hash, ret , 600 )
     return ret
 
-samplemodule = [
-    {
-        'cot': lambda x: 1.0 / numpy.tan(x),
+#samplemodule = [
+#    {
+#        'cot': lambda x: 1.0 / numpy.tan(x),
 #        'exp': lambda x:  numpy.exp(x),
 #        'sqrt': lambda x: numpy.sqrt(x),
 #        'real': lambda x: numpy.real(x),
@@ -329,23 +344,88 @@ samplemodule = [
 #        'Dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
 #        'zoo': numpy.inf,
 ##        'I': numpy.complex(0, 1),
+#    },
+#    "numpy",
+#]
+
+
+#sample_module = [
+#    {
+#    'sample' : lambda *x: dorand(x) ,
+#    'Norm': lambda x: numpy.linalg.norm(x),
+#    }, 
+#    "numpy"
+#]
+
+sample_module = [
+    {
+        'sample' : lambda *x: dorand(x) ,
+        'cot': lambda x: 1.0 / numpy.tan(x),
+        'exp': lambda x:  numpy.exp(x),
+        'sqrt': lambda x: mysqrt(x),
+        'real': lambda x: numpy.real(x),
+        'norm': lambda x: numpy.linalg.norm(x),
+        'eq': lambda x,y: 1.0 if numpy.equal(x,y) else 0.0 ,
+        'logicaland': numpy.logical_and,
+        'logicalor': numpy.logical_or,
+        'Norm': lambda x:  numpy.linalg.norm(x) ,
+        'abs':  lambda x:  numpy.linalg.norm(x) ,
+        'cross': lambda x, y: numpy.cross(x, y, axis=0),
+        'crossfunc': lambda x, y: numpy.cross(x, y, axis=0),
+        'dot': lambda x, y: numpy.vdot(x,y),
+        'Dot': lambda x, y: numpy.vdot(x,y),
+        'zoo': numpy.inf,
+        'I': numpy.complex(0, 1),
     },
     "numpy",
 ]
 
-sample_module = [
+
+def mysqrt(x) :
+    try:
+        res = numpy.sqrt(x)
+        return res
+    except :
+        print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
+        return 0
+        #raise ValueError("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
+
+base_module = [
     {
-    'sample' : lambda *x: dorand(x) ,
-    }, 
-    "sympy"
+        'cot': lambda x: 1.0 / numpy.tan(x),
+        'exp': lambda x:  numpy.exp(x),
+        'sqrt': lambda x: mysqrt(x),
+        'real': lambda x: numpy.real(x),
+        'norm': lambda x: numpy.linalg.norm(x),
+        'Norm': lambda x: numpy.linalg.norm(x),
+        'logicaland': numpy.logical_and,
+        'logicalor': numpy.logical_or,
+        'eq': lambda x,y: 1.0 if numpy.equal(x,y) else 0.0 ,
+        'Norm': lambda x:  numpy.linalg.norm(x) ,
+        'abs':  lambda x:  numpy.linalg.norm(x) ,
+        'cross': lambda x, y: numpy.cross(x, y, axis=0),
+        'crossfunc': lambda x, y: numpy.cross(x, y, axis=0),
+        'dot': lambda x, y: numpy.vdot(x,y),
+        'Dot': lambda x, y: numpy.vdot(x,y),
+        'zoo': numpy.inf,
+        'I': numpy.complex(0, 1),
+    },
+    "numpy",
 ]
 
 
+
+
+
+
 def dorand(x) :
-    if len(x) == 1 :
-        return  x[0]
-    if len(x) == 2 :
-        return x[0] +  4000 * x[1] 
+    global kseed
+    s = 0
+    #print(" DORAND rr = ", rr )
+    random.seed(kseed)
+    for value in x :
+        s = s + value  * ( 0.5  + random.random() )
+    return s
 
 
 sample_project= [
@@ -358,8 +438,10 @@ sample_project= [
 
 
 
+kseed = 5
 
 def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_units=True):  # {{{
+    global kseed
     tbeg = time.time()
     dprint("LINEAR_ALGEBRA_CHECK_EQUALITY check_units",  check_units)
     # LHS = student_answer
@@ -378,54 +460,51 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
     time_start = time.time()
     #print("LHS, RHS = ", lhs, rhs )
     inner = 'BEGIN: '
-    dprint("LINEAR_ALGEBRA CHECK EQUALITY LHS ", srepr( lhs ) )
-    dprint("LINEAR_ALGEBRA_CHECK_EQUALITY RHS ",  srepr( rhs ) )
-    dprint("LINEAR_ALGEBRA_CHECK_EQUALITY SAMPLE_VARIABLES",  sample_variables)
+    #print("LINEAR_ALGEBRA CHECK EQUALITY LHS ", str( lhs ) )
+    #print("LINEAR_ALGEBRA_CHECK_EQUALITY RHS ",  str( rhs ) )
+    #print("LINEAR_ALGEBRA_CHECK_EQUALITY SAMPLE_VARIABLES",  sample_variables)
     try:
-        random.seed(1)
-        sympy1 = lhs.subs(baseunits)
-        sympy2 = rhs.subs(baseunits)
-        dprint("SYMPY1,2 = ", sympy1, sympy2)
-        
+        baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
+        dprint("DO SAMPLE")
+        miss = 0
+        nsamples = 5
         if not 'sample' in str( rhs ) :
-            dprint("DO NOT SAMPLE")
-            diff = numpy.absolute( ( sympy1 - sympy2 ).doit() )
-            if numpy.all( diff < precision  ):
-                response['correct'] = True
-                response['debug'] = ' No sampling'
-                check_units = False
-            else :
-                response['correct'] = False
-                response['debug'] = ' No sampling'
+            nsamples = 1
+        for k in range(0,nsamples) :
+            kseed  = k
+            #print("NSAMPLES = ", nsamples, "K = ", k )
+            baseunits =  [('meter', 1), ('second', 1), ('kg', 1), ('ampere', 1), ('kelvin', 1), ('mole', 1), ('candela', 1)] 
+            #print("LHS W BASEUNITS", sympy.sympify(lhs) )
+            sympy_wo_units1 = sympy.sympify(lhs).subs(baseunits)
+            sympy_wo_units2 = sympy.sympify(rhs).subs(baseunits)
+            pair = (sympy_wo_units1, sympy_wo_units2)
+            pair =  sympy.lambdify( [], pair , modules=sample_module,)()
+            (sympy_wo_units1, sympy_wo_units2) = pair
+            #print("SYMPY1 = ", sympy_wo_units1)
+            #sympy_wo_units1 = sympy.lambdify( [], sympy_wo_units1  , modules=sample_module,)()
+            #print("SYMPY1 = ", sympy_wo_units1)
+            #sympy_wo_units2 = sympy.sympify(rhs).subs(baseunits)
+            #print("SYMPY2 = ", sympy_wo_units2)
+            #sympy_wo_units2 = sympy.lambdify( [], sympy_wo_units2  , modules=sample_module,)()
+            #print("SYMPY2 = ", sympy_wo_units2 )
+            diff = numpy.absolute( ( sympy_wo_units1 - sympy_wo_units2 ) )
+            #print("DIFF = ", diff )
+            if numpy.any( numpy.abs( diff ) > precision ) :
+                miss = miss + 1 
+        response['debug'] = " Sampling: %s of %s ok" % ( str( nsamples - miss), str(nsamples) )
+        if miss < nsamples * 0.3 :
+            response['correct'] = True
+            check_units = False
         else :
-            dprint("DO SAMPLE")
-            miss = 0
-            nsamples = 5
-            for k in range(0,nsamples) :
-                dprint("K = ", k )
-                sdiff =  numpy.absolute( ( sympy.lambdify( [], (sympy1 - sympy2 ) , modules=sample_module,)() ) )
-                if numpy.any( sdiff > precision ) :
-                    miss = miss + 1 
-            response['debug'] = " Sampling: %s of %s ok" % ( str( nsamples - miss), str(nsamples) )
-            if miss < nsamples * 0.3 :
-                response['correct'] = True
-                check_units = False
-            else :
-                response['correct'] = False
+            response['correct'] = False
                 
         if check_units:
             try:
-                sympy2_wunits =  sympy.lambdify( [], rhs , modules=sample_project,)()
-                dprint("WSYMPY2 = ", sympy2_wunits)
-                dprint("LHS = ", lhs )
-                sympy1_wunits =  sympy.lambdify( [], lhs , modules=sample_project,)()
-                dprint("WSYMPY1 = ", sympy1_wunits )
-                inner = inner + '+1'
-                dprint("call check_units_new")
-                dprint("SYMPY1_WUNITS = ", sympy1_wunits)
-                dprint("SYMPY2_WUNITS = ", sympy2_wunits)
-                dprint("SAMPLE_VARIABLES = ", sample_variables)
-                resp = check_units_new(sympy1_wunits, sympy2_wunits, sample_variables)
+                s1 = sympy.sympify( replace_sample_funcs( str(lhs) ) )
+                s2 = sympy.sympify( replace_sample_funcs( str(rhs) ) )
+                dprint("S1 = ", s1 )
+                dprint("S2 = ", s2 )
+                resp = check_units_new( s1,s2, sample_variables)
                 dprint("returned from check_units_new", resp )
                 inner = inner + 'B'
             except LinearAlgebraUnitError as e:
@@ -509,7 +588,7 @@ def linear_algebra_expression(
             correct_answer,
             check_units,
             blacklist,
-            used_variables,
+            variables,
             funcsubs,
         ),
     )

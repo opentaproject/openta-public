@@ -239,6 +239,10 @@ export default class QuestionDevLinearAlgebra extends Component {
     var localVars1 = enforceList(this.props.questionData.getIn(['var'], List([])));
     var localVars = localVars2.concat( localVars1 )
     var allVars = localVars.concat(varPropsList).concat(funcPropsList);
+    // console.log("localVars2 = ", localVars2)
+    // console.log("localVars1 = ", localVars1)
+    // console.log("varsPropsList= ", varPropsList)
+    // console.log("this.varsList= ", this.varsList)
     for(let v of allVars) {
       if(v.hasIn('token','$')) {
         var parsedVar = insertImplicitSubscript(v.getIn(['token','$'],'').trim()); 

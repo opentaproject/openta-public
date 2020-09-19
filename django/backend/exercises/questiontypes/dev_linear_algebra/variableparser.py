@@ -54,7 +54,7 @@ def new_parse_variables(variables):  # {{{
         variables = list(pipeline(rawvars))
         for var in variables:
             res[var.get('name')] = var.get('value')
-        # print("VARIABLES FROM TEXT = ", variables)
+        #print("VARIABLES FROM TEXT = ", variables)
         return variables
     except IndexError:
         raise QuestionError("Cannot parse variables")
@@ -94,7 +94,7 @@ def parse_xml_variables(node):
     '''
     Parses variables defined through the XML syntax <var>...</var>
     '''
-    # print("ANALYZE NODE = ", etree.tostring( node) )
+    #print("ANALYZE NODE = ", etree.tostring( node) )
     ress = []
     res = []
     textvariables = []
@@ -119,7 +119,7 @@ def parse_xml_functions(node):
     '''
     Parses variables defined through the XML syntax <var>...</var>
     '''
-    # print("ANALYZE NODE = ", etree.tostring( node) )
+    #print("ANALYZE NODE = ", etree.tostring( node) )
     ress = []
     res = []
     textvariables = []
@@ -148,7 +148,7 @@ def parse_blacklist(node):
     ret = []
     for token in tokens:
         if hasattr(token, 'text'):
-            # print("BLACKLIST TOKEN ", token.text.strip(' \t\n\r') )
+            #print("BLACKLIST TOKEN ", token.text.strip(' \t\n\r') )
             ret.append(token.text.strip(' \t\n\r'))
     return ret
 
@@ -169,11 +169,11 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         qstring = etree.tostring(question_xmltree, encoding='UTF-8')
         bigstring = bigstring + str(qstring)
     varhash = get_hash_from_string(str(bigstring) + __file__ )
-    # print("GETALLVARIABLES WITH HASH ", varhash)
+    #print("GETALLVARIABLES WITH HASH ", varhash)
     ret = cache.get(varhash)
     if settings.DO_CACHE and (ret is not None):
         return ret
-    # print("RECALCULATE GETALL VARIABLES", varhash)
+    #print("RECALCULATE GETALL VARIABLES", varhash)
     variables = []
     blacklist = set([])
     correct_answer = ''
@@ -228,10 +228,11 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         variables = list(
             filter(lambda item: (item['name'] in used_variable_list), variables)
         )  # GET RID OF CLASHES WITH FUNCTIONS
-    # print("GETALL VARIABLESS = ", variables )
+    #print("GETALL VARIABLESS = ", variables )
     funs = {}
     if not global_xmltree == None:
         funs = parse_xml_functions(global_xmltree)
+    #print("VARIABLES IN VARIABLEPARSER = ", variables)
     ret['variables'] = variables
     ret['authorvariables'] = variables
     ret['blacklist'] = blacklist

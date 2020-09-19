@@ -53,37 +53,37 @@ class QuestionError(Exception):
 
 
 def parsehints(question_xmltree, global_xmltree, answer_data):
-    # print("PARSEHINTS ANSWERDATA = ", answer_data)
-    # print("in parsehints question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
-    # print("in parsehints global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
+    #print("PARSEHINTS ANSWERDATA = ", answer_data)
+    #print("in parsehints question xmltree",  etree.tostring(question_xmltree , pretty_print=True) )
+    #print("in parsehints global xmltree",  etree.tostring(global_xmltree, pretty_print=True) )
     lang = translation.get_language()
-    # print( "CURRENT LANGUAGE = ", lang)
+    #print( "CURRENT LANGUAGE = ", lang)
     xmllist = [question_xmltree, global_xmltree]
     # hintstruc = [];
     result = {}
     for xmlentry in xmllist:
-        # print("XML ENTRY = ", xmlentry )
-        # print("in xmlentry ",  etree.tostring(xmlentry, pretty_print=True) )
+        #print("XML ENTRY = ", xmlentry )
+        #print("in xmlentry ",  etree.tostring(xmlentry, pretty_print=True) )
         if xmlentry is not None:
-            # print("xmlentry = ", xmlentry)
-            # print("xmlentry.tag", xmlentry.tag)
+            #print("xmlentry = ", xmlentry)
+            #print("xmlentry.tag", xmlentry.tag)
             hints = xmlentry.findall('hint')
-            # print('hints= ', hints)
+            #print('hints= ', hints)
             if hints:
                 if not isinstance(hints, list):
                     hints = [hints]
                 try:
                     for item in hints:
-                        # print("HINT iTEM = ", item )
+                        #print("HINT iTEM = ", item )
                         regex = item.find('regex').text
                         reply = item.find('comment').text
                         # alts = item.find('comment').findall('alt')
                         # alts2  = get_translations( item.find('comment'))
-                        # print('alt2 = ', alts2)
-                        # print('translation', alts2.get(lang, reply) )
+                        #print('alt2 = ', alts2)
+                        #print('translation', alts2.get(lang, reply) )
                         tdict = get_translations(item.find('comment'))
                         reply = tdict.get(lang, reply)
-                        # print("newreply = ", newreply)
+                        #print("newreply = ", newreply)
                         # if alts:
                         #    print("alts = ", alts)
                         #    for alt in alts:
@@ -91,25 +91,25 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                         #        if alt.get('lang') == lang :
                         #            reply = alt.text
                         presence = 'forbidden'
-                        # print("p attrib = ", item.find('regex').attrib  )
+                        #print("p attrib = ", item.find('regex').attrib  )
                         attributedict = item.find('regex').attrib
                         if attributedict:
                             presence = attributedict.get('present', 'forbidden')
-                            # print('presence = ', presence )
+                            #print('presence = ', presence )
                         if regex and reply:
                             # found = re.search(regex, answer_data)
                             found = re.search(
                                 r'{}'.format(regex), answer_data
                             )  # Allow for special chars in regex hint i.ie. <regex> (\[|\]) </regex>
                             found = False if found is None else True
-                            # print("REGEX FOUND AS WELL AS REPLY found = ", found)
-                            # print("PRESCENCE = ", presence )
+                            #print("REGEX FOUND AS WELL AS REPLY found = ", found)
+                            #print("PRESCENCE = ", presence )
                             if presence == 'forbidden' and found:
                                 result['correct'] = False
                                 result['status'] = 'incorrect'
                                 result['comment'] = reply
                                 result['dict'] = tdict
-                                # print("RESULT = ", result )
+                                #print("RESULT = ", result )
                                 return result
                             elif presence == 'allowed' and found:
                                 result['comment'] = reply
@@ -132,10 +132,10 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                                 result['dict'] = tdict
                                 return result
 
-                    # print("QSON ITEM regex",  item.get('regex') )
-                    # print("QSON ITEM comment",  item.get('comment') )
+                    #print("QSON ITEM regex",  item.get('regex') )
+                    #print("QSON ITEM comment",  item.get('comment') )
                 except:
-                    # print("SHOULD NOT GET HERE ANY MORE; qjson is not a list; see parsehints")
+                    #print("SHOULD NOT GET HERE ANY MORE; qjson is not a list; see parsehints")
                     result['correct'] = False
                     result['comment'] = 'PROGRAMMING ERROR; please inform admin HINT TAGS ARE WRONG'
                     return result
@@ -177,7 +177,7 @@ def get_number_of_attempts(question_id, user_id):
     #    nattempt = last_answer.nattempt + 1
     # else:
     #    nattempt = 0
-    # print("COMPARE ", answers.count(), nattempt)
+    #print("COMPARE ", answers.count(), nattempt)
     # if answers.count() != nattempt:
     #    attemptlist = list(answers.values_list('nattempt', flat=True))
     #    datelist = list(answers.values_list('date', flat=True))
@@ -260,7 +260,7 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         usermacros = get_usermacros(user, exercise_key, question_key)
         username = str(user)
-        # print("USERMACROS = ", usermacros)
+        #print("USERMACROS = ", usermacros)
     except ObjectDoesNotExist:
         return {
             'error': 'Invalid question',
@@ -288,14 +288,14 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     return( _question_check(hijacked, view_solution_permission, user, user_agent, exercise_key, question_key, answer_data,old_answer_object) )
 
 def _question_check(hijacked , view_solution_permission, user, user_agent, exercise_key, question_key, answer_data,old_answer_object):
-    # print("QUESTION CHECK ANSER_DATA = ", answer_data)
+    #print("QUESTION CHECK ANSER_DATA = ", answer_data)
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     studentassetpath = _dispatch_asset_path( user, dbexercise)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         usermacros = get_usermacros(user, exercise_key, question_key)
         username = str(user)
-        # print("USERMACROS = ", usermacros)
+        #print("USERMACROS = ", usermacros)
     except ObjectDoesNotExist:
         return {
             'error': 'Invalid question',
@@ -311,14 +311,14 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
     tbeg = time.time()
     tbeg = time.time()
     question_json = question_json_get(dbexercise.get_full_path(), question_key, usermacros)
-    # print("TIME1 = ",  ( time.time() - tbeg ) *1000 )
+    #print("TIME1 = ",  ( time.time() - tbeg ) *1000 )
     if dbquestion.type in question_json_hooks:
         question_json = question_json_hooks[dbquestion.type](
             question_json, question_json, dbquestion.pk, user.pk, exercise_key
         )
-    # print("TIME2 = ",  ( time.time() - tbeg ) *1000 )
+    #print("TIME2 = ",  ( time.time() - tbeg ) *1000 )
     xmltree = exercise_xmltree(dbexercise.get_full_path(), usermacros)
-    # print("TIME3 = ",  ( time.time() - tbeg ) *1000 )
+    #print("TIME3 = ",  ( time.time() - tbeg ) *1000 )
     question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
     if question_xmltree.xpath('macros') and settings.REFRESH_SEED_ON_CORRECT_ANSWER:
         refreshable_macros = True
@@ -376,7 +376,7 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
     #        return {'error': error_msg + rate + ')'}
 
 
-    # print("TIME5 = ",  ( time.time() - tbeg ) *1000.0 )
+    #print("TIME5 = ",  ( time.time() - tbeg ) *1000.0 )
     try:
         if dbquestion.type in question_check_dispatch:
             result = {}

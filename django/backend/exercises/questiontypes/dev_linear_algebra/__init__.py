@@ -57,13 +57,22 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
     #        return hints
     check_units = True
     ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
-    # print("RET = ", ret)
+    #print("IN __INIT__ QUESTION_CHECK RET = ", ret)
     used_variables = list(ret['used_variables'])
     variables = ret['variables']
     funcsubs = ret['functions']
-    # print("QUESTION CHECK FUNCSUBS = ", funcsubs)
+    # #print("QUESTION CHECK FUNCSUBS = ", funcsubs)
     authorvariables = ret['authorvariables']
+    exposeglobals = (question_json.get('@attr').get('exposeglobals', 'false')).lower() == 'true'
+    #print("EXPOSEGLOBALS = ", exposeglobals)
+    if exposeglobals :
+        okvariables = set( [item['name'] for item in authorvariables] + used_variables   )
+    else :
+        okvariables = set(  used_variables   )
+    #print("AUTHORVARIABLES = ", authorvariables)
     blacklist = ret['blacklist']
+    okvariables = okvariables.difference( set( blacklist) )
+    #print("BLACKLIST = ", blacklist)
     correct_answer = ret['correct_answer']
     equality = question_xmltree.find('equality')
     negate = False
@@ -124,6 +133,8 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
     #    result.update(hints)
     #print("final result = ", result)
     logger.debug("RETTURN RESULT = " + json.dumps(result) )
+    result['used_variable_list'] = list( okvariables )
+    #print("RETTURN RESULT", json.dumps( result) )
     return result
 
 
@@ -177,7 +188,7 @@ def remove_blacklist_variables_from_obj(variablesobj, foundvariables=[]):
         tokens = [tokens]
     for tokendict in tokens:
         if not tokendict.get('$') is None:
-            # print("FOUND TOKEN TO REMOVE ", tokendict.get('$') )
+            # #print("FOUND TOKEN TO REMOVE ", tokendict.get('$') )
             token = (tokendict.get('$')).strip()
             if token in foundvariables:
                 foundvariables.remove(token)
@@ -185,13 +196,16 @@ def remove_blacklist_variables_from_obj(variablesobj, foundvariables=[]):
 
 
 def linear_algebra_json_hook(safe_question, full_question, question_id, user_id, *args):
+    #print("FULL_QUESTION = ", full_question)
     correct_answer = full_question.get('expression').get('$', 'NO TEXT IN EXPRESSION').split(';')[0]
-    used_variable_list = get_used_variable_list(correct_answer)
+    used_variable_list = get_used_variable_list(correct_answer) 
+    #print("__INIT__ USED_VARIABLE_LIST", used_variable_list)
     variablelist = get_more_variables_from_obj(
         full_question.get('variables', {}), used_variable_list
     )
+    #print("__INIT2__ USED_VARIABLE_LIST", variablelist)
     if (full_question.get('@attr').get('exposeglobals', 'false')).lower() == 'true':
-        # print("Expose = true")
+        # #print("Expose = true")
         safe_question['exposeglobals'] = True
         variablelist = get_more_variables_from_obj(full_question.get('global', {}), variablelist)
     else:
@@ -200,6 +214,7 @@ def linear_algebra_json_hook(safe_question, full_question, question_id, user_id,
         blacklist = full_question.get('variables').get('blacklist')
     except:
         blacklist = full_question.get('blacklist')
+    #print("__INIT3__ USED VARIABLE LIST", variablelist)
     # DISABLE feedback XML in quesiton
     feedback = full_question.get('@attr').get('feedback',True)
     safe_question['feedback'] = feedback
@@ -210,7 +225,7 @@ def linear_algebra_json_hook(safe_question, full_question, question_id, user_id,
     if not blacklist is None:
         variablelist = remove_blacklist_variables_from_obj(blacklist, variablelist)
     safe_question['username'] = user_id
-    safe_question['used_variable_list'] = variablelist
+    safe_question['used_variable_list'] = variablelist 
     safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)
     safe_question['previous_answers'] = get_previous_answers(question_id, user_id, 5)
     return safe_question
