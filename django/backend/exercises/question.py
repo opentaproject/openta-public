@@ -85,9 +85,9 @@ def parsehints(question_xmltree, global_xmltree, answer_data):
                         reply = tdict.get(lang, reply)
                         #print("newreply = ", newreply)
                         # if alts:
-                        #    print("alts = ", alts)
+                        #    #print("alts = ", alts)
                         #    for alt in alts:
-                        #        print("alt.get lang", alt.get('lang') )
+                        #        #print("alt.get lang", alt.get('lang') )
                         #        if alt.get('lang') == lang :
                         #            reply = alt.text
                         presence = 'forbidden'
@@ -181,8 +181,8 @@ def get_number_of_attempts(question_id, user_id,old_date=None):
     # if answers.count() != nattempt:
     #    attemptlist = list(answers.values_list('nattempt', flat=True))
     #    datelist = list(answers.values_list('date', flat=True))
-    #    print("ANSWERLIST = ", attemptlist)
-    #    print("ANSWERLIST = ", attemptlist)
+    #    #print("ANSWERLIST = ", attemptlist)
+    #    #print("ANSWERLIST = ", attemptlist)
     #    # assert False, "IN QUESTION.py, GET NUMBER OF ATTEMPTS INCORRECT"
     # return nattempt
 
@@ -255,8 +255,8 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     hijacked = request.session.get('hijacked', False)
     view_solution_permission = request.user.has_perm("exercises.view_solution")
     studentassetpath = _dispatch_asset_path(user, dbexercise)
-    print("OLD_ANSWER_OBJECT = ", old_answer_object)
-    print("STUDENTASSETPATH = ", studentassetpath)
+    #print("OLD_ANSWER_OBJECT = ", old_answer_object)
+    #print("STUDENTASSETPATH = ", studentassetpath)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         usermacros = get_usermacros(user, exercise_key, question_key)
@@ -523,7 +523,7 @@ def get_usermacros(user, exercise_key, question_key=None,old_date=None):
     #studentassetpath = paths.get_student_asset_path(user, dbexercise)
     studentassetpath = _dispatch_asset_path(user, dbexercise)
     usermacros['@studentassetpath'] = studentassetpath
-    print("USERMACROS OLD_DATE = ", old_date)
+    #print("USERMACROS OLD_DATE = ", old_date)
     if question_key:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         n_attempts = get_number_of_attempts(dbquestion.pk, user.pk,old_date)
@@ -562,7 +562,7 @@ def get_seed(user_id, exercise_key=None, question_id=None,old_date=None):
     Returns:
         Number of attempts (int)
     """
-    print("GET_SEED old_date=", old_date)
+    #print("GET_SEED old_date=", old_date)
     if question_id:
         random.seed(exercise_key + str(question_id))
     else:
