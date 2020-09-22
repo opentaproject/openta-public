@@ -35,7 +35,7 @@ from .unithelpers import *
 from sympy import DiagonalOf
 import sympy
 from .functions import *
-from .checks import check_for_legal_answer, lambdifymodules, LinearAlgebraUnitError, check_units_new
+from .checks import check_for_legal_answer, lambdifymodules, LinearAlgebraUnitError, check_units_new, mysqrt
 import numpy
 from .parsers import parse_sample_variables
 from .variableparser import getallvariables, get_used_variable_list
@@ -235,6 +235,7 @@ def linear_algebra_compare_expressions(
     tbeg = time.time()
     _ , varsubs_sympify, sample_variables = parse_sample_variables(variables)
     dprint("VARIABLES = ", variables )
+    student_answer_unparsed = student_answer
     # #############################################
     # IF EQUALITY IS USED, SAMPLING IS DISABLED 
     # AND zero = LHS - RHS 
@@ -253,15 +254,19 @@ def linear_algebra_compare_expressions(
     #    return response
     student_answer = declash( student_answer)
     correct = declash( correct )
-    (student_answer, correct ,varsubs_sympify ) = equality_remap( student_answer, correct ,varsubs_sympify)
+    try:
+        (student_answer, correct ,varsubs_sympify ) = equality_remap( student_answer, correct ,varsubs_sympify)
+    except:
+        response = {'error' : "Equality syntax incorrect in student expression [%s] " % student_answer_unparsed }
+        return response
     #print("TIME B0b" ,  1000 * ( time.time() - tbeg ) )
     student_answer = insert_implicit_multiply( student_answer)
     correct_answer = insert_implicit_multiply( correct )
     compare_hash = get_hash_from_string( " %s %s %s %s %s %s %s %s %s " % ( str(precision), str(variables), str(student_answer), 
             str(correct_answer), str(check_units), str(used_variables), str(blacklist), str(funcsubs)   , __file__ ) )
-    ret = djangocache.cache.get(compare_hash)
-    if not ret == None :
-            return ret
+    #ret = djangocache.cache.get(compare_hash)
+    #if not ret == None :
+    #        return ret
     student_answer_orig = student_answer
     time_start = time.time()
     #print("LINEAR_ALGEBRA_COMPARE_EXPRESSIONS")
@@ -381,14 +386,14 @@ sample_module = [
 ]
 
 
-def mysqrt(x) :
-    try:
-        res = numpy.sqrt(x)
-        return res
-    except :
-        print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
-        return 0
-        #raise ValueError("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
+#def mysqrt(x) :
+#    x = x + numpy.complex(0,0)
+#    if  numpy.isscalar(x) :
+#        return numpy.sqrt(numpy.abs(x) )
+#    else :
+#        print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
+#        return 0
+#        #raise ValueError("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
 
 base_module = [
     {
@@ -442,6 +447,8 @@ kseed = 5
 
 def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_units=True):  # {{{
     global kseed
+    lhsorig = lhs
+    rhsorig = rhs
     tbeg = time.time()
     dprint("LINEAR_ALGEBRA_CHECK_EQUALITY check_units",  check_units)
     # LHS = student_answer
@@ -478,7 +485,10 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
             sympy_wo_units1 = sympy.sympify(lhs).subs(baseunits)
             sympy_wo_units2 = sympy.sympify(rhs).subs(baseunits)
             pair = (sympy_wo_units1, sympy_wo_units2)
-            pair =  sympy.lambdify( [], pair , modules=sample_module,)()
+            try :
+                pair =  sympy.lambdify( [], pair , modules=sample_module,)()
+            except: 
+                miss = miss + 1
             (sympy_wo_units1, sympy_wo_units2) = pair
             #print("SYMPY1 = ", sympy_wo_units1)
             #sympy_wo_units1 = sympy.lambdify( [], sympy_wo_units1  , modules=sample_module,)()
@@ -489,8 +499,11 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
             #print("SYMPY2 = ", sympy_wo_units2 )
             diff = numpy.absolute( ( sympy_wo_units1 - sympy_wo_units2 ) )
             #print("DIFF = ", diff )
-            if numpy.any( numpy.abs( diff ) > precision ) :
-                miss = miss + 1 
+            try: 
+                if numpy.any( numpy.abs( diff ) > precision ) :
+                    miss = miss + 1 
+            except:
+                miss = miss + 1
         response['debug'] = " Sampling: %s of %s ok" % ( str( nsamples - miss), str(nsamples) )
         if miss < nsamples * 0.3 :
             response['correct'] = True
@@ -513,10 +526,12 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
             except Exception as e:
                 dprint("FAILED CHECK_UNITS_NEW", type(e), str(e) )
 
+    except ShapeError as e :
+        response['error'] = _("Illegal matrix operation in %s" % lhsorig)
     except SympifyError as e:
         inner = ''
         logger.error([str(e), str(lhs), str(rhs)])
-        response['error'] = _("Failed to evaluate expression." + inner)
+        response['error'] = _("Error 533 Failed to evaluate expression. %s " + inner % lhsorig)
     except AttributeError as e:
         parts = str(e).split('attribute')
         response['error'] = str(parts[1]) + ' is undefined  ( Error 347 ) inner = ' + inner
@@ -530,7 +545,8 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         inner = ''
         logger.error([str(e), str(lhs), str(rhs)])
         logger.error(traceback.format_exc())
-        response['error'] = _("Unknown error, check your expression." + inner)
+        response['error'] = _("Unknown error 533 comparing  [%s , %s] check your expression." + inner % ( str(lhs), str(rhs) ) )
+        print("UNCAUGHT ERROR 533 FOUND AND PRINT", response['error'] )
     #print("DELTA T2  = ", 1000 * ( time.time() - time_start ) );
     #print("RESPONSE = ", response )
     dprint("TIME IN CHECK_EQUALTITY ", 1000 * ( time.time() - tbeg) )

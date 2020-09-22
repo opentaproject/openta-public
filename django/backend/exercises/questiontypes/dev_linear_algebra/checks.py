@@ -33,10 +33,10 @@ from numpy import tan, logical_or, equal, cross,dot,inf,complex
 import numpy.linalg
 
 def mysqrt(x) :
-    try:
-        res = numpy.sqrt(x)
-        return res
-    except :
+    x = x + numpy.complex(0,0)
+    if  numpy.isscalar(x) :
+        return numpy.sqrt(numpy.abs(x) )
+    else :
         print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
         return 0
         #raise ValueError("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )

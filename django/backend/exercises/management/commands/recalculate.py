@@ -25,7 +25,7 @@ from exercises.parsing import (
     get_questionkeys_from_xml,
 )
 
-from random import shuffle
+from random import shuffle,seed
 
 
 
@@ -90,11 +90,11 @@ class Command(BaseCommand):
         answers = list(answers)
         redo(answers)
 
-def dotask(npks=20) :
-    answers = get_new_answers(npks)
+def dotask(npks=20,seed=None) :
+    answers = get_new_answers(npks,seed)
     return redo( answers)
 
-def get_new_answers(npks=20) :
+def get_new_answers(npks=20,iseed=None) :
     answers =  Answer.objects.all() 
     allpks = [ item.pk for item in answers ]
     donepks = []
@@ -107,6 +107,8 @@ def get_new_answers(npks=20) :
     answerpks = list( (set(allpks)).difference(set(donepks) ) )
     if len(answerpks) == 0 :
             return []
+    if seed :
+        seed(iseed)
     shuffle( answerpks )
     answerpks = answerpks[0:npks] 
     answers = list( answers.filter( pk__in=answerpks) )

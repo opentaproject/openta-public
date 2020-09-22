@@ -13,11 +13,11 @@ import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def longjob(num):
-    res = dotask(20)
+    res = dotask(20,num)
     k = 0
     while len(res) > 0  :
         k = k + 1
-        res = dotask(20)
+        res = dotask(20,num)
     return num
 
 async def main(loop) :
