@@ -159,7 +159,7 @@ def get_all_answers(dbhooks):  # exercise_key, question_id, user_id ) :
     return all_answers
 
 
-def get_number_of_attempts(question_id, user_id):
+def get_number_of_attempts(question_id, user_id,old_date=None):
     """
     Number of attempts by user at question.
     Args:
@@ -255,7 +255,8 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
     hijacked = request.session.get('hijacked', False)
     view_solution_permission = request.user.has_perm("exercises.view_solution")
     studentassetpath = _dispatch_asset_path(user, dbexercise)
-    #print("STUDENTASSETPATH = ", studentassetpath)
+    print("OLD_ANSWER_OBJECT = ", old_answer_object)
+    print("STUDENTASSETPATH = ", studentassetpath)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         usermacros = get_usermacros(user, exercise_key, question_key)
@@ -289,11 +290,14 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
 
 def _question_check(hijacked , view_solution_permission, user, user_agent, exercise_key, question_key, answer_data,old_answer_object):
     #print("QUESTION CHECK ANSER_DATA = ", answer_data)
+    old_date = None
+    if old_answer_object :
+        old_date = old_answer_object.date
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     studentassetpath = _dispatch_asset_path( user, dbexercise)
     try:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
-        usermacros = get_usermacros(user, exercise_key, question_key)
+        usermacros = get_usermacros(user, exercise_key, question_key,old_date)
         username = str(user)
         #print("USERMACROS = ", usermacros)
     except ObjectDoesNotExist:
@@ -434,7 +438,7 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
                 #print("RESULT = ", result)
                 #print("CORRECT = ", correct)
                 return (result,correct)
-            usermacros = get_usermacros(user, exercise_key, question_key)
+            usermacros = get_usermacros(user, exercise_key, question_key,old_date)
             previous_answers = get_safe_previous_answers(dbquestion.pk, user.pk)
             result['previous_answers'] = previous_answers
             result['n_attempts'] = usermacros['@nattempts']
@@ -481,7 +485,7 @@ def get_sensitive_attrs():
     return sensitive_attrs
 
 
-def get_combined_usermacros(exercise, xml, user):
+def get_combined_usermacros(exercise, xml, user,old_date=None):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     usermacros = {}
     question_keys = get_questionkeys_from_xml(xml)
@@ -490,21 +494,21 @@ def get_combined_usermacros(exercise, xml, user):
         usermacros[question_key] = {}
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
         username = str(user)
-        n_attempts = get_number_of_attempts(dbquestion.pk, user.pk)
-        n_correct = get_number_of_correct_attempts(dbquestion.pk, user.pk)
+        n_attempts = get_number_of_attempts(dbquestion.pk, user.pk,old_date)
+        n_correct = get_number_of_correct_attempts(dbquestion.pk, user.pk,old_date)
         usermacros[question_key]['@definedby'] = 'get_combined_usermacros'
         usermacros[question_key]['@nattempts'] = str(n_attempts)
         usermacros[question_key]['@ncorrect'] = str(n_correct)
         usermacros[question_key]['@user'] = username
         usermacros[question_key]['@exercise_key'] = str(exercise)
         usermacros[question_key]['@question_key'] = question_key
-        usermacros[question_key]['@questionseed'] = get_seed(user.pk, str(exercise), dbquestion.pk)
+        usermacros[question_key]['@questionseed'] = get_seed(user.pk, str(exercise), dbquestion.pk,old_date)
         usermacros[question_key]['@exerciseseed'] = get_seed(user.pk, str(exercise))
         usermacros[question_key]['@userpk'] = str(user.pk)
     return usermacros
 
 
-def get_usermacros(user, exercise_key, question_key=None):
+def get_usermacros(user, exercise_key, question_key=None,old_date=None):
 
     dbexercise = Exercise.objects.get(exercise_key=exercise_key)
     usermacros = {}
@@ -519,19 +523,20 @@ def get_usermacros(user, exercise_key, question_key=None):
     #studentassetpath = paths.get_student_asset_path(user, dbexercise)
     studentassetpath = _dispatch_asset_path(user, dbexercise)
     usermacros['@studentassetpath'] = studentassetpath
+    print("USERMACROS OLD_DATE = ", old_date)
     if question_key:
         dbquestion = Question.objects.get(exercise=dbexercise, question_key=question_key)
-        n_attempts = get_number_of_attempts(dbquestion.pk, user.pk)
-        n_correct = get_number_of_correct_attempts(dbquestion.pk, user.pk)
+        n_attempts = get_number_of_attempts(dbquestion.pk, user.pk,old_date)
+        n_correct = get_number_of_correct_attempts(dbquestion.pk, user.pk,old_date)
         usermacros['@exerciseassetpath'] = exerciseassetpath
         usermacros['@nattempts'] = str(n_attempts)
         usermacros['@ncorrect'] = str(n_correct)
         usermacros['@question_key'] = dbquestion.question_key
-        usermacros['@questionseed'] = get_seed(user.pk, str(exercise_key), dbquestion.pk)
+        usermacros['@questionseed'] = get_seed(user.pk, str(exercise_key), dbquestion.pk,old_date)
     return usermacros
 
 
-def get_number_of_correct_attempts(question_id, user_id):
+def get_number_of_correct_attempts(question_id, user_id,old_date=None):
     """
     Number of attempts by user at question.
     Args:
@@ -540,12 +545,15 @@ def get_number_of_correct_attempts(question_id, user_id):
     Returns:
         Number of attempts (int)
     """
-    answers = Answer.objects.filter(user__pk=user_id, question__pk=question_id, correct=True)
+    if old_date :
+        answers = Answer.objects.filter(user__pk=user_id, question__pk=question_id, correct=True,date__lt=old_date)
+    else :
+        answers = Answer.objects.filter(user__pk=user_id, question__pk=question_id, correct=True)
     ncorrect = answers.count()
     return ncorrect
 
 
-def get_seed(user_id, exercise_key=None, question_id=None):
+def get_seed(user_id, exercise_key=None, question_id=None,old_date=None):
     """
     Number of attempts by user at question.
     Args:
@@ -554,13 +562,14 @@ def get_seed(user_id, exercise_key=None, question_id=None):
     Returns:
         Number of attempts (int)
     """
+    print("GET_SEED old_date=", old_date)
     if question_id:
         random.seed(exercise_key + str(question_id))
     else:
         random.seed(exercise_key)
     r = random.randrange(123, 55321, 1)
     if settings.REFRESH_SEED_ON_CORRECT_ANSWER and question_id:
-        return str(r + get_number_of_correct_attempts(question_id, user_id) + user_id)
+        return str(r + get_number_of_correct_attempts(question_id, user_id,old_date) + user_id)
     else:
         return str(r + user_id)
 

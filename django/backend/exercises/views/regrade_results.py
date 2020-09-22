@@ -131,6 +131,7 @@ def regrade_students_results(task, exercise):
                 exercise_key = question.exercise.exercise_key
                 question_key = question.question_key
                 old_correct = grader_response.get('correct', False)
+                print("ANSWER_DATE = ", answer.date)
                 if task is not None:
                     task.status = (task.status + txt)[-245:]
                     task.progress = round(((index + 1) / n_answers) * 100)
