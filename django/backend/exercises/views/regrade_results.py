@@ -85,8 +85,23 @@ def regrade_students_results(task, exercise):
     except Exercise.DoesNotExist:
         return Response({}, status=status.HTTP_404_NOT_FOUND)
     questions = Question.objects.filter(exercise=dbexercise)
+    #print("QUESTIONS = ", questions)
     exercise_key = dbexercise.exercise_key
+    #WHY DOES THIS MISS SOME! 
     all_answers = Answer.objects.filter(question__in=questions).order_by('-date')
+    #all_answer_pks =  set( list( all_answers.values_list('pk',flat=True) )  )
+    #print("ALL_FILTERED = ", all_answer_pks.intersection( set([3021,3024,3025,2677])))
+    #all_answers = Answer.objects.all()
+    if  os.path.exists("/tmp/whitelist.txt") :
+        allpks = []
+        with open("/tmp/whitelist.txt") as fp:
+                for line in fp:
+                    pk = int( line.split(' ')[0] )
+                    print("PK = ", pk )
+                    allpks.append(pk)
+        #print("ALLPKS = ", allpks )
+        all_answers = all_answers.filter(pk__in=allpks)
+        #print("LEN ALL_ANSWERS = ", len( all_answers) )
     for question in questions:
         question_key = question.question_key
         results[question_key] = []
@@ -102,6 +117,7 @@ def regrade_students_results(task, exercise):
     old_regrade_exists = os.path.isfile(resultsfile)
     if old_regrade_exists:
         results = pickle.load(open(resultsfile, 'rb'))
+    print("ALL_ANSWERS = ", len(all_answers) )
     for index, answer in enumerate(all_answers):
         if old_regrade_exists:
             task.status = "Old regrade exists"
@@ -110,76 +126,80 @@ def regrade_students_results(task, exercise):
         else:
             #if index > 3 :
             #    break
-            regrade_task = RegradeTask.objects.get(exercise=dbexercise)
-            if regrade_task.status == 'Running':
-                try:
-                    grader_response_string =  answer.grader_response
-                    grader_response_string =     grader_response_string.replace('true' , 'True') ;
-                    grader_response_string =     grader_response_string.replace('false' , 'False') ;
-                    grader_response_string =    grader_response_string.replace('\'','\"' )
-                    grader_response = eval(grader_response_string)
-                except:
-                    #print("GRADER RESPONSE STRING = ", grader_response_string)
-                    grader_response = {"error" : "Unidentfied" , "correct" : answer.correct }
-                user_agent = answer.user_agent
-                answer_data = answer.answer
-                old_correct = answer.correct
-                hijacked = False
-                view_solution_permission = True
-                dbuser = answer.user
-                question = answer.question
-                exercise_key = question.exercise.exercise_key
-                question_key = question.question_key
-                old_correct = grader_response.get('correct', False)
-                print("ANSWER_DATE = ", answer.date)
-                if task is not None:
-                    task.status = (task.status + txt)[-245:]
-                    task.progress = round(((index + 1) / n_answers) * 100)
-                    task.save()
-                if True : # or 'stellan.ostlund@physics.gu.se'  == dbuser.username :
-                    (result, new_correct) = _question_check(
-                        hijacked,
-                        view_solution_permission,
-                        dbuser,
-                        user_agent,
-                        exercise_key,
-                        question_key,
-                        answer_data,
-                        answer,
-                    )
-                    if not (old_correct == new_correct):
-                       print("DID ", index, answer.pk)
-                       txt = ( str(dbuser) + ' ' + answer_data + ': ' + str(old_correct) + ' => ' + str(new_correct) + "\n")
-                       print("TXT ", txt)
-                    else :
-                        pass 
-                    if not ( old_correct == new_correct ):
-                        if new_correct:
-                            txt = "Correct: " + answer_data
-                        else:
-                            txt = "Incorrect: " + answer_data + result.get('error','')
-                        answer.grader_response = json.dumps(result)
-                        answer.correct = new_correct
-                        # answer.save()
-                        regrade_items.append(
-                            dict(
-                                pk=answer.pk,
-                                grader_response=answer.grader_response,
-                                correct=answer.correct,
-                                error=result.get('error','')
+            if answer.question :
+                regrade_task = RegradeTask.objects.get(exercise=dbexercise)
+                if regrade_task.status == 'Running':
+                    try:
+                        grader_response_string =  answer.grader_response
+                        grader_response_string =  grader_response_string.replace('true' , 'True') ;
+                        grader_response_string =  grader_response_string.replace('false' , 'False') ;
+                        grader_response_string =  grader_response_string.replace('\'','\"' )
+                        grader_response = eval(grader_response_string)
+                    except:
+                        #print("GRADER RESPONSE STRING = ", grader_response_string)
+                        grader_response = {"error" : "Unidentfied" , "correct" : answer.correct }
+                    user_agent = answer.user_agent
+                    answer_data = answer.answer
+                    old_correct = answer.correct
+                    hijacked = False
+                    view_solution_permission = True
+                    dbuser = answer.user
+                    question = answer.question
+                    exercise_key = question.exercise.exercise_key
+                    question_key = question.question_key
+                    old_correct = grader_response.get('correct', False)
+                    #print("ANSWER_DATE = ", answer.date)
+                    if task is not None:
+                        task.status = (task.status + txt)[-245:]
+                        task.progress = round(((index + 1) / n_answers) * 100)
+                        task.save()
+                    if True : # or 'stellan.ostlund@physics.gu.se'  == dbuser.username :
+                        try:
+                            (result, new_correct) = _question_check(
+                                hijacked,
+                                view_solution_permission,
+                                dbuser,
+                                user_agent,
+                                exercise_key,
+                                question_key,
+                                answer_data,
+                                answer,
                             )
-                        )
-                        results[question.question_key].append(
-                            dict(
-                                username=dbuser.username,
-                                key=answer.pk,
-                                date=answer.date,
-                                answer=answer_data,
-                                old=old_correct,
-                                new=new_correct,
-                                error=result.get('error','')
-                            )
-                        )
+                            if True or not (old_correct == new_correct):
+                               #print("DID ", index, answer.pk)
+                               txt = ( str(dbuser) + ' ' + answer_data + ': ' + str(old_correct) + ' => ' + str(new_correct) + "\n")
+                               #print("TXT ", txt)
+                            else :
+                                pass 
+                            if not ( old_correct == new_correct ):
+                                if new_correct:
+                                    txt = "Correct: " + answer_data
+                                else:
+                                    txt = "Incorrect: " + answer_data + result.get('error','')
+                                answer.grader_response = json.dumps(result)
+                                answer.correct = new_correct
+                                # answer.save()
+                                regrade_items.append(
+                                    dict(
+                                        pk=answer.pk,
+                                        grader_response=answer.grader_response,
+                                        correct=answer.correct,
+                                        error=result.get('error','')
+                                    )
+                                )
+                                results[question.question_key].append(
+                                    dict(
+                                        username=dbuser.username,
+                                        key=answer.pk,
+                                        date=answer.date,
+                                        answer=answer_data,
+                                        old=old_correct,
+                                        new=new_correct,
+                                        error=result.get('error','')
+                                    )
+                                )
+                        except:
+                                pass
     try:
         regrade_task = RegradeTask.objects.get(exercise=exercise_key)
         if regrade_task.status == 'Running':

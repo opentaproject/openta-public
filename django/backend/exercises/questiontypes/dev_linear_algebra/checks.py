@@ -37,7 +37,7 @@ def mysqrt(x) :
     if  numpy.isscalar(x) :
         return numpy.sqrt(numpy.abs(x) )
     else :
-        print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
+        #print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
         return 0
         #raise ValueError("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
 
@@ -172,7 +172,9 @@ def check_for_legal_answer(
     precision, variables, student_answer, expression, check_units=True, blacklist=[]
 ):
     response = {}
+    #print("VARIABLES1 = ", variables)
     variables = [ replace_sample_funcs( item) for item in variables ]
+    #print("VARIABLES2 = ", variables)
     expression = replace_sample_funcs(expression)
     student_answer = replace_sample_funcs(declash( student_answer) )
     #print("STUDENT ANSWER CHECK", student_answer, flush=True)

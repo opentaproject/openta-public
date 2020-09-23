@@ -55,7 +55,7 @@ class Command(BaseCommand):
         answers =  Answer.objects.all() 
         nobjects = answers.count()
         whitelist_filename = kwargs.get('whitelist',None)
-        print("KWARGS = ", kwargs)
+        #print("KWARGS = ", kwargs)
         accept = kwargs.get('accept', False)
         exercise = kwargs.get('exercise')
         suffix = kwargs.get('suffix')
@@ -78,14 +78,14 @@ class Command(BaseCommand):
                     whitelist = whitelist + questions
             #print("whitelist = ", whitelist )
             answers = list( answers.filter( question__in=whitelist) )
-        print("answerpkks = ", answerpks)
+        #print("answerpkks = ", answerpks)
         #answerpks = [17865,22207,23825]
         if not answerpks == [] :
             answers = list( answers.filter( pk__in=answerpks) )
         else :
             answers = get_new_answers()
-        print("NUMBER OF  ANSWERS = ", len( answers ) )
-        print("ACCEPT = ", accept )
+        #print("NUMBER OF  ANSWERS = ", len( answers ) )
+        #print("ACCEPT = ", accept )
         #print("ANSWERS = ", answers)
         answers = list(answers)
         redo(answers)
@@ -95,21 +95,31 @@ def dotask(npks=20,seed=None) :
     return redo( answers)
 
 def get_new_answers(npks=20,iseed=None) :
-    answers =  Answer.objects.all() 
-    allpks = [ item.pk for item in answers ]
     donepks = []
+    answers =  Answer.objects.all() 
+    if  os.path.exists("/tmp/whitelist.txt") :
+        allpks = []
+        with open("/tmp/whitelist.txt") as fp:
+                for line in fp:
+                    pk = int( line.split(' ')[0] )
+                    allpks.append(pk)
+        answers = answers.filter(pk__in=allpks)
+    #print("LEN ANSWERS = ", len( answers) )
+    allpks = [ item.pk for item in answers ]
     if os.path.exists("/tmp/recalculated.txt") :
-         with open("/tmp/recalculated.txt") as fp:
-              for line in fp:
-                  donepks.append(int( line.rstrip("\n") ))
+            with open("/tmp/recalculated.txt") as fp:
+                for line in fp:
+                    donepks.append(int( line.rstrip("\n") ))
     else :
-         donepks = []
+            donepks = []
     answerpks = list( (set(allpks)).difference(set(donepks) ) )
+    #print("ANSWERPKS = ", answerpks)
     if len(answerpks) == 0 :
             return []
     if seed :
         seed(iseed)
-    shuffle( answerpks )
+    if  not os.path.exists("/tmp/whitelist.txt") :
+        shuffle( answerpks )
     answerpks = answerpks[0:npks] 
     answers = list( answers.filter( pk__in=answerpks) )
     return(answers)
@@ -128,11 +138,13 @@ def redo( answers ):
         done_answers = []
         for answer in answers:
             ind = ind + 1
-            if True : # not str( answer.pk )  in done_answers:
+            if not answer == None : # not str( answer.pk )  in done_answers:
                 error_message = None
                 did = False
                 try:
-                    if answer.question:
+                    s1 = 'n'
+                    s2 = 'n'
+                    if True  :
                         time_beg = time.time()
                         exercise = answer.question.exercise
                         question_key = answer.question.question_key
@@ -164,10 +176,14 @@ def redo( answers ):
                         full_path = exercise.get_full_path()
                         name = exercise.name.replace("\n","")
                         if os.path.exists(full_path ):
-                            question_json = question_json_get(exercise.get_full_path(), question_key, usermacros)
+            
+                            #print("RECALCULATE.PY QUESITON CHECK ARGUMENTS")
+                            #print("ANSWER_DATA", answer_data)
+                            #print("ANSWER", answer )
                             (result, new_correct) = _question_check( hijacked, view_solution_permission, 
                                     dbuser, user_agent, exercise_key, question_key, answer_data, answer,
                                     )
+                            #print("RESULT NEWCORRECT = ", result, new_correct)
                             did = True
                             if 'error' in result :
                                 error_log_directory ='/tmp/answer_errors/%s' % exercise.exercise_key
@@ -179,7 +195,7 @@ def redo( answers ):
                                 fp.close
                         else :
                             answer.delete()
-                            print("FILE ", full_path ," HAS BEEN REMOVED")
+                            #print("FILE ", full_path ," HAS BEEN REMOVED")
                     pass
                     #if (ind % interval) == 0:
                     #    print("\nX\n", end='', flush=True)
@@ -212,9 +228,9 @@ def redo( answers ):
                             answer_data = re.sub(r'\s+',' ',answer_data)
                             tdiff = int( ( time.time() - time_beg ) *1000 )
                             if not ( old_correct == new_correct )  and  ( not new_correct) :
-                                print( "NOK %s%s " % (s1,s2) ,ind,tdiff,old_correct,new_correct, '[' , name, question_key, ']', answer_data, result.get('error','') )
+                                print( "%s NOK %s%s " % (str( answer.pk), s1,s2) ,ind,tdiff,old_correct,new_correct, '[' , name, question_key, ']', answer_data, result.get('error','') )
                             else:
-                                print( "OK %s%s " % (s1,s2) , ind, tdiff ,name,question_key,answer_data)
+                                print( "%s OK %s%s " % (str( answer.pk) , s1,s2) , ind, tdiff ,name,question_key,answer_data)
                             fils = glob.glob(  os.path.join( error_log_directory, str( answer.pk ) ) + '.*'  )
                             for fil in fils :
                                 if os.path.isfile(  fil ) :
@@ -233,7 +249,7 @@ def redo( answers ):
                     #    done_answers.append(str(answer.pk))
                     #    print(ind, "OK %s%s " % (s1,s2), name )
                 else:
-                    print( "NOK %s%s" % (s1,s2) ,ind,tdiff,old_correct,new_correct, name, question_key, answer_data, "RESULT FAILED")
+                    print( "%s NOK %s%s" % (str( answer.pk), s1,s2) ,ind,tdiff,old_correct,new_correct, name, question_key, answer_data, "RESULT FAILED")
                 #if ind % 100 == 0 :
                 #    fp = open(pklfile,'wb')
                 #    pickle.dump( done_answers, fp)

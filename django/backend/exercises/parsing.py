@@ -115,7 +115,7 @@ def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_a
     Returns:
         Dictionary corresponding to the JSON representation.
     """
-    # print("PARSING: exercise_xml_to_json")
+    #print("PARSING: exercise_xml_to_json")
     obj = {}
     taglist = []
     try:
@@ -150,11 +150,11 @@ def exercise_xml_to_json(xml, hide_answers=False, sensitive_tags={}, sensitive_a
                 globalnodes = root.findall('./global')
                 if len(globalnodes) > 0:
                     globalnode = globalnodes[0]
-                    # print("global text = ", globalnode.text)
+                    #print("global text = ", globalnode.text)
                     globalnode.text = 'replaced by sensitive tag value'
                     valuenodes = globalnode.findall('.//value')
                     for valuenode in valuenodes:
-                        # print("REMOVE VALUENODE")
+                        #print("REMOVE VALUENODE")
                         parent = valuenode.getparent()
                         parent.remove(valuenode)
 
@@ -229,6 +229,7 @@ def exercise_xmltree_from_xml(xml):
 
 def exercise_xmltree(path, usermacros={}):
     xml_path = os.path.join(path, paths.EXERCISE_XML)
+    #print("PARSING XML_PATH = ", xml_path)
     parser = etree.XMLParser(remove_blank_text=True)
     try:
         root = etree.parse(xml_path, parser)
@@ -236,7 +237,7 @@ def exercise_xmltree(path, usermacros={}):
             root = apply_macros_to_exercise(root.getroot(), usermacros)
         return root
     except etree.XMLSyntaxError as e:
-        # print("PARSING: exercise_xmltree failed", xml )
+        #print("PARSING: exercise_xmltree failed", xml )
         raise ExerciseParseError(e)
 
 
@@ -262,7 +263,7 @@ def question_json_get_from_raw_json(raw_json, exercise_key, question_key, userma
     #print("QUESTION_JSON_GET_FROM_RAW_JSON")
     if len(found) == 1:
         #global_data = deep_get(raw_json, 'exercise', 'global')
-        # print("GLOBAL DATA = ", global_data )
+        #print("GLOBAL DATA = ", global_data )
         #if global_data:  # and 'type' in found[0]['@attr']:
         #    if not isinstance(global_data, list):
         #        global_data = [global_data]
@@ -280,7 +281,7 @@ def question_json_get_from_raw_json(raw_json, exercise_key, question_key, userma
         #        )
         #    )
         #    if len(global_for_type) == 1:
-        #        # print("UPDATE GLOBAL DATA")
+        #        #print("UPDATE GLOBAL DATA")
         #        found[0].update({'global': global_for_type[0]})
         found[0]['exercise_key'] = exercise_key
         #print("FOUND[0]", found[0] )
@@ -466,6 +467,8 @@ def global_xmltree_get(exercise_xmltree, question_key, usermacros={}):
 
 
 def global_and_question_xmltree_get(exercise_xmltree, question_key, usermacros={}):
+    #print("GLOBAL_AND_QUESTON_XMLTREE_GET", question_key )
+    #print("EXERCISE_XML = ", etree.tostring( exercise_xmltree, pretty_print=True) )
     xml = etree.tostring(exercise_xmltree)
     root = etree.fromstring(xml)
     root = apply_macros_to_exercise(root, usermacros)

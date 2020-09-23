@@ -49,9 +49,12 @@ def parse_variables(variables):  # {{{
 
 
 def question_check(question_json, question_xmltree, answer_data, global_xmltree, symex):
+    #print("QUESTION_CHECK GLOBAL XMLTREE", global_xmltree)
+    #print("ETREE GLOBAL XMLTGREE ", etree.tostring(global_xmltree, pretty_print=True) )
     #print("DEV LINEAR ALGEBRA QUESTION_CHECK, ANSWER-DATA", answer_data)
     # hints = parsehints(question_xmltree, global_xmltree, answer_data)
     result = {}
+    #print("__INIT__ QUESTION JSON = ", question_json)
     # if hints is not None:
     #    if hints.get('correct', None) is not None:
     #        return hints
@@ -72,6 +75,7 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
     #print("AUTHORVARIABLES = ", authorvariables)
     blacklist = ret['blacklist']
     okvariables = okvariables.difference( set( blacklist) )
+    #print("OKVARIABLES IN __INIT__", okvariables)
     #print("BLACKLIST = ", blacklist)
     correct_answer = ret['correct_answer']
     equality = question_xmltree.find('equality')

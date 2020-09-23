@@ -653,12 +653,12 @@ def validate_exercise_globals(xml, user, exercise):
                 else :
                     names = names + [name]
                 #print("NAME = ", name )
-                expr = "QuestionType " + question_type + ": Error in global definitions: "
+                expr ="\n Error in global definitions: "
                 #print("variables = ", variables)
                 result = symex(precision, variables,  expression  , '0 == 0', True, [], [], funcsubs)
                 #print("RESULT = ", result )
                 if (not result.get('correct')) or result.get('error'):
-                    msg = "Expression: " + str( expression)  + expr + result.get(' error', '') + result.get(' debug', '')
+                    msg = "Expression: " + str( expression)  + expr + result.get('error', '') 
                     msg = reg.sub(r"[\'<>]", '', msg)
                     messages.append(('error', msg))
                     #print("MESSAGES = ", messages )

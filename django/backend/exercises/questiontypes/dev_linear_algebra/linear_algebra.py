@@ -150,16 +150,24 @@ def check_answer_structure( student_answer, correct , varsubs_sympify):
                 debug="Error 202: " +  str(e)
                 )
         #return response
+    except ValueError as e:
+        explain = ''
+        if "mismatched" in str(e) :
+            explain = 'Probably missing mul(A,B) in matrix x matrix or matrix x vector'
+            
+        response = dict(
+            error=_("%s \n %s %s" % (explain,  str(e), " Error 158" ) )
+                )
     except Exception as e:
         response = dict(
             error=_(
                 str( type(e)  )
-                + " Error 213: Unidentified Error PROGRAMMING ERROR/ERROR \n "
+                + " Error 213: Unidentified Error\n "
                 + str(student_answer)
                 + "\n"
-                + str(e)
+                 + str(e) ),
+            warning=_("%s %s %s" % ( type(e), str(e), traceback.format_exc() ))  
             )
-        )
     dprint("     RESSPONSE = ", response)
     dprint("     PRELHS = ", prelhs )
     #print("TIME CHECK_ANSWER_STRUCTURE " , int( 1000 * (  time.time() - tbeg ) ) )
@@ -180,13 +188,13 @@ def check_consistency(  lhs, rhs ,blacklist) :
     #print("A6")
     if hasattr(lhs, 'shape') and not hasattr(rhs, 'shape') and ( not rhs == 0 ):
         return {
-            "error": _("incorrect dimensions")
-            + ": your expression is a matrix or vector; a scalar answer is required."
+            "error": _("Error 182 incorrect dimensions")
+            + ": your expression %s is a matrix or vector; a scalar answer is required." % str( lhs )
         }
     if hasattr(rhs, 'shape') and not hasattr(lhs, 'shape') and ( not lhs == 0 ) :
         return {
-            "error": _("incorrect dimensions")
-            + ": your expression is a scalar; a vector or matrix answer is required."
+            "error": _("Error 188 incorrect dimensions")
+            + ": your expression %s is is not a proper  vector or matrix " % str(lhs) 
         }
     #print("A7")
     if isinstance(lhs, sympy.Basic) or isinstance(lhs, sympy.MatrixBase):
@@ -234,7 +242,7 @@ def linear_algebra_compare_expressions(
     ):
     tbeg = time.time()
     _ , varsubs_sympify, sample_variables = parse_sample_variables(variables)
-    dprint("VARIABLES = ", variables )
+    #print("LINEAR_ALGEBRA_COMPARE_EXPRESSION VARIABLES = ", variables )
     student_answer_unparsed = student_answer
     # #############################################
     # IF EQUALITY IS USED, SAMPLING IS DISABLED 
@@ -306,14 +314,14 @@ def linear_algebra_compare_expressions(
         return response
     #print("POSITION 4", 1000 * ( time.time() - time_start ) );
     #print("TIME B6" ,  1000 * ( time.time() - tbeg ) )
-    response = check_consistency( lhs, rhs ,blacklist) 
-    if response :
-        return response
+    #response = check_consistency( lhs, rhs ,blacklist) 
+    #if response :
+    #    return response
     #print("TIME B7" ,  1000 * ( time.time() - tbeg ) )
     #print("CHECK LHS = ", lhs )
     #print("CHECK RHS = ", rhs)
     #print("SAMPPLE_VARIABLES = ", sample_variables)
-    ret = linear_algebra_check_equality( precision, lhs, rhs, sample_variables, check_units=check_units)
+    ret = linear_algebra_check_equality( precision, lhs, rhs, sample_variables, check_units=check_units,blacklist=blacklist)
     #print("POSITION6")
     #print("TIME B8" ,  1000 * ( time.time() - tbeg ) )
     #try:
@@ -391,7 +399,7 @@ sample_module = [
 #    if  numpy.isscalar(x) :
 #        return numpy.sqrt(numpy.abs(x) )
 #    else :
-#        print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
+#        #print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
 #        return 0
 #        #raise ValueError("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
 
@@ -441,12 +449,14 @@ sample_project= [
 ]
 
 
-
-
 kseed = 5
 
-def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_units=True):  # {{{
+def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_units=True,blacklist=None):  # {{{
     global kseed
+    if blacklist :
+        response = check_consistency( lhs, rhs ,blacklist) 
+        if response :
+            return response
     lhsorig = lhs
     rhsorig = rhs
     tbeg = time.time()

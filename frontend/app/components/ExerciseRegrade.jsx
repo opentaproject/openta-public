@@ -108,11 +108,10 @@ const timeago = t =>  {
         <h4>
         
         {waiting && ( <button className='uk-button '> Waiting </button> ) }
-      { show_reject_only  &&  ! show_accept_and_reject && (
         <div>
         <button   className="uk-button uk-button-danger"  onClick={ () => on_accept_regrade( ekey , 'no') }> Reset </button>
         </div>
-        ) }
+        
       {! pending  && show_accept_and_reject && (
         <div>
       <button  className="uk-button uk-button-success" onClick={ () => on_accept_regrade( ekey , 'yes') }>  Accept </button>

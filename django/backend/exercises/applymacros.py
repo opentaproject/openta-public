@@ -162,7 +162,7 @@ def apply_macros_to_string(xmlstr, macrodictlist):
 
 def apply_macros_to_node(node, usermacros):
     XMLCACHE = "/tmp/XMLCACHE"
-    DO_XML_CACHING = True
+    DO_XML_CACHING = False
     newnode = node
     xml = etree.tostring(node, encoding=str)
     if not '@' in xml:

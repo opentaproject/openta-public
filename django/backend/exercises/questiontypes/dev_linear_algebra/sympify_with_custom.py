@@ -199,15 +199,18 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     #print( varhash, " SYMPIFY_WITH_CUSTOM IN", expression)
     docache = settings.DO_CACHE
     ret =  core_cache.get(varhash) 
-    if not ret == None and docache :
-        ret = sympy.sympify( ret  )
-        if isinstance(ret, sympy.Float ):
-            if abs( ret - 1 ) < 1.e-12 :
-                ret = sympy.sympify( 1.0 )
-            elif abs( ret ) < 1.e-12 :
-                ret = sympy.sympify( 0.0 )
+    try :
+        if not ret == None and docache :
+            ret = sympy.sympify( ret  )
+            if isinstance(ret, sympy.Float ):
+                if abs( ret - 1 ) < 1.e-12 :
+                    ret = sympy.sympify( 1.0 )
+                elif abs( ret ) < 1.e-12 :
+                    ret = sympy.sympify( 0.0 )
         #print( varhash, " RET = ", ret )
-        return ret
+            return ret
+    except: 
+        pass
     tbeg = time.time()
     should_be_end = index_of_matching_right_paren(0, '(' + expression + ')')
     assert should_be_end == len(expression) + 2, (
@@ -269,7 +272,15 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     atoms = atoms1.union(atoms2.union(atoms3) ) 
     rep_optimized = list( filter( lambda item : str( item[0] ) in atoms , rep) )
     #print("REPNEW = ", rep_optimized )
+    #try :
     new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep_optimized, docache)
+    #except Exception as e :
+    #    print("FAILED EXPRESSION = ", expression)
+    #    print("rep_optimeze = ", str( rep_optimized) )
+    #    print("FAILED IN PRE FOR xtest = ", str( xtest ) )
+    #    print("EXCPTION RAISED = ", type(e), str(e) )
+    #    print("TRACEBACK ", traceback.format_exc() )  
+    #    return xtest
     #print("     TIME A6 %s" , 1000 * ( time.time() -  tbeg) )
     #new  = N(new)
     #st = resub.sub(r'\d+','',str(new)  )

@@ -478,14 +478,15 @@ export default class QuestionDevLinearAlgebra extends Component {
     }
   var showinstructions = ( input == '' )
   return (
-        <div className="">
-        <MathSpan>{questiontext}</MathSpan>
+        <div className="uk">
+        <MathSpan> {questiontext}</MathSpan>
 		<span className="uk-text-small uk-text-primary">{availableVariables}</span>
   	  <span className="uk-text-small uk-text-primary"> [  {feedback} {n_attempts } <T>attempts</T> ]  </span>
           { ! showinstructions && <HelpDevLinearAlgebra msg={msg}/>  }
           {  showinstructions &&  <HelpDevLinearAlgebra /> }
 	   <span data-uk-tooltip title={msg1}></span>
 { hasChanged && lastAnswer !== '' && (<Badge message={t('previous') + '  '  + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
+          {this.props.isAuthor && ( <span className="uk-display-inline uk-button" > key={questionkey} </span>  ) }
           <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">
           <div className="uk-width-1-1">
@@ -523,6 +524,7 @@ export default class QuestionDevLinearAlgebra extends Component {
          { ! this.isUnclosed && renderedResult.error && <span className="uk-text-danger"> {t('check syntax') } </span> }
         { /*mathjsError*/ }
         { renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning"/>}
+      {this.props.isAuthor && ( <span className="uk-display-inline uk-button" > key={questionkey} </span>  ) }
         </div>
   );
 }
