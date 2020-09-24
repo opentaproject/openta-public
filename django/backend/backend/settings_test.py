@@ -30,3 +30,5 @@ warnings.filterwarnings(
 
 HEADLESS = False
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+FORCE_ROLE_TO_STUDENT = False

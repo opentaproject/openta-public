@@ -51,3 +51,6 @@ if _subpath is not None:
 
     CSRF_COOKIE_NAME = 'csrftoken' + _subpath
     SESSION_COOKIE_NAME = 'sessionid' + _subpath
+
+# Fix same-site cookie
+MIDDLEWARE.insert(0, 'backend.middleware.SameSiteMiddleware')
