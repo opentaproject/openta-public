@@ -6,6 +6,7 @@ from exercises.models import Exercise, Question, Answer
 from exercises.question import question_check, _question_check
 from utils import response_from_messages
 from django.contrib.auth.models import User
+import glob
 import json
 from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
@@ -15,6 +16,7 @@ from aggregation.models import Aggregation, get_cache_and_key, STATISTICS_CACHE_
 from workqueue.models import RegradeTask
 import workqueue.util as workqueue
 from messages import error, embed_messages
+import shutil
 from workqueue.exceptions import WorkQueueError
 import os
 import rq
@@ -67,9 +69,9 @@ def get_regrade_results_async(request, exercise):
             return Response(messages)
 
 
-def cleanup_orphaned_tasks(exercise):
+def cleanup_orphaned_tasks(exercise,ntasks=1):
     regrade_tasks = RegradeTask.objects.filter(exercise=exercise)
-    if len(regrade_tasks) > 1:
+    if len(regrade_tasks) > ntasks:
         i = 0
         for regrade_task in regrade_tasks:
             if i > 0:
@@ -92,20 +94,35 @@ def regrade_students_results(task, exercise):
     #all_answer_pks =  set( list( all_answers.values_list('pk',flat=True) )  )
     #print("ALL_FILTERED = ", all_answer_pks.intersection( set([3021,3024,3025,2677])))
     #all_answers = Answer.objects.all()
+    p = '/tmp/regrade/%s' % exercise_key
+    showall = False
     if  os.path.exists("/tmp/whitelist.txt") :
         allpks = []
+        showall = True
         with open("/tmp/whitelist.txt") as fp:
                 for line in fp:
                     pk = int( line.split(' ')[0] )
-                    print("PK = ", pk )
+                    #print("PK = ", pk )
                     allpks.append(pk)
         #print("ALLPKS = ", allpks )
         all_answers = all_answers.filter(pk__in=allpks)
         #print("LEN ALL_ANSWERS = ", len( all_answers) )
+    elif os.path.exists(p) :
+        allpks = []
+        filenames = glob.glob('%s/[0-9]*.??' % p)
+        allpks = [ (item.split('/')[-1] ).split('.')[0] for item in filenames ]
+        #print("ALLPKS TO DO = ", allpks)
+        if len(allpks) > 0 :
+            all_answers = all_answers.filter(pk__in=allpks)
+            showall = True
+    else:
+        #print("PATH %s does not exist " % p )
+        showall = False
     for question in questions:
         question_key = question.question_key
         results[question_key] = []
     n_answers = len(all_answers)
+    #print("n_answerfs = ", n_answers)
     txt = "OK"
     regrade_items = []
     regrade_task = RegradeTask.objects.get(exercise=exercise_key)
@@ -117,7 +134,7 @@ def regrade_students_results(task, exercise):
     old_regrade_exists = os.path.isfile(resultsfile)
     if old_regrade_exists:
         results = pickle.load(open(resultsfile, 'rb'))
-    print("ALL_ANSWERS = ", len(all_answers) )
+    #print("ALL_ANSWERS = ", len(all_answers) )
     for index, answer in enumerate(all_answers):
         if old_regrade_exists:
             task.status = "Old regrade exists"
@@ -171,7 +188,7 @@ def regrade_students_results(task, exercise):
                                #print("TXT ", txt)
                             else :
                                 pass 
-                            if not ( old_correct == new_correct ):
+                            if showall or not ( old_correct == new_correct ):
                                 if new_correct:
                                     txt = "Correct: " + answer_data
                                 else:
@@ -218,7 +235,6 @@ def regrade_students_results(task, exercise):
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
 def accept_regrade(request, exercise, yesno='no'):
-    p = '/tmp/regrade/%s' % exercise
     dbexercise = Exercise.objects.get(pk=exercise)
     regrade_task = RegradeTask.objects.get(exercise=dbexercise)
     if yesno == 'yes':
@@ -226,13 +242,27 @@ def accept_regrade(request, exercise, yesno='no'):
         regrade_items = pickle.load(open(pklfile, 'rb'))
         for item in regrade_items:
             answer = Answer.objects.get(pk=item['pk'])
+            print("SAVE ANSWER", answer)
             answer.correct = item['correct']
             answer.grader_response = item['grader_response']
             answer.save()
+        p = '/tmp/regrade/%s' % exercise
+        try :
+            filenames = glob.glob('%s/[0-9]*.??' % p)
+            [ os.remove(filn) for filn in filenames ]
+            os.remove("%s/errors" % p )
+        except:
+            pass
         regrade_task.delete()
     elif yesno == 'no':
         regrade_task.delete()
     elif yesno == 'cancel':
         regrade_task.status = 'Cancelled'
         regrade_task.save()
+    elif yesno == 'reset':
+        try :
+            regrade_task.delete()
+            cleanup_orphaned_tasks(exercise,0)
+        except :
+            pass
     return redirect("../")

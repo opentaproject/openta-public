@@ -99,6 +99,9 @@ const timeago = t =>  {
   return (
     <div className="uk-panel uk-width-1-1 uk-panel-box uk-margin-top">
         <h4 className="uk-panel-title uk-width-1-1">
+        { ( true || ( show_reject_only  &&  ! show_accept_and_reject )  ) && (
+        <button   className="uk-button uk-button-danger"  onClick={ () => on_accept_regrade( ekey , 'reset') }> Reset </button>
+        ) }
         <button  className="uk-button uk-button-primary" onClick={ () => regrade() }>  Regrade </button> 
           { ! show_accept_reject && (
           <button  className="uk-button uk-button-danger" onClick={ () => on_accept_regrade( ekey , 'cancel') }>  Cancel </button>
@@ -108,11 +111,7 @@ const timeago = t =>  {
         <h4>
         
         {waiting && ( <button className='uk-button '> Waiting </button> ) }
-        <div>
-        <button   className="uk-button uk-button-danger"  onClick={ () => on_accept_regrade( ekey , 'no') }> Reset </button>
-        </div>
-        
-      {! pending  && show_accept_and_reject && (
+      {! pending  && (
         <div>
       <button  className="uk-button uk-button-success" onClick={ () => on_accept_regrade( ekey , 'yes') }>  Accept </button>
       <button  className="uk-button uk-button-danger" onClick={ () => on_accept_regrade( ekey , 'no') }>  Reject </button>

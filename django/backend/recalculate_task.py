@@ -9,17 +9,22 @@ from exercises.management.commands.recalculate import dotask
 from concurrent.futures import ProcessPoolExecutor
 import sys
 import warnings
+import traceback
 import signal
 signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 def longjob(num):
-    res = dotask(20,num)
+    accept_new = True
+    res = dotask(20,num,accept_new)
     if res == None :
         return num
     k = 0
     while len(res) > 0  :
         k = k + 1
-        res = dotask(20,num)
+        try:
+            res = dotask(20,num,accept_new)
+        except Exception as e :
+            print("Excption in longjob %s %s %s" % ( type(e), str(e),    traceback.format_exc() ))
     return num
 
 async def main(loop) :
@@ -27,7 +32,7 @@ async def main(loop) :
     loop = asyncio.get_event_loop()
     executor = ProcessPoolExecutor(max_workers=12)
     tasks = []
-    nworkers = 4
+    nworkers = 8
     if  os.path.exists("/tmp/whitelist.txt") :
         print("/tmp/whitelist.txt exists so process only those ")
         nworkers = 1

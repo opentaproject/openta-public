@@ -356,7 +356,7 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
     var showResponseAwaits = response_awaits > 0;
     var filenameDOM = (
       <span className="uk-text-bold uk-text-primary">
-        Exercise file path: {filename}
+        Exercise file path: {filename} key: {key}
       </span>);
     var exerciseDOM = <div className="uk-width-1-1"> <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
         

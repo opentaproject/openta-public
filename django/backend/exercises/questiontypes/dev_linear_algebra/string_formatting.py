@@ -31,6 +31,7 @@ def insert_implicit_multiply(expression):  # {{{
     result = resub.sub(r"\)\(", r" ) ( ", result)
     result = resub.sub(r"\)([-+\/*])\(", r" ) \1 ( ", result)
     result = resub.sub(r"\)([-+\/*])", r" ) \1 ", result)
+    result = resub.sub(r"-([A-z])", r"-  \1", result)
 
     #print("aRESULT ", result)
     result = resub.sub(r"((?:\W|^)[0-9]+)([a-zA-Z]+)", r"\1*\2", result)

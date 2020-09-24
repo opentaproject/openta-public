@@ -51,7 +51,7 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **kwargs):
-        error_log_directory ='/tmp/answer_errors/'
+        results_directory = "/tmp/regrade"
         answers =  Answer.objects.all() 
         nobjects = answers.count()
         whitelist_filename = kwargs.get('whitelist',None)
@@ -63,7 +63,7 @@ class Command(BaseCommand):
         if not exercise  == None :
             #print("EXERCISE SPECIFIED " , exercise)
             answerpks = []
-            for filn in os.listdir(os.path.join(error_log_directory, exercise) ) :
+            for filn in os.listdir(os.path.join( results_directory,  exercise) ) :
                 suffix = kwargs.get('suffix','.yn')
                 if suffix  in filn :
                     pk = filn.split('.')[0]
@@ -88,11 +88,12 @@ class Command(BaseCommand):
         #print("ACCEPT = ", accept )
         #print("ANSWERS = ", answers)
         answers = list(answers)
-        redo(answers)
+        redo(answers,accept)
 
-def dotask(npks=20,seed=None) :
+def dotask(npks=20,seed=None,accept_new=False) :
+    print("DOTASK ACCEPT_NEW = ", accept_new)
     answers = get_new_answers(npks,seed)
-    return redo( answers)
+    return redo( answers, accept_new )
 
 def get_new_answers(npks=20,iseed=None) :
     donepks = []
@@ -104,7 +105,7 @@ def get_new_answers(npks=20,iseed=None) :
                     pk = int( line.split(' ')[0] )
                     allpks.append(pk)
         answers = answers.filter(pk__in=allpks)
-    #print("LEN ANSWERS = ", len( answers) )
+    print("LEN ANSWERS = ", len( answers) )
     allpks = [ item.pk for item in answers ]
     if os.path.exists("/tmp/recalculated.txt") :
             with open("/tmp/recalculated.txt") as fp:
@@ -125,11 +126,13 @@ def get_new_answers(npks=20,iseed=None) :
     return(answers)
  
 
-def redo( answers ):
+def redo( answers , accept_new=False):
+        print("RED ACCEPT_NEW = ", accept_new)
         if answers == [] :
                 return None
         ind = 0
         n = 0
+        results_directory = "/tmp/regrade"
         fp = open( "/tmp/recalculated.txt", 'a')
         for answer in answers :
              fp.write( "%s\n" % str( answer.pk ))
@@ -141,12 +144,13 @@ def redo( answers ):
             if not answer == None : # not str( answer.pk )  in done_answers:
                 error_message = None
                 did = False
+                time_beg = time.time() 
                 try:
                     s1 = 'n'
                     s2 = 'n'
-                    if True  :
-                        time_beg = time.time()
+                    if answer.question :
                         exercise = answer.question.exercise
+                        time_beg = time.time()
                         question_key = answer.question.question_key
                         user = answer.user
                         course = exercise.course
@@ -164,6 +168,8 @@ def redo( answers ):
                         user_agent = answer.user_agent
                         answer_data = answer.answer
                         old_correct = grader_response.get('correct', False)
+                        if answer.correct :
+                            old_correct = answer.correct
                         hijacked = False
                         view_solution_permission = True
                         dbuser = answer.user
@@ -186,13 +192,20 @@ def redo( answers ):
                             #print("RESULT NEWCORRECT = ", result, new_correct)
                             did = True
                             if 'error' in result :
-                                error_log_directory ='/tmp/answer_errors/%s' % exercise.exercise_key
+                                error_log_directory = os.path.join( results_directory ,  exercise.exercise_key )
                                 if not os.path.exists( error_log_directory ) :
                                     os.mkdir( error_log_directory)
                                 fp =  open( os.path.join( error_log_directory, 'errors') , 'a')
                                 fp.write( '{%s : { user: %s,name: %s ,type: %s,answer:  \"%s\",old_correct: %s, new_correct %s  },  error : \"%s\"} }\n' %
                                                 (answer.pk, dbuser,name,question_type, answer_data, old_correct, new_correct ,result  )  )
                                 fp.close
+                            if accept_new :
+                                pk = answer.pk
+                                answer.correct = new_correct
+                                answer.grader_response = json.dumps(result)
+                                answer.save()
+                            else :
+                                pass
                         else :
                             answer.delete()
                             #print("FILE ", full_path ," HAS BEEN REMOVED")
@@ -201,13 +214,16 @@ def redo( answers ):
                     #    print("\nX\n", end='', flush=True)
                     #    error_message = None
                 except Exception as e :
+                    did = False
                     print("UNCAUGHT EXCEPTION IN SCRIPT %s %s " % ( type(e), str(e) ))
-                    print("JSON = ", grader_response_string)
+                    #print("JSON = ", grader_response_string)
+                    #print("keys = %s ", exercise_key,  question_key)
+                    #print("ANSWER_DATA ", answer.answer)
+                    #print("PATH = ",  exercise.get_full_path)
                     error_message = str(e)
-                    traceback.print_exc(file=sys.stdout) 
                 if did:
                     if True : # ( not  (old_correct == new_correct ) ) :
-                        error_log_directory ='/tmp/answer_errors/%s' % exercise.exercise_key
+                        error_log_directory =  os.path.join( results_directory ,  exercise.exercise_key )
                         if not os.path.exists( error_log_directory ) :
                              os.mkdir( error_log_directory)
                         summary = dict(pk= answer.pk,
@@ -239,9 +255,9 @@ def redo( answers ):
                                 fp = open(os.path.join( error_log_directory, str( answer.pk ) ) + "." + s1 + s2   ,"a")
                                 fp.write( txt)
                                 fp.close()
-                                if ( old_correct ==  new_correct ) :
-                                    answer.grader_response = json.dumps(result) 
-                                    answer.save()
+                            #    if ( old_correct ==  new_correct ) :
+                            #        answer.grader_response = json.dumps(result) 
+                            #        answer.save()
                         else :
                             did = False
                         n = n + 1
@@ -249,7 +265,12 @@ def redo( answers ):
                     #    done_answers.append(str(answer.pk))
                     #    print(ind, "OK %s%s " % (s1,s2), name )
                 else:
-                    print( "%s NOK %s%s" % (str( answer.pk), s1,s2) ,ind,tdiff,old_correct,new_correct, name, question_key, answer_data, "RESULT FAILED")
+                    tdiff = int( ( time.time() - time_beg ) *1000 )
+                    try :
+                        print( "%s NOK %s%s" % (str( answer.pk), s1,s2) ,ind,tdiff,old_correct,new_correct, name, question_key, answer_data, "RESULT FAILED")
+                    except:
+                        print( "%s NOK FAILED COMPLETETLY " % (str( answer.pk) ) )
+                        
                 #if ind % 100 == 0 :
                 #    fp = open(pklfile,'wb')
                 #    pickle.dump( done_answers, fp)

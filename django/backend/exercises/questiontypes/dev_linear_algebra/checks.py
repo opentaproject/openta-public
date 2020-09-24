@@ -200,7 +200,8 @@ def check_for_legal_answer(
  
     ##### INVALID PATTERNS 
     invalid_patterns= { "\)[\w]" : 'implicit multiply needs a space; right parenthesis cannot be followed by letter or number',
-                        "[0-9\.]+\(" : 'implicit multiply with a number needs a space' }
+                        "[0-9\.]+\(" : 'implicit multiply with a number needs a space' ,
+                        "[^=]=[^=]"  : 'equal sign is illegal'}
 
     for i in invalid_patterns.keys() :
         if not None == re.search(r'%s' % i  , student_answer)  :

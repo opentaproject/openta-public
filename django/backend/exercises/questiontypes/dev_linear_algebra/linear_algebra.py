@@ -394,15 +394,6 @@ sample_module = [
 ]
 
 
-#def mysqrt(x) :
-#    x = x + numpy.complex(0,0)
-#    if  numpy.isscalar(x) :
-#        return numpy.sqrt(numpy.abs(x) )
-#    else :
-#        #print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
-#        return 0
-#        #raise ValueError("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
-
 base_module = [
     {
         'cot': lambda x: 1.0 / numpy.tan(x),
@@ -437,7 +428,7 @@ def dorand(x) :
     #print(" DORAND rr = ", rr )
     random.seed(kseed)
     for value in x :
-        s = s + value  * ( 0.5  + random.random() )
+        s = s + value  * ( 0.5  + random.random() ) + 0.1 * random.random() 
     return s
 
 
