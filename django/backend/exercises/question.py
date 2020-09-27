@@ -395,7 +395,9 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
             except QuestionError as e:
                 return {'error': "XML error: " + str(e)}
             ##print("Q2")
-            hints = parsehints(question_xmltree, global_xmltree, answer_data)
+            hints = None
+            if global_xmltree :
+                hints = parsehints(question_xmltree, global_xmltree, answer_data)
             if not hints is None:
                 result.update(hints)
 
@@ -444,7 +446,9 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
             result['n_attempts'] = usermacros['@nattempts']
             result['status'] = None
             try:
-                result['used_variable_list'] = question_json['used_variable_list']
+                #print("QUESTION JSON = ", question_json['used_variable_list'] )
+                result['used_variable_list'] = [ re.sub(r"variable",'', item ) for item in question_json['used_variable_list'] ]
+                #print("RESULT", result['used_variable_list'] )
             except:
                 result['used_variable_list'] = []
             usermacros['@call'] = 'question_check'

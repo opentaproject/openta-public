@@ -35,7 +35,7 @@ import numpy.linalg
 def mysqrt(x) :
     x = x + numpy.complex(0,0)
     if  numpy.isscalar(x) :
-        return numpy.sqrt(numpy.abs(x) )
+        return numpy.sqrt(x )
     else :
         #print("Trying to take sqrt( %s ) type= %s " % ( str(x), type(x)  ) )
         return 0
@@ -78,6 +78,9 @@ class LinearAlgebraUnitError(Exception):
     def __str__(self):
         return str(self.value)
 
+
+def dprint(*args) :
+    return
 
 def check_units_new(expression, correct, sample_variables):
     nvarsubs = {}
@@ -175,17 +178,9 @@ def check_for_legal_answer(
     #print("VARIABLES1 = ", variables)
     variables = [ replace_sample_funcs( item) for item in variables ]
     #print("VARIABLES2 = ", variables)
-    expression = replace_sample_funcs(expression)
     student_answer = replace_sample_funcs(declash( student_answer) )
     #print("STUDENT ANSWER CHECK", student_answer, flush=True)
     
-    #if not len( student_answer.split('==') ) == len( expression.split('==') ) : 
-    #    if  '==' in student_answer :
-    #        return dict(error=_('== is not allowed in  the answer') )
-    #    elif '==' in expression:
-    #        return dict(error=_('Equality not present in student answer %s' % str( student_answer ) ) )
-    
-    #print("STUDENT ANSWER CHECK", student_answer,flush=True)
     #### INVALID STRINGS 
     invalid_strings = ['_', '#', '@', '&', '?', '"',':','..',';']
     for i in invalid_strings:
@@ -195,8 +190,6 @@ def check_for_legal_answer(
     if len(illegal) >  0 :
         s = ",".join( [ "".join(item) for item in illegal])
         return dict(error= _('Illegal pattern %s in %s ' % (s, student_answer)  ) ) 
-    
-    
  
     ##### INVALID PATTERNS 
     invalid_patterns= { "\)[\w]" : 'implicit multiply needs a space; right parenthesis cannot be followed by letter or number',
@@ -226,98 +219,171 @@ def check_for_legal_answer(
         strrep = str(atom)
         # funcstr = str(atom.func)
         if strrep in blacklist or ( strrep not in okatoms ) :
-            return {'error': _('(A) Forbidden token: ') + strrep}
-
+            return {'error': _('(A) Forbidden token: ') + reg.sub(r'variable','',strrep) }
 
     unparsedstudentanswer = student_answer
-    student_answer = insert_implicit_multiply( student_answer )
-    student_answer = declash(student_answer)
+    #student_answer = insert_implicit_multiply( student_answer )
+    #student_answer = declash(student_answer)
 
 
+    expression = replace_sample_funcs(expression)
     if '==' in expression and not '$$' in expression:
         if not '==' in student_answer:
             return {'error': _('answer in terms of an equality using == ')}
     if '==' in student_answer:
         if not '==' in expression or '$$' in expression:
             return {'error': _('an equality is not permitted as answer')}
-        else:
-            equality = student_answer.split('==')
-            student_answer = equality[0] + '-' + equality[1]
+        #else:
+        #    equality = student_answer.split('==')
+        #    student_answer = equality[0] + '-' + equality[1]
 
 
-    varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
+    #varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables)
     m = re.search(r'(atan|arctan|acos|arccos|acos|arcos|asin|arcsin)', student_answer)
     if m:
         return {'error': _('inverse trig function') + m.group(1) + _(' is forbidden')}
     m = re.search(r'(print|sum)', student_answer)
     if m:
         return {'error': _('forbidden function') + m.group(1)}
-    #try:
-    #    try:
-    #        #print("TRY student_answer ", type(student_answer), student_answer)
-    #        sympyex = sympy.sympify( ascii_to_sympy(student_answer)  )
-    #        #print("SYMPYEX = ", type(sympyex), sympyex, flush=True)
-    #        sympyex = sympy.sympify(sympyex).subs( varsubs_sympify).doit()
-    #        unparsedstudentanswer =  sympyex.subs(baseunits)
-    #    except SympifyError as e:
-    #        return {'error': 'error in: ' + student_answer_org}
-    #    except TypeError as e:
-    #        if 'required positional argument' in str(e):
-    #            return {'error': _('Syntax Error: a function is missing an argument'), 'debug': str(e) }
-    #        if 'callable' in str(e):
-    #            return {
-    #                'error': _(
-    #                    'Syntax Error: You probably have a variable followed by a parenthesis without a space between. This is interpreted as a function call rather than implicit multiply and therefore  therefore fails.'
-    #                )
-    #            }
-
-    #    except NameError as e:
-    #        return {'error': str(e)}
-    #        # return {'error': 'Unidentified error: ' };
-
-    #    except ShapeError as e:
-    #        return {'error': str(e) }
-    #    except Exception as e:
-    #        return {'error': 'Unidentified error : >' + e.__class__.__name__ + '< ' + str(e)}
-    #    if isinstance(prelhs, sympy.Basic) or isinstance(prelhs, sympy.MatrixBase):
-    #        specials = [
-    #            ('cross', Cross),
-    #            ('dot', Dot),
-    #            ('norm', Norm),
-    #            ('Braket', Braket),
-    #            ('KetBra', KetBra),
-    #            ('KetMBra', KetMBra),
-    #            ('Trace', Trace),
-    #            ('gt', gt),
-    #            ('lt', lt),
-    #        ]
-    #        for special in specials:
-    #            if special[0] in blacklist and (special[0] in str(unparsedstudentanswer)):
-    #                return {'error': _('(A) Forbidden token: ') + special[0]}
-    #        sa = sympy.sympify(student_answer)
-    #        atoms = sa.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
-    #        for atom in atoms:
-    #            strrep = str(atom)
-    #            funcstr = str(atom.func)
-    #            if strrep in blacklist:
-    #                return {'error': _('(B) Forbidden token: ') + strrep}
-    #            if funcstr in blacklist:
-    #                return {'error': _('(C) Forbidden token: ') + funcstr}
-
-    #        varlist = []
-    #        reclash = {}
-    #        for var in variables:
-    #            name = declash(var['name'])
-    #            varlist.append(name)
-    #        symbolatoms = list(prelhs.atoms(sympy.Symbol))
-    #        varlist = varlist + units
-    #        for item in symbolatoms:
-    #            if str(item) not in varlist:
-    #                response['correct'] = False
-    #                response['error'] = _('(D) Forbidden token: ') + (str(item)).replace(
-    #                    'variable', ''
-    #                )
-    #                return response
-    #except:
-    #    response['warning'] = 'warning'
     return None
+
+
+
+def check_answer_structure( student_answer, correct , varsubs_sympify):
+    response = None
+    prelhs = None
+    tbeg = time.time()
+    try:
+       # REPLACE SAMPLES WITH SINGLE SHOT TO CHECK STRUCTURE OF ANSWER
+       tstudent_answer = replace_sample_funcs( student_answer)
+       #print("      TSTUDENTANSWER = ", tstudent_answer)
+       #print("      TYPE VARSUBS_SUMPFIY = ", type( varsubs_sympify) )
+       tvarsubs_sympify = {}
+       for key in varsubs_sympify.keys() :
+            #print("     KEY = ", key )
+            tvarsubs_sympify[key] = sympy.sympify( replace_sample_funcs( str( varsubs_sympify[key]  ) ) )
+       #dprint("      TVARSUBS_SYMPIFY = ", tvarsubs_sympify)
+       prelhs = sympify_with_custom( tstudent_answer, tvarsubs_sympify, {}, 'check-answer-structure-linear_algebra_compare_expressions')
+    except TypeError as e:
+        if 'required positional' in str(e) :
+            response = dict(
+                error = _( 'function is missing an argument')
+                )
+        else:
+            response = dict(
+                error=_( 'syntax error' ),
+                debug="Error 187: " +  str(e) + traceback.format_exc()
+                )
+        #return response
+    
+    except NameError as e:
+        response = dict(
+                error=_( str(e) ),
+                debug="Error 193: " +  str(e)
+                )
+        #return response
+    
+    except ShapeError as e:
+        response = dict(
+                error=_("Matrix dimensions inconsistent with each other or with the result. You must mul(A,B) for multiplying a matrix or matrix times vector"),
+                debug="Error 202: " +  str(e)
+                )
+        #return response
+    except ValueError as e:
+        explain = ''
+        if "mismatched" in str(e) :
+            explain = 'Probably missing mul(A,B) in matrix x matrix or matrix x vector'
+            
+        response = dict(
+            error=_("%s \n %s %s" % (explain,  str(e), " Error 158" ) )
+                )
+    except Exception as e:
+        response = dict(
+            error=_(
+                str( type(e)  )
+                + " Error 213: Unidentified Error\n "
+                + str(student_answer)
+                + "\n"
+                 + str(e) ),
+            warning=_("%s %s %s" % ( type(e), str(e), traceback.format_exc() ))  
+            )
+    dprint("     RESSPONSE = ", response)
+    dprint("     PRELHS = ", prelhs )
+    #print("TIME CHECK_ANSWER_STRUCTURE " , int( 1000 * (  time.time() - tbeg ) ) )
+    return response
+
+def check_consistency(  lhs, rhs ,blacklist) :
+    tbeg = time.time()
+    response = None
+    if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
+        if lhs.shape != rhs.shape:
+            return {
+                "error": _("incorrect dimensions")
+                + ": your answer has the dimensions "
+                + str(lhs.shape)
+                + " whereas  the answer requires the dimensions "
+                + str(rhs.shape)
+            }
+    #print("A6")
+    if hasattr(lhs, 'shape') and not hasattr(rhs, 'shape') and ( not rhs == 0 ):
+        return {
+            "error": _("Error 182 incorrect dimensions")
+            + ": your expression %s is a matrix or vector; a scalar answer is required." % str( lhs )
+        }
+    if hasattr(rhs, 'shape') and not hasattr(lhs, 'shape') and ( not lhs == 0 ) :
+        return {
+            "error": _("Error 188 incorrect dimensions")
+            + ": your expression %s is is not a proper  vector or matrix " % str(lhs) 
+        }
+    #print("A7")
+    if isinstance(lhs, sympy.Basic) or isinstance(lhs, sympy.MatrixBase):
+        specials = [
+            ('cross', Cross),
+            ('dot', Dot),
+            ('norm', Norm),
+            ('Braket', Braket),
+            ('KetBra', KetBra),
+            ('KetMBra', KetMBra),
+            ('Trace', Trace),
+            ('gt', gt),
+        ]
+        for special in specials:
+            if special[0] in blacklist and (special[0] in str(lhs)):
+                return {"error": _("(E) Forbidden token: ") + special[0]}
+        atoms = lhs.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
+        for atom in atoms:
+            strrep = str(atom)
+            funcstr = str(atom.func)
+            if strrep in blacklist:
+                return {"error": _("(F) Forbidden token: ") + strrep}
+            if funcstr in blacklist:
+                return {"error": _("(G) Forbidden token: ") + funcstr}
+        #print("POSITION 5", 1000 * ( time.time() - time_start ) ); 
+    #print("TIME CHECK_CONSISTENCY " , int( 1000 * (  time.time() - tbeg ) ) )
+    return None
+
+
+
+    
+def check_for_undefined_variables_and_functions( student_answer, used_variables ):
+    response = []
+    student_answer_unparsed = student_answer
+    studentatoms = get_used_variable_list(student_answer)
+    okatoms =  used_variables + ['kg','meter','second']
+    diff = list( set(studentatoms).difference( set( okatoms) ) )
+    if len( diff) > 0  :
+           #print( " DIFF = ", diff, "LEN ", len(diff) )
+           return {'error': "(H) Forbidden token: %s " % ",".join( diff)    ,
+                   'correct': False }
+    okatoms =  used_variables + ['kg','meter','second']
+    funcs = reg.findall(r'([A-Za-z][A-Za-z0-9]*)\(', student_answer_unparsed)  
+    badfuncs = list( filter( lambda fname : not hasattr(sympy, fname) , funcs) )
+    if len( badfuncs ) > 0 :
+        opentafuncs = list( openta_scope.keys() )  + ['sample']
+        badfuncs = list( set( badfuncs).difference( set( opentafuncs) )  )
+        if len( badfuncs)  > 0  :
+            response = {'error': "(H) Forbidden function : %s " % ",".join( badfuncs)    , 'correct': False }
+            print("RESPONSE TO BADFUNCS = ", response)
+            return response
+    return [] 
+

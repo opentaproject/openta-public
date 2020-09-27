@@ -12,6 +12,8 @@ from exercises.applymacros import (
 )
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser
+from exercises.question import QuestionError
+from exercises.questiontypes.dev_linear_algebra.string_formatting import declash
 from rest_framework.exceptions import PermissionDenied
 from course.models import Course
 from aggregation.models import Aggregation, get_cache_and_key, stypes, agkeys
@@ -610,12 +612,11 @@ def validate_exercise_globals(xml, user, exercise):
     # #print("FULL_EXERCISE_JSON = ", full_exercisejson)
 
     globalhash = get_hash_from_string(str(etree.tostring(global_xmltree, encoding=str)))
-    messages = cache.get(globalhash)
-    if messages is not None:
-        return messages
-    else:
-        messages = []
     messages = []
+    #if settings.DO_CACHE :
+    #    messages = cache.get(globalhash)
+    #    if messages is not None:
+    #        return messages
     xml_variables = parse_xml_variables(global_xmltree)
     funcsubs = parse_xml_functions(global_xmltree)
     obj = exercise_xml_to_json(xml)
@@ -655,10 +656,14 @@ def validate_exercise_globals(xml, user, exercise):
                 #print("NAME = ", name )
                 expr ="\n Error in global definitions: "
                 #print("variables = ", variables)
-                result = symex(precision, variables,  expression  , '0 == 0', True, [], [], funcsubs)
+                #print("CHECK OUT expression ", expression)
+                #print("SYMEX = ", symex)
+                result = symex(precision, variables,  expression  , '0 == 0', True, [], [], funcsubs,validate_definitions=True)
+                #print("RESULT = ", result )
+                #print("RESULT.get(corect)", result.get('correct') )
                 #print("RESULT = ", result )
                 if (not result.get('correct')) or result.get('error'):
-                    msg = "Expression: " + str( expression)  + expr + result.get('error', '') 
+                    msg = "Error 667: Expression: " + str( expression)  + expr + result.get('error', '') 
                     msg = reg.sub(r"[\'<>]", '', msg)
                     messages.append(('error', msg))
                     #print("MESSAGES = ", messages )
@@ -684,6 +689,7 @@ def validate_exercise_globals(xml, user, exercise):
         for question_xmltree in question_xmltrees:
             result = {}
             ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
+            #print("RET = ", ret )
             used_variables = list(ret['used_variables'])
             variables = ret['variables']
             funcsubs = ret['functions']
@@ -693,25 +699,32 @@ def validate_exercise_globals(xml, user, exercise):
             precision = 1.0e-6
             question_type = question['@attr']['type']
             symex = compare_function[question_type]
-            #print("USERMACROS = ", usermacros)
-            #print("TRY CORRECT UNMACROD CORRECT ANSWER ", correct_answer)
-            #print(
+            # #print("USERMACROS = ", usermacros)
+            # #print("TRY CORRECT UNMACROD CORRECT ANSWER ", correct_answer)
+            # #print(
             #    "TRY CORRECT ANSWER ",
             #    apply_macros_to_string('<txt>' + str(correct_answer) + '</txt>', [usermacros]),
             #)
             # correct_answer  = apply_macros_to_string( str( correct_answer ), usermacros )
             # #print("TRY CORRECT ANSWER ", correct_answer )
             try:
-                expr = correct_answer + '  '
+                expr = declash( correct_answer + '  ' )
+                #print("API correct_answer ", expr)
+                #print("API VARIABLES = ", variables)
+                #print("API USED_VARIABLES ", used_variables)
+                #expr = "sin( variablebeta) "
+                #used_variables = ['variablebeta']
+                #variables = [{'name': 'variablebeta', 'value': '2 pi / 28.7', 'tex': 'variablevariablebeta'}, {'name': 'x', 'value': 'sin(variablebeta)', 'tex': 'x'}]
                 result = symex(
                     precision,
                     variables,
-                    correct_answer,
-                    correct_answer,
+                    expr,
+                    expr,
                     True,
                     [],
                     used_variables,
                     funcsubs,
+                    validate_definitions=True
                 )
                 if result.get('error'):
                     msg = "Error in question with answer " + expr + ":   " + result.get('debug', '')
@@ -742,7 +755,9 @@ def validate_exercise_globals(xml, user, exercise):
 def validate_exercise_xml(xml, user, exercise):
     messages = []
     try:
+        #print("VALIDATE GLOBALS ")
         messages = validate_exercise_globals(xml, user, exercise)
+        #print("GET  SCHEMA")
         xmlschema = etree.XMLSchema(etree.parse(paths.EXERCISE_XSD))
         parser = etree.XMLParser(recover=True)
         root = etree.fromstring(xml, parser=parser)
@@ -765,9 +780,13 @@ def validate_exercise_xml(xml, user, exercise):
         messages.append(
             ('error', "From validate_exercise_xml: " + type(e).__name__ + "  :  " + str(e))
         )
+    except QuestionError as e:
+        messages.append(
+            ('error', "Cannot validate : %s  " % str(e))
+        )
     except Exception as e:
         messages.append(
-            ('error', "Uncaught excption From validate_exercise_xml: " + type(e).__name__ + "  :  " + str(e))
+            ('error', "Uncaught exception From validate_exercise_xml: " + type(e).__name__ + "  :  " + str(e))
         )
     return messages
 
@@ -775,6 +794,7 @@ def validate_exercise_xml(xml, user, exercise):
 @permission_required('exercises.edit_exercise')
 @api_view(['POST'])
 def exercise_save(request, exercise):
+    print("SAVE EXERCISE")
     messages = []
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"

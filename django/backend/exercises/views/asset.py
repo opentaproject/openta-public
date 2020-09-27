@@ -103,7 +103,7 @@ def exercise_download_assets(request, exercise):
     zipf = zipfile.ZipFile(tmpfile, 'w', zipfile.ZIP_DEFLATED)
     for root, _, files in os.walk(path):
         for file in files:
-            if 'exercisekey' not in file:
+            if 'exercisekey' not in file and 'history' not in file :
                 fullpath = os.path.join(root, file)
                 relpath = os.path.relpath(fullpath, start=path)
                 zipf.write(fullpath, relpath)

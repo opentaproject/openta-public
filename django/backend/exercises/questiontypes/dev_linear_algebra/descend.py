@@ -52,6 +52,7 @@ def dematrixify(sexpr, varsubs):
 
 def tokenify(xtest, vsubs=[]):
     orig = xtest
+    tbeg = time.time()
     try:
         nit = 0
         vsubs = []
@@ -77,6 +78,7 @@ def tokenify(xtest, vsubs=[]):
     except:
         print("FAILED WITH ", orig)
         raise TypeError("FAILED WITH " + orig)
+    print("TOKENIFY TIME = ", 1000 * ( time.time() - tbeg) )
     return (xtest, vsubs)
 
 

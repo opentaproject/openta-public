@@ -44,7 +44,7 @@ EXERCISE_CODE = """
     <var><token>a</token><tex>A</tex></var> 
     </global>
     <text> Pythagoras test </text>
-    <question key='1' exposeglobals='True' type='devLinearAlgebra'> a = 1; b = 2;
+    <question key='1' exposeglobals='True' type='devLinearAlgebra'> 
      <variables>
          <blacklist><token>c</token></blacklist>
          <var><token>d</token><tex>D</tex><value>9 </value> </var>

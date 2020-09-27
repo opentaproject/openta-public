@@ -22,11 +22,8 @@ import time
 from exercises.questiontypes.safe_run import safe_run
 import logging
 from .string_formatting import (
-    absify,
-    insert_implicit_multiply,
     ascii_to_sympy,
     matrixify,
-    braketify,
     declash,
 )
 from .unithelpers import *
@@ -217,7 +214,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         "MATCHING PAREN ERROR IN  SYMPIFY WITH CUSTOM " + expression
     )
     #print("     TIME A1 %s" , 1000 * ( time.time() - tbeg) )
-    expression = ascii_to_sympy(declash(expression))
+    expression = ascii_to_sympy(expression)
     tbeg = time.time()
     scope = openta_scope
     scope.update( unitbaseunits )
@@ -245,7 +242,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     }
     rep = [(Function(key), val) for key, val in myscope.items()]
     repadd = [(Function(key), val) for key, val in add_scope.items()]
-    sexpr = ascii_to_sympy(declash(expression), {})
+    sexpr = ascii_to_sympy(expression, {})
     new = sexpr
     (xtest, newvarsubs, matrix_subs) = dematrixify(sexpr, varsubs)
     new = xtest

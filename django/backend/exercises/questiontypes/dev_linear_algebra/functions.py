@@ -438,6 +438,8 @@ class Dot(sympy.Function):
                 #print("DOT PRODUCT ret = ", srepr( ret )  )
                 return ret
             else:
+                print("X = ", type(x) ,x )
+                print("Y = ", type(y) , y)
                 raise TypeError('Illegal argument of dot product')
 
 
@@ -885,3 +887,4 @@ openta_scope = {
 add_scope = {
     'carefuladd': carefuladd,
 }
+

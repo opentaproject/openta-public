@@ -339,6 +339,8 @@ export default class QuestionDevLinearAlgebra extends Component {
   //console.log("STATE CORRECT ",    state.getIn(['correct'], "NOTING IN CORRECT") )
   var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts']) ) 
   var used_variable_list =   state.getIn(['response','used_variable_list'] , question.getIn(['used_variable_list']) ) 
+  console.log("STATE", JSON.stringify( state.getIn(['response','used_variable_list'] ) ) )
+  console.log("RESPONSE",  JSON.stringify( question.getIn(['used_variable_list']) )  )
   var previous_answers = state.getIn(['response','previous_answers'] , question.getIn(['previous_answers']) );
   if( state.getIn(['correct'], null ) == null ){
        var feedback = false
@@ -360,7 +362,7 @@ export default class QuestionDevLinearAlgebra extends Component {
   var tdict = state.getIn(['response','dict'],'');
   var  mathematica =  state.getIn(['response','mathematica'],'') 
   var has_math = ( mathematica == '' )
-  console.log("mathematica", state.getIn(['response','mathematica'],'') )
+  // console.log("mathematica", state.getIn(['response','mathematica'],'') )
   // console.log("dict = ", tdict )
   //console.log("COMMENT = ", comment)
     if(state.getIn(['response','detail']))
@@ -376,7 +378,7 @@ export default class QuestionDevLinearAlgebra extends Component {
   // console.log("this.varsList = ", JSON.stringify( this.varsList))
   this.varsList = uniquecat(used_variable_list, this.varsList)
   this.varsList = used_variable_list
-  // console.log("used_variable_list = ", JSON.stringify( used_variable_list))
+  //console.log("used_variable_list = ", JSON.stringify( used_variable_list))
   var availableVariables = [];
   var comma = ''
     if(this.varsList && this.varsList.size > 0 ) {

@@ -21,6 +21,7 @@ from exercises.util import get_hash_from_string
 from sympy.utilities.lambdify import lambdify, implemented_function
 from exercises.questiontypes.safe_run import safe_run
 import logging
+from .mathematica import mathematica_form
 from .string_formatting import (
     absify,
     ascii_to_sympy,
@@ -34,8 +35,9 @@ from .string_formatting import insert_implicit_multiply
 from .unithelpers import *
 from sympy import DiagonalOf
 import sympy
+from .parsehints import parsehints
 from .functions import *
-from .checks import check_for_legal_answer, lambdifymodules, LinearAlgebraUnitError, check_units_new, mysqrt
+from .checks import check_for_legal_answer, lambdifymodules, LinearAlgebraUnitError, check_units_new, mysqrt, check_answer_structure, check_consistency, check_for_undefined_variables_and_functions
 import numpy
 from .parsers import parse_sample_variables
 from .variableparser import getallvariables, get_used_variable_list
@@ -57,33 +59,6 @@ def linear_algebra_check_if_true(
         precision, variables, expression, shouldbetrue, check_units=True, blacklist=[], funcsubs={}
     )
 
-def mathematica_form( student_answer ) :
-    #print("STUDENT_ANSWER = ", student_answer)
-    s  = str( srepr( sympy.sympify( ascii_to_sympy( student_answer) ) ) )
-    #print("S = ", s )
-    s = reg.sub(r"\'","",s)
-    s = reg.sub(r"\[","{",s)
-    s = reg.sub(r"\]","}",s)
-    s = reg.sub(r"\(","[",s)
-    s = reg.sub(r"\)","]",s)
-    s = reg.sub(r"Global.","",s)
-    translations = {"Mul":"Times",
-        "Pow":"Power",
-        "Add": "Plus",
-        "Integer": "Identity",
-        "Symbol":"Identity",
-        "cos": "Cos",
-        "sin": "Sin",
-        "tan": "Tan",
-        "pi" : "Pi" ,
-        "abs" : "Abs",
-        }
-    for key in translations.keys():
-        s = reg.sub(r'%s' % key, translations[key], s )
-    s = reg.sub(r'Identity\[([^\]]+)\]',"\\1",s)
-    s = reg.sub(r'MutableDenseMatrix','Identity',s)
-    #print("S = ", s )
-    return s
 
 def equality_remap( student_answer, correct, varsubs_sympify):
     tbeg = time.time()
@@ -111,124 +86,90 @@ def equality_remap( student_answer, correct, varsubs_sympify):
     #print("TIME IN EQUALITY REMAP " , int( 1000 * (  time.time() - tbeg ) ) )
     return ( student_answer, correct ,varsubs_sympify)
 
-def check_answer_structure( student_answer, correct , varsubs_sympify):
-    response = None
-    prelhs = None
-    tbeg = time.time()
-    try:
-       tstudent_answer = replace_sample_funcs( student_answer)
-       #print("      TSTUDENTANSWER = ", tstudent_answer)
-       #print("      TYPE VARSUBS_SUMPFIY = ", type( varsubs_sympify) )
-       tvarsubs_sympify = {}
-       for key in varsubs_sympify.keys() :
-            #print("     KEY = ", key )
-            tvarsubs_sympify[key] = sympy.sympify( replace_sample_funcs( str( varsubs_sympify[key]  ) ) )
-       #dprint("      TVARSUBS_SYMPIFY = ", tvarsubs_sympify)
-       prelhs = sympify_with_custom( tstudent_answer, tvarsubs_sympify, {}, 'check-answer-structure-linear_algebra_compare_expressions')
-    except TypeError as e:
-        if 'required positional' in str(e) :
-            response = dict(
-                error = _( 'function is missing an argument')
-                )
-        else:
-            response = dict(
-                error=_( 'syntax error' ),
-                debug="Error 187: " +  str(e) + traceback.format_exc()
-                )
-        #return response
-    
-    except NameError as e:
-        response = dict(
-                error=_( str(e) ),
-                debug="Error 193: " +  str(e)
-                )
-        #return response
-    
-    except ShapeError as e:
-        response = dict(
-                error=_("Matrix dimensions inconsistent with each other or with the result. You must mul(A,B) for multiplying a matrix or matrix times vector"),
-                debug="Error 202: " +  str(e)
-                )
-        #return response
-    except ValueError as e:
-        explain = ''
-        if "mismatched" in str(e) :
-            explain = 'Probably missing mul(A,B) in matrix x matrix or matrix x vector'
-            
-        response = dict(
-            error=_("%s \n %s %s" % (explain,  str(e), " Error 158" ) )
-                )
-    except Exception as e:
-        response = dict(
-            error=_(
-                str( type(e)  )
-                + " Error 213: Unidentified Error\n "
-                + str(student_answer)
-                + "\n"
-                 + str(e) ),
-            warning=_("%s %s %s" % ( type(e), str(e), traceback.format_exc() ))  
-            )
-    dprint("     RESSPONSE = ", response)
-    dprint("     PRELHS = ", prelhs )
-    #print("TIME CHECK_ANSWER_STRUCTURE " , int( 1000 * (  time.time() - tbeg ) ) )
-    return response
-
-def check_consistency(  lhs, rhs ,blacklist) :
-    tbeg = time.time()
-    response = None
-    if hasattr(lhs, 'shape') and hasattr(rhs, 'shape'):
-        if lhs.shape != rhs.shape:
-            return {
-                "error": _("incorrect dimensions")
-                + ": your answer has the dimensions "
-                + str(lhs.shape)
-                + " whereas  the answer requires the dimensions "
-                + str(rhs.shape)
-            }
-    #print("A6")
-    if hasattr(lhs, 'shape') and not hasattr(rhs, 'shape') and ( not rhs == 0 ):
-        return {
-            "error": _("Error 182 incorrect dimensions")
-            + ": your expression %s is a matrix or vector; a scalar answer is required." % str( lhs )
-        }
-    if hasattr(rhs, 'shape') and not hasattr(lhs, 'shape') and ( not lhs == 0 ) :
-        return {
-            "error": _("Error 188 incorrect dimensions")
-            + ": your expression %s is is not a proper  vector or matrix " % str(lhs) 
-        }
-    #print("A7")
-    if isinstance(lhs, sympy.Basic) or isinstance(lhs, sympy.MatrixBase):
-        specials = [
-            ('cross', Cross),
-            ('dot', Dot),
-            ('norm', Norm),
-            ('Braket', Braket),
-            ('KetBra', KetBra),
-            ('KetMBra', KetMBra),
-            ('Trace', Trace),
-            ('gt', gt),
-        ]
-        for special in specials:
-            if special[0] in blacklist and (special[0] in str(lhs)):
-                return {"error": _("(E) Forbidden token: ") + special[0]}
-        atoms = lhs.atoms(sympy.Symbol, sympy.MatrixSymbol, sympy.Function)
-        for atom in atoms:
-            strrep = str(atom)
-            funcstr = str(atom.func)
-            if strrep in blacklist:
-                return {"error": _("(F) Forbidden token: ") + strrep}
-            if funcstr in blacklist:
-                return {"error": _("(G) Forbidden token: ") + funcstr}
-        #print("POSITION 5", 1000 * ( time.time() - time_start ) ); 
-    #print("TIME CHECK_CONSISTENCY " , int( 1000 * (  time.time() - tbeg ) ) )
-    return None
-
-
-
-    
-
 def dprint(*args) :
     return
+
+
+
+def question_check(question_json, question_xmltree, answer_data, global_xmltree, symex):
+    hints = parsehints(question_xmltree, global_xmltree, answer_data)
+    result = {}
+    if hints is not None:
+        if hints.get('correct', None) is not None:
+            return hints
+    check_units = True
+    ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
+    used_variables = list(ret['used_variables'])
+    variables = ret['variables']
+    funcsubs = ret['functions']
+    authorvariables = ret['authorvariables']
+    exposeglobals = (question_json.get('@attr').get('exposeglobals', 'false')).lower() == 'true'
+    #if exposeglobals :
+    #    okvariables = set( [item['name'] for item in authorvariables] + used_variables   )
+    #else :
+    #    okvariables = set(  used_variables   )
+    blacklist = ret['blacklist']
+    #okvariables = okvariables.difference( set( blacklist) )
+    correct_answer = ret['correct_answer']
+    equality = question_xmltree.find('equality')
+    negate = False
+    if equality is not None:
+        correct_answer = equality.text
+    istrue = question_xmltree.find('istrue')
+    if istrue is not None:
+        correct_answer = istrue.text
+        if '==' not in istrue.text:
+            correct_answer = istrue.text + "== 1 "
+        check_units = False
+
+    isfalse = question_xmltree.find('isfalse')
+    if isfalse is not None:
+        negate = True
+        correct_answer = isfalse.text
+        if '==' not in isfalse.text:
+            correct_answer = isfalse.text + "== 1 "
+        check_units = False
+    precision = question_json.get('@attr').get('precision', '1e-6')
+    precision = float(precision)
+    # SYMEX CALLS LINEAR_ALGEBRA_EXPRESSION
+    result = symex(
+        precision,
+        authorvariables,
+        answer_data,
+        correct_answer,
+        check_units=check_units,
+        blacklist=list(blacklist),
+        used_variables=used_variables,
+        funcsubs=funcsubs,
+    )
+    if negate:
+        if 'correct' in list(result.keys()):
+            if result['correct']:
+                result['status'] = 'incorrect'
+            else:
+                result['status'] = 'correct'
+            # result['status'] = 'incorrect' if result['correct'] else 'correct'
+        elif 'error' in list(result.keys()):
+            result['status'] = 'error'
+    else:
+        if 'correct' in list(result.keys()):
+            if result['correct']:
+                result['status'] = 'correct'
+            else:
+                result['status'] = 'incorrect'
+        # result['status'] = 'incorrect' if result['correct'] else 'correct'
+        # if 'correct' in result.keys() :
+        #    result['status'] = 'correct' if result['correct'] else 'incorrect'
+        elif 'error' in list(result.keys()):
+            result['status'] = 'error'
+    # if hints is not None:
+    #    result.update(hints)
+    #okvariables = [ reg.sub(r"variable",'',item) for item in list( okvariables) ] 
+    #result['used_variable_list'] = list( set( okvariables ) )
+    result['used_variable_list'] = used_variables
+    return result
+
+    
 
 def linear_algebra_compare_expressions(
     precision,
@@ -238,28 +179,20 @@ def linear_algebra_compare_expressions(
     check_units=True,
     blacklist=[],
     used_variables=[],
-    funcsubs={},
+    funcsubs=[],
+    validate_definitions=False,
     ):
     tbeg = time.time()
     _ , varsubs_sympify, sample_variables = parse_sample_variables(variables)
-    #print("LINEAR_ALGEBRA_COMPARE_EXPRESSION VARIABLES = ", variables )
-    student_answer_unparsed = student_answer
-    # #############################################
-    # IF EQUALITY IS USED, SAMPLING IS DISABLED 
-    # AND zero = LHS - RHS 
-    # ############################################
-    #print("TIME B0a" ,  1000 * ( time.time() - tbeg ) )
-    #print("STUDENT_ANSWER = ", student_answer)
-    #illegal = reg.findall(r'(^|\s|[+-/*\(\)])+[0-9\.]+[a-zA-Z]+', student_answer)
-    #if len(illegal) >  0 :
-    #    #print("WAS ILLEGAL",illegal)
-    #    s = ",".join( [ "".join(item) for item in illegal])
-    #    ret = dict(error= _('Illegal pattern %s in %s ' % (s, student_answer)  ) ) 
-    #    return ret
-    #if not  len(correct.split('==') )  == len( student_answer.split('==') ) :
-    #    response = {"error" : "inconsistent equality in %s . " % str(student_answer)  , 
-    #        "warning" : "must be consistent with %s " % correct }
-    #    return response
+    compare_hash = get_hash_from_string( " %s %s %s %s %s %s %s %s %s " % ( str(precision), str(variables), str(student_answer), 
+            str(correct), str(check_units), str(used_variables), str(blacklist), str(funcsubs)   , __file__ ) )
+    ret = djangocache.cache.get(compare_hash)
+    if not ret == None  and not validate_definitions:
+            return ret
+    if not validate_definitions and not settings.RUNTESTS :
+        response = check_for_undefined_variables_and_functions( student_answer, used_variables ) 
+        if response :
+            return response
     student_answer = declash( student_answer)
     correct = declash( correct )
     try:
@@ -267,43 +200,22 @@ def linear_algebra_compare_expressions(
     except:
         response = {'error' : "Equality syntax incorrect in student expression [%s] " % student_answer_unparsed }
         return response
-    #print("TIME B0b" ,  1000 * ( time.time() - tbeg ) )
     student_answer = insert_implicit_multiply( student_answer)
     correct_answer = insert_implicit_multiply( correct )
-    compare_hash = get_hash_from_string( " %s %s %s %s %s %s %s %s %s " % ( str(precision), str(variables), str(student_answer), 
-            str(correct_answer), str(check_units), str(used_variables), str(blacklist), str(funcsubs)   , __file__ ) )
-    #ret = djangocache.cache.get(compare_hash)
-    #if not ret == None :
-    #        return ret
     student_answer_orig = student_answer
     time_start = time.time()
-    #print("LINEAR_ALGEBRA_COMPARE_EXPRESSIONS")
-    #print("VARIABLES" , variables )
-    #print("STUDENT_ANSWER", student_answer)
-    #print("CORRECT", correct)
-    #print("USED_VARIABLES", used_variables)
-    #print("VARSUBS_SYMPIFYF ", varsubs_sympify)
-    #print("TIME B0" ,  1000 * ( time.time() - tbeg ) )
     precheck = check_for_legal_answer( precision, variables, student_answer, correct, check_units, blacklist)
-    #print("TIME B1" ,  1000 * ( time.time() - tbeg ) )
-    #print("PRECHECK = ", precheck)
     if precheck is not None:
         return precheck
-    
-    dprint("VARSUBS_SYMPIFY = ", varsubs_sympify)
-    dprint("SAMPLE_VARIABLES = ", sample_variables)
     response = check_answer_structure( student_answer, correct, varsubs_sympify ) 
-    #print("TIME B2" ,  1000 * ( time.time() - tbeg ) )
     if response :
         return response
+    # FINALLY IF THE STUDENT RESPONSE STRING DOES NOT HAVE OBVIOUS ERRORS TRY SYMPIFY 
     try :
-        #print("TIME B3" ,  1000 * ( time.time() - tbeg ) )
         prelhs = sympify_with_custom( student_answer , varsubs_sympify, {}, 'linear_algebra_compare_expressions-2' )
         lhs = prelhs.doit()
-        #print("TIME B4" ,  1000 * ( time.time() - tbeg ) )
         prerhs = sympify_with_custom( correct, varsubs_sympify, {}, 'linear_algebra_compare_expressions-3' )
         rhs = prerhs.doit()
-        #print("TIME B5" ,  1000 * ( time.time() - tbeg ) )
     except Exception as e:
         if '@' in str(e):
             explanation = "The character @ appears in author expression; check for macros with missing semicolon separator or missing :=  in macro definition"
@@ -312,67 +224,18 @@ def linear_algebra_compare_expressions(
         response = dict(error=_("ERROR IN AUTHOR EXPRESSION. " + explanation),
                         warning=("%s %s %s" % ( type(e), str(e), traceback.format_exc() )) )
         return response
-    #print("POSITION 4", 1000 * ( time.time() - time_start ) );
-    #print("TIME B6" ,  1000 * ( time.time() - tbeg ) )
-    #response = check_consistency( lhs, rhs ,blacklist) 
-    #if response :
-    #    return response
-    #print("TIME B7" ,  1000 * ( time.time() - tbeg ) )
-    #print("CHECK LHS = ", lhs )
-    #print("CHECK RHS = ", rhs)
-    #print("SAMPPLE_VARIABLES = ", sample_variables)
     ret = linear_algebra_check_equality( precision, lhs, rhs, sample_variables, check_units=check_units,blacklist=blacklist)
-    #print("POSITION6")
-    #print("TIME B8" ,  1000 * ( time.time() - tbeg ) )
-    #try:
-    #    ret['mathematica'] = "Math Expression: {%s , %s }" % (  mathematica_form(student_answer), mathematica_form( correct_answer) )
-    #except:
-    #    ret['mathematica' ] = "Cannot parse mathematica: [%s,%s]" % ( student_answer, correct_answer)
-    #print("TIME B9" ,  1000 * ( time.time() - tbeg ) )
-    #ret['mathematica'] =  str( mathematica_form(correct_answer)  )
-    #print("RET = ", ret )
-    #time_beg = time.time()
-    #with WolframLanguageSession() as wl_session:
-    #    res = wl_session.evaluate(wlexpr( mathematica_form( student_answer ) ) )
-    #print("RES = ", res )
-    #print("TIME = ", ( time.time() - time_beg ) * 1000 )
+    try:
+        ret['mathematica'] = "Math Expression: {%s , %s }" % (  mathematica_form(student_answer), mathematica_form( correct_answer) )
+    except:
+        ret['mathematica' ] = "Cannot parse mathematica: [%s,%s]" % ( student_answer, correct_answer)
     djangocache.cache.set(compare_hash, ret , 600 )
     return ret
 
-#samplemodule = [
-#    {
-#        'cot': lambda x: 1.0 / numpy.tan(x),
-#        'exp': lambda x:  numpy.exp(x),
-#        'sqrt': lambda x: numpy.sqrt(x),
-#        'real': lambda x: numpy.real(x),
-#        'norm': lambda x: numpy.linalg.norm(x),
-#        'logicaland': numpy.logical_and,
-#        'logicalor': numpy.logical_or,
-#        'eq': numpy.equal,
-#        'Norm': lambda x:  numpy.linalg.norm(x) ,
-#        'abs':  lambda x:  numpy.linalg.norm(x) ,
-#        'cross': lambda x, y: numpy.cross(x, y, axis=0),
-#        'crossfunc': lambda x, y: numpy.cross(x, y, axis=0),
-#        'dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
-#        'Dot': lambda x, y: numpy.dot(numpy.transpose(x), y),
-#        'zoo': numpy.inf,
-##        'I': numpy.complex(0, 1),
-#    },
-#    "numpy",
-#]
 
 
-#sample_module = [
-#    {
-#    'sample' : lambda *x: dorand(x) ,
-#    'Norm': lambda x: numpy.linalg.norm(x),
-#    }, 
-#    "numpy"
-#]
 
-sample_module = [
-    {
-        'sample' : lambda *x: dorand(x) ,
+local_defs = {
         'cot': lambda x: 1.0 / numpy.tan(x),
         'exp': lambda x:  numpy.exp(x),
         'sqrt': lambda x: mysqrt(x),
@@ -389,33 +252,21 @@ sample_module = [
         'Dot': lambda x, y: numpy.vdot(x,y),
         'zoo': numpy.inf,
         'I': numpy.complex(0, 1),
-    },
+    }
+
+sample_defs = dict( local_defs)
+sample_defs.update( {'sample' : lambda *x: dorand(x) } )
+sample_module = [
+    sample_defs,
     "numpy",
 ]
 
 
 base_module = [
-    {
-        'cot': lambda x: 1.0 / numpy.tan(x),
-        'exp': lambda x:  numpy.exp(x),
-        'sqrt': lambda x: mysqrt(x),
-        'real': lambda x: numpy.real(x),
-        'norm': lambda x: numpy.linalg.norm(x),
-        'Norm': lambda x: numpy.linalg.norm(x),
-        'logicaland': numpy.logical_and,
-        'logicalor': numpy.logical_or,
-        'eq': lambda x,y: 1.0 if numpy.equal(x,y) else 0.0 ,
-        'Norm': lambda x:  numpy.linalg.norm(x) ,
-        'abs':  lambda x:  numpy.linalg.norm(x) ,
-        'cross': lambda x, y: numpy.cross(x, y, axis=0),
-        'crossfunc': lambda x, y: numpy.cross(x, y, axis=0),
-        'dot': lambda x, y: numpy.vdot(x,y),
-        'Dot': lambda x, y: numpy.vdot(x,y),
-        'zoo': numpy.inf,
-        'I': numpy.complex(0, 1),
-    },
+    local_defs,
     "numpy",
 ]
+
 
 
 
@@ -442,12 +293,14 @@ sample_project= [
 
 kseed = 5
 
+
+
 def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_units=True,blacklist=None):  # {{{
     global kseed
-    if blacklist :
-        response = check_consistency( lhs, rhs ,blacklist) 
-        if response :
-            return response
+    #if blacklist :
+    response = check_consistency( lhs, rhs ,blacklist) 
+    if response :
+       return response
     lhsorig = lhs
     rhsorig = rhs
     tbeg = time.time()
@@ -472,7 +325,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
     #print("LINEAR_ALGEBRA_CHECK_EQUALITY RHS ",  str( rhs ) )
     #print("LINEAR_ALGEBRA_CHECK_EQUALITY SAMPLE_VARIABLES",  sample_variables)
     try:
-        baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
+        #baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
         dprint("DO SAMPLE")
         miss = 0
         nsamples = 5
@@ -481,7 +334,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         for k in range(0,nsamples) :
             kseed  = k
             #print("NSAMPLES = ", nsamples, "K = ", k )
-            baseunits =  [('meter', 1), ('second', 1), ('kg', 1), ('ampere', 1), ('kelvin', 1), ('mole', 1), ('candela', 1)] 
+            baseunits =  [('meter', random.random()), ('second', random.random()), ('kg', random.random()), ('ampere', random.random()), ('kelvin', random.random()), ('mole', random.random()), ('candela', random.random())] 
             #print("LHS W BASEUNITS", sympy.sympify(lhs) )
             sympy_wo_units1 = sympy.sympify(lhs).subs(baseunits)
             sympy_wo_units2 = sympy.sympify(rhs).subs(baseunits)
@@ -491,15 +344,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
             except: 
                 miss = miss + 1
             (sympy_wo_units1, sympy_wo_units2) = pair
-            #print("SYMPY1 = ", sympy_wo_units1)
-            #sympy_wo_units1 = sympy.lambdify( [], sympy_wo_units1  , modules=sample_module,)()
-            #print("SYMPY1 = ", sympy_wo_units1)
-            #sympy_wo_units2 = sympy.sympify(rhs).subs(baseunits)
-            #print("SYMPY2 = ", sympy_wo_units2)
-            #sympy_wo_units2 = sympy.lambdify( [], sympy_wo_units2  , modules=sample_module,)()
-            #print("SYMPY2 = ", sympy_wo_units2 )
             diff = numpy.absolute( ( sympy_wo_units1 - sympy_wo_units2 ) )
-            #print("DIFF = ", diff )
             try: 
                 if numpy.any( numpy.abs( diff ) > precision ) :
                     miss = miss + 1 
@@ -591,11 +436,6 @@ def linear_algebra_expression(
     """
     Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
     """
-    invalid_strings = ['_', '#', '@', '&', '?', '"']
-    for i in invalid_strings:
-        if i in student_answer:
-            return {'error': _('Answer contains invalid character ') + i}
-    #print(compare_numeric_internal(variables, expression1, expression2))
     return safe_run(
         linear_algebra_expression_runner,
         args=(
@@ -605,7 +445,7 @@ def linear_algebra_expression(
             correct_answer,
             check_units,
             blacklist,
-            variables,
+            used_variables,
             funcsubs,
         ),
     )

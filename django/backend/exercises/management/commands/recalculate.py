@@ -90,14 +90,21 @@ class Command(BaseCommand):
         answers = list(answers)
         redo(answers,accept)
 
-def dotask(npks=20,seed=None,accept_new=False) :
+def dotask(npks=20,seed=None,accept_new=False,course_key=None) :
     print("DOTASK ACCEPT_NEW = ", accept_new)
-    answers = get_new_answers(npks,seed)
+    answers = get_new_answers(npks,seed,course_key)
     return redo( answers, accept_new )
 
-def get_new_answers(npks=20,iseed=None) :
+def get_new_answers(npks=20,iseed=None,course_key=None) :
     donepks = []
-    answers =  Answer.objects.all() 
+    course_key = "cc0a4d09-9cfb-4e9b-aee1-6156fb4c6150"
+    if course_key :
+        course = Course.objects.get(course_key=course_key)
+        exercises = Exercise.objects.filter(course=course)
+        questions = Question.objects.filter(exercise__in=exercises)
+        answers = Answer.objects.filter(question__in=questions)
+    else :
+        answers =  Answer.objects.all()
     if  os.path.exists("/tmp/whitelist.txt") :
         allpks = []
         with open("/tmp/whitelist.txt") as fp:
@@ -167,9 +174,10 @@ def redo( answers , accept_new=False):
                             grader_response = {"error" : "Unidentfied" , "correct" : False }
                         user_agent = answer.user_agent
                         answer_data = answer.answer
-                        old_correct = grader_response.get('correct', False)
-                        if answer.correct :
+                        try :
                             old_correct = answer.correct
+                        except :
+                            old_correct = grader_response.get('correct', False)
                         hijacked = False
                         view_solution_permission = True
                         dbuser = answer.user
@@ -199,8 +207,9 @@ def redo( answers , accept_new=False):
                                 fp.write( '{%s : { user: %s,name: %s ,type: %s,answer:  \"%s\",old_correct: %s, new_correct %s  },  error : \"%s\"} }\n' %
                                                 (answer.pk, dbuser,name,question_type, answer_data, old_correct, new_correct ,result  )  )
                                 fp.close
-                            if accept_new :
+                            if accept_new  and not( new_correct == old_correct ):
                                 pk = answer.pk
+                                print("SAVE %s" % str( pk ) )
                                 answer.correct = new_correct
                                 answer.grader_response = json.dumps(result)
                                 answer.save()
