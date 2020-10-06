@@ -21,6 +21,9 @@ from workqueue.exceptions import WorkQueueError
 import os
 import rq
 import pickle
+import logging
+logger = logging.getLogger(__name__)
+
 
 
 def regrade_results_async_pipeline(task, exercise):
@@ -79,6 +82,13 @@ def cleanup_orphaned_tasks(exercise,ntasks=1):
             i = i + 1
 
 
+def tprint(s) :
+    fp = open("/tmp/regrade_log.txt","a+")
+    fp.write("%s\n" % s )
+    fp.flush()
+    fp.close()
+
+
 def regrade_students_results(task, exercise):
     cleanup_orphaned_tasks(exercise)
     results = {}
@@ -87,7 +97,9 @@ def regrade_students_results(task, exercise):
     except Exercise.DoesNotExist:
         return Response({}, status=status.HTTP_404_NOT_FOUND)
     questions = Question.objects.filter(exercise=dbexercise)
-    #print("QUESTIONS = ", questions)
+
+    logger.error("QUESTIONS = %s " % str(  questions) )
+    tprint( "QUESTIONS = %s " % str(questions) )
     exercise_key = dbexercise.exercise_key
     #WHY DOES THIS MISS SOME! 
     all_answers = Answer.objects.filter(question__in=questions).order_by('-date')
@@ -144,16 +156,17 @@ def regrade_students_results(task, exercise):
             #if index > 3 :
             #    break
             if answer.question :
+                tprint("CHECK %s " % answer.question)
                 regrade_task = RegradeTask.objects.get(exercise=dbexercise)
+                tprint("REGRADE TASK STATUS =  %s " % regrade_task.status)
                 if regrade_task.status == 'Running':
                     try:
                         grader_response_string =  answer.grader_response
-                        grader_response_string =  grader_response_string.replace('true' , 'True') ;
-                        grader_response_string =  grader_response_string.replace('false' , 'False') ;
-                        grader_response_string =  grader_response_string.replace('\'','\"' )
-                        grader_response = eval(grader_response_string)
+                        grader_response = json.loads( answer.grader_response) 
+                        tprint("GRADER_RESPONSE = %s " % str( grader_response) )
+
                     except:
-                        #print("GRADER RESPONSE STRING = ", grader_response_string)
+                        tprint("GRADER_RESPONSE_STRING ERROR  " % str(answer) )
                         grader_response = {"error" : "Unidentfied" , "correct" : answer.correct }
                     user_agent = answer.user_agent
                     answer_data = answer.answer

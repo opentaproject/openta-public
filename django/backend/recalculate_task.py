@@ -33,7 +33,6 @@ async def main(loop) :
     executor = ProcessPoolExecutor(max_workers=12)
     tasks = []
     course_key = "4e9f9f01-dcf6-4ad0-a387-d567cddf1fcf"   
-    course_key = None
     nworkers = 12
     if  os.path.exists("/tmp/whitelist.txt") :
         print("/tmp/whitelist.txt exists so process only those ")

@@ -97,7 +97,6 @@ def dotask(npks=20,seed=None,accept_new=False,course_key=None) :
 
 def get_new_answers(npks=20,iseed=None,course_key=None) :
     donepks = []
-    course_key = "cc0a4d09-9cfb-4e9b-aee1-6156fb4c6150"
     if course_key :
         course = Course.objects.get(course_key=course_key)
         exercises = Exercise.objects.filter(course=course)
@@ -161,17 +160,19 @@ def redo( answers , accept_new=False):
                         question_key = answer.question.question_key
                         user = answer.user
                         course = exercise.course
-                        grader_response_string =  answer.grader_response
-                        grader_response_string =     grader_response_string.replace('true' , 'True') ;
-                        grader_response_string =     grader_response_string.replace('false' , 'False') ;
-                        try:
-                            grader_response_string =  answer.grader_response
-                            grader_response_string =     grader_response_string.replace('true' , 'True') ;
-                            grader_response_string =     grader_response_string.replace('false' , 'False') ;
-                            grader_response_string =    grader_response_string.replace('\'','\"' )
-                            grader_response = eval(grader_response_string)
+                        try :
+                            grader_response = json.loads(answer.grader_response)
                         except:
-                            grader_response = {"error" : "Unidentfied" , "correct" : False }
+                            grader_response_string =  answer.grader_response
+                            grader_response_string =  grader_response_string.replace('true' , 'True') ;
+                            grader_response_string =  grader_response_string.replace('false' , 'False') ;
+                            grader_response_string =  grader_response_string.replace('true' , 'True') ;
+                            grader_response_string =  grader_response_string.replace('false' , 'False') ;
+                            grader_response_string =  grader_response_string.replace('\'','\"' )
+                            try :
+                                grader_response = eval(grader_response_string)
+                            except: 
+                                grader_response = {"error" : "Unidentfied" , "correct" : False }
                         user_agent = answer.user_agent
                         answer_data = answer.answer
                         try :
