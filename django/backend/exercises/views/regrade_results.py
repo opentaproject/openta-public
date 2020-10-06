@@ -83,13 +83,16 @@ def cleanup_orphaned_tasks(exercise,ntasks=1):
 
 
 def tprint(s) :
-    fp = open("/tmp/regrade_log.txt","a+")
-    fp.write("%s\n" % s )
-    fp.flush()
-    fp.close()
+    try:
+        with open( "/tmp/regrade_log.txt","a") as fp:
+            fp.write("%s\n" % str(s) )
+    except: 
+        pass
+    return ''
 
 
 def regrade_students_results(task, exercise):
+    print("REGRADE_STUDENTS_RESULTS CALLED")
     cleanup_orphaned_tasks(exercise)
     results = {}
     try:
@@ -166,8 +169,8 @@ def regrade_students_results(task, exercise):
                         tprint("GRADER_RESPONSE = %s " % str( grader_response) )
 
                     except:
-                        tprint("GRADER_RESPONSE_STRING ERROR  " % str(answer) )
-                        grader_response = {"error" : "Unidentfied" , "correct" : answer.correct }
+                        tprint("GRADER_RESPONSE_STRING ERROR  " )
+                        grader_response = {"error" : "Unidentfied" , "correct" : False}
                     user_agent = answer.user_agent
                     answer_data = answer.answer
                     old_correct = answer.correct
@@ -177,7 +180,7 @@ def regrade_students_results(task, exercise):
                     question = answer.question
                     exercise_key = question.exercise.exercise_key
                     question_key = question.question_key
-                    old_correct = grader_response.get('correct', False)
+                    #old_correct = grader_response.get('correct', False)
                     #print("ANSWER_DATE = ", answer.date)
                     if task is not None:
                         task.status = (task.status + txt)[-245:]
@@ -202,6 +205,8 @@ def regrade_students_results(task, exercise):
                             else :
                                 pass 
                             if showall or not ( old_correct == new_correct ):
+                                #print("RESULT = ", result )
+                                maxerror = result.get('maxerror','N')
                                 if new_correct:
                                     txt = "Correct: " + answer_data
                                 else:
@@ -214,7 +219,8 @@ def regrade_students_results(task, exercise):
                                         pk=answer.pk,
                                         grader_response=answer.grader_response,
                                         correct=answer.correct,
-                                        error=result.get('error','')
+                                        error=result.get('maxerror','Z'),
+                                        maxerror=maxerror,
                                     )
                                 )
                                 results[question.question_key].append(
@@ -225,7 +231,8 @@ def regrade_students_results(task, exercise):
                                         answer=answer_data,
                                         old=old_correct,
                                         new=new_correct,
-                                        error=result.get('error','')
+                                        error=result.get('error',maxerror),
+                                        maxerror=maxerror
                                     )
                                 )
                         except:

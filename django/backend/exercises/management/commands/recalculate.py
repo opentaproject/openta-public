@@ -119,14 +119,16 @@ def get_new_answers(npks=20,iseed=None,course_key=None) :
                     donepks.append(int( line.rstrip("\n") ))
     else :
             donepks = []
+    #if iseed :
+    #    allpks = list( filter( lambda x : x % 8 == iseed , allpks ) )
     answerpks = list( (set(allpks)).difference(set(donepks) ) )
     #print("ANSWERPKS = ", answerpks)
     if len(answerpks) == 0 :
             return []
     if seed :
         seed(iseed)
-    if  not os.path.exists("/tmp/whitelist.txt") :
-        shuffle( answerpks )
+    #if  not os.path.exists("/tmp/whitelist.txt") :
+    #    shuffle( answerpks )
     answerpks = answerpks[0:npks] 
     answers = list( answers.filter( pk__in=answerpks) )
     return(answers)
@@ -161,18 +163,18 @@ def redo( answers , accept_new=False):
                         user = answer.user
                         course = exercise.course
                         try :
-                            grader_response = json.loads(answer.grader_response)
+                            grader_response = json.loads(answer.grader_response,strict=False)
                         except:
-                            grader_response_string =  answer.grader_response
-                            grader_response_string =  grader_response_string.replace('true' , 'True') ;
-                            grader_response_string =  grader_response_string.replace('false' , 'False') ;
-                            grader_response_string =  grader_response_string.replace('true' , 'True') ;
-                            grader_response_string =  grader_response_string.replace('false' , 'False') ;
-                            grader_response_string =  grader_response_string.replace('\'','\"' )
-                            try :
-                                grader_response = eval(grader_response_string)
-                            except: 
-                                grader_response = {"error" : "Unidentfied" , "correct" : False }
+                            #grader_response_string =  answer.grader_response
+                            #grader_response_string =  grader_response_string.replace('true' , 'True') ;
+                            #grader_response_string =  grader_response_string.replace('false' , 'False') ;
+                            #grader_response_string =  grader_response_string.replace('true' , 'True') ;
+                            #grader_response_string =  grader_response_string.replace('false' , 'False') ;
+                            #grader_response_string =  grader_response_string.replace('\'','\"' )
+                            #try :
+                            #    grader_response = eval(grader_response_string)
+                            #except: 
+                            grader_response = {"error" : "Unidentfied error in %s " % answer.pk , "correct" : False }
                         user_agent = answer.user_agent
                         answer_data = answer.answer
                         try :
@@ -187,7 +189,7 @@ def redo( answers , accept_new=False):
                         exercise_key = question.exercise.exercise_key
                         usermacros = get_usermacros(user, exercise_key, question_key)
                         question_key = question.question_key
-                        old_correct = grader_response.get('correct', False)
+                        #old_correct = grader_response.get('correct', False)
                         full_path = exercise.get_full_path()
                         name = exercise.name.replace("\n","")
                         if os.path.exists(full_path ):
@@ -210,7 +212,7 @@ def redo( answers , accept_new=False):
                                 fp.close
                             if accept_new  and not( new_correct == old_correct ):
                                 pk = answer.pk
-                                print("SAVE %s" % str( pk ) )
+                                print("%s %s  %s SAVE " % ( str( pk ),  str( exercise_key) , str(  question_key)  ) )
                                 answer.correct = new_correct
                                 answer.grader_response = json.dumps(result)
                                 answer.save()

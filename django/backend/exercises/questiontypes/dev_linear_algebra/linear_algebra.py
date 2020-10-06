@@ -1,4 +1,6 @@
 import time
+import operator
+from functools import  reduce
 from sympy.matrices.matrices import ShapeError
 import django.core.cache as djangocache
 from wolframclient.evaluation import WolframLanguageSession
@@ -22,6 +24,7 @@ from sympy.utilities.lambdify import lambdify, implemented_function
 from exercises.questiontypes.safe_run import safe_run
 import logging
 from .mathematica import mathematica_form
+from math import log10
 from .string_formatting import (
     absify,
     ascii_to_sympy,
@@ -73,10 +76,10 @@ def equality_remap( student_answer, correct, varsubs_sympify):
             equality = correct.split('==')
             if not len(equality) == 2 :
                 raise NameError("Error in equality syntax in student answer %s " % str(student_answer) )
-            correct = 'Abs( (' + equality[0] + ') - ( ' + equality[1] + '))'
+            correct = 'abs( (' + equality[0] + ') - ( ' + equality[1] + '))'
             correct = '0'
             equality = student_answer.split('==')
-            student_answer = 'Abs( (' + equality[0] + ') - ( ' + equality[1] + '))'
+            student_answer = 'abs( (' + equality[0] + ') - ( ' + equality[1] + '))'
     if is_equality : # DON'T DO SAMPLING IN EQUALITY 
         student_answer = replace_sample_funcs( student_answer )
         correct = replace_sample_funcs( correct )
@@ -129,8 +132,7 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
         if '==' not in isfalse.text:
             correct_answer = isfalse.text + "== 1 "
         check_units = False
-    precision = question_json.get('@attr').get('precision', '1e-6')
-    precision = float(precision)
+    precision = question_json.get('@attr').get('precision', None)
     # SYMEX CALLS LINEAR_ALGEBRA_EXPRESSION
     result = symex(
         precision,
@@ -167,6 +169,7 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
     #okvariables = [ reg.sub(r"variable",'',item) for item in list( okvariables) ] 
     #result['used_variable_list'] = list( set( okvariables ) )
     result['used_variable_list'] = used_variables
+    result['maxerror'] = result.get('maxerror','nomaxerror from questioncheck')
     return result
 
     
@@ -182,13 +185,17 @@ def linear_algebra_compare_expressions(
     funcsubs=[],
     validate_definitions=False,
     ):
+    #print("COMPARE ", student_answer , " AND ", correct)
+    student_answer_unparsed = student_answer
     tbeg = time.time()
     _ , varsubs_sympify, sample_variables = parse_sample_variables(variables)
+    #print("SAMPLE_VARIABLES = ", sample_variables)
+    #print("VARSUBS_SYMPIFY = ", varsubs_sympify)
     compare_hash = get_hash_from_string( " %s %s %s %s %s %s %s %s %s " % ( str(precision), str(variables), str(student_answer), 
             str(correct), str(check_units), str(used_variables), str(blacklist), str(funcsubs)   , __file__ ) )
-    ret = djangocache.cache.get(compare_hash)
-    if not ret == None  and not validate_definitions:
-            return ret
+    #ret = djangocache.cache.get(compare_hash)
+    #if not ret == None  and not validate_definitions:
+    #        return ret
     if not validate_definitions and not settings.RUNTESTS :
         response = check_for_undefined_variables_and_functions( student_answer, used_variables ) 
         if response :
@@ -211,6 +218,9 @@ def linear_algebra_compare_expressions(
     if response :
         return response
     # FINALLY IF THE STUDENT RESPONSE STRING DOES NOT HAVE OBVIOUS ERRORS TRY SYMPIFY 
+    #
+
+
     try :
         prelhs = sympify_with_custom( student_answer , varsubs_sympify, {}, 'linear_algebra_compare_expressions-2' )
         lhs = prelhs.doit()
@@ -224,12 +234,15 @@ def linear_algebra_compare_expressions(
         response = dict(error=_("ERROR IN AUTHOR EXPRESSION. " + explanation),
                         warning=("%s %s %s" % ( type(e), str(e), traceback.format_exc() )) )
         return response
+
+
     ret = linear_algebra_check_equality( precision, lhs, rhs, sample_variables, check_units=check_units,blacklist=blacklist)
+    ret['maxerror'] = str( ret.get('maxerror','X') )
     try:
         ret['mathematica'] = "Math Expression: {%s , %s }" % (  mathematica_form(student_answer), mathematica_form( correct_answer) )
     except:
         ret['mathematica' ] = "Cannot parse mathematica: [%s,%s]" % ( student_answer, correct_answer)
-    djangocache.cache.set(compare_hash, ret , 600 )
+    #djangocache.cache.set(compare_hash, ret , 600 )
     return ret
 
 
@@ -273,13 +286,23 @@ base_module = [
 
 
 
-def dorand(x) :
+def dorand(xt) :
     global kseed
+    x = list(xt)
     s = 0
-    #print(" DORAND rr = ", rr )
+    #print(" DORAND x = ", type(x), x )
     random.seed(kseed)
-    for value in x :
-        s = s + value  * ( 0.5  + random.random() ) + 0.1 * random.random() 
+    i = 0.0
+    for value in list(x) :
+        #print("VALUE = ", type(value) , value)
+        if abs( value ) > 1.e-6  :
+            scale = 10.0**( round( log10(abs(value)) ) )
+        else :
+            scale = 1.0 
+        s = s + value  * ( 1.0 + 0.05  * random.random() ) + 0.1 * scale *  random.random() 
+        #print("S = ", s )
+        i = i + 1.0
+    s = s / i
     return s
 
 
@@ -293,6 +316,12 @@ sample_project= [
 
 kseed = 5
 
+
+def sigfig(x) :
+    if x == 0 :
+        return '0'
+    else :
+        return str( 10.0**( round( log10( x) ) ) )
 
 
 def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_units=True,blacklist=None):  # {{{
@@ -321,8 +350,8 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
     time_start = time.time()
     #print("LHS, RHS = ", lhs, rhs )
     inner = 'BEGIN: '
-    #print("LINEAR_ALGEBRA CHECK EQUALITY LHS ", str( lhs ) )
-    #print("LINEAR_ALGEBRA_CHECK_EQUALITY RHS ",  str( rhs ) )
+    #print("LINEAR_ALGEBRA CHECK EQUALITY LHS ", srepr( lhs ) )
+    #print("LINEAR_ALGEBRA_CHECK_EQUALITY RHS ",  srepr( rhs ) )
     #print("LINEAR_ALGEBRA_CHECK_EQUALITY SAMPLE_VARIABLES",  sample_variables)
     try:
         #baseunits = {meter: 1, second: 1, kg: 1, ampere: 1, kelvin: 1, mole: 1, candela: 1}
@@ -331,10 +360,12 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         nsamples = 5
         if not 'sample' in str( rhs ) :
             nsamples = 1
+        maxerror = 0
+        maxaerror = 0
         for k in range(0,nsamples) :
             kseed  = k
             #print("NSAMPLES = ", nsamples, "K = ", k )
-            baseunits =  [('meter', random.random()), ('second', random.random()), ('kg', random.random()), ('ampere', random.random()), ('kelvin', random.random()), ('mole', random.random()), ('candela', random.random())] 
+            baseunits =  [('meter', random.random() + 1.0), ('second', random.random() + 1.0), ('kg', random.random() + 1.0), ('ampere', random.random() + 1.0), ('kelvin', random.random() + 1.0), ('mole', random.random() + 1.0), ('candela', random.random() + 1.0)] 
             #print("LHS W BASEUNITS", sympy.sympify(lhs) )
             sympy_wo_units1 = sympy.sympify(lhs).subs(baseunits)
             sympy_wo_units2 = sympy.sympify(rhs).subs(baseunits)
@@ -344,19 +375,47 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
             except: 
                 miss = miss + 1
             (sympy_wo_units1, sympy_wo_units2) = pair
-            diff = numpy.absolute( ( sympy_wo_units1 - sympy_wo_units2 ) )
+            diff = numpy.absolute( ( ( sympy_wo_units1  ) -  ( sympy_wo_units2 ) ) )
+            adiff = numpy.absolute( ( numpy.absolute( sympy_wo_units1  ) -  numpy.absolute(( sympy_wo_units2 ) )  ) )
+            scale =   numpy.absolute( (sympy_wo_units1 ) ) 
+            try:
+                if not numpy.isscalar(scale) :
+                    maxadiff = numpy.amax( adiff)
+                    maxadiff = maxadiff.item()
+                    maxdiff = numpy.amax( diff )
+                    maxdiff = maxdiff.item()
+                    scale =  numpy.amax(scale)
+                else:
+                    maxdiff = diff
+                    maxdiff = maxdiff.item()
+                    maxadiff = adiff
+                    maxadiff = maxadiff.item()
+                    scale  = max(scale.item(),1.0)
+            except Exception as e:
+                maxdifff = 99.0;
+                maxadiff = 99.0;
+                print("EXCEPTION %s %s %s" % ( type(e) , str(e),   traceback.format_exc()) )
+                scale = 1.0 
+            if not precision :
+                accuracy = scale * 1.e-5
+            else :
+                accuracy = 1.e-5
             try: 
-                if numpy.any( numpy.abs( diff ) > precision ) :
+                if numpy.any( numpy.abs( diff ) > accuracy ) :
                     miss = miss + 1 
-            except:
+            except Exception as e:
+                print("MISS WITH ERROR %s %s %s" % ( type(e) , str(e),   traceback.format_exc()) )
                 miss = miss + 1
-        response['debug'] = " Sampling: %s of %s ok" % ( str( nsamples - miss), str(nsamples) )
+            maxerror = max( maxerror, maxdiff)
+            maxaerror = max( maxaerror, maxadiff)
+        response['debug'] = " Sampling: %s of %s are ok; maxerror = %s " % ( str( nsamples - miss), str(nsamples), str( maxerror )  )
+        response['maxerror'] = "err = [%s : %s]" % ( sigfig( maxerror)  , sigfig( maxaerror ) )
         if miss < nsamples * 0.3 :
             response['correct'] = True
             check_units = False
         else :
             response['correct'] = False
-                
+        response['warning'] = "maxerror  = %s and maxadiff = %s " % ( sigfig( maxerror), sigfig( maxaerror) )
         if check_units:
             try:
                 s1 = sympy.sympify( replace_sample_funcs( str(lhs) ) )
@@ -371,7 +430,6 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
                 response['warning'] = ' ' + str(e) + ' ' 
             except Exception as e:
                 dprint("FAILED CHECK_UNITS_NEW", type(e), str(e) )
-
     except ShapeError as e :
         response['error'] = _("Illegal matrix operation in %s" % lhsorig)
     except SympifyError as e:

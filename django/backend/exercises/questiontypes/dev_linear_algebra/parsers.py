@@ -38,7 +38,6 @@ from sympy.matrices import Matrix
 
 
 def parse_sample_variables(variables, funcsubs={}):
-    #print("PARSE SAMPLE VARIABLES")
     sym = {}
     varhash = get_hash_from_string(str(variables) + str(funcsubs))
     ret = core_cache.get(varhash)
@@ -50,8 +49,6 @@ def parse_sample_variables(variables, funcsubs={}):
         varsubs_sympify = {sympify(key): sympify(val) for key, val in vs}
         varsubs = [(sympify(key), sympify(val)) for key, val in v]
         rets = (varsubs, varsubs_sympify, sample_variables)
-        #print("GRABBED CACHE IN ", 1000 *(time.time() - timebeg) , " milliseconds")
-        #print("RETS = ", rets )
         return rets
 
     vars_ = variables
@@ -80,23 +77,11 @@ def parse_sample_variables(variables, funcsubs={}):
         else:
             sym[name] = expr  # sympy.Symbol(var['name'])
         varsubs_sympify[name] = expr
-        #
-        #    DISABLE sample_variables at this level
-        #
-        #if expr.has(sympy.Function('sample')):
-        #    [sample] = expr.find(sympy.Function('sample'))
-        #    sample_points = list(sample.args)
-        #    sample_around = [
-        #        expr.replace(sympy.Function('sample'), lambda *args: point).doit()
-        #        for point in sample_points
-        #    ]
-        #    sample_variables.append({'symbol': sym[name], 'around': sample_around})
-        #else:
         subs_rules.append((sym[name], expr))
     varsubs = list(reversed(subs_rules))
     varsubs_sympify_new = {}
     for key, val in varsubs_sympify.items():
-        varsubs_sympify_new[key] = N(val.subs(varsubs) ).doit()
+        varsubs_sympify_new[key] = (val.subs(varsubs) ).doit()
     varsubs_sympify = varsubs_sympify_new
     ret = (varsubs, varsubs_sympify, sample_variables)
     try:

@@ -396,7 +396,7 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
                 return {'error': "XML error: " + str(e)}
             ##print("Q2")
             hints = None
-            if global_xmltree :
+            if len( global_xmltree ) > 0 :
                 hints = parsehints(question_xmltree, global_xmltree, answer_data)
             if not hints is None:
                 result.update(hints)

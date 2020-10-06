@@ -238,9 +238,13 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         qstring = etree.tostring(question_xmltree, encoding='UTF-8')
         bigstring = bigstring + str(qstring)
     varhash = get_hash_from_string(str(bigstring) + str( __file__ ) )
+    #print("GLOBAL_XMLTREE", etree.tostring(global_xmltree) )
+    #print("QUESTION XMLTREE ", etree.tostring(question_xmltree) )
     #print("GETALLVARIABLES WITH HASH ", varhash)
     ret = cache.get(varhash)
     if settings.DO_CACHE and (ret is not None):
+        #print("GOT IT ", varhash)
+        #print("RET = ", ret )
         return ret
     #print("RECALCULATE GETALL VARIABLES", varhash)
 
@@ -318,7 +322,6 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         all_variables = all_variables + entry
         _ret['authorvariables'] = _ret['authorvariables'] + entry2
     #print("ALLVARIABLES = ", all_variables)
-    #print("question_xmltree = ", etree.tostring( que
     _ret['variables'] = all_variables
     funs = {}
     if not global_xmltree == None:
@@ -350,7 +353,8 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
     try :
         cache.set(varhash, _ret, 60 * 60)
     except:
-        print("CACHE FAILED TO SET")
+        #print("CACHE FAILED TO SET")
         pass
     #_ret['authorvariables'] = ret['authorvariables']
+    #print("_RET = ", ret )
     return _ret

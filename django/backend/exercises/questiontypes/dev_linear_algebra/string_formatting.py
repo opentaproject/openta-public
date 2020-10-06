@@ -186,7 +186,7 @@ def ascii_to_sympy(expression, funcsubs={}):  # {{{
         result = left + 'Partial(' + middle + ")" + right
         it = it + 1
     paren_check(result, 'MATCHING PAREN COMING OUT OF ASCII_TO_SYMPY ')
-    #print("ASCII_TO_SYMPY result = ", srepr( result) )
+    #print("ASCII_TO_SYMPY result = ", result)
 
     return result  # }}}
 
@@ -285,16 +285,19 @@ def declash(expression):  ### RIDICULOUS beta and gamma are defined as functions
         {'Or': 'localOr'},
         {'Ge': 'localGe'},
         {'d': 'partial'},
-        {'cross': 'crossfunc'},
+        #{'cross': 'crossfunc'},
         {'real' : 're'},
         {'imag' : 'im'},
         {'Transpose': 'localTranspose'},
     ]
     expression = resub.sub(r',', ' ,', expression)
-    for clash in clashes:
-        key = list(clash.keys())[0]
-        if key in expression:
-            result = resub.sub(r"(\A|\s|,|\()" + key + "\(", r"\1 " + clash[key] + "(", result)
+    resultold = ''
+    while not resultold == result :
+        resultold = result
+        for clash in clashes:
+            key = list(clash.keys())[0]
+            if key in expression:
+                result = resub.sub(r"(\A|\s|,|\()" + key + "\(", r"\1 " + clash[key] + "(", result)
     result = resub.sub(r' ,', ',', result)
     #print("RESULT = ", result)
     return result  # }}}

@@ -34,7 +34,7 @@ class Norm(sympy.Function):
         #    return Abs(x)
         elif isinstance(x, Number):
             #print("identified float")
-            return N(Abs(x))
+            return abs(x)
         else:
             return None
 

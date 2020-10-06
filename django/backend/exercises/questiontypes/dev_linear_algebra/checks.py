@@ -175,17 +175,13 @@ def check_for_legal_answer(
     precision, variables, student_answer, expression, check_units=True, blacklist=[]
 ):
     response = {}
-    #print("VARIABLES1 = ", variables)
-    variables = [ replace_sample_funcs( item) for item in variables ]
-    #print("VARIABLES2 = ", variables)
-    student_answer = replace_sample_funcs(declash( student_answer) )
-    #print("STUDENT ANSWER CHECK", student_answer, flush=True)
-    
     #### INVALID STRINGS 
     invalid_strings = ['_', '#', '@', '&', '?', '"',':','..',';']
     for i in invalid_strings:
         if i in student_answer:
             return {'error': _('Answer contains invalid character ') + i}
+
+
     illegal = reg.findall(r'(\^|\.)([0-9]+[a-zA-Z]+)(\^|\.)', student_answer)
     if len(illegal) >  0 :
         s = ",".join( [ "".join(item) for item in illegal])
@@ -194,7 +190,12 @@ def check_for_legal_answer(
     ##### INVALID PATTERNS 
     invalid_patterns= { "\)[\w]" : 'implicit multiply needs a space; right parenthesis cannot be followed by letter or number',
                         "[0-9\.]+\(" : 'implicit multiply with a number needs a space' ,
-                        "[^=]=[^=]"  : 'equal sign is illegal'}
+                        "[^=]=[^=]"  : 'equal sign is illegal',
+                        "(\^|\s|\(|\+|\/|\*|-)[0-9\.]+[A-Za-z]" : 'illegal implicit multiply',
+                        "(^|\s|\+|-|\*|\/)[0-9]+[A-Za-z]+" : 'illegal implicit multiply with a number',
+                        "\^\s" : 'exponential cannot be followed by space',
+                        "\s\^" : 'exponential cannot be preceded by space',
+                        }
 
     for i in invalid_patterns.keys() :
         if not None == re.search(r'%s' % i  , student_answer)  :
@@ -203,6 +204,12 @@ def check_for_legal_answer(
     ########## UNBALANCED PARENS
     if not parens_are_balanced(student_answer) :
         return {'error' : _("Unbalanced parenthesis") }
+
+    #print("VARIABLES1 = ", variables)
+    variables = [ replace_sample_funcs( item) for item in variables ]
+    #print("VARIABLES2 = ", variables)
+    student_answer = replace_sample_funcs(declash( student_answer) )
+    #print("STUDENT ANSWER CHECK", student_answer, flush=True)
  
     ######### CHECK THAT VARIABLES ARE NOT USED AS FUNCTIONS ######
     for variable in variables:
@@ -264,6 +271,18 @@ def check_answer_structure( student_answer, correct , varsubs_sympify):
             tvarsubs_sympify[key] = sympy.sympify( replace_sample_funcs( str( varsubs_sympify[key]  ) ) )
        #dprint("      TVARSUBS_SYMPIFY = ", tvarsubs_sympify)
        prelhs = sympify_with_custom( tstudent_answer, tvarsubs_sympify, {}, 'check-answer-structure-linear_algebra_compare_expressions')
+
+    except AttributeError as e:
+        if 'tuple' in str(e) :
+            response = dict(
+                error = _( 'use square brackets instead of parenthesis')
+                )
+        else :
+            response = dict(
+                error=_( 'Attribute error 279' ),
+                debug="Error 279: " +  str(e) + traceback.format_exc()
+                )
+
     except TypeError as e:
         if 'required positional' in str(e) :
             response = dict(
@@ -383,7 +402,7 @@ def check_for_undefined_variables_and_functions( student_answer, used_variables 
         badfuncs = list( set( badfuncs).difference( set( opentafuncs) )  )
         if len( badfuncs)  > 0  :
             response = {'error': "(H) Forbidden function : %s " % ",".join( badfuncs)    , 'correct': False }
-            print("RESPONSE TO BADFUNCS = ", response)
+            #print("RESPONSE TO BADFUNCS = ", response)
             return response
     return [] 
 
