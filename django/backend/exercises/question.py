@@ -328,9 +328,7 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
         refreshable_macros = True
     else:
         refreshable_macros = False
-    [global_xmltree, question_xmltree] = global_and_question_xmltree_get(
-        xmltree, question_key, usermacros
-    )
+    [global_xmltree, question_xmltree] = global_and_question_xmltree_get( xmltree, question_key, usermacros)
     # THESE AREA ADDED FOR USE IN  IN MACROS IN PYTHONIC
     question_xmltree.append(etree.fromstring('<exercisekey>' + exercise_key + '</exercisekey>'))
     question_xmltree.set('exerciseseed', usermacros['@exerciseseed'])
@@ -572,10 +570,18 @@ def get_seed(user_id, exercise_key=None, question_id=None,before_date=None):
     else:
         random.seed(exercise_key)
     r = random.randrange(123, 55321, 1)
+    #print("QUESTION_ID = ", question_id)
+    #uses_questionseed =  dbquestion.uses_questionseed() 
+    #dbexercise = Exercise.objects.get(exercise_key=exercise_key) 
+    #ret_seed = ''
+    #if dbexercise.uses_exerciseseed() :
+    ret_seed =  str(r + user_id)
     if settings.REFRESH_SEED_ON_CORRECT_ANSWER and question_id:
-        return str(r + get_number_of_correct_attempts(question_id, user_id,before_date) + user_id)
-    else:
-        return str(r + user_id)
+        dbquestion = Question.objects.get(pk=question_id)
+        uses_questionseed =  dbquestion.uses_questionseed() 
+        if uses_questionseed :
+            ret_seed = str(r + get_number_of_correct_attempts(question_id, user_id,before_date) + user_id)
+    return ret_seed
 
 
 def hide_sensitive_tags_in_question(root):

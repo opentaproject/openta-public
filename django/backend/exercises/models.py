@@ -403,6 +403,7 @@ class Exercise(models.Model):
             ("view_xml", "Can view exercise XML"),
         )
 
+
     def __str__(self):
         return self.name + ': ' + self.path
 
@@ -423,6 +424,15 @@ class Exercise(models.Model):
         else:
             deadline_date_time = None
         return deadline_date_time
+
+    
+    def uses_exerciseseed(self ,*args, **kwargs):
+        xmltree = exercise_xmltree(self.get_full_path(), {} )
+        uses = xmltree.xpath('/exercise/macros')
+        if len( uses ) == 0 :
+            return False
+        else :
+            return True
 
     def get_full_path(self):
         return os.path.join(self.course.get_exercises_path(), *self.path.split('/'))
@@ -475,6 +485,16 @@ class Question(models.Model):
         xmltree = exercise_xmltree(self.exercise.get_full_path(), {} )
         question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=self.question_key))[0]
         return  question_xmltree.get('points',None)
+
+    
+    
+    def uses_questionseed(self ,*args, **kwargs):
+        xmltree = exercise_xmltree(self.exercise.get_full_path(), {} )
+        uses = xmltree.xpath('/exercise/question[@key="{key}"]/macros'.format(key=self.question_key))
+        if len( uses ) == 0 :
+            return False
+        else :
+            return True
         
 
 
@@ -653,6 +673,7 @@ class ExerciseMeta(models.Model):
 
     def get_languages(self):
         return "ABCDEFG"
+    
 
 
 class AuditManager(models.Manager):
