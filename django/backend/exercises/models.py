@@ -537,6 +537,8 @@ class Answer(models.Model):
     correct = models.BooleanField()
     date = models.DateTimeField(default=now)
     user_agent = models.TextField(default='')
+    questionseed = models.TextField(default='')
+    exerciseseed = models.TextField(default='')
 
     def __str__(self):
         return (
