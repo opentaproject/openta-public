@@ -492,8 +492,10 @@ class Question(models.Model):
         xmltree = exercise_xmltree(self.exercise.get_full_path(), {} )
         uses = xmltree.xpath('/exercise/question[@key="{key}"]/macros'.format(key=self.question_key))
         if len( uses ) == 0 :
+            print("Q-FALSE")
             return False
         else :
+            print("Q-TRUE")
             return True
         
 
