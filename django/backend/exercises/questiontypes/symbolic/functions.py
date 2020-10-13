@@ -1,9 +1,9 @@
 import sympy
-import numpy
 import types
 import sys
 from pprint import pprint
 from sympy import *
+import numpy
 
 # from sympy.abc import _clash1, _clash2, _clash, x, y, z
 from sympy.abc import x, y, z, t
@@ -24,15 +24,17 @@ logger = logging.getLogger(__name__)
 class Norm(sympy.Function):
     @classmethod
     def eval(cls, x):
-        # print("Norm is entered with x = ", x )
-        # print("type = ", type(x) )
+        #print("Norm is entered with x = ", x )
+        #print("type = ", type(x) )
         if isinstance(x, sympy.MatrixBase):
             res = N(x.norm())
-            # print("result = ", res )
+            #print("result = ", res )
             return res
+        #else:
+        #    return Abs(x)
         elif isinstance(x, Number):
-            # print("identified float")
-            return N(Abs(x))
+            #print("identified float")
+            return abs(x)
         else:
             return None
 
@@ -63,7 +65,7 @@ class eigenvaluesof(sympy.Function):
             evt = list(map(lambda key: [key] * evdict[key], evdict.keys()))
             evlist = [val for sublist in evt for val in sublist]
             ev = sorted(evlist, key=default_sort_key)
-            # print("EV = ", ev )
+            #print("EV = ", ev )
             return sympy.Matrix(ev)
         else:
             return None
@@ -79,12 +81,12 @@ class AreEigenvaluesOf(sympy.Function):
             evt = list(map(lambda key: [key] * evdict[key], evdict.keys()))
             evlist = [val for sublist in evt for val in sublist]
             ev = Matrix(sorted(evlist, key=default_sort_key))
-            # print("ev = ", ev )
-            # print("x = ", x )
+            #print("ev = ", ev )
+            #print("x = ", x )
             diff = ev - Sort(x)
-            # print("diff = ", diff )
-            mag = conjugate(diff).dot(diff)
-            # print("mag = ", mag )
+            #print("diff = ", diff )
+            mag = numpy.vdot(diff,diff) # conjugate(diff).dot(diff)
+            #print("mag = ", mag )
             if mag <= 1e-6:
                 return sympy.sympify('1')
             else:
@@ -135,12 +137,12 @@ class rankof(sympy.Function):
     @classmethod
     def eval(cls, x):
         if isinstance(x, sympy.MatrixBase):
-            # print("MATREIX FOUND RANKOF", x)
+            #print("MATREIX FOUND RANKOF", x)
             sp = x.shape
             rank = sp[1]
             return sympy.sympify(rank)
         else:
-            # print("MATREIX FOUND RANKOF", x)
+            #print("MATREIX FOUND RANKOF", x)
             return None
 
 
@@ -150,11 +152,11 @@ class isunitary(sympy.Function):
         if isinstance(x, sympy.MatrixBase):
             sp = x.shape
             target = eye(sp[1])
-            # print("target = ", target )
+            #print("target = ", target )
             zer = (x * conjugate(x.T)) - target
-            # print("zer = ", zer )
+            #print("zer = ", zer )
             zer = zer.evalf(6, chop=True)
-            # print("ZER = ", zer)
+            #print("ZER = ", zer)
             if zer.is_zero:
                 return sympy.sympify('1')
             else:
@@ -186,7 +188,7 @@ class crossfunc(sympy.Function):
             x = arg[0]
             y = arg[1]
             if not (isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase)):
-                return None
+                raise TypeError('cross product has illegal arguments')
 
             if str(x) == '0' or str(y) == '0':
                 return 0
@@ -206,18 +208,18 @@ class Cross(sympy.MatrixExpr):
     def doit(self, **hints):
         x = self.args[0].doit() if isinstance(self.args[0], sympy.Basic) else self.args[0]
         y = self.args[1].doit() if isinstance(self.args[1], sympy.Basic) else self.args[1]
-        # print("enter Cross with x  = ", x , type( x ))
-        # print("enter Cross with y = ", y , type( y ) )
+        #print("enter Cross with x  = ", x , type( x ))
+        #print("enter Cross with y = ", y , type( y ) )
         if str(x) == '0':
-            # print("IDENTIFIED ZERO x ")
+            #print("IDENTIFIED ZERO x ")
             return 0 * y
         elif str(y) == '0':
-            # print("IDENTIFIED ZERO x ")
+            #print("IDENTIFIED ZERO x ")
             return 0 * x
         elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
             return x.cross(y)
         else:
-            return self
+            raise TypeError('Illegal argument in cross product')
 
 
 class Sort(sympy.Function):
@@ -228,7 +230,7 @@ class Sort(sympy.Function):
         if isinstance(x, sympy.MatrixBase):
             xs = x.tolist()
             xs = sorted(xs, key=default_sort_key)
-            # print("xs = ",  xs )
+            #print("xs = ",  xs )
             return sympy.Matrix(xs)
         else:
             return None
@@ -239,6 +241,7 @@ class gt(sympy.Function):
 
     @classmethod
     def eval(cls, x, y):
+        #print("GT ENTERED")
         if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
             x = x.doit()
             y = y.doit()
@@ -258,7 +261,7 @@ class lt(sympy.Function):
         if isinstance(x, sympy.Basic) and isinstance(y, sympy.Basic):
             x = x.doit()
             y = y.doit()
-            # print("LT x = ", x )
+            #print("LT x = ", x )
             if Lt(x, y):
                 return sympy.sympify('1')
             else:
@@ -429,9 +432,15 @@ class Dot(sympy.Function):
             if str(x) == '0' or str(y) == '0':
                 return 0
             elif isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
-                return conjugate(x).dot(y)
+                #print("DOT PRODUCT x ", x )
+                #print("DOT PRODUCT y ", y )
+                ret =  numpy.vdot(x,y)
+                #print("DOT PRODUCT ret = ", srepr( ret )  )
+                return ret
             else:
-                return None
+                print("X = ", type(x) ,x )
+                print("Y = ", type(y) , y)
+                raise TypeError('Illegal argument of dot product')
 
 
 class Times(sympy.Function):
@@ -442,7 +451,8 @@ class Times(sympy.Function):
         if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
             return sympy.matrix_multiply_elementwise(x, y)
         else:
-            return None
+            raise TypeError('Illegal arguments of elementwise multiply')
+            
 
 
 class IsDiagonal(sympy.Function):
@@ -467,7 +477,6 @@ class IsDiagonal(sympy.Function):
 class sample(sympy.Function):
     @classmethod
     def eval(cls, *x):
-        # print("ENTER SAMPLE ", x )
         return x[0]
 
 
@@ -529,7 +538,7 @@ class IsDiagonalizable(sympy.Function):
 
     @classmethod
     def eval(cls, x):
-        # print("IS DIAGONALIZABLE ", x)
+        #print("IS DIAGONALIZABLE ", x)
         if isinstance(x, sympy.MatrixBase):
             if x.is_diagonalizable():
                 return sympy.sympify('1')
@@ -544,7 +553,7 @@ class oldPrime(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-        # print("PRIME ENTERED", flush=True)
+        #print("PRIME ENTERED", flush=True)
         first = arg[0]
         fourth = arg[3]
         order = int(arg[2])
@@ -573,23 +582,23 @@ class Prime(sympy.Function):
 
     @classmethod
     def eval(cls, *arg):
-        # print(" INTO PRIME WITH ", *arg, flush=True)
+        #print(" INTO PRIME WITH ", *arg, flush=True)
         first = arg[0]
         # fourth = arg[3]
         order = int(arg[2])
-        # print("first= ", first)
-        # print("second = ", arg[1])
-        # print("third = ", arg[2])
-        # print("FOURTH = ", fourth )
+        #print("first= ", first)
+        #print("second = ", arg[1])
+        #print("third = ", arg[2])
+        #print("FOURTH = ", fourth )
         qqq = sympy.symbols('qqq')
         fun = first.func
-        # print("FUN = ", srepr(fun), flush=True)
+        #print("FUN = ", srepr(fun), flush=True)
         deriv = fun(qqq)
         while order > 0:
             order = order - 1
             deriv = diff(deriv, qqq)
         result = deriv.subs(qqq, arg[1]).doit()
-        # print("PRIME RESULT IS ", result, srepr(result))
+        #print("PRIME RESULT IS ", result, srepr(result))
         return result
 
 
@@ -622,7 +631,6 @@ class carefuladd(sympy.Function):
 
     @classmethod
     def eval(cls, *args):
-        # print("CAREFUL ADD WITH ARGS ", args)
         rank = 1
         for arg in args:
             if hasattr(arg, 'shape'):
@@ -635,7 +643,6 @@ class carefuladd(sympy.Function):
                     newargs = newargs + [eye(rank) * arg]
                 else:
                     newargs = newargs + [arg]
-            # print("NEWARGS = ", newargs)
             return Add(*newargs)
         else:
             return Add(*args)
@@ -646,7 +653,7 @@ class partial(sympy.Function):
 
     @classmethod
     def eval(cls, *f):
-        # print("PARTIAL f = ", f)
+        #print("PARTIAL f = ", f)
         if len(f) < 1:
             return sympy.sympify('derivative or partial used withouth argument')  # }}}
         elif len(f) == 1:
@@ -672,7 +679,7 @@ class Braket(sympy.Function):
     @classmethod
     def eval(cls, x, y):
         if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
-            return conjugate(x).dot(y)
+            return numpy.vdot(x,y)
         else:
             return None
 
@@ -684,8 +691,8 @@ class KetBraBroken(sympy.Function):  # {{{
     def eval(cls, x, m, *y):
         if len(y) == 0:
             if isinstance(x, sympy.MatrixBase) and isinstance(m, sympy.MatrixBase):
-                # print("MULTIPLYING LINEAR_ALGEBRA x = ", x );
-                # print("LINEAR_ALGEBRA m = ", m );
+                #print("MULTIPLYING LINEAR_ALGEBRA x = ", x );
+                #print("LINEAR_ALGEBRA m = ", m );
                 return x * m.adjoint()
             else:
                 return None
@@ -695,9 +702,9 @@ class KetBraBroken(sympy.Function):  # {{{
                 and isinstance(m, sympy.MatrixBase)
                 and isinstance(y[0], sympy.MatrixBase)
             ):
-                # print("MULTIPLYING LINEAR_ALGEBRA x = ", x );
-                # print("LINEAR_ALGEBRA m = ", m );
-                # print("LINEAR_ALBEBRA y = ", y[0] );
+                #print("MULTIPLYING LINEAR_ALGEBRA x = ", x );
+                #print("LINEAR_ALGEBRA m = ", m );
+                #print("LINEAR_ALBEBRA y = ", y[0] );
                 return x * m * y[0].adjoint()  # }}}
             else:
                 return None
@@ -710,13 +717,13 @@ class KetBra(sympy.Function):  # {{{
     def eval(cls, x, m, *y):
 
         if len(y) == 0:
-            # print("MULTIPLYING LINEAR_ALGEBRA x = ", x );
-            # print("LINEAR_ALGEBRA m = ", m );
+            #print("MULTIPLYING LINEAR_ALGEBRA x = ", x );
+            #print("LINEAR_ALGEBRA m = ", m );
             return MatMul(x, conjugate(m).T)
         else:
-            # print("MULTIPLYING LINEAR_ALGEBRA x = ", x );
-            # print("LINEAR_ALGEBRA m = ", m );
-            # print("LINEAR_ALBEBRA y = ", y[0] );
+            #print("MULTIPLYING LINEAR_ALGEBRA x = ", x );
+            #print("LINEAR_ALGEBRA m = ", m );
+            #print("LINEAR_ALBEBRA y = ", y[0] );
             return x * (m * conjugate(y[0])).T  # }}}
 
 
@@ -763,7 +770,7 @@ class KetMBra(sympy.MatrixExpr):
         x = self.args[0].doit() if isinstance(self.args[0], sympy.Basic) else self.args[0]
         m = self.args[1].doit() if isinstance(self.args[1], sympy.Basic) else self.args[1]
         y = self.args[2].doit() if isinstance(self.args[1], sympy.Basic) else self.args[2]
-        # print("XMY = ", x, m, y )
+        #print("XMY = ", x, m, y )
         if (
             isinstance(x, sympy.MatrixBase)
             and isinstance(m, sympy.MatrixBase)
@@ -795,13 +802,13 @@ class nullrank(Function):  # {{{
         try:
             subs = varstonumeric
             variables = list(mvars)
-            # print( "norm = ", zmat.subs(subs).norm() )
+            #print( "norm = ", zmat.subs(subs).norm() )
             free1 = list(zmat.subs(subs).free_symbols)
-            # print( "free1 = ", free1 )
+            #print( "free1 = ", free1 )
             if len(free1) > 0:
                 return sympify('NONFREE')
             if not (zmat.subs(subs).norm()).equals(0):
-                # print("DOES IS NOT EQUAL ZERO")
+                #print("DOES IS NOT EQUAL ZERO")
                 return sympy.sympify('NONZERO')
             zlist = list(zmat)
             jac = []
@@ -812,12 +819,12 @@ class nullrank(Function):  # {{{
                 jac.append(row)
             jacobian = Matrix(jac).subs(subs)
             null = jacobian.nullspace()
-            # print("FREE = ", free1)
+            #print("FREE = ", free1)
             nullrank = len(null)
-            # print("NULLRANK RETURNS", nullrank)
+            #print("NULLRANK RETURNS", nullrank)
             return sympy.sympify(nullrank)
         except Exception as e:
-            # print("RETURNING 99")
+            #print("RETURNING 99")
             return sympy.sympify('UKNOWNERROR')  # }}}
 
 
@@ -866,6 +873,7 @@ openta_scope = {
     'False': sympy.sympify('0'),
     'times': Times,
     'dot': Dot,
+    'mydot': Dot,
     'del2': del2,
     'sort': Sort,
     'Sort': Sort,
@@ -879,3 +887,4 @@ openta_scope = {
 add_scope = {
     'carefuladd': carefuladd,
 }
+

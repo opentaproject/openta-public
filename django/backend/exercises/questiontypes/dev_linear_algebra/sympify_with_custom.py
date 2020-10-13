@@ -214,7 +214,7 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
         "MATCHING PAREN ERROR IN  SYMPIFY WITH CUSTOM " + expression
     )
     #print("     TIME A1 %s" , 1000 * ( time.time() - tbeg) )
-    expression = ascii_to_sympy(expression)
+    expression = ascii_to_sympy( declash( expression) )
     tbeg = time.time()
     scope = openta_scope
     scope.update( unitbaseunits )
@@ -266,8 +266,10 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
     atoms1 = set( resub.findall(r'\w+',st) ) 
     atoms2 = set( newvarsubs.keys() )
     atoms3 = set( matrix_subs.keys() )
-    atoms = atoms1.union(atoms2.union(atoms3) ) 
+    atoms4 = set( func_subs.keys() )
+    atoms = atoms4.union( atoms1.union(atoms2.union(atoms3) )  )
     rep_optimized = list( filter( lambda item : str( item[0] ) in atoms , rep) )
+    #rep_optimized = rep
     #print("REPNEW = ", rep_optimized )
     #try :
     new = pre(xtest, newvarsubs, matrix_subs, func_subs, rep_optimized, docache)

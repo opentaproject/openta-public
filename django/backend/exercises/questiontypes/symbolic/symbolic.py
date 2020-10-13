@@ -32,6 +32,34 @@ from exercises.questiontypes.symbolic.parsers import *
 from exercises.questiontypes.symbolic.sympify_with_custom import sympify_with_custom
 import re
 import inspect
+
+import hashlib
+from collections import OrderedDict
+import functools
+import operator
+from exercises.util import compose
+from lxml import etree
+import logging
+from exercises.questiontypes.symbolic.unithelpers import ns
+
+
+from exercises.questiontypes.dev_linear_algebra.variableparser import parse_variables
+from exercises.questiontypes.dev_linear_algebra.linear_algebra import question_check 
+#from exercises.questiontypes.dev_linear_algebra.linear_algebra import  linear_algebra_check_if_true, linear_algebra_compare_expressions
+from exercises.questiontypes.dev_linear_algebra.variableparser import  (
+    get_more_variables_from_obj,
+    remove_blacklist_variables_from_obj,
+    get_functions_from_obj
+    )
+#from exercises.questiontypes.dev_linear_algebra.linear_algebra import linear_algebra_check_equality as check_equality 
+#from exercises.questiontypes.dev_linear_algebra.linear_algebra import linear_algebra_expression_runner as expression_runner 
+#from exercises.questiontypes.dev_linear_algebra.linear_algebra import linear_algebra_expression as  _expression
+from exercises.questiontypes.dev_linear_algebra.linear_algebra import linear_algebra_expression_blocking as symbolic_expression_blocking 
+#from exercises.questiontypes.dev_linear_algebra.sympify_with_custom import expr_are_equal
+
+
+
+
 from sympy.printing.mathml import *
 
 
@@ -40,7 +68,6 @@ logger = logging.getLogger(__name__)
 # meter, second, kg , ampere , kelvin, mole, candela = sympy.symbols('meter,second,kg,ampere,kelvin,mole,candela', real=True, positive=True)
 # see http://iamit.in/sympy/coverage-report/matrices/sympy_matrices_expressions_diagonal_py.html
 # List of special handling in the conversion from sympy to numpy expressions for final evaluation
-
 
 def expr_are_equal(ex1, ex2):
     try:
@@ -74,6 +101,9 @@ def expr_are_equal(ex1, ex2):
         return False
 
 
+#
+# FOR RUNTESTS ONLY
+#
 def symbolic_check_if_true(
     precision,
     variables,
@@ -390,29 +420,15 @@ def symbolic_check_equality(precision, lhs, rhs, sample_variables, check_units=F
         response['debug'] = str(e)
     return response  # }}}
 
-
-def symbolic_expression_runner(
-    precision,
-    variables,
-    expression1,
-    expression2,
-    check_units,
-    blacklist,
-    used_variables,
-    funcsubs,
-    result_queue,
-):
-    response = symbolic_compare_expressions(
-        precision,
-        variables,
-        expression1,
-        expression2,
-        check_units,
-        blacklist,
-        used_variables,
-        funcsubs,
-    )
+def go_expression( symbolic_compare_expressions, result_queue, *args):
+    response = symbolic_compare_expressions(*args)
     result_queue.put(response)
+
+
+
+def symbolic_expression_runner(*args, result_queue):
+    go_expression( symbolic_compare_expressions, result_queue, *args)
+
 
 
 def symbolic_expression(
@@ -420,7 +436,7 @@ def symbolic_expression(
     variables,
     student_answer,
     correct_answer,
-    check_units=True,
+    check_units,
     blacklist=[],
     used_variables=[],
     funcsubs={},
@@ -447,26 +463,5 @@ def symbolic_expression(
     )
 
 
-def symbolic_expression_blocking(
-    precision,
-    variables,
-    student_answer,
-    correct_answer,
-    check_units=True,
-    blacklist=[],
-    used_variables=[],
-    funcsubs={},
-):
-    """
-    Starts a process with compare_numeric_internal that will be terminated if it takes too long. This implementation uses multiprocessing.Process.
-    """
-    return symbolic_compare_expressions(
-        precision,
-        variables,
-        student_answer,
-        correct_answer,
-        check_units,
-        blacklist,
-        used_variables,
-        funcsubs,
-    )
+
+
