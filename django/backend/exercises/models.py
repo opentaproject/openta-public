@@ -491,12 +491,11 @@ class Question(models.Model):
     def uses_questionseed(self ,*args, **kwargs):
         xmltree = exercise_xmltree(self.exercise.get_full_path(), {} )
         uses = xmltree.xpath('/exercise/question[@key="{key}"]/macros'.format(key=self.question_key))
-        if len( uses ) == 0 :
-            print("Q-FALSE")
-            return False
-        else :
-            print("Q-TRUE")
-            return True
+        return ( len( uses) > 0 )
+        #if len( uses ) == 0 :
+        #    return False
+        #else :
+        #    return True
         
 
 

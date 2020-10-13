@@ -417,18 +417,19 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
             # #print("RESULT AFTER UPDATE  = ", result )
             new = False # WHEN REGRADING FLAG NEW = False to ignor no_feedback
             if old_answer_object == None :
+                questionseed = usermacros['@questionseed']
+                exerciseseed = usermacros['@exerciseseed']
                 if user.has_perm('exercises.log_question'):
                     new = True
-                    #print("CREATE A NEW ANSWER OBJECT")
                     Answer.objects.create(
                         user=user,
                         question=dbquestion,
-                        # question_key=dbquestion.question_key,
-                        # exercise_key=dbexercise.exercise_key,
                         answer=answer_data,
                         grader_response=json.dumps(result),
                         correct=correct,
                         user_agent=user_agent,
+                        questionseed=questionseed,
+                        exerciseseed=exerciseseed
                     )
             else :
                 #grader_response = result
@@ -580,7 +581,14 @@ def get_seed(user_id, exercise_key=None, question_id=None,before_date=None):
         dbquestion = Question.objects.get(pk=question_id)
         uses_questionseed =  dbquestion.uses_questionseed() 
         if uses_questionseed :
-            ret_seed = str(r + get_number_of_correct_attempts(question_id, user_id,before_date) + user_id)
+            try: 
+                answer = Answer.objects.get(user=user_id,question=question_id,date=before_date)
+                ret_seed = answer.questionseed
+                if ret_seed  == '' :
+                    ret_seed = str(r + get_number_of_correct_attempts(question_id, user_id,before_date) + user_id)
+            except:
+                # THIS SHOULD BE  DEAD CODE
+                ret_seed = str(r + get_number_of_correct_attempts(question_id, user_id,before_date) + user_id)
     return ret_seed
 
 
