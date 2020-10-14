@@ -168,7 +168,9 @@ def question_check(question_json, question_xmltree, answer_data, global_xmltree,
     #    result.update(hints)
     #okvariables = [ reg.sub(r"variable",'',item) for item in list( okvariables) ] 
     #result['used_variable_list'] = list( set( okvariables ) )
-    result['used_variable_list'] = used_variables
+    # THIS IS WHERE IN TERMS OF GETS POPULATED
+    funcatoms = [ item['name'] for item in funcsubs]
+    result['used_variable_list'] = used_variables  + funcatoms
     result['maxerror'] = result.get('maxerror','nomaxerror from questioncheck')
     return result
 

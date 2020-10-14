@@ -445,12 +445,13 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
             result['previous_answers'] = previous_answers
             result['n_attempts'] = usermacros['@nattempts']
             result['status'] = None
-            try:
-                #print("QUESTION JSON = ", question_json['used_variable_list'] )
-                result['used_variable_list'] = [ re.sub(r"variable",'', item ) for item in question_json['used_variable_list'] ]
-                #print("RESULT", result['used_variable_list'] )
-            except:
-                result['used_variable_list'] = []
+            #try:
+            #    #print("QUESTION JSON = ", question_json['used_variable_list'] )
+            #    #result['used_variable_list'] = [ re.sub(r"variable",'', item ) for item in question_json['used_variable_list'] ]
+            #    result['used_variable_list'] = ['FROM_QUESTION_PY']
+            #    #print("RESULT", result['used_variable_list'] )
+            #except:
+            #    result['used_variable_list'] = ['BROKEN FROM QUESTION PY']
             usermacros['@call'] = 'question_check'
             #print("USERMACROS = ", usermacros)
             xmltree = exercise_xmltree(dbexercise.get_full_path())

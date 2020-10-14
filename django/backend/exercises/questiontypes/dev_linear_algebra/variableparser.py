@@ -51,6 +51,31 @@ def get_more_variables_from_obj(variablesobj, foundvariables=[]):
             pass
     return foundvariables
 
+def get_more_functions_from_obj(variablesobj, foundvariables=[]):
+    variablestring = variablesobj.get('$', '')
+    variablelist = variablestring.split(';')
+    for variable in variablelist:
+        variable = variable.strip()
+        if '=' in variable:
+            token = (variable.split('=')[0]).strip()
+            token = ( token.split('(')[0] ).strip()
+            if (not token is '') and (token not in foundvariables):
+                foundvariables = foundvariables + [token]
+    vars_ = variablesobj.get('var', {})
+    if not isinstance(vars_, list):
+        vars_ = [vars_]
+    for var in vars_:
+        try:
+            token = (var.get('token').get('$')).strip()
+            if (not token is '') and (token not in foundvariables):
+                foundvariables = foundvariables + [token]
+        except:
+            pass
+    return foundvariables
+
+
+
+
 
 def remove_blacklist_variables_from_obj(variablesobj, foundvariables=[]):
     variablestring = variablesobj.get('$', '')

@@ -336,11 +336,11 @@ def symbolic_internal(expression1, expression2):  # {{{
         sympy2 = expression2
         
         ns.update( unitbaseunits)
-        print("NS = ", ns )
+        #print("NS = ", ns )
         sympy1 = expression1.subs(ns).doit()
         sympy2 = expression2.subs(ns).doit()
-        print("SYMPY1 A = ", sympy1 )
-        print("SYMPY2 B = ", sympy2 )
+        #print("SYMPY1 A = ", sympy1 )
+        #print("SYMPY2 B = ", sympy2 )
         #print("SYMPY1 = ", sympy1 )
         #print("SYMPY2 = ", sympy2 )
         if not doNumeric:
@@ -371,7 +371,7 @@ def symbolic_internal(expression1, expression2):  # {{{
         #print(" NOW ex2 = ", ex2 )
         are_same = expr_are_equal(ex1, ex2)
         if not are_same:
-            print("ZERO = ", zero )
+            #print("ZERO = ", zero )
             response['correct'] = False
             response['debug'] = "diff reduces to $" + latex(zero) + '$' + str(zero)
             response['correct'] = False
