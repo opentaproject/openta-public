@@ -172,7 +172,7 @@ def parens_are_balanced(expression):
 
 
 def check_for_legal_answer(
-    precision, variables, student_answer, expression, check_units=True, blacklist=[]
+    precision, variables, student_answer, expression, check_units=True, blacklist=[], extra_tokens=[]
 ):
     response = {}
     #### INVALID STRINGS 
@@ -189,7 +189,7 @@ def check_for_legal_answer(
  
     ##### INVALID PATTERNS 
     invalid_patterns= { "\)[\w]" : 'implicit multiply needs a space; right parenthesis cannot be followed by letter or number',
-                        "[0-9\.]+\(" : 'implicit multiply with a number needs a space' ,
+                        #"[0-9\.]+\(" : 'implicit multiply with a number needs a space' ,
                         "[^=]=[^=]"  : 'equal sign is illegal',
                         "(\^|\s|\(|\+|\/|\*|-)[0-9\.]+[A-Za-z]" : 'illegal implicit multiply',
                         "(^|\s|\+|-|\*|\/)[0-9]+[A-Za-z]+" : 'illegal implicit multiply with a number',
@@ -214,7 +214,9 @@ def check_for_legal_answer(
     ######### CHECK THAT VARIABLES ARE NOT USED AS FUNCTIONS ######
     for variable in variables:
         if re.search(r'(^|\W)%s\(' % variable['name'] , student_answer):
-            return dict(error='Variable %s cannot be used as a function; check implicit multiply.' % variable['name'])
+            # MAKE EXCEPTION FOR FUNCTION
+            if not '(' in variable['value'] :
+                return dict(error='Variable %s cannot be used as a function; check implicit multiply.' % variable['name'])
 
 
     ###########  MAKE SURE NO BLACKLISTED VARIABLES ARE USED
@@ -226,7 +228,8 @@ def check_for_legal_answer(
         strrep = str(atom)
         # funcstr = str(atom.func)
         if strrep in blacklist or ( strrep not in okatoms ) :
-            return {'error': _('(A) Forbidden token: ') + reg.sub(r'variable','',strrep) }
+            if strrep not in extra_tokens:
+                return {'error': _('(A) Forbidden token: ') + reg.sub(r'variable','',strrep) }
 
     unparsedstudentanswer = student_answer
     #student_answer = insert_implicit_multiply( student_answer )

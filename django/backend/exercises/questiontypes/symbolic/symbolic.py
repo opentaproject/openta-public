@@ -30,6 +30,7 @@ from exercises.questiontypes.symbolic.functions import *
 from exercises.questiontypes.symbolic.checks import *
 from exercises.questiontypes.symbolic.parsers import *
 from exercises.questiontypes.symbolic.sympify_with_custom import sympify_with_custom
+from exercises.questiontypes.dev_linear_algebra.linear_algebra import linear_algebra_compare_expressions
 import re
 import inspect
 
@@ -44,7 +45,7 @@ from exercises.questiontypes.symbolic.unithelpers import ns
 
 
 from exercises.questiontypes.dev_linear_algebra.variableparser import parse_variables
-from exercises.questiontypes.dev_linear_algebra.linear_algebra import question_check 
+from exercises.questiontypes.dev_linear_algebra.linear_algebra import question_check ,sigfig
 #from exercises.questiontypes.dev_linear_algebra.linear_algebra import  linear_algebra_check_if_true, linear_algebra_compare_expressions
 from exercises.questiontypes.dev_linear_algebra.variableparser import  (
     get_more_variables_from_obj,
@@ -71,34 +72,45 @@ logger = logging.getLogger(__name__)
 
 def expr_are_equal(ex1, ex2):
     try:
+        diff = 99.0
         zz = sympify('0.0').evalf()
         ex1 = zz if 'ZeroMatrix' in srepr(ex1) else ex1
         ex2 = zz if 'ZeroMatrix' in srepr(ex2) else ex2
         ex1 = ex1.subs(baseunits).doit()
         ex2 = ex2.subs(baseunits).doit()
         if ex1.is_Matrix and ex2.is_Matrix:
-            return sympy.simplify(ex1 - ex2).norm() < 1.0e-8
+            diff =  sympy.simplify(ex1 - ex2).norm()
+            adiff = diff
+            tval = diff < 1.0e-8
         elif ex1.is_Matrix:
-            if ex2 == sympy.sympify('0') and ex1.norm() < 1.0e-8:
-                return True
+            diff =  ex1.norm()
+            adiff = diff
+            if ex2 == sympy.sympify('0') and diff < 1.0e-8:
+                tval = True
             else:
-                return False
+                tval = False
         elif ex2.is_Matrix:
-            if ex1 == sympy.sympify('0') and ex2.norm() < 1.0e-8:
-                return True
+            diff = ex2.norm()
+            adiff = diff
+            if ex1 == sympy.sympify('0') and diff < 1.0e-8:
+                tval = True
             else:
-                return False
+                tval = False
         else:
-            diff1 = sympify(ex1 - ex2).evalf()
-            if 'Symbol' in srepr(diff1):
+            diff = sympify(ex1 - ex2).evalf()
+            adiff = sympify( abs( abs(ex1) - abs( ex2) )).evalf()
+            if 'Symbol' in srepr(diff):
                 # for key in dir( diff1 ):
                 #    print( "KEY  = ", key, "ATT = ", getattr(diff1, key) )
-                return False
-            tval = (diff1 == 0) or (abs( N( diff1 ) ) < 1.0e-8)
-            return tval
+                tval = False
+            else :
+                tval = (diff == 0) or (abs( N( diff ) ) < 1.0e-8)
     except Exception as e:
         print("ERROR WAS " + str(e))
-        return False
+        tval = False
+    diff = 1.0;
+    adiff = 1.0
+    return (tval,'[%s,%s]'  % ( str( sigfig( abs( diff ) ) ), str( sigfig( abs(adiff)  ) ) ))
 
 
 #
@@ -135,10 +147,28 @@ def symbolic_compare_expressions(
     check_units=True,
     blacklist=[],
     used_variables=[],
-    funcsubs={},
+    funcsubs=[],
+    validate_definitions=False,
 ):
     
-    
+    print("FUNCSUBS = ", funcsubs)
+    print("STUDENT_ANSWER= ", student_answer)
+    print("CORRECT = ", correct )
+    calculus_expressions = ['curl','div','grad','partial','Partial','Prime','del2']
+    if len( funcsubs ) == 0  and not "\'" in correct and not "\'" in student_answer:
+        skip_symbolic = True
+        for s in calculus_expressions: 
+            if s in correct or s in student_answer :
+                skip_symbolic = False
+        if skip_symbolic :
+            ret = linear_algebra_compare_expressions(
+                precision, variables, student_answer,
+                correct, check_units, blacklist,
+                used_variables, funcsubs=[],
+                validate_definitions=validate_definitions
+                )
+            ret['correct'] = ret.get('correct', False )
+            return ret
     should_be_end = index_of_matching_right_paren(0, '(' + student_answer + ')')
     assert should_be_end == len(student_answer) + 2, ( "MATCHING PAREN ERROR IN STUDENT_ANSWER " + student_answer)
     should_be_end = index_of_matching_right_paren(0, '(' + correct + ')')
@@ -151,10 +181,12 @@ def symbolic_compare_expressions(
     if '=' in student_answer and not '==' in student_answer:
             response['error'] = 'single equal sign cannot appear in expression'
             response['debug'] = student_answer
+            response['correct'] = False
             return response
 
     if not correct_is_equality and student_answer_is_equality :
         response['error'] = "equality not permitted in response"
+        response['correct'] = False
         response['debug'] = student_answer
         return response
 
@@ -165,6 +197,7 @@ def symbolic_compare_expressions(
     #correct = s2
     # print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
     all_variables = [x['name'] for x in variables]
+    print("ALL_VARIABLES = ", all_variables)
     illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
     if len(illegalvars) > 0:
         response = {}
@@ -176,7 +209,19 @@ def symbolic_compare_expressions(
     variables = list(
         filter(lambda item: (item['name'] in ok), variables)
     )  # GET RID OF CLASHES WITH FUNCTIONS
+    #for v in ['x','y','z','t' ] :
+    #    if not v in all_variables :
+    #        variables = variables + [{'name':v }]
+    print("VARIABLES = ", variables)
+    extra_tokens = ['x','y','z','t','xhat','yhat','zhat'] + [ item['name'] for item in funcsubs ]
+    precheck = check_for_legal_answer( precision, variables, student_answer, correct, False , blacklist,extra_tokens)
+    if precheck is not None:
+        print("PRECHECK = ", precheck)
+        response['correct'] = False
+        return precheck
+ 
     response = {}
+    response['correct'] = False
     prelhs = 'PRELHS'
     try:
         varsubs, varsubs_sympify, sample_variables = parse_sample_variables(variables, funcsubs)
@@ -281,6 +326,7 @@ def symbolic_compare_expressions(
         else:
             explanation = 'Error in expression'
         response = dict(error=_(explanation), debug="SympifyError : " + str(e))
+        response['correct'] = False
     except TypeError as e:
         explanation = " Type Error: i.e. for instance adding or comparing matrices and scalars "
         # explanation = explanation + str( student_answer)
@@ -293,9 +339,11 @@ def symbolic_compare_expressions(
             error=_(explanation),
             debug=(type(e).__name__ + ": " + str(e) + ' : Functions cannot return Matrix type'),
         )
+        response['correct'] = False
     except NameError as e:
         logger.error(traceback.format_exc())
         logger.error([str(e), str(student_answer), str(correct)])
+        response['correct'] = False
         response['debug'] = (
             'NAME ERROR in symbolic_compare_expressions' + str(e) + str(student_answer)
         )
@@ -305,11 +353,13 @@ def symbolic_compare_expressions(
         response = dict(
             error=_("There seems to be a vector or matrix operation with incompatible dimensions.")
         )
+        response['correct'] = False
         response['debug'] = str(e)
     except Exception as e:
         logger.error(traceback.format_exc())
         logger.error([str(e), str(student_answer), str(correct)])
         response = dict(error=_("Unknown error, check your expression."))
+        response['correct'] = False
         response['debug'] = (
             'Error1 in symbolic_compare_expressions: '
             + type(e).__name__
@@ -369,19 +419,23 @@ def symbolic_internal(expression1, expression2):  # {{{
             # diffy = Norm(shouldbezero)
         #print(" NOW ex1 = ", ex1 )
         #print(" NOW ex2 = ", ex2 )
-        are_same = expr_are_equal(ex1, ex2)
+        (are_same,maxerror) = expr_are_equal(ex1, ex2)
+        response['correct'] = are_same
         if not are_same:
             #print("ZERO = ", zero )
             response['correct'] = False
             response['debug'] = "diff reduces to $" + latex(zero) + '$' + str(zero)
             response['correct'] = False
             response['debug'] = "diff reduces" +  str( zero )
+            response['maxerror'] = maxerror
         else:
             response['correct'] = True
+            response['maxerror'] = maxerror
         return response
     except SympifyError as e:
         logger.error([str(e), expression1, expression2])
         response['debug'] = str(e)
+        response['correct'] = False
         response['error'] = _("Failed to evaluate expression.")
     except TypeError as e:
         logger.error([str(e), expression1, expression2])
@@ -392,28 +446,36 @@ def symbolic_internal(expression1, expression2):  # {{{
             cls = re.sub(r"(Mul|Add)", 'something else ', cls)
             cls = re.sub(r"(NegativeOne)", 'integer ', cls)
             response['error'] = "Incompatible types: " + cls
+        response['correct'] = False
     except Exception as e:
         logger.error([str(e), expression1, expression2])
         response['error'] = _("Unknown error2, check your expression.")
         response['debug'] = debug = type(e).__name__ + ": " + str(e)
+        response['correct'] = False
     # print("TOTAL TIME IN INTERNAL", (time.time() - tbeg) * 1000)
     return response  # }}}
 
 
 def symbolic_check_equality(precision, lhs, rhs, sample_variables, check_units=False):  # {{{
+    response = {}
+    response['correct'] = False
     try:
         response = symbolic_internal(lhs, rhs)
     except SympifyError as e:
         inner = ''
         logger.error([str(e), str(lhs), str(rhs)])
         response['error'] = _("Failed to evaluate expression." + inner)
+        response['correct'] = False
     except AttributeError as e:
         parts = str(e).split('attribute')
+        response['correct'] = False
         response['error'] = str(parts[1]) + ' is undefined '
     except NameError as e:
         response['error'] = str(e)
+        response['correct'] = False
     except Exception as e:
         inner = ''
+        response['correct'] = False
         logger.error([str(e), str(lhs), str(rhs)])
         logger.error(traceback.format_exc())
         response['error'] = _("Unknown error 1, check your expression." + inner)

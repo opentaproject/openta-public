@@ -12,7 +12,7 @@ logging.disable(logging.DEBUG)
 class SymbolicTest2(TestCase):
     def test2_ascii_to_sympy(self):
         # Note that the matrix implicit multiplication works because it gets wrapped in Matrix before the implicit multiply formatting is applied
-        self.assertEqual(ascii_to_sympy("[1,2,3] [[4,5,6]]"), "Matrix([1,2,3]) * Matrix([[4,5,6]])")
+        #self.assertEqual(ascii_to_sympy("mul( [1,2,3],[[4,5,6]])"), "mul( [1,2,3] , Matrix([[4,5,6]]))")
         self.assertEqual(ascii_to_sympy("2x + 1 == 3y"), "(2*x + 1 ) - ( 3*y)")
 
     def test2_implicit_multiply(self):
@@ -324,7 +324,7 @@ class SymbolicTest2(TestCase):
             'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  ',
             ' - y    xhat + x yhat + 2  cos( c t -  z ) xhat  - A  == 0',
             ' cross(xhat,yhat) - zhat == 0 ',
-            ' [[1,0,0],[0,1,0],[0,0,1]] * xhat -  [1,0,0] == 0 ',
+            ' mul( [[1,0,0],[0,1,0],[0,0,1]] , xhat ) -  [1,0,0] == 0 ',
         ]
         for eq in eqs:
             [eq1, eq2] = eq.split('==')

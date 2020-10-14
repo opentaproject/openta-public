@@ -383,18 +383,18 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
             try:
                 if not numpy.isscalar(scale) :
                     maxadiff = numpy.amax( adiff)
-                    maxadiff = maxadiff.item()
                     maxdiff = numpy.amax( diff )
                     maxdiff = maxdiff.item()
+                    maxadiff = maxadiff.item()
                     scale =  numpy.amax(scale)
                 else:
                     maxdiff = diff
-                    maxdiff = maxdiff.item()
                     maxadiff = adiff
+                    maxdiff = maxdiff.item()
                     maxadiff = maxadiff.item()
                     scale  = max(scale.item(),1.0)
             except Exception as e:
-                maxdifff = 99.0;
+                maxdiff = 99.0;
                 maxadiff = 99.0;
                 print("EXCEPTION %s %s %s" % ( type(e) , str(e),   traceback.format_exc()) )
                 scale = 1.0 
