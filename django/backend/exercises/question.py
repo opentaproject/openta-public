@@ -271,9 +271,11 @@ def question_check(request, user, user_agent, exercise_key, question_key, answer
                 'can be evaluated.'
             ),
         }
-    xmltree = exercise_xmltree(dbexercise.get_full_path(), usermacros)
-    question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
-    rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
+    #xmltree = exercise_xmltree(dbexercise.get_full_path(), usermacros)
+    #question_xmltree = xmltree.xpath('/exercise/question[@key="{key}"]'.format(key=question_key))[0]
+    #rate_limit = (question_xmltree.xpath('//rate') or [None])[0]
+    rate_limit = None
+    #print("RATE_LIMIT = ", rate_limit)
     if (
         (not settings.RUNNING_DEVSERVER)
         and rate_limit is not None
@@ -316,6 +318,7 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
     tbeg = time.time()
     question_json = question_json_get(dbexercise.get_full_path(), question_key, usermacros)
     #print("TIME1 = ",  ( time.time() - tbeg ) *1000 )
+    #print("CALL HOOK USERMACROS=", usermacros)
     if dbquestion.type in question_json_hooks:
         question_json = question_json_hooks[dbquestion.type](
             question_json, question_json, dbquestion.pk, user.pk, exercise_key

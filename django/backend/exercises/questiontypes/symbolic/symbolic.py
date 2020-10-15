@@ -101,12 +101,12 @@ def expr_are_equal(ex1, ex2):
             adiff = sympify( abs( abs(ex1) - abs( ex2) )).evalf()
             if 'Symbol' in srepr(diff):
                 # for key in dir( diff1 ):
-                #    print( "KEY  = ", key, "ATT = ", getattr(diff1, key) )
+                #    #print( "KEY  = ", key, "ATT = ", getattr(diff1, key) )
                 tval = False
             else :
                 tval = (diff == 0) or (abs( N( diff ) ) < 1.0e-8)
     except Exception as e:
-        print("ERROR WAS " + str(e))
+        #print("ERROR WAS " + str(e))
         tval = False
     diff = 1.0;
     adiff = 1.0
@@ -151,9 +151,9 @@ def symbolic_compare_expressions(
     validate_definitions=False,
 ):
     
-    print("FUNCSUBS = ", funcsubs)
-    print("STUDENT_ANSWER= ", student_answer)
-    print("CORRECT = ", correct )
+    #print("FUNCSUBS = ", funcsubs)
+    #print("STUDENT_ANSWER= ", student_answer)
+    #print("CORRECT = ", correct )
     calculus_expressions = ['curl','div','grad','partial','Partial','Prime','del2']
     if len( funcsubs ) == 0  and not "\'" in correct and not "\'" in student_answer:
         skip_symbolic = True
@@ -195,9 +195,9 @@ def symbolic_compare_expressions(
     #s2 = ascii_to_sympy(correct)
     #student_answer = s1
     #correct = s2
-    # print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
+    # #print("SPLITA = " , ( time.time() - tbeg  )  * 1000 )
     all_variables = [x['name'] for x in variables]
-    print("ALL_VARIABLES = ", all_variables)
+    #print("ALL_VARIABLES = ", all_variables)
     illegalvars = list(set(list(ns.keys())).intersection(set(all_variables)))
     if len(illegalvars) > 0:
         response = {}
@@ -212,11 +212,11 @@ def symbolic_compare_expressions(
     #for v in ['x','y','z','t' ] :
     #    if not v in all_variables :
     #        variables = variables + [{'name':v }]
-    print("VARIABLES = ", variables)
+    #print("VARIABLES = ", variables)
     extra_tokens = ['x','y','z','t','xhat','yhat','zhat'] + [ item['name'] for item in funcsubs ]
     precheck = check_for_legal_answer( precision, variables, student_answer, correct, False , blacklist,extra_tokens)
     if precheck is not None:
-        print("PRECHECK = ", precheck)
+        #print("PRECHECK = ", precheck)
         response['correct'] = False
         return precheck
  
@@ -299,11 +299,11 @@ def symbolic_compare_expressions(
                 if funcstr in blacklist:
                     return {'error': _('(G) Forbidden token: ') + funcstr}
 
-        # print("SPLIT2 = " , ( time.time() - tbeg  )  * 1000 )
+        # #print("SPLIT2 = " , ( time.time() - tbeg  )  * 1000 )
         lhs = sympify_with_custom(
             lhs, varsubs_sympify, funcsubs, 'symbolic_compare_expression-2'
         ).doit()
-        # print("SPLIT2a = " , ( time.time() - tbeg  )  * 1000 )
+        # #print("SPLIT2a = " , ( time.time() - tbeg  )  * 1000 )
         # THE NEXT  BIT LINE IS 1/2 THE BOTTLENECK
         # IT PROPAGEATES TO TIME SPENT IN pre
         rhs = sympify_with_custom(
@@ -312,12 +312,12 @@ def symbolic_compare_expressions(
         #print("LHS = ", lhs )
         #print("RHS = ", rhs )
         ##################
-        # print("SPLIT2b = " , ( time.time() - tbeg  )  * 1000 )
+        # #print("SPLIT2b = " , ( time.time() - tbeg  )  * 1000 )
         res = symbolic_check_equality(
             precision, lhs, rhs, sample_variables, check_units=check_units
         )
         tend = time.time()
-        # print("TOTAL TIME IN COMPARE EXPRESSIONS", ( tend - tbeg ) * 1000  , " MILLISECONDS" )
+        # #print("TOTAL TIME IN COMPARE EXPRESSIONS", ( tend - tbeg ) * 1000  , " MILLISECONDS" )
         return res
 
     except SympifyError as e:
@@ -404,11 +404,11 @@ def symbolic_internal(expression1, expression2):  # {{{
             zero = sympy1 - sympy2
         # THE NEXT LINE IS BOTTLENET 1/2 OF TIME SPENT
         # USING simplify ONLY DOES NOT DO MUCH  ; IT IS STILL SLOW
-        # print("ZER0 = ", simplify( zero ) )
+        # #print("ZER0 = ", simplify( zero ) )
         if doNumeric:
             symbs = zero.free_symbols
             # symbs.update( {sympy.Symbol('x') ,} )
-            # print("SYMBS = ", symbs)
+            # #print("SYMBS = ", symbs)
             symsub = [(sym, random.random()) for sym in symbs]
             ex1 = sympy1.subs(symsub).doit()
             ex2 = sympy2.subs(symsub).doit()
@@ -452,7 +452,7 @@ def symbolic_internal(expression1, expression2):  # {{{
         response['error'] = _("Unknown error2, check your expression.")
         response['debug'] = debug = type(e).__name__ + ": " + str(e)
         response['correct'] = False
-    # print("TOTAL TIME IN INTERNAL", (time.time() - tbeg) * 1000)
+    # #print("TOTAL TIME IN INTERNAL", (time.time() - tbeg) * 1000)
     return response  # }}}
 
 

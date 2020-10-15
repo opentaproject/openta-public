@@ -371,6 +371,7 @@ export default class QuestionDevLinearAlgebra extends Component {
   //console.log(" E question  n_attempts = ", question.getIn(['n_attempts'],97) );
   // console.log("usedvariablelist = ", JSON.stringify( question.getIn(['usedvariablelist'] ,[]) ));
   //console.log("F username = ", question.getIn(['username'],'NOUSERSET') )
+  console.log("USED_VARIABLE_LIST", used_variable_list)
 
   this.parseBlacklist();
   this.parseVariables();
@@ -479,6 +480,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         msg = this.mathjserror ? this.mathjswarning :  'Syntax OK'
     }
   var showinstructions = ( input == '' )
+  console.log("AVAILABLE VARIABLES = ", availableVariables)
   return (
         <div className="uk">
         <MathSpan> {questiontext}</MathSpan>

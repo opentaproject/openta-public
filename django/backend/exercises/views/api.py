@@ -689,8 +689,8 @@ def validate_exercise_globals(xml, user, exercise):
         for question_xmltree in question_xmltrees:
             result = {}
             ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
-            print("RET = ", ret )
-            used_variables = list(ret['used_variables'])
+            #print("RET = ", ret )
+            Eed_variables = list(ret['used_variables'])
             variables = ret['variables']
             funcsubs = ret['functions']
             authorvariables = ret['authorvariables']
@@ -794,7 +794,7 @@ def validate_exercise_xml(xml, user, exercise):
 @permission_required('exercises.edit_exercise')
 @api_view(['POST'])
 def exercise_save(request, exercise):
-    print("SAVE EXERCISE")
+    #print("SAVE EXERCISE")
     messages = []
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"

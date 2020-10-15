@@ -262,27 +262,27 @@ def question_json_get_from_raw_json(raw_json, exercise_key, question_key, userma
     )
     #print("QUESTION_JSON_GET_FROM_RAW_JSON")
     if len(found) == 1:
-        #global_data = deep_get(raw_json, 'exercise', 'global')
+        global_data = deep_get(raw_json, 'exercise', 'global')
         #print("GLOBAL DATA = ", global_data )
-        #if global_data:  # and 'type' in found[0]['@attr']:
-        #    if not isinstance(global_data, list):
-        #        global_data = [global_data]
-        #    global_for_type = list(
-        #        filter(
-        #            lambda g: (
-        #                ('@attr' not in g)
-        #                or (
-        #                    '@attr' in g
-        #                    and 'type' in g['@attr']
-        #                    and g['@attr']['type'] == found[0]['@attr']['type']
-        #                )
-        #            ),
-        #            global_data,
-        #        )
-        #    )
-        #    if len(global_for_type) == 1:
-        #        #print("UPDATE GLOBAL DATA")
-        #        found[0].update({'global': global_for_type[0]})
+        if global_data:  # and 'type' in found[0]['@attr']:
+            if not isinstance(global_data, list):
+                global_data = [global_data]
+            global_for_type = list(
+                filter(
+                    lambda g: (
+                        ('@attr' not in g)
+                        or (
+                            '@attr' in g
+                            and 'type' in g['@attr']
+                            and g['@attr']['type'] == found[0]['@attr']['type']
+                        )
+                    ),
+                    global_data,
+                )
+            )
+            if len(global_for_type) == 1:
+                #print("UPDATE GLOBAL DATA")
+                found[0].update({'global': global_for_type[0]})
         found[0]['exercise_key'] = exercise_key
         #print("FOUND[0]", found[0] )
         return found[0]

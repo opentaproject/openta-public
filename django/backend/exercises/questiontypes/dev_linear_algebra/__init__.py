@@ -38,6 +38,7 @@ def linear_algebra_json_hook(safe_question, full_question, question_id, user_id,
     used_variable_list = get_used_variable_list(correct_answer) 
     variablelist = get_more_variables_from_obj( full_question.get('variables', {}), used_variable_list)
     #print("VARIABLELIST = ", variablelist)
+    #print("FULL= ", full_question )
     functionlist = get_more_functions_from_obj( full_question.get('global', {}), [])
     #print("FUNCTIONLIST = ", functionlist )
     if (full_question.get('@attr').get('exposeglobals', 'false')).lower() == 'true':
@@ -56,12 +57,16 @@ def linear_algebra_json_hook(safe_question, full_question, question_id, user_id,
     if feedback is False:
            safe_question['correct'] = None
            feedback = False
-
+    #print("__INIT__ CALLED")
     #print("VARIABLELIST = ", variablelist )
     if not blacklist is None:
         variablelist = remove_blacklist_variables_from_obj(blacklist, variablelist)
+    ## THIS IS WHERE INITIAL USED VARIABLES MUST BE LISTED"
+    ## AFTER INITIAL LOAD, the question respsonse loads the variables
+    ## 
+    #print("FUNCTIONLIST = ", functionlist)
     safe_question['username'] = user_id
-    #safe_question['used_variable_list'] = [re.sub(r"variable",'', item ) for item in variablelist  ] +['FROM INIT']
+    safe_question['used_variable_list'] = [re.sub(r"variable",'', item ) for item in variablelist  ] 
     safe_question['n_attempts'] = get_number_of_attempts(question_id, user_id)
     safe_question['previous_answers'] = get_previous_answers(question_id, user_id, 5)
     return safe_question
