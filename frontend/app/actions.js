@@ -152,7 +152,7 @@ function setExerciseModifiedState(exercise, modified) {//{{{
 }//}}}
 
 function updatePendingState(pendingstate) {//{{{
-  console.log("updatePendingState pendingstate = ", pendingstate)
+  // console.log("updatePendingState pendingstate = ", pendingstate)
   return {
     type: 'UPDATE_PENDING_STATE',
     pendingstate: pendingstate
@@ -160,7 +160,7 @@ function updatePendingState(pendingstate) {//{{{
 }//}}}
 
 function updatePendingStateIn(path, pending) {//{{{
-  console.log("updatePendingStateIn pending = ", pending)
+  // console.log("updatePendingStateIn pending = ", pending)
   var data = immutable.Map({});
   return {
     type: 'UPDATE_PENDING_STATE',

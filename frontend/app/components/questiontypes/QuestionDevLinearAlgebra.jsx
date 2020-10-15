@@ -188,7 +188,7 @@ export default class QuestionDevLinearAlgebra extends Component {
       });
       if(this.isUnclosed) {
         this.mathjswarning += " : unclosed right paren";
-        this.mathjserror = true;
+        this.mathjserror = false ;
         return '\\color{red}{(} ' + node.content.toTex(options) + '';
       }
       else 
@@ -339,8 +339,8 @@ export default class QuestionDevLinearAlgebra extends Component {
   //console.log("STATE CORRECT ",    state.getIn(['correct'], "NOTING IN CORRECT") )
   var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts']) ) 
   var used_variable_list =   state.getIn(['response','used_variable_list'] , question.getIn(['used_variable_list']) ) 
-  console.log("STATE", JSON.stringify( state.getIn(['response','used_variable_list'] ) ) )
-  console.log("RESPONSE",  JSON.stringify( question.getIn(['used_variable_list']) )  )
+  // console.log("STATE", JSON.stringify( state.getIn(['response','used_variable_list'] ) ) )
+  // console.log("RESPONSE",  JSON.stringify( question.getIn(['used_variable_list']) )  )
   var previous_answers = state.getIn(['response','previous_answers'] , question.getIn(['previous_answers']) );
   if( state.getIn(['correct'], null ) == null ){
        var feedback = false
@@ -371,7 +371,7 @@ export default class QuestionDevLinearAlgebra extends Component {
   //console.log(" E question  n_attempts = ", question.getIn(['n_attempts'],97) );
   // console.log("usedvariablelist = ", JSON.stringify( question.getIn(['usedvariablelist'] ,[]) ));
   //console.log("F username = ", question.getIn(['username'],'NOUSERSET') )
-  console.log("USED_VARIABLE_LIST", used_variable_list)
+  // console.log("USED_VARIABLE_LIST", used_variable_list)
 
   this.parseBlacklist();
   this.parseVariables();
@@ -480,7 +480,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         msg = this.mathjserror ? this.mathjswarning :  'Syntax OK'
     }
   var showinstructions = ( input == '' )
-  console.log("AVAILABLE VARIABLES = ", availableVariables)
+  // console.log("AVAILABLE VARIABLES = ", availableVariables)
   return (
         <div className="uk">
         <MathSpan> {questiontext}</MathSpan>

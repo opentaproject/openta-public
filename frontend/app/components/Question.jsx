@@ -27,8 +27,8 @@ class BaseQuestion extends Component {
     var questionState = exerciseState.getIn(['question', questionKey], immutable.Map({}))
     var okornot = questionState.getIn( ['response','correct'], null )
     var iscorrect = questionState.getIn(['correct'],'undefined')
-    console.log("OKORNOT = ", okornot)
-    console.log("ISCORRECT = ", iscorrect )
+    // console.log("OKORNOT = ", okornot)
+    // console.log("ISCORRECT = ", iscorrect )
     if(questionType && questionType in questionDispatch) {
       var globals = json.getIn(['exercise','global'], immutable.List([])).find( q => {
         return q.getIn(['@attr','type']) === questionType || (!q.hasIn(['@attr', 'type']));
