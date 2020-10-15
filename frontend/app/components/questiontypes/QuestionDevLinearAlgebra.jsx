@@ -67,6 +67,7 @@ export default class QuestionDevLinearAlgebra extends Component {
 
   
   handleChange = (event) => {
+    console.log("EVENT2 ", event )
     this.setState({value: event.target.value});
   }
 
@@ -115,8 +116,8 @@ export default class QuestionDevLinearAlgebra extends Component {
         return this.parse_dispatch[node.name](node,options)
       } 
 
+    console.log("NODE TYPE = ", node.type)
     if(node.type === 'FunctionNode') {
-
       if(this.blacklist.indexOf(node.name) !== -1) {
         this.mathjswarning += " : error5";
         this.mathjserror = true;
@@ -160,6 +161,7 @@ export default class QuestionDevLinearAlgebra extends Component {
     }
     // Render green if allowed variable otherwise red
     else if(node.type === 'SymbolNode') {
+      console.log("SymbolNode", node.name )
       if ( options.ignore_undefined ){
         }
       const origVar = node.name.replace(/\_/g, '');
@@ -172,8 +174,10 @@ export default class QuestionDevLinearAlgebra extends Component {
         this.mathjserror = true;
         return '\\color{orange}{' + texSymbol + '}';
           }
-      if(this.varsList.indexOf(origVar) !== -1 || this.validSymbols.indexOf(origVar) !== -1 || options.ignore_undefined)
-        return '\\color{green}{' + texSymbol + '}';
+      if(this.varsList.indexOf(origVar) !== -1 || this.validSymbols.indexOf(origVar) !== -1 || options.ignore_undefined) {
+        this.mathjserror = false
+        return '\\color{green}{' + node._toTex( options) + '}';
+      }
       else 
         this.mathjserror = true;
         this.mathjswarning += " : undefined variable \'" + node.name + "\'";
@@ -181,17 +185,22 @@ export default class QuestionDevLinearAlgebra extends Component {
     }
     // Special handling for unmatched parenthesis, otherwise render normally
     else if(node.type === 'ParenthesisNode') {
+      console.log("PAREN NODE")
       this.isUnclosed = false;
       node.traverse( (node, path, parent) => {
         if(node.type === 'FunctionNode' && node.name === 'unclosed')
             this.isUnclosed = true;
       });
+      console.log("UNCLOSED = ", this.isUnclosed)
       if(this.isUnclosed) {
         this.mathjswarning += " : unclosed right paren";
-        this.mathjserror = false ;
+        this.mathjserror = false
+        console.log("WARNING = ", this.mathjswarning)
+        console.log("NODE = ", node._toTex(options) )
         return '\\color{red}{(} ' + node.content.toTex(options) + '';
       }
       else 
+        console.log("NOT UNCLOSD")
         return ' '+node._toTex(options);
     }
     // Cursor handling by hooking into the bitwise not operator that has a very high precedence.
@@ -282,7 +291,6 @@ export default class QuestionDevLinearAlgebra extends Component {
       // parsed = braketify(parsed);
       // var delimitersFixed = fixDelimiters(parsed);*/
       var parsed = preParsed.out;
-      parsed = parsed + ' empty()';
       parsed = parsed.replace(/\)\.\(/g,")**(",parsed)
       try {
         var mParsed = mathjs.parse(parsed).toTex({
@@ -290,19 +298,25 @@ export default class QuestionDevLinearAlgebra extends Component {
           handler: this.customLatex, // Custom latex node handler
           ignore_undefined: ignore_undefined,
         });
+        // return {out: mParsed, warnings: preParsed.warnings, error: "MathJS parse/toTex error"}
         mParsed = mParsed.replace(/prime}~ /g,'prime}');
         mParsed = mParsed.replace(/}~ /g,'}');
-        mParsed = mParsed.replace(/\\left\(/g,'(')
-        mParsed = mParsed.replace(/\\right\)/g,')')
-        // console.log("mParsed = ", mParsed )
+        //return {out: mParsed, warnings: preParsed.warnings, error: "MathJS parse/toTex error"}
+        // mParsed = mParsed.replace(/\\left\(/g,'(')
+        // return {out: mParsed, warnings: preParsed.warnings, error: "MathJS parse/toTex error"}
+        // mParsed = mParsed.replace(/\\right\)/g,')')
+        // return {out: mParsed, warnings: preParsed.warnings, error: "MathJS parse/toTex error"}
+        // console.log("mParsed AGAIN = ", mParsed )
         if(typeof mParsed === 'string' && mParsed !== 'undefined') {
           this.lastParsable = mParsed.replace(/\\\\end{bmatrix}/g,'end{bmatrix}'); // MathJS outputs an extra \\ which KaTeX interprets as a new line
         }
         return {out: this.lastParsable, warnings: preParsed.warnings}
       }
       catch(e) {
+        // var outtex = parsed.replace(/fail\(\"\)\"\)/,"\\color{red}{~\\large{)}}",parsed) 
+        var outtex =  this.lastParsable + "\\color{red}{~\\large{)}}"
         this.mathjswarning = " : Unparsable  " + ( this.mathswarning ? this.mathjswarning :  '' )
-        return {out: this.lastParsable, warnings: preParsed.warnings, error: "MathJS parse/toTex error"}
+        return {out: outtex  , warnings: preParsed.warnings, error: "MathJS parse/toTex error"}
       }
   }
 
