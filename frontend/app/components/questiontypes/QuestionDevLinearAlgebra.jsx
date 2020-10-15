@@ -67,7 +67,7 @@ export default class QuestionDevLinearAlgebra extends Component {
 
   
   handleChange = (event) => {
-    console.log("EVENT2 ", event )
+  //  console.log("EVENT2 ", event )
     this.setState({value: event.target.value});
   }
 
@@ -95,6 +95,7 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 
   customLatex = (node, options) => {
+  //  console.log("TYPE =", node.type )
     if( node.op == '\''){
       //console.log("QUOTE OPERATOR NODE")
       if ( node.type === 'OperatorNode' ) {
@@ -116,7 +117,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         return this.parse_dispatch[node.name](node,options)
       } 
 
-    console.log("NODE TYPE = ", node.type)
+    // console.log("NODE TYPE = ", node.type)
     if(node.type === 'FunctionNode') {
       if(this.blacklist.indexOf(node.name) !== -1) {
         this.mathjswarning += " : error5";
@@ -160,8 +161,9 @@ export default class QuestionDevLinearAlgebra extends Component {
       }
     }
     // Render green if allowed variable otherwise red
+
     else if(node.type === 'SymbolNode') {
-      console.log("SymbolNode", node.name )
+    //  console.log("SymbolNode", node.name )
       if ( options.ignore_undefined ){
         }
       const origVar = node.name.replace(/\_/g, '');
@@ -175,7 +177,9 @@ export default class QuestionDevLinearAlgebra extends Component {
         return '\\color{orange}{' + texSymbol + '}';
           }
       if(this.varsList.indexOf(origVar) !== -1 || this.validSymbols.indexOf(origVar) !== -1 || options.ignore_undefined) {
+        // console.log("GREEN2" , node_toTex(options) )
         this.mathjserror = false
+        // return '\\color{green}{' + texSymbol + '}';
         return '\\color{green}{' + node._toTex( options) + '}';
       }
       else 
@@ -185,22 +189,19 @@ export default class QuestionDevLinearAlgebra extends Component {
     }
     // Special handling for unmatched parenthesis, otherwise render normally
     else if(node.type === 'ParenthesisNode') {
-      console.log("PAREN NODE")
       this.isUnclosed = false;
       node.traverse( (node, path, parent) => {
         if(node.type === 'FunctionNode' && node.name === 'unclosed')
             this.isUnclosed = true;
       });
-      console.log("UNCLOSED = ", this.isUnclosed)
+      // console.log("UNCLOSED = ", this.isUnclosed)
       if(this.isUnclosed) {
         this.mathjswarning += " : unclosed right paren";
         this.mathjserror = false
-        console.log("WARNING = ", this.mathjswarning)
-        console.log("NODE = ", node._toTex(options) )
         return '\\color{red}{(} ' + node.content.toTex(options) + '';
       }
       else 
-        console.log("NOT UNCLOSD")
+        // console.log("NOT UNCLOSD")
         return ' '+node._toTex(options);
     }
     // Cursor handling by hooking into the bitwise not operator that has a very high precedence.
@@ -289,8 +290,9 @@ export default class QuestionDevLinearAlgebra extends Component {
       // parsed = insertImplicitMultiply(parsed);
       // parsed = insertImplicitSubscript(parsed);
       // parsed = braketify(parsed);
-      // var delimitersFixed = fixDelimiters(parsed);*/
+      // var delimitersFixed = fixDelimiters(parsed);*/ 
       var parsed = preParsed.out;
+
       parsed = parsed.replace(/\)\.\(/g,")**(",parsed)
       try {
         var mParsed = mathjs.parse(parsed).toTex({
@@ -313,10 +315,43 @@ export default class QuestionDevLinearAlgebra extends Component {
         return {out: this.lastParsable, warnings: preParsed.warnings}
       }
       catch(e) {
-        // var outtex = parsed.replace(/fail\(\"\)\"\)/,"\\color{red}{~\\large{)}}",parsed) 
-        var outtex =  this.lastParsable + "\\color{red}{~\\large{)}}"
+        var redchar = ''
+        var last = this.lastParsable 
+        var outtex = parsed
+        // console.log("e = ", e )
+        // console.log("parsed = ", parsed)
+         //console.log("mParsed ", mParsed)
+         //console.log("last = ", last )
+        var lastchar = parsed.charAt( parsed.length - 2 ) 
+        // console.log("LASTCHAR = ", lastchar)
+        if ( RegExp('fail').test(parsed) ){
+          var redchar = '~' + parsed.match(/fail\(\"(.)\"\)/)[1]
+          var outtex = parsed +  "\\color{red}{ \\text \\large{  " + redchar + "}}"
+          }
+        // if  lastchar == '(' :
+        //else if ( RegExp('Parenthesis').test(String( e ) ) ) {
+        //  console.log("PAREN ERROR")
+        //  //var outtex = parsed.replace(/unclosed\(\).*/,'')
+        //  outtex = last +  "\\color{red}{ \\mathrm{ \\small{  ~  Function ~ missing~ !~~   Vectors ~ use~  square~  brackets. }}}"
+        //  //outtex = "\\color{red}{" + outtex+ "}"
+        //  }
+        else if ( RegExp('unclosed').test(parsed) ){
+          var outtex = parsed.replace(/unclosed\(\).*/,'')
+          }
+        // else if ( /\^/.test(parsed) ) {
+        //  console.log("FOUND CARET")
+        //  var redchar = '\\hat{}'
+        //  var outtex = last +  "\\color{red}{ \\large{  " + redchar + "}}"
+        //  }
+       // else {
+        //  var outtex = parsed
+        //  var lastchar = outtex.charAt( outtex.length - 2 ) 
+        //  if ( lastchar == ')'  ){
+        //    outtex = parsed
+        //    }
+        //  }
         this.mathjswarning = " : Unparsable  " + ( this.mathswarning ? this.mathjswarning :  '' )
-        return {out: outtex  , warnings: preParsed.warnings, error: "MathJS parse/toTex error"}
+        return {out: outtex , warnings: preParsed.warnings, error: "MathJS parse/toTex error"}
       }
   }
 

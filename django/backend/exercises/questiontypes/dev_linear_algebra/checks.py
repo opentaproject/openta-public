@@ -276,9 +276,9 @@ def check_answer_structure( student_answer, correct , varsubs_sympify):
        prelhs = sympify_with_custom( tstudent_answer, tvarsubs_sympify, {}, 'check-answer-structure-linear_algebra_compare_expressions')
 
     except AttributeError as e:
-        if 'tuple' in str(e) :
+        if 'uple' in str(e) :
             response = dict(
-                error = _( 'use square brackets instead of parenthesis')
+                error = _( 'use square brackets for vectors and matrices')
                 )
         else :
             response = dict(
