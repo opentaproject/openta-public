@@ -690,7 +690,7 @@ def validate_exercise_globals(xml, user, exercise):
             result = {}
             ret = getallvariables(global_xmltree, question_xmltree, assign_all_numerical=False)
             #print("RET = ", ret )
-            Eed_variables = list(ret['used_variables'])
+            used_variables = list(ret['used_variables'])
             variables = ret['variables']
             funcsubs = ret['functions']
             authorvariables = ret['authorvariables']
