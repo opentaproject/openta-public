@@ -318,15 +318,17 @@ export default class QuestionDevLinearAlgebra extends Component {
         var redchar = ''
         var last = this.lastParsable 
         var outtex = parsed
-        // console.log("e = ", e )
-        // console.log("parsed = ", parsed)
-         //console.log("mParsed ", mParsed)
-         //console.log("last = ", last )
+        console.log("e = ", e )
+        console.log("parsed = ", parsed)
+        console.log("last = ", last )
         var lastchar = parsed.charAt( parsed.length - 2 ) 
-        // console.log("LASTCHAR = ", lastchar)
+        console.log("LASTCHAR = ", lastchar)
         if ( RegExp('fail').test(parsed) ){
-          var redchar = '~' + parsed.match(/fail\(\"(.)\"\)/)[1]
-          var outtex = parsed +  "\\color{red}{ \\text \\large{  " + redchar + "}}"
+          var redchar = parsed.match(/fail\(\"(.)\"\)/)[1]
+          console.log("REDCHAR = ", redchar)
+          var outtex = parsed.replace(/fail\(\"(.)\"\)/,'{\\color{red}{$1} }')
+          console.log("PARSED AGAIN", parsed )
+          // var outtex = last +  "\\color{red}{ " + redchar + " }"
           }
         // if  lastchar == '(' :
         //else if ( RegExp('Parenthesis').test(String( e ) ) ) {
@@ -350,6 +352,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         //    outtex = parsed
         //    }
         //  }
+        console.log("OUTTEX = ", outtex)
         this.mathjswarning = " : Unparsable  " + ( this.mathswarning ? this.mathjswarning :  '' )
         return {out: outtex , warnings: preParsed.warnings, error: "MathJS parse/toTex error"}
       }
