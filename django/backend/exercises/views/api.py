@@ -778,15 +778,20 @@ def validate_exercise_xml(xml, user, exercise):
         messages.append(('error', 'XML Error: ' + msg))
     except NameError as e:
         messages.append(
-            ('error', "From validate_exercise_xml: " + type(e).__name__ + "  :  " + str(e))
+            ('error', "Error 780: From validate_exercise_xml: " + type(e).__name__ + "  :  " + str(e))
         )
     except QuestionError as e:
         messages.append(
             ('error', "Cannot validate : %s  " % str(e))
         )
+    except TypeError as err:
+        msg = "{0}".format(err)
+        if 'NoneType' in msg :
+            msg = "Validation error of exercise xml: Probably missing global: Put in empty global tag after &lt;exercisename&gt  &lt;global&gt;&lt/global&gt; "
+        messages.append(('error', "Error 791: " + msg))
     except Exception as e:
         messages.append(
-            ('error', "Uncaught exception From validate_exercise_xml: " + type(e).__name__ + "  :  " + str(e))
+            ('error', "Error 794: Uncaught exception From validate_exercise_xml: " + type(e).__name__ + "  :  " + str(e))
         )
     return messages
 

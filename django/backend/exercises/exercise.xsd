@@ -17,6 +17,7 @@
         <!-- xs:element ref="qmath"/ -->
         <!-- xs:element ref="asciimath"/ --> 
         <xs:element minOccurs="1" ref="exercisename"/>
+	<xs:element maxOccurs="1" ref="studentasset"/>
         <xs:element maxOccurs="1" ref="global"/>
         <xs:element maxOccurs="1" ref="macros"/>
       </xs:choice>
@@ -30,6 +31,13 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+
+  <xs:element name="studentasset">
+    <xs:complexType mixed="true">
+    </xs:complexType>
+  </xs:element>
+
 
 
   <xs:element name="algorithm" type="xs:string"/>
