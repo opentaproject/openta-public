@@ -95,7 +95,7 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 
   customLatex = (node, options) => {
-  //  console.log("TYPE =", node.type )
+    console.log("TYPE =", node.type , node)
     if( node.op == '\''){
       //console.log("QUOTE OPERATOR NODE")
       if ( node.type === 'OperatorNode' ) {
@@ -171,21 +171,25 @@ export default class QuestionDevLinearAlgebra extends Component {
       const texSymbol = this.varProps.hasIn([origVar, 'tex']) ? this.varProps.getIn([origVar, 'tex']) : 
 			latex.toSymbol( insertImplicitSubscript( origVar),false);//node._toTex(options);
       // console.log("texSymbol = ", texSymbol , insertImplicitSubscript( origVar )  );
+      var comment = ''
+      if ( node.comment  ){
+          var comment= 'comment' // node.comment 
+          }
       if(this.blacklist.indexOf(origVar) !== -1) {
         this.mathjswarning += " : disallowed variable";
         this.mathjserror = true;
-        return '\\color{orange}{' + texSymbol + '}';
+        return '\\color{orange}{' + texSymbol +  comment +  ' }';
           }
       if(this.varsList.indexOf(origVar) !== -1 || this.validSymbols.indexOf(origVar) !== -1 || options.ignore_undefined) {
         // console.log("GREEN2" , node_toTex(options) )
         this.mathjserror = false
         // return '\\color{green}{' + texSymbol + '}';
-        return '\\color{green}{' + node._toTex( options) + '}';
+        return '\\color{green}{' + node._toTex( options) + comment  + '}';
       }
       else 
         this.mathjserror = true;
         this.mathjswarning += " : undefined variable \'" + node.name + "\'";
-        return '\\color{red}{' + texSymbol + '}';
+        return '\\color{red}{' + texSymbol +  comment  + '}';
     }
     // Special handling for unmatched parenthesis, otherwise render normally
     else if(node.type === 'ParenthesisNode') {
@@ -271,7 +275,7 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 
   renderAsciiMath = (asciitext,ignore_undefined=false) => {
-      
+      var syntaxerror = false    
       var cursorComplete = false;
       var cursorPos = this.state.cursor;
       this.mathjserror =  (/(\/|\*|\+|-|\^)\W*$/).test(asciitext)
@@ -292,6 +296,11 @@ export default class QuestionDevLinearAlgebra extends Component {
       // parsed = braketify(parsed);
       // var delimitersFixed = fixDelimiters(parsed);*/ 
       var parsed = preParsed.out;
+      var reg = /(#|\$|&)/
+      if ( asciitext.match(reg )  ){
+          parsed = parsed.replace(reg,"\\color{red}{\\$1}" )
+          return {out: parsed, warnings: preParsed.warnings, syntaxerror:false}
+          }
 
       parsed = parsed.replace(/\)\.\(/g,")**(",parsed)
       try {
@@ -312,9 +321,10 @@ export default class QuestionDevLinearAlgebra extends Component {
         if(typeof mParsed === 'string' && mParsed !== 'undefined') {
           this.lastParsable = mParsed.replace(/\\\\end{bmatrix}/g,'end{bmatrix}'); // MathJS outputs an extra \\ which KaTeX interprets as a new line
         }
-        return {out: this.lastParsable, warnings: preParsed.warnings}
+        return {out: this.lastParsable, warnings: preParsed.warnings, syntaxerror:syntaxerror}
       }
       catch(e) {
+        var syntaxerror = true
         var redchar = ''
         var last = this.lastParsable 
         var outtex = parsed
@@ -328,8 +338,28 @@ export default class QuestionDevLinearAlgebra extends Component {
           console.log("REDCHAR = ", redchar)
           var outtex = parsed.replace(/fail\(\"(.)\"\)/,'{\\color{red}{$1} }')
           console.log("PARSED AGAIN", parsed )
+          syntaxerror = false
+        
           // var outtex = last +  "\\color{red}{ " + redchar + " }"
           }
+        else if ( RegExp('unclosed').test(parsed) ){
+          this.isUnclosed = false
+          var outtex = parsed.replace(/unclosed\(\).*/,'')
+          syntaxerror = false
+          }
+        var chardict = { '%' : '\\%','#': 'hash', '^': '\\hat{}' ,'"' : '\'\'','@' : '@','\\' : '\\backslash','?' : '?','$' : '\\$'}
+        for ( var cd in chardict ) {
+            if ( lastchar == cd ){
+              this.isUnclosed = false
+              var redchar = chardict[cd]
+              syntaxerror = false
+              var outtex = last +  "\\color{red}{ \\large{  " + redchar + "}}"
+              }
+            }
+        //if ( lastchar == '^' ) {
+        //    var redchar = '\\hat{}'
+        //    var outtex = last +  "\\color{red}{ \\large{  " + redchar + "}}"
+        //    }
         // if  lastchar == '(' :
         //else if ( RegExp('Parenthesis').test(String( e ) ) ) {
         //  console.log("PAREN ERROR")
@@ -337,9 +367,6 @@ export default class QuestionDevLinearAlgebra extends Component {
         //  outtex = last +  "\\color{red}{ \\mathrm{ \\small{  ~  Function ~ missing~ !~~   Vectors ~ use~  square~  brackets. }}}"
         //  //outtex = "\\color{red}{" + outtex+ "}"
         //  }
-        else if ( RegExp('unclosed').test(parsed) ){
-          var outtex = parsed.replace(/unclosed\(\).*/,'')
-          }
         // else if ( /\^/.test(parsed) ) {
         //  console.log("FOUND CARET")
         //  var redchar = '\\hat{}'
@@ -354,7 +381,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         //  }
         console.log("OUTTEX = ", outtex)
         this.mathjswarning = " : Unparsable  " + ( this.mathswarning ? this.mathjswarning :  '' )
-        return {out: outtex , warnings: preParsed.warnings, error: "MathJS parse/toTex error"}
+        return {out: outtex , warnings: preParsed.warnings, error: "MathJS parse/toTex error", syntaxerror: syntaxerror}
       }
   }
 
@@ -472,6 +499,7 @@ export default class QuestionDevLinearAlgebra extends Component {
   var renderedResult = this.renderAsciiMath(input);
   // console.log("renderedResult = ", renderedResult )
   var renderedMath = renderedResult.out;
+  var  syntaxerror = renderedResult.syntaxerror;
   var unchecked = '('+t('unchecked')+')';
   if(input === lastAnswer && lastAnswer !== '' && !error) {
    if( feedback ){
@@ -577,7 +605,7 @@ export default class QuestionDevLinearAlgebra extends Component {
             <a onClick={() => this.setMathSize('large')}>A</a>
           </div>
         </div>
-         { ! this.isUnclosed && renderedResult.error && <span className="uk-text-danger"> {t('check syntax') } </span> }
+         { syntaxerror && ! this.isUnclosed && renderedResult.error && <span className="uk-text-danger"> {t('check syntax') } </span> }
         { /*mathjsError*/ }
         { renderedResult.warnings.length > 0 && <Alert message={renderedResult.warnings.join(', ')} type="warning" key="renderWarning"/>}
       {this.props.isAuthor && ( <span className="uk-display-inline uk-button" > key={questionkey} </span>  ) }

@@ -312,12 +312,23 @@ def check_answer_structure( student_answer, correct , varsubs_sympify):
                 )
         #return response
     except ValueError as e:
+        illegalchars = ['$','%']
         explain = ''
+        msg = str(e)
+        illegalpresent = list( filter( lambda x: x in student_answer, illegalchars) )
         if "mismatched" in str(e) :
+            msg = ''
             explain = 'Probably missing mul(A,B) in matrix x matrix or matrix x vector'
+        elif "EOL" in str(e) :
+            msg = ''
+            explain = 'Probably a quote character in the expression'
+        
+        elif len( illegalpresent ) > 0 :
+            msg = ''
+            explain = 'illegal character: ' + ','.join( illegalpresent)
             
         response = dict(
-            error=_("%s \n %s %s" % (explain,  str(e), " Error 158" ) )
+            error=_("%s \n %s %s" % ("Error 158", explain,  msg ) )
                 )
     except Exception as e:
         response = dict(
