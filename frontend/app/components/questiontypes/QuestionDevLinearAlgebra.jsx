@@ -296,7 +296,6 @@ export default class QuestionLinearAlgebra extends Component {
   var hasChanged = input !== lastAnswer;
   var nonEmpty = input !== "";
   var renderedResult = this.renderAsciiMath(this.state.value);
-  // console.log("renderedResult = ", renderedResult )
   var renderedMath = renderedResult.out;
   var unchecked = '('+t('unchecked')+')';
   if(input === lastAnswer && lastAnswer !== '' && !error) {
