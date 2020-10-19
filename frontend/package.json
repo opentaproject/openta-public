@@ -24,7 +24,7 @@
     "base64-js": "^1.2.3",
     "classnames": "^2.2.5",
     "codemirror": "^5.18.2",
-    "dompurify": "^0.8.3",
+    "dompurify": "^2.1.1",
     "fabric": "^4.2.0",
     "immutable": "^3.8.1",
     "lodash": "^4.15.0",
@@ -46,7 +46,7 @@
   "devDependencies": {
     "auto-reload-brunch": "^2.7.0",
     "babel-brunch": "^6.0.0",
-    "babel-jest": "^18.0.0",
+    "babel-jest": "^26.6.0",
     "babel-plugin-module-resolver": "^2.2.0",
     "babel-plugin-transform-class-properties": "^6.10.2",
     "babel-polyfill": "^6.13.0",
@@ -57,8 +57,8 @@
     "css-brunch": "^2.0.0",
     "hmr-brunch": "^0.1.0",
     "javascript-brunch": "^2.0.0",
-    "jest": "^18.0.0",
-    "nightwatch": "^0.9.8",
+    "jest": "^26.6.0",
+    "nightwatch": "^1.4.3",
     "uglify-js-brunch": "^2.0.0"
   }
 }
