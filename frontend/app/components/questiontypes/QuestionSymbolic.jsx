@@ -80,7 +80,7 @@ export default class QuestionSymbolic extends Component {
     var lastAnswer = state.getIn(["answer"], ""); // Last saved answer in database, same format as passed to the submitFunction
     var correct = state.getIn(["response", "correct"], null) || state.getIn(["correct"], null); // Boolean indicating if the grader reported correct answer
     var correct = state.getIn(["response", "correct"], false) || state.getIn(["correct"], false); // Boolean indicating if the grader reported correct answer
-    var n_attempts = state.getIn(["response", "n_attempts"], question.getIn(["n_attempts"]));
+    var n_attempts = state.getIn(["response", "n_attempts"], question.getIn(["n_attempts"],0));
     var previous_answers = state.getIn(["response", "previous_answers"], question.getIn(["previous_answers"]));
     // override default true xml of feedback with options
     if (state.getIn(["correct"], null) == null) {

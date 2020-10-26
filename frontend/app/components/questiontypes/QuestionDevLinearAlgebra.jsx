@@ -242,7 +242,7 @@ export default class QuestionLinearAlgebra extends Component {
   // Custom state data
   //console.log(" ASTATE ", JSON.stringify( state ) );
   //console.log(" B QUESTION", JSON.stringify( question) );
-  var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts']) ) 
+  var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts'], 0 ) ) 
   var previous_answers = state.getIn(['response','previous_answers'] , question.getIn(['previous_answers']) );
   //console.log("feedback = ", feedback, typeof( feedback) )
   //console.log("correct = ", correct)
@@ -348,8 +348,8 @@ export default class QuestionLinearAlgebra extends Component {
   return (
         <div className="">
         <MathSpan>{questiontext}</MathSpan>
-		<span className="uk-text-small uk-text-primary">{availableVariables}</span>
-  	  <span className="uk-text-small uk-text-primary"> [  {feedback} {n_attempts } <T>attempts</T> ]  </span>
+		<div className="uk-text-small uk-text-primary">{availableVariables}</div>
+  	  <span className="uk-text-small uk-text-primary">  {feedback} {n_attempts } <T>attempts</T>  </span>
 
           <HelpLinearAlgebra/>
 	   <span data-uk-tooltip title={msg1}></span>
