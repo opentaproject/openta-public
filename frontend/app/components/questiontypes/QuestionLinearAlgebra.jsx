@@ -298,16 +298,16 @@ export default class QuestionLinearAlgebra extends Component {
   var renderedMath = renderedResult.out;
   if(input === lastAnswer && lastAnswer !== '' && !error) {
     if(correct) {
-      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(" is correct.")} type="success" key="input" hasMath={true}/>);
+      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(" is correct.")} type="success" key="input1" hasMath={true}/>);
     }
     else if(correct === null) {
-      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$ " + t("unchecked")} key="input" hasMath={true}/>);
+      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$ " + t("unchecked")} key="input2" hasMath={true}/>);
     }
     else {
-      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(" is not correct.")} type="warning" key="input" hasMath={true}/>);
+      graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(" is not correct.")} type="warning" key="input3" hasMath={true}/>);
     }
   } else if(input !== ''){
-    graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
+    graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input4"/>);
   }
   var mathSizeClass = 'large';
   var sizeActive = 'uk-text-bold';

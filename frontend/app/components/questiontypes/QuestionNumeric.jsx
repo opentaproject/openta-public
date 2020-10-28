@@ -432,14 +432,14 @@ arrayUnique = (array) =>  {
     if (input === lastAnswer && lastAnswer !== '' && !error) {
       if (feedback) {
         if (correct)
-          graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is correct.')} type="success" key="input" hasMath={true} />);
+          graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is correct.')} type="success" key="input1" hasMath={true} />);
         else
-          graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.')} type="warning" key="input" hasMath={true} />);
+          graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.')} type="warning" key="input2" hasMath={true} />);
       } else {
-        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + unchecked + t(comment, tdict)} type="text" key="input" hasMath={true} />);
+        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + unchecked + t(comment, tdict)} type="text" key="input3" hasMath={true} />);
       }
     } else if (input !== '') {
-      graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={renderedMath} key="input" />);
+      graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={renderedMath} key="input4" />);
     }
 
     var mathjsError = false;

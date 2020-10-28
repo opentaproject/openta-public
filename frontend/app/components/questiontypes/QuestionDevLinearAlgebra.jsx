@@ -301,36 +301,36 @@ export default class QuestionLinearAlgebra extends Component {
   if(input === lastAnswer && lastAnswer !== '' && !error) {
    if( feedback ){
     if(correct) {
-     //  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
+     //  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input0" hasMath={true}/>);
  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + 
-                t(' is correct.') + t(comment,tdict) } type="success" key="input" hasMath={true}/>);
+                t(' is correct.') + t(comment,tdict) } type="success" key="input1" hasMath={true}/>);
     if( n_attempts < 2 ){
             graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + 
-                t('CORRECT FIRST TIME!')  + t(comment,tdict) } type="success" key="input" hasMath={true}/>);
+                t('CORRECT FIRST TIME!')  + t(comment,tdict) } type="success" key="input2" hasMath={true}/>);
             }
             
     } 
     else if( correct === null ){
-              graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$ " + t("unchecked")} key="input" hasMath={true}/>);
+              graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$ " + t("unchecked")} key="input3" hasMath={true}/>);
         }
     else {
-      // graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
-    graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict) } type="warning" key="input" hasMath={true}/>);
+      // graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input4" hasMath={true}/>);
+    graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict) } type="warning" key="input5" hasMath={true}/>);
     if( n_attempts > 4  && ( n_attempts % 2 ) == 0 ){
-        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict)  + t(' STOP GUESSING!') } type="warning" key="input" hasMath={true}/>);
+        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict)  + t(' STOP GUESSING!') } type="warning" key="input6" hasMath={true}/>);
         
         }
             
        }
      } else {
-        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + unchecked + t(comment,tdict) } type="text" key="input" hasMath={true} /> );
+        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + unchecked + t(comment,tdict) } type="text" key="input7" hasMath={true} /> );
 
      
     }
 
 
   } else if(input !== ''){
-    graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
+    graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input8"/>);
   }
   var mathSizeClass = 'large';
   var sizeActive = 'uk-text-bold';

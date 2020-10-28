@@ -244,20 +244,20 @@ export default class QuestionMultipleChoice extends Component {
           {!pending && <i className="uk-icon uk-icon-send" />}
         </a>
         {feedback && correct && (
-          <Alert className="uk-margin-small-top uk-margin-small-bottom" type="success" key="input">
+          <Alert className="uk-margin-small-top uk-margin-small-bottom" type="success" key="input1">
             {" "}
             Correct! {carrot}{" "}
           </Alert>
         )}
         {!feedback &&
           (
-            <Alert className="uk-margin-small-top uk-margin-small-bottom" type="primary" key="input">
+            <Alert className="uk-margin-small-top uk-margin-small-bottom" type="primary" key="input2">
               {" "}
               {unchecked} {stick}{" "}
             </Alert>
           )}
         {feedback && n_attempts > 0 && !correct && (
-          <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input">
+          <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input3">
             {" "}
             Not correct {stick}{" "}
           </Alert>

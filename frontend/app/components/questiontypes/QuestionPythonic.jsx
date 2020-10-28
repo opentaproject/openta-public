@@ -116,7 +116,7 @@ export default class QuestionPythonic extends Component {
               className="uk-margin-small-top uk-margin-small-bottom"
               message={t("Correct") + t(comment, tdict)}
               type="success"
-              key="input"
+              key="input1"
             />
           );
           if (n_attempts < 2) {
@@ -125,7 +125,7 @@ export default class QuestionPythonic extends Component {
                 className="uk-margin-small-top uk-margin-small-bottom"
                 message={t("Correct first time!") + t(comment, tdict)}
                 type="success"
-                key="input"
+                key="input2"
               />
             );
           }
@@ -134,7 +134,7 @@ export default class QuestionPythonic extends Component {
             <Alert
               className="uk-margin-small-top uk-margin-small-bottom"
               message={t("Unchecked")}
-              key="input"
+              key="input3"
             />
           );
         } else {
@@ -143,7 +143,7 @@ export default class QuestionPythonic extends Component {
               className="uk-margin-small-top uk-margin-small-bottom"
               message={t("Not correct.") + t(comment, tdict)}
               type="warning"
-              key="input"
+              key="input4"
             />
           );
           if (n_attempts > 4 && n_attempts % 2 == 0) {
@@ -152,7 +152,7 @@ export default class QuestionPythonic extends Component {
                 className="uk-margin-small-top uk-margin-small-bottom"
                 message={t("Is not correct.") + t(comment, tdict)}
                 type="warning"
-                key="input"
+                key="input5"
               />
             );
           }
@@ -163,7 +163,7 @@ export default class QuestionPythonic extends Component {
             className="uk-margin-small-top uk-margin-small-bottom"
             message={unchecked + t(comment, tdict)}
             type="text"
-            key="input"
+            key="input6"
             hasMath={false}
           />
         );
