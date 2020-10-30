@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'import_export',
     'autotranslate',
     'translations',
+    'aggregation',
 ]
 
 #if not RUNNING_DEVSERVER :
