@@ -326,6 +326,9 @@ def check_answer_structure( student_answer, correct , varsubs_sympify):
         elif len( illegalpresent ) > 0 :
             msg = ''
             explain = 'illegal character: ' + ','.join( illegalpresent)
+        elif 'syntax' in str(e) :
+            msg = '' 
+            explain = 'unspecified syntax error'
             
         response = dict(
             error=_("%s \n %s %s" % ("Error 158", explain,  msg ) )

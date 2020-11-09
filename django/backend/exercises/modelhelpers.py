@@ -61,10 +61,8 @@ def e_student_activity(exercise):
     (cache, cachekey) = get_cache_and_key(
         'e_student_activity:', coursePk=coursePk, exercise_key=exercise.exercise_key
     )
-    print("E_STUDENT_ACTIVITY; CACHE INQUIRY")
     if cache.has_key(cachekey):
         return cache.get(cachekey)
-    print("E_STUDENT_ACTIVITY; CACHE EXPIRED")
     t1h = timezone.now() - datetime.timedelta(hours=1)
     t24h = timezone.now() - datetime.timedelta(hours=24)
     t1w = timezone.now() - datetime.timedelta(days=7)

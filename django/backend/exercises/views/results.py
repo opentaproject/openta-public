@@ -68,7 +68,10 @@ def _get_recent_results( exercise):
             dbuser = User.objects.get(pk=user)
             answers = Answer.objects.filter(user__pk=user, question=question).order_by('-date')
             n_answers = answers.count()
-            sanswers = AnswerSerializer(answers[:10], many=True)
+            if question.type == 'textbased' :
+                sanswers = AnswerSerializer(answers[:1], many=True)
+            else :
+                sanswers = AnswerSerializer(answers[:10], many=True)
             unique = [next(x, None) for k, x in groupby(sanswers.data, lambda item: item['answer'])]
             results[question.question_key].append(
                 dict(pk=user, username=dbuser.username, answers=unique[:5], n_answers=n_answers)

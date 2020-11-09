@@ -209,6 +209,7 @@ EXERCISES_PATH = '../../exercises'
 REFRESH_SEED_ON_CORRECT_ANSWER = False
 DO_CACHE = True
 SAFE_RUN_TIMEOUT = 6
+USE_NOREPLY_IN_AUDIT_EMAILS = False
 
 BIN_LENGTH = 300  # 5 minutes binning  size in activity
 CHECK_AGGREGATIONS = False

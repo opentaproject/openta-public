@@ -195,9 +195,10 @@ def linear_algebra_compare_expressions(
     #print("VARSUBS_SYMPIFY = ", varsubs_sympify)
     compare_hash = get_hash_from_string( " %s %s %s %s %s %s %s %s %s " % ( str(precision), str(variables), str(student_answer), 
             str(correct), str(check_units), str(used_variables), str(blacklist), str(funcsubs)   , __file__ ) )
-    #ret = djangocache.cache.get(compare_hash)
-    #if not ret == None  and not validate_definitions:
-    #        return ret
+    ret = djangocache.cache.get(compare_hash)
+    if not ret == None  and not validate_definitions:
+            return ret
+    #print("RECALCULATE COMPARE EXPRESSIONS")
     if not validate_definitions and not settings.RUNTESTS :
         response = check_for_undefined_variables_and_functions( student_answer, used_variables ) 
         if response :
@@ -228,6 +229,7 @@ def linear_algebra_compare_expressions(
         lhs = prelhs.doit()
         prerhs = sympify_with_custom( correct, varsubs_sympify, {}, 'linear_algebra_compare_expressions-3' )
         rhs = prerhs.doit()
+        
     except Exception as e:
         if '@' in str(e):
             explanation = "The character @ appears in author expression; check for macros with missing semicolon separator or missing :=  in macro definition"
@@ -240,11 +242,11 @@ def linear_algebra_compare_expressions(
 
     ret = linear_algebra_check_equality( precision, lhs, rhs, sample_variables, check_units=check_units,blacklist=blacklist)
     ret['maxerror'] = str( ret.get('maxerror','X') )
-    try:
-        ret['mathematica'] = "Math Expression: {%s , %s }" % (  mathematica_form(student_answer), mathematica_form( correct_answer) )
-    except:
-        ret['mathematica' ] = "Cannot parse mathematica: [%s,%s]" % ( student_answer, correct_answer)
-    #djangocache.cache.set(compare_hash, ret , 600 )
+    #try:
+    #    ret['mathematica'] = "Math Expression: {%s , %s }" % (  mathematica_form(student_answer), mathematica_form( correct_answer) )
+    #except:
+    #    ret['mathematica' ] = "Cannot parse mathematica: [%s,%s]" % ( student_answer, correct_answer)
+    djangocache.cache.set(compare_hash, ret , 600 )
     return ret
 
 
@@ -287,13 +289,20 @@ base_module = [
 
 
 
+kseed = 5
 
 def dorand(xt) :
     global kseed
-    x = list(xt)
+    if len( xt ) > 1 :
+        x = list(xt[1:len(xt) ])
+        xseed = xt[0]
+    else :
+        x = xt
+        xseed = 1
     s = 0
-    #print(" DORAND x = ", type(x), x )
-    random.seed(kseed)
+    # THE SEED IS GUARANTEED UNIQUE FOR EACH SAMPLE DEFINITION
+    # BUT VARIES FROM ONE SAMPLING TO THE NEXT
+    random.seed( kseed * xseed ) 
     i = 0.0
     for value in list(x) :
         #print("VALUE = ", type(value) , value)
@@ -310,13 +319,11 @@ def dorand(xt) :
 
 sample_project= [
     {
-    'sample' : lambda *x: x[0] ,
+    'sample' : lambda *x: x[-1] ,
     }, 
     "sympy"
 ]
 
-
-kseed = 5
 
 
 def sigfig(x) :
@@ -360,7 +367,7 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
         dprint("DO SAMPLE")
         miss = 0
         nsamples = 5
-        if not 'sample' in str( rhs ) :
+        if not 'sample' in str( rhs )  + str(lhs) :
             nsamples = 1
         maxerror = 0
         maxaerror = 0
@@ -406,8 +413,9 @@ def linear_algebra_check_equality(precision, lhs, rhs, sample_variables, check_u
                 if numpy.any( numpy.abs( diff ) > accuracy ) :
                     miss = miss + 1 
             except Exception as e:
-                print("MISS WITH ERROR %s %s %s" % ( type(e) , str(e),   traceback.format_exc()) )
                 miss = miss + 1
+            print("MAXERROR = ", maxerror)
+            print("MAXDIFF = ", maxdiff )
             maxerror = max( maxerror, maxdiff)
             maxaerror = max( maxaerror, maxadiff)
         response['debug'] = " Sampling: %s of %s are ok; maxerror = %s " % ( str( nsamples - miss), str(nsamples), str( maxerror )  )

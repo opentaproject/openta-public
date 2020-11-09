@@ -49,6 +49,8 @@ class CourseListTest(OpenTAStaticLiveServerTestCase):
         username.send_keys("student1")
         password.send_keys('pw')
         login.click()
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'OpenHeader')))
+        sel.find_element_by_class_name('OpenHeader').click()
         wait.until(EC.text_to_be_present_in_element((By.ID, 'app'), "student"))
         assert "student" in sel.page_source
 

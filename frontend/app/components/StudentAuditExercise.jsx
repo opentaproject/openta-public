@@ -7,7 +7,7 @@ import {
 import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
 import Exercise from './Exercise.jsx';
-import MathSpan from './MathSpan.jsx';
+import KatexSpan from './KatexSpan.jsx';
 import ImageCollection from './ImageCollection.jsx';
 
 import immutable from 'immutable';
@@ -37,19 +37,17 @@ const BaseStudentAuditExercise = ({userResults, pendingResults, exerciseState, a
   var answers = userResults.getIn(['exercises', activeExercise, 'questions'], immutable.Map({}))//{{{
       .map( (q, key) => (
             <div className="uk-display-inline-block uk-margin-right" key={key}>
-              <table className="uk-table uk-table-condensed">
+              <table className="uk-table">
                 <thead>
                   <tr>
-                    <th style={{maxWidth: '300px'}}><MathSpan message={getQuestionText(key)}/></th>
+                    <th ><KatexSpan message={getQuestionText(key)}/></th>
                   </tr>
                 </thead>
                 <tbody>
                       {q.get('answers').map( a => (
                         <tr key={a.get('date')}>
                           <td className={a.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'} title={moment(a.get('date')).format('YYYY-MM-DD HH:mm') + ': ' + a.get('answer')} data-uk-tooltip>
-                            <MathSpan>
-                              {renderExpression(a.get('answer'))}
-                            </MathSpan>
+                            <KatexSpan message={renderExpression(a.get('answer'))} />
                           </td>
                         </tr>
                       ))}

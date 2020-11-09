@@ -39,7 +39,7 @@ LOGGER.setLevel(logging.WARNING)
 EXERCISE_CODE = """
 
 <exercise>
-    <exercisename key="27">DevLinearAlgebraTest </exercisename>
+    <exercisename>DevLinearAlgebraTest </exercisename>
     <global> a = 1;  b = 2;  c = 9 ; 
     <var><token>a</token><tex>A</tex></var> 
     </global>

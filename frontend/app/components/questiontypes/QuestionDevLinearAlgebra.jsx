@@ -95,7 +95,6 @@ export default class QuestionDevLinearAlgebra extends Component {
 
 
   customLatex = (node, options) => {
-    console.log("TYPE =", node.type , node)
     if( node.op == '\''){
       //console.log("QUOTE OPERATOR NODE")
       if ( node.type === 'OperatorNode' ) {
@@ -217,8 +216,10 @@ export default class QuestionDevLinearAlgebra extends Component {
           node.args[0].traverse( (node, path, parent) => {
             if(node.type === 'FunctionNode' && node.name === 'unclosed')
               this.isUnclosed = true;
+              // console.log("UNCLOSED2 ")
           });
           if(this.isUnclosed) {
+            // console.log("UNCLOSED3")
             this.mathjswarning += " : unclosed parenthesis of operator ";
             this.mathjserror = true;
             return '\\color{red}{\\left(\\large{\\color{#0f0}{\\underline{\\color{#2d7091}{' + node.args[0].content.toTex(options) + '}}}}\\right.}';
@@ -273,6 +274,13 @@ export default class QuestionDevLinearAlgebra extends Component {
   }
 
 
+  isBalanced = ([...str])  => {return str.reduce((uptoPrevChar, thisChar) => {
+    ((thisChar === '(' && uptoPrevChar++ || thisChar === ')' && uptoPrevChar--)) &&
+    ((thisChar === '{' && uptoPrevChar++ || thisChar === '}' && uptoPrevChar--)) &&
+    ((thisChar === '[' && uptoPrevChar++ || thisChar === ']' && uptoPrevChar--));
+
+    return uptoPrevChar;
+}, 0) === 0 }
 
   renderAsciiMath = (asciitext,ignore_undefined=false) => {
       var syntaxerror = false    
@@ -284,7 +292,6 @@ export default class QuestionDevLinearAlgebra extends Component {
            this.mathjserror = true;
            this.mathjswarning += " : interior dangling caret"
         }
-
       if(cursorPos > asciitext.length)cursorPos = asciitext.length;
       var preParsed = asciiMathToMathJS(insertCursor(asciitext, cursorPos));
       if ( preParsed.warnings  ){
@@ -328,16 +335,14 @@ export default class QuestionDevLinearAlgebra extends Component {
         var redchar = ''
         var last = this.lastParsable 
         var outtex = parsed
-        console.log("e = ", e )
-        console.log("parsed = ", parsed)
-        console.log("last = ", last )
+        // console.log("e = ", e )
+        // console.log("parsed = ", parsed)
+        // console.log("last = ", last )
         var lastchar = parsed.charAt( parsed.length - 2 ) 
-        console.log("LASTCHAR = ", lastchar)
+        // console.log("LASTCHAR = ", lastchar)
         if ( RegExp('fail').test(parsed) ){
           var redchar = parsed.match(/fail\(\"(.)\"\)/)[1]
-          console.log("REDCHAR = ", redchar)
           var outtex = parsed.replace(/fail\(\"(.)\"\)/,'{\\color{red}{$1} }')
-          console.log("PARSED AGAIN", parsed )
           syntaxerror = false
         
           // var outtex = last +  "\\color{red}{ " + redchar + " }"
@@ -379,7 +384,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         //    outtex = parsed
         //    }
         //  }
-        console.log("OUTTEX = ", outtex)
+       //  console.log("OUTTEX = ", outtex)
         this.mathjswarning = " : Unparsable  " + ( this.mathswarning ? this.mathjswarning :  '' )
         return {out: outtex , warnings: preParsed.warnings, error: "MathJS parse/toTex error", syntaxerror: syntaxerror}
       }
@@ -413,10 +418,16 @@ export default class QuestionDevLinearAlgebra extends Component {
   //var correct = state.getIn(['response','correct'], Null) || state.getIn(['correct'], Null); // Boolean indicating if the grader reported correct answer
  var correct = state.getIn(['response','correct'], null ) || state.getIn(['correct'], null ); // Boolean indicating if the grader reported correct answer
  var correct = state.getIn(['response','correct'], false) || state.getIn(['correct'], false); // Boolean indicating if the grader reported correct answer
+  // console.log("correct = ", correct );
+  //console.log("state = ", state)
+  //console.log("question = ", question)
+  // Custom state data
+  //console.log(" ASTATE ", JSON.stringify( state ) );
+  //console.log(" B QUESTION", JSON.stringify( question) );
+  var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts'], 0 ) ) 
   //console.log("CORRECT = ", correct )
   //console.log("STATE RESPONSE",  state.getIn(['response','correct'], 'NOTHING IN RESPONSE) )
   //console.log("STATE CORRECT ",    state.getIn(['correct'], "NOTING IN CORRECT") )
-  var n_attempts = state.getIn(['response','n_attempts'] , question.getIn(['n_attempts']) ) 
   var used_variable_list =   state.getIn(['response','used_variable_list'] , question.getIn(['used_variable_list']) ) 
   // console.log("STATE", JSON.stringify( state.getIn(['response','used_variable_list'] ) ) )
   // console.log("RESPONSE",  JSON.stringify( question.getIn(['used_variable_list']) )  )
@@ -504,36 +515,36 @@ export default class QuestionDevLinearAlgebra extends Component {
   if(input === lastAnswer && lastAnswer !== '' && !error) {
    if( feedback ){
     if(correct) {
-     //  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input" hasMath={true}/>);
+     //  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är korrekt."} type="success" key="input0" hasMath={true}/>);
  graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + 
-                t(' is correct.') + t(comment,tdict) } type="success" key="input" hasMath={true}/>);
+                t(' is correct.') + t(comment,tdict) } type="success" key="input1" hasMath={true}/>);
     if( n_attempts < 2 ){
             graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + 
-                t('CORRECT FIRST TIME!')  + t(comment,tdict) } type="success" key="input" hasMath={true}/>);
+                t('CORRECT FIRST TIME!')  + t(comment,tdict) } type="success" key="input2" hasMath={true}/>);
             }
             
     } 
     else if( correct === null ){
-              graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$ " + t("unchecked")} key="input" hasMath={true}/>);
+              graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$ " + t("unchecked")} key="input3" hasMath={true}/>);
         }
     else {
-      // graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input" hasMath={true}/>);
-    graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict) } type="warning" key="input" hasMath={true}/>);
+      // graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + " är inte korrekt."} type="warning" key="input4" hasMath={true}/>);
+    graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict) } type="warning" key="input5" hasMath={true}/>);
     if( n_attempts > 4  && ( n_attempts % 2 ) == 0 ){
-        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict)  + t(' STOP GUESSING!') } type="warning" key="input" hasMath={true}/>);
+        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.') + t(comment,tdict)  + t(' STOP GUESSING!') } type="warning" key="input6" hasMath={true}/>);
         
         }
             
        }
      } else {
-        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + unchecked + t(comment,tdict) } type="text" key="input" hasMath={true} /> );
+        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$"  + unchecked + t(comment,tdict) } type="text" key="input7" hasMath={true} /> );
 
      
     }
 
 
   } else if(input !== ''){
-    graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input"/>);
+    graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={ renderedMath } key="input8"/>);
   }
   var mathSizeClass = 'large';
   var sizeActive = 'uk-text-bold';
@@ -551,12 +562,18 @@ export default class QuestionDevLinearAlgebra extends Component {
   var questionkey = question.getIn(['@attr','key'])
   // console.log("mathjserror = ", this.mathjserror)
   // console.log("hasChanged = ",  hasChanged )
-  var msg = ''
+  var is_balanced = this.isBalanced( input )
+  if ( is_balanced ) {
+    var msg = ''
+    }
+  else {
+    var msg = "unbalanced paren"
+    }
   if( renderedResult.error ){
         this.mathjswarning = " : Unparsable " + this.mathjswarning;
         this.mathjserror = true;
         }
-  if( hasChanged  ) {
+  if( hasChanged  && is_balanced ) {
         msg = this.mathjserror ? this.mathjswarning :  'Syntax OK'
     }
   var showinstructions = ( input == '' )
@@ -566,8 +583,7 @@ export default class QuestionDevLinearAlgebra extends Component {
         <MathSpan> {questiontext}</MathSpan>
 		<span className="uk-text-small uk-text-primary">{availableVariables}</span>
   	  <span className="uk-text-small uk-text-primary"> [  {feedback} {n_attempts } <T>attempts</T> ]  </span>
-          { ! showinstructions && <HelpDevLinearAlgebra msg={msg}/>  }
-          {  showinstructions &&  <HelpDevLinearAlgebra /> }
+           <HelpDevLinearAlgebra msg={msg}/>  
 	   <span data-uk-tooltip title={msg1}></span>
 { hasChanged && lastAnswer !== '' && (<Badge message={t('previous') + '  '  + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"/>)}
           {this.props.isAuthor && ( <span className="uk-display-inline uk-button" > key={questionkey} </span>  ) }

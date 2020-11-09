@@ -1,16 +1,18 @@
 """Production settings."""
 
-from backend.settings_base import *
+from backend.settings_lti import *
 
 SECRET_KEY = '$$uo0799i74g3oci-wy4_31mmly-nhlzj+qwi@cgr!@ynqmv=('
 
-CSRF_COOKIE_SECURE = False
-SESSION_COOKIE_SECURE = False
-DEBUG = False
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+DEBUG = True
+APPEND_SLASH = True
 
 ALLOWED_HOSTS = ['*']
+# USE_X_FORWARDED_HOST = True
 
-EMAIL_HOST = 'localhost'
+EMAIL_HOST = 'smtp.gu.se'
 EMAIL_PORT = 25
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -22,7 +24,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # USE_CUSTOM_SMTP_EMAIL = True
 
 # Redis information
-RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 0, 'DEFAULT_TIMEOUT': 360}}
+RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 0, 'DEFAULT_TIMEOUT': 20 * 60 }}
 
 DATABASES = {
     'default': {
@@ -51,3 +53,6 @@ if _subpath is not None:
 
     CSRF_COOKIE_NAME = 'csrftoken' + _subpath
     SESSION_COOKIE_NAME = 'sessionid' + _subpath
+
+# Fix same-site cookie
+MIDDLEWARE.insert(0, 'backend.middleware.SameSiteMiddleware')

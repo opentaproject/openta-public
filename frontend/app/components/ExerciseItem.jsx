@@ -151,7 +151,6 @@ const BaseExerciseItem = ({ onExerciseClick, exercise, exerciseState, metaImmuta
   var audit_passed = ! exerciseState.getIn([exercise, "response_awaits"], true)
   var answer_deltat = exerciseState.getIn([exercise, "answer_deltat"], null)
   var points = exerciseState.getIn([exercise, "points"], null)
-  console.log("points = ", points)
   var exercisename = folder.getIn(["exercises", exercise, "name"])
   if (displaystyle == "detail"){
     var name=exerciseState.getIn([exercise,"name"],'NONAME')

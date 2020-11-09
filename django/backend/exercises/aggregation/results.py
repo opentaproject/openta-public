@@ -95,7 +95,6 @@ def calculate_students_custom_results(dbexercises, task=None, course=None):
     return results
 
 
-
 def calculate_students_results(task=None, course=None):
     students = (
         User.objects.filter(groups__name='Student', opentauser__courses=course)

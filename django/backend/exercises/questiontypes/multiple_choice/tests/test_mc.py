@@ -71,6 +71,9 @@ class MCTest(OpenTAStaticLiveServerTestCase):
         input_username.send_keys(username)
         input_password.send_keys(pw)
         login.click()
+        wait.until(EC.presence_of_element_located((By.CLASS_NAME, 'OpenHeader')))
+        print("NOW WAIT FOR APP TEST_STUDENT.PY TO COME UP")
+        sel.find_element_by_class_name('OpenHeader').click()
         wait.until(EC.text_to_be_present_in_element((By.ID, 'app'), assert_role))
         assert assert_role in sel.page_source
 
@@ -84,9 +87,11 @@ class MCTest(OpenTAStaticLiveServerTestCase):
 
     def first_exercise(self):
         sel = self.selenium
-        wait = WebDriverWait(sel, 2)
+        wait = WebDriverWait(sel, 2000)
         exercises = sel.find_elements_by_css_selector('li.course-exercise-item')
         exercise = exercises[0]
+        print("EXERCISE = ", exercise)
+        #wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'forever')))
         exercise.click()
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'h1.uk-article-title')))
 

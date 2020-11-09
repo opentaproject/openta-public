@@ -3,18 +3,26 @@
  * It consists of a React component (see documentation on github for more details).
  */
 "use strict"; // It is recommended to use strict javascript for easier debugging
-import React, { Component } from "react"; // React specific import
+import React, { Component  } from "react"; // React specific import
+import ReactDOMServer from 'react-dom/server';
 import PropTypes from "prop-types";
 
 import { registerQuestionType } from "./question_type_dispatch.js"; // Register function used at the bottom of this file to let the system know of the question type
+import CKEditor from '@ckeditor/ckeditor5-react';
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
+import TextareaEditor from '../TextareaEditor.jsx'
+import XMLEditor from '../XMLEditor.jsx'
+import MathSpan from '../MathSpan.jsx'
+import BaseExercise from '../Exercise.jsx'
+
 import Alert from "../Alert.jsx"; // Another component useful for showing alerts in the form of colored boxes. See below for examples.
 import Badge from "../Badge.jsx"; // Another component useful for showing badges in the form of small colored boxes. See below for examples.
-import HelpPythonic from "./HelpPythonic.jsx";
+import HelpTextbased from "./HelpTextbased.jsx";
 import T from "../Translation.jsx";
 import t from "../../translations.js";
 import { throttle } from "lodash";
 
-export default class QuestionPythonic extends Component {
+export default class QuestionTextbased extends Component {
   static propTypes = {
     questionData: PropTypes.object, // Data from exercise XML file, i.e. whats inside the <question> tag
     questionState: PropTypes.object, // Current question state together with response data from server
@@ -32,16 +40,23 @@ export default class QuestionPythonic extends Component {
       cursor: 0
     };
     this.lastParsable = "";
-    if (this.props.canViewSolution)
-      this.state.value = this.props.questionData
-        .getIn(["expression", "$"], "")
-        .replace(/;/g, "")
-        .trim();
+    //if (this.props.canViewSolution)
+    //  this.state.value = this.props.questionData
+    //    .getIn(["expression", "$"], "")
+    //    .replace(/;/g, "")
+    //    .trim();
   }
 
-  handleChange = event => {
+  handleChange = ( event )  => {
     this.setState({ value: event.target.value });
   };
+
+  
+
+  handleCKChange =  ( event, editor ) => {
+                        const data = editor.getData();
+                        this.setState({ value: data});
+                     }
 
   updateCursor = throttle(pos => {
     this.setState({ cursor: pos });
@@ -56,6 +71,16 @@ export default class QuestionPythonic extends Component {
   };
 
   componentWillReceiveProps = newProps => {};
+
+  valueUpdate = (value) => {
+    this.setState({value: value});
+  }
+
+
+createMarkup = (value) =>  {
+  return {__html: value};
+}
+
 
   /* render gets called every time the question is shown on screen */
   render() {
@@ -79,16 +104,12 @@ export default class QuestionPythonic extends Component {
     // System state data
     var lastAnswer = state.getIn(["answer"], ""); // Last saved answer in database, same format as passed to the submitFunction
     var correct = state.getIn(["response", "correct"], null) || state.getIn(["correct"], null); // Boolean indicating if the grader reported correct answer
-    var correct = state.getIn(["response", "correct"], false) || state.getIn(["correct"], false); // Boolean indicating if the grader reported correct answer
+    //var correct = state.getIn(["response", "correct"], false) || state.getIn(["correct"], false); // Boolean indicating if the grader reported correct answer
     var n_attempts = state.getIn(["response", "n_attempts"], question.getIn(["n_attempts"],0));
     var previous_answers = state.getIn(["response", "previous_answers"], question.getIn(["previous_answers"]));
+    var editor_type = state.getIn(["response", "editor"], question.getIn(["editor"],'default'));
     // override default true xml of feedback with options
-    if (state.getIn(["correct"], null) == null) {
-      var feedback = false;
-    } else {
-      var feedback = true;
-    }
-
+    var feedback = false
     var error = state.getIn(["response", "error"]); // Custom field containing error information
     var author_error = state.getIn(["response", "author_error"]); // Custom field containing error information
     var warning = state.getIn(["response", "warning"]); // Custom field containing error information
@@ -116,7 +137,7 @@ export default class QuestionPythonic extends Component {
               className="uk-margin-small-top uk-margin-small-bottom"
               message={t("Correct") + t(comment, tdict)}
               type="success"
-              key="input"
+              key="input1"
             />
           );
           if (n_attempts < 2) {
@@ -125,7 +146,7 @@ export default class QuestionPythonic extends Component {
                 className="uk-margin-small-top uk-margin-small-bottom"
                 message={t("Correct first time!") + t(comment, tdict)}
                 type="success"
-                key="input"
+                key="input2"
               />
             );
           }
@@ -134,7 +155,7 @@ export default class QuestionPythonic extends Component {
             <Alert
               className="uk-margin-small-top uk-margin-small-bottom"
               message={t("Unchecked")}
-              key="input"
+              key="input3"
             />
           );
         } else {
@@ -143,7 +164,7 @@ export default class QuestionPythonic extends Component {
               className="uk-margin-small-top uk-margin-small-bottom"
               message={t("Not correct.") + t(comment, tdict)}
               type="warning"
-              key="input"
+              key="input4"
             />
           );
           if (n_attempts > 4 && n_attempts % 2 == 0) {
@@ -152,7 +173,7 @@ export default class QuestionPythonic extends Component {
                 className="uk-margin-small-top uk-margin-small-bottom"
                 message={t("Is not correct.") + t(comment, tdict)}
                 type="warning"
-                key="input"
+                key="input5"
               />
             );
           }
@@ -163,7 +184,7 @@ export default class QuestionPythonic extends Component {
             className="uk-margin-small-top uk-margin-small-bottom"
             message={unchecked + t(comment, tdict)}
             type="text"
-            key="input"
+            key="input6"
             hasMath={false}
           />
         );
@@ -172,7 +193,7 @@ export default class QuestionPythonic extends Component {
     var itemjson = question.getIn(["text"], undefined);
     var questiontext = this.props.renderText(itemjson)
     var questionkey = question.getIn(['@attr', 'key']);
-    var msg1 = "QuestionType QuestionPythonic";
+    var msg1 = "QuestionType QuestionTextbased";
     return (
       <div className="">
         {questiontext}
@@ -181,7 +202,7 @@ export default class QuestionPythonic extends Component {
           [ {feedback} {n_attempts} <T>attempts</T> ]{" "}
         </span>
 
-        <HelpPythonic />
+        <HelpTextbased />
         <span data-uk-tooltip title={msg1} />
         {hasChanged && lastAnswer !== "" && (
           <Badge
@@ -190,9 +211,11 @@ export default class QuestionPythonic extends Component {
             className="uk-text-small uk-margin-small-left uk-margin-bottom-remove"
           />
         )}
-        <div className="uk-grid uk-grid-small">
+        <div className="uk-grid uk-width-1-1">
+
+        { editor_type == 'code'  && ( 
           <div className="uk-width-5-6">
-            {answerbox && (
+             <XMLEditor suppresstools={true} xmlCode={this.state.value} onChange={ (editor, data, value) => this.valueUpdate(value)}/>
               <div className="uk-width-1-1">
                 <textarea
                   id={questionkey}
@@ -202,9 +225,48 @@ export default class QuestionPythonic extends Component {
                   onChange={this.handleChange}
                 />
               </div>
-            )}
           </div>
-      { !this.props.locked && (
+        ) }
+
+
+
+        {  editor_type == 'html'  && (
+          <div className="uk-width-5-6">
+             <CKEditor
+                    editor={ ClassicEditor }
+                    data={input}
+                    onChange={ this.handleCKChange }
+                />
+
+            {/* <div dangerouslySetInnerHTML={this.createMarkup(input) }   />  */}
+          
+              <div className="uk-hidden uk-width-1-1" >
+                <textarea
+                  id={questionkey}
+                  className={"uk-width-1-1 "}
+                  value={this.state.value}
+                  onSelect={this.handleSelect}
+                  onChange={this.handleChange}
+                />
+              </div>
+          </div>
+        ) }
+        { 'default' == editor_type && ( 
+          <div className="uk-width-5-6">
+            <TextareaEditor suppresstools={true} value={this.state.value} onChange={ (value) => this.valueUpdate(value)}/>
+              <div className="uk-width-1-1 uk-hidden">
+                <textarea
+                  id={questionkey}
+                  className={"uk-width-1-1"}
+                  value={this.state.value}
+                  onSelect={this.handleSelect}
+                  onChange={this.handleChange}
+                />
+              </div>
+          </div>
+        ) }
+
+
           <div className="uk-width-1-6">
             <a
               onClick={event => submit(input)}
@@ -217,7 +279,6 @@ export default class QuestionPythonic extends Component {
               {!pending && <i className="uk-icon uk-icon-send" />}
             </a>
           </div>
-        )}
         </div>
         {error && !hasChanged && <Alert message={error} type="error" key="err" />}
         {author_error && this.props.isAuthor && <Alert message={author_error} type="error" key="author_error" />}
@@ -232,5 +293,4 @@ export default class QuestionPythonic extends Component {
 }
 
 //Register the question component with the system
-registerQuestionType("pythonic", QuestionPythonic);
-registerQuestionType("demo", QuestionPythonic);
+registerQuestionType("textbased", QuestionTextbased);

@@ -38,9 +38,9 @@ export default class Image extends Component {
     this.canvas.backgroundColor = 'rgba(0,0,0, 0.2)';
     fabric.Image.fromURL(this.props.src, oImg => {
       oImg.scaleToWidth(this.canvas.getWidth());
-      var tmpScale = oImg.getScaleX();
+      var tmpScale = oImg.getScaleX;
       oImg.scaleToHeight(this.canvas.getHeight());
-      if(tmpScale < oImg.getScaleX())
+      if(tmpScale < oImg.getScaleX)
         oImg.scaleToWidth(this.canvas.getWidth());
       this.canvas.add(oImg);
       this.canvas.centerObject(oImg);
@@ -52,9 +52,9 @@ export default class Image extends Component {
       this.canvas.clear();
       fabric.Image.fromURL(this.props.src, oImg => {
         oImg.scaleToWidth(this.canvas.getWidth());
-        var tmpScale = oImg.getScaleX();
+        var tmpScale = oImg.getScaleX;
         oImg.scaleToHeight(this.canvas.getHeight());
-        if(tmpScale < oImg.getScaleX())
+        if(tmpScale < oImg.getScaleX)
           oImg.scaleToWidth(this.canvas.getWidth());
         this.state.scale = 1;
         this.state.angle = 0;
@@ -65,9 +65,9 @@ export default class Image extends Component {
       if(this.canvas.item(0)) {
         var image = this.canvas.item(0);
         var center = new fabric.Point(this.canvas.getWidth() / 2, this.canvas.getHeight() /2);
-        image.setAngle(this.state.angle);
+        image.rotate(this.state.angle);
         this.canvas.zoomToPoint(center, this.state.scale);
-        this.canvas.renderAll();
+        this.canvas.requestRenderAll();
       }
     }
   }

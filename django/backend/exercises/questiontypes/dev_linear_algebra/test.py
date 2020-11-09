@@ -30,7 +30,7 @@ class DevLinearAlgebraTest(TestCase):
         variables = [
             {'name': 'x', 'value': '2'},
             {'name': 'y', 'value': '2 kg'},
-            {'name': 'z', 'value': 'sample(3)'},
+            {'name': 'z', 'value': 'sample(.79342, 3)'},
         ]
         res = linear_algebra_compare_expressions(
             precision, variables, 'x*y*z*(1/(1+z)+z/(1+z))+1-sqrt(1)', 'x*y*z'
@@ -40,7 +40,7 @@ class DevLinearAlgebraTest(TestCase):
     def test_vector(self):
         precision = 1e-6
         variables = [
-            {'name': 'a', 'value': 'sample(2)'},
+            {'name': 'a', 'value': 'sample(.79342, 2)'},
             {'name': 'v1', 'value': '[1,1,0]'},
             {'name': 'v2', 'value': '[0,1,0]'},
             {'name': 'v3', 'value': '[0,0,1]'},

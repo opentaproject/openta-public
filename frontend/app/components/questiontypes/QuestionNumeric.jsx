@@ -23,6 +23,9 @@ import { throttle } from 'lodash'
 import { parseBlacklist, uniquecat, parseVariableString , parseVariables , AvailableVariables} from './mathexpressionparser.js';
 import {units} from './units.js';
 
+var unstableKey = 0;
+const nextUnstableKey = () => unstableKey++;
+
 
 
 //Returns a new string where the character at pos in str is replaced with newstring
@@ -432,14 +435,14 @@ arrayUnique = (array) =>  {
     if (input === lastAnswer && lastAnswer !== '' && !error) {
       if (feedback) {
         if (correct)
-          graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is correct.')} type="success" key="input" hasMath={true} />);
+          graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is correct.')} type="success" key="input1" hasMath={true} />);
         else
-          graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.')} type="warning" key="input" hasMath={true} />);
+          graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + t(' is not correct.')} type="warning" key="input2" hasMath={true} />);
       } else {
-        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + unchecked + t(comment, tdict)} type="text" key="input" hasMath={true} />);
+        graderResponse = (<Alert className="uk-margin-small-top uk-margin-small-bottom" message={"$" + renderedMath + "$" + unchecked + t(comment, tdict)} type="text" key="input3" hasMath={true} />);
       }
     } else if (input !== '') {
-      graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={renderedMath} key="input" />);
+      graderResponse = (<SafeMathAlert className="uk-margin-small-top uk-margin-small-bottom" message={renderedMath} key="input4" />);
     }
 
     var mathjsError = false;
@@ -464,7 +467,7 @@ arrayUnique = (array) =>  {
     }
     return (
       <div className="">
-        <label className="uk-form-row uk-display-inline-block">{this.props.renderText(question.getIn(['text']))} <span className="uk-text-small uk-text-primary">  {availableVariables} <T>NUMERICAL</T> {precision}</span><HelpNumeric /></label>
+        <label key={nextUnstableKey()} className="uk-form-row uk-display-inline-block">{this.props.renderText(question.getIn(['text']))} <span className="uk-text-small uk-text-primary">  {availableVariables} <T>NUMERICAL</T> {precision}</span><HelpNumeric /></label>
         {hasChanged && lastAnswer !== '' && (<Badge message={t('previous') + lastAnswer} hasMath={false} className="uk-text-small uk-margin-small-left uk-margin-bottom-remove" />)}
         <div className="uk-grid uk-grid-small">
           <div className="uk-width-5-6">

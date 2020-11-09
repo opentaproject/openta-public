@@ -75,7 +75,8 @@ internalurlpatterns = [
     url(r'^logout/(?P<course_name>[\w\.\ -]+)/(?P<lti_status>[\w]+)/$', backendviews.logout),
     url(r'^' + settings.MEDIA_TAG + '/(?P<asset>[\w\.\-\ \/]+)$', backendviews.serve_public_media),
     url(r'^(?P<course_name>[\w\.\ -]+)/?$', backendviews.login, name='login_course_short'),
-    url(r'^hijack/', include('hijack.urls' )),
+    #url(r'^hijack/', include('hijack.urls', namespace='hijack')),
+    url(r'^hijack/', include('hijack.urls')),
     url(r'^', include('translations.urls')),
 ]
 urlpatterns = [

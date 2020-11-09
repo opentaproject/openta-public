@@ -18,6 +18,9 @@ import immutable from "immutable";
 import { SUBPATH } from "../../settings.js";
 import DOMPurify from "dompurify";
 import { renderText  } from "./render_text.js"
+var unstableKey = 0;
+const nextUnstableKey = () => unstableKey++;
+
 
 
 /* 
@@ -233,7 +236,7 @@ export default class QuestionMultipleChoice extends Component {
       ( n_attempts < 2  &&  feedback ) ? " On the first attempt. Good work!" : " Number of attempts =  " + n_attempts;
     return (
       <div className="">
-        <label className="uk-form-row uk-display-inline-block uk-margin-bottom">
+        <label key={nextUnstableKey()} className="uk-form-row uk-display-inline-block uk-margin-bottom">
           {questiontext} <HelpMultipleChoice />
         </label>
       { ! this.props.locked && (
@@ -245,20 +248,20 @@ export default class QuestionMultipleChoice extends Component {
         </a>
         ) }
         {feedback && correct && (
-          <Alert className="uk-margin-small-top uk-margin-small-bottom" type="success" key="input">
+          <Alert className="uk-margin-small-top uk-margin-small-bottom" type="success" key="input1">
             {" "}
             Correct! {carrot}{" "}
           </Alert>
         )}
         {!feedback &&
           (
-            <Alert className="uk-margin-small-top uk-margin-small-bottom" type="primary" key="input">
+            <Alert className="uk-margin-small-top uk-margin-small-bottom" type="primary" key="input2">
               {" "}
               {unchecked} {stick}{" "}
             </Alert>
           )}
         {feedback && n_attempts > 0 && !correct && (
-          <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input">
+          <Alert className="uk-margin-small-top uk-margin-small-bottom" type="error" key="input3">
             {" "}
             Not correct {stick}{" "}
           </Alert>

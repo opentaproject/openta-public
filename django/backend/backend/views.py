@@ -1,3 +1,5 @@
+import csv
+from django.contrib.auth.views import LoginView
 import logging
 from django.contrib.auth.views import LoginView
 from django.utils import translation
@@ -156,7 +158,7 @@ class RegisterUserDomain(CreateView):
         return redirect(reverse('login', kwargs=dict(course_name=course.course_name)))
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def login_status(request):
     """Get login information for current user.
 

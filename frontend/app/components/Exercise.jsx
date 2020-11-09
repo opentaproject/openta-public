@@ -174,6 +174,8 @@ class BaseExercise extends Component {
     }
   }
 
+
+
   renderFigure = (itemjson, json, meta, exerciseKey) => {
     var figure = itemjson.get('$', '');
     var size = itemjson.getIn(['@attr', 'size'], 'small');
@@ -359,7 +361,6 @@ renderHidden = (itemjson, json, meta, exerciseKey) => {
         Exercise file path: {filename} key: {key}
       </span>);
     var exerciseDOM = <div className="uk-width-1-1"> <article className="uk-article uk-margin-top uk-margin-small-right uk-margin-small-left" ref="exercise" key={key}>
-        
         {canViewXML && showResponseAwaits && <i className="uk-text-danger uk-margin-small-left uk-icon uk-icon uk-icon-envelope" />}
         {/* <a className="uk-navbar-brand onHome" onClick={this.props.onHome}> <i className="uk-icon uk-icon-tiny uk-icon-mail-reply"></i> </a> */}
         {error && canViewXML && <Alert message={error} type="error" />}

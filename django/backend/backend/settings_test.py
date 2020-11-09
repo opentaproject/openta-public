@@ -45,10 +45,10 @@ UNITTESTS = True
 
 HEADLESS = False
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+FORCE_ROLE_TO_STUDENT = False
 EXERCISES_PATH = 'media/exercise'
 RUNNING_DEVSERVER = True
 DO_CACHE = True
-INSTALLED_APPS = INSTALLED_APPS + ['aggregation']
 CHECK_AGGREGATIONS = False
 RUNTESTS = True
 CACHE_LIFETIME = 0

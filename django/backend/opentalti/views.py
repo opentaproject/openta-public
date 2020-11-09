@@ -82,7 +82,7 @@ def lti_main(request, course_pk=None):
     if not proper_role:
         return denied(
             request,
-            "LTI : No  proper role is unassigned. You may be logged into the wrong Canvas or not properly registered in the course. Please contact course examiner with an email if you have questions.",
+            "LTI : The role %s is not valid. You may be logged into the wrong Canvas or not properly registered in the course. Please contact course examiner with an email if you have questions." %  request.POST.get("roles", ''),
         )
 
     logging.debug("LTI_MAIN course_pk = %s", course_pk)

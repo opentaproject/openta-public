@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from rest_framework import status
 from exercises.modelhelpers import e_student_tried, get_all_who_tried
+from django.conf import settings
 
 
 from exercises.audits.modelhelpers import (
@@ -260,11 +261,14 @@ def send_audit(request, pk):
         "{url}"
     )
     mail_message = mail_message_template.format(message=audit.message, url=course_url)
-
+    from_email =  ( audit.exercise.course.email_reply_to.strip() )
+    if hasattr(settings, 'USE_NOREPLY_IN_AUDIT_EMAILS'):
+        if settings.USE_NOREPLY_IN_AUDIT_EMAILS :
+            from_email = 'noreply@' + from_email.split('@').pop()
     email = EmailMessage(
         subject=audit.subject,
         body=mail_message,
-        from_email=audit.exercise.course.email_reply_to.strip(),
+        from_email=from_email,
         to=[audit.student.email],
         reply_to=[request.user.email],
     )

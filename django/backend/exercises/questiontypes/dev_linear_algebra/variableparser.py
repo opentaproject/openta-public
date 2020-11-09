@@ -198,6 +198,7 @@ def parse_xml_variables(node):
         if not (var.find('value')) is None:
             value = ((var.find('value')).text).strip()
         if token is not None and value is not None:
+            print("APPEND " , token , " VALUE ", value )
             ress.append({'name': token, 'value': value, 'tex': 'TeX'})
     return ress
 
@@ -268,11 +269,11 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
     #print("GETALLVARIABLES WITH HASH ", varhash)
     ret = cache.get(varhash)
     if settings.DO_CACHE and (ret is not None):
-        #print("GOT IT ", varhash)
+        #print("GOT ALL VARIABLES FROM HASH ", varhash)
         #print("RET = ", ret )
         return ret
     #print("RECALCULATE GETALL VARIABLES", varhash)
-
+    ret = []
     variables = []
     blacklist = set([])
     correct_answer = ''
@@ -344,6 +345,18 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         else :
             entry  = [{'name': name, 'value' : entry[0].get('value',random.random() ) , 'tex' : entry[0].get('tex',name)}]
             entry2  = [{'name': entry[0]['name'], 'value': str( entry[0]['value'] ) } ]
+        reg  = re.compile( 'sample\(\s*([0-9\.]+)\s*\)' )
+        reg = re.compile('sample\(')
+        ms  = re.search(reg, entry[0]['value'])
+        s = entry[0]['value'] 
+        pieces = s.split('sample(',1)
+        # INSTALL A SEED WHEN SETTING THE SAMPLING
+        # NEED IT HERE TO MAKE SURE THAT sample(1)/sample(1) does not reduce to 1
+        # SINCE SAMPLE IS IS SUPPOSED TO GENERATE NEW VALUES
+        while len( pieces ) > 1 :
+            s = pieces[0] + 'sampleu(' + str( random.random() )  +  ' , ' + pieces[1] 
+            pieces = s.split('sample(')
+        entry[0]['value']  = re.sub(r'sampleu','sample',s)
         all_variables = all_variables + entry
         _ret['authorvariables'] = _ret['authorvariables'] + entry2
     #print("ALLVARIABLES = ", all_variables)
@@ -359,7 +372,7 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
     _ret['correct_answer'] = correct_answer
     _ret['functions'] = funs
     _ret['exposeglobals'] = exposeglobals
-    avars = _ret['authorvariables']
+    avars = _ret['variables']
     _ret['authorvariables'] = []
     for name in proper_order :
         avar =  list( filter(lambda item: (item['name']  == name ), avars) )
@@ -381,5 +394,4 @@ def getallvariables(global_xmltree, question_xmltree, assign_all_numerical=True)
         #print("CACHE FAILED TO SET")
         pass
     #_ret['authorvariables'] = ret['authorvariables']
-    #print("_RET = ", ret )
     return _ret

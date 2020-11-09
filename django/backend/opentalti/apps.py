@@ -109,12 +109,17 @@ def update_user_profile(user, user_stub):
 
 
 def get_or_create_user(request, course):
-    fp = open("/tmp/requests.txt",'a')
-    now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # fp = open("/tmp/requests.txt",'a')
+    # now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # fp.write( now + ':' + str( request.body.decode('utf-8') ) )
+    # fp.write("\n")
+    # fp.close()
+    #fp = open("/tmp/requests.txt",'a')
+    #now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     user_stub = user_stub_from_request(request, course)
-    fp.write( now + ': PPRINT ' + re.sub(r'\n','',pprint.pformat( vars(user_stub))))
-    fp.write("\n")
-    fp.close()
+    #fp.write( now + ': PPRINT ' + re.sub(r'\n','',pprint.pformat( vars(user_stub))))
+    #fp.write("\n")
+    #fp.close()
     user = None
     user_exists = False
     try:

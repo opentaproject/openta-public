@@ -19,7 +19,7 @@ class CourseUpdate(UpdateView):
     form_class = CourseFormFrontend
     # fields = ['course_name', 'registration_password', 'registration_by_password', 'owners']
     readonly_fields = ('course_key', 'lti_key', 'lti_secret')
-    success_url = '/' + settings.SUBPATH + 'course/{id}/updateoptions'
+    success_url = '/' + settings.SUBPATH + 'course/{id}/updateoptions/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

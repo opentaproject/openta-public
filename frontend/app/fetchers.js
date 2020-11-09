@@ -356,8 +356,7 @@ function checkQuestion(exerciseKey, questionKey, answerData) {//{{{
     .then( json => {
       dispatch(updateExerciseState(exerciseKey, { question: { [questionKey]: { answer: answerData } } }));
       if(json.hasOwnProperty('error')) {
-	console.log("ANSWER ERROR " + JSON.stringify( answerData) )
-        throw "Error occured in question check";
+        throw "Error occurred in question check";
       }
       return json;
     })

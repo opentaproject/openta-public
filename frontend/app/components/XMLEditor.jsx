@@ -124,6 +124,7 @@ class XMLEditor extends Component {
     keyMap: PropTypes.string,
     activeXML: PropTypes.string,
     editor: PropTypes.object,
+    suppresstools: PropTypes.bool,
   };
 
   keyMap_toggle = () => {
@@ -182,6 +183,15 @@ class XMLEditor extends Component {
     var modified = exerciseState.get('modified');
     var no_xml_error = exerciseState.get('xmlError') == null;
     var can_save = modified && no_xml_error;
+    var suppresstools = false
+    if ( this.props.suppresstools ){
+        suppresstools = true 
+        }
+
+    var doshowtools = true
+    if ( suppresstools  ){
+        var doshowtools = false
+        }
     var use_auto_translation = this.props.use_auto_translation
 
     var savereset = (
@@ -211,11 +221,13 @@ class XMLEditor extends Component {
         },
     };
     return (
-      <div className="uk-panel uk-panel-box uk-margin-small-top uk-margin-small-right" style={{ height: "80vh" }}>
-        <a className={"uk-button uk-button-small  "} onClick={this.theme_toggle}>Switch theme {options.theme}</a>
-        <a className={"uk-button uk-button-small "} onClick={this.keyMap_toggle}>Switch keymap {options.keyMap}</a>
-        <a className={"uk-button uk-button-small  "} onClick={this.prettify}> Prettify </a>
-        {savereset}
+      <div className="uk-panel uk-panel-box uk-margin-small-top  uk-margin-small-right" style={{ height: "80vh", width: "100%" }}>
+        { doshowtools && ( <a className={"uk-button uk-button-small  "} onClick={this.theme_toggle}>Switch theme {options.theme}</a> ) }
+        { doshowtools && ( <a className={"uk-button uk-button-small "} onClick={this.keyMap_toggle}>Switch keymap {options.keyMap}</a> )}
+        { doshowtools && ( <a className={"uk-button uk-button-small  "} onClick={this.prettify}> Prettify </a> )}
+        { doshowtools && ( 
+      <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => this.props.onSave(activeExercise)} onreset={(event) => onReset(activeExercise)} />
+             ) }
         <Codemirror value={xmlCode} options={options} onBeforeChange={this.props.onChange} editorDidMount={this.editorDidMount} editorDidConfigure={this.editorDidConfigure}
           editorWillUnmount={this.editorWillUnmount} />
       </div>

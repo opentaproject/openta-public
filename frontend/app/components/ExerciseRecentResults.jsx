@@ -8,12 +8,25 @@ import Spinner from './Spinner.jsx';
 import Badge from './Badge.jsx';
 import QMath from './QMath';
 import MathSpan from './MathSpan.jsx';
+import KatexSpan from './KatexSpan.jsx';
 
 import immutable from 'immutable';
 import moment from 'moment';
 import {SUBPATH} from '../settings.js';
 import mathjs from 'mathjs';
 import {asciiMathToMathJS} from './mathrender/string_parse.js'
+
+
+ 
+function createMarkup(value) {
+  try {
+    var rvalue=  katex.renderToString(value)
+    return {__html: rvalue};
+    }
+  catch(e) {
+    return {__html: value};
+    }
+}
 
 
 function renderExpression(expression) {
@@ -67,6 +80,7 @@ const timeago = t =>  {
 
 
   var questions = recentAnswers.keys();
+  // console.log("QUESTIONS = ", questions)
   return (
     <div className="uk-panel uk-panel-box uk-margin-top">
         <h3 className="uk-panel-title">
@@ -77,7 +91,7 @@ const timeago = t =>  {
             <thead>
               <tr>
               { recentAnswers.map( (users, question) => (
-                <th key={question} style={{maxWidth: '300px'}}><MathSpan message={getQuestionText(question)}/></th>
+                <th key={question} style={{maxWidth: '300px'}}> <KatexSpan message={getQuestionText(question)}/></th>
               )).toList()}
               </tr>
             </thead>
@@ -87,8 +101,8 @@ const timeago = t =>  {
                   <td key={question}>
                     { users.map( data => (
                     <div className="uk-panel uk-panel-box uk-margin-small-top" key={data.get('pk')}>
-                    { admin && <h3 className="uk-panel-title">{data.get('username')}</h3> }
-                    <table className="uk-table uk-table-condensed" style={{ width: 'auto' }}>
+                    { admin && <div> <span className="uk-panel-title">{data.get('username')} </span><span> {data.get('n_answers') } &nbsp; answers { getQuestionType(question) } </span> </div>}
+                    <table className="uk-table" style={{ width: 'auto' }}>
                     <tbody>
                       {
                         data.get('answers').map( answer => (
@@ -96,23 +110,24 @@ const timeago = t =>  {
                           <td className={answer.get('correct', false) ? 'uk-text-success' : 'uk-text-danger'} title={answer.get('answer')} data-uk-tooltip>
                              <i className={answer.get('correct', false) ? 'uk-icon uk-icon-check uk-text-success' : 'uk-icon uk-icon-close uk-text-danger'} />
                                 </td>
+                            <td className="uk-text-small"> {timeago(answer.get('date')) } </td>
+      
+                            { ! ( 'textbased' == getQuestionType( question)  )  && (
                             <td>   { <QMath  questionType="linearAlgebra" exerciseKey={exerciseKey} expression={answer.get('answer')} /> }   </td>
+                              ) }
                                  <td>
                             </td>
                             <td>
                             <div className='uk-text uk-text-small'>
-                                {answer.get('answer')}
+                               <KatexSpan message={answer.get('answer') } />
                             </div>
 
                           </td>
                         
-                          <td className="uk-text-small">
-                            {timeago(answer.get('date')) }
-                          </td>
                           </tr>
                         ))
                       }
-                      { data.get('n_answers') > data.get('answers').size && <tr key="last"><td className="uk-text-center"><i className="uk-icon uk-icon-ellipsis-v"/></td><td/></tr> }
+                      {   ( ! ( 'textbased' == getQuestionType( question)  )  &&   data.get('n_answers') > data.get('answers').size   ) && <tr key="last"><td className="uk-text-center"><i className="uk-icon uk-icon-ellipsis-v"/></td><td/></tr> }
                       </tbody>
                     </table>
                     </div>

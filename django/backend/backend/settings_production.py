@@ -31,3 +31,6 @@ RQ_QUEUES = {
         'ASYNC': True,
     }
 }
+
+# Fix same-site cookie
+MIDDLEWARE.insert(0, 'backend.middleware.SameSiteMiddleware')

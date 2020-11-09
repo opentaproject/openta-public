@@ -204,9 +204,10 @@ def sympify_with_custom(expression, varsubs, funcsubs={}, source='UNKNOWN'):
                     ret = sympy.sympify( 1.0 )
                 elif abs( ret ) < 1.e-12 :
                     ret = sympy.sympify( 0.0 )
-        #print( varhash, " RET = ", ret )
+            #print("RETURNED SIMPIYT WITH CUSTOM FROM CACHE")
             return ret
     except: 
+        #print("RECALCULATE SIMPIYT WITH CUSTOM FROM CACHE")
         pass
     tbeg = time.time()
     should_be_end = index_of_matching_right_paren(0, '(' + expression + ')')

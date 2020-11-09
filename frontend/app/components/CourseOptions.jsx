@@ -21,7 +21,7 @@ class BaseCourseOptions extends Component {
         return (
             <div className="uk-panel uk-panel-box uk-panel-box-secondary uk-margin-top">
                 <iframe key={activeCourse} scrolling="yes" className="options"
-                    src={SUBPATH + "/course/" + activeCourse + "/updateoptions"}
+                    src={SUBPATH + "/course/" + activeCourse + "/updateoptions/"}
                     onLoad={event => this.handleIframeLoad(event, this.props.onCourseUpdate(activeCourse))} />
             </div>)
     }
