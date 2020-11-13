@@ -216,4 +216,3 @@ CHECK_AGGREGATIONS = False
 IGNORE_NO_FEEDBACK = False
 RUNTESTS = False
 CACHE_LIFETIME = None  # 60 * 60 * 24 * 7 * 365
-print("CACHE KEYS", caches)

@@ -33,4 +33,3 @@ RQ_QUEUES = {
 }
 
 # Fix same-site cookie
-MIDDLEWARE.insert(0, 'backend.middleware.SameSiteMiddleware')

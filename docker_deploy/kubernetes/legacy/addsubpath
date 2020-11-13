@@ -1,0 +1,27 @@
+#!/bin/bash
+COMMIT=$(git rev-parse --abbrev-ref HEAD)_$(git rev-parse --short HEAD)
+
+if [[ $# -lt 4 ]] ; then
+	echo 'Usage: ./addsubpath SUBPATH DOCKERREPOSITORY USE_SSL VERSION'
+	echo 'the docker images should be available as DOCKERREPOSITORY/openta:VERSION etc.'
+	echo 'Required images: openta:VERSION & openta:nginx'
+	echo 'USE_SSL is either 1 if an http->https redirect should take place or 0 otherwise'
+	echo "VERSION corresponds to the result of \"make version\", you are currently on ${COMMIT}"
+	exit 0
+fi
+
+TEMPLATE_DIR=template
+TEMPLATES=$TEMPLATE_DIR/*.yaml
+export SUBPATH=$1
+export DOCKERREPOSITORY=$2
+export OPENTA_USE_SSL=$3
+export VERSION=$4
+mkdir -p $1
+for f in $TEMPLATES
+do
+	echo $f
+	FILENAME=$(basename $f)
+	envsubst '$SUBPATH $DOCKERREPOSITORY $OPENTA_USE_SSL $VERSION' < $f > $1/$FILENAME
+done
+echo "Generated configs in $1/"
+echo "Deploy with kubectl apply -f $1/"

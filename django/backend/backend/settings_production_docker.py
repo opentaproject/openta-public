@@ -55,4 +55,3 @@ if _subpath is not None:
     SESSION_COOKIE_NAME = 'sessionid' + _subpath
 
 # Fix same-site cookie
-MIDDLEWARE.insert(0, 'backend.middleware.SameSiteMiddleware')
