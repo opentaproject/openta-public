@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
@@ -7,11 +7,15 @@ metadata:
   creationTimestamp: null
   labels:
     io.kompose.service: {{SUBPATH}}
+    name: {{SUBPATH}}
   name: {{SUBPATH}}
 spec:
   replicas: 1
   strategy:
     type: Recreate
+  selector:
+    matchLabels:
+      name: {{SUBPATH}}
   template:
     metadata:
       creationTimestamp: null
@@ -28,6 +32,8 @@ spec:
             - 0.0.0.0:8000
             - --env
             - DJANGO_SETTINGS_MODULE=backend.settings_production_docker
+            - --timeout
+            - "300"
           env:
           - name: WEB_CONCURRENCY
             value: "10"
