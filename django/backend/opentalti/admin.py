@@ -16,14 +16,14 @@ logger = logging.getLogger(__name__)
 # Register your models here.
 
 lti_keys = [
-    "roles",
-    "custom_user_id",
-    "custom_lis_person_contact_email_primary",
-    "lti_tool_consumer_instance_guid",
-    "lti_context_id",
-    "custom_lis_person_name_full",
-    "custom_lis_person_name_given",
-    "custom_lis_person_name_family",
+    ["roles"],
+    ["custom_user_id","user_id"],
+    ["custom_lis_person_contact_email_primary","lis_person_contact_email_primary"],
+    ["lti_tool_consumer_instance_guid","tool_consumer_instance_guid"],
+    ["lti_context_id","context_id"],
+    ["custom_lis_person_name_full","lis_person_name_full"],
+    ["custom_lis_person_name_given","lis_person_name_given"],
+    ["custom_lis_person_name_family","list_person_name_family"],
 ]
 lti_names = [
     "lti_roles",
@@ -53,17 +53,25 @@ def groups_from_roles(roles):
 
 def verify_request(request):
     """Catch some known LTI/Canvas issues."""
-    if request.POST.get("custom_user_id") is None:
-        raise LTIException("Error in LTI authentication, please try again.")
+    if request.POST.get("user_id") is None and request.POST.get("custom_user_id") is None :
+        raise LTIException("Error in LTI authentication: user_id and custom_user_id = None, please try again.")
+            
+    #if request.POST.get("custom_user_id") is None:
+    #    raise LTIException("Error in LTI authentication: custom_user_id = None, please try again.")
 
-    if "$" in request.POST.get("custom_user_id"):
-        raise LTIException("Error in LTI authentication, please try again.")
+    #if "$" in request.POST.get("custom_user_id"):
+    #    raise LTIException("Error in LTI authentication: custom_userid_contains dollar sign, please try again.")
 
 
 class user_stub_from_request:
     def __init__(self, request, course):
-        for key, name in zip(lti_keys, lti_names):
-            setattr(self, name, request.POST.get(key))
+        for keys, name in zip(lti_keys, lti_names):
+            keyval = None
+            for key in keys:
+                if request.POST.get(key) :
+                    keyval = request.POST.get(key)
+                    break
+            setattr(self, name, keyval)
         self.groups = groups_from_roles(request.POST.get("roles", "Student"))
         self.courses = [course]
         self.immutable_user_id = immutable_user_id(self)
