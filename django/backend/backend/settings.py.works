@@ -1,18 +1,12 @@
-from backend.settings_lti import *
-import logging
+"""Development settings."""
 
-INSTALLED_APPS = INSTALLED_APPS + ['aggregation']
+from backend.settings_lti import *
+from google.oauth2 import service_account
+
+
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ALLOWED_HOSTS = ['*']
-with open('mailgun_key', 'r') as f:
-        ANYMAIL = {
-            "MAILGUN_API_KEY": f.read().strip(),
-            "MAILGUN_SENDER_DOMAIN": 'openta.se',
-        }
-        DEFAULT_FROM_EMAIL = "openta@openta.se"
-
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
 TIME_ZONE = 'Europe/Copenhagen'
 print("SYS", sys.argv)
@@ -23,13 +17,13 @@ else:
     ASYNC = True
 ASYNC = True
 print("ASYNC = ", ASYNC)
-DEBUG = False
+DEBUG = True
 if ASYNC:
     RQ_QUEUES = {
         'default': {
             'HOST': 'localhost',
             'PORT': 6379,
-            'DB': 0,
+            'DB': 12,
             'DEFAULT_TIMEOUT': 360,
             'ASYNC': ASYNC,
         }
@@ -41,9 +35,9 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'openta_2020',
+        'NAME': 'alphaplusclean',
         'USER': 'openta',
-        'PASSWORD': 'learning',
+        'PASSWORD': 'openta',
         'HOST': 'localhost',
         'PORT': '',
         'OPTIONS': {
@@ -64,7 +58,7 @@ CSRF_FAILURE_VIEW = 'backend.views.csrf_failure'
 
 
 CSRF_FAILURE_VIEW = 'backend.views.csrf_failure'
-HELP_URL = 'https://opentaserver.com/cookies.html'
+HELP_URL = 'https://opentaserver.com/'
 
 # from redis import Redis
 # from rq import Queue
@@ -85,9 +79,9 @@ HELP_URL = 'https://opentaserver.com/cookies.html'
 
 CHECK_AGGREGATIONS = False
 CACHE_LIFETIME = 60 * 60 * 24 * 7
-DEBUG = False
+DEBUG = True
 IGNORE_NO_FEEDBACK = False
-RUNTESTS = True
+RUNTESTS = False
 DO_CACHE = True
 SAFE_RUN_TIMEOUT = 12
 REFRESH_SEED_ON_CORRECT_ANSWER = True
@@ -102,26 +96,18 @@ CSRF_COOKIE_SECURE = True
 SESSION_SAVE_EVERY_REQUEST = True
 #X_FRAME_OPTIONS = 'ALLOWALL'
 #XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.rq import RqIntegration
-from sentry_sdk.integrations.redis import RedisIntegration
 
+if RUNNING_DEVSERVER :
+    MIDDLEWARE = [
+        'django.middleware.security.SecurityMiddleware',
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.locale.LocaleMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    ]
 
-
-sentry_sdk.init(
-    dsn="https://0627dccb45034182af9043a71d5f5b55@o319110.ingest.sentry.io/5401493",
-    integrations=[DjangoIntegration(),RqIntegration(),RedisIntegration()],
-    traces_sample_rate = 0.5,
-    # If you wish to associate users to errors (assuming you are using
-    # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
-)
-
-CSRF_COOKIE_SAMESITE = None
-SESSION_COOKIE_SAMESITE = None
-
-
-logging.getLogger("requests").setLevel(logging.WARNING)
-logging.getLogger("urllib3").setLevel(logging.WARNING)
-
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file( '/srv/alpha-plus/django/backend/backend/keyfile.json')
+STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/deploystatic/'

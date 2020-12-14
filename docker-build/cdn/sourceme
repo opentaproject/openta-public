@@ -1,0 +1,13 @@
+export GOOGLE_APPLICATION_CREDENTIALS=./backend/keyfile.json
+export DB_HOST='127.0.0.1:5432'
+export DB_USER='postgres'
+export DB_PASS='polisenstennisbana'
+export DB_NAME='p2020'
+export PROJECT_ID=$(gcloud config list --format='value(core.project)')
+export PROJECT_ID_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+export INSTANCE_NAME='demoproject'
+export REGION='europe-north1'
+export INSTANCE_CONNECTION_NAME=${PROJECT_ID}:${REGION}:${INSTANCE_NAME}
+export BUCKET_NAME=openta-cdn-bucket
+#export PORT='8080'
+#export HOST='35.228.122.1'

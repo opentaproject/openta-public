@@ -1,0 +1,13 @@
+**/env
+**/node_modules
+**/__pycache__
+**/_pyc
+docker-build
+docker
+docker_deploy
+frontend
+static
+deploystatic
+**/.git
+**/keyfile.json
+**/*.sock

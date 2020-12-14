@@ -1,0 +1,130 @@
+version: '3'
+
+services:
+  proxy:
+    image: staticfloat/nginx-certbot
+    restart: always
+    environment:
+      CERTBOT_EMAIL: "stellan.ostlund@gmail.com"
+      OPENTA_SUBPATH: "openta"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/user.conf.d/nginx.conf:ro
+      - letsencrypt:/etc/letsencrypt
+      - ./settings.py:/srv/openta/django/backend/backend/settings.py
+      - exercises:/srv/openta/exercises
+      - studentassets:/srv/openta/django/backend/media/studentassets
+      - static:/srv/openta/django/backend/static
+      - deploystatic:/srv/openta/django/backend/deploystatic
+      - imageanswers:/srv/openta/django/backend/media/imageanswers
+    links:
+      - web:web
+    depends_on:
+      - web
+
+  redis:
+    restart: always
+    image: 'redis:3.2.0'
+    volumes:
+      - "redis_data:/data"
+  db:
+    restart: always
+    image: 'postgres:9.5.3'
+    volumes:
+      - "db_data:/var/lib/postgresql/data"
+  #proxy:
+  #  image: staticfloat/nginx-certbot
+  #  restart: always
+  #  environment:
+  #    CERTBOT_EMAIL: "stellan.ostlund@gmail.com"
+  #    OPENTA_SUBPATH: "openta"
+  #  ports:
+  #    - "80:80/tcp"
+  #    - "443:443/tcp"
+  #  volumes:
+  #    - ./conf.d:/etc/nginx/user.conf.d:ro
+  #    - letsencrypt:/etc/letsencrypt
+  #  links:
+  #    - web:web
+  #  depends-on:
+  #    - web
+
+  #nginx:
+  #  image: 'nginx:1.15.0-alpine'
+  #  volumes:
+  #    - ./conf.d:/etc/nginx/conf.d:ro
+  #  #  - ../:/srv/openta:ro
+  #  environment:
+  #    - OPENTA_SUBPATH=openta
+  #  links:
+  #    - web:web
+  #  depends_on:
+  #    - web
+  #  ports:
+  #    - 80:80
+  #
+  web:
+    #build:
+    #  context: ../django/
+    #  dockerfile: ../docker/Dockerfile.backend
+    restart: always
+    image: openta-image
+    working_dir: /srv/openta/django/backend/
+    command: >
+            bash -c "python manage.py createcachetable && 
+            python manage.py makemigrations &&
+            python manage.py migrate &&
+            if [  -f fixtures/course.json ] ; then python manage.py loaddata fixtures/course.json ; rm fixtures/course.json ; fi &&
+            if [  -f fixtures/auth.json ] ; then python manage.py loaddata fixtures/auth.json ; rm fixtures/auth.json ;  fi &&
+            python manage.py collectstatic --noinput &&
+            gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --env DJANGO_SETTINGS_MODULE=backend.settings_production_docker"
+    links:
+      - db:db
+    volumes:
+      #- ../:/srv/openta
+      #- ./django/backend/backend/settings_production_docker.py:/srv/openta/django/backend/backend/settings.py
+      - fixtures:/srv/openta/django/backend/fixtures
+      - db_data:/var/lib/postresql/data
+      - exercises:/srv/openta/exercises
+      - studentassets:/srv/openta/django/backend/media/studentassets
+      - imageanswers:/srv/openta/django/backend/media/imageanswers
+      - static:/srv/openta/django/backend/static
+      - deploystatic:/srv/openta/django/backend/deploystatic
+      - ./config/settings.py:/srv/openta/django/backend/backend/settings.py
+    environment:
+      - WEB_CONCURRENCY=10
+      - OPENTA_SUBPATH=openta
+    depends_on:
+      - db
+      - redis
+  rqworker:
+    restart: always
+    image: openta-image
+    working_dir: /srv/openta/django/backend/
+    command: >
+        bash -c " python manage.py rqworker"
+    environment:
+      - OPENTA_SUBPATH=openta
+    links:
+      - redis:redis
+    volumes:
+      - ./config/settings.py:/srv/openta/django/backend/backend/settings.py
+    #volumes:
+    #  - ../:/srv/openta
+    #  #- ../django/backend/backend/settings_production_docker.py:/srv/openta/django/backend/backend/settings.py
+    depends_on:
+      - web
+      - redis
+volumes:
+  letsencrypt:
+  redis_data:
+  nginx_data:
+  db_data:
+  exercises:
+  static:
+  deploystatic:
+  fixtures:
+  studentassets:
+  imageanswers:

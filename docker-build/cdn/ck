@@ -1,0 +1,2 @@
+curl -H "Origin: https://opentaserver.com" -I  "https://openta-cdn-bucket.storage.googleapis.com/deploystatic-alpha-plus-clean/fonts/fontawesome-webfont.7b4635e4bc70.woff2"
+
