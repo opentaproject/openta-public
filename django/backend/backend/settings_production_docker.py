@@ -25,14 +25,14 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # USE_CUSTOM_SMTP_EMAIL = True
 
 # Redis information
-RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 12, 'DEFAULT_TIMEOUT': 20 * 60 }}
+RQ_QUEUES = {'default': {'HOST': 'redis', 'PORT': 6379, 'DB': 12, 'DEFAULT_TIMEOUT': 20 * 60 }}
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': 5432,
     }
 }

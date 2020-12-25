@@ -13,7 +13,7 @@ FROM s53ostlund/openta:openta-base
 #    libzmq3-dev
 #
 #COPY django/requirements.txt /srv/openta/django/requirements.txt
-#WORKDIR /srv/openta/django
+WORKDIR /srv/openta/django
 #RUN pip install -r requirements.txt
 #RUN pip install gunicorn==19.9.0
 #RUN pip uninstall --yes psycopg2

@@ -25,21 +25,21 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # USE_CUSTOM_SMTP_EMAIL = True
 
 # Redis information
-RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 0, 'DEFAULT_TIMEOUT': 20 * 60 }}
+RQ_QUEUES = {'default': {'HOST': 'redis', 'PORT': 6379, 'DB': 0, 'DEFAULT_TIMEOUT': 20 * 60 }}
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'postgres',
         'USER': 'postgres',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': 5432,
     }
 }
 
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-_subpath = os.environ.get('OPENTA_SUBPATH')
+_subpath = os.environ.get('OPENTA_SUBPATH','openta')
 
 if _subpath is not None:
     SUBPATH = _subpath + '/'
@@ -58,3 +58,4 @@ if _subpath is not None:
 # Fix same-site cookie
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file( 'backend/keyfile.json')
 STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/deploystatic/'
+

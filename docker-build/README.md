@@ -17,6 +17,11 @@ cd frontend
 npm install
 brunch build
 ```
+## build backend base
+```
+docker build -f docker-build/Dockerfile-base --tag s53ostlund/openta:openta-base
+docker push  s53ostlund/openta:openta-base
+```
 ## build backend
 
 - The main reason for installing this locally is to successfully run the collectstatic command
@@ -39,10 +44,10 @@ python manage.py collectstatic
 - Execute the following commands from project base
 
 ```
-cp docker-build/Dockerfile .
+cp docker-build/Dockerfile 
 cp docker-build/.dockerignore .
 docker build --tag s53ostlund/openta:alpha-plus .
-docker tag s53ostlund/openta:openta-image openta-image
+docker push  s53ostlund/openta:alpha-plus .
 ```
 
 
@@ -52,7 +57,7 @@ alias remove-all-images=' docker stop $(docker ps -aq) && \
 	docker rm $(docker ps -aq) && \
 	docker rmi $(docker images -q) --force'
 docker network prune
-docker voluem prune
+docker volume prune
 ```
 
 # Create vm instance in google cloud
@@ -91,7 +96,6 @@ gcloud compute ssh --zone "europe-north1-b" "opentaproject" --project "demoproje
 alias docker-compose="docker run -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD:$PWD" -w="$PWD" docker/compose:1.24.0" >> ~/.bashrc
 source .bashrc
 docker pull s53ostlund/openta:alpha-plus
-docker tag s53ostlund/openta:alpha-plus openta-image
 export OPENTA_SUBPATH=openta
 docker-compose up
 

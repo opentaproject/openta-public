@@ -14,11 +14,11 @@ services:
       - ./nginx.conf:/etc/nginx/user.conf.d/nginx.conf:ro
       - letsencrypt:/etc/letsencrypt
       - ./settings.py:/srv/openta/django/backend/backend/settings.py
+      - ./keyfile.json:/srv/openta/django/backend/backend/keyfile.json
       - exercises:/srv/openta/exercises
-      - studentassets:/srv/openta/django/backend/media/studentassets
-      - static:/srv/openta/django/backend/static
       - deploystatic:/srv/openta/django/backend/deploystatic
-      - imageanswers:/srv/openta/django/backend/media/imageanswers
+      - answerimages:/srv/openta/django/backend/media/answerimages
+      - studentassets:/srv/openta/django/backend/media/studentassets
     links:
       - web:web
     depends_on:
@@ -34,37 +34,6 @@ services:
     image: 'postgres:9.5.3'
     volumes:
       - "db_data:/var/lib/postgresql/data"
-  #proxy:
-  #  image: staticfloat/nginx-certbot
-  #  restart: always
-  #  environment:
-  #    CERTBOT_EMAIL: "stellan.ostlund@gmail.com"
-  #    OPENTA_SUBPATH: "openta"
-  #  ports:
-  #    - "80:80/tcp"
-  #    - "443:443/tcp"
-  #  volumes:
-  #    - ./conf.d:/etc/nginx/user.conf.d:ro
-  #    - letsencrypt:/etc/letsencrypt
-  #  links:
-  #    - web:web
-  #  depends-on:
-  #    - web
-
-  #nginx:
-  #  image: 'nginx:1.15.0-alpine'
-  #  volumes:
-  #    - ./conf.d:/etc/nginx/conf.d:ro
-  #  #  - ../:/srv/openta:ro
-  #  environment:
-  #    - OPENTA_SUBPATH=openta
-  #  links:
-  #    - web:web
-  #  depends_on:
-  #    - web
-  #  ports:
-  #    - 80:80
-  #
   web:
     #build:
     #  context: ../django/
@@ -89,10 +58,11 @@ services:
       - db_data:/var/lib/postresql/data
       - exercises:/srv/openta/exercises
       - studentassets:/srv/openta/django/backend/media/studentassets
-      - imageanswers:/srv/openta/django/backend/media/imageanswers
+      - answerimages:/srv/openta/django/backend/media/answerimages
       - static:/srv/openta/django/backend/static
       - deploystatic:/srv/openta/django/backend/deploystatic
-      - ./config/settings.py:/srv/openta/django/backend/backend/settings.py
+      - ./settings.py:/srv/openta/django/backend/backend/settings.py
+      - ./keyfile.json:/srv/openta/django/backend/backend/keyfile.json
     environment:
       - WEB_CONCURRENCY=10
       - OPENTA_SUBPATH=openta
@@ -110,7 +80,8 @@ services:
     links:
       - redis:redis
     volumes:
-      - ./config/settings.py:/srv/openta/django/backend/backend/settings.py
+      - ./settings.py:/srv/openta/django/backend/backend/settings.py
+      - ./keyfile.json:/srv/openta/django/backend/backend/keyfile.json
     #volumes:
     #  - ../:/srv/openta
     #  #- ../django/backend/backend/settings_production_docker.py:/srv/openta/django/backend/backend/settings.py
@@ -127,4 +98,4 @@ volumes:
   deploystatic:
   fixtures:
   studentassets:
-  imageanswers:
+  answerimages:
