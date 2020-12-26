@@ -57,4 +57,4 @@ if _subpath is not None:
 
 # Fix same-site cookie
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file( 'backend/keyfile.json')
-STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/deploystatic/'
+STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/v2.1.2/'

@@ -11,3 +11,4 @@ deploystatic
 **/.git
 **/keyfile.json
 **/*.sock
+**/settings_local.py

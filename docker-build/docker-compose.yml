@@ -18,6 +18,7 @@ services:
       - exercises:/srv/openta/exercises
       - deploystatic:/srv/openta/django/backend/deploystatic
       - answerimages:/srv/openta/django/backend/media/answerimages
+      - CACHE:/srv/openta/django/backend/media/CACHE
       - studentassets:/srv/openta/django/backend/media/studentassets
     links:
       - web:web
@@ -39,7 +40,7 @@ services:
     #  context: ../django/
     #  dockerfile: ../docker/Dockerfile.backend
     restart: always
-    image: openta-image
+    image: s53ostlund/openta:v2.1.2
     working_dir: /srv/openta/django/backend/
     command: >
             bash -c "python manage.py createcachetable && 
@@ -59,6 +60,7 @@ services:
       - exercises:/srv/openta/exercises
       - studentassets:/srv/openta/django/backend/media/studentassets
       - answerimages:/srv/openta/django/backend/media/answerimages
+      - CACHE:/srv/openta/django/backend/media/CACHE
       - static:/srv/openta/django/backend/static
       - deploystatic:/srv/openta/django/backend/deploystatic
       - ./settings.py:/srv/openta/django/backend/backend/settings.py
@@ -71,7 +73,7 @@ services:
       - redis
   rqworker:
     restart: always
-    image: openta-image
+    image: s53ostlund/openta:v2.1.2
     working_dir: /srv/openta/django/backend/
     command: >
         bash -c " python manage.py rqworker"
@@ -99,3 +101,4 @@ volumes:
   fixtures:
   studentassets:
   answerimages:
+  CACHE:
