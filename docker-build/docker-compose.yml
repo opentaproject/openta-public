@@ -17,9 +17,7 @@ services:
       - ./keyfile.json:/srv/openta/django/backend/backend/keyfile.json
       - exercises:/srv/openta/exercises
       - deploystatic:/srv/openta/django/backend/deploystatic
-      - answerimages:/srv/openta/django/backend/media/answerimages
-      - CACHE:/srv/openta/django/backend/media/CACHE
-      - studentassets:/srv/openta/django/backend/media/studentassets
+      - media:/srv/openta/django/backend/media
     links:
       - web:web
     depends_on:
@@ -58,9 +56,7 @@ services:
       - fixtures:/srv/openta/django/backend/fixtures
       - db_data:/var/lib/postresql/data
       - exercises:/srv/openta/exercises
-      - studentassets:/srv/openta/django/backend/media/studentassets
-      - answerimages:/srv/openta/django/backend/media/answerimages
-      - CACHE:/srv/openta/django/backend/media/CACHE
+      - media:/srv/openta/django/backend/media
       - static:/srv/openta/django/backend/static
       - deploystatic:/srv/openta/django/backend/deploystatic
       - ./settings.py:/srv/openta/django/backend/backend/settings.py
@@ -99,6 +95,4 @@ volumes:
   static:
   deploystatic:
   fixtures:
-  studentassets:
-  answerimages:
-  CACHE:
+  media:
