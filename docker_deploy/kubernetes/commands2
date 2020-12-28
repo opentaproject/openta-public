@@ -1,0 +1,24 @@
+  486  gcloud beta compute ssh --zone "europe-west3-b" "ubuntu-20" --project "kubernettest1-190221"
+  743  cd kubernetes/
+  747  gvim kube.py
+  748  python kube.py
+  749  python kube.py --help
+  750  python kube.py build-openta
+  751  python kube.py build-openta s53ostlund
+  753  python kube.py build-openta s53ostlund
+  756  python kube.py --help
+  757  python kube.py create-instance
+  758   python kube.py create-instance --subpath fim770-copy --docker-repo hlinander --outputpath=.
+  759  python kube.py create-instance --subpath fim770-copy --docker-repo hlinander --output-path=.
+  760  python kube.py deploy-instance fim770-copy
+  761   python kube.py initialize-instance fim770-copy
+  765  cd kubernetes/
+  767  python kube.py create-instance --subpath=fim770-copy --docker-repo=hlinander --output-path=.
+  772  python kube.py deploy-instance fim770-copy
+  773  python kube.py deploy-instance fim770-copy
+  778  python kube.py deploy-instance fim770-copy
+  779  python kube.py list-instances
+  780  python kube.py list-instances
+  781  python kube.py list-instances
+
+fim770v6_688e9b20

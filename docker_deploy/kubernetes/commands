@@ -1,0 +1,500 @@
+  285  pyrun
+  286  branch
+  287  git commit -a
+  288  brunch watch
+  289  cd /srv
+  290  cd media
+  291  ls
+  292  cd media
+  293  ls
+  294  ls
+  295  pwd
+  296  cd ..
+  297  ls
+  298  pwd
+  299  ls
+  300  pwd
+  301  cd media
+  302  ls
+  303  ;s
+  304  ls
+  305  rm -rf *
+  306  ls
+  307  pwd
+  308  cd ..
+  309  ls
+  310  pwd
+  311  cd ..
+  312  ls
+  313  cd media
+  314  ls
+  315  ls
+  316  pwd
+  317  ls
+  318  ls *
+  319  pwd
+  320  ls
+  321  cd ..
+  322  ls
+  323  cd media
+  324  ls
+  325  cd media
+  326  ls
+  327  pwd
+  328  cd /srv
+  329  ls
+  330  cd media
+  331  ls
+  332  cd media
+  333  ls
+  334  cd ..
+  335  cd ..
+  336  rm -rf media
+  337  sudo rm -rf media
+  338  ls /tmp
+  339  ls /tmp/media
+  340  ls /tmp/answerimages/
+  341  mkdir multicourse
+  342  sudo mkdir multicourse
+  343  sudo chmod a+w multicourse
+  344  ls
+  345  cd multcourse
+  346  cd multicourse
+  347  ls
+  348  ls
+  349  cd *
+  350  ls
+  351  cd super
+  352  ls
+  353  ls *
+  354  cd ..
+  355  ls
+  356  cd student
+  357  ls
+  358  cd ..
+  359  ls *
+  360  ls */*
+  361  cd
+  362  cd WWW/release
+  363  cd django
+  364  cd backend
+  365  ls
+  366  cd backend
+  367  ls
+  368  pwd
+  369  vi settings.py
+  370  gvim settings.py
+  371  pwd
+  372  cd ..
+  373  pwd
+  374  pyrun
+  375  source ../env/bin/activate
+  376  pyrun
+  377  pyrun
+  378  cat backend/settings.py
+  379  vi settings.py
+  380  pwd
+  381  ssh g4
+  382  cd
+  383  cd WWW/release
+  384  ls
+  385  cd exercises
+  386  ls
+  387  ls a-lt
+  388  ls -alt
+  389  ls -alt *
+  390  cd ..
+  391  cd ..
+  392  cd alpha-plus
+  393  ls
+  394  ls -alt
+  395  ls *
+  396  cd exercises
+  397  ls -alt */*
+  398  cd 4808f803-f297-4b72-b358-1c53b9c1e973/
+  399  ls
+  400  tar cvzf /tmp/exercises.tgz .
+  401  cd /tmp
+  402  ls
+  403  ls *.tgz
+  404  mkdir exercises
+  405  cd exercises
+  406  ls
+  407  ls *
+  408  rm -rf *
+  409  cd ..
+  410  cd exercises
+  411  ls
+  412  pwd
+  413  ls
+  414  tar xvzf ../exercises.tgz
+  415  ls
+  416  find . -name history -exec rm -rf {} \;
+  417  ls
+  418  ls
+  419  ls *
+  420  ls
+  421  rm -rf Arkiv
+  422  rm  -rf *Trash*/*
+  423  ls
+  424  rm -rf z\:macros/
+  425  ls
+  426  rm -rf allones
+  427  rm -rf STANDARD/
+  428  ls
+  429  find . -name exercisekey -exec rm {} \;
+  430  ls
+  431  tar cvzf ../exercise2.tgz .
+  432  ls
+  433  cd ..
+  434  ls
+  435  ls -alt exercise2.tgz 
+  436  mv exercise2.tgz ~/Downloads
+  437  ssh g4
+  438  node -v
+  439  ssh g4
+  440  cd
+  441  cd Downloads
+  442  ls -alt | head
+  443  gvim awskeypair1.pem 
+  444  cd
+  445  cd .ssh
+  446  ls
+  447  cp ~/Downloads/awskeypair1.pem .
+  448   ssh -i "awskeypair1.pem" ubuntu@10.0.0.45
+  449  ls
+  450  chmod 400 awskeypair1.pem 
+  451  cat awskeypair1.pem 
+  452  ssh -i awskeypair1.pem ec2-user@public_dns_name
+  453   ssh -i "awskeypair1.pem" ubuntu@10.0.0.251
+  454  ls awskeypair1.pem 
+  455  history 20
+  456  ssh -i awskeypair1.pem ubuntu@52.59.193.20
+  457  ping 52.59.193.20
+  458  ping ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  459  ssh -i awskeypair1.pem ubungu@ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  460  history 20
+  461  ssh -i awskeypair1.pem ec2-user@ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  462  ssh -vvv -i  awskeypair1.pem ec2-user@ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  463  ssh -vvv -i ./awskeypair1.pem ec2-user@ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  464  ping ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  465  ping  ec2-52-59-193-20.eu-central-1.compute.amazonaws.com 
+  466  ssh  ec2-52-59-193-20.eu-central-1.compute.amazonaws.com 
+  467  ssh -i ./awskeypair1.pem  ec2-52-59-193-20.eu-central-1.compute.amazonaws.com 
+  468  ssh -vvv -i ./awskeypair1.pem  ec2-52-59-193-20.eu-central-1.compute.amazonaws.com 
+  469  ssh -i ./awskeypair1.pem ubuntu@ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  470  ssh -i ./awskeypair1.pem ubuntu@ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  471  ls
+  472  vi ./awskeypair1.pem 
+  473  ssh -i ./awskeypair1.pem ubuntu@ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  474  ssh -i ./awskeypair1.pem ubuntu@ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  475  ssh -vvv -i ./awskeypair1.pem ubuntu@ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  476  ssh -i awskeypair1.pem ubuntu@52.59.193.20
+  477  ssh -i awskeypair1.pem ubuntu@52.59.193.20
+  478  ping 52.59.193.20
+  479  ping ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  480  ping www.google.com
+  481  ping ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  482  ping ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  483  ping ec2-52-59-193-20.eu-central-1.compute.amazonaws.com
+  484  ping 52.59.193.20
+  485  ssh -i awskeypair1.pem ubuntu@52.59.193.20
+  486  gcloud beta compute ssh --zone "europe-west3-b" "ubuntu-20" --project "kubernettest1-190221"
+  487  ssh stellan_ostlund@34.107.20.124
+  488  ls
+  489  cat id_rsa.pub
+  490  cd
+  491  ssh g4
+  492  ssh g4
+  493  history 20
+  494  ssh stellan_ostlund@34.107.20.124
+  495  xhost +
+  496  ssh stellan_ostlund@34.107.20.124
+  497  ssh -X 34.107.20.124
+  498  ssh -X stellan_ostlund@34.107.20.124
+  499  history
+  500  ssh -X stellan_ostlund@34.107.20.124
+  501  cd
+  502  cd .ssh
+  503  ls
+  504  cat known_hosts 
+  505  ssh stellan_ostlund@34.107.20.124
+  506  ssh stellan_ostlund@34.107.20.124
+  507  cd
+  508  ssh WWW/multicourse
+  509  cd
+  510  cd WWW
+  511  cd multicourse/
+  512  ls
+  513  cd media
+  514  cd /srv/media
+  515  cd /srv
+  516  ls
+  517  cd multicourse
+  518  ls
+  519  branch
+  520  pwd
+  521  cd
+  522  cd WWW/multicourse
+  523  ls
+  524  branch
+  525  git checkout -b multiv1
+  526  git commit -a
+  527  git add django/backend/exercises/migrations/0074_auto_20201106_0034.py
+  528  git commit 
+  529  cd django/backend
+  530  source ../env/bin/activate
+  531  sudo -u postgres psql
+  532  sudo -u psql
+  533  ps ax | grep postgres
+  534  sudo -u postgres postbres
+  535  which psql
+  536  postgres -U postgres
+  537  postgres -u postgres
+  538  postgres
+  539  psql
+  540  psql -U postgres
+  541  python manage.py migrate
+  542  pip install psycopg2-binary
+  543  python manage.py migrate
+  544  python manage.py loaddata fixtures/auth.json 
+  545  python manage.py loaddata fixtures/course.json 
+  546  pyrun
+  547  pyrun
+  548  branch
+  549  git branch -D tmp1
+  550  git commit -a
+  551  git cd backend
+  552  cd backend
+  553  vi settings.py
+  554  !
+  555  pwd
+  556  ls
+  557  mkdir routers
+  558  cd routers
+  559  gvim api.py
+  560  cd ..
+  561  gvim settings_base.py
+  562  grep INSTALLED *.py
+  563  psql -u postgres
+  564  psql -U postgres
+  565  cd backend
+  566  cd middleware/
+  567  ls
+  568  cd ..
+  569  cd routers
+  570  mv api.py __init__.py
+  571  pwd
+  572  cd ../..
+  573  python manage.py makemigrations
+  574  pwd
+  575  cd backend
+  576  grep samesite *.py
+  577  grep Same *.py
+  578  pwd
+  579  cd ..
+  580  python manage.py makemigrations
+  581  pwd
+  582  python manage.py makemigrations
+  583  history 20
+  584  pyrun
+  585  python manage.py migrate
+  586  python manage.py migrate --database=multicourse
+  587  pyrun
+  588  python manage.py migrate
+  589  python manage.py makemigrations
+  590  pyrun
+  591  history 20
+  592  python manage.py migrate --database=multicourse
+  593  python manage.py makemigrations
+  594  pyrun
+  595  history 20
+  596  python manage.py migrate --database=multicourse
+  597  pyrun
+  598  python manage.py migrate --database=multicourse
+  599  pyrun
+  600  pyrun
+  601  python manage.py migrate
+  602  history 20
+  603  python manage.py migrate --database=multicourse
+  604  pyrun
+  605  pwd
+  606  ls
+  607  vi settings.py
+  608  python manage.py migrate --database=multicourse
+  609  pyrun
+  610  python manage.py loaddata fixtures/auth.json 
+  611  python manage.py loaddata fixtures/course.json 
+  612  pwd
+  613  python manage.py loaddata fixtures/course.json 
+  614  pyrun
+  615  python manage.py migrate
+  616  pyrun
+  617  python manage.py loaddata fixtures/auth.json 
+  618  python manage.py loaddata fixtures/auth.json 
+  619  python manage.py loaddata fixtures/auth.json 
+  620  python manage.py migrate --database=multicourse
+  621  history 20
+  622  python manage.py migrate --database=multicourse
+  623  pyrun
+  624  history 20
+  625  python manage.py loaddata fixtures/auth.json 
+  626  python manage.py makemigrations
+  627  python manage.py loaddata fixtures/auth.json 
+  628  pyrun
+  629  psql -u postgres
+  630  psql
+  631  psql -U postgres
+  632  pwd
+  633  pyrun
+  634  psql -U postgres
+  635  python manage.py migrate
+  636  python manage.py loaddata fixtures/auth.json 
+  637  python manage.py loaddata fixtures/course.json
+  638  pyrun
+  639  pwd
+  640  cd multicourse
+  641  pyrun
+  642  pyrun
+  643  pwd
+  644  pyrun
+  645  pyrun
+  646  pyrun
+  647  pyrun
+  648  pyrun
+  649  pyrun
+  650  pyrun
+  651  pyrun
+  652  pyrun
+  653  pyrun
+  654  pyrun
+  655  pyrun
+  656  pyrun
+  657  pyrun
+  658  pyrun
+  659  pyrun
+  660  git checkout .
+  661  pyrun
+  662  pyrun
+  663  pyrun
+  664  pyrun
+  665  python manage.py migrate
+  666  git stash
+  667  cd ..
+  668  git stash
+  669  pwd
+  670  history 20
+  671  python manage.py rqworker
+  672  cd backend
+  673  python manage.py rqworker
+  674  python manage.py rqworker
+  675  python manage.py rqworker
+  676  python manage.py rqworker
+  677  python manage.py rqworkker
+  678  python manage.py rqworker
+  679  python manage.py rqworker
+  680  python manage.py rqworker
+  681  python manage.py rqworker
+  682  pwd
+  683  cd ..
+  684  cd backend
+  685  pwd
+  686  cd /srv
+  687  cd WWW/release
+  688  cd WWW/release
+  689  cd
+  690  cd WWW/release
+  691  cd django/backend
+  692  deactivate
+  693  pwd
+  694  source ../env/bin/activate
+  695  pyrun
+  696  pwd
+  697  pyrun
+  698  pwd
+  699  python manage.py migrate
+  700  pyrun
+  701  which python
+  702  ls
+  703  cd backend
+  704  cd exercises
+  705  pwd
+  706  cd ..
+  707  cd exercises/views/
+  708  ls
+  709  gvim api.py
+  710  cd ..
+  711  cd ..
+  712  pyrun
+  713  pwd
+  714  cd
+  715  deactivate
+  716  cd
+  717  cd WWW
+  718  cd multicourse/
+  719  cd django/backkend
+  720  cd django/backend/
+  721  source ../env/bin/activate
+  722  python manage.py rqworker
+  723  python manage.py rqworker
+  724  which python
+  725  deactivate
+  726  pwd
+  727  cd
+  728  cd WWW/o-alpha-plus/
+  729  cd django/backend
+  730  source ../env/bin/activate
+  731  cd ..
+  732  vi requirements.txt 
+  733  pyrun
+  734  cd ..
+  735  cd django/backend
+  736  pyrun
+  737  pwd
+  738  cd ..
+  739  cd ..
+  740  cd docker_deploy/
+  741  ls
+  742  which python3
+  743  cd kubernetes/
+  744  ls
+  745  deactivate
+  746  source env/bin/activate
+  747  gvim kube.py
+  748  python kube.py
+  749  python kube.py --help
+  750  python kube.py build-openta
+  751  python kube.py build-openta s53ostlund
+  752  history 20
+  753  python kube.py build-openta s53ostlund
+  754  docker push s53ostlund/openta:fim770v5_7e068beb
+  755   docker push s53ostlund/nginx:fim770v5_7e068beb
+  756  python kube.py --help
+  757  python kube.py create-instance
+  758   python kube.py create-instance --subpath fim770-copy --docker-repo hlinander --outputpath=.
+  759  python kube.py create-instance --subpath fim770-copy --docker-repo hlinander --output-path=.
+  760  python kube.py deploy-instance fim770-copy
+  761   python kube.py initialize-instance fim770-copy
+  762  pwd
+  763  ls
+  764  cd ..
+  765  cd kubernetes/
+  766  open README.md 
+  767  python kube.py create-instance --subpath=fim770-copy --docker-repo=hlinander --output-path=.
+  768  ls
+  769  cd fim770-copy
+  770  ls
+  771  cd ..
+  772  python kube.py deploy-instance fim770-copy
+  773  python kube.py deploy-instance fim770-copy
+  774  oc login --token=9vtXeIzOemuYITAjH8tiCxXM45VjRdsk_FOEu6gjdoo --server=https://api.k8s.gu.se:6443
+  775  ping api.k8s.gu.se
+  776  oc login --token=9vtXeIzOemuYITAjH8tiCxXM45VjRdsk_FOEu6gjdoo --server=https://130.241.39.203:6443
+  777  history
+  778  python kube.py deploy-instance fim770-copy
+  779  python kube.py list-instances
+  780  python kube.py list-instances
+  781  python kube.py list-instances
+  782  history
+  783  ls
+  784  history > commands
