@@ -90,7 +90,7 @@ frontend:
 	$(info Revision: ${REVISION})
 ifeq (, $(wildcard frontend/last_build/${REVISION}))
 	$(call run_docker_frontend, -e "HOME=/tmp", npm install)
-	$(call run_docker_frontend, , brunch build -p)
+	$(call run_docker_frontend, , brunch build )
 	$(call run_docker_backend, , python -u manage.py collectstatic --noinput --settings=backend.settings_base)
 else
 	$(info Frontend already built for the git revision ${REVISION})
