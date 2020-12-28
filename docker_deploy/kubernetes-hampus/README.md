@@ -1,29 +1,7 @@
-# Example OpenShift
-```
-export DOCKER_REPO=s53ostlund
-oc login --token=sha256~xxxxxxx --server=https://130.241.39.203:6443
-make build-deploy-docker
-docker push s53ostlund/openta:fim770v6_f50c17d1 && docker push s53ostlund/nginx:fim770v6_f50c17d1
-cd docker_deploy/kubernetes
-python3 -m venv env
-source env/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-./kube.py create-instance --subpath=subpath123 --docker-repo=s53ostlund  --output-path=.
-./kube.py deploy-instance subpath123 # IGNORE INGRESS ERROR!
-./kube.py list-instances
-```
- 
 # Quick start
-Setup a kubernetes cluster in your favorite way so that `kubectl` is authentication with a cluster.
-For example with an OpenShift system first do
-`oc login`
-If running on minikube
-`
-minikube start
-kubectl create namespace openta
-kubectl config set-context --current --namespace=openta`
-`
+Setup a kubernetes cluster in your favorite way so that `kubectl cluster-info` returns a healthy cluster.
+Install an ingress controller such that
+`kubectl get ingress --all-namespaces` is non-empty
 
 ## Prepare docker repo
 Create or login to a docker repository
