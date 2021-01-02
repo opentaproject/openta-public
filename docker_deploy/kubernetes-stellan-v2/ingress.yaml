@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: openta-ingress
+  namespace: openta
+spec:
+  rules:
+  - http:
+      paths:
+      # Corresponding to first running ./addsubpath subpath1 ...
+      # and then deploying with kubectl apply -f subpath1/
+      - path: /subpatha/
+        backend:
+          serviceName: subpatha
+          servicePort: 80

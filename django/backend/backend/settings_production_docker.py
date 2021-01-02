@@ -40,6 +40,7 @@ DATABASES = {
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 _subpath = os.environ.get('OPENTA_SUBPATH')
+VERSION_TAG = os.environ.get('VERSION_TAG'}
 
 if _subpath is not None:
     SUBPATH = _subpath + '/'
@@ -60,4 +61,4 @@ try:
    GS_CREDENTIALS = service_account.Credentials.from_service_account_file( 'backend/keyfile.json')
 except:
    pass
-STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/v2.1.2/'
+STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/%s/' % VERSION_TAG

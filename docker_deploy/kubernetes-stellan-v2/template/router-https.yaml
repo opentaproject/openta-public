@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: course
+  annotations:
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+    certmanager.k8s.io/acme-http01-edit-in-place: "true"
+spec:
+  tls:
+  - secretName: openta-tls
+    hosts:
+    - example.host.com
+  rules:
+  - http:
+      paths:
+      - path: /example_subpath/*
+        backend:
+          serviceName: example_subpath
+          servicePort: 80
+      - path: /example_subpath
+        backend:
+          serviceName: example_subpath
+          servicePort: 80

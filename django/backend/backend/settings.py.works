@@ -114,3 +114,7 @@ try:
 except:
 	pass
 STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/deploystatic/'
+try:
+        from backend.settings_sqlite3 import *
+except:
+        pass

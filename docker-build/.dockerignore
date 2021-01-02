@@ -11,3 +11,4 @@ deploystatic
 **/.git
 **/*.sock
 **/settings_local.py
+**/settings_sqlite3.py
