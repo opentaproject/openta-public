@@ -56,5 +56,8 @@ if _subpath is not None:
     SESSION_COOKIE_NAME = 'sessionid' + _subpath
 
 # Fix same-site cookie
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file( 'backend/keyfile.json')
+try:
+   GS_CREDENTIALS = service_account.Credentials.from_service_account_file( 'backend/keyfile.json')
+except:
+   pass
 STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/v2.1.2/'

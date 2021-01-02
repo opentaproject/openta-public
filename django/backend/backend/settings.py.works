@@ -109,5 +109,8 @@ if RUNNING_DEVSERVER :
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
     ]
 
-GS_CREDENTIALS = service_account.Credentials.from_service_account_file( '/srv/alpha-plus/django/backend/backend/keyfile.json')
+try:
+	GS_CREDENTIALS = service_account.Credentials.from_service_account_file( '/srv/alpha-plus/django/backend/backend/keyfile.json')
+except:
+	pass
 STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/deploystatic/'
