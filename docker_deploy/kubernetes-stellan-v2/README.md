@@ -1,4 +1,4 @@
-# Quick start
+# Quick start assuming images exist at repo
 ```
 chmod +x ./kube.py
 minikube delete
@@ -16,63 +16,81 @@ kubectl apply -f ingress.yaml
 export  SERVER_INFO_KEY=SERVER_INFO_KEY_FROM_KUBKOMMANDS # ANYTHING UNIQUE GOES HERE AS SERVER_INFO_KEY
 export SUBPATH=subpathh
 export VERSION=fim770v6_f50c17d1 #FROM make version in 
+export VERSION=clean7
+export VERSION_TAG=clean7
 ./kube.py create-instance --subpath=$SUBPATH --docker-repo=s53ostlund --version  $VERSION --server_info_key $SERVER_INFO_KEY --output-path=.
 ./kube.py deploy-instance $SUBPATH
 ./kube.py initialize-instance  $VERSION-XXXXX # GET XXXX kubectl get pods
-## CONFIRM CONTAINER IS SERVING 
 k exec -i -t subpathg-774cd8f49f-n2hdr  --container web -- /bin/bash
 k port-forward deployment/subpathg  8000:8000 # NOT NGINX
 k port-forward deployment/subpathnew 8080:8080 # OK!
 k port-forward deployment/subpathh 8080:8080 # OK!
 
+```
 # dev cycle; for backend changes
-# from base directory
-docker build --tag s53ostlund/openta:v2.1.2 .
-docker push 53ostlund/openta:v2.1.2 
 
-# from kubernetetes-stellan-v2
-docker build --tag s53ostlund/nginx:v2.1.2 .
-docker push s53ostlund/nginx:v2.1.2 
-
+## from base directory
+```
+git clone https://github.com/s53ostlund/openta.git wip
+cd wip ; git checkout wip;
+docker login
+```
+## Build the base image; do at most once openta-base is not used
+```
+docker build --tag s53ostlund/openta:openta-base -f docker-build/Dockerfile-base .
+docker push s53ostlund/openta:openta-base
+```
+## Build the backend image 
+```
+export VERSION_TAG=clean7
+cp docker-build/.dockerignore .
+docker build --tag s53ostlund/openta:${VERSION_TAG} .
+docker push s53ostlund/openta:${VERSION_TAG}
 
 ```
 
-## Setup a kubernetes cluster in your favorite way so that `kubectl cluster-info` returns a healthy cluster.
+## Build the frontend CDN
+
+- See cdn subdirectorr for instructions for setting up cdn
+- Tricky issue with cors permssion and font-awesome
+
+```
+cd frontend
+npm install
+brunch build
+cd ..
+python3 -m venv env
+pip install  -r requuirements.txt
+cd django
+python manage.py collectstatic
+export PROJECT_ID=$(gcloud config list --format='value(core.project)')
+export PROJECT_ID_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+export INSTANCE_NAME='demoproject'
+export REGION='europe-north1'
+export INSTANCE_CONNECTION_NAME=${PROJECT_ID}:${REGION}:${INSTANCE_NAME}
+export BUCKET_NAME=openta-cdn-bucket
+gsutil -m cp -r deploystatic gs://${BUCKET_NAME}/${VERSION_TAG}
+```
+
+## Build the backend nginx image
+
+
+```
+cd docker_deploy/kubernetes-stellan-v2/nginx
+docker build --tag s53ostlund/nginx:${VERSION_TAG} -f Dockerfile.nginx .
+
+```
+
+- Try out runserver and make sure CDN is serving frontend $VERSION_TAG 
+- Setup a kubernetes cluster in your favorite way so that `kubectl cluster-info` returns a healthy cluster.
 ## Install an ingress controller such that
 `kubectl get ingress --all-namespaces` is non-empty
-
-## Prepare docker repo
-Create or login to a docker repository
-`docker login ...`
-
-Build and push openta
-`DOCKER_REPO=repo_name make build-deploy-docker`
-
-Push images as instructed
-
-Note openta version (referred to as openta-version below)
-`make version`
-
-## Create virtualenv
-`python3 -m venv env`
-`source env/bin/activate`
-`pip install -r requirements.txt`
 
 ## List available commands
 `./kube.py --help`
 
 Help for a subcommand can be found with
 `./kube.py command --help`
-
-## Create a new instance
-See `./kube.py create-instance --help` for full reference.
-Example:
-`./kube.py create-instance --subpath=example --docker-repo=repo_name --version openta-version --output-path=.`
-
-Inspect the deployment in `$PWD/example`
-
-Deploy the instance with
-`./kube.py deploy-instance example`
 
 ### Inspect instances
 `./kube.py list-instances`
@@ -84,5 +102,3 @@ Wait for the containers to come up
 
 ### Connect to instance via tunnel
 `./kube.py access-instance example`
-
-
