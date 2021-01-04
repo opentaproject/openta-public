@@ -167,10 +167,10 @@ class Course(models.Model):
             defaultuser.opentauser.courses.add(self)
         except:
             pass
-        dump_path = paths.EXERCISES_PATH + '/' + str(self.course_key) + ".json" 
-        output = open(dump_path,'w') # Point stdout at a file for dumping data to.
-        call_command('dumpdata','course',format='json',indent=3,stdout=output)
-        output.close()        
+        #dump_path = paths.EXERCISES_PATH + '/' + str(self.course_key) + ".json" 
+        #output = open(dump_path,'w') # Point stdout at a file for dumping data to.
+        #call_command('dumpdata','course',format='json',indent=3,stdout=output)
+        #output.close()        
 
     def clean(self):
         if False and self.use_auto_translation  and self.google_auth_string == '':

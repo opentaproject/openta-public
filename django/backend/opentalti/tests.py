@@ -81,7 +81,8 @@ class TestLTI(TestCase):
         )
         url = "/" + settings.SUBPATH + LTI_LAUNCH
         response = self.client.post(url, data=data, **self._headers)
-        self.assertIn("please try again", str(response.content))
+        print("RESPONSE.CONTENT = ", str( response.content) )
+        self.assertIn("YOU ARE OPENING THIS IN A FRAME", str(response.content))
 
     @patch("opentalti.views.verify_request_common")
     def test_lti_first_launch_student(self, verify_request_common=None):
