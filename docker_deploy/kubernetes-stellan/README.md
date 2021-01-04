@@ -2,23 +2,32 @@
 ```
 chmod +x ./kube.py
 minikube delete
-minikube start --cpus 4 --memory 8096 --driver=virtualbox # --extra-config=apiserver.runtime-config=apps/v1beta1=true,extensions/v1beta1/deployments=true
+minikube start --cpus 4 --memory 8096 --vm-driver virtualbox # --driver=virtualbox # --extra-config=apiserver.runtime-config=apps/v1beta1=true,extensions/v1beta1/deployments=true
 kubectl create namespace openta
 minikube addons enable ingress
 eval $(minikube docker-env)
-docker login
 kubectl delete secret dockerkey --namespace openta
-kubectl create secret generic dockerkey --from-file=.dockerconfigjson=/Users/ostlund/.docker/config.json --type=kubernetes.io/dockerconfigjson
+```
+## Tricky; do this once only;   Get the right secret into minikube
+
+
+- `minikube ssh`
+- inside minikube : `cat ~docker/.docker/config.json`
+- copy this file to your $HOME/.docker/config.json.minikube 
+
+##  Now continue
+```
+kubectl create secret generic dockerkey --from-file=.dockerconfigjson=/Users/ostlund/.docker/config.json.minikube --type=kubernetes.io/dockerconfigjson --namespace openta
 kubectl cluster-info
 export DOCKER_REPO=s53ostlund
 kubectl config set-context $(kubectl config current-context) --namespace=openta
 kubectl apply -f ingress.yaml
 export  SERVER_INFO_KEY=SERVER_INFO_KEY_FROM_KUBKOMMANDS # ANYTHING UNIQUE GOES HERE AS SERVER_INFO_KEY
-export SUBPATH=subpathh
-export VERSION=fim770v6_f50c17d1 #FROM make version in 
+export SUBPATH=subpathclean7
 export VERSION=clean7
 export VERSION_TAG=clean7
-./kube.py create-instance --subpath=$SUBPATH --docker-repo=s53ostlund --version  $VERSION --server_info_key $SERVER_INFO_KEY --output-path=.
+source env/bin/activate
+./kube.py create-instance --subpath=$SUBPATH --docker-repo=s53ostlund --version  $VERSION --version_tag  $VERSION_TAG --server_info_key $SERVER_INFO_KEY --output-path=.
 ./kube.py deploy-instance $SUBPATH
 ./kube.py initialize-instance  $VERSION-XXXXX # GET XXXX kubectl get pods
 k exec -i -t subpathg-774cd8f49f-n2hdr  --container web -- /bin/bash

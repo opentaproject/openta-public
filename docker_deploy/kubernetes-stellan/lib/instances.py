@@ -20,9 +20,9 @@ def render_template(template_path, template, context):
     return template.render(context)
 
 
-def create_instance(output_path, subpath, docker_repo, version,server_info_key):
+def create_instance(output_path, subpath, docker_repo, version,server_info_key, version_tag):
     context = dict(
-        SUBPATH=subpath, DOCKERREPOSITORY=docker_repo, VERSION=version, OPENTA_USE_SSL=False,
+        SUBPATH=subpath, DOCKERREPOSITORY=docker_repo, VERSION=version, OPENTA_USE_SSL=False, VERSION_TAG=version_tag,
         SERVER_INFO_KEY=server_info_key
     )
     full_output_path = os.path.join(output_path, subpath)

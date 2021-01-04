@@ -155,7 +155,7 @@ def list_data(args):
 
 def create_instance(args):
     print("CREATE ARGS = ", args )
-    instances.create_instance(args.output_path, args.subpath, args.docker_repo, args.version,args.server_info_key)
+    instances.create_instance(args.output_path, args.subpath, args.docker_repo, args.version,args.server_info_key,args.version_tag)
 
 def deploy_instance(args):
     v1 = client.CoreV1Api()
@@ -187,6 +187,7 @@ def parse_arguments():
     create_instance_parser.set_defaults(func=create_instance)
     create_instance_parser.add_argument("--subpath", type=str, required=True)
     create_instance_parser.add_argument("--docker-repo", type=str, required=True)
+    create_instance_parser.add_argument("--version_tag", type=str, required=True)
     create_instance_parser.add_argument("--version", type=str, required=True)
     create_instance_parser.add_argument("--server_info_key", type=str, required=True)
     create_instance_parser.add_argument("--output-path", type=str, required=True)

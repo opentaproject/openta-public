@@ -33,7 +33,7 @@ spec:
             - DJANGO_SETTINGS_MODULE=backend.settings_production_kubernetes
           env:
           - name: VERSION_TAG
-            value: "{{VERSION_TAG}}"
+            value: {{VERSION_TAG}}
           - name: WEB_CONCURRENCY
             value: "10"
           - name: OPENTA_SUBPATH
@@ -110,7 +110,7 @@ spec:
             - rqworker
           env:
           - name: VERSION_TAG
-            value: "{{VERSION_TAG}}"
+            value: {{VERSION_TAG}}
           image: {{DOCKERREPOSITORY}}/openta:{{VERSION}}
           imagePullPolicy: IfNotPresent
           volumeMounts:
