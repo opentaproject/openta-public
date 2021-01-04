@@ -43,6 +43,7 @@ docker push s53ostlund/openta:openta-base
 ## Build the backend image 
 ```
 export VERSION_TAG=clean7
+cp django/backend/backend/settings_production_kubernetes.py django/backend/backend/settings.py
 cp docker-build/.dockerignore .
 docker build --tag s53ostlund/openta:${VERSION_TAG} .
 docker push s53ostlund/openta:${VERSION_TAG}
