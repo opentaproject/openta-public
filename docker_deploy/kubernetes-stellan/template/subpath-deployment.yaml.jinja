@@ -42,7 +42,7 @@ spec:
             value: "{{VERSION}}"
           - name: SERVER_INFO_KEY
             value: "{{SERVER_INFO_KEY}}"
-          image: {{DOCKERREPOSITORY}}/openta:{{VERSION}}
+          image: {{DOCKERREPOSITORY}}/openta:{{VERSION_TAG}}
           imagePullPolicy: IfNotPresent
           volumeMounts:
           - mountPath: /srv/openta/django/backend/media
@@ -68,7 +68,7 @@ spec:
               cpu: "0.05"
               memory: "256Mi"
 
-        - image: {{DOCKERREPOSITORY}}/nginx:{{VERSION}}
+        - image: {{DOCKERREPOSITORY}}/nginx:{{VERSION_TAG}}
           imagePullPolicy: IfNotPresent
           name: nginx
           command: ["/bin/sh"]
@@ -111,7 +111,7 @@ spec:
           env:
           - name: VERSION_TAG
             value: {{VERSION_TAG}}
-          image: {{DOCKERREPOSITORY}}/openta:{{VERSION}}
+          image: {{DOCKERREPOSITORY}}/openta:{{VERSION_TAG}}
           imagePullPolicy: IfNotPresent
           volumeMounts:
           - mountPath: /srv/openta/django/backend/media

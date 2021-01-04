@@ -17,7 +17,7 @@ kubectl delete secret dockerkey --namespace openta
 
 ##  Now continue
 ```
-kubectl create secret generic dockerkey --from-file=.dockerconfigjson=/Users/ostlund/.docker/config.json.minikube --type=kubernetes.io/dockerconfigjson --namespace openta
+kubectl create secret generic dockerkey --from-file=.dockerconfigjson=$HOME/.docker/config.json.minikube --type=kubernetes.io/dockerconfigjson --namespace openta
 kubectl cluster-info
 export DOCKER_REPO=s53ostlund
 kubectl config set-context $(kubectl config current-context) --namespace=openta
@@ -27,10 +27,13 @@ export SUBPATH=subpathclean7
 export VERSION=clean7
 export VERSION_TAG=clean7
 source env/bin/activate
+export VERSION=alpha-plus_69259d1f
+export VERSION_TAG=v2.1.2
+export SUBPATH=v212b
 ./kube.py create-instance --subpath=$SUBPATH --docker-repo=s53ostlund --version  $VERSION --version_tag  $VERSION_TAG --server_info_key $SERVER_INFO_KEY --output-path=.
 ./kube.py deploy-instance $SUBPATH
 ./kube.py initialize-instance  $VERSION-XXXXX # GET XXXX kubectl get pods
-k exec -i -t subpathg-774cd8f49f-n2hdr  --container web -- /bin/bash
+k exec -i -t subpathclean7-765558fcc9-ctqbc --container web -- /bin/bash
 k port-forward deployment/subpathg  8000:8000 # NOT NGINX
 k port-forward deployment/subpathnew 8080:8080 # OK!
 k port-forward deployment/${SUBPATH} 8080:8080 # OK!
@@ -40,8 +43,8 @@ k port-forward deployment/${SUBPATH} 8080:8080 # OK!
 
 ## from base directory
 ```
-git clone https://github.com/s53ostlund/openta.git wip
-cd wip ; git checkout wip;
+git clone https://github.com/s53ostlund/openta.git alpha-plus
+cd alpha-plus; git checkout alpha-plus;
 docker login
 ```
 ## Build the base image; do at most once openta-base is not used
@@ -50,10 +53,12 @@ docker build --tag s53ostlund/openta:openta-base -f docker-build/Dockerfile-base
 docker push s53ostlund/openta:openta-base
 ```
 ## Build the backend image 
+
 ```
-export VERSION_TAG=clean7
+export VERSION_TAG=${CURRENT_TAG}
+export VERSION=69259d1f77e8393dd
 cp django/backend/backend/settings_production_kubernetes.py django/backend/backend/settings.py
-cp docker-build/.dockerignore .
+ln -s docker-build/.dockerignore .dockerignore
 docker build --tag s53ostlund/openta:${VERSION_TAG} .
 docker push s53ostlund/openta:${VERSION_TAG}
 
