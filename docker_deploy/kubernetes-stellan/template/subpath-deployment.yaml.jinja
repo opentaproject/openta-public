@@ -30,8 +30,10 @@ spec:
             - --bind
             - 0.0.0.0:8000
             - --env
-            - DJANGO_SETTINGS_MODULE=backend.settings_production_docker
+            - DJANGO_SETTINGS_MODULE=backend.settings_production_kubernetes
           env:
+          - name: VERSION_TAG
+            value: "{{VERSION_TAG}}"
           - name: WEB_CONCURRENCY
             value: "10"
           - name: OPENTA_SUBPATH
@@ -77,7 +79,7 @@ spec:
           - name: USE_SSL
             value: "{{OPENTA_USE_SSL}}"
           ports:
-          - containerPort: 80
+          - containerPort: 8080
           volumeMounts:
           - mountPath: /srv/openta/django/backend/media
             name: site-data
@@ -106,6 +108,9 @@ spec:
             - python
             - manage.py
             - rqworker
+          env:
+          - name: VERSION_TAG
+            value: "{{VERSION_TAG}}"
           image: {{DOCKERREPOSITORY}}/openta:{{VERSION}}
           imagePullPolicy: IfNotPresent
           volumeMounts:
