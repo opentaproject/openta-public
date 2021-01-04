@@ -33,7 +33,7 @@ source env/bin/activate
 k exec -i -t subpathg-774cd8f49f-n2hdr  --container web -- /bin/bash
 k port-forward deployment/subpathg  8000:8000 # NOT NGINX
 k port-forward deployment/subpathnew 8080:8080 # OK!
-k port-forward deployment/subpathh 8080:8080 # OK!
+k port-forward deployment/${SUBPATH} 8080:8080 # OK!
 
 ```
 # dev cycle; for backend changes
