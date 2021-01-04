@@ -8,7 +8,7 @@ minikube addons enable ingress
 eval $(minikube docker-env)
 kubectl delete secret dockerkey --namespace openta
 ```
-## Tricky; do this once only;   Get the right secret into minikube
+## Tricky; Try this; I can't get minikube consistently set secret properly
 
 
 - `minikube ssh`
@@ -20,22 +20,18 @@ kubectl delete secret dockerkey --namespace openta
 kubectl create secret generic dockerkey --from-file=.dockerconfigjson=$HOME/.docker/config.json.minikube --type=kubernetes.io/dockerconfigjson --namespace openta
 kubectl cluster-info
 export DOCKER_REPO=s53ostlund
+kubectl config set-context --current --namespace=openta
 kubectl config set-context $(kubectl config current-context) --namespace=openta
 kubectl apply -f ingress.yaml
 export  SERVER_INFO_KEY=SERVER_INFO_KEY_FROM_KUBKOMMANDS # ANYTHING UNIQUE GOES HERE AS SERVER_INFO_KEY
-export SUBPATH=subpathclean7
-export VERSION=clean7
-export VERSION_TAG=clean7
 source env/bin/activate
-export VERSION=alpha-plus_69259d1f
+export VERSION=alpha-plus_69259d1f 
 export VERSION_TAG=v2.1.2
 export SUBPATH=v212b
 ./kube.py create-instance --subpath=$SUBPATH --docker-repo=s53ostlund --version  $VERSION --version_tag  $VERSION_TAG --server_info_key $SERVER_INFO_KEY --output-path=.
 ./kube.py deploy-instance $SUBPATH
 ./kube.py initialize-instance  $VERSION-XXXXX # GET XXXX kubectl get pods
 k exec -i -t subpathclean7-765558fcc9-ctqbc --container web -- /bin/bash
-k port-forward deployment/subpathg  8000:8000 # NOT NGINX
-k port-forward deployment/subpathnew 8080:8080 # OK!
 k port-forward deployment/${SUBPATH} 8080:8080 # OK!
 
 ```
