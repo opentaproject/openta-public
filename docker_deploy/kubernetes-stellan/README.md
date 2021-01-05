@@ -1,4 +1,33 @@
-# Quick start assuming images exist at repo
+# Quickstart GKE
+# make sure kubectl is served by gcloud commands
+which gcloud # "/Users/ostlund/google-cloud-sdk/bin/kubectl"
+gcloud init
+export COMPUTE_ZONE=europe-north1-b
+export PROJECT_ID=demoproject-296306
+export CLUSTER_NAME=openta-cluster
+gcloud container clusters create ${CLUSTER_NAME} --zone ${COMPUTE_ZONE} --node-locations ${COMPUTE_ZONE}  
+kubectl create namespace openta
+kubectl config set-context $(kubectl config current-context) --namespace=openta
+kubectl config set-context --current --namespace=openta
+gcloud container clusters get-credentials openta-cluster --zone europe-north1-b --project demoproject-296306
+kubectl cluster-info
+export SERVER_INFO_KEY=SERVER_INFO_KEY_FROM_KUBKOMMANDS # ANYTHING UNIQUE GOES HERE AS SERVER_INFO_KEY
+export VERSION=alpha-plus_69259d1f 
+export VERSION_TAG=v2.1.2
+export SUBPATH=v212b
+export DOCKER_REPO=s53ostlund
+#./kube.py create-instance --subpath=$SUBPATH --docker-repo=s53ostlund --version  $VERSION --version_tag  $VERSION_TAG --server_info_key $SERVER_INFO_KEY --output-path=.
+docker login
+kubectl delete secret dockerkey --namespace openta
+kubectl config set-context --current --namespace=openta create secret generic dockerkey --from-file=.dockerconfigjson=$HOME/.docker/config.json.gke --type=kubernetes.io/dockerconfigjson --namespace openta
+kubectl create secret docker-registry dockerkey --docker-server=https://index.docker.io/v1/  \
+	--docker-username=XXXXX --docker-password=XXXXX --docker-email=stellan.ostlund@gmail.com
+kubectl apply -f v212b 
+gcloud container clusters resize openta-cluster --node-pool default-pool --num-nodes 1
+
+
+
+# Quick start minikube assuming images exist at repo
 ```
 chmod +x ./kube.py
 minikube delete

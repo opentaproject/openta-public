@@ -1,0 +1,4 @@
+docker pull s53ostlund/openta:alpha-plus
+docker tag s53ostlund/openta:alpha-plus openta-image
+export OPENTA_SUBPATH=openta
+docker-compose up

@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: basic-ingress
+  #annotations:
+  #  kubernetes.io/ingress.global-static-ip-name: "pinetreesquaredotcom"
+spec:
+  rules:
+  - http:
+      paths:
+      #- path: /
+      #  backend:
+      #    serviceName: mynginx
+      #    servicePort: 8080
+      - path: /v2
+        backend:
+          serviceName: web2
+          servicePort: 8080
+      - path: /v212b/*
+        backend:
+          serviceName: v212b
+          servicePort: 8080

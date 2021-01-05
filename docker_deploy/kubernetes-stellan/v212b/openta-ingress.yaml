@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: openta-ingress
+  namespace: openta
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: pinetreesquaredotcom
+    networking.gke.io/managed-certificates: my-mc-certificate-1
+spec:
+  rules:
+  - host: "*.pinetreesquare.com"
+    http:
+      paths:
+      - path: "/v212b/*"
+        backend:
+          serviceName:  v212b
+          servicePort: 8080

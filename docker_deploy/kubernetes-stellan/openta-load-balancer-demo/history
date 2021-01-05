@@ -1,0 +1,500 @@
+ 1892  k port-forward deployment/v212b 8080:8080
+ 1893  k describe service v212b
+ 1894  k describe service v212b
+ 1895  k port-forward deployment/v212b 8080:8080
+ 1896  k get services
+ 1897  kubectl port-forward deployment/mynginx 8080:8080
+ 1898  kubectl port-forward deployment/v212b 8080:8080
+ 1899  ls
+ 1900  curl http://pinetreesquare.com/v212b
+ 1901  ls
+ 1902  cd loadbalancer/
+ 1903  ls
+ 1904  vi basic-ingress-static.yaml 
+ 1905  curl http://pinetreesquare.com/v212b/login
+ 1906  ls
+ 1907  vi basic-ingress-static.yaml 
+ 1908  k apply -f basic-ingress-static.yaml 
+ 1909  pwd
+ 1910  cd ..
+ 1911  ls
+ 1912  cd ..
+ 1913  ls
+ 1914  cd ..
+ 1915  cd kubernetes
+ 1916  ls
+ 1917  searchfor gunicorn
+ 1918  cd template
+ 1919  ls
+ 1920  grep gunicorn *
+ 1921  vi subpath-deployment.yaml.jinja
+ 1922  cd ..
+ 1923  ls
+ 1924  pwd
+ 1925  cat ./addsubpath 
+ 1926  searchfor USE_SSL
+ 1927  cd lib
+ 1928  grep USE_SSL *
+ 1929  cd ..
+ 1930  ls
+ 1931  virtualenv -p python3 env
+ 1932  pip install -r requirements.txt 
+ 1933  ls
+ 1934  export
+ 1935  ./kube.py initialize-instance v212b
+ 1936  chmod +x ./kube.py
+ 1937  ./kube.py initialize-instance v212b
+ 1938  ls
+ 1939  ./kube.py
+ 1940  ./kube.py help
+ 1941  ./kube.py create-instance v212b
+ 1942  ./kube.py create-instance --subpath v212b --docker-repo s53ostlund --output-path v212b
+ 1943  cd v212b
+ 1944  ls
+ 1945  cd *
+ 1946  ls
+ 1947  vi subpath-deployment.yaml 
+ 1948  cp ./subpath-deployment.yaml /tmp
+ 1949  cd ..
+ 1950  cd ..
+ 1951  ls
+ 1952  cd ..
+ 1953  cd kubernetes-stellan
+ 1954  ls
+ 1955  cd openta-load-balancer-demo/
+ 1956  ls
+ 1957  cd loadbalancer/
+ 1958  ls
+ 1959  gvim /tmp/subpath-deployment.yaml 
+ 1960  pwd
+ 1961  ls
+ 1962  kubectl apply -f subpath-deployment.yaml 
+ 1963  kubectl apply -f subpath-deployment.yaml 
+ 1964  k get pods
+ 1965  k get pods
+ 1966  history
+ 1967  history | grep port
+ 1968  kubectl port-forward deployment/v212b 8080:8080
+ 1969  ls
+ 1970  vi basic-ingress-static.yaml 
+ 1971  curl http://pinetreesquare.com/weba/
+ 1972  curl http://pinetreesquare.com/web2
+ 1973  cat basic-ingress-static.yaml 
+ 1974  curl http://pinetreesquare.com/web2/
+ 1975  curl http://pinetreesquare.com/v212b/
+ 1976  k get pods
+ 1977  k logs v212b-5c4f54d6c5-b7q7p -c web
+ 1978  k logs  v212b-5c4f54d6c5-b7q7p -c nginx
+ 1979  k logs  v212b-5c4f54d6c5-b7q7p -c nginx
+ 1980  k logs  v212b-5c4f54d6c5-b7q7p -c nginx
+ 1981  ls
+ 1982  vi basic-ingress-static.yaml
+ 1983  pwd
+ 1984  cat basic-ingress-static.yaml 
+ 1985  vi basic-ingress-static.yaml
+ 1986  k apply -f basic-ingress-static.yaml 
+ 1987  k describe ingress basic-ingress
+ 1988  vi basic-ingress-static.yaml
+ 1989  k describe ingress basic-ingress
+ 1990  pwd
+ 1991  cd ..
+ 1992  k apply -f loadbalancer/
+ 1993  k describe ingress basic-ingress
+ 1994  ls
+ 1995  cd loadbalancer/
+ 1996  ls
+ 1997  gvim basic-ingress-static.yaml 
+ 1998  k apply -f basic-ingress-static.yaml 
+ 1999  k describe ingress basic-ingress
+ 2000  k describe ingress basic-ingress
+ 2001  k apply -f basic-ingress-static.yaml 
+ 2002  history
+ 2003  k describe ingress basic-ingress
+ 2004  k describe ingress basic-ingress
+ 2005  k apply -f basic-ingress-static.yaml 
+ 2006  k describe ingress basic-ingress
+ 2007  k describe ingress basic-ingress
+ 2008  k  apply -f basic-ingress-static.yaml 
+ 2009  k apply -f basic-ingress-static.yaml 
+ 2010  k describe ingress basic-ingress
+ 2011  ls
+ 2012  cd ..
+ 2013  cd
+ 2014  cd WWW/alpha-plus
+ 2015  cd docker_deploy/
+ 2016  cd kubernetes
+ 2017  ls
+ 2018  searchfor rewrite
+ 2019  vi router.yaml
+ 2020  vi ./addsubpath 
+ 2021  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml
+ 2022  pwd
+ 2023  cd
+ 2024  cd WWW/alpha-plus
+ 2025  ls
+ 2026  cd docker_deploy/
+ 2027  ls
+ 2028  cd kubernetes-stellan
+ 2029  ls
+ 2030  vi README.md
+ 2031  cd openta-load-balancer-demo/
+ 2032  cd loadbalancerr
+ 2033  cd loadbalancer/
+ 2034  k apply -f basic-ingress-static.yaml 
+ 2035  k describe ingress basic-ingress
+ 2036  cat basic-ingress-static.yaml 
+ 2037  vi README.md
+ 2038  vi basic-ingress-static.yaml 
+ 2039  k apply -f basic-ingress-static.yaml 
+ 2040  k describe ingress basic-ingress
+ 2041  k describe ingress basic-ingress
+ 2042  k describe ingress basic-ingress
+ 2043  k describe ingress basic-ingress
+ 2044  k describe ingress basic-ingress
+ 2045  k describe ingress basic-ingress
+ 2046  curl http://pinetreesquare.com/web2
+ 2047  cat basic-ingress-static.yaml 
+ 2048  curl -kL http://pinetreesquare.com/weba
+ 2049  curl -kL http://pinetreesquare.com/weba/
+ 2050  curl -kL http://pinetreesquare.com/web2/
+ 2051   curl -kL http://pinetreesquare.com/v212b/
+ 2052  k get services
+ 2053  vi subpath-service.yaml 
+ 2054  curl -kL http://pinetreesquare.com/v212b/
+ 2055  curl -kL http://pinetreesquare.com/v212b
+ 2056  curl -kkL http://pinetreesquare.com/web2
+ 2057  cd ..
+ 2058  ls
+ 2059  cd ..
+ 2060  ls
+ 2061  searchfor scale
+ 2062  cd ingress-multi-ssl/
+ 2063  cat README.md
+ 2064  gcloud container clusters resize loadbalancedcluster --node-pool default-pool --num-nodes 1
+ 2065  which helm
+ 2066  history
+ 2067   gcloud container clusters resize loadbalancedcluster --node-pool default-pool --num-nodes 0
+ 2068  cd
+ 2069  cd WWW/openta-router/
+ 2070  ls
+ 2071  vi Makefile
+ 2072  cat README.helm
+ 2073  ls
+ 2074  cd kubernetes/
+ 2075  ls
+ 2076  vi README.md
+ 2077  ls
+ 2078  cat kubcommands 
+ 2079  ls
+ 2080  vi ingress.yaml
+ 2081  ls
+ 2082  vi ingress_example.yaml 
+ 2083  ls
+ 2084  cd subpathq
+ 2085  ls
+ 2086  vi subpath-service.yaml 
+ 2087  ls
+ 2088  ls
+ 2089  cd ..
+ 2090  ls
+ 2091  cd ..
+ 2092  cd ..
+ 2093  cd tennis-router/
+ 2094  ls
+ 2095  vi ingress.yaml 
+ 2096  cd tennis
+ 2097  ls
+ 2098  cat ingress.yaml 
+ 2099  cd ..
+ 2100  ls
+ 2101  vi postgres-configmap.yaml 
+ 2102  cat kubcommands 
+ 2103  ls
+ 2104  ls
+ 2105  cat tennisweb-deploy-pods.yaml 
+ 2106  ls
+ 2107  cat kubcommands 
+ 2108  cd ..
+ 2109  ls
+ 2110  cd alpha-plus
+ 2111  cd docker_deploy/
+ 2112  ls
+ 2113  cd kubernetes-stellan
+ 2114  ls
+ 2115  k get pods
+ 2116  ls
+ 2117  cd openta-load-balancer-demo/
+ 2118  ls
+ 2119  cd loadbalancer/
+ 2120  ls
+ 2121  vi subpath-deployment.yaml 
+ 2122  ls
+ 2123  k get pods
+ 2124  k apply -f subpath-deployment.yaml 
+ 2125  k get pods
+ 2126  k get pods
+ 2127  k get pods
+ 2128  k logs v212b-84989959b7-5mxfz 
+ 2129  k logs v212b-84989959b7-5mxfz  -c web
+ 2130  k logs v212b-84989959b7-5mxfz web
+ 2131  k get pods
+ 2132  k get pods
+ 2133  k get pods
+ 2134  k get pods
+ 2135  k get pods
+ 2136  gcloud config
+ 2137  gcloud config list
+ 2138  k get pods
+ 2139  k get pods
+ 2140  ls
+ 2141  cd .
+ 2142  cd ..
+ 2143  k get pods
+ 2144  k get pods
+ 2145  k apply -f loadbalancer/
+ 2146  k get pods
+ 2147  k get pods
+ 2148  k get pods
+ 2149  k get pods
+ 2150  k get deployments
+ 2151  ls
+ 2152  cd ..
+ 2153  ls
+ 2154  cd nginx-load-balancer-demo/
+ 2155  ls
+ 2156  vi default.conf
+ 2157  ls
+ 2158  cat Dockerfile 
+ 2159  vi default.conf
+ 2160  k get pods
+ 2161  kubectl get pods
+ 2162  history | grep scale
+ 2163  gcloud container clusters resize loadbalancedcluster  --node-pool default-pool --num-nodes 3
+ 2164  k get pods
+ 2165  k get pods
+ 2166  k get pods
+ 2167  kubectl exec -it v212b-84989959b7-5mxfz -c web -- /bin/bash
+ 2168  k get pods
+ 2169  kubernetes port-forward deployment/v212b 8080:8080
+ 2170  kubectl port-forward deployment/v212b 8080:8080
+ 2171  history
+ 2172  kubectl exec -it v212b-84989959b7-5mxfz -c nginx -- /bin/bash
+ 2173  kubectl exec -it v212b-84989959b7-5mxfz -c nginx -- /bin/sh
+ 2174  cd
+ 2175  ps ax | grep dockerr
+ 2176  docker ps
+ 2177  docker delete container 755c980534c8
+ 2178  docker stop container 755c980534c8
+ 2179  docker stop 755c980534c8
+ 2180  docker delete 755c980534c8
+ 2181  docker container kill 755c980534c8
+ 2182  docker ps
+ 2183  pwd
+ 2184  pwd
+ 2185  cd WWW
+ 2186  cd alpha-plus
+ 2187  cd backend
+ 2188  cd docker_deploy/
+ 2189  cd kubernetes-stellan
+ 2190  ls
+ 2191  cd openta-load-balancer-demo/
+ 2192  ls
+ 2193  cd loadbalancer/
+ 2194  ls
+ 2195  cp subpath-deployment.yaml /tmp
+ 2196  ls
+ 2197  k apply -f subpath-deployment.yaml 
+ 2198  k get pods
+ 2199  k get pods
+ 2200  k get pods
+ 2201  k get pods
+ 2202  k get pods
+ 2203  k get pods
+ 2204  k get pods
+ 2205  k get pods
+ 2206  k get pods
+ 2207  k get pods
+ 2208  k get pods
+ 2209  k exect -it v212b-66bcbb97f8-tm5mx -c nginx -- /bin/sh
+ 2210  k exec -it v212b-66bcbb97f8-tm5mx -c nginx -- /bin/sh
+ 2211  ls
+ 2212  k get pods
+ 2213  k port-forward deployment/v212b 8080:8080
+ 2214  k port-forward deployment/mynginx 8080:8080
+ 2215  ls
+ 2216  pwd
+ 2217  cd ..
+ 2218  ls
+ 2219  cd ..
+ 2220  ls
+ 2221  nginx-load-balancer-demo/
+ 2222  ls
+ 2223  cd nginx-load-balancer-demo/
+ 2224  ls
+ 2225  vi default.conf
+ 2226  ls
+ 2227  vi default.conf
+ 2228  docker build --tag s53ostlund/nginx:simple .
+ 2229  docker push docker build --tag s53ostlund/nginx:simple3 .
+ 2230  docker build --tag s53ostlund/nginx:simple3 .
+ 2231  docker push s53ostlund/nginx:simple3
+ 2232  lss
+ 2233  cd ..
+ 2234  ls
+ 2235  cd openta-load-balancer-demo/
+ 2236  ls
+ 2237  cd loadbalancer/
+ 2238  ls
+ 2239  grep nginx *
+ 2240  ls
+ 2241  cd ..
+ 2242  ls
+ 2243  cd ..
+ 2244  ls
+ 2245  cd nginx-load-balancer-demo/
+ 2246  ls
+ 2247  cd loadbalancer/
+ 2248  ls
+ 2249  cat nginx-deployment.yaml 
+ 2250  kubectl get services
+ 2251  grep mynginx *
+ 2252  vi nginx-deployment.yaml 
+ 2253  k apply -f nginx-deployment.yaml 
+ 2254  k get pods
+ 2255  k get pods
+ 2256  k get pods
+ 2257  k get pods
+ 2258  k get pods
+ 2259  k get pods
+ 2260  k get pods
+ 2261  k get pods
+ 2262  k get pods
+ 2263  k get pods
+ 2264  k get pods
+ 2265  k get pods
+ 2266  k get pods
+ 2267  k get pods
+ 2268  k get pods
+ 2269  k delete pods mynginx-766d856897-9hzd7
+ 2270  k get pods
+ 2271  k get pods
+ 2272  k get pods
+ 2273  ls
+ 2274  k get services
+ 2275  k port-forward deployment/mynginx 8080:8080
+ 2276  pwd
+ 2277  cd ..
+ 2278  ls
+ 2279  cd ..
+ 2280  cd openta-load-balancer-demo/
+ 2281  ls
+ 2282  cd loadbalancer/
+ 2283  lss
+ 2284  vi basic-ingress-static.yaml 
+ 2285  k apply -f basic-ingress-static.yaml 
+ 2286  k get pods
+ 2287  k get services
+ 2288  k get ingress basic-ingress
+ 2289  k describe ingress basic-ingress
+ 2290  ls
+ 2291  curl http://pinetreesquare.com/weba
+ 2292  cd ..
+ 2293  k apply -f loadbalancer/
+ 2294  k describe ingress basic-ingress
+ 2295  k describe ingress basic-ingress
+ 2296  curl http://pinetreesquare.com/v212b
+ 2297  k port-forward deployment/mynginx 8080:8080
+ 2298  curl http://pinetreesquare.com/v212b
+ 2299  curl http://pinetreesquare.com/v212b
+ 2300  pwd
+ 2301  ls
+ 2302  kubectl describe ingress basic-ingress
+ 2303  curl http://130.211.32.53/v212b
+ 2304  ls
+ 2305  cd loadbalancer
+ 2306  ls
+ 2307  vi basic-ingress-static.yaml 
+ 2308  pwd
+ 2309  curl http://130.211.32.53/v212b
+ 2310  k apply -f basic-ingress-static.yaml 
+ 2311  k describe ingress basic-ingress
+ 2312  k describe ingress basic-ingress
+ 2313  curl http://130.211.32.53/v212b
+ 2314  curl http://pinetreesquare.com/web2
+ 2315  ls
+ 2316  cd ..
+ 2317  cd ..
+ 2318  cd nginx-load-balancer-demo/
+ 2319  ls
+ 2320  cd loadbalancer/
+ 2321  ls
+ 2322  k apply -f nginx-service.yaml 
+ 2323  cd ..
+ 2324  ls
+ 2325  cd ..
+ 2326  cd openta-load-balancer-demo/
+ 2327  ls
+ 2328  cd loadbalancer/
+ 2329  ls
+ 2330  curl http://pinetreesquare.com/v212b
+ 2331  k apply -f basic-ingress-static.yaml 
+ 2332  cd ..
+ 2333  k apply -f loadbalancer/
+ 2334  curl http://pinetreesquare.com/v212b
+ 2335  curl http://pinetreesquare.com
+ 2336  curl http://pinetreesquare.com/
+ 2337  curl http://pinetreesquare.com/v212b
+ 2338  k describe ingress basic-ingress
+ 2339  kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.43.0/deploy/static/provider/cloud/deploy.yaml
+ 2340  ls
+ 2341  k apply -f loadbalancer/
+ 2342  k describe ingress basic-ingress
+ 2343  curl http://pinetreesquare.com/web2
+ 2344  curl http://pinetreesquare.com/
+ 2345  k apply -f loadbalancer/
+ 2346  helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+ 2347  helm repo update
+ 2348  helm install my-release ingress-nginx/ingress-nginx
+ 2349  ls
+ 2350  history
+ 2351  cd ..
+ 2352  k apply -f load-balancer-demo/
+ 2353  ls
+ 2354  cd openta-load-balancer-demo/
+ 2355  k apply -f load-balancer-demo/
+ 2356  k apply -f loadbalancer/
+ 2357  ls
+ 2358  k describe ingress openta-ingress
+ 2359  k describe ingress openta-ingress
+ 2360  k describe ingress basic-ingress
+ 2361  curl http://pinetreesquare.com/
+ 2362  history
+ 2363  curl http://pinetreesquare.com/
+ 2364  curl http://pinetreesquare.com
+ 2365  curl http://pinetreesquare.comweb2
+ 2366  curl http://pinetreesquare.com/web2
+ 2367  curl http://pinetreesquare.com/weba
+ 2368  kubectl create clusterrolebinding cluster-admin-binding   --clusterrole cluster-admin   --user $(gcloud config get-value account)
+ 2369  history
+ 2370  kubectl get pods -n ingress-nginx   -l app.kubernetes.io/name=ingress-nginx --watch
+ 2371  kubectl get pods -n ingress-nginx   -l app.kubernetes.io/name=ingress-nginx --watch
+ 2372  POD_NAMESPACE=ingress-nginx
+ 2373  POD_NAME=$(kubectl get pods -n $POD_NAMESPACE -l app.kubernetes.io/name=ingress-nginx --field-selector=status.phase=Running -o jsonpath='{.items[0].metadata.name}')
+ 2374  kubectl exec -it $POD_NAME -n $POD_NAMESPACE -- /nginx-ingress-controller --version
+ 2375  curl http://pinetreesquare.com/weba
+ 2376  history
+ 2377  curl http://pinetreesquare.com/weba
+ 2378  curl http://pinetreesquare.com
+ 2379  history
+ 2380  helm install basic-ingrrress ingress-nginx/ingress-nginx
+ 2381   helm install basic-ingress ingress-nginx/ingress-nginx
+ 2382  kubectl --namespace default get services -o wide -w basic-ingress-ingress-nginx-controller
+ 2383  curl http://35.228.62.133/
+ 2384  curl http://35.228.62.133/weba
+ 2385  curl http://pinetreesquare.com
+ 2386  k get services
+ 2387  history
+ 2388  kubectl --namespace default get services -o wide -w basic-ingress-ingress-nginx-controller
+ 2389  curl http://35.228.62.133/asasdf/asdasdfasfd
+ 2390  curl http://35.228.62.133/web2
+ 2391  history > history

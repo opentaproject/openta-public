@@ -1,3 +1,5 @@
+# once the GCP is created, see instructions in  cdn-docker-files
+
 docker pull s53ostlund/openta:openta-image
 docker tag s53ostlund/openta:openta-image openta-image
 export OPENTA_SUBPATH=openta
