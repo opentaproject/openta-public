@@ -3,6 +3,8 @@ gcloud container clusters create cluster-1 --zone europe-north1-b --node-locatio
 kubectl create secret docker-registry dockerkey --docker-server=https://index.docker.io/v1/  --docker-username=XXXXX  --docker-password=XXXXX  --docker-email=stellan.ostlund@gmail.com
 gcloud container clusters get-credentials cluster-1 --zone europe-north1-b --project demoproject-296306
 kubectl scale deployment my-mc-deployment --replicas  1
+# THE mynginx service only echoes the uri
+# create it by building the docker file in nginx directory
 # DO  THE FOLLOWING ONLY ONCE to create a named IP address
 gcloud compute addresses create pts-address --global
 # 
