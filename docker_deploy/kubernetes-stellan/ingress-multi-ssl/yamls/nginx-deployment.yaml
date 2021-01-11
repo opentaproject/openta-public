@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mynginx
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      run: mynginx
+  template:
+    metadata:
+      labels:
+        run: mynginx
+    spec:
+      containers:
+      - image: s53ostlund/nginx:simple3
+        imagePullPolicy: Always
+        name: mynginx
+        ports:
+        - containerPort: 8080
+          protocol: TCP
