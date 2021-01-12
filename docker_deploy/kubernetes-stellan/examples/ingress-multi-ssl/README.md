@@ -20,7 +20,7 @@ kubectl describe managedcertificate my-mc-certificate-1
 # https://pinetreesquare.com/mynginx/12345
 # https://pinetreesquare.com/webtwo/a
 # PAUSE THE CLUSTER 
-gcloud container clusters resize loadbalancedcluster  --node-pool default-pool --num-nodes 0
+gcloud container clusters resize cluster-1  --node-pool default-pool --num-nodes 0
 #kubectl scale deployment my-mc-deployment --replicas 2
 #https://www.youtube.com/watch?v=X48VuDVv0do
 #Cleanup
