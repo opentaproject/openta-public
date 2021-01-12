@@ -40,7 +40,7 @@ DATABASES = {
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 _subpath = os.environ.get('OPENTA_SUBPATH')
-VERSION_TAG = os.environ.get('VERSION_TAG'}
+VERSION_TAG = os.environ.get('VERSION_TAG', os.environ.get('VERSION') )
 
 if _subpath is not None:
     SUBPATH = _subpath + '/'
