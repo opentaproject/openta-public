@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weba
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      run: weba
+  template:
+    metadata:
+      labels:
+        run: weba
+    spec:
+      containers:
+      - image: gcr.io/google-samples/hello-app:1.0
+        imagePullPolicy: IfNotPresent
+        name: weba
+        ports:
+        - containerPort: 8080
+          protocol: TCP
