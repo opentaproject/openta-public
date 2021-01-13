@@ -33,7 +33,7 @@ spec:
             - DJANGO_SETTINGS_MODULE=backend.settings_production_kubernetes
           env:
           - name: VERSION_TAG
-            value: v2.1.2
+            value: v2.1.3
           - name: WEB_CONCURRENCY
             value: "10"
           - name: OPENTA_SUBPATH
@@ -42,7 +42,7 @@ spec:
             value: "alpha-plus_69259d1f"
           - name: SERVER_INFO_KEY
             value: "SERVER_INFO_KEY_FROM_KUBKOMMANDS"
-          image: s53ostlund/openta:v2.1.2
+          image: s53ostlund/openta:v2.1.3
           imagePullPolicy: IfNotPresent
           volumeMounts:
           - mountPath: /srv/openta/django/backend/media
@@ -68,7 +68,7 @@ spec:
               cpu: "0.05"
               memory: "256Mi"
 
-        - image: s53ostlund/nginx:v2.1.2
+        - image: s53ostlund/nginx:v2.1.3
           imagePullPolicy: IfNotPresent
           name: nginx
           command: ["/bin/sh"]
@@ -110,8 +110,8 @@ spec:
             - rqworker
           env:
           - name: VERSION_TAG
-            value: v2.1.2
-          image: s53ostlund/openta:v2.1.2
+            value: v2.1.3
+          image: s53ostlund/openta:v2.1.3
           imagePullPolicy: IfNotPresent
           volumeMounts:
           - mountPath: /srv/openta/django/backend/media

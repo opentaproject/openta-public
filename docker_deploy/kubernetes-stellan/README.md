@@ -54,7 +54,7 @@ kubectl config set-context $(kubectl config current-context) --namespace=openta
 kubectl apply -f ingress.yaml
 export  SERVER_INFO_KEY=SERVER_INFO_KEY_FROM_KUBKOMMANDS # ANYTHING UNIQUE GOES HERE AS SERVER_INFO_KEY
 source env/bin/activate
-export VERSION=alpha-plus_69259d1f 
+export VERSION=alpha-plus_abd1ee9f
 export VERSION_TAG=v2.1.2
 export SUBPATH=v212b
 ./kube.py create-instance --subpath=$SUBPATH --docker-repo=s53ostlund --version  $VERSION --version_tag  $VERSION_TAG --server_info_key $SERVER_INFO_KEY --output-path=.
@@ -85,7 +85,7 @@ docker push s53ostlund/openta:openta-base
 
 ```
 export VERSION_TAG=${CURRENT_TAG}
-export VERSION=alpha-plus_b6449ee8
+export VERSION=alpha-plus_bff9a87b
 cp django/backend/backend/settings_production_kubernetes.py django/backend/backend/settings.py
 ln -s docker-build/.dockerignore .dockerignore
 docker build --tag s53ostlund/openta:${VERSION_TAG} .
@@ -115,6 +115,7 @@ export INSTANCE_NAME='demoproject'
 export REGION='europe-north1'
 export INSTANCE_CONNECTION_NAME=${PROJECT_ID}:${REGION}:${INSTANCE_NAME}
 export BUCKET_NAME=openta-cdn-bucket
+# MAKE SURE keyfile.json is in place
 gsutil -m cp -r deploystatic gs://${BUCKET_NAME}/${VERSION_TAG}
 ```
 
@@ -129,6 +130,17 @@ docker build --tag s53ostlund/nginx:${VERSION_TAG} -f Dockerfile.nginx .
 ```
 
 - Try out runserver and make sure CDN is serving frontend $VERSION_TAG 
+
+```
+cd django
+source env/bin/activate
+cd backend
+./manage.py migrate
+./manage.py loaddata fixtures/auth.json
+./manage.py loaddata fixtures/course.json
+./manage.py createcachetable
+
+
 - Setup a kubernetes cluster in your favorite way so that `kubectl cluster-info` returns a healthy cluster.
 ## Install an ingress controller such that
 `kubectl get ingress --all-namespaces` is non-empty

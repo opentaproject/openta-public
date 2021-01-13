@@ -37,8 +37,8 @@ spec:
         backend:
           serviceName: web2
           servicePort: 8080
-      #- path: /v212b/*
-      #  backend:
-      #    serviceName: v212b
-      #    servicePort: 8080
+      - path: /v212b/*
+        backend:
+          serviceName: v212b
+          servicePort: 8080
 

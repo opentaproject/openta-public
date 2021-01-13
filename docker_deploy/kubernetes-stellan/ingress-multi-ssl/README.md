@@ -1,6 +1,6 @@
 gcloud init
 gcloud container clusters create cluster-1 --zone europe-north1-b --node-locations europe-north1-b --num-nodes=2  --machine-type=e2-standard-2 
-kubectl create secret docker-registry dockerkey --docker-server=https://index.docker.io/v1/  --docker-username=XXXXX  --docker-password=XXXXX  --docker-email=stellan.ostlund@gmail.com
+kubectl create secret docker-registry dockerkey --docker-server=https://index.docker.io/v1/  --docker-username=s53ostlund --docker-password=E95ostlund --docker-email=stellan.ostlund@gmail.com
 gcloud container clusters get-credentials cluster-1 --zone europe-north1-b --project demoproject-296306
 kubectl scale deployment my-mc-deployment --replicas  1
 # DO  THE FOLLOWING ONLY ONCE to create a named IP address
