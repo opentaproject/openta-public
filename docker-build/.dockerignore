@@ -8,6 +8,7 @@ docker_deploy
 frontend
 static
 deploystatic
+**/*sqlite3*
 **/.git
 **/*.sock
 **/settings_local.py
