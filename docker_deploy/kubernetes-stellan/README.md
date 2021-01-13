@@ -73,6 +73,10 @@ cd alpha-plus; git checkout alpha-plus;
 docker login
 ```
 ## Build the base image; do at most once openta-base is not used
+
+- important: do this from a clean repo, or a bunch of extra files will be included
+- env and modules directories should not exist
+
 ```
 docker build --tag s53ostlund/openta:openta-base -f docker-build/Dockerfile-base .
 docker push s53ostlund/openta:openta-base
@@ -81,7 +85,7 @@ docker push s53ostlund/openta:openta-base
 
 ```
 export VERSION_TAG=${CURRENT_TAG}
-export VERSION=69259d1f77e8393dd
+export VERSION=alpha-plus_b6449ee8
 cp django/backend/backend/settings_production_kubernetes.py django/backend/backend/settings.py
 ln -s docker-build/.dockerignore .dockerignore
 docker build --tag s53ostlund/openta:${VERSION_TAG} .
@@ -98,9 +102,11 @@ docker push s53ostlund/openta:${VERSION_TAG}
 cd frontend
 npm install
 brunch build
-cd ..
+cd ../django
 python3 -m venv env
-pip install  -r requuirements.txt
+source env/bin/activate
+pip install --upgrade pip
+pip install  -r requirements.txt
 cd django
 python manage.py collectstatic
 export PROJECT_ID=$(gcloud config list --format='value(core.project)')
@@ -116,7 +122,8 @@ gsutil -m cp -r deploystatic gs://${BUCKET_NAME}/${VERSION_TAG}
 
 
 ```
-cd docker_deploy/kubernetes-stellan-v2/nginx
+cd ..
+cd docker_deploy/kubernetes-stellan/nginx
 docker build --tag s53ostlund/nginx:${VERSION_TAG} -f Dockerfile.nginx .
 
 ```
