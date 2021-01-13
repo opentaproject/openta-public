@@ -4,12 +4,12 @@ which gcloud # "/Users/ostlund/google-cloud-sdk/bin/kubectl"
 gcloud init
 export COMPUTE_ZONE=europe-north1-b
 export PROJECT_ID=demoproject-296306
-export CLUSTER_NAME=openta-cluster
+export CLUSTER_NAME=cluster-1
 gcloud container clusters create ${CLUSTER_NAME} --zone ${COMPUTE_ZONE} --node-locations ${COMPUTE_ZONE}  
 kubectl create namespace openta
 kubectl config set-context $(kubectl config current-context) --namespace=openta
 kubectl config set-context --current --namespace=openta
-gcloud container clusters get-credentials openta-cluster --zone europe-north1-b --project demoproject-296306
+gcloud container clusters get-credentials cluster-1 --zone europe-north1-b --project demoproject-296306
 kubectl cluster-info
 export SERVER_INFO_KEY=SERVER_INFO_KEY_FROM_KUBKOMMANDS # ANYTHING UNIQUE GOES HERE AS SERVER_INFO_KEY
 export VERSION=alpha-plus_69259d1f 
@@ -23,7 +23,7 @@ kubectl config set-context --current --namespace=openta create secret generic do
 kubectl create secret docker-registry dockerkey --docker-server=https://index.docker.io/v1/  \
 	--docker-username=XXXXX --docker-password=XXXXX --docker-email=stellan.ostlund@gmail.com
 kubectl apply -f v212b 
-gcloud container clusters resize openta-cluster --node-pool default-pool --num-nodes 1
+gcloud container clusters resize cluster-1 --node-pool default-pool --num-nodes 1
 
 
 
