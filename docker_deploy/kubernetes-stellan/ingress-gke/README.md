@@ -11,6 +11,7 @@ kubectl apply -f yamls
 kubectl describe managedcertificate my-mc-certificate-1
 kubectl describe ingress my-mc-ingress 
 kubectl describe managedcertificate my-mc-certificate-1
+# NOTE THAT THIS INGRESS HITS THE LIMIT quota=5 for backend services
 # TAKES ABOUT 8-25 MINUTES TO PROVISION AND MAKE VISIBLE
 # IN THE MEANTIME http may work and https gives failueres
 # EVEN AFTER curl works, webpage may fail for another few minutes

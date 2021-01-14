@@ -1,8 +1,0 @@
-apiVersion: networking.gke.io/v1beta2
-kind: ManagedCertificate
-metadata:
-  name: my-mc-certificate-2
-spec:
-  domains:
-    - local.pinetreesquare.com
-    - local2.pinetreesquare.com
