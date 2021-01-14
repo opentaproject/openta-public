@@ -31,6 +31,8 @@ k apply -f yamls
 kubectl apply -f production-issuer.yaml
 # RENEW CERTIFICATE by deleting the old
 k delete secret pts-local-issuer-account-key
+k describe certificate pts-local-issuer-account-key
+
 
 
 
