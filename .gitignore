@@ -21,3 +21,5 @@ docs_src/_build_html
 django/env3.5/
 logfile
 frontend/last_build/
+**/keyfile.json
+django/backend/backend/settings_local.py
