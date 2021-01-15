@@ -66,4 +66,3 @@ try:
         from backend.settings_sqlite3 import *
 except:
         pass
-

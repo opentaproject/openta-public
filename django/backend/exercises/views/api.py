@@ -131,7 +131,7 @@ def exercises_reload(request, course_pk):
         logger.error('Requested course does not exist pk: %d', course_pk)
         return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @transaction.atomic
+    @transaction.atomic(using='default')
     def sync():
         mess = []
         exercises = Exercise.objects.sync_with_disc(dbcourse, i_am_sure)
@@ -154,7 +154,7 @@ def exercises_reload_json(request, course_pk):
         logger.error('Requested course does not exist pk: %d', course_pk)
         return Response({'error': 'Invalid course'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    @transaction.atomic
+    @transaction.atomic(using=settings.DB_NAME)
     def sync():
         mess = []
         exercises = Exercise.objects.sync_with_disc(dbcourse, i_am_sure)
@@ -804,12 +804,13 @@ def exercise_save(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
     backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"
     xml = request.data['xml']
+    dbname = settings.DB_NAME
     try:
         messages += parsing.exercise_save(dbexercise.get_full_path(), xml, backup_name)
     except IOError as e:
         messages.append(('error', str(e)))
 
-    @transaction.atomic
+    @transaction.atomic(using=settings.DB_NAME)
     def update_exercise():
         return Exercise.objects.add_exercise(dbexercise.path, dbexercise.course)
 
@@ -944,7 +945,7 @@ def answer_image_thumb_view(request, image_id):
                 "/" + settings.SUBPATH + image_answer.image_thumb.url,
                 os.path.basename(image_answer.image.name),
                 content_type="image/jpeg",
-                dev_path='./' + image_answer.image_thumb.url,
+                dev_path='/srv/multicourse/' + image_answer.image_thumb.url,
             )
         else:
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -998,6 +999,9 @@ def image_answer_delete(request, pk):
                 {'deleted': 0, 'error': _('You cannot delete after the deadline has passed.')}
             )
 
-    image_answer.remove_file()  # REMOVE THE FILE
-    deleted, deltype = image_answer.delete()  # REMOVE THE DATABASE ENTRY
+    try:
+        image_answer.remove_file()
+    except:
+        pass
+    deleted, deltype = image_answer.delete()
     return Response({'deleted': deleted})

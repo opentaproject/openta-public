@@ -1,4 +1,4 @@
-FROM s53ostlund/openta:openta-base
+FROM openta-base:latest
 
 ## Recommended method for installing nodejs with package manager on Debian (minus sudo)
 #RUN apt-get update \

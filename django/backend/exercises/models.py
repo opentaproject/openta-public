@@ -39,6 +39,9 @@ from exercises.parsing import (
 )
 from exercises.util import nested_print
 import datetime
+from django.core.files.storage import FileSystemStorage
+upload_storage  = FileSystemStorage(location='/srv/multicourse', base_url='/')
+
 
 # from aggregation.models import answer_received
 
@@ -576,7 +579,8 @@ class Answer(models.Model):
 def answer_image_filename(instance, filename):
     return '/'.join(
         [
-            'answerimages',
+            'media','answerimages',
+            str( instance.exercise.course.course_key) ,
             instance.user.username,
             instance.exercise.exercise_key,
             str(uuid.uuid4()) + os.path.splitext(filename)[1],
@@ -595,10 +599,10 @@ class ImageAnswer(models.Model):
     date = models.DateTimeField(default=now)
     filetype = models.CharField(max_length=3, choices=FILETYPE_CHOICES, default=IMAGE)
     image = models.ImageField(
-        default=None, blank=True, null=True, upload_to=answer_image_filename, max_length=512
+        default=None, blank=True, null=True, upload_to=answer_image_filename, max_length=512, storage=upload_storage
     )
     pdf = models.FileField(
-        default=None, blank=True, null=True, upload_to=answer_image_filename, max_length=512
+        default=None, blank=True, null=True, upload_to=answer_image_filename, max_length=512, storage=upload_storage
     )
     image_thumb = ImageSpecField(
         source='image', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60}
@@ -638,6 +642,11 @@ class ImageAnswer(models.Model):
         answer_received.send(
             sender=self.__class__, user=user, exercise=exercise, course=course, date=date
         )
+
+
+class ImageAnsswerManager( models.Model ):
+    def course_key(self) :
+        return self.exercise.course.course_key
 
 
 class ExerciseMeta(models.Model):
@@ -757,7 +766,7 @@ class AuditResponseFile(models.Model):
         default=None, blank=True, null=True, upload_to=audit_response_filename
     )
     pdf = models.FileField(
-        default=None, blank=True, null=True, upload_to=audit_response_filename, max_length=512
+        default=None, blank=True, null=True, upload_to=audit_response_filename, max_length=512, storage=upload_storage
     )
     image_thumb = ImageSpecField(
         source='image', processors=[ResizeToFill(100, 50)], format='JPEG', options={'quality': 60}

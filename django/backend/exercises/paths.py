@@ -1,12 +1,11 @@
 import os
 from django.conf import settings
 
-EXERCISES_PATH = "../../exercises"
-STUDENT_ASSET_PATH = "./media/studentassets"
 TEMPLATE_EXERCISE_PATH = "../../exercise_templates"
 TRASH_PATH = "z:Trash"
-STUDENT_ASSETS_PATH = "media/studentassets"
-STUDENT_ANSWERIMAGES_PATH = "media/answerimages"
+STUDENT_ASSETS_PATH = "/srv/multicourse/media/"
+STUDENT_ASSET_PATH = "/srv/multicourse/media/"
+#STUDENT_ANSWERIMAGES_PATH = "/srv/multicourse/media/answerimages"
 EXERCISE_XML = 'exercise.xml'
 EXERCISE_XSD = './exercises/exercise.xsd'
 EXERCISES_PATH = settings.EXERCISES_PATH  #  '../../exercises'
@@ -29,8 +28,6 @@ def get_student_asset_path(user, exercise):
         str: Full path to asset folder
 
     """
-    return os.path.join(STUDENT_ASSETS_PATH, user.username, exercise.pk)
-
 
 #
 #
@@ -60,3 +57,5 @@ def get_student_asset_path(user, exercise):
 #
 #    """
 #    return os.path.join(STUDENT_ANSWERIMAGES_PATH, user.username, exercise.pk)
+    course_key = exercise.course.course_key
+    return os.path.join(STUDENT_ASSETS_PATH,  "studentassets",str( course_key) , user.username, exercise.pk)

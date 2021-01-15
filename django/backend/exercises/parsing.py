@@ -293,6 +293,7 @@ def question_json_get_from_raw_json(raw_json, exercise_key, question_key, userma
 def exercise_check_thumbnail(xmltree, path):
     messages = []
     thumbnail_path = os.path.join(path, EXERCISE_THUMBNAIL)
+    print("THUMBNAIL PATH  = ", thumbnail_path)
     if not os.path.isfile(thumbnail_path):
         figure = xmltree.xpath('/exercise//figure')
         try:

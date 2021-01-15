@@ -56,10 +56,17 @@ def _dispatch_asset_path(user , exercise):
 
     """
     asset_path = None
+    print("DISPATCH_ASSET_PATH")
     if user.has_perm('exercises.edit_exercise'):
+        print("PERM ASSET PATH = ", asset_path)
         asset_path = exercise.get_full_path()
+        print("PERM ASSET PATH = ", asset_path)
     else:
+        print("ELSE ASSET_PATH", type(exercise), exercise)
+        print("DBEXERCISE = ", exercise.course.course_key)
+        # course_key = dbexercise.course.course_key
         asset_path = paths.get_student_asset_path(user, exercise)
+    print("_DISPATCH_ASSET_PATH ASSET_PATH = ", asset_path )
 
     return asset_path
 
@@ -87,10 +94,16 @@ def exercise_student_asset(request, exercise, asset):
     asset_path = "{path}/{asset}".format(
         path=paths.get_student_asset_path(request.user, dbexercise), asset=asset
     )
+    dev_path = "{path}/{asset}".format(
+        path=paths.get_student_asset_path(request.user, dbexercise), asset=asset
+    )
+    print("DEV_PATH_STUDENT_ASSET = ", dev_path)
+    prod_path = dev_path.replace('/srv/multicourse','/development')
+    print("prod_path = ", prod_path)
     return serve_file(
-        ("/" + settings.SUBPATH + asset_path),
+        prod_path,
         asset,
-        dev_path=asset_path,
+        dev_path=dev_path,
         content_type=get_content_type(asset),
     )
 
@@ -139,7 +152,12 @@ def exercise_asset(request, exercise, asset):
             response = HttpResponse(content_type="image/png")
             image.save(response, format='PNG')
             return response
-
+    dev_path =  '{root}/{path}/{asset}'.format(
+            root=dbexercise.course.get_exercises_path(), path=dbexercise.path, asset=asset
+        )
+    #dev_path = _dispatch_asset_path(request.user , dbexercise) + '/' + asset
+    print("ASSET = ", asset )
+    print("DEV_PATH = ", dev_path)
     return serve_file(
         (
             "/"
@@ -151,9 +169,7 @@ def exercise_asset(request, exercise, asset):
             )
         ),
         asset,
-        dev_path='{root}/{path}/{asset}'.format(
-            root=dbexercise.course.get_exercises_path(), path=dbexercise.path, asset=asset
-        ),
+        dev_path=dev_path,
         content_type=get_content_type(asset),
     )
 

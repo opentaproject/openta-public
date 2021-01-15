@@ -129,7 +129,8 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesSto
 MEDIA_TAG = 'media'
 MEDIA_URL = MEDIA_TAG + '/'
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_TAG)
-EXERCISES_PATH = '../../exercises'
+MEDIA_ROOT = '/srv/multicourse/media'
+EXERCISES_PATH = '/srv/multicourse/exercises'
 
 FILE_UPLOAD_HANDLERS = ['django.core.files.uploadhandler.TemporaryFileUploadHandler']
 
@@ -205,7 +206,6 @@ RQ_QUEUES = {
     }
 }
 UNITTESTS = False
-EXERCISES_PATH = '../../exercises'
 REFRESH_SEED_ON_CORRECT_ANSWER = False
 DO_CACHE = True
 SAFE_RUN_TIMEOUT = 6
@@ -216,3 +216,6 @@ CHECK_AGGREGATIONS = False
 IGNORE_NO_FEEDBACK = False
 RUNTESTS = False
 CACHE_LIFETIME = None  # 60 * 60 * 24 * 7 * 365
+DB_NAME = 'default'
+DATABASE_ROUTERS = ['backend.routers.AuthRouter']
+
