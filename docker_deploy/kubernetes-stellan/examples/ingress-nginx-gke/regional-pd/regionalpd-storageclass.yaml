@@ -1,0 +1,15 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: regionalpd-storageclass
+provisioner: kubernetes.io/gce-pd
+parameters:
+  type: pd-standard
+  replication-type: regional-pd
+volumeBindingMode: WaitForFirstConsumer
+#allowedTopologies:
+#- matchLabelExpressions:
+#  - key: topology.kubernetes.io/zone
+#    values:
+#    - europe-north1-b
+#    - europe-west1-b
