@@ -156,10 +156,12 @@ def exercise_asset(request, exercise, asset):
             root=dbexercise.course.get_exercises_path(), path=dbexercise.path, asset=asset
         )
     dev_path = paths.get_exercise_asset_path(request.user , dbexercise) + '/' + asset
-    print("ASSET = ", asset )
-    print("DEV_PATH = ", dev_path)
+    print("EXERCISE_ASSET ASSET = ", asset )
+    print("EXERCISE_ASSET DEV_PATH = ", dev_path)
+    prod_path = dev_path.replace('/srv/multicourse','/development')
+    print("EXERCISE_ASSET PROD_PATH = ", prod_path)
     return serve_file(
-        dev_path,
+        prod_path,
         asset,
         dev_path=dev_path,
         content_type=get_content_type(asset),
