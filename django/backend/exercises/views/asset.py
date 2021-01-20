@@ -59,7 +59,7 @@ def _dispatch_asset_path(user , exercise):
     print("DISPATCH_ASSET_PATH")
     if user.has_perm('exercises.edit_exercise'):
         print("PERM ASSET PATH = ", asset_path)
-        asset_path = exercise.get_full_path()
+        asset_path = paths.get_exercise_asset_path(user,exercise)
         print("PERM ASSET PATH = ", asset_path)
     else:
         print("ELSE ASSET_PATH", type(exercise), exercise)
@@ -97,7 +97,7 @@ def exercise_student_asset(request, exercise, asset):
     dev_path = "{path}/{asset}".format(
         path=paths.get_student_asset_path(request.user, dbexercise), asset=asset
     )
-    print("DEV_PATH_STUDENT_ASSET = ", dev_path)
+    print("EXERCISE_STUDENT ASSET DEV_PATH_STUDENT_ASSET = ", dev_path)
     prod_path = dev_path.replace('/srv/multicourse','/development')
     print("prod_path = ", prod_path)
     return serve_file(
@@ -155,19 +155,11 @@ def exercise_asset(request, exercise, asset):
     dev_path =  '{root}/{path}/{asset}'.format(
             root=dbexercise.course.get_exercises_path(), path=dbexercise.path, asset=asset
         )
-    #dev_path = _dispatch_asset_path(request.user , dbexercise) + '/' + asset
+    dev_path = paths.get_exercise_asset_path(request.user , dbexercise) + '/' + asset
     print("ASSET = ", asset )
     print("DEV_PATH = ", dev_path)
     return serve_file(
-        (
-            "/"
-            + settings.SUBPATH
-            + "exerciseasset/{course_folder}/{path}/{asset}".format(
-                course_folder=dbexercise.course.get_exercises_folder(),
-                path=dbexercise.path,
-                asset=asset,
-            )
-        ),
+        dev_path,
         asset,
         dev_path=dev_path,
         content_type=get_content_type(asset),

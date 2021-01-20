@@ -341,9 +341,7 @@ def _question_check(hijacked , view_solution_permission, user, user_agent, exerc
         'path', os.path.join(dbexercise.course.get_exercises_path(), dbexercise.path)
     )
     question_xmltree.set('user', str(user))
-    # studentassetpath = os.path.join( paths.STUDENT_ASSET_PATH , str(user) , exercise_key ) ## NEED THIS
     studentassetpath = _dispatch_asset_path(user, dbexercise)
-    #studentassetpath = paths.get_student_asset_path(user, dbexercise)
     exerciseassetpath = os.path.join(
         dbexercise.course.get_exercises_path(), dbexercise.path
     )  ## NEED THIS
