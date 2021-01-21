@@ -47,4 +47,8 @@ spec:
         backend:
           serviceName: v212b
           servicePort: 8080
+      - path: /v300
+        backend:
+          serviceName: v300
+          servicePort: 8080
 

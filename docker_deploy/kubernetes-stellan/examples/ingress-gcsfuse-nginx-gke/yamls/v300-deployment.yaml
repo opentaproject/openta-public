@@ -6,21 +6,21 @@ metadata:
     kompose.version: 1.17.0 (a74acad)
   creationTimestamp: null
   labels:
-    io.kompose.service: v212b
-  name: v212b
+    io.kompose.service: v300
+  name: v300
 spec:
   replicas: 1
   selector:
     matchLabels:
-      name: v212b
+      name: v300
   strategy:
     type: Recreate
   template:
     metadata:
       creationTimestamp: null
       labels:
-        io.kompose.service: v212b
-        name: v212b
+        io.kompose.service: v300
+        name: v300
     spec:
       containers:
         - name: web
@@ -49,7 +49,7 @@ spec:
           - name: WEB_CONCURRENCY
             value: "10"
           - name: OPENTA_SUBPATH
-            value: "v212b"
+            value: "v300"
           - name: OPENTA_VERSION
             value: "google-storage_d4d60c84"
           - name: SERVER_INFO_KEY
@@ -96,7 +96,7 @@ spec:
           args: ["-c", "envsubst '$OPENTA_SUBPATH $USE_SSL' < /etc/nginx/conf.d/default.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
           env:
           - name: OPENTA_SUBPATH
-            value: "/v212b"
+            value: "/v300"
           - name: USE_SSL
             value: "False"
           ports:
@@ -157,5 +157,5 @@ spec:
       volumes:
       - name: site-data
         persistentVolumeClaim:
-          claimName: v212b-data
+          claimName: v300-data
 status: {}
