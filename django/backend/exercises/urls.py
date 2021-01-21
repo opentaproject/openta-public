@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^course/(?P<course_pk>[0-9]+)/exercises/tree/$', views.exercise_tree),
     url(r'^exercises/test/$', views.exercises_test),
     url(r'^exercises/add/$', views.exercises_add),
+    url(r'^exercise/add/$', views.exercises_add),
     url(r'^exercises_add/$', views.exercises_add),
     url(r'^exercises/movefolder/$', views.exercises_move_folder),
     url(r'^exercises/renamefolder/$', views.exercises_rename_folder),

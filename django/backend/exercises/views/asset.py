@@ -151,7 +151,7 @@ def exercise_asset(request, exercise, asset):
             )
             response = HttpResponse(content_type="image/png")
             image.save(response, format='PNG')
-            return response
+            #return response
     dev_path =  '{root}/{path}/{asset}'.format(
             root=dbexercise.course.get_exercises_path(), path=dbexercise.path, asset=asset
         )
