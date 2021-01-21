@@ -58,7 +58,7 @@ spec:
           imagePullPolicy: Always
           volumeMounts:
           - mountPath: /srv/multicourse
-            name: site-data
+            name: site300-data
           workingDir: /srv/openta/django/backend/
           resources:
             requests:
@@ -69,14 +69,14 @@ spec:
           name: db
           volumeMounts:
           - mountPath: /var/lib/postgresql/data
-            name: site-data
+            name: site300-data
             subPath: database
           resources:
             requests:
               cpu: "0.05"
               memory: "256Mi"
 
-        - image: s53ostlund/nginx:latest
+        - image: s53ostlund/nginx:v300
           imagePullPolicy: Always
           name: nginx
           securityContext:
@@ -103,7 +103,7 @@ spec:
           - containerPort: 8080
           volumeMounts:
           - mountPath: /srv/multicourse
-            name: site-data
+            name: site300-data
           resources:
             requests:
               cpu: "0.05"
@@ -113,7 +113,7 @@ spec:
           name: redis
           volumeMounts:
           - mountPath: /data
-            name: site-data
+            name: site300-data
             subPath: redis
           resources:
             requests:
@@ -145,7 +145,7 @@ spec:
 
           volumeMounts:
           - mountPath: /srv/multicourse
-            name: site-data
+            name: site300-data
           workingDir: /srv/openta/django/backend/
           resources:
             requests:
@@ -155,7 +155,7 @@ spec:
         - name: dockerkey
       restartPolicy: Always
       volumes:
-      - name: site-data
+      - name: site300-data
         persistentVolumeClaim:
           claimName: v300-data
 status: {}
