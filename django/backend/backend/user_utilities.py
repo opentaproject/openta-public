@@ -4,6 +4,7 @@ from django.shortcuts import reverse
 from django.template import Context
 from django.utils.translation import ugettext as _
 from django.core.mail import EmailMessage
+from exercises.paths import _subpath
 
 from utils import send_email_object
 from utils import get_localized_template
@@ -50,14 +51,15 @@ def send_activation_mail(course, username, email, reverse_name='user-activation'
         course.url if course.url is not None else 'https://openta.se/' + course.course_name.lower()
     )
     base_url = course.url if course.url is not None else 'https://openta.se'
-    # Since both course.url and create_activation_link includes the SUBPATH
+    # Since both course.url and create_activation_link includes the subpath 
     # it needs to be stripped from one of them.
-    if getattr(settings, 'SUBPATH', '') is not '':
-        subpath_name = settings.SUBPATH.strip('/')
+    subpath = _subpath(course=course)
+    if  subpath  is not '':
+        subpath_name = subpath.strip('/')
         if base_url.endswith(subpath_name):
-            base_url = base_url[: -len(settings.SUBPATH)]
+            base_url = base_url[: -len(subpath)]
         if base_url.endswith(subpath_name + '/'):
-            base_url = base_url[: -(len(settings.SUBPATH) + 1)]
+            base_url = base_url[: -(len(subpath) + 1)]
     template = get_localized_template('mail_activation')
     token = TimestampSigner().sign(username).split(':', 1)[1]
     course_email = course.email_reply_to.strip()

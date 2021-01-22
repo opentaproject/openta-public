@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import permission_required
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import os
-import backend.settings as settings
+from exercises.paths import _subpath
 from .models import QueueTask
 from exercises.views.file_handling import serve_file
 import json
@@ -34,8 +34,9 @@ def get_task_result_file(request, task):
     if dbtask.result_file is None:
         return Response({'error': 'There is no result file for this task'})
 
+    subpath = _subpath(request.get_full_path() )
     return serve_file(
-        '/' + settings.SUBPATH + dbtask.result_file.name,
+        '/' + subpath + dbtask.result_file.name,
         os.path.basename(dbtask.result_file.name),
         content_type=content_type_dispatch(dbtask.result_file.name),
         dev_path=dbtask.result_file.path,

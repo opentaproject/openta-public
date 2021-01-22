@@ -16,6 +16,7 @@ from django.utils.module_loading import import_string
 from django.views.decorators.csrf import csrf_exempt
 from pylti.common import LTIException, verify_request_common
 from backend import views as backendviews
+from exercises.paths import _subpath
 from users.models import OpenTAUser
 from django.contrib.auth.models import Group, User
 from course.models import Course
@@ -166,7 +167,8 @@ def edit_profile(request):
 
     form.Meta.exclude = exclude
 
-    context = {"form": form, "subpath": "/" + settings.SUBPATH}
+    context = {"form": form, "subpath": "/" + _subpath(uri=request.get_full_path()) }
+    subpath = _subpath(uri=request.get_full_path() )
     if request.method == "POST":
         logging.debug("TRY TO SAVE")
         logging.debug("REQUEST.POST = %s", request.POST)
@@ -181,14 +183,14 @@ def edit_profile(request):
                 user.username = cform["username"]
                 logging.debug("DO A SAVE")
                 user.save()
-            logging.debug("EDIT_PROFILE REDIRECT TO  " + settings.SUBPATH + "lti/")
+            logging.debug("EDIT_PROFILE REDIRECT TO  " + _subpath(uri=request.get_full_path() ) + "lti/")
             print("REDIRECT 4")
-            return redirect("/" + settings.SUBPATH)
+            return redirect("/" + _subpath(uri=request.get_full_path()) ) 
         else:
             logging.debug("ERRORS = %s", form.errors)
             return render(request, "edit_profile.html", context)
         print("REDIRECT5")
-        return redirect("/" + settings.SUBPATH)
+        return redirect("/" + _subpath(uri=request.get_full_path()) )
 
     return render(request, "edit_profile.html", context)
 
@@ -224,7 +226,7 @@ def config_xml(request, course_name=None):
 
     with open("opentalti/config.xml", "rb") as f:
         data = f.read()
-    url = "https://" + request.META["HTTP_HOST"] + "/" + settings.SUBPATH + coursepk + "/lti/"
+    url = "https://" + request.META["HTTP_HOST"] + "/" + _subpath(uri=request.get_full_path() ) + coursepk + "/lti/"
     logging.debug("URL = %s", url)
     domain = (request.META["HTTP_HOST"].split(":"))[0]
     data = data.decode()
@@ -253,23 +255,23 @@ def change_password(request):
                     user = form.save()
                     update_session_auth_hash(request, user)  # Important!
                     messages.success(request, "Password was reset!")
-                logging.debug("REDIRECT TO %s", settings.SUBPATH)
+                logging.debug("REDIRECT TO %s", _subpath(uri=request.get_full_path()) )
                 print("REDIRECT1")
-                return redirect("/" + settings.SUBPATH)
+                return redirect("/" + _subpath(uri=request.get_full_path()) )
             else:
                 logging.debug("PASSWORD FORM NOT VALID")
                 messages.error(request, "Password not reset.")
                 print("REDIRECT2")
-                return redirect("/" + settings.SUBPATH)
+                return redirect("/" + _subpath(uri=request.get_full_path()) )
         else:
             form = passwordform(request.user)
-        subpath = settings.SUBPATH.strip("/")
-        logging.debug("SUBPATH = %s", subpath)
+        subpath = _subpath(uri=request.get_full_path().strip("/") )
+        logging.debug("subpath = %s", _subpath(uri=request.get_full_path() ) )
         return render(request, "change_password.html", {"form": form, "subpath": subpath})
     except:
         messages.error(request, "Password not reset.")
         print("REDIRECT3")
-        return redirect("/" + settings.SUBPATH)
+        return redirect("/" + _subpath(uri=request.get_full_path()) )
 
 
 @api_view(['POST'])

@@ -1,7 +1,7 @@
 import json as JSON
 import logging
 from lxml import etree
-import backend.settings as settings
+from django.conf import settings
 import os
 import uuid
 from PIL import Image, ImageDraw, ImageFont
@@ -40,7 +40,7 @@ from exercises.parsing import (
 from exercises.util import nested_print
 import datetime
 from django.core.files.storage import FileSystemStorage
-upload_storage  = FileSystemStorage(location='/srv/multicourse', base_url='/')
+upload_storage  = FileSystemStorage(location=settings.VOLUME, base_url='/')
 
 
 # from aggregation.models import answer_received

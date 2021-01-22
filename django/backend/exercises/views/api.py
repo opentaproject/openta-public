@@ -3,6 +3,7 @@ import sys, traceback
 from exercises.applymacros import MacroError
 from users.models import User
 from rest_framework import status
+from exercises.paths import _subpath
  
 from rest_framework.decorators import api_view, parser_classes
 from exercises.applymacros import (
@@ -913,19 +914,20 @@ def upload_answer_image(request, exercise):
 
 @api_view(['GET'])
 def answer_image_view(request, image_id):
+    subpath = _subpath(uri=request.get_full_path() )
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
         if image_answer.user == request.user or request.user.is_staff:
             if image_answer.filetype == 'IMG':
                 return serve_file(
-                    '/' + settings.SUBPATH + image_answer.image.name,
+                    '/' + subpath + image_answer.image.name,
                     os.path.basename(image_answer.image.name),
                     content_type="image/jpeg",
                     dev_path=image_answer.image.path,
                 )
             if image_answer.filetype == 'PDF':
                 return serve_file(
-                    '/' + settings.SUBPATH + image_answer.pdf.name,
+                    '/' + subpath + image_answer.pdf.name,
                     os.path.basename(image_answer.pdf.name),
                     content_type="application/pdf",
                     dev_path=image_answer.pdf.path,
@@ -938,11 +940,12 @@ def answer_image_view(request, image_id):
 
 @api_view(['GET'])
 def answer_image_thumb_view(request, image_id):
+    subpath = _subpath(uri=request.get_full_path() )
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
         if image_answer.user == request.user or request.user.is_staff:
             return serve_file(
-                "/" + settings.SUBPATH + image_answer.image_thumb.url,
+                "/" + subpath + image_answer.image_thumb.url,
                 os.path.basename(image_answer.image.name),
                 content_type="image/jpeg",
                 dev_path='/srv/multicourse/' + image_answer.image_thumb.url,

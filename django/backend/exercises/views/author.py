@@ -4,6 +4,7 @@ from exercises.models import ExerciseMeta, Exercise
 from django.views.generic.edit import UpdateView
 from django import forms
 from django.forms.models import modelform_factory
+from exercises.paths import _subpath
 
 
 class ExerciseMetaUpdate(UpdateView):
@@ -33,7 +34,7 @@ class ExerciseMetaUpdate(UpdateView):
         return obj
 
     model = ExerciseMeta
-    success_url = '/' + settings.SUBPATH + 'exercisemeta/{id}'
+    success_url = '/' + _subpath() + 'exercisemeta/{id}'
 
 
 def split_or_repeat(txt):

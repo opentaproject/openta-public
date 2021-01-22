@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse, FileResponse
 from exercises.models import Exercise
 from exercises.views.file_handling import serve_file
-#import backend.settings as settings
+from exercises.paths import _subpath
 from django.conf import settings
 import exercises.paths as paths
 from exercises.assets import list_assets, add_asset, delete_asset, has_asset
@@ -103,7 +103,7 @@ def exercise_student_asset(request, exercise, asset):
         path=paths.get_student_asset_path(request.user, dbexercise), asset=asset
     )
     print("EXERCISE_STUDENT ASSET DEV_PATH_STUDENT_ASSET = ", dev_path)
-    prod_path = dev_path.replace('srv/multicourse/',settings.SUBPATH)
+    prod_path = dev_path.replace(settings.VOLUME,_subpath(None, uri=request.get_full_path()))
     print("prod_path = ", prod_path)
     return serve_file(
         prod_path,
@@ -164,7 +164,7 @@ def exercise_asset(request, exercise, asset):
     dev_path = paths.get_exercise_asset_path(request.user , dbexercise) + '/' + asset
     logger.info("1 EXERCISE_ASSET ASSET = "+ asset )
     logger.info("2 EXERCISE_ASSET DEV_PATH = "+ dev_path)
-    prod_path = str( dev_path ).replace('srv/multicourse/',settings.SUBPATH)
+    prod_path = str( dev_path ).replace(settings.VOLUME ,_subpath(uri=request.get_full_path()))
     logger.info("3 EXERCISE_ASSET PROD_PATH = " +  prod_path)
     return serve_file(
         prod_path,
@@ -186,6 +186,7 @@ def exercise_list_assets(request, exercise):
 @api_view(['POST'])
 @parser_classes((MultiPartParser,))
 def exercise_upload_asset(request, exercise):
+    print("EXERCISE_UPLOAD_ASSET")
     if request.FILES['file'].size > 10e6:
         return Response("File larger than 10mb", status.HTTP_500_INTERNAL_SERVER_ERROR)
     try:

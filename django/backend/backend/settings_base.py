@@ -218,4 +218,5 @@ RUNTESTS = False
 CACHE_LIFETIME = None  # 60 * 60 * 24 * 7 * 365
 DB_NAME = 'default'
 DATABASE_ROUTERS = ['backend.routers.AuthRouter']
+VOLUME = '/srv/multicourse'
 

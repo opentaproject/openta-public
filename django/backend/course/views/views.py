@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import permission_required
 from django.utils.translation import ugettext as _
 from django.core.files.uploadhandler import TemporaryFileUploadHandler
 from rest_framework.response import Response
-import backend.settings as settings
+from exercises.paths import _subpath
 
 from course.serializers import CourseSerializer, CourseStudentSerializer
 from course.models import Course
@@ -19,7 +19,7 @@ class CourseUpdate(UpdateView):
     form_class = CourseFormFrontend
     # fields = ['course_name', 'registration_password', 'registration_by_password', 'owners']
     readonly_fields = ('course_key', 'lti_key', 'lti_secret')
-    success_url = '/' + settings.SUBPATH + 'course/{id}/updateoptions/'
+    success_url = '/' +  _subpath()  + 'course/{id}/updateoptions/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -31,7 +31,7 @@ class CourseUpdate(UpdateView):
 def CourseUpdateView(request, course_pk):
     print("COURS UPDATE VIEW")
     course = Course.objects.get(pk=course_pk)
-    courseurl = request.build_absolute_uri('/') + settings.SUBPATH + course.course_name + '/'
+    courseurl = request.build_absolute_uri('/') +_subpath( course=course) + course.course_name + '/'
     if not courseurl == course.url:
         course.url = courseurl
         course.save()

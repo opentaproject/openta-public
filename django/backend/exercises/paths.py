@@ -3,9 +3,8 @@ from django.conf import settings
 
 TEMPLATE_EXERCISE_PATH = "../../exercise_templates"
 TRASH_PATH = "z:Trash"
-STUDENT_ASSETS_PATH = "/srv/multicourse/media/studentassets"
-STUDENT_ASSET_PATH = "/srv/multicourse/media/studentassets"
-#STUDENT_ANSWERIMAGES_PATH = "/srv/multicourse/media/answerimages"
+STUDENT_ASSETS_PATH = settings.VOLUME + '/media/studentassets'
+STUDENT_ASSET_PATH = STUDENT_ASSETS_PATH
 EXERCISE_XML = 'exercise.xml'
 EXERCISE_XSD = './exercises/exercise.xsd'
 EXERCISES_PATH = settings.EXERCISES_PATH  #  '../../exercises'
@@ -14,6 +13,11 @@ DEFAULT_TRANSLATION_DICT_XML = 'translations/translationdict.xml'
 EXERCISE_KEY = 'exercisekey'
 EXERCISE_HISTORY = 'history'
 EXERCISE_THUMBNAIL = 'thumbnail.png'
+
+def _subpath(request=None,**kwargs):
+    #for key, value in kwargs.items(): 
+    #    print ("%s == %s" %(key, value)) 
+    return settings.SUBPATH
 
 
 def get_student_asset_path(user, exercise):

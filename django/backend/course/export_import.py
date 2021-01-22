@@ -598,8 +598,10 @@ def import_server(import_zip_path, merge=False, legacy=False):
         course = Course.objects.last()
         LOGGER.debug("COURSE KEY = " + str(course.course_key))
         exercises_path = course.get_exercises_path()
-        student_assets_path = course.get_student_assets_path()
-        student_answerimages_path = course.get_student_answerimages_path()
+        #student_assets_path = course.get_student_assets_path()
+        student_assets_path = STUDENT_ASSETS_PATH
+        #student_answerimages_path = course.get_student_answerimages_path()
+        student_answerimages_path = EXERCISES_PATH
         LOGGER.debug("exercises_path = s" + str(exercises_path))
         LOGGER.debug("student assets_path  " + str(student_assets_path))
         LOGGER.debug("student_answerimages_path s" + str(student_answerimages_path))

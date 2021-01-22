@@ -4,6 +4,7 @@ import logging
 from django.contrib.auth.views import LoginView
 from django.utils import translation
 from django.views.decorators.clickjacking import xframe_options_exempt, xframe_options_deny
+from exercises.paths import _subpath
 
 from django.conf import settings
 from django.contrib import messages
@@ -197,6 +198,7 @@ def login(request, course_name=None):
         Login view unless rate limited in which case rate_limit.html
     """
     # get last course name to make it easy to return
+    subpath = _subpath(uri=request.get_full_path() )
     if course_name == None:
         course_name = request.COOKIES.get('last_course_name', None)
     course = None
@@ -220,12 +222,12 @@ def login(request, course_name=None):
     set_persistent_lang(course, request)
 
     if course_data['icon'] is not None:
-        course_data['icon'] = '/' + settings.SUBPATH + course_data['icon'].lstrip('/')
+        course_data['icon'] = '/' + subpath + course_data['icon'].lstrip('/')
 
     extra = {
         'course': course_data,
         'openta_version': settings.VERSION,
-        'subpath': '/' + settings.SUBPATH,
+        'subpath': '/' + subpath,
         'course_name': course.course_name,
     }
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
@@ -335,6 +337,7 @@ def main(request, course_pk=None):
     enrolled = int(course_pk) in enrollment(user)
     published_and_enrolled = course.published and enrolled
     msg = ''
+    subpath = _subpath(uri=_subpath(request.get_full_path() ) )
     if not enrolled:
         msg = "Not enrolled in course"
     if not course.published:
@@ -348,10 +351,10 @@ def main(request, course_pk=None):
         try:
             mycourse = (Course.objects.get(pk=enrollment(user)[0])).course_name
             messages.add_message(request, messages.WARNING, _(msg))
-            return redirect('/' + settings.SUBPATH + 'logout/' + mycourse + '/')
+            return redirect('/' + subpath + 'logout/' + mycourse + '/')
         except:
             messages.add_message(request, messages.WARNING, _("Not enrolled!"))
-            return redirect('/' + settings.SUBPATH + 'logout/' + course.course_name + '/')
+            return redirect('/' + subpath + 'logout/' + course.course_name + '/')
 
     logging.debug("GET COURSE SERIALIZER")
     course_data = CourseSerializer(course).data
@@ -359,7 +362,7 @@ def main(request, course_pk=None):
     extra = dict(
         course=course_data, 
         timezone=settings.TIME_ZONE, 
-        subpath=settings.SUBPATH, 
+        subpath=subpath, 
         help_url=help_url
     )
     lang = set_persistent_lang(course, request)
@@ -374,7 +377,6 @@ def main(request, course_pk=None):
             path='/',
         )
 
-    subpath = settings.SUBPATH.strip('/')
     response.set_cookie(key='cookieTest', value='enabled', path='/')
     response.set_cookie(key='lang', value=lang, path='/')
     logging.debug("RETURN RESPONSE  %s " % str( response) )
@@ -505,13 +507,14 @@ def trigger_error(request ,msg='SENTRY ERROR TRIGGERED' ):
 
 @xframe_options_exempt  # NECESSARY TO KEEP FROM CRASHING IN CANVAS FRAME
 def logout(request, course_name=None, lti_status='no_lti'):
+    subpath = _subpath(uri=_subpath(request.get_full_path() ) )
     if lti_status == 'no_lti':
         request.session['nonlti_login'] = False
         request.session.modified = True
         if course_name == None or course_name == '':
-            next_url = '/' + settings.SUBPATH
+            next_url = '/' + subpath
         else:
-            next_url = '/' + settings.SUBPATH + course_name + '/'
+            next_url = '/' + subpath + course_name + '/'
         response = HttpResponseRedirect(next_url)
         response.set_cookie(key='last_course_name', value=course_name)  # HAVE THIS FOR NEXT LOGIN
         request.session.modified = True

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from backend.settings import SUBPATH
+from exercises.paths import _subpath
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.db.models import Prefetch, Max, F, Count, Sum, Value
@@ -69,12 +69,13 @@ class ImageAnswerAdmin(admin.ModelAdmin):
     get_exercise_name.short_description = 'Exercise'
 
     def _image_thumb(self, image_answer):
-        # return format_html('<a href="/{}imageanswer/{}"><img src="/{}imageanswerthumb/{}"/></a>',SUBPATH, image_answer.pk, SUBPATH, image_answer.pk)
+        # return format_html('<a href="/{}imageanswer/{}"><img src="/{}imageanswerthumb/{}"/></a>', _subpath(), image_answer.pk, _subpath(), image_answer.pk)
+        subpath = _subpath(image_answer=image_answer)
         return format_html(
             '<a href="/{}imageanswer/{}" data-uk-lightbox data-lightbox-type="image"><img src="/{}imageanswerthumb/{}"/></a>',
-            SUBPATH,
+            subpath,
             image_answer.pk,
-            SUBPATH,
+            subpath,
             image_answer.pk,
         )
 
@@ -149,8 +150,9 @@ class ExerciseAdmin(admin.ModelAdmin):
     get_deadline.admin_order_field = 'meta__deadline_date'
 
     def get_thumbnail(self, exercise):
+        subpath = _subpath(exercise=exercise)
         return format_html(
-            '<img src="/{}exercise/{}/asset/thumbnail.png"/></a>', SUBPATH, exercise.exercise_key
+            '<img src="/{}exercise/{}/asset/thumbnail.png"/></a>', subpath, exercise.exercise_key
         )
 
     get_thumbnail.short_description = 'Figure'

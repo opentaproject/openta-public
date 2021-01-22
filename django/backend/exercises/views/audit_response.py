@@ -10,6 +10,7 @@ import PyPDF2
 from PIL import Image
 import os
 import logging
+from exercises.paths import _subpath
 
 logger = logging.getLogger(__name__)
 
@@ -59,14 +60,14 @@ def audit_response_file_view(request, pk):
         ):
             if audit_response.filetype == 'IMG':
                 return serve_file(
-                    '/' + settings.SUBPATH + audit_response.image.name,
+                    '/' + _subpath(user=request.user) + audit_response.image.name,
                     os.path.basename(audit_response.image.name),
                     content_type="image/jpeg",
                     dev_path=audit_response.image.path,
                 )
             if audit_response.filetype == 'PDF':
                 return serve_file(
-                    '/' + settings.SUBPATH + audit_response.pdf.name,
+                    '/' + _subpath(user=request.user) + audit_response.pdf.name,
                     os.path.basename(audit_response.pdf.name),
                     content_type="application/pdf",
                     dev_path=audit_response.pdf.path,
@@ -87,7 +88,7 @@ def audit_response_file_thumb_view(request, pk):
             or request.user.is_staff
         ):
             return serve_file(
-                '/' + settings.SUBPATH + audit_response.image_thumb.url,
+                '/' + _subpath(user=request.user) + audit_response.image_thumb.url,
                 os.path.basename(audit_response.image.name),
                 content_type="image/jpeg",
                 dev_path='media/' + audit_response.image_thumb.url,

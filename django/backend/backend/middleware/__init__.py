@@ -1,10 +1,10 @@
 from django.utils.deprecation import MiddlewareMixin
-from django.conf import settings
+from exercises.paths import _subpath
 
 
 class SameSiteMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
-        subpath = settings.SUBPATH.strip('/')
+        subpath =  ( _subpath(request.get_full_path() )  ).strip('/')
         sessionid = 'sessionid%s' % subpath
         csrftoken = 'csrftoken%s' % subpath
         for cookie in [
