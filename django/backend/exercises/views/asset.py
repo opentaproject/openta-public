@@ -131,6 +131,7 @@ def exercise_download_assets(request, exercise):
 
 @api_view(['GET'])
 def exercise_asset(request, exercise, asset):
+    print("GET EXERCISE_ASSET")
     if not asset.lower().endswith(asset_types):
         return Response({}, status.HTTP_403_FORBIDDEN)
     dbexercise = Exercise.objects.get(exercise_key=exercise)
@@ -151,7 +152,7 @@ def exercise_asset(request, exercise, asset):
             )
             response = HttpResponse(content_type="image/png")
             image.save(response, format='PNG')
-            #return response
+            return response
     dev_path =  '{root}/{path}/{asset}'.format(
             root=dbexercise.course.get_exercises_path(), path=dbexercise.path, asset=asset
         )

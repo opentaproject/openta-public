@@ -54,7 +54,7 @@ spec:
             value: "google-storage_d4d60c84"
           - name: SERVER_INFO_KEY
             value: "SERVER_INFO_KEY_FROM_KUBKOMMANDS"
-          image: s53ostlund/openta:v3.0.0
+          image: s53ostlund/openta:v300
           imagePullPolicy: Always
           volumeMounts:
           - mountPath: /srv/multicourse
@@ -128,7 +128,7 @@ spec:
           env:
           - name: VERSION_TAG
             value: v3.0.0
-          image: s53ostlund/openta:v3.0.0
+          image: s53ostlund/openta:v300
           imagePullPolicy: Always
           securityContext:
             privileged: true
