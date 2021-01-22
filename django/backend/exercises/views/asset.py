@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import permission_required
 from django.http import HttpResponse, FileResponse
 from exercises.models import Exercise
 from exercises.views.file_handling import serve_file
-import backend.settings as settings
+#import backend.settings as settings
+from django.conf import settings
 import exercises.paths as paths
 from exercises.assets import list_assets, add_asset, delete_asset, has_asset
 from exercises.parsing import exercise_xmltree
@@ -17,6 +18,10 @@ import os
 import io
 from PIL import Image
 import datetime
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 asset_types = (
     '.pdf',
@@ -56,17 +61,17 @@ def _dispatch_asset_path(user , exercise):
 
     """
     asset_path = None
-    print("DISPATCH_ASSET_PATH")
+    logger.info("DISPATCH_ASSET_PATH")
     if user.has_perm('exercises.edit_exercise'):
-        print("PERM ASSET PATH = ", asset_path)
+        logger.info("PERM ASSET PATH = "+ str( asset_path) )
         asset_path = paths.get_exercise_asset_path(user,exercise)
-        print("PERM ASSET PATH = ", asset_path)
+        logger.info("PERM ASSET PATH = "+ str( asset_path) )
     else:
-        print("ELSE ASSET_PATH", type(exercise), exercise)
-        print("DBEXERCISE = ", exercise.course.course_key)
+        logger.info("ELSE ASSET_PATH" +   str( exercise) )
+        logger.info("DBEXERCISE = " + str(  exercise.course.course_key) )
         # course_key = dbexercise.course.course_key
         asset_path = paths.get_student_asset_path(user, exercise)
-    print("_DISPATCH_ASSET_PATH ASSET_PATH = ", asset_path )
+    logger.info("_DISPATCH_ASSET_PATH ASSET_PATH = " +  str( asset_path ) )
 
     return asset_path
 
@@ -98,7 +103,7 @@ def exercise_student_asset(request, exercise, asset):
         path=paths.get_student_asset_path(request.user, dbexercise), asset=asset
     )
     print("EXERCISE_STUDENT ASSET DEV_PATH_STUDENT_ASSET = ", dev_path)
-    prod_path = dev_path.replace('/srv/multicourse','/development')
+    prod_path = dev_path.replace('srv/multicourse/',settings.SUBPATH)
     print("prod_path = ", prod_path)
     return serve_file(
         prod_path,
@@ -131,7 +136,7 @@ def exercise_download_assets(request, exercise):
 
 @api_view(['GET'])
 def exercise_asset(request, exercise, asset):
-    print("GET EXERCISE_ASSET")
+    logger.info("GET EXERCISE_ASSET")
     if not asset.lower().endswith(asset_types):
         return Response({}, status.HTTP_403_FORBIDDEN)
     dbexercise = Exercise.objects.get(exercise_key=exercise)
@@ -157,10 +162,10 @@ def exercise_asset(request, exercise, asset):
             root=dbexercise.course.get_exercises_path(), path=dbexercise.path, asset=asset
         )
     dev_path = paths.get_exercise_asset_path(request.user , dbexercise) + '/' + asset
-    print("EXERCISE_ASSET ASSET = ", asset )
-    print("EXERCISE_ASSET DEV_PATH = ", dev_path)
-    prod_path = dev_path.replace('/srv/multicourse','/development')
-    print("EXERCISE_ASSET PROD_PATH = ", prod_path)
+    logger.info("1 EXERCISE_ASSET ASSET = "+ asset )
+    logger.info("2 EXERCISE_ASSET DEV_PATH = "+ dev_path)
+    prod_path = str( dev_path ).replace('srv/multicourse/',settings.SUBPATH)
+    logger.info("3 EXERCISE_ASSET PROD_PATH = " +  prod_path)
     return serve_file(
         prod_path,
         asset,

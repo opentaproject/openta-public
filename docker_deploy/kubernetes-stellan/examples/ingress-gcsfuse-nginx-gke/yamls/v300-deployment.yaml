@@ -45,7 +45,7 @@ spec:
           #      command: ["fusermount", "-u", "/srv/multicourse"]
           env:
           - name: VERSION_TAG
-            value: v3.0.0
+            value: v2.1.3
           - name: WEB_CONCURRENCY
             value: "10"
           - name: OPENTA_SUBPATH
@@ -127,7 +127,7 @@ spec:
             - rqworker
           env:
           - name: VERSION_TAG
-            value: v3.0.0
+            value: v2.1.3
           image: s53ostlund/openta:v300
           imagePullPolicy: Always
           securityContext:
