@@ -160,7 +160,7 @@ class RegisterUserDomain(CreateView):
 
 
 @api_view(['GET', 'POST'])
-def login_status(request):
+def login_status(request,*args):
     """Get login information for current user.
 
     Returns:
@@ -170,6 +170,12 @@ def login_status(request):
             groups: [string]
             }
     """
+    print("LOGIN_STATUS ARGS = ", *args )
+    print("URI LOGIN", request.get_full_path() )
+    print("USER LOGGED IN ", request.user)
+    subpath = request.get_full_path().split('/')[1] 
+    request.session['subpath']  =  subpath
+    print("SESSION SUBPAHT = ", request.session['subpath'] )
     groups = []
     dbgroups = request.user.groups.all()
     for group in dbgroups:
@@ -198,7 +204,7 @@ def login(request, course_name=None):
         Login view unless rate limited in which case rate_limit.html
     """
     # get last course name to make it easy to return
-    subpath = _subpath(uri=request.get_full_path() )
+    subpath = _subpath(uri=request.get_full_path() , session=request.session)
     if course_name == None:
         course_name = request.COOKIES.get('last_course_name', None)
     course = None
@@ -337,7 +343,7 @@ def main(request, course_pk=None):
     enrolled = int(course_pk) in enrollment(user)
     published_and_enrolled = course.published and enrolled
     msg = ''
-    subpath = _subpath(uri=_subpath(request.get_full_path() ) )
+    subpath = _subpath(uri=request.get_full_path()  , session=request.session) 
     if not enrolled:
         msg = "Not enrolled in course"
     if not course.published:
@@ -507,7 +513,7 @@ def trigger_error(request ,msg='SENTRY ERROR TRIGGERED' ):
 
 @xframe_options_exempt  # NECESSARY TO KEEP FROM CRASHING IN CANVAS FRAME
 def logout(request, course_name=None, lti_status='no_lti'):
-    subpath = _subpath(uri=_subpath(request.get_full_path() ) )
+    subpath = _subpath(uri=request.get_full_path()  , session=request.session) 
     if lti_status == 'no_lti':
         request.session['nonlti_login'] = False
         request.session.modified = True

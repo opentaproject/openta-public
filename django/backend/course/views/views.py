@@ -19,7 +19,7 @@ class CourseUpdate(UpdateView):
     form_class = CourseFormFrontend
     # fields = ['course_name', 'registration_password', 'registration_by_password', 'owners']
     readonly_fields = ('course_key', 'lti_key', 'lti_secret')
-    success_url = '/' +  _subpath()  + 'course/{id}/updateoptions/'
+    success_url = '/' +  _subpath(source='CourseUpdate')  + 'course/{id}/updateoptions/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -31,7 +31,7 @@ class CourseUpdate(UpdateView):
 def CourseUpdateView(request, course_pk):
     print("COURS UPDATE VIEW")
     course = Course.objects.get(pk=course_pk)
-    courseurl = request.build_absolute_uri('/') +_subpath( course=course) + course.course_name + '/'
+    courseurl = request.build_absolute_uri('/') +_subpath( course=course, source='CourseUpdateView' ) + course.course_name + '/'
     if not courseurl == course.url:
         course.url = courseurl
         course.save()
@@ -54,7 +54,8 @@ def get_course(request, course_pk):
 
 
 @api_view(['GET'])
-def get_courses(request):
+def get_courses(request,*args):
+    print("GET_COURSES args = ", args )
     courses = Course.objects.all()
     if request.user.is_superuser:
         scourse = CourseSerializer(courses, many=True)

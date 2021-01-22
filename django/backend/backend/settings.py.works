@@ -1,120 +1,76 @@
-"""Development settings."""
+"""Production settings."""
 
 from backend.settings_lti import *
 from google.oauth2 import service_account
 
+SECRET_KEY = '$$uo0799i74g3oci-wy4_31mmly-nhlzj+qwi@cgr!@ynqmv=('
 
-
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-ALLOWED_HOSTS = ['*']
-
-TIME_ZONE = 'Europe/Copenhagen'
-print("SYS", sys.argv)
-RUNNING_DEVSERVER = len(sys.argv) > 1 and sys.argv[1] == 'runserver'
-if RUNNING_DEVSERVER:
-    ASYNC = False
-else:
-    ASYNC = True
-ASYNC = True
-print("ASYNC = ", ASYNC)
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 DEBUG = True
-if ASYNC:
-    RQ_QUEUES = {
-        'default': {
-            'HOST': 'localhost',
-            'PORT': 6379,
-            'DB': 12,
-            'DEFAULT_TIMEOUT': 360,
-            'ASYNC': ASYNC,
-        }
-    }
+APPEND_SLASH = True
+
+ALLOWED_HOSTS = ['*']
+# USE_X_FORWARDED_HOST = True
+
+EMAIL_HOST = 'smtp.gu.se'
+EMAIL_PORT = 25
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Use this for local smtp
+# EMAIL_HOST = 'localhost'
+# EMAIL_PORT = 25
+
+# Or this for custom smtp config through admin interface (per course)
+# USE_CUSTOM_SMTP_EMAIL = True
+
+# Redis information
+RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 12, 'DEFAULT_TIMEOUT': 20 * 60 }}
+
 DATABASES = {
-    #'default': {
-    #    'ENGINE': 'django.db.backends.sqlite3',
-    #    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'alphaplusclean',
-        'USER': 'openta',
-        'PASSWORD': 'openta',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'postgres',
         'HOST': 'localhost',
-        'PORT': '',
-        'OPTIONS': {
-           'sslmode': 'disable',
-        }
+        'PORT': 5432,
     }
 }
 
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-#    }
-# }
+FILE_UPLOAD_PERMISSIONS = 0o644
 
+_subpath = os.environ.get('OPENTA_SUBPATH')
+VERSION_TAG = os.environ.get('VERSION_TAG')
 
-CSRF_FAILURE_VIEW = 'backend.views.csrf_failure'
+if _subpath is not None:
+    SUBPATH = _subpath + '/'
 
+    LOGIN_URL = '/' + SUBPATH + 'login/'
+    LOGIN_REDIRECT_URL = '/' + SUBPATH
 
-CSRF_FAILURE_VIEW = 'backend.views.csrf_failure'
-HELP_URL = 'https://opentaserver.com/'
+    STATIC_TAG = 'static'
+    STATIC_URL = '/' + SUBPATH + STATIC_TAG + '/'
+    # STATICFILES_DIRS = (os.path.join(BASE_DIR, STATIC_TAG),)
+    # STATIC_ROOT = os.path.join(BASE_DIR, "deploystatic")
 
-# from redis import Redis
-# from rq import Queue
-# qfail = Queue("failed", connection=Redis() )
-# print( " FAILED = ",  qfail)
-# qfail.empty()
-# print( " FAILED NOW = ",  qfail.count  )
+    CSRF_COOKIE_NAME = 'csrftoken' + _subpath
+    SESSION_COOKIE_NAME = 'sessionid' + _subpath
 
-
-# import sentry_sdk
-# from sentry_sdk.integrations.django import DjangoIntegration
-# SENTRY_DSN = "https://53c3de5df98b49da8ac1a334737a17b1@sentry.io/1807786"
-# sentry_sdk.init(
-#    dsn=SENTRY_DSN,
-#    integrations=[DjangoIntegration()]
-# )
-# CSRF_USE_SESSION = True
-
-CHECK_AGGREGATIONS = False
-CACHE_LIFETIME = 60 * 60 * 24 * 7
-DEBUG = True
-IGNORE_NO_FEEDBACK = False
-RUNTESTS = False
-DO_CACHE = True
-SAFE_RUN_TIMEOUT = 12
-REFRESH_SEED_ON_CORRECT_ANSWER = True
-CSRF_COOKIE_SECURE = True
-#SESSION_COOKIE_SECURE = True
-#SESSION_COOKIE_SAMESITE_FORCE_ALL = True
-#SESSION_COOKIE_SAMESITE = None
-SESSION_COOKIE_SAMESITE = None
-CSRF_COOKIE_SAMESITE = None
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SESSION_SAVE_EVERY_REQUEST = True
-#X_FRAME_OPTIONS = 'ALLOWALL'
-#XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
-
-if RUNNING_DEVSERVER :
-    MIDDLEWARE = [
-        'django.middleware.security.SecurityMiddleware',
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.locale.LocaleMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    ]
-
+# Fix same-site cookie
 try:
-	GS_CREDENTIALS = service_account.Credentials.from_service_account_file( '/srv/alpha-plus/django/backend/backend/keyfile.json')
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file( 'backend/keyfile.json')
 except:
-	pass
-STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/deploystatic/'
+    pass
+STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/%s/' % VERSION_TAG
 try:
         from backend.settings_sqlite3 import *
 except:
         pass
+
+
+try:
+        from backend.settings_local import *
+except:
+        pass
+DATABASE_ROUTERS = ['backend.routers.AuthRouter']
+SUBPATH = '[A-Za-z0-9\-]+/'

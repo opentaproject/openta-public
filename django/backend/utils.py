@@ -6,6 +6,7 @@ from django.template.loader import get_template
 from django.template import TemplateDoesNotExist
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 from django.contrib import messages
+from exercises.paths import _subpath
 
 
 
@@ -78,4 +79,4 @@ class OpenTAStaticLiveServerTestCase(StaticLiveServerTestCase):
 
     @property
     def live_server_url(self):
-        return super().live_server_url + '/' + settings.SUBPATH
+        return super().live_server_url + '/' + _subpath() 

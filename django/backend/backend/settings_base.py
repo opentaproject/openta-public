@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # settings_example.js) Example: If the site is available at
 # http://domain.com/subpath/ this variable should be set to (note trailing
 # slash) SUBPATH = 'subpath/'
-SUBPATH = 'beta/'
+SUBPATH = '/'
 VERSION = version.get_version_string()
 
 SECRET_KEY = 'this_should_be_set_to_a_generated_key!'

@@ -14,10 +14,25 @@ EXERCISE_KEY = 'exercisekey'
 EXERCISE_HISTORY = 'history'
 EXERCISE_THUMBNAIL = 'thumbnail.png'
 
-def _subpath(request=None,**kwargs):
-    #for key, value in kwargs.items(): 
-    #    print ("%s == %s" %(key, value)) 
-    return settings.SUBPATH
+def _subpath(**kwargs):
+    print("len = ", len(kwargs) )
+    subpath = 'development/'
+    subpath = None
+    try: 
+        for key, value in kwargs.items(): 
+            print ("%s == %s" %(key, value)) 
+            if key == 'session' :
+                print("SESSON KEYS = ", value.keys() )
+                subpath = value['subpath'] + '/'
+    except: 
+        subpath = kwargs['uri'].split('/')[1] + '/'
+        print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx" )
+    if  subpath == None: 
+        print("XXXXXXXXXXXXXXXXXXXXXXXXXX"  )
+        subpath = '/'
+    print("PATHS: subpath = ",  subpath)
+    return  subpath
+    #return settings.SUBPATH
 
 
 def get_student_asset_path(user, exercise):

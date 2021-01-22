@@ -34,7 +34,7 @@ def get_task_result_file(request, task):
     if dbtask.result_file is None:
         return Response({'error': 'There is no result file for this task'})
 
-    subpath = _subpath(request.get_full_path() )
+    subpath = _subpath(request.get_full_path() , session=request.session)
     return serve_file(
         '/' + subpath + dbtask.result_file.name,
         os.path.basename(dbtask.result_file.name),

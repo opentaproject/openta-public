@@ -34,7 +34,7 @@ class ExerciseMetaUpdate(UpdateView):
         return obj
 
     model = ExerciseMeta
-    success_url = '/' + _subpath() + 'exercisemeta/{id}'
+    success_url = '/' + _subpath(source='ExerciseMetaUpdate') + 'exercisemeta/{id}'
 
 
 def split_or_repeat(txt):

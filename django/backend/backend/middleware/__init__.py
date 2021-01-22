@@ -4,7 +4,7 @@ from exercises.paths import _subpath
 
 class SameSiteMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
-        subpath =  ( _subpath(request.get_full_path() )  ).strip('/')
+        subpath =  ( _subpath(uri=request.get_full_path(),session=request.session )  ).strip('/')
         sessionid = 'sessionid%s' % subpath
         csrftoken = 'csrftoken%s' % subpath
         for cookie in [

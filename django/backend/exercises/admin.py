@@ -150,7 +150,7 @@ class ExerciseAdmin(admin.ModelAdmin):
     get_deadline.admin_order_field = 'meta__deadline_date'
 
     def get_thumbnail(self, exercise):
-        subpath = _subpath(exercise=exercise)
+        subpath = _subpath(exercise=exercise, source='ExerciseAdmin'  )
         return format_html(
             '<img src="/{}exercise/{}/asset/thumbnail.png"/></a>', subpath, exercise.exercise_key
         )

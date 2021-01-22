@@ -914,7 +914,7 @@ def upload_answer_image(request, exercise):
 
 @api_view(['GET'])
 def answer_image_view(request, image_id):
-    subpath = _subpath(uri=request.get_full_path() )
+    subpath = _subpath(uri=request.get_full_path(), session=request.session )
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
         if image_answer.user == request.user or request.user.is_staff:
@@ -940,7 +940,7 @@ def answer_image_view(request, image_id):
 
 @api_view(['GET'])
 def answer_image_thumb_view(request, image_id):
-    subpath = _subpath(uri=request.get_full_path() )
+    subpath = _subpath(uri=request.get_full_path() , session=request.session)
     try:
         image_answer = ImageAnswer.objects.get(pk=image_id)
         if image_answer.user == request.user or request.user.is_staff:

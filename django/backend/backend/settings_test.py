@@ -68,4 +68,4 @@ MIDDLEWARE = [
 
 VALID_ROLES = ['ContentDeveloper', 'Learner', 'Student', 'Instructor', 'Observer']
 FORCE_ROLE_TO_STUDENT = False
-VOLUME = '../'
+VOLUME = '/srv/multicourse/'

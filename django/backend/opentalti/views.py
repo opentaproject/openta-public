@@ -167,8 +167,8 @@ def edit_profile(request):
 
     form.Meta.exclude = exclude
 
-    context = {"form": form, "subpath": "/" + _subpath(uri=request.get_full_path()) }
-    subpath = _subpath(uri=request.get_full_path() )
+    context = {"form": form, "subpath": "/" + _subpath(uri=request.get_full_path() ,session=request.session) }
+    subpath = _subpath(uri=request.get_full_path(),session=request.session )
     if request.method == "POST":
         logging.debug("TRY TO SAVE")
         logging.debug("REQUEST.POST = %s", request.POST)
@@ -183,14 +183,14 @@ def edit_profile(request):
                 user.username = cform["username"]
                 logging.debug("DO A SAVE")
                 user.save()
-            logging.debug("EDIT_PROFILE REDIRECT TO  " + _subpath(uri=request.get_full_path() ) + "lti/")
+            logging.debug("EDIT_PROFILE REDIRECT TO  " + _subpath(uri=request.get_full_path(),session=request.session ) + "lti/")
             print("REDIRECT 4")
-            return redirect("/" + _subpath(uri=request.get_full_path()) ) 
+            return redirect("/" + _subpath(uri=request.get_full_path(),session=request.session) ) 
         else:
             logging.debug("ERRORS = %s", form.errors)
             return render(request, "edit_profile.html", context)
         print("REDIRECT5")
-        return redirect("/" + _subpath(uri=request.get_full_path()) )
+        return redirect("/" + _subpath(uri=request.get_full_path(),session=request.session) )
 
     return render(request, "edit_profile.html", context)
 
@@ -226,7 +226,7 @@ def config_xml(request, course_name=None):
 
     with open("opentalti/config.xml", "rb") as f:
         data = f.read()
-    url = "https://" + request.META["HTTP_HOST"] + "/" + _subpath(uri=request.get_full_path() ) + coursepk + "/lti/"
+    url = "https://" + request.META["HTTP_HOST"] + "/" + _subpath(uri=request.get_full_path(),session=request.session ) + coursepk + "/lti/"
     logging.debug("URL = %s", url)
     domain = (request.META["HTTP_HOST"].split(":"))[0]
     data = data.decode()
@@ -255,23 +255,23 @@ def change_password(request):
                     user = form.save()
                     update_session_auth_hash(request, user)  # Important!
                     messages.success(request, "Password was reset!")
-                logging.debug("REDIRECT TO %s", _subpath(uri=request.get_full_path()) )
+                logging.debug("REDIRECT TO %s", _subpath(uri=request.get_full_path(),session=request.session) )
                 print("REDIRECT1")
-                return redirect("/" + _subpath(uri=request.get_full_path()) )
+                return redirect("/" + _subpath(uri=request.get_full_path(),session=request.session) )
             else:
                 logging.debug("PASSWORD FORM NOT VALID")
                 messages.error(request, "Password not reset.")
                 print("REDIRECT2")
-                return redirect("/" + _subpath(uri=request.get_full_path()) )
+                return redirect("/" + _subpath(uri=request.get_full_path(),session=request.session) )
         else:
             form = passwordform(request.user)
-        subpath = _subpath(uri=request.get_full_path().strip("/") )
-        logging.debug("subpath = %s", _subpath(uri=request.get_full_path() ) )
+        subpath = _subpath(uri=request.get_full_path(),session=request.session ).strip("/") 
+        logging.debug("subpath = %s", _subpath(uri=request.get_full_path()  , session=requestion.session) )
         return render(request, "change_password.html", {"form": form, "subpath": subpath})
     except:
         messages.error(request, "Password not reset.")
         print("REDIRECT3")
-        return redirect("/" + _subpath(uri=request.get_full_path()) )
+        return redirect("/" + _subpath(uri=request.get_full_path() , session=requestion.session) )
 
 
 @api_view(['POST'])

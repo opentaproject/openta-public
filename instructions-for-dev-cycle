@@ -1,5 +1,5 @@
-echo VERSION_TAG=${VERSION_TAG}
-echo BUCKET_NAME=${BUCKET_NAME}
+export VERSION_TAG=${VERSION_TAG}
+export BUCKET_NAME=${BUCKET_NAME}
 echo docker build --tag s53ostlund/openta:${VERSION_TAG} . 
 echo docker  push s53ostlund/openta:${VERSION_TAG} 
 echo docker build -f nginx/Dockerfile --tag s53ostlund/nginx:${VERSION_TAG} ./nginx
