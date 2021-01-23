@@ -5,6 +5,7 @@ TEMPLATE_EXERCISE_PATH = "../../exercise_templates"
 TRASH_PATH = "z:Trash"
 STUDENT_ASSETS_PATH = settings.VOLUME + '/media/studentassets'
 STUDENT_ASSET_PATH = STUDENT_ASSETS_PATH
+STUDENT_ANSWERIMAGES_PATH = settings.VOLUME + "/media/answerimages"
 EXERCISE_XML = 'exercise.xml'
 EXERCISE_XSD = './exercises/exercise.xsd'
 EXERCISES_PATH = settings.EXERCISES_PATH  #  '../../exercises'
@@ -15,9 +16,9 @@ EXERCISE_HISTORY = 'history'
 EXERCISE_THUMBNAIL = 'thumbnail.png'
 
 def _subpath(**kwargs):
-    print("len = ", len(kwargs) )
-    subpath = 'development/'
-    subpath = None
+    subpath = settings.SUBPATH
+    if settings.SUBPATH == '' :
+        return ''
     try: 
         for key, value in kwargs.items(): 
             print ("%s == %s" %(key, value)) 
@@ -27,10 +28,11 @@ def _subpath(**kwargs):
     except: 
         subpath = kwargs['uri'].split('/')[1] + '/'
         print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx" )
-    if  subpath == None: 
-        print("XXXXXXXXXXXXXXXXXXXXXXXXXX"  )
-        subpath = '/'
-    print("PATHS: subpath = ",  subpath)
+    #if subpath in ['login/','1/','logout/','favicon.ico/','','2/','3/','exercise/'] :
+    #    subpath = settings.SUBPATH
+    #if subpath == '' :
+    #    subpath = settings.SUBPATH
+    print("PATHS: subpath = ",  '>' + subpath + '<')
     return  subpath
     #return settings.SUBPATH
 

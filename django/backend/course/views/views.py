@@ -19,12 +19,20 @@ class CourseUpdate(UpdateView):
     form_class = CourseFormFrontend
     # fields = ['course_name', 'registration_password', 'registration_by_password', 'owners']
     readonly_fields = ('course_key', 'lti_key', 'lti_secret')
-    success_url = '/' +  _subpath(source='CourseUpdate')  + 'course/{id}/updateoptions/'
+    success_url = '/' +  '{subpath}' + 'course/{id}/updateoptions/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['submit_text'] = _('Save')
         return context
+
+    def get_object(self, queryset=None):
+        obj = self.model.objects.get(pk=self.kwargs['pk'])
+        if 'subpath' in self.kwargs :
+            print("FOUND SUBPATH IN COURSSE KWARGS")
+        obj.subpath = self.kwargs.get('subpath')
+        return obj
+
 
 
 @permission_required('course.administer_course')
@@ -35,7 +43,8 @@ def CourseUpdateView(request, course_pk):
     if not courseurl == course.url:
         course.url = courseurl
         course.save()
-    result = CourseUpdate.as_view()(request, pk=course_pk)
+    subpath = _subpath(uri=request.get_full_path(), session=request.session)
+    result = CourseUpdate.as_view()(request, pk=course_pk, subpath=subpath)
     if request.method == 'POST':
         result.set_cookie('submitted', 'true')
     else:
