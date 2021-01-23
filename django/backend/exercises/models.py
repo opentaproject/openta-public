@@ -644,7 +644,7 @@ class ImageAnswer(models.Model):
         )
 
 
-class ImageAnsswerManager( models.Model ):
+class ImageAnswerManager( models.Model ):
     def course_key(self) :
         return self.exercise.course.course_key
 

@@ -30,11 +30,13 @@ class ExerciseMetaUpdate(UpdateView):
             fields = obj._meta.fields
             difficulty = list(filter(lambda x: str(x.attname) == 'difficulty', fields))[0]
             difficulty.choices = self.kwargs['difficulties']
-
+        if 'subpath' in self.kwargs :
+            print("FOUND SUBPATH IN KWARGS")
+        obj.subpath = self.kwargs.get('subpath')
         return obj
 
     model = ExerciseMeta
-    success_url = '/' + _subpath(source='ExerciseMetaUpdate') + 'exercisemeta/{id}'
+    success_url = '/' + '{subpath}' + 'exercisemeta/{id}'
 
 
 def split_or_repeat(txt):
@@ -67,7 +69,8 @@ def ExerciseMetaUpdateView(request, exercise):
     except:
         difficulties = None
     # difficulties = tuple( {('B' + v, v) for k,v in enumerate( difficultieslist ) })
-    result = ExerciseMetaUpdate.as_view()(request, pk=meta.id, difficulties=difficulties)
+    subpath = _subpath(uri=request.get_full_path(), session=request.session)
+    result = ExerciseMetaUpdate.as_view()(request, pk=meta.id, difficulties=difficulties,subpath=subpath)
     if request.method == 'POST':
         result.set_cookie('submitted', 'true')
     else:
