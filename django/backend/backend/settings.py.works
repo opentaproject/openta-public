@@ -74,4 +74,4 @@ except:
         pass
 DATABASE_ROUTERS = ['backend.routers.AuthRouter']
 SUBPATH = '[A-Za-z0-9\-]+/'
-SUBPATH = '/'
+SUBPATH_REGEX = True

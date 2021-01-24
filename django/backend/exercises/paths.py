@@ -17,8 +17,8 @@ EXERCISE_THUMBNAIL = 'thumbnail.png'
 
 def _subpath(**kwargs):
     subpath = settings.SUBPATH
-    if settings.SUBPATH == '' :
-        return ''
+    if not settings.SUBPATH_REGEX or settings.SUBPATH == '' : # don't parse subpaths if there is none
+        return subpath
     try: 
         for key, value in kwargs.items(): 
             print ("%s == %s" %(key, value)) 
