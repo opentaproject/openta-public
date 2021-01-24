@@ -240,9 +240,9 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         if os.path.exists('/tmp/results_import.xlsx'):
             os.remove("/tmp/results_import.xlsx")
         self.check_import_course()  # NOW IMPORTING code123 from before
-        df = pd.read_excel('/tmp/results_import.xlsx', header=0)
+        df = pd.read_excel('/tmp/results_import.xlsx', header=0,engine='openpyxl')
         df.to_csv('/tmp/results_import.csv', index=False, quotechar="'")
-        df = pd.read_excel('/tmp/results_export.xlsx', header=0)
+        df = pd.read_excel('/tmp/results_export.xlsx', header=0,engine='openpyxl')
         df.to_csv('/tmp/results_export.csv', index=False, quotechar="'")
         assert filecmp.cmp('/tmp/results_export.csv', '/tmp/results_import.csv')
 
