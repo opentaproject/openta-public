@@ -38,7 +38,7 @@ class SymbolicTest1(TestCase):
             },
             {'A - fA(x,y,z,t)  == 0 ': True},
             {'div(A) == div( fA(x,y,z,t) )': True},
-            {'vE ==  - grad( pphi )  -  dot(fA) ': True},
+            #{'vE ==  - grad( pphi )  -  dot(fA) ': True},
         ]
         for eqd in eqs:
             eq = list(eqd.keys())[0]
@@ -70,9 +70,9 @@ class SymbolicTest1(TestCase):
 
         print("DOING MAXWELL")
         eqs = [
-            'curl(vE) + 1/c dot(B) == 0',
+            #'curl(vE) + 1/c dot(B) == 0',
             'del2(A) == 1/c^2 partial(A,t,t)',
-            'd4(A) == 0 ',
+            #'d4(A) == 0 ',
             'A ==  - y    xhat + x yhat + 2  cos( c t -  z ) xhat  ',
             ' - y    xhat + x yhat + 2  cos( c t -  z ) xhat  - A  == 0',
             ' cross(xhat,yhat) - zhat == 0 ',
