@@ -145,6 +145,14 @@ class rankof(sympy.Function):
             #print("MATREIX FOUND RANKOF", x)
             return None
 
+class is_zero_matrix( sympy.Function):
+    @classmethod
+    def eval(cls ,x) :
+        print("X  = ", x )
+        if max( map( abs, list( x )  ) ) < 1.e-6  :
+            return sympy.sympify('1')
+        else:
+            return sympy.sympify('0')
 
 class isunitary(sympy.Function):
     @classmethod
@@ -157,10 +165,7 @@ class isunitary(sympy.Function):
             #print("zer = ", zer )
             zer = zer.evalf(6, chop=True)
             #print("ZER = ", zer)
-            if zer.is_zero:
-                return sympy.sympify('1')
-            else:
-                return sympy.sympify('0')
+            return is_zero_matrix( zer )
         else:
             return None
 
@@ -169,12 +174,17 @@ class IsHermitian(sympy.Function):
     @classmethod
     def eval(cls, x):
         if isinstance(x, sympy.MatrixBase):
+            print("IsHermitian x = ", x )
+            print("conjugate(x.T) ",  conjugate(x.T)  )
             zer = x - conjugate(x.T)
-            zer = zer.evalf(6, chop=True)
-            if zer.is_zero:
-                return sympy.sympify('1')
-            else:
-                return sympy.sympify('0')
+            return is_zero_matrix(zer)
+            #zer = list( zer.evalf(5, chop=True) )
+            
+            #test =  max( map( abs, zer) ) 
+            #if test < 1.e-6 :
+            #    return sympy.sympify('1')
+            #else:
+            #    return sympy.sympify('0')
         else:
             return None
 
@@ -337,10 +347,7 @@ class eq(sympy.Function):
     @classmethod
     def eval(cls, x, y):
         if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
-            if (x - y).is_zero:
-                return sympy.sympify('1')
-            else:
-                return sympy.sympify('0')
+            return is_zero_matrix(x - y)
         elif (isinstance(x, Integer) or isinstance(x, Float)) and (
             isinstance(x, Integer) or isinstance(x, Float)
         ):
@@ -358,10 +365,7 @@ class neq(sympy.Function):
     @classmethod
     def eval(cls, x, y):
         if isinstance(x, sympy.MatrixBase) and isinstance(y, sympy.MatrixBase):
-            if (x - y).is_zero:
-                return sympy.sympify('0')
-            else:
-                return sympy.sympify('1')
+            return 1 - is_zero_matrix(x - y)
         elif (isinstance(x, Integer) or isinstance(x, Float)) and (
             isinstance(x, Integer) or isinstance(x, Float)
         ):
