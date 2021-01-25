@@ -45,7 +45,7 @@ spec:
           #      command: ["fusermount", "-u", "/srv/multicourse"]
           env:
           - name: VERSION_TAG
-            value: v3.0.0
+            value: v3.0.1
           - name: WEB_CONCURRENCY
             value: "10"
           - name: OPENTA_SUBPATH
@@ -54,7 +54,7 @@ spec:
             value: "google-storage_d4d60c84"
           - name: SERVER_INFO_KEY
             value: "SERVER_INFO_KEY_FROM_KUBKOMMANDS"
-          image: s53ostlund/openta:v3.0.0
+          image: s53ostlund/openta:v3.0.1
           imagePullPolicy: Always
           volumeMounts:
           - mountPath: /srv/multicourse
@@ -76,7 +76,7 @@ spec:
               cpu: "0.05"
               memory: "256Mi"
 
-        - image: s53ostlund/nginx:v3.0.0
+        - image: s53ostlund/nginx:v3.0.1
           imagePullPolicy: Always
           name: nginx
           securityContext:
@@ -127,8 +127,8 @@ spec:
             - rqworker
           env:
           - name: VERSION_TAG
-            value: v3.0.0
-          image: s53ostlund/openta:v3.0.0
+            value: v3.0.1
+          image: s53ostlund/openta:v3.0.1
           imagePullPolicy: Always
           securityContext:
             privileged: true

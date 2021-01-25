@@ -33,7 +33,7 @@
   {% endfor %}
 {% endif %}
 
-<form method="post" class="uk-form" action="{% url  'login' course_name=course_name  %}">
+<form method="post" class="uk-form" action="{% url  'login' subpath=course.subpath course_name=course_name  %}">
 {% csrf_token %}
 <legend><i class="uk-icon uk-icon-medium uk-icon-circle-o uk-text-primary"></i><span class="uk-text-small uk-text-middle"> {{ course.course_name }} </span></legend>
 {% if course.motd %}

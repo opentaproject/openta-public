@@ -160,7 +160,7 @@ class RegisterUserDomain(CreateView):
 
 
 @api_view(['GET', 'POST'])
-def login_status(request,*args):
+def login_status(request,*args,**kwargs):
     """Get login information for current user.
 
     Returns:
@@ -171,11 +171,11 @@ def login_status(request,*args):
             }
     """
     print("LOGIN_STATUS ARGS = ", *args )
+    print("KWARGS = ", **kwargs)
     print("URI LOGIN", request.get_full_path() )
     print("USER LOGGED IN ", request.user)
-    subpath = request.get_full_path().split('/')[1] 
-    request.session['subpath']  =  subpath
-    print("SESSION SUBPAHT = ", request.session['subpath'] )
+    for key, value in kwargs.items(): 
+           print(" LOGIN_STATUS %s == %s" %(key, value)) 
     groups = []
     dbgroups = request.user.groups.all()
     for group in dbgroups:
@@ -197,14 +197,20 @@ def login_status(request,*args):
 
 
 @ratelimit(key='ip', rate='5/30s')
-def login(request, course_name=None):
+def login(request, subpath=None, course_name=None):
     """Login view.
 
     Returns:
         Login view unless rate limited in which case rate_limit.html
     """
     # get last course name to make it easy to return
-    subpath = _subpath(uri=request.get_full_path() , session=request.session)
+    print("LOGIN REQUEST path = ", request.get_full_path() )
+    print("LOGIN REQUEST subpath = ", subpath)
+    print("LOGIN REQUEST course_name = ", course_name)
+    if subpath == None :
+        subpath = _subpath(uri=request.get_full_path() , session=request.session)
+    else :
+        subpath = subpath + '/'
     if course_name == None:
         course_name = request.COOKIES.get('last_course_name', None)
     course = None
@@ -223,19 +229,22 @@ def login(request, course_name=None):
     course_data = CourseSerializer(course).data
 
     if request.user.is_authenticated:
+        request.session['subpath'] = subpath
         return main(request, course_pk=course.pk)
 
     set_persistent_lang(course, request)
 
     if course_data['icon'] is not None:
         course_data['icon'] = '/' + subpath + course_data['icon'].lstrip('/')
-
+    course_data['subpath'] = subpath.strip('/')
+    course_data['url'] = 'http://localhost:8000' + request.get_full_path() 
     extra = {
         'course': course_data,
         'openta_version': settings.VERSION,
-        'subpath': '/' + subpath,
+        'subpath':  '/' + subpath, # THIS TRAILING SLASH MUST BE HERE!
         'course_name': course.course_name,
     }
+    print("EXTRA = ", extra )
     if not getattr(request, 'limited', False) or settings.RUNNING_DEVSERVER:
         context = { 'extra_context': extra }
         return LoginView.as_view(**context)(request)
@@ -320,13 +329,14 @@ def view_toggle(request, course_pk=None):
 
 @xframe_options_exempt  # KEEPS FROM CRASHING FOR PASSWSORD CHANGE
 @ensure_csrf_cookie
-@login_required
 def main(request, course_pk=None):
     """The main frontend view.
 
     Returns:
         The frontend app in base_main.html if authorized, otherwise login screen.
     """
+    if not request.user.is_authenticated:
+        return redirect(request.get_full_path() + 'login/' )
     if course_pk is None:
         course_pk = request.session.get('course_pk')
 

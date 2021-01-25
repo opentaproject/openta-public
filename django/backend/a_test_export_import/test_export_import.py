@@ -32,7 +32,7 @@ LOGGER.setLevel(logging.WARNING)
 
 
 class ExportImportTest(OpenTAStaticLiveServerTestCase):
-    def setup(self, course_name='Test course'):
+    def setup(self, course_name='Test course',subpath='/'):
         # super().setUp()
         course_key = uuid.uuid4()
         self.dir = TemporaryDirectory()
@@ -179,7 +179,7 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
         wait.until(EC.invisibility_of_element_located((By.CLASS_NAME, 'Spinner')))
 
     def check_import_course(self):
-        self.setup(course_name='code789')
+        self.setup(course_name='code789',subpath='/')
         self.open_site()
         self.change_exercise_options()
         self.login()
@@ -232,7 +232,7 @@ class ExportImportTest(OpenTAStaticLiveServerTestCase):
     def test1(self):
         if os.path.exists("/tmp/results_export.xlsx"):
             os.remove("/tmp/results_export.xlsx")
-        self.setup(course_name='code123')
+        self.setup(course_name='code123',subpath='/')
         print("COURSE 123 set up ")
         self.check_export_course()
 

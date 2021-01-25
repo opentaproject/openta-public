@@ -11,9 +11,9 @@ def serve_file(path, filename, **kwargs):
     #logger.info("SERVE_FILE FILENAME = " +  filename )
     #logger.info("PATH FOR X-Accel-Rediret = " +  path )
     if settings.RUNNING_DEVSERVER:
-        #logger.info("FILE_HANDLING  DEVSERVER ")
+        print("FILE_HANDLING  DEVSERVER %s "% content_type)
         if content_type:
-            response = FileResponse(open(dev_path, 'rb'), content_type)
+            response = FileResponse(open(dev_path, 'rb') )
             response['Content-Disposition'] = 'inline; filename="{}"'.format(filename)
             return response
         else:

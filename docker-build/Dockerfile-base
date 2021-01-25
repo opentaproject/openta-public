@@ -1,4 +1,4 @@
-FROM python:3.6
+FROM python:3.7
 
 ## Recommended method for installing nodejs with package manager on Debian (minus sudo)
 RUN apt-get update \
@@ -12,7 +12,7 @@ RUN apt-get update \
     libxslt1-dev \
     libzmq3-dev
 
-COPY requirements.txt /srv/openta/django/requirements.txt
+COPY django/requirements.txt /srv/openta/django/requirements.txt
 WORKDIR /srv/openta/django
 RUN pip install -r requirements.txt
 RUN pip install gunicorn==19.9.0

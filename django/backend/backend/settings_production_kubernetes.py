@@ -66,3 +66,7 @@ try:
         from backend.settings_sqlite3 import *
 except:
         pass
+
+DATABASE_ROUTERS = ['backend.routers.AuthRouter']
+SUBPATH = '[A-Za-z0-9\-]+/'
+SUBPATH_REGEX = True

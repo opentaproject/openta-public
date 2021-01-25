@@ -16,18 +16,21 @@ EXERCISE_HISTORY = 'history'
 EXERCISE_THUMBNAIL = 'thumbnail.png'
 
 def _subpath(**kwargs):
-    subpath = settings.SUBPATH
-    if not settings.SUBPATH_REGEX or settings.SUBPATH == '' : # don't parse subpaths if there is none
-        return subpath
-    try: 
-        for key, value in kwargs.items(): 
-            print ("%s == %s" %(key, value)) 
-            if key == 'session' :
-                print("SESSON KEYS = ", value.keys() )
-                subpath = value['subpath'] + '/'
-    except: 
+    #subpath = settings.SUBPATH
+    if settings.SUBPATH == '/'  or settings.SUBPATH == '' : # don't parse subpaths if there is none
+        return ''
+    if not settings.SUBPATH_REGEX  :
+        return settings.SUBPATH
+    #try: 
+    #    for key, value in kwargs.items(): 
+    #        print ("%s == %s" %(key, value)) 
+    #        if key == 'session' :
+    #            print("SESSON KEYS = ", value.keys() )
+    #            subpath = value['subpath'] + '/'
+    try:
         subpath = kwargs['uri'].split('/')[1] + '/'
-        print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXx" )
+    except:
+        subpath = '/'
     #if subpath in ['login/','1/','logout/','favicon.ico/','','2/','3/','exercise/'] :
     #    subpath = settings.SUBPATH
     #if subpath == '' :

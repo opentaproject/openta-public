@@ -65,11 +65,13 @@ internalurlpatterns = [
         r'^register_by_password/(?P<course_pk>[0-9]+)/register/(?P<password>[\w]+)$',
         backendviews.validate_and_show_registration,
     ),
+
     url(r'^view_toggle/$', backendviews.view_toggle),
     url(r'^$', backendviews.main),
     url(r'^', include('workqueue.urls')),
     url(r'^', include('course.urls')),
     url(r'^', include('opentalti.urls')),
+
     url(r'^logout/?$', backendviews.logout),
     url(r'^logout/(?P<course_name>[\w\.\ -]+)/?$', backendviews.logout),
     url(r'^logout/(?P<course_name>[\w\.\ -]+)/(?P<lti_status>[\w]+)/$', backendviews.logout),
@@ -85,5 +87,19 @@ urlpatterns = [
     settings.MEDIA_URL, document_root=settings.MEDIA_ROOT,
     
 )
+moreurls =  [
+    ##url(r'^view_toggle/$', backendviews.view_toggle),
+    ##url(r'^$', backendviews.main),
+    ##url(r'^', include('workqueue.urls')),
+    ##url(r'^', include('course.urls')),
+    ##url(r'^', include('opentalti.urls')),
+    #url(r'^(?P<course_pk>[0-9]+)/?$', backendviews.main),
+    url(r'^(?P<subpath>[A-Za-z0-9]+)/login/(?P<course_name>[\w\.\ -]+)/?$', backendviews.login, name='login'),
+    url(r'^(?P<subpath>)/login/(?P<course_name>[\w\.\ -]+)/?$', backendviews.login, name='login'),
+    #url(r'^login/$', backendviews.login, name='login'),
+    #url(r'^loggedin/', backendviews.login_status),
+    ] 
+urlpatterns +=  [ url(r'^' ,  include(moreurls)) ]
+    
 
 admin.site.site_header = 'OpenTA Admin'
