@@ -71,8 +71,8 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
         print("NOW WAIT FOR APP TEST_STUDENT.PY TO COME UP")
         sel.find_element_by_class_name('OpenHeader').click()
         print("NOW WAIT FOR APP TO COME UP")
-        wait.until(EC.text_to_be_present_in_element((By.ID, 'app'), assert_role))
-        print("ASSERT_ROLE", assert_role)
+        wait.until(EC.text_to_be_present_in_element((By.ID, 'app'), 'super'))
+        print("ASSERT_ROLE", 'super')
         assert assert_role in sel.page_source
 
     def logout(self):
@@ -106,7 +106,7 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
 
     def answerall(self, answerdict):
         sel = self.selenium
-        wait = WebDriverWait(sel, 20)
+        wait = WebDriverWait(sel, 200)
         # for questionkey, ans in answerdict.items():
         #    # answerarea = sel.find_element_by_xpath('//textarea[contains(@id,\"' + questionkey + '\")]')
         #    answerarea = sel.find_element_by_xpath(
@@ -154,7 +154,8 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
             xpready = '//div[contains(@id,\"' + buttonkey + '\") and contains(@class, \'ready\')]'
             print("XPREADY ", xpready)
             for entry in sel.get_log('browser'):
-                print(str(entry))
+                print("SEL LOG", str(entry))
+            print("WAIT UNTIL XPREADY")
             wait.until(EC.presence_of_element_located((By.XPATH, xpready)))
             corrects = sel.find_elements_by_xpath('//div[contains(@class, \'yescorrect\')]')
             unchecked = sel.find_elements_by_xpath('//div[contains(@class, \'unchecked\')]')
@@ -197,7 +198,7 @@ class PythonicTest(OpenTAStaticLiveServerTestCase):
         for exercise in exercises:
             self.change_exercise_options(exercise)
 
-        self.login()
+        self.login('super','pw','admin')
         for exercise in exercises:
             print("DO EXERCISE")
             self.click_exercise(exercise)

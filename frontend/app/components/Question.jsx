@@ -52,25 +52,18 @@ class BaseQuestion extends Component {
       if (question.getIn(['@attr', 'key'], undefined) == undefined && this.props.admin) {
         alerts.push((<Alert key={"alertkey"} message="No question key, please add an attribute key=..." type="error" />));
       }
-      var yescorrect = '';
-      if (iscorrect) {
-        yescorrect = 'yescorrect';
-      }
-      if (iscorrect == null) {
-        yescorrect = 'unchecked';
-      }
-      var yescorrect = 'undefined'
       var cname = "question uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top "
+      var yescorrect = ''
       if( iscorrect == true ){
             yescorrect = 'yescorrect'
             cname = "question uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top yescorrect ready"
             }
-      if( iscorrect == null ){
+      else if( iscorrect == null ){
             yescorrect = 'unchecked'
             cname = "question uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top unchecked ready"
             }
-      if( iscorrect == false ){
-            cname = "question uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top unchecked notcorrect ready"
+      else if( iscorrect == false ){
+            cname = "question uk-panel uk-panel-box uk-padding-bottom-remove uk-margin-top notcorrect ready"
             yescorrect = 'notcorrect'
             }
       //console.log(exerciseKey + ' ' + questionKey + " okornot , YESCORRECT = " +  okornot + ' ' +   yescorrect  )
