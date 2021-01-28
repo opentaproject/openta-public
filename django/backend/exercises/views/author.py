@@ -1,10 +1,12 @@
 from django.contrib.auth.decorators import permission_required
 import backend.settings as settings
+from django.views.decorators.clickjacking import xframe_options_exempt
 from exercises.models import ExerciseMeta, Exercise
 from django.views.generic.edit import UpdateView
 from django import forms
 from django.forms.models import modelform_factory
 from exercises.paths import _subpath
+
 
 
 class ExerciseMetaUpdate(UpdateView):
@@ -24,6 +26,7 @@ class ExerciseMetaUpdate(UpdateView):
         'locked',
     ]
 
+    
     def get_object(self, queryset=None):
         obj = self.model.objects.get(pk=self.kwargs['pk'])
         if 'difficulties' in self.kwargs:
@@ -33,10 +36,12 @@ class ExerciseMetaUpdate(UpdateView):
         if 'subpath' in self.kwargs :
             print("FOUND SUBPATH IN KWARGS")
         obj.subpath = self.kwargs.get('subpath')
+        obj.fullpath = self.kwargs.get('fullpath')
+        print("OBJ.SUBPATH = ", obj.subpath)
         return obj
 
     model = ExerciseMeta
-    success_url = '/' + '{subpath}' + 'exercisemeta/{id}'
+    success_url =  '{fullpath}' # '/' + '{subpath}' + 'exercisemeta/{id}'
 
 
 def split_or_repeat(txt):
@@ -59,6 +64,7 @@ def split_or_repeat(txt):
     print("pices = ", pieces)
 
 
+@xframe_options_exempt
 @permission_required('exercises.administer_exercise')
 def ExerciseMetaUpdateView(request, exercise):
     dbexercise = Exercise.objects.get(exercise_key=exercise)
@@ -70,7 +76,9 @@ def ExerciseMetaUpdateView(request, exercise):
         difficulties = None
     # difficulties = tuple( {('B' + v, v) for k,v in enumerate( difficultieslist ) })
     subpath = _subpath(uri=request.get_full_path(), session=request.session)
-    result = ExerciseMetaUpdate.as_view()(request, pk=meta.id, difficulties=difficulties,subpath=subpath)
+    fullpath = request.get_full_path()
+    print("SUBPATH IN EXERCISE_META UPDATE VIEW = ", subpath)
+    result = ExerciseMetaUpdate.as_view()(request, pk=meta.id, difficulties=difficulties,subpath=subpath,fullpath=fullpath)
     if request.method == 'POST':
         result.set_cookie('submitted', 'true')
     else:
