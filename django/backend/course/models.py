@@ -4,6 +4,9 @@ import logging
 import datetime
 import uuid
 from django.core.exceptions import ValidationError
+from django.contrib import admin
+from django import forms
+
 
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -18,6 +21,8 @@ from google.cloud import translate
 from google.oauth2 import service_account
 import tempfile
 import io, json
+from django.core.validators import RegexValidator
+
 
 from django.core.mail import get_connection
 from django.conf import settings
@@ -114,8 +119,69 @@ def send_email_object(email, host, username, password):
             raise e
     return n_sent
 
+alphanumeric = RegexValidator(r'^[0-9a-z]*$', 'Only lowercase and numbers allowed.')
+
+
+#########
+### SUBPATH
+#####
+
+#class Subpath(models.Model):
+#    key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+#    name = models.CharField(max_length=64, default='openta', unique=True,validators=[alphanumeric])
+#    objects = models.Manager()
+#
+#    def __str__(self):
+#        return self.name 
+#
+#def get_subpath():
+#    return Subpath.objects.get_or_create(id=1)
+#
+#class SubpathAdminForm(forms.ModelForm):
+#    
+#    class Meta:
+#        model = Subpath
+#        fields = ('name',)
+#
+#class SubpathAdmin( admin.ModelAdmin):
+#    model = Subpath
+#    list_display = ['name','key']
+#    form = SubpathAdminForm
+
+######
+#### OpenTASite
+#####
+
+class OpenTASite(models.Model ):
+
+    name = models.CharField(max_length=4096)
+    objects = models.Manager()
+
+    def __str__(self):
+        return self.name
+
+
+
+
+
+class OpenTASiteAdminForm(forms.ModelForm):
+
+    class Meta :
+        model = OpenTASite
+        fields = ('name',)
+
+class OpenTASiteAdmin( admin.ModelAdmin ):
+    model = OpenTASite
+    list_display = ['name']
+    form = OpenTASiteAdminForm
+
+
+
+
+
 
 class Course(models.Model):
+    #subpath = models.ForeignKey( Subpath , default=get_subpath, on_delete=models.CASCADE, related_name='course',)
     course_key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     course_name = models.CharField(max_length=255, default='OpenTA')
     lti_key = models.UUIDField(unique=True, default=uuid.uuid4)
@@ -319,3 +385,6 @@ class Course(models.Model):
     #            raise ValidationError({'use_auto_translation': _('Google Auth string does not pass validation. Turn off use_auto_translation and google_auth_string to to blank to avoid error. ') } , code='invalid' )
     #            pass
     #
+#admin.site.register( Subpath, SubpathAdmin)
+admin.site.register( OpenTASite, OpenTASiteAdmin)
+

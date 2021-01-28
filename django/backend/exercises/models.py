@@ -566,8 +566,9 @@ class Answer(models.Model):
             )
 
     def save(self, *args, **kwargs):
-        #print("ANSSWER SAVE args = ", args )
-        #print("ANSWSER KWARGS = ", kwargs)
+        print("ANSSWER SAVE args = ", args )
+        print("ANSWSER KWARGS = ", kwargs)
+        print("INSTANCE = ", self)
         if self.pk == None:
              answers = Answer.objects.filter(user=self.user, question=self.question)
              nattempt = 1 if answers == None else answers.count()

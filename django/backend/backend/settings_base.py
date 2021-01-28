@@ -68,6 +68,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'backend.middleware.SameSiteMiddleware', 
+    'backend.middleware.SubpathMiddleware',
+    'backend.middleware.DynamicSitesMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -77,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -220,3 +223,4 @@ DB_NAME = 'default'
 DATABASE_ROUTERS = ['backend.routers.AuthRouter']
 VOLUME = '/srv/multicourse'
 SUBPATH_REGEX = False
+DEFAULT_SITE_ID = 1

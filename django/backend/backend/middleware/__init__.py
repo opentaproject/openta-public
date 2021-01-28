@@ -1,4 +1,5 @@
 from django.utils.deprecation import MiddlewareMixin
+from django.conf import settings
 from exercises.paths import _subpath
 
 
@@ -19,3 +20,8 @@ class SameSiteMiddleware(MiddlewareMixin):
                 response.cookies[cookie]['samesite'] = 'None'
                 response.cookies[cookie]['secure'] = True
         return response
+
+class SubpathMiddleware(MiddlewareMixin):
+    def process_request(self, request, response=None):
+        subpath =  ( _subpath(uri=request.get_full_path())  ).strip('/')
+        settings.DB_NAME = subpath
