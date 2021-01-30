@@ -132,9 +132,8 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesSto
 
 MEDIA_TAG = 'media'
 MEDIA_URL = MEDIA_TAG + '/'
-MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_TAG)
-MEDIA_ROOT = '/srv/multicourse/media'
-EXERCISES_PATH = '/srv/multicourse/exercises'
+#MEDIA_ROOT = '/srv/multicourse/v303/media'
+#EXERCISES_PATH = '/srv/multicourse/v303/exercises'
 
 FILE_UPLOAD_HANDLERS = ['django.core.files.uploadhandler.TemporaryFileUploadHandler']
 
@@ -225,3 +224,4 @@ DATABASE_ROUTERS = ['backend.routers.AuthRouter']
 VOLUME = '/srv/multicourse'
 SUBPATH_REGEX = False
 DEFAULT_SITE_ID = 1
+SUBDOMAIN = ''

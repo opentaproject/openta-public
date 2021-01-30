@@ -3,12 +3,14 @@ from django.conf import settings
 
 TEMPLATE_EXERCISE_PATH = "../../exercise_templates"
 TRASH_PATH = "z:Trash"
-STUDENT_ASSETS_PATH = settings.VOLUME + '/media/studentassets'
+STUDENT_ASSETS_PATH = settings.VOLUME + '/'  + settings.DB_NAME + '/media/studentassets'
+STUDENT_ASSETS_PATH = settings.MEDIA_ROOT + '/studentassets'
 STUDENT_ASSET_PATH = STUDENT_ASSETS_PATH
-STUDENT_ANSWERIMAGES_PATH = settings.VOLUME + "/media/answerimages"
+STUDENT_ANSWERIMAGES_PATH = settings.VOLUME + '/' + settings.DB_NAME +  "/media/answerimages"
+STUDENT_ANSWERIMAGES_PATH = settings.MEDIA_ROOT + "/answerimages"
 EXERCISE_XML = 'exercise.xml'
 EXERCISE_XSD = './exercises/exercise.xsd'
-EXERCISES_PATH = settings.EXERCISES_PATH  #  '../../exercises'
+EXERCISES_PATH = settings.VOLUME + '/' + settings.DB_NAME +  '/exercises' 
 LIVE_TRANSLATION_DICT_XML = 'locale/translationdict.xml'
 DEFAULT_TRANSLATION_DICT_XML = 'translations/translationdict.xml'
 EXERCISE_KEY = 'exercisekey'

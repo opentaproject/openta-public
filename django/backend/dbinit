@@ -1,4 +1,5 @@
 #!/bin/bash
+export SUBDOMAIN=$1
 python manage.py migrate --database=$1
 python manage.py loaddata fixtures/auth.json --database=$1
 python manage.py loaddata fixtures/course.json --database=$1

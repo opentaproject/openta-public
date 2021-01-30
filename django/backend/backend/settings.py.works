@@ -30,17 +30,51 @@ RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 12, 'DEFAULT_T
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
+        'NAME': 'openta',
+        'USER': 'openta',
+        'PASSWORD': 'learning',
         'HOST': 'localhost',
         'PORT': 5432,
-    }
+    },
+    'sites' : {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'sites',
+        'USER': 'openta',
+        'PASSWORD': 'learning',
+        'HOST': 'localhost',
+        'PORT': 5432,
+    },
+   'v303' : {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'v303',
+        'USER': 'openta',
+        'PASSWORD': 'learning',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    },
+    'v304' : {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'v304',
+        'USER': 'openta',
+        'PASSWORD': 'learning',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    },
+
+   # 'v212b' : {
+   #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+   #     'NAME': 'v212b',
+   #     'USER': 'openta',
+   #     'PASSWORD': 'learning',
+   #     'HOST': 'localhost',
+   #     'PORT': '5432',
+   # },
+
 }
 
 FILE_UPLOAD_PERMISSIONS = 0o644
 
 _subpath = os.environ.get('OPENTA_SUBPATH')
-VERSION_TAG = os.environ.get('VERSION_TAG')
 
 if _subpath is not None:
     SUBPATH = _subpath + '/'
@@ -61,11 +95,16 @@ try:
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file( 'backend/keyfile.json')
 except:
     pass
-STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/%s/' % VERSION_TAG
 try:
-        from backend.settings_sqlite3 import *
+    VERSION_TAG = os.environ.get('VERSION_TAG')
+    STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/%s/' % VERSION_TAG
 except:
-        pass
+    VERSION_TAG = ''
+    pass
+#try:
+#        from backend.settings_sqlite3 import *
+#except:
+#        pass
 
 
 try:
@@ -73,5 +112,19 @@ try:
 except:
         pass
 DATABASE_ROUTERS = ['backend.routers.AuthRouter']
-SUBPATH = '[A-Za-z0-9\-]+/'
-SUBPATH_REGEX = True
+SUBPATH = '[a-zA-Z0-9\-]+/'
+SUBPATH = 'v303/'
+SUBPATH_REGEX = False
+#SESSION_COOKIE = True
+#CSRF_COOKIE_SECURE = True
+#CSRF_COOKIE_SAMESITE = 'None'
+#SESSION_COOKIE_SAMESITE = 'None'
+RUNNING_DEVSERVER = True
+#if VERSION_TAG == '':
+STATIC_URL = '/' + 'static/'
+print("STATIC_URL = ", STATIC_URL)
+# DEFAULT INITIALIZETION
+#SUBPATH = '/' 
+#DB_NAME='v303'
+#SUBPATH_REGEX = False
+

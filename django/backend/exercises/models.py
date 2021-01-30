@@ -96,6 +96,7 @@ class ExerciseManager(models.Manager):
         if exercise_path.startswith("/"):
             exercise_path = exercise_path[1:]
         full_path = os.path.join(course.get_exercises_path(), exercise_path)
+        print("ADD EXERCISE FULL_PATH = ", full_path)
         if not is_exercise(full_path):
             raise ExerciseNotFound(full_path)
         exercisetree = exercise_xmltree(os.path.join(course.get_exercises_path(), exercise_path))
@@ -578,8 +579,9 @@ class Answer(models.Model):
     
 
 def answer_image_filename(instance, filename):
+    db_name = settings.DB_NAME
     return '/'.join(
-        [
+        [   db_name,
             'media','answerimages',
             str( instance.exercise.course.course_key) ,
             instance.user.username,

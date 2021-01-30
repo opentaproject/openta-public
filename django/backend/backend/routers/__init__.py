@@ -81,13 +81,19 @@ from users.models import OpenTAUser
 #
 # FROM class CacheRouter in django project
 
+default_models = ['django_cache']
+site_models = ['openta_sites','sites']
+
 class AuthRouter:
     """A router to control all database cache operations; see CacheRouter in djangoproject """
 
     def db_for_read(self, model, **hints):
         "All cache read operations go to the replica"
-        if model._meta.app_label == 'django_cache':
+        print("READ MODEL label = ", model._meta.app_label)
+        if model._meta.app_label in default_models :
             return 'default'
+        elif model._meta.app_label in site_models :
+            return 'sites'
         #try: 
         #    print("READ MODEL FOUND", model, "HINTS" , hints['instance'] )
         #except:
@@ -95,8 +101,10 @@ class AuthRouter:
         return settings.DB_NAME
 
     def db_for_write(self, model, **hints):
-        if model._meta.app_label == 'django_cache':
+        if model._meta.app_label in default_models :
             return 'default'
+        elif model._meta.app_label in site_models :
+            return 'sites'
         #try: 
         #    print("WRITE MODEL FOUND", model, "HINTS" , hints['instance'] )
         #except:

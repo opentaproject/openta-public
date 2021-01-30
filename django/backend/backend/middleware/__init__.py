@@ -30,8 +30,13 @@ class SubpathMiddleware(MiddlewareMixin):
     def process_request(self, request, response=None):
         subpath =  ( _subpath(uri=request.get_full_path())  ).strip('/')
         settings.DB_NAME = subpath
+        settings.MEDIA_ROOT = '/srv/multicourse/%s/media' %  subpath
+        settings.EXERCISES_PATH = '/srv/multicourse/%s/exercises' % subpath
+        settings.SUBDOMAIN = subpath
+        print("DB_NAME = ", settings.DB_NAME, " MEDIA_ROOT = ", settings.MEDIA_ROOT , "EXERCISES_PATH = ", settings.EXERCISES_PATH ,  " SUBPAHT = ", settings.SUBPATH , " <")
 
 
+# https://stackoverflow.com/questions/26659877/django-dynamically-set-site-id-in-settings-py-based-on-url
 
 class DynamicSiteDomainMiddleware(MiddlewareMixin):
 
@@ -40,19 +45,21 @@ class DynamicSiteDomainMiddleware(MiddlewareMixin):
         # One-time configuration and initialization.
 
     def __call__(self, request):
+        domain = ( request.get_host()   ).split(':')[0]
+        print("DOMAIN MIDDLEWARE CALLED SELF" , domain)
         try:
-            current_site = Site.objects.get(domain=request.get_host())
+            current_site = Site.objects.get(domain=domain)
         except Site.DoesNotExist:
             current_site = Site.objects.get(id=settings.DEFAULT_SITE_ID)
+        print("CURRENT_SITE = ", current_site.id, current_site)
 
         request.current_site = current_site
         settings.SITE_ID = current_site.id
-
+        settings.SUBDOMAIN = domain.split('.')[0]
+        print("SUBDOMAIN ", settings.SUBDOMAIN)
+        settings.DB_NAME = settings.SUBDOMAIN
+        print("CURRENT_SITE = ", current_site.id, current_site)
 
         response = self.get_response(request)
         return response
-
-    def process_request(self, request, response=None):
-        subpath =  ( _subpath(uri=request.get_full_path())  ).strip('/')
-        settings.DB_NAME = subpath
 

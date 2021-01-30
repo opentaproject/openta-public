@@ -513,7 +513,6 @@ def serve_public_media(request, asset):
     """
     if not asset.startswith('public/'):
         raise Http404('Not authorized')
-
     return serve_file(settings.MEDIA_URL + asset, asset.split('/')[-1])
 
 @xframe_options_exempt

@@ -948,7 +948,7 @@ def answer_image_thumb_view(request, image_id):
                 "/" + subpath + image_answer.image_thumb.url,
                 os.path.basename(image_answer.image.name),
                 content_type="image/jpeg",
-                dev_path='/srv/multicourse/' + image_answer.image_thumb.url,
+                dev_path= '/' + settings.MEDIA_ROOT.strip('/media')   + image_answer.image_thumb.url,
             )
         else:
             return Response("Not authorized", status.HTTP_500_INTERNAL_SERVER_ERROR)
