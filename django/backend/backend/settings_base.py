@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'rest_framework',
     'exercises.apps.ExercisesConfig',
     'course.apps.CourseConfig',
@@ -69,7 +70,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'backend.middleware.SameSiteMiddleware', 
     'backend.middleware.SubpathMiddleware',
-    'backend.middleware.DynamicSitesMiddleware',
+    'backend.middleware.DynamicSiteDomainMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
