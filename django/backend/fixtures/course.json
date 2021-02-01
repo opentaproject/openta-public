@@ -1,4 +1,10 @@
 [ 
+    {"model": "opentasites.opentasite", 
+	"pk": 1, 
+	"fields": {
+		"db_name": "DB_NAME"
+	  }
+	},
     {
         "model": "course.course",
         "pk": 1,

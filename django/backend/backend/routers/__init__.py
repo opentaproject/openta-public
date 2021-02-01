@@ -82,7 +82,7 @@ from users.models import OpenTAUser
 # FROM class CacheRouter in django project
 
 default_models = ['django_cache']
-site_models = ['openta_sites','sites']
+site_models = ['sites']
 
 class AuthRouter:
     """A router to control all database cache operations; see CacheRouter in djangoproject """
@@ -93,27 +93,30 @@ class AuthRouter:
         if model._meta.app_label in default_models :
             return 'default'
         elif model._meta.app_label in site_models :
+            print("RETURN DB READ SITES")
             return 'sites'
         #try: 
         #    print("READ MODEL FOUND", model, "HINTS" , hints['instance'] )
         #except:
         #    print("READ READ MODEL FOUND NO HINT", model )
+        print("RETURNING ", settings.DB_NAME)
         return settings.DB_NAME
 
     def db_for_write(self, model, **hints):
         if model._meta.app_label in default_models :
             return 'default'
         elif model._meta.app_label in site_models :
+            print("RETURN DB WRITE SITES")
             return 'sites'
         #try: 
         #    print("WRITE MODEL FOUND", model, "HINTS" , hints['instance'] )
         #except:
         #    print("WRITE READ MODEL FOUND NO HINT", model )
+        print("DB_WRITE DB_NAME = ", settings.DB_NAME )
         return settings.DB_NAME
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         "Only install the cache model on primary"
-        return settings.DB_NAME
-        #if app_label == 'django_cache':
-        #    return db == 'default'
-        #return 
+        print("MIGRATE app_label ", app_label , " MODEL NAME = ", model_name )
+        if app_label == 'django_cache':
+            return db == 'default'

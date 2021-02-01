@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: default-http-backend-pinetreesquare-com-staging
+  namespace: ingress-nginx
+spec:
+  secretName: default-http-backend-pinetreesquare-com-staging-tls
+  issuerRef:
+    # The issuer created previously
+    name: letsencrypt-staging
+  commonName: default-http-backend.pinetreesquare.com
+  dnsNames:
+    - default-http-backend.pinetreesquare.com
+    #- pinetreesquare.com

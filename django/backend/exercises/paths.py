@@ -4,9 +4,9 @@ from django.conf import settings
 TEMPLATE_EXERCISE_PATH = "../../exercise_templates"
 TRASH_PATH = "z:Trash"
 STUDENT_ASSETS_PATH = settings.VOLUME + '/'  + settings.DB_NAME + '/media/studentassets'
-STUDENT_ASSETS_PATH = settings.MEDIA_ROOT + '/studentassets'
+#STUDENT_ASSETS_PATH = settings.MEDIA_ROOT + '/studentassets'
 STUDENT_ASSET_PATH = STUDENT_ASSETS_PATH
-STUDENT_ANSWERIMAGES_PATH = settings.VOLUME + '/' + settings.DB_NAME +  "/media/answerimages"
+STUDENT_ANSWERIMAGES_PATH = settings.VOLUME + '/' + settings.SUBDOMAIN +  "/media/answerimages"
 STUDENT_ANSWERIMAGES_PATH = settings.MEDIA_ROOT + "/answerimages"
 EXERCISE_XML = 'exercise.xml'
 EXERCISE_XSD = './exercises/exercise.xsd'
@@ -44,7 +44,10 @@ def _subpath(**kwargs):
 
 def get_student_asset_path(user, exercise):
     course_key = exercise.course.course_key
-    return os.path.join(STUDENT_ASSETS_PATH,  str( course_key) , user.username, exercise.pk)
+    print("STUDENT_ASSETS_PATH = ", STUDENT_ASSETS_PATH)
+    print("settings.SUBDOMAIN = ", settings.SUBDOMAIN)
+    multipath = settings.VOLUME + '/'  + settings.DB_NAME + '/media/studentassets'
+    return os.path.join(multipath ,  str( course_key) , user.username, exercise.pk)
 
 def get_exercise_asset_path(user, exercise):
     course_key = exercise.course.course_key

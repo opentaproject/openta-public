@@ -1,0 +1,27 @@
+#/bin/bash
+for i in /srv/multicourse/$1
+do
+	subdomain=`basename $i`
+	echo $subdomain
+	dbnamefile="/srv/multicourse/${subdomain}/dbname.txt"
+	echo $dbnamefile
+    	if test -e $dbnamefile ; then
+    		echo "FILE FOUND"
+    		dbname=`cat $dbnamefile | tr -d '\n'`
+        else 
+    		echo "FILINITIALIZED"
+		break
+	fi
+	echo $subdomain $dbname
+	dbfile=${i}/${dbname}.db
+	if test -f ${dbfile} ; then
+		echo DBFILE = $dbfile
+		echo DBNAME = $dbname
+		psql -U postgres -c "DROP DATABASE $dbname;"
+		psql -U postgres -c "CREATE DATABASE $dbname OWNER openta;"
+		echo Create datbase $dbname from $dbfile
+		cat $dbfile | pg_restore -U postgres -d $dbname
+	else
+		echo Cannot restore: $dbfile does not exist
+	fi
+done

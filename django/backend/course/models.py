@@ -5,8 +5,10 @@ import logging
 import datetime
 import uuid
 from django.core.exceptions import ValidationError
+from opentasites.models import OpenTASite
 from django.contrib import admin
 from django import forms
+import re
 
 
 from django.db import models
@@ -154,42 +156,48 @@ alphanumeric = RegexValidator(r'^[0-9a-z]*$', 'Only lowercase and numbers allowe
 #####
 
 
-class OpenTASite(models.Model ):
-
-    subdomain = models.CharField(max_length=4096,unique=True) # used to be subpath
-    db_name = models.UUIDField(unique=True, default=uuid.uuid4, editable=True)
-    objects = models.Manager()
-
-    def __str__(self):
-        return self.subdomain
-
-
+#class OpenTASite(models.Model ):
+#
+#    subdomain = models.CharField(max_length=4096,unique=True) # used to be subpath
+#    db_name = models.UUIDField(unique=True, default=uuid.uuid4, editable=True)
+#    objects = models.Manager()
+#
+#    def __str__(self):
+#        return self.subdomain
 
 
 
-class OpenTASiteAdminForm(forms.ModelForm):
-
-    class Meta :
-        model = OpenTASite
-        fields = ('id','subdomain','db_name',)
-
-class OpenTASiteAdmin( admin.ModelAdmin ):
-    model = OpenTASite
-    list_display = ['id','subdomain','db_name']
-    form = OpenTASiteAdminForm
 
 
+#class OpenTASiteAdminForm(forms.ModelForm):
+#
+#    class Meta :
+#        model = OpenTASite
+#        fields = ('id','subdomain','db_name',)
+#
+#class OpenTASiteAdmin( admin.ModelAdmin ):
+#    model = OpenTASite
+#    list_display = ['id','subdomain','db_name']
+#    form = OpenTASiteAdminForm
 
-def getfirstOpenTASite() :
-    print("SUBDOMAIN = ", settings.SUBDOMAIN)
-    obj, created = OpenTASite.objects.get_or_create(subdomain=settings.SUBDOMAIN)
-    return obj
 
 
+#def getfirstOpenTASite() :
+#    print("SUBDOMAIN = ", settings.SUBDOMAIN)
+#    obj, created = OpenTASite.objects.get_or_create(subdomain=settings.SUBDOMAIN)
+#    return obj
+
+
+#def get_opentasite():
+#    print("GET_OPENTASITE  DB=%s SUBDOMAIN=%s SITE_ID=%s" % ( settings.DB_NAME, settings.SUBDOMAIN, settings.SITE_ID) )
+#    obj , _  =  OpenTASite.objects.get_or_create(subdomain=settings.SUBDOMAIN)
+#    return obj.id
 
 
 class Course(models.Model):
-    subdomain = models.ForeignKey( OpenTASite , blank=True, null=True, default=getfirstOpenTASite , on_delete=models.CASCADE, related_name='courses',)
+    #subdomain = models.ForeignKey( OpenTASite , blank=True, null=True, on_delete=models.CASCADE, related_name='courses',)
+    #subdomain = models.ForeignKey( OpenTASite , blank=True, null=True, default=getfirstOpenTASite , on_delete=models.CASCADE, related_name='courses',)
+    opentasite = models.ForeignKey( OpenTASite , default=1 , on_delete=models.CASCADE, related_name='courses')
     course_key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     course_name = models.CharField(max_length=255, default='OpenTA')
     lti_key = models.UUIDField(unique=True, default=uuid.uuid4)
@@ -233,8 +241,19 @@ class Course(models.Model):
     use_auto_translation = models.BooleanField( default=False )
     google_auth_string = models.CharField(max_length=4096,blank=True,default='' ) #, validators=[validate_google_auth_string] )
 
+
     def save(self, *args, **kwargs):
         print("SAVE COURSE SUBDOMAIN = ", settings.SUBDOMAIN)
+        print("ARGS  = ", args )
+        print("DB_NAME = ", settings.DB_NAME)
+        #f = open(settings.VOLUME + '/' + settings.SUBDOMAIN + '/dbname.txt' )
+        #db_name = f.read();
+        #db_name = re.sub(r"\W", "", db_name)
+        #f.close()
+        #opentasite =  OpenTASite.objects.get(db_name=db_name)
+        #self.subdomain =  opentasite
+        #opentasite.db_name = db_name
+        #opentasite.save()
         super().save(*args, **kwargs)  # Call the "real" save() method.
         try :
             defaultuser = User.objects.get_or_create(username='student')
@@ -279,8 +298,7 @@ class Course(models.Model):
         return self.course_name + ' - ' + self.course_long_name
 
     def get_exercises_path(self):
-        print("SELF.subdomain", self.subdomain)
-        expathnew = str( paths.EXERCISES_PATH.replace('default',  str( self.subdomain) ) )
+        expathnew = str( paths.EXERCISES_PATH.replace('default',  settings.SUBDOMAIN ) )
         res = os.path.join(expathnew, self.get_exercises_folder())
         print("COURSE_GET_EXERRCISES_PATH = ", res )
         return str( res )
@@ -399,5 +417,4 @@ class Course(models.Model):
     #            pass
     #
 #admin.site.register( Subpath, SubpathAdmin)
-admin.site.register( OpenTASite, OpenTASiteAdmin)
 

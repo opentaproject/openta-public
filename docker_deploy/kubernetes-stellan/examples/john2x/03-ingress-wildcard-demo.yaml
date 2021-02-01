@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: wildcard-demo-ingress
+  namespace: wildcard-demo
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+    - host: wildcard-demo.pinetreesquare.com
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: wildcard-demo
+              servicePort: http
+    - host: "*.wildcard-demo.pinetreesquare.com"
+      http:
+        paths:
+          - path: /
+            backend:
+              serviceName: wildcard-demo
+              servicePort: http

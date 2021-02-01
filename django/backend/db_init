@@ -1,0 +1,25 @@
+#/bin/bash
+export SUBDOMAIN=$1
+for i in /srv/multicourse/$1
+do
+    subdomain=`basename $i`
+    dbnamefile="/srv/multicourse/${subdomain}/dbname.txt"
+    echo $dbnamefile
+    if test -e $dbnamefile ; then
+    	echo "FILE FOUND"
+    	dbname=`cat $dbnamefile | tr -d '\n'`
+    else 
+    	echo "FILINITIALIZED"
+    	dbname="${subdomain}db"
+    fi
+    echo $dbname
+    mkdir -p /srv/multicourse/${subdomain}    # THIS SETS UP SETTINGS.PY TO MAKE A CONNECTION TO THE  DATABASE
+    echo $dbname > $dbnamefile
+    psql -U postgres -c "DROP DATABASE ${dbname};"
+    psql -U postgres -c "CREATE DATABASE ${dbname} OWNER openta;"
+done
+#python manage.py migrate --database=${dbname}
+#python manage.py loaddata fixtures/auth.json --database=${dbname}
+#python manage.py loaddata fixtures/course.json --database=${dbname}
+#python manage.py createcachetable --database=${dbname}
+#cp /tmp/course.json fixtures

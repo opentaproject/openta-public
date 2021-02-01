@@ -2,6 +2,7 @@
 
 from backend.settings_lti import *
 from google.oauth2 import service_account
+import re
 
 SECRET_KEY = '$$uo0799i74g3oci-wy4_31mmly-nhlzj+qwi@cgr!@ynqmv=('
 
@@ -27,50 +28,47 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # Redis information
 RQ_QUEUES = {'default': {'HOST': 'localhost', 'PORT': 6379, 'DB': 12, 'DEFAULT_TIMEOUT': 20 * 60 }}
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+#dblist = ['sites','openta','v303','v304','v305','v309']
+
+
+DATABASES =  { 
+   'default' :{
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'openta',
         'USER': 'openta',
         'PASSWORD': 'learning',
         'HOST': 'localhost',
-        'PORT': 5432,
-    },
-    'sites' : {
-        'ENGINE': 'django.db.backends.postgresql',
+        'PORT': '5432',
+        },
+   'sites' :  {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'sites',
         'USER': 'openta',
         'PASSWORD': 'learning',
         'HOST': 'localhost',
-        'PORT': 5432,
-    },
-   'v303' : {
+        'PORT': '5432',
+        }
+    }
+
+
+dblist =   os.listdir(VOLUME)
+DBLIST = os.listdir(VOLUME)
+dblist.remove('openta')
+dblist.remove('sites')
+for x in dblist:
+    f = open(VOLUME + '/' + x  + '/dbname.txt' )
+    db_name = f.read();
+    db_name = re.sub(r"\W", "", db_name)
+    f.close()
+    print("subpath  db :  %s =  >%s< " % ( x , db_name ) )
+    DATABASES[x] =  {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'v303',
+        'NAME': db_name  ,
         'USER': 'openta',
         'PASSWORD': 'learning',
         'HOST': 'localhost',
         'PORT': '5432',
-    },
-    'v304' : {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'v304',
-        'USER': 'openta',
-        'PASSWORD': 'learning',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    },
-
-   # 'v212b' : {
-   #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-   #     'NAME': 'v212b',
-   #     'USER': 'openta',
-   #     'PASSWORD': 'learning',
-   #     'HOST': 'localhost',
-   #     'PORT': '5432',
-   # },
-
-}
+        }
 
 FILE_UPLOAD_PERMISSIONS = 0o644
 
@@ -112,9 +110,8 @@ try:
 except:
         pass
 DATABASE_ROUTERS = ['backend.routers.AuthRouter']
-SUBPATH = '[a-zA-Z0-9\-]+/'
-SUBPATH = 'v303/'
-SUBPATH_REGEX = False
+#SUBPATH = '[a-zA-Z0-9\-]+/'
+#SUBPATH_REGEX = True
 #SESSION_COOKIE = True
 #CSRF_COOKIE_SECURE = True
 #CSRF_COOKIE_SAMESITE = 'None'
@@ -122,9 +119,20 @@ SUBPATH_REGEX = False
 RUNNING_DEVSERVER = True
 #if VERSION_TAG == '':
 STATIC_URL = '/' + 'static/'
+SITE_ID = '3'
 print("STATIC_URL = ", STATIC_URL)
+#SUBDOMAIN = os.environ.get('SUBDOMAIN','')
 # DEFAULT INITIALIZETION
 #SUBPATH = '/' 
-#DB_NAME='v303'
-#SUBPATH_REGEX = False
+# MUST HAVE THE FOLLOWING WHEN INITIALIZING
+migrations = ['migrate','loaddata','createcachetable'] 
+#if ( len(sys.argv) >  1 )  and sys.argv[1] in  migrations :
+#    SUBPATH = SUBDOMAIN + '/'
+#    SUBPATH_REGEX = False
+SUBPATH = ''
+SUBPATH_REGEX = False
 
+#import subprocess
+#p  = subprocess.Popen(["pg_dump","-C", "-h","localhost","-U","postgres","v305"], stdout=subprocess.PIPE)
+#result = p.communicate()[0]
+#print("RESULT = ", result)

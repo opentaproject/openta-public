@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: my-certificate
+  namespace: openta-prod
+spec:
+  secretName: opentaproject-com-secret
+  issuerRef:
+    name: issuer-letsencrypt
+  commonName: opentaserver.com
+  dnsNames:
+  - opentaserver.com
+  #- "*.opentaserver.com"

@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-demo-pinetreesquare-com-staging
+  namespace: wildcard-demo
+spec:
+  secretName: wildcard-demo-pinetreesquare-com-staging-tls
+  issuerRef:
+    # The issuer created previously
+    name: letsencrypt-staging
+    kind: Issuer
+  commonName: wildcard-demo.pinetreesquare.com
+  dnsNames:
+    - wildcard-demo.pinetreesquare.com
+    - "*.wildcard-demo.pinetreesquare.com"

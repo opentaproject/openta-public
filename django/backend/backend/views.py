@@ -225,6 +225,10 @@ def login(request, subpath=None, course_name=None):
             .order_by('-published', '-pk')
             .last()
         )
+    except :
+        messages.add_message(request, messages.ERROR, _('Database \"%s\" is not configured.' % settings.DB_NAME))
+        return render(request, "base_failed.html")  
+       
 
     course_data = CourseSerializer(course).data
 
