@@ -2,7 +2,7 @@
    kind: Issuer
    metadata:
      name: letsencrypt-staging
-     namespace: openta-prod
+     namespace: cert-manager
    spec:
      acme:
        # The ACME server URL
@@ -11,12 +11,12 @@
        email: stellan.ostlund@gmail.com
        # Name of a secret used to store the ACME account private key
        privateKeySecretRef:
-         name: opentaproject-com-secret
+         name: letsencrypt-staging
        # Enable the HTTP-01 challenge provider
        solvers:
        - dns01:
             acmeDNS:
               host: https://acme.example.com
               accountSecretRef:
-                name: acme-dns
-                key: acmedns.json
+                name: acme-dns3
+                key: acmedns3.json

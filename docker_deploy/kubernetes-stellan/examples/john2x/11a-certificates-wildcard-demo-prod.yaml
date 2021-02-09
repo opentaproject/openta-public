@@ -1,0 +1,30 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: default-http-backend-pinetreesquare-com
+  namespace: ingress-nginx
+spec:
+  secretName: default-http-backend-pinetreesquare-com-tls
+  issuerRef:
+    # The issuer created previously
+    name: letsencrypt
+  commonName: default-http-backend.pinetreesquare.com
+  dnsNames:
+    - default-http-backend.pinetreesquare.com
+    #- pinetreesquare.com
+
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-demo-pinetreesquare-com
+  namespace: wildcard-demo
+spec:
+  secretName: wildcard-demo-pinetreesquare-com-tls
+  issuerRef:
+    # The issuer created previously
+    name: letsencrypt
+    kind: Issuer
+  commonName: wildcard-demo.pinetreesquare.com
+  dnsNames:
+    - wildcard-demo.pinetreesquare.com
+    - "*.wildcard-demo.pinetreesquare.com"

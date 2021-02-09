@@ -1,8 +1,12 @@
 #https://cert-manager.io/docs/configuration/acme/dns01/acme-dns/
 #https://github.com/acme-dns/acme-dns-client
 #https://cert-manager.io/docs/configuration/acme/dns01/acme-dns/
+#https://medium.com/@kpsrinivas/wildcard-ssl-using-lets-encrypt-for-kubernetes-ingress-gke-ff7e2d60e911
+
+
 sudo ./acme-dns-client register -d opentaproject.com -s https://auth.acme-dns.io --dangerous
 sudo certbot certonly --manual --preferred-challenges dns --manual-auth-hook 'acme-dns-client' -d opentaproject.com 
+#https://github.com/jetstack/cert-manager/issues/1650#issuecomment-518953464
 curl -s -X POST https://auth.acme-dns.io/register
 CREATE JSON FILE 
 {"username":"bf1562ee-ee45-4ca4-a87a-3f50834b6bc1","password":"FTlyXLTGgiVL3hYY8MGYi_Cs76LbwfnPPN6mSq_g","fulldomain":"a9630768-6305-4765-b64e-8e7af438b846.auth.acme-dns.io","subdomain":"a9630768-6305-4765-b64e-8e7af438b846","allowfrom":[]}
@@ -15,4 +19,5 @@ CREATE JSON FILE
         "allowfrom":[]
         }
 }
-
+k create secret generic acme-dns --from-file /Users/ostlund/keys/acmedns.json 
+kubectl create secret generic acme-dns3 --from-file acmedns3.json

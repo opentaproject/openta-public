@@ -1,0 +1,48 @@
+#!/bin/bash
+# CONVERT john2x/pinetreesquare template to other domain
+
+export PROJECT_ID=production-304119
+export BASE_DOMAIN=opentaproject.org
+export BASE_DOMAIN_TXT=opentaproject_org
+export BASE_SUBDOMAIN=opentaproject.org
+export NAMESPACE=opentaproject-org
+
+export default_tls=default-${BASE_DOMAIN_TXT}-tls
+export default_staging_tls=default-${BASE_DOMAIN_TXT}-staging-tls
+export default_staging_certificate=default-${BASE_DOMAIN_TXT}-staging-certificate
+export default_certificate=default-${BASE_DOMAIN_TXT}-certificate
+export default_common_name=default.${BASE_DOMAIN}
+export production_staging_tls=${BASE_DOMAIN_TXT}-staging-tls
+export production_staging_certificate=${BASE_DOMAIN_TXT}-staging-certificate
+export production_tls=${BASE_DOMAIN_TXT}-tls
+export production_certificate=${BASE_DOMAIN_TXT}-certificate
+export wildcard_namespace=${NAMESPACE}
+export ingress_namespace=ingress-nginx
+export wildcard_service=${BASE_DOMAIN_TXT}-service
+export ingress_service=ingress_nginx
+export production_ingress=${BASE_DOMAIN_TXT}-ingress
+
+for i in README.md *.yaml
+do
+	echo $i
+	sed -i .bak "s/handler/backend/g" $i
+	sed -i .bak "s/default-http-backend-pinetreesquare-com-tls/${default_tls}/g" $i
+	sed -i .bak "s/default-http-backend-pinetreesquare-com-staging-tls/${default_staging_tls}/g" $i
+	sed -i .bak "s/default-http-backend-pinetreesquare-com-staging/${default_staging_certificate}/g" $i
+	sed -i .bak "s/default-http-backend-pinetreesquare-com/${default_certificate}/g" $i
+	sed -i .bak "s/default-http-backend\.pinetreesquare\.com/${default_common_name}/g" $i
+	sed -i .bak "s/wildcard-demo-pinetreesquare-com-staging-tls/${production_staging_tls}/g" $i
+	sed -i .bak "s/wildcard-demo-pinetreesquare-com-staging/${production_staging_certificate}/g" $i
+	sed -i .bak "s/wildcard-demo-pinetreesquare-com/${production_certificate}/g" $i
+	sed -i .bak "s/wildcard-demo-pinetreesquare-com-tls/${production_tls}/g" $i
+	sed -i .bak "s/wildcard-demo.pinetreesquare.com/${BASE_SUBDOMAIN}/g" $i
+	sed -i .bak "s/pinetreesquare_com/${BASE_DOMAIN_TXT}/g"  $i
+	sed -i .bak "s/pinetreesquare\.com/${BASE_DOMAIN}/g"  $i
+	sed -i .bak "s/namespace: wildcard-demo/namespace: ${wildcard_namespace}/g" $i
+	sed -i .bak "s/namespace: ingress-nginx/namespace: ${ingress_namespace}/g" $i
+	sed -i .bak "s/serviceName: wildcard-demo/serviceName: ${wildcard_service}/g" $i
+	sed -i .bak "s/serviceName: ingress-nginx/\serviceName: ${ingress_service}/g" $i
+	sed -i .bak "s/wildcard-demo-ingress/${production_ingress}/g" $i
+	sed -i .bak "s/wildcard-demo/${BASE_DOMAIN_TXT}/g" $i
+	sed -i .bak "s/production-304119/${PROJECT_ID}/g" $i
+done

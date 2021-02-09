@@ -1,0 +1,68 @@
+
+#
+# HACKED ACCORDING TO https://cert-manager.io/docs/tutorials/acme/dns-validation/
+kind: Issuer
+metadata:
+  name: letsencrypt
+  namespace: ingress-nginx
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: stellan.ostlund@gmail.com
+
+    # Name of a secret used to store the ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt
+
+    # ACME DNS-01 provider configurations
+    # ACME DNS-01 provider configurations
+    solvers:
+    # An empty 'selector' means that this solver matches all domains
+    - selector: {}
+      dns01:
+        cloudDNS:
+          # The ID of the GCP project
+          # reference: https://docs.cert-manager.io/en/latest/tasks/issuers/setup-acme/dns01/google.html
+          project: production-304119
+          # This is the secret used to access the service account
+          serviceAccountSecretRef:
+            name: clouddns-service-account
+            key: service-account-key.json
+          #serviceAccountSecretRef:
+          #  name: clouddns-dns01-solver-svc-acct
+          #  key: key.json
+
+apiVersion: cert-manager.io/v1
+#
+# HACKED ACCORDING TO https://cert-manager.io/docs/tutorials/acme/dns-validation/
+kind: Issuer
+metadata:
+  name: letsencrypt
+  namespace: wildcard-demo
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: stellan.ostlund@gmail.com
+
+    # Name of a secret used to store the ACME account private key
+    privateKeySecretRef:
+      name: letsencrypt
+
+    # ACME DNS-01 provider configurations
+    # ACME DNS-01 provider configurations
+    solvers:
+    # An empty 'selector' means that this solver matches all domains
+    - selector: {}
+      dns01:
+        cloudDNS:
+          # The ID of the GCP project
+          # reference: https://docs.cert-manager.io/en/latest/tasks/issuers/setup-acme/dns01/google.html
+          project: production-304119
+          # This is the secret used to access the service account
+          serviceAccountSecretRef:
+            name: clouddns-service-account
+            key: service-account-key.json
+          #serviceAccountSecretRef:
+          #  name: clouddns-dns01-solver-svc-acct
+          #  key: key.json
+

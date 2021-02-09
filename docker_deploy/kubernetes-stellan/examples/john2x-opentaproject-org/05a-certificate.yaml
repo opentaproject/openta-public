@@ -1,0 +1,14 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: default-opentaproject-org-staging-certificate
+  namespace: ingress-nginx
+spec:
+  secretName: default-opentaproject-org-staging-tls
+  issuerRef:
+    # The issuer created previously
+    name: letsencrypt-staging
+  commonName: default.opentaproject.org
+  dnsNames:
+    - default.opentaproject.org
+    #- opentaproject.org

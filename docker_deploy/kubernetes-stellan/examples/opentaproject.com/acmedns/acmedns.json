@@ -3,6 +3,6 @@
 	"password":"FTlyXLTGgiVL3hYY8MGYi_Cs76LbwfnPPN6mSq_g",
 	"fulldomain":"a9630768-6305-4765-b64e-8e7af438b846.auth.acme-dns.io",
 	"subdomain":"a9630768-6305-4765-b64e-8e7af438b846",
-	"allowfrom":[]
+	"allowfrom":["35.234.115.40/16"]
 	}
 }
