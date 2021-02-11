@@ -95,7 +95,7 @@ except:
     pass
 try:
     VERSION_TAG = os.environ.get('VERSION_TAG')
-    STATIC_URL = 'https://storage.googleapis.com/openta-cdn-bucket/%s/' % VERSION_TAG
+    STATIC_URL = 'https://storage.googleapis.com/opentaproject-cdn-bucket/%s/' % VERSION_TAG
 except:
     VERSION_TAG = ''
     pass
@@ -118,7 +118,7 @@ DATABASE_ROUTERS = ['backend.routers.AuthRouter']
 #SESSION_COOKIE_SAMESITE = 'None'
 RUNNING_DEVSERVER = True
 #if VERSION_TAG == '':
-STATIC_URL = '/' + 'static/'
+#STATIC_URL = '/' + 'static/'
 SITE_ID = '3'
 print("STATIC_URL = ", STATIC_URL)
 #SUBDOMAIN = os.environ.get('SUBDOMAIN','')
@@ -129,7 +129,7 @@ migrations = ['migrate','loaddata','createcachetable']
 #if ( len(sys.argv) >  1 )  and sys.argv[1] in  migrations :
 #    SUBPATH = SUBDOMAIN + '/'
 #    SUBPATH_REGEX = False
-SUBPATH = ''
+#SUBPATH = ''
 SUBPATH_REGEX = False
 
 #import subprocess
