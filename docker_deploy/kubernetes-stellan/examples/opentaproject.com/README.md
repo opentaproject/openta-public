@@ -103,9 +103,8 @@ gcloud container clusters resize $CLUSTER_NAME --node-pool default-pool --num-no
 gcloud container clusters delete  $CLUSTER_NAME
 # LOOK FOR LOADBALANCERS TO DELETE
 
+# TRICKY TO CHANGE SCOPES
 # (* https://adilsoncarvalho.com/changing-a-running-kubernetes-cluster-permissions-a-k-a-scopes-3e90a3b95636 *)
 gcloud container node-pools create newpool --cluster $CLUSTER_NAME --machine-type e2-standard-2 --scopes https://www.googleapis.com/auth/devstorage.read_write
-
-
 gcloud container node-pools create newpool2 --cluster $CLUSTER_NAME --machine-type e2-standard-2 --scopes https://www.googleapis.com/auth/devstorage.read_write
 
