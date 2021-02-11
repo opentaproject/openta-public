@@ -1,4 +1,5 @@
 """Test settings."""
+from pathlib import Path
 
 from backend.settings_lti import *
 
@@ -11,13 +12,26 @@ ASYNC = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
+        'NAME' : 'openta',
 	'OPTIONS': { 'timeout': 20,  },
         'TEST' : {
-        'NAME': os.path.join(BASE_DIR, 'dbtest.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, 'default.dbtest.sqlite3'),
+		'OPTIONS': { 'timeout': 20,  }
+        }
+    },
+   'sites' : {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME' : 'sites',
+	'OPTIONS': { 'timeout': 20,  },
+        'TEST' : {
+        'NAME': os.path.join(BASE_DIR, 'sites.dbtest.sqlite3'),
 		'OPTIONS': { 'timeout': 20,  }
         }
     }
+    
 }
+
+SUBPATH='openta/'
 
 LANGUAGE_CODE = 'sv'
 TIME_ZONE = 'Europe/Stockholm'
@@ -53,6 +67,7 @@ CHECK_AGGREGATIONS = False
 RUNTESTS = True
 CACHE_LIFETIME = 0
 DEBUG = True
+DB_NAME = 'default'
 IGNORE_NO_FEEDBACK = True
 REFRESH_SEED_ON_CORRECT_ANSWER = False
 MIDDLEWARE = [
@@ -68,5 +83,11 @@ MIDDLEWARE = [
 
 VALID_ROLES = ['ContentDeveloper', 'Learner', 'Student', 'Instructor', 'Observer']
 FORCE_ROLE_TO_STUDENT = False
-VOLUME = '/srv/multicourse/'
+VOLUME = '/tmp/test-multicourse'
+Path(VOLUME + '/default/media' ).mkdir(parents=True, exist_ok=True)
+Path(VOLUME + '/openta').mkdir( exist_ok=True,parents=True)
 STATIC_URL = '/static/'
+with open(VOLUME + "/openta/dbname.txt","w") as f :
+    f.write('default')
+SITE_ID = '3'
+MEDIA_ROOT = VOLUME + '/default/media'

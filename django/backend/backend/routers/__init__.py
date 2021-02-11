@@ -25,16 +25,16 @@ from users.models import OpenTAUser
 #        """
 #        #print("SELF = ", self)
 #        #if not model  == None:
-#        #    print("model read = ", model)
+#        #    #print("model read = ", model)
 #        #else :
-#        #    print("model read = None")
+#        #    #print("model read = None")
 #        #if model == None :
 #        #    return settings.DB_NAME
 #        if model in dbmodels:
 #            try: 
-#                print("READ MODEL FOUND", model, "HINTS" , hints)
+#                #print("READ MODEL FOUND", model, "HINTS" , hints)
 #            except:
-#                print("READ MODEL FOUND", "NO HINTS\n")
+#                #print("READ MODEL FOUND", "NO HINTS\n")
 #            return settings.DB_NAME
 #        else:
 #            return 'default'
@@ -45,15 +45,15 @@ from users.models import OpenTAUser
 #        """
 #        #print("SELF = ", self )
 #        #if not model  == None:
-#        #    print("model write = ", model)
+#        #    #print("model write = ", model)
 #        #else :
-#        #    print("model write = None")
+#        #    #print("model write = None")
 #        if model in dbmodels:
 #            
 #            try: 
-#                print("WRITE MODEL FOUND", model, "HINTS" , hints )
+#                #print("WRITE MODEL FOUND", model, "HINTS" , hints )
 #            except:
-#                print("WRITE READ MODEL FOUND", model )
+#                #print("WRITE READ MODEL FOUND", model )
 #            return settings.DB_NAME
 #        else:
 #            return 'default'
@@ -63,7 +63,7 @@ from users.models import OpenTAUser
 #        Allow relations if a model in the auth or contenttypes apps is
 #        involved.
 #        """
-#        print("ALLOW RELATION")
+#        #print("ALLOW RELATION")
 #        return True
 #
 #    def allow_migrate(self, db, app_label, model_name=None, **hints):
@@ -71,9 +71,9 @@ from users.models import OpenTAUser
 #        Make sure the auth and contenttypes apps only appear in the
 #        settings.DB_NAME database.
 #        """
-#        print("APP_LABEL = ", app_label)
-#        print("ALLOW MIGRATE")
-#        print("MIGRATE model ", model_name)
+#        #print("APP_LABEL = ", app_label)
+#        #print("ALLOW MIGRATE")
+#        #print("MIGRATE model ", model_name)
 #        
 #        #if  hints == {} :
 #        #   return 'default'
@@ -89,34 +89,34 @@ class AuthRouter:
 
     def db_for_read(self, model, **hints):
         "All cache read operations go to the replica"
-        print("READ MODEL label = ", model._meta.app_label)
-        if model._meta.app_label in default_models :
+        #print("READ MODEL label = ", model._meta.app_label)
+        if settings.RUNTESTS or model._meta.app_label in default_models :
             return 'default'
         elif model._meta.app_label in site_models :
-            print("RETURN DB READ SITES")
+            #print("RETURN DB READ SITES")
             return 'sites'
         #try: 
-        #    print("READ MODEL FOUND", model, "HINTS" , hints['instance'] )
+        #    #print("READ MODEL FOUND", model, "HINTS" , hints['instance'] )
         #except:
-        #    print("READ READ MODEL FOUND NO HINT", model )
-        print("RETURNING ", settings.DB_NAME)
+        #    #print("READ READ MODEL FOUND NO HINT", model )
+        #print("RETURNING ", settings.DB_NAME)
         return settings.DB_NAME
 
     def db_for_write(self, model, **hints):
-        if model._meta.app_label in default_models :
+        if settings.RUNTESTS or model._meta.app_label in default_models :
             return 'default'
         elif model._meta.app_label in site_models :
-            print("RETURN DB WRITE SITES")
+            #print("RETURN DB WRITE SITES")
             return 'sites'
         #try: 
-        #    print("WRITE MODEL FOUND", model, "HINTS" , hints['instance'] )
+        #    #print("WRITE MODEL FOUND", model, "HINTS" , hints['instance'] )
         #except:
-        #    print("WRITE READ MODEL FOUND NO HINT", model )
-        print("DB_WRITE DB_NAME = ", settings.DB_NAME )
+        #    #print("WRITE READ MODEL FOUND NO HINT", model )
+        #print("DB_WRITE DB_NAME = ", settings.DB_NAME )
         return settings.DB_NAME
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         "Only install the cache model on primary"
-        print("MIGRATE app_label ", app_label , " MODEL NAME = ", model_name )
-        if app_label == 'django_cache':
+        #print("MIGRATE app_label ", app_label , " MODEL NAME = ", model_name )
+        if settings.RUNTESTS or app_label == 'django_cache':
             return db == 'default'

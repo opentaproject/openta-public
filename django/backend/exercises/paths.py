@@ -18,7 +18,8 @@ EXERCISE_HISTORY = 'history'
 EXERCISE_THUMBNAIL = 'thumbnail.png'
 
 def _subpath(**kwargs):
-    #subpath = settings.SUBPATH
+    if settings.RUNTESTS:
+        return settings.SUBPATH
     if settings.SUBPATH == '/'  or settings.SUBPATH == '' : # don't parse subpaths if there is none
         return ''
     if not settings.SUBPATH_REGEX  :

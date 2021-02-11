@@ -246,14 +246,18 @@ class Course(models.Model):
         print("SAVE COURSE SUBDOMAIN = ", settings.SUBDOMAIN)
         print("ARGS  = ", args )
         print("DB_NAME = ", settings.DB_NAME)
-        #f = open(settings.VOLUME + '/' + settings.SUBDOMAIN + '/dbname.txt' )
-        #db_name = f.read();
-        #db_name = re.sub(r"\W", "", db_name)
-        #f.close()
-        #opentasite =  OpenTASite.objects.get(db_name=db_name)
+        try: 
+            f = open(settings.VOLUME + '/' + settings.SUBDOMAIN + '/dbname.txt' )
+        except: 
+            f = open(settings.VOLUME + '/openta/dbname.txt' )
+        db_name = f.read();
+        db_name = re.sub(r"\W", "", db_name)
+        f.close()
+        opentasite ,_ =  OpenTASite.objects.get_or_create(db_name=db_name)
         #self.subdomain =  opentasite
         #opentasite.db_name = db_name
-        #opentasite.save()
+        opentasite.save()
+        self.opentasite = opentasite
         super().save(*args, **kwargs)  # Call the "real" save() method.
         try :
             defaultuser = User.objects.get_or_create(username='student')
