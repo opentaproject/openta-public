@@ -53,7 +53,7 @@ kubectl create secret generic clouddns-service-account-opentaproject-com  \
 	--from-file=service-account-key.json=${KEYFILE} \
 	--namespace=opentaproject-com
 gcloud iam service-accounts create dns01-solver-opentaproject-com
-gcloud iam service-accounts keys create key.json --iam-account dns01-solver-opentaproject-com@production-304119.iam.gserviceaccount.com
+gcloud iam service-accounts keys create key.json --iam-account dns01-solver-opentaproject-com@${PROJECT_ID}.iam.gserviceaccount.com
 k apply -f yamls-staging
 kubectl config set-context --current --namespace=opentaproject-com
 
