@@ -1,4 +1,4 @@
-FROM openta-base:latest
+FROM s53ostlund/openta-base:v3.1.1
 
 ## Recommended method for installing nodejs with package manager on Debian (minus sudo)
 #RUN apt-get update \
@@ -18,5 +18,8 @@ WORKDIR /srv/openta/django
 #RUN pip install gunicorn==19.9.0
 #RUN pip uninstall --yes psycopg2
 #RUN pip install psycopg2-binary==2.7.7
+#RUN mkdir /srv/multicourse
+COPY multicourse/ /srv/multicourse
 COPY . /srv/openta
+#COPY ./multicourse  /srv/multicourse
 EXPOSE 8000

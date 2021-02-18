@@ -26,7 +26,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # http://domain.com/subpath/ this variable should be set to (note trailing
 # slash) SUBPATH = 'subpath/'
 SUBPATH = '/'
-VERSION = version.get_version_string()
+#VERSION = version.get_version_string()
+VERSION = "v3.1.1"
 
 SECRET_KEY = 'this_should_be_set_to_a_generated_key!'
 DEBUG = True
@@ -74,7 +75,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
-    #'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'backend.middleware.SameSiteMiddleware', 

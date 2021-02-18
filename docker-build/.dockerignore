@@ -8,9 +8,9 @@ docker-build
 docker
 docker_deploy
 frontend
-static
-deploystatic
-**/*sqlite3*
+#static
+#deploystatic
+#**/*sqlite3*
 **/.git
 **/*.sock
 **/settings_local.py
