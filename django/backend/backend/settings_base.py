@@ -27,7 +27,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # slash) SUBPATH = 'subpath/'
 SUBPATH = '/'
 #VERSION = version.get_version_string()
-VERSION = "v3.1.1"
+VERSION = "v3.1.0"
 
 SECRET_KEY = 'this_should_be_set_to_a_generated_key!'
 DEBUG = True
@@ -70,15 +70,24 @@ INSTALLED_APPS = [
 #	MIDDLEWARE = [ ]
 
 MIDDLEWARE = [
+    #'django.middleware.security.SecurityMiddleware',
+    #'django.contrib.sessions.middleware.SessionMiddleware',
+    #'django.contrib.messages.middleware.MessageMiddleware',
+    #'django.middleware.locale.LocaleMiddleware',
+    #'django.middleware.common.CommonMiddleware',
+    ##'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.contrib.auth.middleware.AuthenticationMiddleware',
+    #'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    #'backend.middleware.SameSiteMiddleware', 
+    'backend.middleware.SameSiteMiddleware', 
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'backend.middleware.SameSiteMiddleware', 
     'backend.middleware.SubpathMiddleware',
     'backend.middleware.DynamicSiteDomainMiddleware',
 ]
