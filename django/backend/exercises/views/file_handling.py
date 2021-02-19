@@ -10,7 +10,7 @@ def serve_file(path, filename, **kwargs):
     dev_path = kwargs['dev_path'] if 'dev_path' in kwargs else "./" + path
     #logger.info("SERVE_FILE FILENAME = " +  filename )
     #logger.info("PATH FOR X-Accel-Rediret = " +  path )
-    if True or settings.RUNNING_DEVSERVER:
+    if settings.RUNNING_DEVSERVER:
         print("FILE_HANDLING  DEVSERVER %s "% content_type)
         if content_type:
             response = FileResponse(open(dev_path, 'rb') )

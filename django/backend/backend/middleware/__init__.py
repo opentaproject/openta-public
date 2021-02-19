@@ -38,8 +38,8 @@ class SubpathMiddleware(MiddlewareMixin):
         domain = ( request.get_host()   ).split(':')[0]
         subdomain = domain.split('.')[0]
         settings.DB_NAME = subdomain
-        settings.MEDIA_ROOT = '/srv/multicourse/%s/media' %  subdomain
-        settings.EXERCISES_PATH = '/srv/multicourse/%s/exercises' % subdomain
+        settings.MEDIA_ROOT = "%s/%s/media" %  (settings.VOLUME, subdomain )
+        settings.EXERCISES_PATH = "%s/%s/exercises" % (settings.VOLUME,subdomain)
         settings.SUBDOMAIN = subdomain
         print("DB_NAME = ", settings.DB_NAME, " MEDIA_ROOT = ", settings.MEDIA_ROOT , "EXERCISES_PATH = ", settings.EXERCISES_PATH ,  " SUBPAHT = ", settings.SUBPATH , " <")
 

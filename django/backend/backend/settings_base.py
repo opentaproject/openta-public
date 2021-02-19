@@ -134,7 +134,6 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesSto
 
 MEDIA_TAG = 'media'
 MEDIA_URL = MEDIA_TAG + '/'
-#EXERCISES_PATH = '/srv/multicourse/v303/exercises'
 
 FILE_UPLOAD_HANDLERS = ['django.core.files.uploadhandler.TemporaryFileUploadHandler']
 

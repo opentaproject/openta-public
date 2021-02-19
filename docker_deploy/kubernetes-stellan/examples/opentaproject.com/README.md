@@ -6,7 +6,7 @@
 export PROJECT_NAME=production
 export PROJECT_ID=production-304119
 export PROJECT_NUMBER=244333042069
-export CLUSTER_NAME=openta-prod
+export CLUSTER_NAME=opentaproject-com-cluster
 export COMPUTE_ZONE=europe-west3-a
 export REGION=europe-west3
 

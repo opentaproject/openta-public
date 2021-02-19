@@ -50,21 +50,21 @@ DATABASES =  {
         }
     }
 
+VOLUME = "/subdomain-data"
 
 DATABASES =  { 
    'default' :{
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': "/srv/multicourse/default/db.sqlite3",
+        'NAME': VOLUME + "/default/db.sqlite3",
         },
    'sites' :  {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': "/srv/multicourse/sites/db.sqlite3",
+        'NAME': VOLUME+"/sites/db.sqlite3",
         }
     }
 
 
-print("SRV/MULTICOURSE: ", os.listdir("/srv/multicourse") )
-VOLUME = "/srv/multicourse"
+print("SRV/MULTICOURSE: ", os.listdir(VOLUME) )
 dblist =  os.listdir(VOLUME)
 print("dbilst = ", dblist)
 DBLIST = os.listdir(VOLUME)
@@ -86,7 +86,7 @@ for x in dblist:
     #    }
     DATABASES[x] = {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': "/srv/multicourse/%s/db.sqlite3" % x ,
+        'NAME': VOLUME + "/%s/db.sqlite3" % x ,
         }
 
 FILE_UPLOAD_PERMISSIONS = 0o644

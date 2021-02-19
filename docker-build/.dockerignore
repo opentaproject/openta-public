@@ -10,6 +10,7 @@ docker_deploy
 frontend
 #static
 #deploystatic
+**/*key*.json
 #**/*sqlite3*
 **/.git
 **/*.sock

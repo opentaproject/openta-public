@@ -1,6 +1,4 @@
-FROM s53ostlund/openta-base:v3.1.1
-
-## Recommended method for installing nodejs with package manager on Debian (minus sudo)
+FROM s53ostlund/openta-base:v311
 #RUN apt-get update \
 #    && apt-get install -y \
 #    graphviz \

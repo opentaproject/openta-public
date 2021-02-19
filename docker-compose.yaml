@@ -9,7 +9,7 @@ services:
   #    - POSTGRES_PASSWORD=postgres
   web:
     restart: always
-    image: s53ostlund/openta:v3.1.1
+    image: s53ostlund/openta:v311
     command: bash -c " cd backend && gunicorn backend.wsgi:application --bind 0.0.0.0:8080 --env DJANGO_SETTINGS_MODULE=backend.settings"
     #command: bash -c " cd backend &&  python manage.py runserver 0.0.0.0:8080 " # --env DJANGO_SETTINGS_MODULE=backend.settings
     volumes:
