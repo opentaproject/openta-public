@@ -51,7 +51,22 @@ DATABASES =  {
     }
 
 
-dblist =   os.listdir(VOLUME)
+DATABASES =  { 
+   'default' :{
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': "/srv/multicourse/default/db.sqlite3",
+        },
+   'sites' :  {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': "/srv/multicourse/sites/db.sqlite3",
+        }
+    }
+
+
+print("SRV/MULTICOURSE: ", os.listdir("/srv/multicourse") )
+VOLUME = "/srv/multicourse"
+dblist =  os.listdir(VOLUME)
+print("dbilst = ", dblist)
 DBLIST = os.listdir(VOLUME)
 dblist.remove('openta')
 dblist.remove('sites')
@@ -61,13 +76,17 @@ for x in dblist:
     db_name = re.sub(r"\W", "", db_name)
     f.close()
     print("subpath  db :  %s =  >%s< " % ( x , db_name ) )
-    DATABASES[x] =  {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': db_name  ,
-        'USER': 'openta',
-        'PASSWORD': 'learning',
-        'HOST': 'localhost',
-        'PORT': '5432',
+    #DATABASES[x] =  {
+    #    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #    'NAME': db_name  ,
+    #    'USER': 'openta',
+    #    'PASSWORD': 'learning',
+    #    'HOST': 'localhost',
+    #    'PORT': '5432',
+    #    }
+    DATABASES[x] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': "/srv/multicourse/%s/db.sqlite3" % x ,
         }
 
 FILE_UPLOAD_PERMISSIONS = 0o644
@@ -76,7 +95,6 @@ _subpath = os.environ.get('OPENTA_SUBPATH')
 
 if _subpath is not None:
     SUBPATH = _subpath + '/'
-
     LOGIN_URL = '/' + SUBPATH + 'login/'
     LOGIN_REDIRECT_URL = '/' + SUBPATH
 
@@ -93,22 +111,27 @@ try:
     GS_CREDENTIALS = service_account.Credentials.from_service_account_file( 'backend/keyfile.json')
 except:
     pass
-try:
-    VERSION_TAG = os.environ.get('VERSION_TAG')
-    STATIC_URL = 'https://storage.googleapis.com/opentaproject-cdn-bucket/%s/' % VERSION_TAG
-except:
-    VERSION_TAG = ''
-    pass
+#try:
+#    VERSION_TAG = os.environ.get('VERSION_TAG')
+#    STATIC_URL = 'https://storage.googleapis.com/opentaproject-cdn-bucket/%s/' % VERSION_TAG
+#except:
+#    VERSION_TAG = ''
+#    pass
+VERSION_TAG='v3.0.1'
+STATIC_URL = 'https://storage.googleapis.com/opentaproject-cdn-bucket/%s/' % VERSION_TAG
+
+
+
 #try:
 #        from backend.settings_sqlite3 import *
 #except:
 #        pass
 
 
-try:
-        from backend.settings_local import *
-except:
-        pass
+#try:
+#        from backend.settings_local import *
+#except:
+#        pass
 DATABASE_ROUTERS = ['backend.routers.AuthRouter']
 #SUBPATH = '[a-zA-Z0-9\-]+/'
 #SUBPATH_REGEX = True

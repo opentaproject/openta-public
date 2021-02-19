@@ -163,9 +163,9 @@ def exercise_asset(request, exercise, asset):
         )
     dev_path = paths.get_exercise_asset_path(request.user , dbexercise) + '/' + asset
     #logger.info("1 EXERCISE_ASSET ASSET = "+ asset )
-    #logger.info("2 EXERCISE_ASSET DEV_PATH = "+ dev_path)
+    print("2 EXERCISE_ASSET DEV_PATH = "+ dev_path)
     prod_path = str( dev_path ).replace(settings.VOLUME ,_subpath(uri=request.get_full_path(), session=request.session))
-    #logger.info("3 EXERCISE_ASSET PROD_PATH = " +  prod_path)
+    logger.info("3 EXERCISE_ASSET PROD_PATH = " +  prod_path)
     return serve_file(
         prod_path,
         asset,
