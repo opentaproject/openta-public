@@ -1,0 +1,20 @@
+version: '3.7'
+  
+services:
+  #db:
+  #  image: postgres
+  #  environment:
+  #    - POSTGRES_DB=postgres
+  #    - POSTGRES_USER=postgres
+  #    - POSTGRES_PASSWORD=postgres
+  web:
+    restart: always
+    image: s53ostlund/openta:v3.1.1
+    command: bash -c " cd backend && gunicorn backend.wsgi:application --bind 0.0.0.0:8080 --env DJANGO_SETTINGS_MODULE=backend.settings"
+    #command: bash -c " cd backend &&  python manage.py runserver 0.0.0.0:8080 " # --env DJANGO_SETTINGS_MODULE=backend.settings
+    volumes:
+      - .:/code
+    ports:
+      - "8080:8080"
+    #depends_on:
+    #  - db
