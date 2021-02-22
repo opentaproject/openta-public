@@ -19,6 +19,7 @@ from django.contrib import admin
 from backend import views as backendviews
 from django.conf import settings
 from django.conf.urls.static import static
+import django.conf.urls 
 
 
 
@@ -100,6 +101,7 @@ moreurls =  [
     #url(r'^loggedin/', backendviews.login_status),
     ] 
 urlpatterns +=  [ url(r'^' ,  include(moreurls)) ]
+urlpatterns += [ path('django-rq/', include('django_rq.urls')) ]
     
 
 admin.site.site_header = 'OpenTA Admin'

@@ -90,6 +90,8 @@ for x in dblist:
         }
 
 FILE_UPLOAD_PERMISSIONS = 0o644
+NODE_NAME = os.environ.get("NODE_NAME","UNKNOWN_NODE_NAME")
+POD_NAME =  os.environ.get("POD_NAME", "UNKNOWN_POD_NAME")
 
 _subpath = os.environ.get('OPENTA_SUBPATH')
 
@@ -117,7 +119,7 @@ except:
 #except:
 #    VERSION_TAG = ''
 #    pass
-VERSION_TAG='v3.0.1'
+VERSION_TAG='v3.1.1'
 STATIC_URL = 'https://storage.googleapis.com/opentaproject-cdn-bucket/%s/' % VERSION_TAG
 
 
@@ -159,3 +161,43 @@ SUBPATH_REGEX = False
 #p  = subprocess.Popen(["pg_dump","-C", "-h","localhost","-U","postgres","v305"], stdout=subprocess.PIPE)
 #result = p.communicate()[0]
 #print("RESULT = ", result)
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+VERSION = POD_NAME
+memcacheserver = '35.234.115.40:11211'
+memcacheserver = 'localhost:11211'
+CACHES = {
+     'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+        #'LOCATION': '35.234.115.40:11211'
+        'LOCATION': 'localhost:11211'
+    },
+    'aggregation': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'aggregation_cache',
+        'TIMEOUT': None,
+        'OPTIONS': {'MAX_ENTRIES': 30000},
+    },  
+}   
+
+CACHES = {
+     'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': 'localhost:6379',
+        'OPTIONS' : {
+            'MAX_ENTRIES' : 30000
+             }
+        #'OPTIONS': {
+        #    'DB': 1,
+        #    #'PASSWORD': 'yadayada',
+        #    'PARSER_CLASS': 'redis.connection.HiredisParser',
+        #    'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+        #    'PICKLE_VERSION': -1,
+        #},
+    },
+    'aggregation': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'aggregation_cache',
+        'TIMEOUT': None,
+        'OPTIONS': {'MAX_ENTRIES': 30000},
+    },  
+}   

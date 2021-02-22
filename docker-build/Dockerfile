@@ -1,4 +1,4 @@
-FROM s53ostlund/openta-base:v311
+FROM s53ostlund/openta-base:v312
 #RUN apt-get update \
 #    && apt-get install -y \
 #    graphviz \
