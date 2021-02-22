@@ -688,6 +688,7 @@ def export_course_exercises(course, output_path):
     """
     filename = "{name}.{ext}".format(name=course.course_name, ext="zip")
     filepath = os.path.join(output_path, filename)
+    LOGGER.debug("EXPORT COURSE EXERCISES exercises_path " + str( course.get_exercises_path()) )
     LOGGER.debug("EXPORT COURSE EXERCISES" + str(filepath))
     for result in _zip_recursively(filepath, course.get_exercises_path()):
         yield result

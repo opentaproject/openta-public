@@ -3,10 +3,14 @@ import django_rq
 from redis.exceptions import ResponseError
 from workqueue.exceptions import WorkQueueError
 from collections import namedtuple
+import logging
+LOGGER = logging.getLogger(__file__)
 
 
-def enqueue_task(name, func, *args, owner=None, **kwargs):
-    task = QueueTask.objects.create(name=name, owner=owner)
+
+def enqueue_task(name, func, *args, owner=None, subdomain=None , **kwargs):
+    task = QueueTask.objects.create(name=name, owner=owner,subdomain=subdomain)
+    LOGGER.info("ENQUEUE subdomain = %s " % subdomain )
     try:
         job = django_rq.enqueue(func, *args, task=task, job_id=str(task.pk), **kwargs)
         job.meta['meta_info'] = 'meta_info'

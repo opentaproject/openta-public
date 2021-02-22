@@ -16,8 +16,9 @@ upload_storage  = FileSystemStorage(location=settings.VOLUME, base_url='/')
 
 
 def result_file_name(instance, filename):
+    logger.info("INSTANCE = %s " % str(instance) )
     basefilename = '/' + filename.split('/')[-1]
-    fullfile = settings.SPOOL_DIR + settings.DB_NAME + '/' + '/'.join(
+    fullfile = settings.SPOOL_DIR +  '/'.join(
         [
             'taskresults',
             str(instance.pk)
@@ -36,6 +37,7 @@ class QueueTask(models.Model):
     owner = models.ForeignKey(User, default=None, null=True, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255)
+    subdomain = models.CharField(max_length=255)
     progress = models.PositiveIntegerField(default=0)
     done = models.BooleanField(default=False)
     status = models.CharField(max_length=255, default="Created")

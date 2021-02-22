@@ -55,8 +55,10 @@ def export_course_exercises_pipeline(task, course):
 def export_course_exercises_async(request, course_pk):
     LOGGER.debug("EXPORT COURSE EXERCISES ASYNC")
     dbcourse = Course.objects.get(pk=course_pk)
+    LOGGER.debug("OPENTASITE = %s " %  dbcourse.opentasite)
+    subdomain = str( dbcourse.opentasite )
     task_id = workqueue.enqueue_task(
-        "course_exercises_export", export_course_exercises_pipeline, course=dbcourse
+        "course_exercises_export", export_course_exercises_pipeline, course=dbcourse, subdomain=subdomain
     )
     return Response({'task_id': task_id})
 
@@ -91,7 +93,7 @@ def export_course_pipeline(task, course):
 def export_course_async(request, course_pk):
     LOGGER.debug("EXPORT COURSE ASYNC")
     dbcourse = Course.objects.get(pk=course_pk)
-    task_id = workqueue.enqueue_task("course_export", export_course_pipeline, course=dbcourse)
+    task_id = workqueue.enqueue_task("course_export", export_course_pipeline, course=dbcourse, subdomain=settings.SUBDOMAIN)
     return Response({'task_id': task_id})
 
 
@@ -135,7 +137,7 @@ def import_server_view(request):
             for chunk in request.FILES['file'].chunks():
                 destination.write(chunk)
         task_id = workqueue.enqueue_task(
-            "server_import", import_server_pipeline, file_path=tmp_filename
+            "server_import", import_server_pipeline, file_path=tmp_filename,  subdomain=settings.SUBDOMAIN
         )
         return Response({'task_id': task_id})
 
