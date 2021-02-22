@@ -8,6 +8,11 @@ from .models import QueueTask
 from exercises.views.file_handling import serve_file
 import json
 import django_rq
+import logging
+import re
+
+logger = logging.getLogger(__file__)
+
 
 from .util import task_result
 
@@ -35,11 +40,13 @@ def get_task_result_file(request, task):
         return Response({'error': 'There is no result file for this task'})
 
     subpath = _subpath(uri=request.get_full_path() , session=request.session)
+    logger.info("GET TASK RESULT FILE AND SERVE %s " % dbtask.result_file.name )
+    taskfile = '/subdomain-data/' + dbtask.result_file.name;
     return serve_file(
-        '/' + subpath + dbtask.result_file.name,
+        taskfile,
         os.path.basename(dbtask.result_file.name),
-        content_type=content_type_dispatch(dbtask.result_file.name),
-        dev_path=dbtask.result_file.path,
+        content_type=content_type_dispatch(taskfile),
+        dev_path=taskfile,
     )
 
 

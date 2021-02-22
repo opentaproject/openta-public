@@ -36,7 +36,6 @@ ALLOWED_HOSTS = []
 
 LOGIN_URL = '/' + SUBPATH + 'login/'
 LOGIN_REDIRECT_URL = '/' + SUBPATH
-LEVEL = 'INFO'
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -154,6 +153,7 @@ REST_FRAMEWORK = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+LEVEL = 'DEBUG'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

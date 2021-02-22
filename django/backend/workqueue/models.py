@@ -5,10 +5,19 @@ import os
 import redis
 from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
+import logging
+logger = logging.getLogger(__name__)
+from django.conf import settings
+
+from django.core.files.storage import FileSystemStorage
+upload_storage  = FileSystemStorage(location=settings.VOLUME, base_url='/')
+
+
 
 
 def result_file_name(instance, filename):
-    fullfile = '/'.join(
+    basefilename = '/' + filename.split('/')[-1]
+    fullfile = settings.SPOOL_DIR + settings.DB_NAME + '/' + '/'.join(
         [
             'taskresults',
             str(instance.pk)
@@ -16,10 +25,11 @@ def result_file_name(instance, filename):
             + "{:%Y%m%d_%H:%M}".format(instance.date)
             + "_"
             + instance.name.replace(' ', '_')
-            + filename,
+            + basefilename,
         ]
     )
-    return fullfile
+    logger.info("FULL FILE IN ESULT FILE NAME = %s " % fullfile )
+    return  fullfile
 
 
 class QueueTask(models.Model):
@@ -30,7 +40,7 @@ class QueueTask(models.Model):
     done = models.BooleanField(default=False)
     status = models.CharField(max_length=255, default="Created")
     result_file = models.FileField(
-        default=None, blank=True, null=True, upload_to=result_file_name, max_length=512
+        default=None, blank=True, null=True, upload_to=result_file_name, max_length=512, storage=upload_storage
     )
 
 

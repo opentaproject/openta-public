@@ -10,6 +10,8 @@ CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 DEBUG = True
 APPEND_SLASH = True
+import logging
+logger = logging.getLogger(__name__)
 
 ALLOWED_HOSTS = ['*']
 # USE_X_FORWARDED_HOST = True
@@ -70,12 +72,16 @@ print("dbilst = ", dblist)
 DBLIST = os.listdir(VOLUME)
 dblist.remove('openta')
 dblist.remove('sites')
+try :
+    dblist.remove('taskresults')
+except:
+    pass
 for x in dblist:
     f = open(VOLUME + '/' + x  + '/dbname.txt' )
     db_name = f.read();
     db_name = re.sub(r"\W", "", db_name)
     f.close()
-    print("subpath  db :  %s =  >%s< " % ( x , db_name ) )
+    logger.debug("subpath  db :  %s =  >%s< " % ( x , db_name ) )
     #DATABASES[x] =  {
     #    'ENGINE': 'django.db.backends.postgresql_psycopg2',
     #    'NAME': db_name  ,
@@ -201,3 +207,6 @@ CACHES = {
         'OPTIONS': {'MAX_ENTRIES': 30000},
     },  
 }   
+DEBUG = True
+DB_NAME = 'v305'
+SPOOL_DIR = 'sites/media/taskresults/'
