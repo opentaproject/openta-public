@@ -243,16 +243,18 @@ class Course(models.Model):
 
 
     def save(self, *args, **kwargs):
-        print("SAVE COURSE SUBDOMAIN = ", settings.SUBDOMAIN)
-        print("ARGS  = ", args )
-        print("DB_NAME = ", settings.DB_NAME)
-        try: 
-            f = open(settings.VOLUME + '/' + settings.SUBDOMAIN + '/dbname.txt' )
-        except: 
-            f = open(settings.VOLUME + '/openta/dbname.txt' )
+        subdomain = str(self.opentasite)
+        settings.DB_NAME = subdomain
+        settings.SUBDOMAIN = subdomain
+        logger.info("SAVE COURSE SUBDOMAIN = %s  " %  settings.SUBDOMAIN)
+        logger.info("ARGS  = %s " % str( args ) )
+        logger.info("DB_NAME = %s " %  settings.DB_NAME)
+        logger.info("OPENTSITE = %s " %  str( self.opentasite ) )
+        f = open(settings.VOLUME + '/' + subdomain + '/dbname.txt' )
         db_name = f.read();
         db_name = re.sub(r"\W", "", db_name)
         f.close()
+        logger.info("DB_NAME = %s " % db_name ) 
         opentasite ,_ =  OpenTASite.objects.get_or_create(db_name=db_name)
         #self.subdomain =  opentasite
         #opentasite.db_name = db_name
