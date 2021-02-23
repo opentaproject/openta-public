@@ -302,22 +302,9 @@ class Course(models.Model):
         return self.course_name + ' - ' + self.course_long_name
 
     def get_exercises_path(self):
-        #expathnew = str( paths.EXERCISES_PATH.replace('default',  settings.SUBDOMAIN ) )
-        #res = os.path.join(expathnew, self.get_exercises_folder())
-        #res = '/subdomain-data/v305/exercises'
-        res = paths.EXERCISES_PATH
-        if hasattr(settings,'SUBDOMAIN') :
-            logger.info("settings.SUBDOMAIN %s " % settings.SUBDOMAIN )
-        else:
-            logger.info("settings.SUBDOMAIN %s " % "NOT SET")
-        
-        if hasattr(settings,'DB_NAME') :
-            logger.info("settings.DB_NAME %s " % settings.DB_NAME )
-        else:
-            logger.info("settings.DB_NAME %s " % "NOT SET")
-
-        logger.info("RAW  paths.EXERCISES_PATH = %s " % paths.EXERCISES_PATH)
+        res= settings.VOLUME + '/' + str( self.opentasite) +  '/exercises' + '/' + self.get_exercises_folder()  
         logger.info("COURSE_GET_EXERRCISES_PATH = RETURN %s " % res )
+        logger.info("COURSE_GET_EXERRCISES_PATH = FOLDER %s " % self.get_exercises_folder() )
         return str( res )
 
     #def get_student_assets_path(self):

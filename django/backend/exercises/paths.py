@@ -10,11 +10,16 @@ STUDENT_ANSWERIMAGES_PATH = settings.VOLUME + '/' + settings.DB_NAME +  "/media/
 STUDENT_ANSWERIMAGES_PATH = settings.MEDIA_ROOT + "/answerimages"
 EXERCISE_XML = 'exercise.xml'
 EXERCISE_XSD = './exercises/exercise.xsd'
+EXERCISES_PATH = settings.VOLUME + '/' + settings.DB_NAME +  '/exercises' 
 LIVE_TRANSLATION_DICT_XML = 'locale/translationdict.xml'
 DEFAULT_TRANSLATION_DICT_XML = 'translations/translationdict.xml'
 EXERCISE_KEY = 'exercisekey'
 EXERCISE_HISTORY = 'history'
 EXERCISE_THUMBNAIL = 'thumbnail.png'
+
+def dynamic_exercises_path() :
+    return settings.VOLUME + '/' + settings.DB_NAME +  '/exercises' 
+    
 
 def _subpath(**kwargs):
     if settings.RUNTESTS:

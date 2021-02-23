@@ -29,6 +29,7 @@ def export_course_exercises_pipeline(task, course):
     output_filename = None
     try:
         for filename, progress in export_course_exercises(course=course, output_path=dirpath):
+            LOGGER.debug("FILENAME = %s PROGRESS = %s " % (filename, progress) )
             task.progress = progress * 100
             task.status = filename
             task.save()
@@ -40,11 +41,15 @@ def export_course_exercises_pipeline(task, course):
             task.progress = 100
             task.save()
         else:
+            LOGGER.debug("OUTPUT FILENAME = %s PROGRESS = %s " % (output_filename, progress) )
             task.result_file = File(open(output_filename, 'rb'))
             task.done = True
             task.status = "Done"
             task.progress = 100
             task.save()
+            LOGGER.debug("TASK SAVED OUTPUT FILENAME = %s PROGRESS = %s " % (output_filename, progress) )
+            LOGGER.debug("TASK RESULT FILE %s " % task.result_file )
+            LOGGER.debug("DB_NAME = %s " %  settings.DB_NAME )
     except Exception as e:
         task.status = str(e)
         task.save()

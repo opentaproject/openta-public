@@ -425,6 +425,7 @@ def export_server(output_path='export'):
         float: Fraction complete
 
     """
+    
     subpath = "server"
     full_path = os.path.join(output_path, subpath)
     LOGGER.debug("EXPORT_SERVER")
@@ -450,7 +451,8 @@ def export_server(output_path='export'):
 
 def export_course(course, output_path='export'):
     LOGGER.debug("EXPORT_COURSE output_path = " + str(output_path))
-    LOGGER.debug("EXERCISES_PATH = " + str(EXERCISES_PATH))
+    _EXERCISES_PATH = course.get_exercises_path()
+    LOGGER.debug("EXERCISES_PATH = " + str(_EXERCISES_PATH))
     subpath = "server"
     full_path = os.path.join(output_path, subpath)
     for status, progress in _export_databases(full_path, course=course):
@@ -459,13 +461,13 @@ def export_course(course, output_path='export'):
 
     exercises_zip_path = os.path.join(full_path, SERVER_EXERCISES_EXPORT_FILENAME)
     LOGGER.debug(" A: EXERCISES ZIP_PATH " + str(exercises_zip_path))
-    LOGGER.debug(" B: EXERCISES_PATH " + str(EXERCISES_PATH))
+    LOGGER.debug(" B: EXERCISES_PATH " + str(_EXERCISES_PATH))
     LOGGER.debug(" C: INPUT_PATH " + str(course.get_exercises_path()))
     LOGGER.debug(" D: DIRLIST = " + str(os.listdir(course.get_exercises_path())))
     for _, progress in _zip_recursively(
         output_filepath=exercises_zip_path,
         input_path=course.get_exercises_path(),
-        relative_base=EXERCISES_PATH,
+        relative_base=_EXERCISES_PATH,
     ):
         yield TaskResult(status="Compressing exercises", progress=progress, result=None)
 
@@ -686,6 +688,7 @@ def export_course_exercises(course, output_path):
         tuple: (output_path, fraction_complete)
 
     """
+    _EXERCISES_PATH = course.get_exercises_path()
     filename = "{name}.{ext}".format(name=course.course_name, ext="zip")
     filepath = os.path.join(output_path, filename)
     LOGGER.debug("EXPORT COURSE EXERCISES exercises_path " + str( course.get_exercises_path()) )
@@ -796,6 +799,7 @@ def _zip_recursively(output_filepath, input_path, relative_base=None, report_ste
     LOGGER.debug("ZIP_RECURSIVELY FILES  TO ZIP = " + str(files))
     num_files = len(files)
     for index, f in enumerate(files):
+        LOGGER.debug("ZIP INDEX = %s " %  index )
         archive.write(str(f.resolve()), str(f.relative_to(relative_base)))
         if index % (num_files // report_steps + 1) == 0:
             yield output_filepath, (index / num_files)

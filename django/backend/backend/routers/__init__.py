@@ -5,6 +5,9 @@ from django.contrib.auth.models import Group, User
 from exercises.models import Answer, AuditExercise, ImageAnswer, Question, Answer, ExerciseMeta, Exercise
 from django.contrib.sessions.models import Session
 from users.models import OpenTAUser
+import logging
+logger = logging.getLogger(__file__)
+
 
 
 #dbmodels = [ Aggregation, Course, Group, Answer, AuditExercise, Exercise, ExerciseMeta,  \
@@ -81,7 +84,7 @@ from users.models import OpenTAUser
 #
 # FROM class CacheRouter in django project
 
-default_models = ['django_cache']
+default_models = ['django_cache','workqueue']
 site_models = ['sites']
 
 class AuthRouter:
@@ -89,7 +92,7 @@ class AuthRouter:
 
     def db_for_read(self, model, **hints):
         "All cache read operations go to the replica"
-        #print("READ MODEL label = ", model._meta.app_label)
+        logger.info("READ MODEL label = %s " %  model._meta.app_label)
         if settings.RUNTESTS or model._meta.app_label in default_models :
             return 'default'
         elif model._meta.app_label in site_models :
@@ -103,6 +106,7 @@ class AuthRouter:
         return settings.DB_NAME
 
     def db_for_write(self, model, **hints):
+        logger.info("WRIT MODEL label = %s " %  model._meta.app_label)
         if settings.RUNTESTS or model._meta.app_label in default_models :
             return 'default'
         elif model._meta.app_label in site_models :
