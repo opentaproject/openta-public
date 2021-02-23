@@ -193,7 +193,7 @@ class XMLEditor extends Component {
         var doshowtools = false
         }
     var use_auto_translation = this.props.use_auto_translation
-    console.log("USE AUTO TRANSLATIONO = ", use_auto_translation)
+    // console.log("USE AUTO TRANSLATIONO = ", use_auto_translation)
 
     var savereset = (
       <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => this.props.onSave(activeExercise)} onreset={(event) => onReset(activeExercise) } use_auto_translation={use_auto_translation} />
