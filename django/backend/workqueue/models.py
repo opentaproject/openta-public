@@ -16,7 +16,7 @@ upload_storage  = FileSystemStorage(location=settings.VOLUME, base_url='/')
 
 
 def result_file_name(instance, filename):
-    logger.info("INSTANCE = %s " % str(instance) )
+    #logger.info("INSTANCE = %s " % str(instance) )
     basefilename = '/' + filename.split('/')[-1]
     fullfile = settings.SPOOL_DIR +  '/'.join(
         [
@@ -29,7 +29,7 @@ def result_file_name(instance, filename):
             + basefilename,
         ]
     )
-    logger.info("FULL FILE IN ESULT FILE NAME = %s " % fullfile )
+    #logger.info("FULL FILE IN ESULT FILE NAME = %s " % fullfile )
     return  fullfile
 
 

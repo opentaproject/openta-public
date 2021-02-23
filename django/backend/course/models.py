@@ -303,8 +303,8 @@ class Course(models.Model):
 
     def get_exercises_path(self):
         res= settings.VOLUME + '/' + str( self.opentasite) +  '/exercises' + '/' + self.get_exercises_folder()  
-        logger.info("COURSE_GET_EXERRCISES_PATH = RETURN %s " % res )
-        logger.info("COURSE_GET_EXERRCISES_PATH = FOLDER %s " % self.get_exercises_folder() )
+        #logger.info("COURSE_GET_EXERRCISES_PATH = RETURN %s " % res )
+        #logger.info("COURSE_GET_EXERRCISES_PATH = FOLDER %s " % self.get_exercises_folder() )
         return str( res )
 
     #def get_student_assets_path(self):

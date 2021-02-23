@@ -124,3 +124,6 @@ class AuthRouter:
         #print("MIGRATE app_label ", app_label , " MODEL NAME = ", model_name )
         if settings.RUNTESTS or app_label == 'django_cache':
             return db == 'default'
+
+    def allow_relation( self, bj1, obj2 , **hints):
+        return True

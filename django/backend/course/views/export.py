@@ -22,14 +22,14 @@ import tempfile
 
 
 def export_course_exercises_pipeline(task, course):
-    LOGGER.debug("EXPORT COURSE EXERCISES PIPELINE")
+    #LOGGER.debug("EXPORT COURSE EXERCISES PIPELINE")
     task.status = "Working"
     task.save()
     dirpath = str(tempfile.mkdtemp())
     output_filename = None
     try:
         for filename, progress in export_course_exercises(course=course, output_path=dirpath):
-            LOGGER.debug("FILENAME = %s PROGRESS = %s " % (filename, progress) )
+            #LOGGER.debug("FILENAME = %s PROGRESS = %s " % (filename, progress) )
             task.progress = progress * 100
             task.status = filename
             task.save()
@@ -41,15 +41,15 @@ def export_course_exercises_pipeline(task, course):
             task.progress = 100
             task.save()
         else:
-            LOGGER.debug("OUTPUT FILENAME = %s PROGRESS = %s " % (output_filename, progress) )
+            #LOGGER.debug("OUTPUT FILENAME = %s PROGRESS = %s " % (output_filename, progress) )
             task.result_file = File(open(output_filename, 'rb'))
             task.done = True
             task.status = "Done"
             task.progress = 100
             task.save()
-            LOGGER.debug("TASK SAVED OUTPUT FILENAME = %s PROGRESS = %s " % (output_filename, progress) )
-            LOGGER.debug("TASK RESULT FILE %s " % task.result_file )
-            LOGGER.debug("DB_NAME = %s " %  settings.DB_NAME )
+            #LOGGER.debug("TASK SAVED OUTPUT FILENAME = %s PROGRESS = %s " % (output_filename, progress) )
+            #LOGGER.debug("TASK RESULT FILE %s " % task.result_file )
+            #LOGGER.debug("DB_NAME = %s " %  settings.DB_NAME )
     except Exception as e:
         task.status = str(e)
         task.save()
@@ -58,9 +58,9 @@ def export_course_exercises_pipeline(task, course):
 @permission_required('exercises.edit_exercises')
 @api_view(['GET'])
 def export_course_exercises_async(request, course_pk):
-    LOGGER.debug("EXPORT COURSE EXERCISES ASYNC")
+    #LOGGER.debug("EXPORT COURSE EXERCISES ASYNC")
     dbcourse = Course.objects.get(pk=course_pk)
-    LOGGER.debug("OPENTASITE = %s " %  dbcourse.opentasite)
+    #LOGGER.debug("OPENTASITE = %s " %  dbcourse.opentasite)
     subdomain = str( dbcourse.opentasite )
     task_id = workqueue.enqueue_task(
         "course_exercises_export", export_course_exercises_pipeline, course=dbcourse, subdomain=subdomain
@@ -69,12 +69,12 @@ def export_course_exercises_async(request, course_pk):
 
 
 def export_course_pipeline(task, course):
-    LOGGER.debug("EXPORT COURSE PIPELINE")
+    #LOGGER.debug("EXPORT COURSE PIPELINE")
     task.status = "Working"
     task.save()
     dirpath = str(tempfile.mkdtemp())
     output_filename = None
-    LOGGER.debug(" DIRPATH = " + str(dirpath))
+    #LOGGER.debug(" DIRPATH = " + str(dirpath))
     try:
         # for status, progress, filename in export_course(course=course, output_path=dirpath):
         for task_result in export_course(course=course, output_path=dirpath):
@@ -96,7 +96,7 @@ def export_course_pipeline(task, course):
 @permission_required('exercises.edit_exercises')
 @api_view(['GET'])
 def export_course_async(request, course_pk):
-    LOGGER.debug("EXPORT COURSE ASYNC")
+    #LOGGER.debug("EXPORT COURSE ASYNC")
     dbcourse = Course.objects.get(pk=course_pk)
     subdomain = str( dbcourse.opentasite )
     task_id = workqueue.enqueue_task("course_export", export_course_pipeline, course=dbcourse, subdomain=subdomain)

@@ -49,8 +49,8 @@ def _subpath(**kwargs):
 
 def get_student_asset_path(user, exercise):
     course_key = exercise.course.course_key
-    print("STUDENT_ASSETS_PATH = ", STUDENT_ASSETS_PATH)
-    print("settings.SUBDOMAIN = ", settings.SUBDOMAIN)
+    #print("STUDENT_ASSETS_PATH = ", STUDENT_ASSETS_PATH)
+    #print("settings.SUBDOMAIN = ", settings.SUBDOMAIN)
     multipath = settings.VOLUME + '/'  + settings.DB_NAME + '/media/studentassets'
     return os.path.join(multipath ,  str( course_key) , user.username, exercise.pk)
 

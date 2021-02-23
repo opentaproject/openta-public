@@ -40,7 +40,7 @@ def get_task_result_file(request, task):
         return Response({'error': 'There is no result file for this task'})
 
     subpath = _subpath(uri=request.get_full_path() , session=request.session)
-    logger.info("GET TASK RESULT FILE AND SERVE %s " % dbtask.result_file.name )
+    #logger.info("GET TASK RESULT FILE AND SERVE %s " % dbtask.result_file.name )
     taskfile = '/subdomain-data/' + dbtask.result_file.name;
     return serve_file(
         taskfile,
