@@ -26,6 +26,7 @@ class OpenTASite(models.Model ):
         return self.subdomain
     
     def save(self, *args, **kwargs):
+        print("SAVING MODEL %s " %  self.subdomain)
         if self.db_name is None:
             self.db_name = self.subdomain + '-' + str( random.randint( 11111,99999) )
         if self.db_label is None:
@@ -42,11 +43,11 @@ class OpenTASiteAdminForm(forms.ModelForm):
 
     class Meta :
         model = OpenTASite
-        fields = ('id','subdomain','db_name',)
+        fields = ('id','subdomain','db_name','db_label')
 
 class OpenTASiteAdmin( admin.ModelAdmin ):
     model = OpenTASite
-    list_display = ['id','subdomain','db_name']
+    list_display = ['id','subdomain','db_name','db_label']
     form = OpenTASiteAdminForm
 
 

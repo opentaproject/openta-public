@@ -96,78 +96,8 @@ def send_email_object(email, host, username, password):
 alphanumeric = RegexValidator(r'^[0-9a-z]*$', 'Only lowercase and numbers allowed.')
 
 
-#########
-### SUBPATH
-#####
-
-#class Subpath(models.Model):
-#    key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
-#    name = models.CharField(max_length=64, default='openta', unique=True,validators=[alphanumeric])
-#    objects = models.Manager()
-#
-#    def __str__(self):
-#        return self.name 
-#
-#def get_subpath():
-#    return Subpath.objects.get_or_create(id=1)
-#
-#class SubpathAdminForm(forms.ModelForm):
-#    
-#    class Meta:
-#        model = Subpath
-#        fields = ('name',)
-#
-#class SubpathAdmin( admin.ModelAdmin):
-#    model = Subpath
-#    list_display = ['name','key']
-#    form = SubpathAdminForm
-
-######
-#### OpenTASite
-#####
-
-
-#class OpenTASite(models.Model ):
-#
-#    subdomain = models.CharField(max_length=4096,unique=True) # used to be subpath
-#    db_name = models.UUIDField(unique=True, default=uuid.uuid4, editable=True)
-#    objects = models.Manager()
-#
-#    def __str__(self):
-#        return self.subdomain
-
-
-
-
-
-#class OpenTASiteAdminForm(forms.ModelForm):
-#
-#    class Meta :
-#        model = OpenTASite
-#        fields = ('id','subdomain','db_name',)
-#
-#class OpenTASiteAdmin( admin.ModelAdmin ):
-#    model = OpenTASite
-#    list_display = ['id','subdomain','db_name']
-#    form = OpenTASiteAdminForm
-
-
-
-#def getfirstOpenTASite() :
-#    print("SUBDOMAIN = ", settings.SUBDOMAIN)
-#    obj, created = OpenTASite.objects.get_or_create(subdomain=settings.SUBDOMAIN)
-#    return obj
-
-
-#def get_opentasite():
-#    print("GET_OPENTASITE  DB=%s SUBDOMAIN=%s SITE_ID=%s" % ( settings.DB_NAME, settings.SUBDOMAIN, settings.SITE_ID) )
-#    obj , _  =  OpenTASite.objects.get_or_create(subdomain=settings.SUBDOMAIN)
-#    return obj.id
-
 
 class Course(models.Model):
-    #subdomain = models.ForeignKey( OpenTASite , blank=True, null=True, on_delete=models.CASCADE, related_name='courses',)
-    #subdomain = models.ForeignKey( OpenTASite , blank=True, null=True, default=getfirstOpenTASite , on_delete=models.CASCADE, related_name='courses',)
     opentasite = models.ForeignKey( OpenTASite , default=1 , on_delete=models.CASCADE, related_name='courses')
     course_key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     course_name = models.CharField(max_length=255, default='OpenTA')
@@ -226,7 +156,7 @@ class Course(models.Model):
         db_name = re.sub(r"\W", "", db_name)
         f.close()
         logger.info("DB_NAME = %s " % db_name ) 
-        opentasite ,_ =  OpenTASite.objects.get_or_create(db_name=db_name)
+        opentasite ,_ =  OpenTASite.objects.get_or_create(subdomain=subdomain, db_name=db_name)
         #self.subdomain =  opentasite
         #opentasite.db_name = db_name
         opentasite.save()
@@ -367,31 +297,4 @@ class Course(models.Model):
                     },
                     code='invalid',
                 )
-
-    #    try :
-    #        if self.use_auto_translation  and not self.google_auth_string :
-    #            raise ValidationError( {'use_auto_translation': _('Auto translation cannot be enabled with a blank Google auth string. Turn off use_auto_translation to avoid error') } ,
-    #                 code='invalid')
-    #        if self.use_auto_translation and not self.languages  :
-    #            raise ValidationError( {'languages': _('Auto translation can only be enabled if Languages is nonempty.') } ,
-    #                 code='invalid')
-    #
-    #        if not ( self.google_auth_string.strip()  == ''   ) :
-    #            try:
-    #
-    #                #print("VALUE = ", value)
-    #                value = self.google_auth_string;
-    #                credentialstring = patch_credential_string(value)
-    #                service_account_info = json.load(io.StringIO(credentialstring))
-    #                credentials = service_account.Credentials.from_service_account_info( service_account_info)
-    #                translate_client = translate.Client( credentials=credentials)
-    #                should_be_en = translate_client.detect_language( 'This is a statement in english')['language']
-    #                assert 'en' == should_be_en
-    #            except :
-    #                raise ValidationError({'use_auto_translation': _('Google Auth string does not pass validation. Turn off google_auth_string and set it to blank to avoid error. ') } , code='invalid' )
-    #    except:
-    #            raise ValidationError({'use_auto_translation': _('Google Auth string does not pass validation. Turn off use_auto_translation and google_auth_string to to blank to avoid error. ') } , code='invalid' )
-    #            pass
-    #
-#admin.site.register( Subpath, SubpathAdmin)
 

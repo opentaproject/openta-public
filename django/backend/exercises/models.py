@@ -579,9 +579,9 @@ class Answer(models.Model):
     
 
 def answer_image_filename(instance, filename):
-    db_name = settings.DB_NAME
+    subdomain = settings.DB_NAME
     return '/'.join(
-        [   db_name,
+        [   subdomain,
             'media','answerimages',
             str( instance.exercise.course.course_key) ,
             instance.user.username,

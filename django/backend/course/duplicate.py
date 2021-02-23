@@ -21,7 +21,7 @@ def file_get_contents(filename):
 
 
 def duplicate_course(course: Course,  *args, **kwargs):
-    subdomain = str( course.opentasite.db_name )
+    subdomain = str( course.opentasite.subdomain)
     settings.SUBDOMAIN = subdomain;
     settings.DB_NAME  = subdomain;
     #logger.info("SUBDOMAIN OBTAINED %s " % subdomain )
