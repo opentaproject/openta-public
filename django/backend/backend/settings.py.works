@@ -124,8 +124,9 @@ except:
 #except:
 #    VERSION_TAG = ''
 #    pass
-VERSION_TAG='v3.1.1'
-STATIC_URL = 'https://storage.googleapis.com/opentaproject-cdn-bucket/%s/' % VERSION_TAG
+VERSION_TAG='v3.1.2'
+#STATIC_URL = 'https://storage.googleapis.com/opentaproject-cdn-bucket/%s/' % VERSION_TAG
+#STATIC_URL = '/' + 'static/'
 
 
 
@@ -210,3 +211,4 @@ DEBUG = True
 DB_NAME = 'default'
 SUBDOMAIN = 'sites'
 SPOOL_DIR = 'sites/media/taskresults/'
+STATIC_URL = 'https://storage.googleapis.com/opentaproject-cdn-bucket/%s/' % VERSION_TAG
