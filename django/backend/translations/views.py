@@ -57,7 +57,7 @@ from json import dumps
 import copy
 
 
-from google.cloud import translate
+from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
 
 
@@ -82,7 +82,7 @@ def exercise_translate(request, exercise, language):
     course_pk = dbexercise.course.pk
     dbcourse = Course.objects.get(pk=course_pk)
     usetranslations = dbcourse.use_auto_translation
-    # print("API: course_pk = ", course_pk,' usetranslations = ',usetranslations)
+    print("API: course_pk = ", course_pk,' usetranslations = ',usetranslations)
     if usetranslations:
         backup_name = "{:%Y%m%d_%H:%M:%S_%f_}".format(now()) + request.user.username + ".xml"
         action = request.path.split('/')[-2]
@@ -305,10 +305,10 @@ def updatetranslationdict(request, course_pk):
 
 def exercise_translate_language(path, xml, language, action, course_pk):
     dprint("EXERCISE TRANSLATE LANGUAGE")
-    # print("TRANSLATIONS: exercise_translate",path,language,action,course_pk)
+    print("TRANSLATIONS: exercise_translate",path,language,action,course_pk)
     dbcourse = Course.objects.get(pk=course_pk)
     usetranslation = dbcourse.use_auto_translation
-    # print("TRANSLATIONS: exercise_translation_language usetranslation = ", usetranslation)
+    print("TRANSLATIONS: exercise_translation_language usetranslation = ", usetranslation)
     messages = []
     # try:
     #    settings.GOOGLE_TRANSLATE_CLIENT
@@ -321,7 +321,9 @@ def exercise_translate_language(path, xml, language, action, course_pk):
     #    )
     #    return messages
     try:
+        print("OLD_XML", xml )
         xml = translate_xml(xml, language, action, course_pk)
+        print("NEW XML", xml )
         xml_path = os.path.join(path, paths.EXERCISE_XML)
         with open(xml_path, 'w') as file:
             file.write(xml)
@@ -390,7 +392,7 @@ def makepretty(xml):
 
 
 def translate_xml(xml, lang, action, course_pk, domakepretty=True):
-    dprint("TRANSLATE XML")
+    print("TRANSLATE XML action %s , lang= %s " % ( action, lang )  )
     if 'translate' in action:
         # print("TRANSLATION translate_xml to ", lang )
         try:
@@ -444,7 +446,7 @@ def fromString(xml):
 
 
 def translate_xml_language(xml, lang, course_pk, domakepretty=True):
-    dprint("TRANSLATIONS translate_xml_language lang = ", lang)
+    print("TRANSLATIONS translate_xml_language lang = ", lang)
     xmlin = xml
     if "none" == lang:
         xml = makepretty(xml)

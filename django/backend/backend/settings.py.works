@@ -8,7 +8,6 @@ SECRET_KEY = '$$uo0799i74g3oci-wy4_31mmly-nhlzj+qwi@cgr!@ynqmv=('
 
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
-DEBUG = True
 APPEND_SLASH = True
 import logging
 logger = logging.getLogger(__name__)

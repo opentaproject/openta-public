@@ -193,6 +193,7 @@ class XMLEditor extends Component {
         var doshowtools = false
         }
     var use_auto_translation = this.props.use_auto_translation
+    console.log("USE AUTO TRANSLATIONO = ", use_auto_translation)
 
     var savereset = (
       <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => this.props.onSave(activeExercise)} onreset={(event) => onReset(activeExercise) } use_auto_translation={use_auto_translation} />
@@ -226,7 +227,7 @@ class XMLEditor extends Component {
         { doshowtools && ( <a className={"uk-button uk-button-small "} onClick={this.keyMap_toggle}>Switch keymap {options.keyMap}</a> )}
         { doshowtools && ( <a className={"uk-button uk-button-small  "} onClick={this.prettify}> Prettify </a> )}
         { doshowtools && ( 
-      <Tools showsave={can_save} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => this.props.onSave(activeExercise)} onreset={(event) => onReset(activeExercise)} />
+      <Tools showsave={can_save} use_auto_translation={this.props.use_auto_translation} savepending={savePending} savesuccess={!modified && saveError === false} showreset={modified} saveerror={saveError} resetpending={resetPending} onsave={(event) => this.props.onSave(activeExercise)} onreset={(event) => onReset(activeExercise)} />
              ) }
         <Codemirror value={xmlCode} options={options} onBeforeChange={this.props.onChange} editorDidMount={this.editorDidMount} editorDidConfigure={this.editorDidConfigure}
           editorWillUnmount={this.editorWillUnmount} />

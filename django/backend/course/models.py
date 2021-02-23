@@ -20,7 +20,7 @@ import pytz
 from django.conf import settings
 import exercises.paths as paths
 from django.conf import settings
-from google.cloud import translate
+from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
 import tempfile
 import io, json
@@ -39,20 +39,6 @@ EMAIL_VALIDATOR = EmailValidator()
 def patch_credential_string(value):
     return value.strip().lstrip('r').strip("'")
 
-
-#def validate_google_auth_string(value): 
-#     if not ( value.strip()  == ''   ) :
-#        try:
-#            print("VALUE = ", value )
-#            credentialstring = patch_credential_string(value)
-#            service_account_info = json.load(io.StringIO(credentialstring))
-#            credentials = service_account.Credentials.from_service_account_info( service_account_info)
-#            translate_client = translate.Client( credentials=credentials)
-#            should_be_en = translate_client.detect_language( 'This is a statement in english')['language'] 
-#            assert 'en' == should_be_en 
-#        except :
-#            raise ValidationError( _('Google Auth string does not pass validation. Set it to blank to avoid error. ') ,code='invalid' )
-    
 
 
 def send_email_object(email,host,username,password):
@@ -85,21 +71,6 @@ def send_email_object(email,host,username,password):
 
 def patch_credential_string(value):
     return value.strip().lstrip('r').strip("'")
-
-
-# def validate_google_auth_string(value):
-#     if not ( value.strip()  == ''   ) :
-#        try:
-#            print("VALUE = ", value )
-#            credentialstring = patch_credential_string(value)
-#            service_account_info = json.load(io.StringIO(credentialstring))
-#            credentials = service_account.Credentials.from_service_account_info( service_account_info)
-#            translate_client = translate.Client( credentials=credentials)
-#            should_be_en = translate_client.detect_language( 'This is a statement in english')['language']
-#            assert 'en' == should_be_en
-#        except :
-#            raise ValidationError( _('Google Auth string does not pass validation. Set it to blank to avoid error. ') ,code='invalid' )
-
 
 def send_email_object(email, host, username, password):
     if hasattr(settings, 'USE_CUSTOM_SMTP_EMAIL') or (host and username and password):
@@ -273,7 +244,7 @@ class Course(models.Model):
         #output.close()        
 
     def clean(self):
-        if False and self.use_auto_translation  and self.google_auth_string == '':
+        if self.use_auto_translation  and self.google_auth_string == '':
             raise ValidationError( {'use_auto_translation': _('Auto translation cannot be enabled with a blank Google auth string.') } ,
                      code='invalid')
         if self.use_auto_translation and ( self.languages == ''  or self.languages == None ) :

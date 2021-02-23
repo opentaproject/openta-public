@@ -57,7 +57,6 @@ class BaseAutoTranslate extends Component {
     const exercise = this.props.exercise
     const folder = this.props.folder
     const action = this.props.action
-    const use_auto_translation = this.props.use_auto_translation
     const titlechoices = {'translate':" default => lang ", 'changedefaultlanguage': 'lang => default' ,'remove':"<b><del>  lang </del><b>"}
     const explanations = {
         'translate':" translate default to lang",

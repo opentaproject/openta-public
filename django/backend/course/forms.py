@@ -5,7 +5,7 @@ from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.utils.translation import ugettext_lazy as _
 from django import forms
 from django.core.exceptions import ValidationError
-from google.cloud import translate
+from google.cloud import translate_v2 as translate
 from google.oauth2 import service_account
 import tempfile
 import io, json
@@ -247,7 +247,7 @@ class CourseFormFrontend(forms.ModelForm):
                         },
                         code='invalid',
                     )
-            else:
+            if True :
                 if (
                     'use_auto_translation' not in self.changed_data
                     and 'google_auth_string' in self.changed_data
