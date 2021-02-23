@@ -30,7 +30,6 @@ def result_file_name(instance, filename):
         ]
     )
     logger.info("FULL FILE IN ESULT FILE NAME = %s " % fullfile )
-    settings.DB_NAME = 'v304'
     return  fullfile
 
 

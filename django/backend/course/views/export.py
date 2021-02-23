@@ -98,7 +98,8 @@ def export_course_pipeline(task, course):
 def export_course_async(request, course_pk):
     LOGGER.debug("EXPORT COURSE ASYNC")
     dbcourse = Course.objects.get(pk=course_pk)
-    task_id = workqueue.enqueue_task("course_export", export_course_pipeline, course=dbcourse, subdomain=settings.SUBDOMAIN)
+    subdomain = str( dbcourse.opentasite )
+    task_id = workqueue.enqueue_task("course_export", export_course_pipeline, course=dbcourse, subdomain=subdomain)
     return Response({'task_id': task_id})
 
 

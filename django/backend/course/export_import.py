@@ -459,11 +459,13 @@ def export_course(course, output_path='export'):
         LOGGER.debug("STATUS, PROGRESS" + str(status) + str(progress))
         yield TaskResult(status=status, progress=progress, result=None)
 
+    
     exercises_zip_path = os.path.join(full_path, SERVER_EXERCISES_EXPORT_FILENAME)
     LOGGER.debug(" A: EXERCISES ZIP_PATH " + str(exercises_zip_path))
     LOGGER.debug(" B: EXERCISES_PATH " + str(_EXERCISES_PATH))
     LOGGER.debug(" C: INPUT_PATH " + str(course.get_exercises_path()))
     LOGGER.debug(" D: DIRLIST = " + str(os.listdir(course.get_exercises_path())))
+     
     for _, progress in _zip_recursively(
         output_filepath=exercises_zip_path,
         input_path=course.get_exercises_path(),
