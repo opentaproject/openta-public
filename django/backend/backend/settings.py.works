@@ -208,5 +208,6 @@ CACHES = {
     },  
 }   
 DEBUG = True
-DB_NAME = 'v305'
+DB_NAME = 'default'
+SUBDOMAIN = 'sites'
 SPOOL_DIR = 'sites/media/taskresults/'
