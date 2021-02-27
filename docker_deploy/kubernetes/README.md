@@ -2,8 +2,10 @@
 ```
 export DOCKER_REPO=s53ostlund
 oc login --token=sha256~xxxxxxx --server=https://130.241.39.203:6443
+cp django/backend/backend/settings_production.py django/backend/backend/settings.py 
+
 make build-deploy-docker
-docker push s53ostlund/openta:fim770v6_f50c17d1 && docker push s53ostlund/nginx:fim770v6_f50c17d1
+# check the push commands  docker push s53ostlund/openta:XXXXX && docker push s53ostlund/nginx:XXXXXXX
 cd docker_deploy/kubernetes
 python3 -m venv env
 source env/bin/activate

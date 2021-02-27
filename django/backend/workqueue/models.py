@@ -48,7 +48,8 @@ class QueueTask(models.Model):
 
 class RegradeTask(models.Model):
     task_id = models.IntegerField(default=0)
-    exercise = models.ForeignKey(Exercise, default=None, null=True, on_delete=models.PROTECT)
+    exercise_key  = models.CharField(max_length=255,default='')
+    subdomain = models.CharField(max_length=255,default='')
     resultsfile = models.CharField(max_length=255, default='')
     pklfile = models.CharField(max_length=255, default='')
     status = models.CharField(max_length=64, default='')

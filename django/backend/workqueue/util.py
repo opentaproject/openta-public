@@ -1,4 +1,5 @@
 from .models import QueueTask
+from django.conf import settings
 import django_rq
 from redis.exceptions import ResponseError
 from workqueue.exceptions import WorkQueueError
@@ -10,6 +11,8 @@ LOGGER = logging.getLogger(__file__)
 
 def enqueue_task(name, func, *args, owner=None, subdomain=None , **kwargs):
     LOGGER.info("ENQUEUE subdomain = %s " % subdomain )
+    if subdomain == None:
+        subdomain = settings.DB_NAME
     task = QueueTask.objects.create(name=name, owner=owner,subdomain=subdomain)
     try:
         job = django_rq.enqueue(func, *args, task=task, job_id=str(task.pk), **kwargs)

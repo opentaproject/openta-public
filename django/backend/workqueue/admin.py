@@ -4,7 +4,7 @@ from .models import QueueTask, RegradeTask
 
 
 class QueueTaskAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'date', 'name', 'progress', 'status', 'result_file']
+    list_display = ['pk', 'subdomain', 'date', 'name', 'progress', 'status', 'result_file']
     list_per_page = 20
     search_fields = ['name', 'status', 'result_text']
     ordering = ['-date']
@@ -12,7 +12,7 @@ class QueueTaskAdmin(admin.ModelAdmin):
 
 
 class RegradeTaskAdmin(admin.ModelAdmin):
-    list_display = ['pk', 'task_id', 'exercise', 'resultsfile', 'status']
+    list_display = ['pk', 'task_id', 'subdomain', 'status', 'exercise_key', 'resultsfile']
     list_per_page = 20
     readonly_fields = ('pk',)
 

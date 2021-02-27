@@ -1,5 +1,6 @@
 from rest_framework import status
 from rest_framework.decorators import api_view
+from django.conf import settings
 from django.shortcuts import redirect
 from django.conf import settings
 from exercises.models import Exercise, Question, Answer
@@ -26,60 +27,80 @@ logger = logging.getLogger(__name__)
 
 
 
-def regrade_results_async_pipeline(task, exercise):
-    exercise_key = exercise.exercise_key
+def regrade_results_async_pipeline(task, exercise_key):
+    logger.info("PIPELINE STARRTED TASK = %s " %  task )
     p = '/tmp/regrade/%s' % exercise_key
     resultsfile = p + '/results.pkl'
     old_regrade_exists = os.path.isfile(resultsfile)
-    result = regrade_students_results(task=task, exercise=exercise)
+    logger.info("START REGRADE_STUDENTS_RESULTS %s " % exercise_key)
+    result = regrade_students_results(task, exercise_key)
+    logger.info("REGRADE_STUDENTS_RESULTS RETURNED")
+    logger.info("REGRADE_STUDENTS_RESULTS RETURNED RESULT = %s " % result )
     task.done = True
     task.status = "Done"
     task.progress = 100
     task.save()
+    logger.info("REGRADE_STUDENTS_RESULTS TASK SAVED %s " % task )
+    logger.info("REGRADE_STUDENTS_RESULTS TASK SAVED %s " % task.done )
+    logger.info("REGRADE_STUDENTS_RESULTS TASK SAVED %s " % task.status )
+    logger.info("REGRADE_STUDENTS_RESULTS TASK SAVED %s " % task.progress )
+    logger.info("REGRADE_STUDENTS_RESULTS TASK RETURN RESULT %s " % result )
     return result
 
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
 def get_regrade_results_async(request, exercise):
+    exercise_key = exercise
     p = '/tmp/regrade/%s' % exercise
     pklfile = p + '/regrade_items.pkl'
     resultsfile = p + '/results.pkl'
+    subdomain = settings.DB_NAME
+    logger.info("EXERCISE IN GET_REGRADE_RESULTS ASYNC = %s " % exercise)
     try:
-        regrade_task = RegradeTask.objects.get(exercise=exercise)
+        regrade_task = RegradeTask.objects.get(exercise_key=exercise_key)
+        logger.info("REGRADE TASK RETURNED" )
         task_id = regrade_task.task_id
         messages = embed_messages([error('Task %s is still incomplete' % str(task_id))])
         return Response({'task_id': task_id})
-    except RegradeTask.DoesNotExist:
+    except Exception as e : # RegradeTask.DoesNotExist:
+        logger.debug("REGRADE  TASK GET FAILED  %s %s" % ( type(e).__name__ , str(e) ) )
         try:
-            dbexercise = Exercise.objects.get(pk=exercise)
+            dbexercise = Exercise.objects.get(exercise_key=exercise_key)
         except Exercise.DoesNotExist:
             return Response({}, status=status.HTTP_404_NOT_FOUND)
         try:
+            logger.info("REGRADE TASK ENQUEUE STARTS")
             task_id = workqueue.enqueue_task(
-                "regrade_results", regrade_results_async_pipeline, exercise=dbexercise,
+                "regrade_results", regrade_results_async_pipeline, exercise_key=exercise_key
             )
+            logger.info("CREATE REGRADE TASK OBJECT")
+            logger.info("%s ;  %s ; %s ; %s " % ( exercise_key , task_id, resultsfile, pklfile) )
             regrade_task = RegradeTask.objects.create(
-                exercise=dbexercise,
+                exercise_key=exercise_key,
                 task_id=task_id,
                 resultsfile=resultsfile,
                 pklfile=pklfile,
                 status='Waiting',
-            )
+                subdomain=subdomain
+                )
+            logger.info("REGRADE TASK OPJECT CREATED")
             return Response({'task_id': task_id})
         except WorkQueueError as e:
             messages = embed_messages([error(str(e))])
             return Response(messages)
 
 
-def cleanup_orphaned_tasks(exercise,ntasks=1):
-    regrade_tasks = RegradeTask.objects.filter(exercise=exercise)
+def cleanup_orphaned_tasks(exercise_key,ntasks=1):
+    logger.info("CLEANUP ORPANS %s " % exercise_key)
+    regrade_tasks = RegradeTask.objects.filter(exercise_key=exercise_key)
     if len(regrade_tasks) > ntasks:
         i = 0
         for regrade_task in regrade_tasks:
             if i > 0:
                 regrade_task.delete()
             i = i + 1
+    logger.info("DONE CLEANUP")
 
 
 def tprint(s) :
@@ -91,23 +112,26 @@ def tprint(s) :
     return ''
 
 
-def regrade_students_results(task, exercise):
-    print("REGRADE_STUDENTS_RESULTS CALLED")
-    cleanup_orphaned_tasks(exercise)
+def regrade_students_results(task, exercise_key):
+    logger.info("TASK = %s " % task.subdomain)
+    settings.DB_NAME = task.subdomain
+    logger.info("REGRADE_STUDENTS_RESULTS CALLED exercise_key = %s " % exercise_key)
+    cleanup_orphaned_tasks(exercise_key)
     results = {}
+    logger.info("REGRADE STUDENTS_RESULTS DB_NAME = %s " % settings.DB_NAME)
     try:
-        dbexercise = Exercise.objects.get(pk=exercise.pk)
+        dbexercise = Exercise.objects.get(exercise_key=exercise_key)
+        logger.info("REGRADE STUDENTS_RESULTS DBEXERCISE %s " % dbexercise)
     except Exercise.DoesNotExist:
+        logger.info("REGRADE STUDENTS_RESULTS DBEXERCISE FAILED  %s " % settings.DB_NAME)
         return Response({}, status=status.HTTP_404_NOT_FOUND)
     questions = Question.objects.filter(exercise=dbexercise)
 
-    logger.error("QUESTIONS = %s " % str(  questions) )
-    tprint( "QUESTIONS = %s " % str(questions) )
-    exercise_key = dbexercise.exercise_key
+    logger.info("QUESTIONS = %s " % str(  questions) )
     #WHY DOES THIS MISS SOME! 
     all_answers = Answer.objects.filter(question__in=questions).order_by('-date')
-    #all_answer_pks =  set( list( all_answers.values_list('pk',flat=True) )  )
-    #print("ALL_FILTERED = ", all_answer_pks.intersection( set([3021,3024,3025,2677])))
+    all_answer_pks =  set( list( all_answers.values_list('pk',flat=True) )  )
+    logger.info("ALL_FILTERED = %s  " % all_answer_pks.intersection( set([3021,3024,3025,2677])))
     #all_answers = Answer.objects.all()
     p = '/tmp/regrade/%s' % exercise_key
     showall = False
@@ -117,30 +141,30 @@ def regrade_students_results(task, exercise):
         with open("/tmp/whitelist.txt") as fp:
                 for line in fp:
                     pk = int( line.split(' ')[0] )
-                    #print("PK = ", pk )
+                    print("PK = ", pk )
                     allpks.append(pk)
-        #print("ALLPKS = ", allpks )
+        print("ALLPKS = ", allpks )
         all_answers = all_answers.filter(pk__in=allpks)
-        #print("LEN ALL_ANSWERS = ", len( all_answers) )
+        print("LEN ALL_ANSWERS = ", len( all_answers) )
     elif os.path.exists(p) :
         allpks = []
         filenames = glob.glob('%s/[0-9]*.??' % p)
         allpks = [ (item.split('/')[-1] ).split('.')[0] for item in filenames ]
-        #print("ALLPKS TO DO = ", allpks)
+        logger.info("ALLPKS TO DO = %s " % allpks)
         if len(allpks) > 0 :
             all_answers = all_answers.filter(pk__in=allpks)
             showall = True
     else:
-        #print("PATH %s does not exist " % p )
+        logger.info("PATH %s does not exist " % p )
         showall = False
     for question in questions:
         question_key = question.question_key
         results[question_key] = []
     n_answers = len(all_answers)
-    #print("n_answerfs = ", n_answers)
+    logger.info("n_answerfs = %s " % n_answers)
     txt = "OK"
     regrade_items = []
-    regrade_task = RegradeTask.objects.get(exercise=exercise_key)
+    regrade_task = RegradeTask.objects.get(exercise_key=exercise_key)
     resultsfile = regrade_task.resultsfile
     pklfile = regrade_task.pklfile
     if regrade_task.status == 'Waiting':
@@ -149,7 +173,7 @@ def regrade_students_results(task, exercise):
     old_regrade_exists = os.path.isfile(resultsfile)
     if old_regrade_exists:
         results = pickle.load(open(resultsfile, 'rb'))
-    #print("ALL_ANSWERS = ", len(all_answers) )
+    logger.info("ALL_ANSWERS = %s " % len(all_answers) )
     for index, answer in enumerate(all_answers):
         if old_regrade_exists:
             task.status = "Old regrade exists"
@@ -160,7 +184,7 @@ def regrade_students_results(task, exercise):
             #    break
             if answer.question :
                 tprint("CHECK %s " % answer.question)
-                regrade_task = RegradeTask.objects.get(exercise=dbexercise)
+                regrade_task = RegradeTask.objects.get(exercise_key=exercise_key)
                 tprint("REGRADE TASK STATUS =  %s " % regrade_task.status)
                 if regrade_task.status == 'Running':
                     try:
@@ -181,7 +205,7 @@ def regrade_students_results(task, exercise):
                     exercise_key = question.exercise.exercise_key
                     question_key = question.question_key
                     #old_correct = grader_response.get('correct', False)
-                    #print("ANSWER_DATE = ", answer.date)
+                    print("ANSWER_DATE = ", answer.date)
                     if task is not None:
                         task.status = (task.status + txt)[-245:]
                         task.progress = round(((index + 1) / n_answers) * 100)
@@ -199,13 +223,13 @@ def regrade_students_results(task, exercise):
                                 answer,
                             )
                             if True or not (old_correct == new_correct):
-                               #print("DID ", index, answer.pk)
+                               print("DID ", index, answer.pk)
                                txt = ( str(dbuser) + ' ' + answer_data + ': ' + str(old_correct) + ' => ' + str(new_correct) + "\n")
-                               #print("TXT ", txt)
+                               print("TXT ", txt)
                             else :
                                 pass 
                             if showall or not ( old_correct == new_correct ):
-                                #print("RESULT = ", result )
+                                print("RESULT = ", result )
                                 maxerror = result.get('maxerror','N')
                                 if new_correct:
                                     txt = "Correct: " + answer_data
@@ -237,52 +261,61 @@ def regrade_students_results(task, exercise):
                                 )
                         except:
                                 pass
-    try:
-        regrade_task = RegradeTask.objects.get(exercise=exercise_key)
-        if regrade_task.status == 'Running':
-            regrade_task.status = 'Finished'
-        regrade_task.save()
-        pklfile = regrade_task.pklfile
-        resultsfile = regrade_task.resultsfile
-        os.makedirs(os.path.dirname(pklfile), exist_ok=True)
-        pickle.dump(regrade_items, open(pklfile, 'wb'))
-        pickle.dump(results, open(resultsfile, 'wb'))
-    except RegradeTask.DoesNotExist:
-        pass
+    regrade_task = RegradeTask.objects.get(exercise_key=exercise_key)
+    if regrade_task.status == 'Running':
+        regrade_task.status = 'Finished'
+    logger.info("RESULTS DONE ")
+    regrade_task.save()
+    logger.info("RESULTS DONE REGRAD_TASK SAVE ")
+    pklfile = regrade_task.pklfile
+    logger.info("RESULTS DONE PKL_FILE %s " % pklfile  )
+    resultsfile = regrade_task.resultsfile
+    logger.info("RSULTSFILE %s " % resultsfile)
+    os.makedirs(os.path.dirname(pklfile), exist_ok=True)
+    pickle.dump(regrade_items, open(pklfile, 'wb'))
+    pickle.dump(results, open(resultsfile, 'wb'))
     return results
 
 
 @permission_required('exercises.view_statistics')
 @api_view(['GET'])
 def accept_regrade(request, exercise, yesno='no'):
+    logger.info("ACCEPT REGRADE")
     dbexercise = Exercise.objects.get(pk=exercise)
-    regrade_task = RegradeTask.objects.get(exercise=dbexercise)
-    if yesno == 'yes':
-        pklfile = regrade_task.pklfile
-        regrade_items = pickle.load(open(pklfile, 'rb'))
-        for item in regrade_items:
-            answer = Answer.objects.get(pk=item['pk'])
-            print("SAVE ANSWER", answer)
-            answer.correct = item['correct']
-            answer.grader_response = item['grader_response']
-            answer.save()
-        p = '/tmp/regrade/%s' % exercise
-        try :
-            filenames = glob.glob('%s/[0-9]*.??' % p)
-            [ os.remove(filn) for filn in filenames ]
-            os.remove("%s/errors" % p )
-        except:
-            pass
-        regrade_task.delete()
-    elif yesno == 'no':
-        regrade_task.delete()
-    elif yesno == 'cancel':
-        regrade_task.status = 'Cancelled'
-        regrade_task.save()
-    elif yesno == 'reset':
-        try :
+    exercise_key = dbexercise.exercise_key
+    regrade_task = RegradeTask.objects.get(exercise_key=exercise_key)
+    logger.info("ACCEPT A %s" % yesno)
+    try:
+        if yesno == 'yes':
+            pklfile = regrade_task.pklfile
+            regrade_items = pickle.load(open(pklfile, 'rb'))
+            for item in regrade_items:
+                answer = Answer.objects.get(pk=item['pk'])
+                print("SAVE ANSWER", answer)
+                answer.correct = item['correct']
+                answer.grader_response = item['grader_response']
+                answer.save()
+            p = '/tmp/regrade/%s' % exercise
+            try :
+                filenames = glob.glob('%s/[0-9]*.??' % p)
+                [ os.remove(filn) for filn in filenames ]
+                os.remove("%s/errors" % p )
+            except:
+                pass
             regrade_task.delete()
-            cleanup_orphaned_tasks(exercise,0)
-        except :
-            pass
+        elif yesno == 'no':
+            regrade_task.delete()
+        elif yesno == 'cancel':
+            regrade_task.status = 'Cancelled'
+            regrade_task.save()
+        elif yesno == 'reset':
+            try :
+                regrade_task.delete()
+                cleanup_orphaned_tasks(exercise,0)
+            except :
+                pass
+    except Exception as e :
+        logger.info("ERROR IN ACCEPT %s " % str(e) )
+
+    logger.info("ACCEPT D and REDIRECT")
     return redirect("../")

@@ -106,7 +106,7 @@ class AuthRouter:
         return settings.DB_NAME
 
     def db_for_write(self, model, **hints):
-        #ogger.info("WRIT MODEL label = %s " %  model._meta.app_label)
+        #logger.info("WRIT MODEL label = %s " %  model._meta.app_label)
         if settings.RUNTESTS or model._meta.app_label in default_models :
             return 'default'
         elif model._meta.app_label in site_models :

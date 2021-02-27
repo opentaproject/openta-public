@@ -14,17 +14,17 @@ def serve_file(path, filename, **kwargs):
         print("FILE_HANDLING  DEVSERVER %s "% content_type)
         if content_type:
             response = FileResponse(open(dev_path, 'rb') )
-            response['Content-Disposition'] = 'inline; filename="{}"'.format(filename)
+            response['Content-Disposition'] = u'inline; filename="{}"'.format(filename)
             return response
         else:
             response = FileResponse(open(dev_path, 'rb'))
-            response['Content-Disposition'] = 'inline; filename="{}"'.format(filename)
+            response['Content-Disposition'] = u'inline; filename="{}"'.format(filename)
             return response
     else:
         #logger.info("INLINE FILENAME " + filename )
         #logger.info("PATH = " + str(  path ) )
         response = HttpResponse()
         response["Content-Type"] = content_type if content_type else ""
-        response["Content-Disposition"] = "inline; filename={0}".format(filename)
+        response["Content-Disposition"] = u"inline; filename={0}".format(filename)
         response["X-Accel-Redirect"] = path.encode('utf-8')
         return response
