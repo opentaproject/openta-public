@@ -1,7 +1,7 @@
 #/bin/bash
 export SUBDOMAIN=$1
 subdomain=$1
-dbnamefile="/srv/multicourse/${subdomain}/dbname.txt"
+dbnamefile="/subdomain-data/${subdomain}/dbname.txt"
 echo $dbnamefile
 if test -e $dbnamefile ; then
 	echo "FILE FOUND"
@@ -12,7 +12,7 @@ else
 fi
 echo "MIGRATE " ${subdomain}
 python manage.py migrate --database=${subdomain}
-sed s/DB_NAME/${dbname}/ < fixtures/course.json > /tmp/course.json
-python manage.py loaddata fixtures/auth.json --database=${subdomain}
-python manage.py loaddata /tmp/course.json --database=${subdomain}
+sed s/SUBDOMAIN/${subdomain}/ < fixtures/course.json | sed s/DB_NAME/${dbname}/ > /tmp/course.json
+#python manage.py loaddata fixtures/auth.json --database=${subdomain}
+SUBDOMAIN=${subdomain} python manage.py loaddata /tmp/course.json --database=${subdomain}
 python manage.py createcachetable --database=${subdomain}

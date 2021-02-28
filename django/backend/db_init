@@ -6,6 +6,9 @@ do
     subdomain=`basename $i`
     dbnamefile="/subdomain-data/${subdomain}/dbname.txt"
     echo $dbnamefile
+    if ! test -e /subdomain-data/${subdomain} ;  then
+	mkdir -p /subdomain-data/${subdomain}
+    fi
     if test -e $dbnamefile ; then
     	echo "FILE FOUND"
     	dbname=`cat $dbnamefile | tr -d '\n'`

@@ -64,69 +64,35 @@ DATABASES =  {
         }
     }
 
-INSTANCE_ID='opentaproject-sql-instance0'
-PGPASSWORD='jqkNlGwwDLN2xC7L'
-PGHOST='35.246.163.9'
-PGUSER='postgres'
-CONNECTION_NAME='production-304119:europe-west3:opentaproject-sql-instance0'
-#gcloud sql connect opentaproject-sql-instance0 --user=postgres
-#SERVICE_ACCOUNT=p244333042069-ied2a5@gcp-sa-cloud-sql.iam.gserviceaccount.com
-
-
-PGHOST = '127.0.0.1'
-DATABASES =  { 
-   'default' : {
-      'ENGINE': 'django.db.backends.postgresql_psycopg2',
-      'NAME': 'opentadefault1',
-      'USER': 'postgres',
-      'PASSWORD': PGPASSWORD,
-      'HOST': PGHOST,
-      'PORT': 5432,
-    },
-
-    'sites' : {
-      'ENGINE': 'django.db.backends.postgresql_psycopg2',
-      'NAME': 'sites',
-      'USER': 'postgres',
-      'PASSWORD': PGPASSWORD,
-      'HOST': PGHOST,
-      'PORT': 5432,
-    }
- }
-
-
-
-
-
 
 print("SRV/MULTICOURSE: ", os.listdir(VOLUME) )
 dblist =  os.listdir(VOLUME)
 print("dbilst = ", dblist)
 DBLIST = os.listdir(VOLUME)
-droplist = ['openta','sites','taskresults','default']
-for d in droplist: 
-    try :
-        dblist.remove(d)
-    except:
-        pass
+dblist.remove('openta')
+dblist.remove('sites')
+try :
+    dblist.remove('taskresults')
+except:
+    pass
 for x in dblist:
     f = open(VOLUME + '/' + x  + '/dbname.txt' )
     db_name = f.read();
     db_name = re.sub(r"\W", "", db_name)
     f.close()
     logger.debug("subpath  db :  %s =  >%s< " % ( x , db_name ) )
-    DATABASES[x] =  {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': db_name  ,
-        'USER': 'postgres',
-        'PASSWORD': PGPASSWORD,
-        'HOST': PGHOST,
-        'PORT': '5432',
-        }
-    #DATABASES[x] = {
-    #    'ENGINE': 'django.db.backends.sqlite3',
-    #    'NAME': VOLUME + "/%s/db.sqlite3" % x ,
+    #DATABASES[x] =  {
+    #    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #    'NAME': db_name  ,
+    #    'USER': 'openta',
+    #    'PASSWORD': 'learning',
+    #    'HOST': 'localhost',
+    #    'PORT': '5432',
     #    }
+    DATABASES[x] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': VOLUME + "/%s/db.sqlite3" % x ,
+        }
 
 FILE_UPLOAD_PERMISSIONS = 0o644
 NODE_NAME = os.environ.get("NODE_NAME","UNKNOWN_NODE_NAME")
@@ -186,7 +152,7 @@ RUNNING_DEVSERVER = True
 #STATIC_URL = '/' + 'static/'
 SITE_ID = '3'
 print("STATIC_URL = ", STATIC_URL)
-SUBDOMAIN = os.environ.get('SUBDOMAIN','')
+#SUBDOMAIN = os.environ.get('SUBDOMAIN','')
 # DEFAULT INITIALIZETION
 #SUBPATH = '/' 
 # MUST HAVE THE FOLLOWING WHEN INITIALIZING
@@ -205,19 +171,19 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 VERSION = POD_NAME
 memcacheserver = '35.234.115.40:11211'
 memcacheserver = 'localhost:11211'
-#CACHES = {
-#     'default': {
-#        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
-#        #'LOCATION': '35.234.115.40:11211'
-#        'LOCATION': 'localhost:11211'
-#    },
-#    'aggregation': {
-#        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-#        'LOCATION': 'aggregation_cache',
-#        'TIMEOUT': None,
-#        'OPTIONS': {'MAX_ENTRIES': 30000},
-#    },  
-#}   
+CACHES = {
+     'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.PyLibMCCache',
+        #'LOCATION': '35.234.115.40:11211'
+        'LOCATION': 'localhost:11211'
+    },
+    'aggregation': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'aggregation_cache',
+        'TIMEOUT': None,
+        'OPTIONS': {'MAX_ENTRIES': 30000},
+    },  
+}   
 
 CACHES = {
      'default': {
@@ -226,14 +192,23 @@ CACHES = {
         'OPTIONS' : {
             'MAX_ENTRIES' : 30000
              }
+        #'OPTIONS': {
+        #    'DB': 1,
+        #    #'PASSWORD': 'yadayada',
+        #    'PARSER_CLASS': 'redis.connection.HiredisParser',
+        #    'CONNECTION_POOL_CLASS': 'redis.BlockingConnectionPool',
+        #    'PICKLE_VERSION': -1,
+        #},
     },
     'aggregation': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': 'localhost:6379',
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'aggregation_cache',
+        'TIMEOUT': None,
         'OPTIONS': {'MAX_ENTRIES': 30000},
     },  
 }   
 DEBUG = True
-DB_NAME = os.environ.get('SUBDOMAIN','default')
+DB_NAME = 'default'
+SUBDOMAIN = 'sites'
 SPOOL_DIR = 'sites/media/taskresults/'
 STATIC_URL = 'https://storage.googleapis.com/opentaproject-cdn-bucket/%s/' % VERSION_TAG

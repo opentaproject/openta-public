@@ -106,7 +106,7 @@ class AuthRouter:
         return settings.DB_NAME
 
     def db_for_write(self, model, **hints):
-        #logger.info("WRIT MODEL label = %s " %  model._meta.app_label)
+        #logger.info("WRIT MODEL label = %s  %s " %  ( model._meta.app_label, settings.DB_NAME ) )
         if settings.RUNTESTS or model._meta.app_label in default_models :
             return 'default'
         elif model._meta.app_label in site_models :
@@ -124,6 +124,7 @@ class AuthRouter:
         #print("MIGRATE app_label ", app_label , " MODEL NAME = ", model_name )
         if settings.RUNTESTS or app_label == 'django_cache':
             return db == 'default'
+        return True
 
     def allow_relation( self, bj1, obj2 , **hints):
         return True

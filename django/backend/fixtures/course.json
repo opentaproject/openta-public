@@ -1,29 +1,1353 @@
-[ 
-    {"model": "opentasites.opentasite", 
-	"pk": 1, 
-	"fields": {
-		"db_name": "DB_NAME"
-	  }
-	},
-    {
-        "model": "course.course",
-        "pk": 1,
-        "fields": {
-            "course_name": "Example course",
-            "icon": "",
-            "motd": "",
-            "course_long_name": "Example course",
-            "registration_password": null,
-            "registration_by_password": false,
-            "deadline_time": "23:59:59",
-            "url": null,
-            "registration_domains": null,
-            "registration_by_domain": false,
-            "languages": null,
-            "email_reply_to": "localhost",
-            "email_host": "localhost",
-            "email_host_user": null,
-            "email_host_password": null
-        }
-    }
+[
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2021-02-28T22:41:49.304Z",
+    "user": 3,
+    "content_type": 3,
+    "object_id": "3",
+    "object_repr": "Student",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Permissions\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2021-02-28T22:42:24.525Z",
+    "user": 3,
+    "content_type": 3,
+    "object_id": "2",
+    "object_repr": "Author",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Permissions\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2021-02-28T22:43:14.140Z",
+    "user": 3,
+    "content_type": 3,
+    "object_id": "4",
+    "object_repr": "View",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Permissions\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 4,
+  "fields": {
+    "action_time": "2021-02-28T22:44:51.188Z",
+    "user": 3,
+    "content_type": 3,
+    "object_id": "1",
+    "object_repr": "Admin",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Permissions\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 5,
+  "fields": {
+    "action_time": "2021-02-28T22:45:00.977Z",
+    "user": 3,
+    "content_type": 3,
+    "object_id": "1",
+    "object_repr": "Admin",
+    "action_flag": 2,
+    "change_message": "[]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 6,
+  "fields": {
+    "action_time": "2021-02-28T22:45:24.735Z",
+    "user": 3,
+    "content_type": 4,
+    "object_id": "1",
+    "object_repr": "student",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Groups\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 7,
+  "fields": {
+    "action_time": "2021-02-28T22:45:38.075Z",
+    "user": 3,
+    "content_type": 4,
+    "object_id": "3",
+    "object_repr": "super",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Groups\"]}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 8,
+  "fields": {
+    "action_time": "2021-02-28T22:46:29.878Z",
+    "user": 3,
+    "content_type": 4,
+    "object_id": "4",
+    "object_repr": "view",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"Groups\"]}}, {\"added\": {\"name\": \"open ta user\", \"object\": \"Profile of user: view\"}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 9,
+  "fields": {
+    "action_time": "2021-02-28T22:46:40.050Z",
+    "user": 3,
+    "content_type": 4,
+    "object_id": "3",
+    "object_repr": "super",
+    "action_flag": 2,
+    "change_message": "[{\"added\": {\"name\": \"open ta user\", \"object\": \"Profile of user: super\"}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 10,
+  "fields": {
+    "action_time": "2021-02-28T22:46:52.539Z",
+    "user": 3,
+    "content_type": 4,
+    "object_id": "1",
+    "object_repr": "student",
+    "action_flag": 2,
+    "change_message": "[]"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 1,
+  "fields": {
+    "name": "Can add log entry",
+    "content_type": 1,
+    "codename": "add_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 2,
+  "fields": {
+    "name": "Can change log entry",
+    "content_type": 1,
+    "codename": "change_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 3,
+  "fields": {
+    "name": "Can delete log entry",
+    "content_type": 1,
+    "codename": "delete_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 4,
+  "fields": {
+    "name": "Can view log entry",
+    "content_type": 1,
+    "codename": "view_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 5,
+  "fields": {
+    "name": "Can add permission",
+    "content_type": 2,
+    "codename": "add_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 6,
+  "fields": {
+    "name": "Can change permission",
+    "content_type": 2,
+    "codename": "change_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 7,
+  "fields": {
+    "name": "Can delete permission",
+    "content_type": 2,
+    "codename": "delete_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 8,
+  "fields": {
+    "name": "Can view permission",
+    "content_type": 2,
+    "codename": "view_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 9,
+  "fields": {
+    "name": "Can add group",
+    "content_type": 3,
+    "codename": "add_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 10,
+  "fields": {
+    "name": "Can change group",
+    "content_type": 3,
+    "codename": "change_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 11,
+  "fields": {
+    "name": "Can delete group",
+    "content_type": 3,
+    "codename": "delete_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 12,
+  "fields": {
+    "name": "Can view group",
+    "content_type": 3,
+    "codename": "view_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 13,
+  "fields": {
+    "name": "Can add user",
+    "content_type": 4,
+    "codename": "add_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 14,
+  "fields": {
+    "name": "Can change user",
+    "content_type": 4,
+    "codename": "change_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 15,
+  "fields": {
+    "name": "Can delete user",
+    "content_type": 4,
+    "codename": "delete_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 16,
+  "fields": {
+    "name": "Can view user",
+    "content_type": 4,
+    "codename": "view_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 17,
+  "fields": {
+    "name": "Can add content type",
+    "content_type": 5,
+    "codename": "add_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 18,
+  "fields": {
+    "name": "Can change content type",
+    "content_type": 5,
+    "codename": "change_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 19,
+  "fields": {
+    "name": "Can delete content type",
+    "content_type": 5,
+    "codename": "delete_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 20,
+  "fields": {
+    "name": "Can view content type",
+    "content_type": 5,
+    "codename": "view_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 21,
+  "fields": {
+    "name": "Can add session",
+    "content_type": 6,
+    "codename": "add_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 22,
+  "fields": {
+    "name": "Can change session",
+    "content_type": 6,
+    "codename": "change_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 23,
+  "fields": {
+    "name": "Can delete session",
+    "content_type": 6,
+    "codename": "delete_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 24,
+  "fields": {
+    "name": "Can view session",
+    "content_type": 6,
+    "codename": "view_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 25,
+  "fields": {
+    "name": "Can add exercise",
+    "content_type": 7,
+    "codename": "add_exercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 26,
+  "fields": {
+    "name": "Can change exercise",
+    "content_type": 7,
+    "codename": "change_exercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 27,
+  "fields": {
+    "name": "Can delete exercise",
+    "content_type": 7,
+    "codename": "delete_exercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 28,
+  "fields": {
+    "name": "Can view exercise",
+    "content_type": 7,
+    "codename": "view_exercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 29,
+  "fields": {
+    "name": "Can reload exercises from disk",
+    "content_type": 7,
+    "codename": "reload_exercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 30,
+  "fields": {
+    "name": "Can edit exercises in frontend",
+    "content_type": 7,
+    "codename": "edit_exercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 31,
+  "fields": {
+    "name": "Can create exercises in frontend",
+    "content_type": 7,
+    "codename": "create_exercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 32,
+  "fields": {
+    "name": "Can administer exercise options",
+    "content_type": 7,
+    "codename": "administer_exercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 33,
+  "fields": {
+    "name": "Can view exercise solution (even if not published)",
+    "content_type": 7,
+    "codename": "view_solution"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 34,
+  "fields": {
+    "name": "Can view student progress statistics",
+    "content_type": 7,
+    "codename": "view_statistics"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 35,
+  "fields": {
+    "name": "Can view student identity",
+    "content_type": 7,
+    "codename": "view_student_id"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 36,
+  "fields": {
+    "name": "Can view unpublished exercises",
+    "content_type": 7,
+    "codename": "view_unpublished"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 37,
+  "fields": {
+    "name": "Can view exercise XML",
+    "content_type": 7,
+    "codename": "view_xml"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 38,
+  "fields": {
+    "name": "Can add question",
+    "content_type": 8,
+    "codename": "add_question"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 39,
+  "fields": {
+    "name": "Can change question",
+    "content_type": 8,
+    "codename": "change_question"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 40,
+  "fields": {
+    "name": "Can delete question",
+    "content_type": 8,
+    "codename": "delete_question"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 41,
+  "fields": {
+    "name": "Can view question",
+    "content_type": 8,
+    "codename": "view_question"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 42,
+  "fields": {
+    "name": "Answers are logged",
+    "content_type": 8,
+    "codename": "log_question"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 43,
+  "fields": {
+    "name": "Can add answer",
+    "content_type": 9,
+    "codename": "add_answer"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 44,
+  "fields": {
+    "name": "Can change answer",
+    "content_type": 9,
+    "codename": "change_answer"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 45,
+  "fields": {
+    "name": "Can delete answer",
+    "content_type": 9,
+    "codename": "delete_answer"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 46,
+  "fields": {
+    "name": "Can view answer",
+    "content_type": 9,
+    "codename": "view_answer"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 47,
+  "fields": {
+    "name": "Can add image answer",
+    "content_type": 10,
+    "codename": "add_imageanswer"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 48,
+  "fields": {
+    "name": "Can change image answer",
+    "content_type": 10,
+    "codename": "change_imageanswer"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 49,
+  "fields": {
+    "name": "Can delete image answer",
+    "content_type": 10,
+    "codename": "delete_imageanswer"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 50,
+  "fields": {
+    "name": "Can view image answer",
+    "content_type": 10,
+    "codename": "view_imageanswer"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 51,
+  "fields": {
+    "name": "Can add exercise meta",
+    "content_type": 11,
+    "codename": "add_exercisemeta"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 52,
+  "fields": {
+    "name": "Can change exercise meta",
+    "content_type": 11,
+    "codename": "change_exercisemeta"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 53,
+  "fields": {
+    "name": "Can delete exercise meta",
+    "content_type": 11,
+    "codename": "delete_exercisemeta"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 54,
+  "fields": {
+    "name": "Can view exercise meta",
+    "content_type": 11,
+    "codename": "view_exercisemeta"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 55,
+  "fields": {
+    "name": "Can add audit exercise",
+    "content_type": 12,
+    "codename": "add_auditexercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 56,
+  "fields": {
+    "name": "Can change audit exercise",
+    "content_type": 12,
+    "codename": "change_auditexercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 57,
+  "fields": {
+    "name": "Can delete audit exercise",
+    "content_type": 12,
+    "codename": "delete_auditexercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 58,
+  "fields": {
+    "name": "Can view audit exercise",
+    "content_type": 12,
+    "codename": "view_auditexercise"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 59,
+  "fields": {
+    "name": "Can add audit response file",
+    "content_type": 13,
+    "codename": "add_auditresponsefile"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 60,
+  "fields": {
+    "name": "Can change audit response file",
+    "content_type": 13,
+    "codename": "change_auditresponsefile"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 61,
+  "fields": {
+    "name": "Can delete audit response file",
+    "content_type": 13,
+    "codename": "delete_auditresponsefile"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 62,
+  "fields": {
+    "name": "Can view audit response file",
+    "content_type": 13,
+    "codename": "view_auditresponsefile"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 63,
+  "fields": {
+    "name": "Can add course",
+    "content_type": 14,
+    "codename": "add_course"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 64,
+  "fields": {
+    "name": "Can change course",
+    "content_type": 14,
+    "codename": "change_course"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 65,
+  "fields": {
+    "name": "Can delete course",
+    "content_type": 14,
+    "codename": "delete_course"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 66,
+  "fields": {
+    "name": "Can view course",
+    "content_type": 14,
+    "codename": "view_course"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 67,
+  "fields": {
+    "name": "Can add open ta user",
+    "content_type": 15,
+    "codename": "add_opentauser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 68,
+  "fields": {
+    "name": "Can change open ta user",
+    "content_type": 15,
+    "codename": "change_opentauser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 69,
+  "fields": {
+    "name": "Can delete open ta user",
+    "content_type": 15,
+    "codename": "delete_opentauser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 70,
+  "fields": {
+    "name": "Can view open ta user",
+    "content_type": 15,
+    "codename": "view_opentauser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 71,
+  "fields": {
+    "name": "Can add queue task",
+    "content_type": 16,
+    "codename": "add_queuetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 72,
+  "fields": {
+    "name": "Can change queue task",
+    "content_type": 16,
+    "codename": "change_queuetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 73,
+  "fields": {
+    "name": "Can delete queue task",
+    "content_type": 16,
+    "codename": "delete_queuetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 74,
+  "fields": {
+    "name": "Can view queue task",
+    "content_type": 16,
+    "codename": "view_queuetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 75,
+  "fields": {
+    "name": "Can add regrade task",
+    "content_type": 17,
+    "codename": "add_regradetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 76,
+  "fields": {
+    "name": "Can change regrade task",
+    "content_type": 17,
+    "codename": "change_regradetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 77,
+  "fields": {
+    "name": "Can delete regrade task",
+    "content_type": 17,
+    "codename": "delete_regradetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 78,
+  "fields": {
+    "name": "Can view regrade task",
+    "content_type": 17,
+    "codename": "view_regradetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 79,
+  "fields": {
+    "name": "Can add aggregation",
+    "content_type": 18,
+    "codename": "add_aggregation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 80,
+  "fields": {
+    "name": "Can change aggregation",
+    "content_type": 18,
+    "codename": "change_aggregation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 81,
+  "fields": {
+    "name": "Can delete aggregation",
+    "content_type": 18,
+    "codename": "delete_aggregation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 82,
+  "fields": {
+    "name": "Can view aggregation",
+    "content_type": 18,
+    "codename": "view_aggregation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 83,
+  "fields": {
+    "name": "Can add regrade task",
+    "content_type": 19,
+    "codename": "add_regradetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 84,
+  "fields": {
+    "name": "Can change regrade task",
+    "content_type": 19,
+    "codename": "change_regradetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 85,
+  "fields": {
+    "name": "Can delete regrade task",
+    "content_type": 19,
+    "codename": "delete_regradetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 86,
+  "fields": {
+    "name": "Can view regrade task",
+    "content_type": 19,
+    "codename": "view_regradetask"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 87,
+  "fields": {
+    "name": "Can add aggregation",
+    "content_type": 20,
+    "codename": "add_aggregation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 88,
+  "fields": {
+    "name": "Can change aggregation",
+    "content_type": 20,
+    "codename": "change_aggregation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 89,
+  "fields": {
+    "name": "Can delete aggregation",
+    "content_type": 20,
+    "codename": "delete_aggregation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 90,
+  "fields": {
+    "name": "Can view aggregation",
+    "content_type": 20,
+    "codename": "view_aggregation"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 91,
+  "fields": {
+    "name": "Can add open ta site",
+    "content_type": 21,
+    "codename": "add_opentasite"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 92,
+  "fields": {
+    "name": "Can change open ta site",
+    "content_type": 21,
+    "codename": "change_opentasite"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 93,
+  "fields": {
+    "name": "Can delete open ta site",
+    "content_type": 21,
+    "codename": "delete_opentasite"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 94,
+  "fields": {
+    "name": "Can view open ta site",
+    "content_type": 21,
+    "codename": "view_opentasite"
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 1,
+  "fields": {
+    "name": "Admin",
+    "permissions": [
+      13,
+      32,
+      42,
+      25
+    ]
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 2,
+  "fields": {
+    "name": "Author",
+    "permissions": [
+      30,
+      42
+    ]
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 3,
+  "fields": {
+    "name": "Student",
+    "permissions": [
+      42
+    ]
+  }
+},
+{
+  "model": "auth.group",
+  "pk": 4,
+  "fields": {
+    "name": "View",
+    "permissions": [
+      34,
+      33,
+      37
+    ]
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 1,
+  "fields": {
+    "password": "pbkdf2_sha256$30000$KslEI0bl2UL5$4lg3CDhVljeJfI5s+RJ5pFMPs8gycT6bIAu2pf7SpLY=",
+    "last_login": "2017-08-22T13:45:40Z",
+    "is_superuser": false,
+    "username": "student",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2016-09-15T15:27:24Z",
+    "groups": [
+      3
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 2,
+  "fields": {
+    "password": "pbkdf2_sha256$30000$QAcbIaXX5aHy$lMvnhNwi8YrVtDq1inxlncUF+dQsZJHyz8TNoR8PoZA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tester",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2016-10-13T22:18:53.606Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 3,
+  "fields": {
+    "password": "pbkdf2_sha256$216000$z4UW2Jl4pLzD$FUYVWNhWvXyf7lADh/CZDFZvtUbKVLhOglpd5biyB/E=",
+    "last_login": "2021-02-28T22:09:57Z",
+    "is_superuser": true,
+    "username": "super",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2016-10-18T15:07:59Z",
+    "groups": [
+      1,
+      2,
+      4
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "pk": 4,
+  "fields": {
+    "password": "pbkdf2_sha256$30000$kFr9aIkw6DYA$fw7uMDs6WTnLoqceF6QtzMQDviA2AgZ1HIRNUgZVU98=",
+    "last_login": "2018-03-05T08:43:10Z",
+    "is_superuser": false,
+    "username": "view",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2018-03-05T08:42:48Z",
+    "groups": [
+      4
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 1,
+  "fields": {
+    "app_label": "admin",
+    "model": "logentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 2,
+  "fields": {
+    "app_label": "auth",
+    "model": "permission"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 3,
+  "fields": {
+    "app_label": "auth",
+    "model": "group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 4,
+  "fields": {
+    "app_label": "auth",
+    "model": "user"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 5,
+  "fields": {
+    "app_label": "contenttypes",
+    "model": "contenttype"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 6,
+  "fields": {
+    "app_label": "sessions",
+    "model": "session"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 7,
+  "fields": {
+    "app_label": "sites",
+    "model": "site"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 8,
+  "fields": {
+    "app_label": "exercises",
+    "model": "exercise"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 9,
+  "fields": {
+    "app_label": "exercises",
+    "model": "question"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 10,
+  "fields": {
+    "app_label": "exercises",
+    "model": "answer"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 11,
+  "fields": {
+    "app_label": "exercises",
+    "model": "imageanswer"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 12,
+  "fields": {
+    "app_label": "exercises",
+    "model": "exercisemeta"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 13,
+  "fields": {
+    "app_label": "exercises",
+    "model": "auditexercise"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 14,
+  "fields": {
+    "app_label": "exercises",
+    "model": "auditresponsefile"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 15,
+  "fields": {
+    "app_label": "exercises",
+    "model": "imageanswermanager"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 16,
+  "fields": {
+    "app_label": "course",
+    "model": "course"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 17,
+  "fields": {
+    "app_label": "users",
+    "model": "opentauser"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 18,
+  "fields": {
+    "app_label": "workqueue",
+    "model": "queuetask"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 19,
+  "fields": {
+    "app_label": "workqueue",
+    "model": "regradetask"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 20,
+  "fields": {
+    "app_label": "aggregation",
+    "model": "aggregation"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 21,
+  "fields": {
+    "app_label": "opentasites",
+    "model": "opentasite"
+  }
+},
+{
+  "model": "sites.site",
+  "pk": 3,
+  "fields": {
+    "domain": "example.com",
+    "name": "example.com"
+  }
+},
+{
+  "model": "course.course",
+  "pk": 1,
+  "fields": {
+    "opentasite": 1,
+    "course_name": "Course SUBDOMAIN",
+    "icon": "",
+    "motd": "",
+    "course_long_name": "Course SUBDOMAIN",
+    "registration_password": null,
+    "registration_by_password": false,
+    "deadline_time": "23:59:59",
+    "url": null,
+    "registration_domains": null,
+    "registration_by_domain": false,
+    "languages": null,
+    "difficulties": "+:Recommended,*:Easy,**:Medium,***:Hard",
+    "email_reply_to": "localhost",
+    "email_host": "localhost",
+    "email_host_user": null,
+    "email_username": "",
+    "email_host_password": null,
+    "published": false,
+    "use_auto_translation": false,
+    "google_auth_string": "",
+    "use_email": false,
+    "use_lti": false,
+    "owners": []
+  }
+},
+{
+  "model": "users.opentauser",
+  "pk": 1,
+  "fields": {
+    "user": 4,
+    "lti_user_id": null,
+    "lis_person_contact_email_primary": null,
+    "lti_tool_consumer_instance_guid": null,
+    "lti_context_id": null,
+    "lti_roles": null,
+    "lis_person_name_full": null,
+    "lis_person_name_given": null,
+    "lis_person_name_family": null,
+    "immutable_user_id": null,
+    "courses": []
+  }
+},
+{
+  "model": "users.opentauser",
+  "pk": 2,
+  "fields": {
+    "user": 3,
+    "lti_user_id": null,
+    "lis_person_contact_email_primary": null,
+    "lti_tool_consumer_instance_guid": null,
+    "lti_context_id": null,
+    "lti_roles": null,
+    "lis_person_name_full": null,
+    "lis_person_name_given": null,
+    "lis_person_name_family": null,
+    "immutable_user_id": null,
+    "courses": []
+  }
+},
+{
+  "model": "opentasites.opentasite",
+  "pk": 1,
+  "fields": {
+    "subdomain": "SUBDOMAIN",
+    "db_name": "DB_NAME",
+    "db_label": "SUBDOMAIN"
+  }
+}
 ]
