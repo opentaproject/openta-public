@@ -1,22 +1,23 @@
 #/bin/bash
+SSLMODE=disable
 export SUBDOMAIN=$1
-for i in /srv/multicourse/$1
+for i in /subdomain-data/$1
 do
     subdomain=`basename $i`
-    dbnamefile="/srv/multicourse/${subdomain}/dbname.txt"
+    dbnamefile="/subdomain-data/${subdomain}/dbname.txt"
     echo $dbnamefile
     if test -e $dbnamefile ; then
     	echo "FILE FOUND"
     	dbname=`cat $dbnamefile | tr -d '\n'`
     else 
     	echo "FILINITIALIZED"
-    	dbname="${subdomain}db"
+    	dbname="${subdomain}db231234"
     fi
     echo $dbname
-    mkdir -p /srv/multicourse/${subdomain}    # THIS SETS UP SETTINGS.PY TO MAKE A CONNECTION TO THE  DATABASE
+    mkdir -p /subdomain-data/${subdomain}    # THIS SETS UP SETTINGS.PY TO MAKE A CONNECTION TO THE  DATABASE
     echo $dbname > $dbnamefile
-    psql -U postgres -c "DROP DATABASE ${dbname};"
-    psql -U postgres -c "CREATE DATABASE ${dbname} OWNER openta;"
+    psql  -c "DROP DATABASE ${dbname};" # WORKS WITH SSSLMODE NOT SET
+    psql  -c "CREATE DATABASE ${dbname} OWNER postgres;"
 done
 #python manage.py migrate --database=${dbname}
 #python manage.py loaddata fixtures/auth.json --database=${dbname}
