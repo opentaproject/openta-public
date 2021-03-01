@@ -13,14 +13,16 @@ do
     	echo "FILE FOUND"
     	dbname=`cat $dbnamefile | tr -d '\n'`
     else 
+	randname=`head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | head -c 8`
     	echo "FILINITIALIZED"
-    	dbname="${subdomain}db231234"
+    	dbname=${randname}
     fi
     echo $dbname
     mkdir -p /subdomain-data/${subdomain}    # THIS SETS UP SETTINGS.PY TO MAKE A CONNECTION TO THE  DATABASE
     echo $dbname > $dbnamefile
-    psql  -c "DROP DATABASE ${dbname};" # WORKS WITH SSSLMODE NOT SET
-    psql  -c "CREATE DATABASE ${dbname} OWNER postgres;"
+    touch /subdomain-data/${subdomain}/subdomain-${subdomain}
+    psql  -U postgres -c "DROP DATABASE ${dbname};" # WORKS WITH SSSLMODE NOT SET
+    psql  -U postgres -c "CREATE DATABASE ${dbname} OWNER postgres;"
 done
 #python manage.py migrate --database=${dbname}
 #python manage.py loaddata fixtures/auth.json --database=${dbname}
