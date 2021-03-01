@@ -98,7 +98,7 @@ alphanumeric = RegexValidator(r'^[0-9a-z]*$', 'Only lowercase and numbers allowe
 
 
 class Course(models.Model):
-    opentasite = models.ForeignKey( OpenTASite , default=1 , on_delete=models.CASCADE, related_name='courses')
+    opentasite = models.CharField(max_length=255,default='')
     course_key = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
     course_name = models.CharField(max_length=255, default='OpenTA')
     lti_key = models.UUIDField(unique=True, default=uuid.uuid4)
@@ -156,11 +156,11 @@ class Course(models.Model):
         db_name = re.sub(r"\W", "", db_name)
         f.close()
         logger.info("DB_NAME = %s " % db_name ) 
-        opentasite ,_ =  OpenTASite.objects.get_or_create(subdomain=subdomain, db_name=db_name)
+        opentasite_obj ,_ =  OpenTASite.objects.get_or_create(subdomain=subdomain, db_name=db_name)
         #self.subdomain =  opentasite
         #opentasite.db_name = db_name
-        opentasite.save()
-        self.opentasite = opentasite
+        opentasite_obj.save()
+        self.opentasite = subdomain
         super().save(*args, **kwargs)  # Call the "real" save() method.
         try :
             defaultuser = User.objects.get_or_create(username='student')

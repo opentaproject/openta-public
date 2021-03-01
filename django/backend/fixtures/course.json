@@ -1281,7 +1281,7 @@
   "model": "course.course",
   "pk": 1,
   "fields": {
-    "opentasite": 1,
+    "opentasite": "SUBDOMAIN",
     "course_name": "Course SUBDOMAIN",
     "icon": "",
     "motd": "",

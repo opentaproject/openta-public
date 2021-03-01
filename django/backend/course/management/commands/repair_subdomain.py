@@ -3,6 +3,7 @@ from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 import logging
 from opentasites.models import OpenTASite
+from course.models import Course
 from django.conf import settings
 
 
@@ -15,3 +16,7 @@ class Command(BaseCommand):
             opentasite.subdomain = settings.SUBDOMAIN
             opentasite.db_label = 'moved from ' + opentasite.db_label 
             opentasite.save()
+        for course in Course.objects.all() :
+            course.opentasite = settings.SUBDOMAIN
+            course.save
+

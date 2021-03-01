@@ -13,7 +13,7 @@ do
     	echo "FILE FOUND"
     	dbname=`cat $dbnamefile | tr -d '\n'`
     else 
-	randname=`head /dev/urandom | LC_ALL=C tr -dc A-Za-z0-9 | head -c 8`
+	randname=`head /dev/urandom | LC_ALL=C tr -dc a-z0-9 | head -c 8`
     	echo "FILINITIALIZED"
     	dbname=${randname}
     fi
