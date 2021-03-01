@@ -17,6 +17,7 @@ class Command(BaseCommand):
             opentasite.db_label = 'moved from ' + opentasite.db_label 
             opentasite.save()
         for course in Course.objects.all() :
+            print("SETTINGS SUBDOMAIN = %s for course %s  " % ( course,  settings.SUBDOMAIN) )
             course.opentasite = settings.SUBDOMAIN
-            course.save
+            course.save()
 

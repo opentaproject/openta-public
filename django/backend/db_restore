@@ -17,12 +17,13 @@ do
 	if test -f ${dbfile} ; then
 		echo DBFILE = $dbfile
 		echo DBNAME = $dbname
-		psql -U postgres -c "DROP DATABASE $dbname;"
-		psql -U postgres -c "CREATE DATABASE $dbname OWNER postgres;"
+		#psql -U postgres -c "DROP DATABASE $dbname;"
+		#psql -U postgres -c "CREATE DATABASE $dbname OWNER postgres;"
 		echo Create datbase $dbname from $dbfile
-		cat $dbfile | pg_restore -U postgres -d $dbname
+		cat $dbfile | pg_restore -U postgres --no-owner -d $dbname
 	else
 		echo Cannot restore: $dbfile does not exist
 	fi
 	SUBDOMAIN=$subdomain python manage.py repair_subdomain
+	SUBDOMAIN=$subdomain python manage.py reinitialize
 done
