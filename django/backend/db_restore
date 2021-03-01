@@ -1,9 +1,9 @@
 #/bin/bash
-for i in /srv/multicourse/$1
+for i in /subdomain-data/$1
 do
 	subdomain=`basename $i`
 	echo $subdomain
-	dbnamefile="/srv/multicourse/${subdomain}/dbname.txt"
+	dbnamefile="/subdomain-data/${subdomain}/dbname.txt"
 	echo $dbnamefile
     	if test -e $dbnamefile ; then
     		echo "FILE FOUND"
@@ -18,10 +18,11 @@ do
 		echo DBFILE = $dbfile
 		echo DBNAME = $dbname
 		psql -U postgres -c "DROP DATABASE $dbname;"
-		psql -U postgres -c "CREATE DATABASE $dbname OWNER openta;"
+		psql -U postgres -c "CREATE DATABASE $dbname OWNER postgres;"
 		echo Create datbase $dbname from $dbfile
 		cat $dbfile | pg_restore -U postgres -d $dbname
 	else
 		echo Cannot restore: $dbfile does not exist
 	fi
+	SUBDOMAIN=$subdomain python manage.py repair_subdomain
 done

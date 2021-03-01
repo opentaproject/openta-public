@@ -1,10 +1,10 @@
 #/bin/bash
-for i in /srv/multicourse/$1
+for i in /subdomain-data/$1
 do
 	echo ${i}
 	subdomain=`basename $i`
 	echo $subdomain
-	dbnamefile="/srv/multicourse/${subdomain}/dbname.txt"
+	dbnamefile="/subdomain-data/${subdomain}/dbname.txt"
 	echo $dbnamefile
     	if test -e $dbnamefile ; then
     		echo "FILE FOUND"
@@ -14,5 +14,5 @@ do
 		break
 	fi
 	echo $subdomain $dbname
-	pg_dump -C -Fc $dbname > /srv/multicourse/${subdomain}/${dbname}.db
+	pg_dump -C -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db
 done
