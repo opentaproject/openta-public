@@ -22,7 +22,7 @@ do
     echo $dbname > $dbnamefile
     touch /subdomain-data/${subdomain}/subdomain-${subdomain}
     psql  -U postgres -c "DROP DATABASE ${dbname};" # WORKS WITH SSSLMODE NOT SET
-    psql  -U postgres -c "CREATE DATABASE ${dbname} OWNER postgres;"
+    psql  -U postgres -c "CREATE DATABASE ${dbname} OWNER openta;"
 done
 #python manage.py migrate --database=${dbname}
 #python manage.py loaddata fixtures/auth.json --database=${dbname}

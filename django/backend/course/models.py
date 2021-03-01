@@ -144,7 +144,10 @@ class Course(models.Model):
 
 
     def save(self, *args, **kwargs):
-        subdomain = str(self.opentasite)
+        try: 
+            subdomain = str(self.opentasite)
+        except:
+            self.opentasite = settings.SUBDOMAIN
         settings.DB_NAME = subdomain
         settings.SUBDOMAIN = subdomain
         logger.info("SAVE COURSE SUBDOMAIN = %s  " %  settings.SUBDOMAIN)
@@ -159,7 +162,7 @@ class Course(models.Model):
         opentasite_obj ,_ =  OpenTASite.objects.get_or_create(subdomain=subdomain, db_name=db_name)
         #self.subdomain =  opentasite
         #opentasite.db_name = db_name
-        opentasite_obj.save()
+        #opentasite_obj.save()
         self.opentasite = subdomain
         super().save(*args, **kwargs)  # Call the "real" save() method.
         try :

@@ -20,10 +20,40 @@ do
 		#psql -U postgres -c "DROP DATABASE $dbname;"
 		#psql -U postgres -c "CREATE DATABASE $dbname OWNER postgres;"
 		echo Create datbase $dbname from $dbfile
-		cat $dbfile | pg_restore -U postgres --no-owner -d $dbname
+		cat $dbfile | pg_restore -U openta  -d $dbname
 	else
 		echo Cannot restore: $dbfile does not exist
 	fi
 	SUBDOMAIN=$subdomain python manage.py repair_subdomain
 	SUBDOMAIN=$subdomain python manage.py reinitialize
 done
+
+#https://dba.stackexchange.com/questions/90258/pg-restore-archiver-db-could-not-execute-query-error-schema-public-alre
+
+
+#mbp:ffm521 ostlund$ psql -U postgres
+#psql (13.2)
+#Type "help" for help.
+#
+#postgres=# DROP DATABASE openta_2018
+#postgres-# ;
+#DROP DATABASE
+#postgres=# create DATABASE openta_2018;
+#CREATE DATABASE
+#postgres=# /c openta_2018;
+#ERROR:  syntax error at or near "/"
+#LINE 1: /c openta_2018;
+#        ^
+#postgres=# \c openta_2018;
+#You are now connected to database "openta_2018" as user "postgres".
+#openta_2018=# DROP SCHEMA IF EXISTS public;
+#DROP SCHEMA
+#openta_2018=# CREATE SCHEMA public;
+#CREATE SCHEMA
+#openta_2018=# 
+#\q
+#DROP DATABASE openta_2018
+#CREATE DATABASE openta_2018 OWNER openta;
+#DROP SCHEMA public;
+#cat /subdomain-data/ffm521old/openta_2018.db | pg_restore  -U postgres  --no-owner -d openta_2018
+###ALTER DATABASE name OWNER TO new_owner;
