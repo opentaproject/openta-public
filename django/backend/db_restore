@@ -17,16 +17,25 @@ do
 	if test -f ${dbfile} ; then
 		echo DBFILE = $dbfile
 		echo DBNAME = $dbname
-		#psql -U postgres -c "DROP DATABASE $dbname;"
-		#psql -U postgres -c "CREATE DATABASE $dbname OWNER postgres;"
+		psql -U postgres -c "DROP DATABASE $dbname;"
+		psql -U postgres -c "CREATE DATABASE $dbname OWNER postgres;"
 		echo Create datbase $dbname from $dbfile
-		cat $dbfile | pg_restore -U openta  -d $dbname
+		cat $dbfile | pg_restore -U postgres --no-owner -d $dbname
 	else
 		echo Cannot restore: $dbfile does not exist
 	fi
+	SUBDOMAIN=$subdomain python manage.py migrate --database=$subdomain
 	SUBDOMAIN=$subdomain python manage.py repair_subdomain
-	SUBDOMAIN=$subdomain python manage.py reinitialize
+	#SUBDOMAIN=$subdomain python manage.py reinitialize
+	#SUBDOMAIN=$subdomain python manage.py calculate_results
 done
+# db_init fim770
+# db_migrate fim770
+# db_loaddata fim770
+# db_init fim770 
+# db_restore fim770
+# db_migrate fim770
+
 
 #https://dba.stackexchange.com/questions/90258/pg-restore-archiver-db-could-not-execute-query-error-schema-public-alre
 
@@ -57,3 +66,16 @@ done
 #DROP SCHEMA public;
 #cat /subdomain-data/ffm521old/openta_2018.db | pg_restore  -U postgres  --no-owner -d openta_2018
 ###ALTER DATABASE name OWNER TO new_owner;
+#621  ls
+#  622  ./db_init ffm521old
+#  623  ./db_migrate ffm521old
+#  624  ./db_loaddata ffm521old
+#  625  ./db_restore ffm521old
+#  626  pyrun
+#  627  history
+#  628  ./db_init ffm521old
+#  629  ./db_restore ffm521old
+#  630  ./db_migrate ffm521old
+#  631  pyrun
+#  632  history
+

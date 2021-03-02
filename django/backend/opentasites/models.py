@@ -20,7 +20,7 @@ class OpenTASite(models.Model ):
     subdomain = models.CharField(max_length=4096, editable=True) 
     db_name = models.CharField(max_length=4096,  editable=True)
     db_label= models.CharField(max_length=4096,  editable=True)
-    objects = models.Manager()
+    #objects = models.Manager()
 
     def __str__(self):
         return self.subdomain

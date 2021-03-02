@@ -84,7 +84,7 @@ logger = logging.getLogger(__file__)
 #
 # FROM class CacheRouter in django project
 
-default_models = ['django_cache','workqueue','sites']
+default_models = ['django_cache','workqueue','sites','opentasites']
 site_models = ['']
 
 class AuthRouter:
@@ -92,7 +92,7 @@ class AuthRouter:
 
     def db_for_read(self, model, **hints):
         "All cache read operations go to the replica"
-        #logger.info("READ MODEL label = %s " %  model._meta.app_label)
+        logger.info("READ MODEL label = %s " %  model._meta.app_label)
         if settings.RUNTESTS or model._meta.app_label in default_models :
             return 'default'
         elif model._meta.app_label in site_models :
@@ -106,7 +106,7 @@ class AuthRouter:
         return settings.DB_NAME
 
     def db_for_write(self, model, **hints):
-        #logger.info("WRIT MODEL label = %s  %s " %  ( model._meta.app_label, settings.DB_NAME ) )
+        logger.info("WRIT MODEL label = %s  %s " %  ( model._meta.app_label, settings.DB_NAME ) )
         if settings.RUNTESTS or model._meta.app_label in default_models :
             return 'default'
         elif model._meta.app_label in site_models :

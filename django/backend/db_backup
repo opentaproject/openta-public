@@ -14,5 +14,6 @@ do
 		break
 	fi
 	echo $subdomain $dbname
-	pg_dump -C -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db
+	#pg_dump -C -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db
+	pg_dump -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db
 done

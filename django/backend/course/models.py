@@ -147,7 +147,7 @@ class Course(models.Model):
         try: 
             subdomain = str(self.opentasite)
         except:
-            self.opentasite = settings.SUBDOMAIN
+            subdomain = settings.SUBDOMAIN
         settings.DB_NAME = subdomain
         settings.SUBDOMAIN = subdomain
         logger.info("SAVE COURSE SUBDOMAIN = %s  " %  settings.SUBDOMAIN)
