@@ -61,7 +61,7 @@ def e_student_activity(exercise):
     (cache, cachekey) = get_cache_and_key(
         'e_student_activity:', coursePk=coursePk, exercise_key=exercise.exercise_key
     )
-    if cache.has_key(cachekey):
+    if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
         return cache.get(cachekey)
     t1h = timezone.now() - datetime.timedelta(hours=1)
     t24h = timezone.now() - datetime.timedelta(hours=24)
@@ -297,10 +297,10 @@ def serialize_exercise_with_question_data(exercise, user, hijacked):
     """
     # assert exercise.meta.published, "EXERCISE IS NOT PUBLISHED"
     course = exercise.course
-    (cache, cachekey) = get_cache_and_key(
+    (cache, cachekey) = settings.USE_RESULTS_CACHE and get_cache_and_key(
         "serialized_exercise_with_question_data:", exercise.exercise_key, user.pk, course.id
     )
-    if cache.has_key(cachekey):
+    if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
         return cache.get(cachekey)
     exercise_render = get_exercise_render(user, course.id, exercise.exercise_key)
     questions = Question.objects.filter(exercise=exercise)

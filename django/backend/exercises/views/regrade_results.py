@@ -13,7 +13,7 @@ from rest_framework.decorators import api_view
 from django.contrib.auth.decorators import permission_required
 from rest_framework.response import Response
 from django.http import HttpResponse
-from aggregation.models import Aggregation, get_cache_and_key, STATISTICS_CACHE_TIMEOUT
+from aggregation.models import Aggregation,  STATISTICS_CACHE_TIMEOUT
 from workqueue.models import RegradeTask
 import workqueue.util as workqueue
 from messages import error, embed_messages

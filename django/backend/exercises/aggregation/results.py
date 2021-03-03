@@ -39,25 +39,22 @@ def students_results(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, task=N
     logger.info("STUDENTS_RESULTS WAS CALLED")
     logger.info("DO STUDENTS_RESULTS COURSE = %s " % course)
     # TODO RESTOR CACHING
-    #(cache, cachekey) = get_cache_and_key('students_results:', coursePk=course.course_key)
-    #result = cache.get(cachekey)
-    #if result is not None and not force:
-    #    return result
+    (cache, cachekey) = get_cache_and_key('students_results:', coursePk=course.course_key)
+    result = cache.get(cachekey)
+    if settings.USE_RESULTS_CACHE and result is not None and not force:
+        return result
     result = calculate_students_results(task, course=course)
-    #if cachekey:
-    #    cache.set(cachekey, result)
+    if cachekey:
+        cache.set(cachekey, result)
     return result
 
 
-
-def student_statistics_exercises(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, course=None):
-    (cache, cachekey) = get_cache_and_key('student_statistics_exercises:', coursePk=course.course_key)
 
 
 def student_statistics_exercises(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, course=None):
     (cache, cachekey) = get_cache_and_key('student_statistics_exercises:', coursePk=course.course_key)
     result = cache.get(cachekey)
-    if result is not None and not force:
+    if settings.USE_RESULTS_CACHE and result is not None and not force:
         return result
     result = calculate_student_statistics_exercises(course=course)
     if cachekey:
@@ -124,8 +121,8 @@ def serialize_exercise_data_for_course(course, exercise):
     (cache, cachekey) = get_cache_and_key(
         'exercise_data_for_course:', coursePk=course.course_key, exercise_key=exercise.exercise_key
     )
-    #if cache.has_key(cachekey):
-    #    return cache.get(cachekey)
+    if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
+        return cache.get(cachekey)
     users = bonafide_students.filter(opentauser__courses=course)
     nstudents = users.count()
     serializer = ExerciseSerializer(exercise)
@@ -213,6 +210,8 @@ def get_exercise_render(user, course_pk,exercise):
 
 
 def calculate_unsafe_user_summary(user_pk, course_pk, dbexercises):
+    settings.SUBDOMAIN = 'vektorfalt'
+    settings.DB_NAME = 'vektorfalt'
     logger.info("UNSAFE GLOBALS SUBDOMAIN = %s DB_NAME=  %s " % ( settings.SUBDOMAIN, settings.DB_NAME) )
     settings.SUBDOMAIN=settings.DB_NAME
     student = User.objects.get(pk=user_pk)
