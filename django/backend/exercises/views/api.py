@@ -263,19 +263,21 @@ def user_exercise_list(request, course_pk, user_pk):
 
 
 def get_unsafe_exercise_summary(user, course_pk, dbexercises):
-    logger.debug("GET_UNSAFE_EXERCISE_SUMMARY")
-    cachekey = None
-    if dbexercises == None:
-        logger.debug("DBEXERCISE = None")
-    else:
-        logger.debug("DBEXERCISE IS NOT NONE")
-    if dbexercises is None:
-        (cache, cachekey) = get_cache_and_key(
-            'get_unsafe_exercise_summary:', userPk=user, coursePk=course_pk
-        )
-        if cache.has_key(cachekey):
-            sums = cache.get(cachekey)
-            return sums
+    logger.debug("GET_UNSAFE_EXERCISE_SUMMARY for %s %s " % ( settings.DB_NAME, settings.SUBDOMAIN)  )
+    #cachekey = None
+    #if dbexercises == None:
+    #    logger.debug("DBEXERCISE = None")
+    #else:
+    #    logger.debug("DBEXERCISE IS NOT NONE")
+    #if dbexercises is None:
+    #    (cache, cachekey) = get_cache_and_key(
+    #        'get_unsafe_exercise_summary:', userPk=user, coursePk=course_pk
+    #    )
+    #    if cache.has_key(cachekey):
+    #        sums = cache.get(cachekey)
+    #        return sums
+    settings.DB_NAME='vektorfalt'
+    settings.SUBDOMAIN='vektorfalt'
     ags = Aggregation.objects.filter(user=user, course=course_pk, exercise__meta__published=True)
     if not dbexercises is None:
         ags = ags.filter(exercise__in=dbexercises)
@@ -337,8 +339,8 @@ def get_unsafe_exercise_summary(user, course_pk, dbexercises):
         complete_by_deadline=True
     ).count()  # n_complete_bonus + n_complete_required + n_optional,
     sums['total_complete_no_deadline'] = ags.filter(all_complete=True).count()
-    if not cachekey is None:
-        cache.set(cachekey, sums, settings.CACHE_LIFETIME)
+    #if not cachekey is None:
+    #    cache.set(cachekey, sums, settings.CACHE_LIFETIME)
     return sums
 
 

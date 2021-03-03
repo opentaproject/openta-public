@@ -13,6 +13,7 @@ def enqueue_task(name, func, *args, owner=None, subdomain=None , **kwargs):
     LOGGER.info("ENQUEUE subdomain = %s " % subdomain )
     if subdomain == None:
         subdomain = settings.DB_NAME
+        LOGGER.info("ENQUEUE subdomain changed to = %s " % subdomain )
     task = QueueTask.objects.create(name=name, owner=owner,subdomain=subdomain)
     try:
         job = django_rq.enqueue(func, *args, task=task, job_id=str(task.pk), **kwargs)
@@ -30,9 +31,16 @@ def enqueue_task(name, func, *args, owner=None, subdomain=None , **kwargs):
 
 def task_result(task_pk):
     try:
+        LOGGER.info("TASK RESULT PK = %s " % str( task_pk) )
         queue = django_rq.get_queue()
-        return queue.fetch_job(str(task_pk)).result
-    except:
+        LOGGER.info("TASK RESULT QUEUE = %s " % queue )
+        job = queue.fetch_job(str(task_pk))
+        LOGGER.info("TASK RESULT JOB = %s " % str(job) )
+        res = job.result
+        LOGGER.info("WORKQUEUE TASK_RESULELEN RES = %s " % len( str(res) ) )
+        return res
+    except Exception as e:
+        LOGGER.info("ERROR = %s " % str(e) )
         return None
 
 

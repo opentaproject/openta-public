@@ -33,9 +33,11 @@ def get_statistics_per_exercise(request, course_pk):
 @api_view(['GET'])
 def get_results_async(request, course_pk):
     dbcourse = Course.objects.get(pk=course_pk)
+    subdomain = settings.SUBDOMAIN
+    logger.info("GET RESULTS ASYNC SUBDOMAIN = %s " % subdomain )
     try:
         task_id = workqueue.enqueue_task(
-            "student_results", students_results_async_pipeline, course=dbcourse
+            "student_results", students_results_async_pipeline, course=dbcourse, subdomain=subdomain
         )
         return Response({'task_id': task_id})
     except WorkQueueError as e:

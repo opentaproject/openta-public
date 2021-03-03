@@ -23,16 +23,14 @@ class Command(BaseCommand):
         opentasite, _ = OpenTASite.objects.get_or_create( subdomain=settings.SUBDOMAIN , db_name=db_name )
         #    print("OPENTASITES DID NOT EXIST")
         #    pass
-        #opentasite.subdomain = settings.SUBDOMAIN
-        #opentasite.db_label = 'moved from ' + opentasite.db_label 
-        #opentasite.save()
+        opentasite.subdomain = settings.SUBDOMAIN
+        opentasite.db_label = 'moved from ' + opentasite.db_label 
+        opentasite.save()
         print("SUBDOMAIN = %s %s %s %s " % ( opentasite.id, opentasite.subdomain, opentasite.db_name, opentasite.db_label ) )
-        #opentasite.save()
-        #print("OPENTASITES = %s " % opentasites)
-        #if True : # or len( opentasites ) == 0:
-        #    print("OPENTASITES HAS LENGHT 0 ")
-        #    opentasite = OpenTASite(subdomain=settings.SUBDOMAIN, db_name=settings.DB_NAME, db_label=settings.SUBDOMAIN)
-        #    opentasite.save()
+        opentasite.save()
+        print("OPENTASITES = %s " % opentasites)
+        opentasite = OpenTASite(subdomain=settings.SUBDOMAIN, db_name=settings.DB_NAME, db_label=settings.SUBDOMAIN)
+        opentasite.save()
         courses = Course.objects.all()
         print("COURSES = %s " % len( courses) )
         for course in courses :

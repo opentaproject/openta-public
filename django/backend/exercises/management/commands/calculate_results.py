@@ -14,11 +14,14 @@ class Command(BaseCommand):
         logger.info('Started calculating results and statistics')
         for course in Course.objects.all():
             if True or course.published:
+                published = course.published;
+                course.published = True
                 logger.info("Calculating for course {}".format(course.course_name))
                 student_statistics_exercises(force=True, course=course)
                 logger.info('Statistics done, now doing results.')
                 students_results(force=True, course=course)
                 logger.info('Finished calculating results and statistics')
+                course.published = published
             else:
                 logger.info(
                     "Skip calculating results for unpublished course {}".format(course.course_name)

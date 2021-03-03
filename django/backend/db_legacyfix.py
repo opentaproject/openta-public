@@ -3,8 +3,8 @@ from users.models import OpenTAUser
 from django.contrib.auth.models import User
 from django.conf import settings
 from exercises.models import Exercise
-settings.DB_NAME='nn-2017'
-settings.SUBDOMAIN='nn-2017'
+settings.DB_NAME='ffy143-2019'
+settings.SUBDOMAIN='ffy143-2019'
 users = User.objects.all();
 course = Course.objects.get(pk=1);
 print("COURSE PK = ", course.pk)

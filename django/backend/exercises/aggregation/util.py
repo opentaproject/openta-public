@@ -46,13 +46,14 @@ def excel_custom_results_pipeline(dbexercises, task, course):
 def students_results_async_pipeline(task, course):
     task.status = "Working"
     task.save()
-    fp = open("/tmp/debug.txt",'a+')
-    fp.write("STUDENTS_RESULTS_ASYNC_PIPELINE STARTED\n")
+    logger.info("STUDENTS_RESULTS_ASYNC_PIPELINE STARTED with course = %s " % course)
+    logger.info("CALL STUDENTS RESULTS")
     result = students_results(task=task, course=course)
-    fp.write("STUDENTS_RESULTS_ASYNC_PIPELINE ENDED\n")
-    fp.close()
+    logger.info("STUDENTS_RESULTS_ASYNC_PIPELINE ENDED")
     task.done = True
-    task.status = "Working"
+    task.status = "Done"
     task.progress = 100
+    logger.info("STUDENTS_RESULTS_ASYNC_PIPELINE RESULT =  %s " % len(  result) ) 
+    task.result = result
     task.save()
     return result

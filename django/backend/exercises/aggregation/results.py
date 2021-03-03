@@ -36,23 +36,26 @@ logger = logging.getLogger(__name__)
 
 
 def students_results(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, task=None, course=None):
-    (cache, cachekey) = get_cache_and_key('students_results:', coursePk=course.id)
-    result = cache.get(cachekey)
-    if result is not None and not force:
-        return result
+    logger.info("STUDENTS_RESULTS WAS CALLED")
+    logger.info("DO STUDENTS_RESULTS COURSE = %s " % course)
+    # TODO RESTOR CACHING
+    #(cache, cachekey) = get_cache_and_key('students_results:', coursePk=course.course_key)
+    #result = cache.get(cachekey)
+    #if result is not None and not force:
+    #    return result
     result = calculate_students_results(task, course=course)
-    if cachekey:
-        cache.set(cachekey, result)
+    #if cachekey:
+    #    cache.set(cachekey, result)
     return result
 
 
 
 def student_statistics_exercises(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, course=None):
-    (cache, cachekey) = get_cache_and_key('student_statistics_exercises:', coursePk=course.pk)
+    (cache, cachekey) = get_cache_and_key('student_statistics_exercises:', coursePk=course.course_key)
 
 
 def student_statistics_exercises(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, course=None):
-    (cache, cachekey) = get_cache_and_key('student_statistics_exercises:', coursePk=course.pk)
+    (cache, cachekey) = get_cache_and_key('student_statistics_exercises:', coursePk=course.course_key)
     result = cache.get(cachekey)
     if result is not None and not force:
         return result
@@ -96,12 +99,15 @@ def calculate_students_custom_results(dbexercises, task=None, course=None):
 
 
 def calculate_students_results(task=None, course=None):
+    logger.info("CALCULATE STUDENTS_RESULTS FOR COURSE %s " % course)
+    settings.DB_NAME = course.opentasite
+    logger.info("CALCULATE STUDENTS_RESULTS DB_NAME = %s " % settings.DB_NAME)
     students = (
         User.objects.filter(groups__name='Student', opentauser__courses=course)
         .exclude(username='student')
-        .order_by('first_name')
     )
     results = []
+    logger.info("STUDENTS = %s " % students)
     n_students = students.count()
     for index, student in enumerate(students):
         if task is not None:
@@ -116,10 +122,10 @@ def calculate_students_results(task=None, course=None):
 
 def serialize_exercise_data_for_course(course, exercise):
     (cache, cachekey) = get_cache_and_key(
-        'exercise_data_for_course:', coursePk=course.id, exercise_key=exercise.exercise_key
+        'exercise_data_for_course:', coursePk=course.course_key, exercise_key=exercise.exercise_key
     )
-    if cache.has_key(cachekey):
-        return cache.get(cachekey)
+    #if cache.has_key(cachekey):
+    #    return cache.get(cachekey)
     users = bonafide_students.filter(opentauser__courses=course)
     nstudents = users.count()
     serializer = ExerciseSerializer(exercise)
@@ -207,13 +213,15 @@ def get_exercise_render(user, course_pk,exercise):
 
 
 def calculate_unsafe_user_summary(user_pk, course_pk, dbexercises):
+    logger.info("UNSAFE GLOBALS SUBDOMAIN = %s DB_NAME=  %s " % ( settings.SUBDOMAIN, settings.DB_NAME) )
+    settings.SUBDOMAIN=settings.DB_NAME
     student = User.objects.get(pk=user_pk)
     course = Course.objects.get(pk=course_pk)
     tz = pytz.timezone('Europe/Stockholm')
     deadline_time = datetime.time(23, 59, 59)
     if course is not None and course.deadline_time is not None:
         deadline_time = course.deadline_time
-
+    logger.info("CALCULATE_UNSAFE_USER_SUMMARY %s " % len( str( dbexercises )) )
     sums = get_unsafe_exercise_summary(user_pk, course_pk, dbexercises)
     required = sums['required']
     bonus = sums['bonus']

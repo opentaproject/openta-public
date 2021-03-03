@@ -26,6 +26,7 @@ do
 	fi
 	SUBDOMAIN=$subdomain python manage.py migrate --database=$subdomain
 	SUBDOMAIN=$subdomain python manage.py repair_subdomain
+	#SUBDOMAIN=$subdomain python manage.py calculate_results
 	#SUBDOMAIN=$subdomain python manage.py reinitialize
 	#SUBDOMAIN=$subdomain python manage.py calculate_results
 done
@@ -79,3 +80,8 @@ done
 #  631  pyrun
 #  632  history
 
+#postgres=# \c fdmewxor;
+#You are now connected to database "fdmewxor" as user "postgres".
+#fdmewxor=# ALTER TABLE course_course
+#fdmewxor-# DROP COLUMN use_lti;
+#ALTER TABLE
