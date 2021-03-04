@@ -61,8 +61,9 @@ def e_student_activity(exercise):
     (cache, cachekey) = get_cache_and_key(
         'e_student_activity:', coursePk=coursePk, exercise_key=exercise.exercise_key
     )
-    if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
-        return cache.get(cachekey)
+    if settings.USE_RESULTS_CACHE :
+        if  cache.has_key(cachekey):
+            return cache.get(cachekey)
     t1h = timezone.now() - datetime.timedelta(hours=1)
     t24h = timezone.now() - datetime.timedelta(hours=24)
     t1w = timezone.now() - datetime.timedelta(days=7)
@@ -297,11 +298,11 @@ def serialize_exercise_with_question_data(exercise, user, hijacked):
     """
     # assert exercise.meta.published, "EXERCISE IS NOT PUBLISHED"
     course = exercise.course
-    (cache, cachekey) = settings.USE_RESULTS_CACHE and get_cache_and_key(
-        "serialized_exercise_with_question_data:", exercise.exercise_key, user.pk, course.id
-    )
-    if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
-        return cache.get(cachekey)
+    if settings.USE_RESULTS_CACHE :
+        (cache, cachekey) = settings.USE_RESULTS_CACHE and get_cache_and_key(
+            "serialized_exercise_with_question_data:", exercise.exercise_key, user.pk, course.id)
+        if cache.has_key(cachekey):
+            return cache.get(cachekey)
     exercise_render = get_exercise_render(user, course.id, exercise.exercise_key)
     questions = Question.objects.filter(exercise=exercise)
     try:
@@ -401,7 +402,7 @@ def serialize_exercise_with_question_data(exercise, user, hijacked):
         data['show_check'] = False
         data['questions_exist'] = True
         data['points'] = ''
-    cache.set(cachekey, data, settings.CACHE_LIFETIME)
+    #cache.set(cachekey, data, settings.CACHE_LIFETIME)
     return data
 
 

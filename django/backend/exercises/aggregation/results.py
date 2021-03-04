@@ -5,7 +5,7 @@ from exercises.modelhelpers import serialize_exercise_with_question_data, get_ex
 import json
 from exercises.serializers import ExerciseSerializer, AnswerSerializer, ImageAnswerSerializer
 from django.conf import settings
-from exercises.views import get_exercise_list, get_unsafe_exercise_summary
+from exercises.views import get_unsafe_exercise_summary
 from course.models import Course
 from django.contrib.auth.models import User
 from django.db.models import Prefetch, Q
@@ -72,7 +72,7 @@ def student_statistics_exercises(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=F
 #    testfile.close()
 
 
-def calculate_students_custom_results(dbexercises, task=None, course=None):
+def calculate_students_custom_results(dbexercises, task, course):
     students = (
         User.objects.filter(groups__name='Student', opentauser__courses=course)
         .exclude(username='student')
@@ -80,12 +80,13 @@ def calculate_students_custom_results(dbexercises, task=None, course=None):
     )
     results = []
     n_students = students.count()
+    subdomain=task.subdomain
     for index, student in enumerate(students):
         if task is not None:
             task.status = "Calculating custom results in aggregation.results.py "
             task.progress = round(((index + 1) / n_students) * 100)
             task.save()
-        results.append(calculate_unsafe_user_summary(student.pk, course.id, dbexercises))
+        results.append(calculate_unsafe_user_summary(student.pk, course.id , subdomain ,dbexercises))
         if True or logger.isEnabledFor(logging.DEBUG):
             logger.debug("Adding result for " + student.username)
             if dbexercises:
@@ -95,9 +96,10 @@ def calculate_students_custom_results(dbexercises, task=None, course=None):
     return results
 
 
-def calculate_students_results(task=None, course=None):
+def calculate_students_results(task, course):
+    subdomain = task.subdomain
     logger.info("CALCULATE STUDENTS_RESULTS FOR COURSE %s " % course)
-    settings.DB_NAME = course.opentasite
+    settings.DB_NAME = subdomain
     logger.info("CALCULATE STUDENTS_RESULTS DB_NAME = %s " % settings.DB_NAME)
     students = (
         User.objects.filter(groups__name='Student', opentauser__courses=course)
@@ -111,7 +113,7 @@ def calculate_students_results(task=None, course=None):
             task.status = "Calculating results in aggregation.results.py "
             task.progress = round(((index + 1) / n_students) * 100)
             task.save()
-        results.append(calculate_unsafe_user_summary(student.pk, course.id, None))
+        results.append(calculate_unsafe_user_summary(student.pk, course.id,  subdomain, None ))
         if True or logger.isEnabledFor(logging.DEBUG):
             logger.debug("Adding result for " + student.username)
     return results
@@ -209,11 +211,10 @@ def get_exercise_render(user, course_pk,exercise):
 
 
 
-def calculate_unsafe_user_summary(user_pk, course_pk, dbexercises):
-    settings.SUBDOMAIN = 'vektorfalt'
-    settings.DB_NAME = 'vektorfalt'
+def calculate_unsafe_user_summary(user_pk, course_pk, subdomain, dbexercises):
     logger.info("UNSAFE GLOBALS SUBDOMAIN = %s DB_NAME=  %s " % ( settings.SUBDOMAIN, settings.DB_NAME) )
-    settings.SUBDOMAIN=settings.DB_NAME
+    settings.DB_NAME = subdomain
+    settings.SUBDOMAIN = subdomain
     student = User.objects.get(pk=user_pk)
     course = Course.objects.get(pk=course_pk)
     tz = pytz.timezone('Europe/Stockholm')

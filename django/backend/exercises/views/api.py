@@ -224,7 +224,7 @@ def exercise_list(request, course_pk):
     if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
         responselist = cache.get(cachekey)
     else:
-        responselist = get_exercise_list(user, course_pk, hijacked, False)
+        responselist = get_exercise_list(user, course_pk, hijacked, False,None)
 
         if not user.is_staff:
             if cachekey:
@@ -248,7 +248,7 @@ def user_exercise_list(request, course_pk, user_pk):
     if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
         responselist = cache.get(cachekey)
         return Response(responselist)
-    responselist = get_exercise_list(user, course_pk, False, True)
+    responselist = get_exercise_list(user, course_pk, False, True,None)
     all_exercise_keys = Exercise.objects.filter(
         course__pk=course_pk, meta__published=True
     ).values_list('exercise_key', flat=True)
@@ -276,8 +276,6 @@ def get_unsafe_exercise_summary(user, course_pk, dbexercises):
         if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
             sums = cache.get(cachekey)
             return sums
-    settings.DB_NAME='vektorfalt'
-    settings.SUBDOMAIN='vektorfalt'
     ags = Aggregation.objects.filter(user=user, course=course_pk, exercise__meta__published=True)
     if not dbexercises is None:
         ags = ags.filter(exercise__in=dbexercises)
@@ -344,7 +342,7 @@ def get_unsafe_exercise_summary(user, course_pk, dbexercises):
     return sums
 
 
-def get_exercise_list(user, course_pk, hijacked, force_feedback, dbexercises=None):
+def get_exercise_list(user, course_pk, hijacked, force_feedback,  dbexercises):
     """
     List all exercises
     """
