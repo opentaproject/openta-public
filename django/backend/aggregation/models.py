@@ -231,7 +231,7 @@ class Aggregation(models.Model):
         timebegin = time.time()
         for prefix in cache_prefixes:
             (cache, cachekey) = get_cache_and_key(
-                prefix, exercise_key=exercise.exercise_key, userPk=userPk, coursePk=coursePk
+                prefix, exercise_key=exercise.exercise_key, userPk=userPk, coursePk=course.opentasite
             )
             # print("DELETE ", cachekey )
             cache.delete(cachekey)

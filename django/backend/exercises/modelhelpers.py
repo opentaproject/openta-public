@@ -57,7 +57,7 @@ def e_student_activity(exercise):
     # return {
     #    'activity': {'1h': 0 , '24h': 0, '1w': 0 , 'all': 0}
     # }
-    coursePk = exercise.course.pk
+    coursePk = exercise.course.opentasite
     (cache, cachekey) = get_cache_and_key(
         'e_student_activity:', coursePk=coursePk, exercise_key=exercise.exercise_key
     )
@@ -300,7 +300,7 @@ def serialize_exercise_with_question_data(exercise, user, hijacked):
     course = exercise.course
     if settings.USE_RESULTS_CACHE :
         (cache, cachekey) = settings.USE_RESULTS_CACHE and get_cache_and_key(
-            "serialized_exercise_with_question_data:", exercise.exercise_key, user.pk, course.id)
+            "serialized_exercise_with_question_data:", exercise.exercise_key, user.pk, course.opentasite)
         if cache.has_key(cachekey):
             return cache.get(cachekey)
     exercise_render = get_exercise_render(user, course.id, exercise.exercise_key)

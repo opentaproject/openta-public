@@ -219,7 +219,7 @@ def exercise_list(request, course_pk):
     hijacked = request.session.get('hijacked', False)
     user = request.user
     (cache, cachekey) = get_cache_and_key(
-        'safe_user_cache:', userPk=str(user.pk), coursePk=course_pk
+        'safe_user_cache:', userPk=str(user.pk), coursePk=settings.SUBDOMAIN
     )
     if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
         responselist = cache.get(cachekey)
@@ -244,7 +244,7 @@ def user_exercise_list(request, course_pk, user_pk):
     # AND THUS DOES NOT HIDE CORRECTNESS OF NO_FEEDBACK QUESTIONS
     # IT HAS ITS OWN CACHE
     #
-    (cache, cachekey) = get_cache_and_key('unsafe_user_cache:', userPk=user_pk, coursePk=course_pk)
+    (cache, cachekey) = get_cache_and_key('unsafe_user_cache:', userPk=user_pk, coursePk=settings.SUBDOMAIN)
     if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
         responselist = cache.get(cachekey)
         return Response(responselist)
@@ -271,7 +271,7 @@ def get_unsafe_exercise_summary(user, course_pk, dbexercises):
         logger.debug("DBEXERCISE IS NOT NONE")
     if dbexercises is None:
         (cache, cachekey) = get_cache_and_key(
-            'get_unsafe_exercise_summary:', userPk=user, coursePk=course_pk
+            'get_unsafe_exercise_summary:', userPk=user, coursePk=settings.SUBDOMAIN
         )
         if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
             sums = cache.get(cachekey)

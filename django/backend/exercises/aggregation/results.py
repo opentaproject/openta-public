@@ -39,7 +39,7 @@ def students_results(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, task=N
     logger.info("STUDENTS_RESULTS WAS CALLED")
     logger.info("DO STUDENTS_RESULTS COURSE = %s " % course)
     # TODO RESTOR CACHING
-    (cache, cachekey) = get_cache_and_key('students_results:', coursePk=course.course_key)
+    (cache, cachekey) = get_cache_and_key('students_results:', coursePk=course.opentasite)
     result = cache.get(cachekey)
     if settings.USE_RESULTS_CACHE and result is not None and not force:
         return result
@@ -52,7 +52,7 @@ def students_results(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, task=N
 
 
 def student_statistics_exercises(cache_seconds=STATISTICS_CACHE_TIMEOUT, force=False, course=None):
-    (cache, cachekey) = get_cache_and_key('student_statistics_exercises:', coursePk=course.course_key)
+    (cache, cachekey) = get_cache_and_key('student_statistics_exercises:', coursePk=course.opentasite)
     result = cache.get(cachekey)
     if settings.USE_RESULTS_CACHE and result is not None and not force:
         return result
@@ -121,7 +121,7 @@ def calculate_students_results(task, course):
 
 def serialize_exercise_data_for_course(course, exercise):
     (cache, cachekey) = get_cache_and_key(
-        'exercise_data_for_course:', coursePk=course.course_key, exercise_key=exercise.exercise_key
+        'exercise_data_for_course:', coursePk=course.course_key, exercise_key=exercise.course.opentasite
     )
     if settings.USE_RESULTS_CACHE and cache.has_key(cachekey):
         return cache.get(cachekey)

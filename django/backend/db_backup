@@ -1,19 +1,18 @@
 #/bin/bash
+hash=`git rev-parse --short HEAD`
 for i in /subdomain-data/$1
 do
-	echo ${i}
 	subdomain=`basename $i`
-	echo $subdomain
 	dbnamefile="/subdomain-data/${subdomain}/dbname.txt"
-	echo $dbnamefile
+	mkdir -p "/subdomain-data/${subdomain}/backups"
     	if test -e $dbnamefile ; then
-    		echo "FILE FOUND"
     		dbname=`cat $dbnamefile | tr -d '\n'`
-        else 
-    		echo "FILINITIALIZED"
-		break
+		#pg_dump -C -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db
+		pg_dump -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db
+		cp /subdomain-data/${subdomain}/${dbname}.db  /subdomain-data/${subdomain}/backups/${dbname}-${hash}.db 
+		echo "subdomain ${subdomain} with datatabse ${dbname} was backed up to  ${dbname}-${hash}.db "
+
 	fi
-	echo $subdomain $dbname
-	#pg_dump -C -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db
-	pg_dump -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db
+
+ 
 done
