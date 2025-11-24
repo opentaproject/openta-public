@@ -1,0 +1,18 @@
+{% load i18n %}
+{% autoescape off %}
+{% blocktrans %}
+
+Hello,
+
+User with email ({{ email }}) has been invited to join {{ site_name }}
+
+Go to 
+
+{{ invite_url }} 
+
+login:   USERNAME
+password: {{key}} 
+
+
+{% endblocktrans %}
+{% endautoescape %}

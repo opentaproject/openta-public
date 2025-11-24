@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+   <link rel="stylesheet" href="{% static "css/uikit.css" %}" />
+
+  <meta charset="utf-8" />
+  <title>Send Many Invites</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    .field { margin-bottom: 1rem; }
+    .results { margin-top: 2rem; }
+   textarea {
+    height: 1.5em;     /* or any small height you want */
+    width: 80ch;
+	}
+  </style>
+  </head>
+<body>
+  <h3>Send invitations to join the course.</h3>
+  <form method="post">
+    {% csrf_token %}
+    <div class="field">
+      <label for="id_emails">comma-separated list of emails</label><br />
+      {{ form.emails }}
+      {% if form.emails.help_text %}<div class="help">{{ form.emails.help_text|safe }}</div>{% endif %}
+      {% for error in form.emails.errors %}<div class="error">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="field">
+      <label>Role</label><br />
+      {{ form.role }}
+      {% for error in form.role.errors %}<div class="error">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="actions">
+      <button type="submit">Send Invites</button>
+    </div>
+  </form>
+
+  {% if results %}
+  <div class="results">
+    <h2>Results</h2>
+    <h3>Invited</h3>
+    <ul>
+      {% for item in results.invited %}
+        {% for email, status in item.items %}
+          <li>{{ email }} – {{ status }}</li>
+        {% endfor %}
+      {% empty %}
+        <li>None</li>
+      {% endfor %}
+    </ul>
+    <h3>Skipped</h3>
+    <ul>
+      {% for item in results.skipped %}
+        {% for email, reason in item.items %}
+          <li>{{ email }} – {{ reason }}</li>
+        {% endfor %}
+      {% empty %}
+        <li>None</li>
+      {% endfor %}
+    </ul>
+    <h3>Errors</h3>
+    <ul>
+      {% for item in results.errors %}
+        {% for email, reason in item.items %}
+          <li>{{ email }} – {{ reason }}</li>
+        {% endfor %}
+      {% empty %}
+        <li>None</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</body>
+</html>
+

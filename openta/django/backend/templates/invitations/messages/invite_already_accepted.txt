@@ -1,0 +1,1 @@
+The invitation for {{ email }} was already accepted. Use login and password in your email to log in.

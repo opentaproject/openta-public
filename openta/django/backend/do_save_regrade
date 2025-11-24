@@ -1,0 +1,15 @@
+#!/bin/bash
+subdomains=$*
+# ./do_save_regrade   fim770-2023  > fim770-2023.out
+# ./do_save_regrade   ffm516-2023  > ffm516-2023.out
+# ./do_save_regrade   tif375-2024  > tif375-2024.out
+# ./do_save_regrade   nn-2023   > nn-2023.out
+# ./do_save_regrade   tms137-2023   > tms137-2023.out
+# ./do_save_regrade   ffy144-2024 > ffy144-2024.out
+for  subdomain in $subdomains 
+do :
+	echo DO $subdomain
+	mkdir -p /tmp/$subdomain/regrade
+	chmod a+w /tmp/$subdomain/regrade
+	time python manage.py recalculate --accept=True --subdomain=$subdomain 2> /tmp/$subdomain/recalculate.errors | tee  /subdomain-data/$subdomain/regrade.out
+done

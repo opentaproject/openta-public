@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block content %}
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center uk-alert uk-alert-primary">
+<div id="content2" class="uk-text-left">
+
+{% include "messages.html" %}
+
+
+<form action="/" method="POST"  class="uk-form uk-form-stacked"  novalidate>
+  {% csrf_token %}
+   <!-- Other form fields go here -->
+
+    <!-- Display the PIL image -->
+    <img src="data:image/png;base64,{{ image_base64 }}" alt="PIL Image" />
+    
+    <!-- Form submit button -->
+    <p/>
+    <div> SECRET = {{ secret }} </div>  <p/> 
+    <button class="uk-button uk-button-danger" type="submit" name="ACTION" value="CONTINUE-WITH-QRCODE" >READY : I have saved the qrcode and secret {{ secret }}</button> <p/> 
+    <button class="uk-button uk-button-success" type="submit" name="ACTION" value="CANCEL-QRCODE" >CANCEL! </button>
+</form>
+
+
+
+
+</div>
+</div>
+</div>
+
+
+
+{% endblock %}

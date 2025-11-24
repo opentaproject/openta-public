@@ -1,0 +1,51 @@
+<exercise updated="true">
+  <exercisename>1.1.1</exercisename>
+  <macros>
+  @p1   := randominteger(2,6);
+    @p2   := randominteger(2,6);
+    @fn := "x^@p1 y";
+@gn := "y^@p2 sin(z)";
+
+
+  </macros>
+  <global>
+    <blacklist>
+      <token>f</token>
+      <token>g</token>
+    </blacklist>
+    <hint>
+      <regex present="discouraged">partial</regex>
+      <comment> partial should not be present in the answer </comment>
+    </hint>
+x = var("x");
+y = var("y");
+z = var("z");
+f = x^(@p1) y;
+g = y^(@p2) sin(z)</global>
+  <text>
+    <h3> The following are review questions from the book </h3> 
+    Let $ f = x^@p1 \; y $ and let $ g = y^@p2 \; \sin(z) $ 
+be functions on $ {\bold E}^3 $. Express the following functions in terms of $ x,y $ and $ z $. 
+  </text>
+  <question key="randomkey1" type="default">
+    <vars> x,y,z </vars>
+    <text> (a) $ f = @fn $ and $ g = @gn $ : \[ f g^2 \] </text>
+    <expression> ( f ) ( g )^2 </expression>
+  </question>
+  <question key="randomkey2" type="default">
+    <vars> x,y,z </vars>
+    <text> (b) \[ g \; \frac{ \partial f }{\partial x } + f \; \frac{ \partial g }{\partial y }\] </text>
+    <expression> partial( f , x ) * g + partial(g ,y ) f </expression>
+  </question>
+  <question key="randomkey3" type="default">
+    <vars> x,y,z </vars>
+    <text> (c) \[ \frac{ \partial^2 f \, g }{\partial y \; \partial z } \] </text>
+    <expression> partial( f g , y,z ) </expression>
+    <iscorrect> partial( f g , y,z ) </iscorrect>
+  </question>
+  <question key="randomkey" type="default">
+    <vars> x,y,z </vars>
+    <text> (d) \[ \frac{ \partial }{\partial y } \; sin( f ) \] </text>
+    <expression> partial( sin( f ), y ) </expression>
+  </question>
+</exercise>

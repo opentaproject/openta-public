@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Custom 403 error </title>
+</head>
+<body>
+    <h1>403 - Permission Denied</h1>
+    <p>You do not have permission to access this page.  You will land here if there is a  CSRF failure.  </p>
+    <ul> 
+	    <li> Make sure that you allow cross-site tracking from canvas, at least from canvas and/or  instructure </li>
+	    <li> Make sure you allow 3rd party cookies, at least from canvas  and/or instructure </li>
+	    <li> This error also occurs if you try to access the page with two different credentials, like from canvas and directly
+	   in the front end.  First just try reloading the page; if that results in this message again, log out completely and restart the browser and login in again. 
+	   If this keeps coming up delete the cookies associated with the openta site. As a last resort, test another browser.   </li> 
+   </ul> 
+
+</body>
+</html>

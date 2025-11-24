@@ -1,0 +1,5 @@
+#!/bin/bash
+destination="+46767619006";
+text="from cellsynt";
+originator="opentaproject"
+curl -d "username=openta&password=ZrHFxCp9&originator=tennisbanan&type=text&charset=UTF-8" -d "destination=$destination" -d "text=\"$text\"" -X POST https://se-1.cellsynt.net/sms.php  

@@ -1,0 +1,32 @@
+<exercise updated="true">
+  <exercisename>1.1.2</exercisename>
+  <global>
+    <blacklist>
+      f,y,z,x
+    </blacklist><text>x = var('x');
+y = var('y');
+z = var('z');
+a = var('a');
+f(x,y,z) := x^2 y - y^2 z;
+t= var('t')</text>
+</global>
+  <text>
+    <h3> The following are review questions from the book </h3><text>Let $ f = x^2 y - y^2 z $. Evaluate f at the following points $p = (x,y,z) $.</text>
+</text>
+  <question key="randomkey1" type="default">
+    <text> (a)  \[ p= [1,1,1] \] </text>
+    <expression> f(1,1,1) </expression>
+  </question>
+  <question key="randomkey2" type="default">
+    <text>  (b) \[  p = [3,-1,1/2 ] \] </text>
+    <expression> f(3,-1,1/2 ) </expression>
+  </question>
+  <question key="randomkey3" type="default">
+    <text> (c) \[ p =  [a,1,1-a] \] </text>
+    <expression> f(a,1,1-a ) </expression>
+  </question>
+  <question key="randomkey4" type="default">
+    <text> (d)  \[ p =  [t,t^2 t^3 ] \] </text>
+    <expression> f(t,t^2, t^3 ) </expression>
+  </question>
+</exercise>

@@ -1,0 +1,21 @@
+<exercise exercise_key="84d64d10-9a8c-40ef-9b61-3b0f34b59cc9" updated="2024-07-13 09:56:22.008" by="super">
+  <exercisename>1-4-1</exercisename>
+  <global>
+    <vars>t </vars>
+alpha     = [ 2 cos(t)^2 , sin(2 t ) , 2 sin(t) ];
+d = [ - 2 sin( 2 t ) , 2 cos( 2 t ) , 2 cos(t) ]
+</global>
+  <text>Let $ \alpha(t)    = [ 2 \cos(t)^2 , \sin(2 t ) , 2 \sin(t) ] $ Compute the velocity vector of $ \alpha(t) $. </text>
+  <question type="matrix" key="1">
+    <text>$ \alpha(t)    = [ 2 \cos(t)^2 , \sin(2 t ) , 2 \sin(t) ] $ \[ \frac{ \alpha(t) }{d \, t } \] </text>
+    <expression>[ - 2 sin( 2 t ) , 2 cos( 2 t ) , 2 cos(t) ]  </expression>
+    <iscorrect>partial( alpha , t ) </iscorrect>
+    <iscorrect>( alpha )' </iscorrect>
+  </question>
+  <question key="2">
+    <text>$ \alpha(t)    = [ 2 \cos(t)^2 , \sin(2 t ) , 2 \sin(t) ] $  \[ \frac{ \alpha(t) }{d \, t } {\bigg |}_{t=\frac{\pi}{4}} \] </text>
+    <expression>[ -2.0   , 0 , sqrt(2) ]    </expression>
+    <iscorrect>( partial(alpha,t )  ).subs({ t : pi/4  } )  </iscorrect>
+    <iscorrect>( (alpha)'  ).subs({ t : pi/4  } )  </iscorrect>
+  </question>
+</exercise>

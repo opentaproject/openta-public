@@ -1,0 +1,46 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - development
+      - dev-test
+    paths:
+      - 'django/**'
+
+  pull_request:
+    branches:
+      - development
+      - dev-test
+    paths:
+      - 'django/**'
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.9']
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          sudo apt-get install -y graphviz libcairo2 libcairo2-dev libgraphviz-dev libjpeg-dev \
+                                  libxml2-dev libxslt1-dev libzmq3-dev libmemcached-dev \
+                                  memcached libmemcached-tools redis-server
+          memcached -d
+          sudo systemctl restart redis.service
+          python -m pip install --upgrade pip
+          pip install tox tox-gh-actions
+      - name: Configure settings
+        run: |
+          cd django/backend/backend && ln -s settings_test.py settings.py
+      - name: Test with tox
+        run: |
+          tox --workdir django/backend -c django/backend/tox.ini

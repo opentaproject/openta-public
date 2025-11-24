@@ -1,0 +1,14 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{% trans "CSRF authentication failed:" %}</title>
+</head>
+<body>
+<h2>{% trans "CSRF failure :" %}</h2>
+<h3>{{ reason }} </h3>
+<h3>{{ msg }} </h3>
+<hr>
+</body>
+</html>

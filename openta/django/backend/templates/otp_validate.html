@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block content %}
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center uk-alert uk-alert-primary">
+<div id="content2" class="uk-text-left">
+
+{% include "messages.html" %}
+
+
+<form action="." method="POST"  class="uk-form uk-form-stacked"  novalidate>
+  {% csrf_token %}
+    <div class="form-row"> {{ form.username.errors }}{{ form.username.label_tag }}{{ form.username }} </div>
+    <div class="form-row"> {{ form.password.errors }}{{ form.password.label_tag }}{{ form.password }} </div>
+    <div class="uk-alert uk-alert-success form-row"> {{ form.otp_token.errors }}{{ form.otp_token.label_tag }} <p/> {{ form.otp_token }} </div>
+    <div class="submit-row">
+        <input class="uk-button"  type="submit" name="ACTION" value="Continue"/>
+	<input class="uk-button" type="submit" name="ACTION" value="Cancel"/>
+    </div>
+</form>
+
+
+
+
+</div>
+</div>
+</div>
+
+
+
+{% endblock %}

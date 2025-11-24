@@ -1,0 +1,29 @@
+{% load static %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+<head>
+ <link rel="stylesheet" href="{% static "css/uikit.css" %}" />
+</head>
+<body>
+{% block content %}
+
+<div class="uk-vertical-align">
+<div class="uk-vertical-align-middle">
+<div class="uk-container">
+<div class="uk-container-center">
+<div class="uk-panel uk-panel-box-primary">
+<form method="POST" class="" novalidate>
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" name='action' value='save'>Save changes</button>
+  <button type="submit" name='action' value='cancel'>Cancel changes</button>
+</form>
+</div>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
+</body>
+

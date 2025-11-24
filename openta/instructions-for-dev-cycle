@@ -1,0 +1,9 @@
+export VERSION_TAG=${VERSION_TAG}
+export BUCKET_NAME=${BUCKET_NAME}
+echo docker build --tag openta-base:latest -f docker-build/Dockerfile-base  .
+echo docker build --tag s53ostlund/openta:${VERSION_TAG} . 
+echo docker  push s53ostlund/openta:${VERSION_TAG} 
+echo docker build -f nginx/Dockerfile --tag s53ostlund/nginx:${VERSION_TAG} ./nginx
+echo docker push s53ostlund/nginx:${VERSION_TAG}
+echo gsutil -m cp -r django/backend/deploystatic gs://${BUCKET_NAME}/${VERSION_TAG}
+echo kubectl  apply -f  docker_deploy/kubernetes-stellan/examples/ingress-gcsfuse-nginx-gke/yamls

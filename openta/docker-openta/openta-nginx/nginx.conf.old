@@ -1,0 +1,86 @@
+upstream localhost {
+    server localhost:8000;
+}
+
+server {
+    # the port your site will be served on
+
+    listen 8080;
+    charset     utf-8;
+    # max upload size
+    client_max_body_size 20M;
+
+
+    location @notfound {
+	return  200 $uri ;
+	add_header Content-Type text/plain;
+    }
+
+
+    
+    location /health {
+        access_log off;
+	add_header Content-Type text/plain;
+        return 200 $uri ;
+       }
+
+    
+    location ~ (.*)/media/(.*) {
+ 	internal;
+        alias /subdomain-data/$1/media/$2 ;
+        expires 10d;
+        }
+    
+    location ~ (.*)/exerciseasset/(.*) {
+        internal;
+        alias /subdomain-data/$1/exercises/$2 ;
+        expires 10d;
+        }
+    
+    
+   
+    
+    #location /([^/]+)/exerciseasset/(.*) {
+    #    internal;
+    #    alias /subdomain-data/$1/exercises/$2 ;
+    #    expires 10d;
+    #    }
+   
+     
+    
+    location ~ (.*)/answerimages/(.*) {
+        internal;
+        alias /subdomain-data/$1/media/answerimages/$2 ;
+        expires 10d;
+        }
+
+
+
+    location ~ (.*)/taskresults/(.*) {
+        internal;
+        alias /subdomain-data/$1/media/taskresults/$2 ;
+        expires 10d;
+	}
+
+    location  ~ "/([^/]{3,13})/exercises/(.*)" { # avoid matchin subdomain-data
+        internal;
+        alias /subdomain-data/$1/exercises/$2 ;
+        expires 10d;
+        }
+
+  
+   
+
+    location  / {
+        proxy_pass http://localhost;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_redirect off;
+    }
+
+    error_page 502 @maintenance;
+    location @maintenance {
+        root /usr/share/nginx/html;
+    }
+
+}

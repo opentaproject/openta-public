@@ -1,0 +1,4 @@
+export BASE_VERSION='v1500'
+echo creating dockerfile frontend-base:${BASE_VERSION}
+docker build  -f Dockerfile-base -t opentaproject/frontend-base:${BASE_VERSION} .
+docker push opentaproject/frontend-base:${BASE_VERSION}

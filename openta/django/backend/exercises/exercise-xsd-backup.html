@@ -1,0 +1,172 @@
+<style>
+  /* Highlight children cell for tag rows */
+  tr:has(> td:first-child:not(:empty)) > td { background-color: #fff9c4; }
+  /* Column sizing: col1 fits content, col2 = 30%, col3 fills remaining */
+  table { width: 100%; table-layout: auto; }
+  th:nth-child(1), td:nth-child(1) { white-space: nowrap; width: 1%; }
+  th:nth-child(2), td:nth-child(2) { width: 30%; }
+  th:nth-child(3), td:nth-child(3) { width: auto; }
+</style>
+<table border=1> <tr><th>Tag</th><th>Children</th><th></th></tr>
+  <tr><td>a</td><td></td><td></td></tr>
+  <tr><td></td><td>href</td><td></td></tr>
+  <tr><td>algorithm</td><td></td><td> DEPRECATED </td></tr>
+  <tr><td>alt</td><td>plot, p, pre, b, ul, li, em, strong, h1, h2, h3, i, hr, br, a, table, figure, hidden, ignore, asset, qmath, right, solution, code, div, span, snippet, asciimath</td><td></td></tr>
+  <tr><td></td><td>class</td><td></td></tr>
+  <tr><td></td><td>lang</td><td></td></tr>
+  <tr><td></td><td>method</td><td></td></tr>
+  <tr><td></td><td>hashkey</td><td></td></tr>
+  <tr><td>answer</td><td>hide, parsed, text</td><td></td></tr>
+  <tr><td>args</td><td></td><td></td></tr>
+  <tr><td>asciimath</td><td></td><td></td></tr>
+  <tr><td>asset</td><td></td><td></td></tr>
+  <tr><td></td><td>name</td><td></td></tr>
+  <tr><td>b</td><td>p</td><td></td></tr>
+  <tr><td></td><td>class</td><td></td></tr>
+  <tr><td>blacklist</td><td>token</td><td></td></tr>
+  <tr><td>br</td><td></td><td></td></tr>
+  <tr><td>button</td><td></td><td></td></tr>
+  <tr><td></td><td>onclick</td><td></td></tr>
+  <tr><td></td><td>style</td><td></td></tr>
+  <tr><td>choice</td><td>alt, figure, text</td><td></td></tr>
+  <tr><td></td><td>correct</td><td></td></tr>
+  <tr><td></td><td>key</td><td></td></tr>
+  <tr><td></td><td>order</td><td></td></tr>
+  <tr><td>code</td><td></td><td></td></tr>
+  <tr><td>comment</td><td>alt</td><td></td></tr>
+  <tr><td></td><td>hashkey</td><td></td></tr>
+  <tr><td>config</td><td>func</td><td></td></tr>
+  <tr><td>data</td><td>func</td><td></td></tr>
+  <tr><td>difficulty</td><td></td><td></td></tr>
+  <tr><td>div</td><td></td><td></td></tr>
+  <tr><td></td><td>id</td><td></td></tr>
+  <tr><td>em</td><td>p, a</td><td></td></tr>
+  <tr><td></td><td>class</td><td></td></tr>
+  <tr><td>equality</td><td></td><td></td></tr>
+  <tr><td>exercise</td><td>exercisename, global, text, question, studentasset, macros, solution, figure, right, ignore, hidden</td><td></td></tr>
+  <tr><td></td><td>updated</td><td></td></tr>
+  <tr><td></td><td>by</td><td></td></tr>
+  <tr><td></td><td>exercise_key</td><td></td></tr>
+  <tr><td>exercisename</td><td>alt</td><td></td></tr>
+  <tr><td></td><td>hashkey</td><td></td></tr>
+  <tr><td>expression</td><td></td><td></td></tr>
+  <tr><td></td><td>label</td><td></td></tr>
+  <tr><td>figure</td><td></td><td></td></tr>
+  <tr><td>func</td><td>token, args, value, tex</td><td></td></tr>
+  <tr><td>funcs</td><td></td><td></td></tr>
+  <tr><td>functions</td><td>func</td><td></td></tr>
+  <tr><td>global</td><td>blacklist, vars, ops, funcs, oneforms, op, var, hint, func</td><td></td></tr>
+  <tr><td></td><td>type</td><td></td></tr>
+  <tr><td>h1</td><td></td><td></td></tr>
+  <tr><td>h2</td><td></td><td></td></tr>
+  <tr><td>h3</td><td></td><td></td></tr>
+  <tr><td>hidden</td><td>any</td><td></td></tr>
+  <tr><td>hide</td><td>answer, hint, solution, text</td><td></td></tr>
+  <tr><td>hint</td><td>hide, hint, image, text, comment, regex</td><td></td></tr>
+  <tr><td></td><td>label</td><td></td></tr>
+  <tr><td></td><td>lang</td><td></td></tr>
+  <tr><td>hr</td><td></td><td></td></tr>
+  <tr><td>html</td><td>plot, p, pre, b, ul, li, em, strong, h1, h2, h3, i, hr, br, a, table</td><td></td></tr>
+  <tr><td>i</td><td></td><td></td></tr>
+  <tr><td>if-not-so</td><td></td><td></td></tr>
+  <tr><td>if-so</td><td></td><td></td></tr>
+  <tr><td>ignore</td><td>any</td><td></td></tr>
+  <tr><td>image</td><td></td><td></td></tr>
+  <tr><td></td><td>type</td><td></td></tr>
+  <tr><td></td><td>width</td><td></td></tr>
+  <tr><td>import</td><td></td><td></td></tr>
+  <tr><td>instructions</td><td></td><td></td></tr>
+  <tr><td>iscorrect</td><td></td><td></td></tr>
+  <tr><td>isfalse</td><td>if-so, if-not-so</td><td></td></tr>
+  <tr><td>isincorrect</td><td></td><td></td></tr>
+  <tr><td>istrue</td><td>if-so, if-not-so</td><td></td></tr>
+  <tr><td></td><td>sufficient</td><td></td></tr>
+  <tr><td>layout</td><td>func</td><td></td></tr>
+  <tr><td>li</td><td>b, p, button, br, em</td><td></td></tr>
+  <tr><td>link</td><td></td><td></td></tr>
+  <tr><td></td><td>rel</td><td></td></tr>
+  <tr><td></td><td>href</td><td></td></tr>
+  <tr><td>local</td><td>blacklist, var</td><td></td></tr>
+  <tr><td>log</td><td>logitem</td><td></td></tr>
+  <tr><td>logitem</td><td></td><td></td></tr>
+  <tr><td></td><td>date</td><td></td></tr>
+  <tr><td>macros</td><td></td><td></td></tr>
+  <tr><td>name</td><td></td><td></td></tr>
+  <tr><td>name7</td><td></td><td></td></tr>
+  <tr><td>notes</td><td></td><td></td></tr>
+  <tr><td>oneforms</td><td></td><td></td></tr>
+  <tr><td>op</td><td></td><td></td></tr>
+  <tr><td>ops</td><td></td><td></td></tr>
+  <tr><td>osolution</td><td>image</td><td></td></tr>
+  <tr><td>p</td><td>b, em, br, figure, i, p, ul</td><td></td></tr>
+  <tr><td>parsed</td><td></td><td></td></tr>
+  <tr><td>plot</td><td>data, layout, config, vars</td><td></td></tr>
+  <tr><td>pre</td><td></td><td></td></tr>
+  <tr><td>qmath</td><td></td><td></td></tr>
+  <tr><td>querypath</td><td></td><td></td></tr>
+  <tr><td>question</td><td>blacklist, ops, oneforms, funcs, vars, hint, parsed, text, source, var, func, choice, equality, expression, istrue, isfalse, iscorrect, isincorrect, rate, querypath, resources, instructions, wl, import, variables, local, functions, macros, hidden, ignore</td><td></td></tr>
+  <tr><td></td><td>exposeglobals</td><td></td></tr>
+  <tr><td></td><td>points</td><td></td></tr>
+  <tr><td></td><td>key</td><td></td></tr>
+  <tr><td></td><td>precision</td><td></td></tr>
+  <tr><td></td><td>validate</td><td></td></tr>
+  <tr><td></td><td>silent</td><td></td></tr>
+  <tr><td></td><td>hidden</td><td></td></tr>
+  <tr><td></td><td>showerrors</td><td></td></tr>
+  <tr><td></td><td>type</td><td></td></tr>
+  <tr><td></td><td>mode</td><td></td></tr>
+  <tr><td></td><td>function</td><td></td></tr>
+  <tr><td></td><td>file</td><td></td></tr>
+  <tr><td></td><td>answerbox</td><td></td></tr>
+  <tr><td>rate</td><td></td><td></td></tr>
+  <tr><td>regex</td><td></td><td></td></tr>
+  <tr><td></td><td>present</td><td></td></tr>
+  <tr><td>resources</td><td></td><td></td></tr>
+  <tr><td>right</td><td>plot, p, pre, b, ul, li, em, strong, h1, h2, h3, i, hr, br, a, table, figure</td><td></td></tr>
+  <tr><td>script</td><td></td><td></td></tr>
+  <tr><td></td><td>src</td><td></td></tr>
+  <tr><td></td><td>type</td><td></td></tr>
+  <tr><td></td><td>module</td><td></td></tr>
+  <tr><td></td><td>nomodule</td><td></td></tr>
+  <tr><td></td><td>async</td><td></td></tr>
+  <tr><td></td><td>defer</td><td></td></tr>
+  <tr><td></td><td>crossorigin</td><td></td></tr>
+  <tr><td></td><td>integrity</td><td></td></tr>
+  <tr><td></td><td>referrerpolicy</td><td></td></tr>
+  <tr><td>snippet</td><td>plot, p, pre, b, ul, li, em, strong, h1, h2, h3, i, hr, br, a, table, span, button, div, text, script, style, link</td><td></td></tr>
+  <tr><td></td><td>id</td><td></td></tr>
+  <tr><td>solution</td><td>plot, p, pre, b, ul, li, em, strong, h1, h2, h3, i, hr, br, a, table, figure, hint, image, qmath, solution, text, asset</td><td></td></tr>
+  <tr><td></td><td>label</td><td></td></tr>
+  <tr><td>solutionsheet</td><td></td><td></td></tr>
+  <tr><td>source</td><td></td><td></td></tr>
+  <tr><td>span</td><td></td><td></td></tr>
+  <tr><td>strong</td><td></td><td></td></tr>
+  <tr><td>studentasset</td><td></td><td></td></tr>
+  <tr><td>style</td><td></td><td></td></tr>
+  <tr><td>table</td><td>tr, thead, tbody</td><td></td></tr>
+  <tr><td></td><td>class</td><td></td></tr>
+  <tr><td>tbody</td><td>tr</td><td></td></tr>
+  <tr><td>td</td><td>b, qmath, em</td><td></td></tr>
+  <tr><td>tex</td><td></td><td></td></tr>
+  <tr><td>text</td><td>plot, p, pre, b, ul, li, em, strong, h1, h2, h3, i, hr, br, a, table, alt, figure, hidden, ignore, asset, qmath, right, solution, code, div, span, snippet, asciimath</td><td></td></tr>
+  <tr><td></td><td>class</td><td></td></tr>
+  <tr><td></td><td>hidden</td><td></td></tr>
+  <tr><td></td><td>lang</td><td></td></tr>
+  <tr><td></td><td>method</td><td></td></tr>
+  <tr><td></td><td>hashkey</td><td></td></tr>
+  <tr><td>th</td><td></td><td></td></tr>
+  <tr><td>thead</td><td>tr</td><td></td></tr>
+  <tr><td>thecorrectanswer</td><td></td><td></td></tr>
+  <tr><td></td><td>id</td><td></td></tr>
+  <tr><td></td><td>lang</td><td></td></tr>
+  <tr><td></td><td>question</td><td></td></tr>
+  <tr><td></td><td>questionkey</td><td></td></tr>
+  <tr><td>token</td><td></td><td></td></tr>
+  <tr><td>tr</td><td>td, th</td><td></td></tr>
+  <tr><td>ul</td><td>figure, p, li</td><td></td></tr>
+  <tr><td>value</td><td></td><td></td></tr>
+  <tr><td>var</td><td>token, tex, value</td><td></td></tr>
+  <tr><td>variables</td><td>blacklist, var</td><td></td></tr>
+  <tr><td>vars</td><td>func</td><td></td></tr>
+  <tr><td>wl</td><td></td><td></td></tr>
+</table>

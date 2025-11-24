@@ -1,0 +1,20 @@
+#!/bin/bash
+export DISPLAY=''
+mv backend/settings.py /tmp
+cp backend/settings_test.py backend/settings.py
+#if [ -z ${VIRTUAL_ENV+x} ]; then
+#  echo "You probably want to be in the corresponding python virtual env when running the tests.";
+#  else
+exitfn () {
+    trap SIGINT              # Restore signal handling for SIGINT
+    rm  backend/settings.py
+    mv /tmp/settings.py backend/settings.py
+    echo "INTERRUPED RUNTESTS ; SETTINGS RESTORED"
+    exit                     #   then exit script.
+}
+trap "exitfn" INT
+python manage.py test --settings=backend.settings_test $*;
+#    fi
+rm  backend/settings.py
+mv /tmp/settings.py backend/settings.py
+trap SIGINT

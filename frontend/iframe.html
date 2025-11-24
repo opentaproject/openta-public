@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+    <style>
+      body {
+        background-color: silver;
+      }
+
+      input,
+      button {
+        min-height: 2em;
+        margin: 1em;
+      }
+
+      input {
+        display: block;
+        width: 30rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <h3>I'm the IFrame that uses window.postMessage to talk to my parent</h3>
+      <h4>
+        Enter some text in the input box and then click the button to see the
+        message appear on the parent (enclosing) window.
+      </h4>
+      <input id="input1" type="input" />
+      <button id="button1">Click me!</button>
+      <h5>
+        * Note that the window.postMessage data payloads can take on any shape.
+        For example string, JSON, binary, etc. So, it's not just limited to
+        strings.
+      </h5>
+    </div>
+  </body>
+  <script>
+document.getElementById("button1").addEventListener("click", (e) => {
+  /** @type HTMLInputElement */
+  const input1 = document.getElementById("input1");
+  window.parent.postMessage(
+    {
+      type: "button-click",
+      message: input1.value
+    },
+    "*"
+  );
+  input1.value = "";
+});
+</script>
+</html>

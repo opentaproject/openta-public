@@ -1,0 +1,32 @@
+<exercise>
+  <exercisename>__exercise_name__</exercisename>
+  
+   <global>
+      a = 3.01793 meter;
+      b = 5.979184  meter;
+  </global>
+  <text> This is an template for math questions including linear algebra. <p/>
+    <em> Upload a new png and delete the assets including thumbnail. </em>
+    <right><figure>broken.png</figure></right>
+  </text>
+  
+  <question key="randomkey1">
+    <text> What is the length of the hypothenuse of a right angled triangle with sides $a$ and $b$?
+    </text>
+    <expression>sqrt(a^2+b^2)</expression>
+  </question>
+
+
+<text> This is a template for multiple choice questions</text>
+<question key="randomkey9">
+  <text> Which numbers $ n $ obey $ n \leq 2 $ </text>
+   
+    <choice key="anykey7" correct="true"> <text> 0 </text>  </choice>
+    <choice key="anykey4" correct="true"> <text> 1 </text>  </choice>
+    <choice key="anykey5" correct="true"> <text> 2 </text>  </choice>
+    <choice key="anykey3" > <text> 3 </text>  </choice>
+   
+  </question>
+
+
+</exercise>

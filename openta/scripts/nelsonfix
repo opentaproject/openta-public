@@ -1,0 +1,6 @@
+#!/bin/bash
+autoflake --remove-all-unused-import -r --in-place --exclude \*migrations\*,\*manage\* $*
+autopep8 --exclude migrations,manage --in-place --aggressive --aggressive --recursive $*
+importanize $*
+black $*
+# run flake8

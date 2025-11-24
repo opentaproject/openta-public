@@ -1,0 +1,76 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2018-2025 Stellan Östlund and Hampus Linander
+
+import React from 'react';
+import { connect } from 'react-redux';
+import {} from '../fetchers.js';
+import { setTableSortField, setTableSortReverse } from '../actions.js';
+
+const BaseTable = ({ data, fields, keyIndex, onSort, sortField, sortReverse, onItem, activeItem , caption }) => {
+  var sorted = data;
+  if (sortField && !sortReverse) {
+    sorted = data.sortBy((item) => parseFloat(item.get(sortField).replace(':', '.')));
+  }
+  if (sortField && sortReverse) {
+    sorted = data.sortBy((item) => parseFloat(item.get(sortField).replace(':', '.'))).reverse();
+  }
+
+  const renderFields = (item, fields) =>
+    fields.map((field) => (
+      <td key={field.index} className={field.index === sortField ? 'uk-text-bold uk-text-primary' : ''}>
+        {item.get(field.index)}
+      </td>
+    ));
+  var ind = 0;
+  var rows = sorted.map((item) => (
+    <tr
+      key={item.get(keyIndex) + '-table' }
+      onClick={() => onItem(item.get(keyIndex))}
+      className={'pointer ' + (item.get(keyIndex) === activeItem ? 'uk-active uk-text-primary' : '')}
+    >
+      <td>{(ind += 1)} </td>
+      {renderFields(item, fields)}
+    </tr>
+  ));
+  return (
+    <table className="uk-table uk-table-hover uk-table-condensed uk-text-small">
+	  {caption && ( <caption> {caption} </caption>) }
+      <thead>
+        <tr>
+          <th key="asdfa"> </th>
+          {fields.map((field) => (
+            <th key={field.name} className={field.classname}>
+              <div className={field.classname}>
+                {sortField && field.index === sortField && !sortReverse && (
+                  <i className="uk-icon uk-icon-chevron-circle-down" />
+                )}
+                {sortField && field.index === sortField && sortReverse && (
+                  <i className="uk-icon uk-icon-chevron-circle-up" />
+                )}
+                <a onClick={() => onSort(field.index, sortField, sortReverse)}>{field.name}</a>
+              </div>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>{rows}</tbody>
+    </table>
+  );
+};
+
+const mapStateToProps = (state, ownProps) => ({
+  //data: state.getIn(ownProps.dataPath, []),
+  sortField: state.getIn(['tables', ownProps.tableId, 'sortField'], null),
+  sortReverse: state.getIn(['tables', ownProps.tableId, 'sortReverse'], false)
+});
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  onSort: (field, current, reverse) => {
+    dispatch(setTableSortField(ownProps.tableId, field));
+    if (field === current) {
+      dispatch(setTableSortReverse(ownProps.tableId, !reverse));
+    }
+  }
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(BaseTable);

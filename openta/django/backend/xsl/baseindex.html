@@ -1,0 +1,29 @@
+<h2> Instructions </h2>
+<h3> If it has been a long time since the archive was created do steps 1,2 </h3>
+<h4> 1 Refresh the exercise.xsl file </h4>
+<pre>
+cd xsl;
+mv exercise.xsl exercise.xsl.bak
+wget http://storage.googleapis.com/opentaproject-cdn-bucket/xsl/exercise.xsl
+</pre>
+
+<h4> 2 Refresh bootstrap files </h4>
+<pre>
+cd xsl;
+mkdir bak
+mv boot*  bak 
+mv jquery* bak
+./getbootstrap
+</pre>
+
+<h3> Run the local webserver </h3>
+<pre>
+python3 -m http.server
+</pre>
+<ul>
+<a href="localhost:8000"> browse the archive on localserver </a>
+	<li> <a href="./pages"> pages if they exists  </a></li>
+	<li> <a href="./html"> html files including results  </a></li>
+	<li> <a href="./csv"> csv files </a> </li>
+	<li> <a href="./exercises"> exercises </a> select display.html to format the xml file </li>
+</ul>

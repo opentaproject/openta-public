@@ -1,0 +1,24 @@
+<exercise exercise_key="b77b2e89-79ec-4823-9971-19ba433bde58" updated="2024-08-31 03:43:28.817" by="super">
+  <exercisename>1-6-1b</exercisename>
+  <global>
+    <oneforms>dx,dy,dz</oneforms>
+    <ops>x,y,z,g</ops>d(g) := Wedge( dx * D(g,x) + dy * D( g , y ) + dz * D(g,z) );
+phi = y z dx + dz;
+psi = sin(z) dx + cos(z) dy;
+xi = dy + z dz</global>
+  <question key="2">
+    <text>$  d \phi  $ \[ \phi = y z dx + dz \]  </text>
+    <expression>-y*dx*dz - z*dx*dy </expression>
+    <iscorrect>d(phi) </iscorrect>
+  </question>
+  <question key="3">
+    <text>$ d  \psi $  \[ \psi = sin(z) dx + cos(z) dy \]  </text>
+    <expression>sin(z)*dy*dz - cos(z)*dx*dz </expression>
+    <iscorrect>d( psi ) </iscorrect>
+  </question>
+  <question key="4">
+    <text>$  d \xi  $  \[ \xi = dy + z dz \] </text>
+    <expression>0  </expression>
+    <iscorrect>d(xi)  </iscorrect>
+  </question>
+</exercise>

@@ -1,0 +1,26 @@
+#!/bin/bash
+export SUBDOMAIN=$1
+subdomain=$1
+dbnamefile="/subdomain-data/${subdomain}/dbname.txt"
+echo $dbnamefile
+if test -e $dbnamefile ; then
+	echo "FILE FOUND"
+	dbname=`cat $dbnamefile | tr -d '\n'`
+else
+	echo $dbnamefile not found so exit;
+	exit
+fi
+echo "MIGRATE " ${subdomain}
+#python manage.py migrate --database=${subdomain}
+#sed s/SUBDOMAIN/${subdomain}/ < fixtures/course.json | sed s/DB_NAME/${dbname}/ > /tmp/course.json
+#sed s/SUBDOMAIN/${subdomain}/ < fixtures/all.json | sed s/SUBDOMAIN/${dbname}/ > /tmp/all.json
+#SUBDOMAIN=${subdomain} python manage.py loaddata fixtures/auth.json --settings=backend.settings_manage --database=${subdomain}
+#SUBDOMAIN=${subdomain} python manage.py loaddata /tmp/course.json --settings=backend.settings_manage --database=${subdomain}
+#SUBDOMAIN=${subdomain} python manage.py loaddata /tmp/all.json --settings=backend.settings_manage --database=${subdomain}
+python manage.py createcachetable --settings=backend.settings_manage --database=${subdomain}
+#SUBDOMAIN=$subdomain python manage.py repair_subdomain --settings=backend.settings_manage 
+SUBDOMAIN=$subdomain python manage.py sync_exercises --settings=backend.settings_manage
+
+# SUBDOMAIN=${subdomain} python manage.py dumpdata --natural-foreign --natural-primary -e sessions -e admin.logentry -e contenttypes -e auth.Permission --settings=backend.settings_manage --database=${subdomain} --indent 2
+#SUBDOMAIN=${subdomain} python manage.py dumpdata  users --indent 2  --settings=backend.settings_manage --database=${subdomain}
+#SUBDOMAIN=${subdomain} python manage.py createsuperuser  --settings=backend.settings_manage --database=${subdomain}

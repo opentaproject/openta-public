@@ -1,0 +1,81 @@
+{% extends "admin/base_site.html" %}
+{% load widget_tweaks %}
+{% load i18n l10n admin_urls static %}
+
+{% block extrastyle %}{{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "css/uikit.min.css" %}" />
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{% url 'admin:exercises_exercise_changelist' %}">{% trans 'Exercises' %}</a>
+        {% block crumbs %}
+            {% if title %} &rsaquo; {{ title }}{% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}
+{% block content %}
+<div id="content" class="uk-vertical-align uk-text-center">
+  <div class="uk-vertical-align-middle uk-container-center">
+        <table class="uk-table uk-text-left">
+          <thead>
+            <tr>
+              <th>Exercise</th>
+              <th>Deadline</th>
+              <th>Last accepted answer</th>
+            </tr>
+          {% for exercise in exercises %}
+          <tr>
+            <td>
+              <div class="uk-thumbnail">
+                <img src="/{{SUBPATH}}exercise/{{exercise.key}}/asset/thumbnail.png"/>
+                <div class="uk-thumbnail-caption">{{exercise.name}}</div>
+              </div>
+            </td>
+            <td>{{ exercise.deadline }}</td>
+            <td>{{ exercise.last_answer }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+    <dl class="uk-text-left uk-description-list-line">
+        <dt>Not passed:</dt>
+        <dd class="uk-text-danger">{{ users.count }}</dd>
+        <dt>Passed but no solution image uploaded:</dt>
+        <dd class="uk-text-warning">{{ users_passed_no_image.count }}</dd>
+        <dt>Students:</dt>
+        <dd>
+          {% for user in users %}
+          <a href="{% url 'admin:exercises_answer_changelist' %}?user__id={{user.id}}&question__exercise__exercise_key__in={{exercises_list | urlencode}}">
+            {% if show_users %}
+              {{ user.username }}
+            {% else %}
+              {{ user.id }}
+            {% endif %}
+          </a>
+          {% endfor %}
+        </dd>
+        <dt>Passed but no image of solution:</dt>
+        <dd>
+          {% for user in users_passed_no_image %}
+          <a href="{% url 'admin:exercises_answer_changelist' %}?user__id={{user.id}}&question__exercise__exercise_key__in={{exercises_list | urlencode}}">
+            {% if show_users %}
+              {{ user.username }}
+            {% else %}
+              {{ user.id }}
+            {% endif %}
+          </a>
+          {% endfor %}
+        </dd>
+    </dl>
+    <form method="post" class="uk-form uk-form-stacked">
+      {% csrf_token %}
+      {% for obj in queryset %}
+      <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
+      {% endfor %}
+      <input type="hidden" name="action" value="get_not_passed" />
+      <input type="hidden" name="post-email-users" value="yes" />
+      <input class="uk-button uk-margin-small-top" type="submit" value="{% trans "Send email to users" %}" />
+    </form>
+  </div>
+</div>
+{% endblock %}

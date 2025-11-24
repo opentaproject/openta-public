@@ -1,0 +1,11 @@
+#!/bin/bash
+export SUBDOMAIN=$1
+subdomain=$1
+if [ -z "$2" ] ; then
+	echo "No email supplied"
+	exit
+fi
+email=$2
+echo "CREATECOURSE" ${subdomain}
+SUBDOMAIN=$subdomain python manage.py fix_superuser  --email=${email} --subdomain=${subdomain}
+#/usr/local/opt/postgresql/bin/pg_dump -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db

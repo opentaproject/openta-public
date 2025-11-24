@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+{% load widget_tweaks %}
+{% load i18n l10n admin_urls static %}
+
+{% block content %}
+<div id="content" class="uk-vertical-align uk-text-center">
+  <div class="uk-vertical-align-middle uk-container-center">
+    <h2>Email users:</h2>
+      {% if show_users %}
+      {% for user in users %}
+        <span class="uk-badge"> {{user.username}} </span>
+      {% endfor %}
+      {% else %}
+        {{ users.count }} students
+      {% endif %}
+      <h2>Email: </h2>
+    <form method="post" class="uk-form uk-form-stacked">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="uk-form-row">
+        {% for error in field.errors %}
+        <div class="uk-alert uk-alert-danger">{{ error | escape }}</div>
+        {% endfor %}
+        {% if field.help_text %}
+        <div class="uk-alert uk-text-left"><p class="help">{{ field.help_text|safe }}</p></div>
+        {% endif %}
+        <label class="uk-form-label" for={{ field.id_for_label }}> {{ field.label }} </label>
+        <div class="uk-form-controls"> {{ field }}</div>
+      </div>
+      {% endfor %}
+      {% for obj in queryset %}
+      <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
+      {% endfor %}
+      {% if action %}
+      <input type="hidden" name="action" value="{{action}}" />
+      {% endif %}
+      <input type="hidden" name="post-send-emails" value="yes" />
+      <input type="hidden" name="post-email-users" value="yes" />
+      <input class="uk-button uk-margin-small-top" type="submit" value="{% trans "Send batch email" %}" />
+    </form>
+  </div>
+</div>
+{% endblock %}

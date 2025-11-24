@@ -1,0 +1,10 @@
+#!/bin/bash
+BASE_VERSION='v1600'
+cat Dockerfile.template  | sed "s/VERSION/${BASE_VERSION}/" > Dockerfile
+echo Make sure dockerfile has ${BASE_VERSION} for base image
+export githash=`git rev-parse --short HEAD`
+docker build --tag opentaproject/openta:${VERSION} .
+docker push opentaproject/openta:${VERSION}
+docker tag opentaproject/openta:${VERSION} opentaproject/openta:${githash}
+docker tag opentaproject/openta-nginx:${BASE_VERSION} opentaproject/openta-nginx:${VERSION}
+docker push opentaproject/openta:${VERSION}
