@@ -1,0 +1,2 @@
+#!/bin/bash
+find exercises  -name exercise.xml -exec xmllint -noout --schema django/backend/exercises/exercise.xsd {} \;   2>&1 >/dev/null | grep -v validates  

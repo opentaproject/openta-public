@@ -176,3 +176,8 @@ uikit/custom/
 # --- Misc build artifacts ---
 *.zip
 *.tar.gz
+django_ragamuffin/
+version.txt
+deploystatic/
+static/
+homepage/

@@ -1,0 +1,78 @@
+#!/bin/bash
+# shellscript to cull inactive databases
+
+
+if [ "$#" == "0" ]; then
+	echo "USAGE ${0} --dry-run [true|false]"
+	exit 1
+fi
+
+dryrun=''
+
+for i in "$@" ;
+do
+    case $1 in
+
+	'--user')
+		shift 1;
+		#echo user $1
+		user=$1
+		;;
+	
+	'--dry-run')
+		shift 1;
+		dryrun=$1
+		;;
+     esac
+     shift 1;
+done
+
+#echo DRYRUN IS ${dryrun}
+
+cull=''
+if [ "$dryrun" == 'true'  ] ||  [ "$dryrun" == 'True' ] ; then
+	#echo "ÐRYRUN IS TRUE"
+	cull='false';
+elif [ "$dryrun" == 'false'  ] || [ "$dryrun" == 'False' ] ; then
+	#echo "DRYRUN IS FALSE"
+	cull='true';
+else
+	#echo "DRYRUN NOT STRING"
+	cull='';
+	exit
+fi
+if [ "${cull}" == '' ]; then
+	echo "USAGE = ${0} --dry-run [true|false]"
+fi
+
+#echo cull=${cull}
+#if ${cull} ; then
+#	#echo CULL IS TRUE
+#fi
+
+psql -U postgres -c '\l'  | awk '{print $1}'   | grep -v '|' | egrep -v '[\)\(\+]' | grep -v List | grep -v default | grep -v template | grep -v openta | grep -v postgres | grep -v test | grep -v Name | sort > /tmp/all_databases
+rm /tmp/tdatabases
+for i in /subdomain-data/*/dbname.txt ;
+do
+	echo  `cat $i` >> /tmp/tdatabases
+done
+sort /tmp/tdatabases > /tmp/active_databases
+comm -13  /tmp/active_databases  /tmp/all_databases > /tmp/database_to_delete
+for i in `cat /tmp/database_to_delete`;
+do
+	database=$i
+	#sel1=`psql --quiet -U postgres -d  $i -c "SELECT subdomain FROM opentasites_opentasite;"`
+	#sel2=`psql --quiet -U postgres -d  $i -c "SELECT last_login  FROM auth_user  ORDER BY (last_login IS NULL), last_login DESC  LIMIT 1;"`
+	coursename=''
+	if [ $cull == 'true' ] ; then
+		coursename=`psql -U postgres -d $database -t -c "SELECT course_name FROM course_course" | sed -r '/^\s*$/d'`
+		echo DROP $database $coursename
+		psql -U postgres -c "DROP DATABASE IF EXISTS ${database} WITH (FORCE) ;"
+	else 
+		coursename=`psql -U postgres -d $database -t -c "SELECT course_name FROM course_course" | sed -r '/^\s*$/d'`
+		echo WOULD DROP $database $coursename
+	fi
+	#echo $sel1
+	#echo $sel2
+done
+#python manage.py clean_expired_databases --dry-run "${dryrun}"

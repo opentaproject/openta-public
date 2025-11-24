@@ -1,0 +1,3 @@
+python manage.py makemessages -l 'ar'
+python manage.py translate_messages -l 'ar'
+python manage.py compilemessages

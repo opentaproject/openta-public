@@ -1,0 +1,8 @@
+#!/bin/bash
+let i=0
+while true ;
+do
+	let "i = $i + 1"
+	sleep 5
+	/srv/openta/django/backend/db_autoreload >> /tmp/db_loop.out
+done

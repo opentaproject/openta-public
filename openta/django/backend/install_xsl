@@ -1,0 +1,2 @@
+#!/bin/bash
+gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r xsl gs://opentaproject-cdn-bucket/

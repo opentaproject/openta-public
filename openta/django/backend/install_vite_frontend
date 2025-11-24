@@ -1,0 +1,5 @@
+#!/bin/bash
+export CLOUDSDK_PYTHON='/Library/Frameworks/Python.framework/Versions/3.9/bin/python3.9'
+export githash=`git rev-parse --short HEAD`
+cp -rp deploydist deploydist.${githash}
+gsutil -m -o GSUtil:parallel_process_count=1 -o GSUtil:parallel_thread_count=24 cp -r deploydist gs://opentaproject-cdn-bucket/${VERSION}/

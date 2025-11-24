@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# After a commit, regenerate backend/version.txt so it matches the
+# just-created commit (HEAD). This file is not staged/committed.
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+if command -v python3 >/dev/null 2>&1; then
+  PY=python3
+elif command -v python >/dev/null 2>&1; then
+  PY=python
+else
+  exit 0
+fi
+
+script_path="$(git ls-files "**/backend/version.py" | head -n1 || true)"
+[[ -n "${script_path}" && -f "${script_path}" ]] || exit 0
+
+script_dir="$(dirname "${script_path}")"
+out_file="${script_dir}/version.txt"
+tmp_out="${out_file}.tmp"
+
+if ! ${PY} "${script_path}" > "${tmp_out}" 2>"${tmp_out}.err"; then
+  # On failure, leave things untouched; useful for environments without Git.
+  rm -f "${tmp_out}" "${tmp_out}.err" || true
+  exit 0
+fi
+rm -f "${tmp_out}.err" || true
+
+if [[ -f "${out_file}" ]] && cmp -s "${tmp_out}" "${out_file}"; then
+  rm -f "${tmp_out}"
+else
+  mv -f "${tmp_out}" "${out_file}"
+fi
+
+exit 0
+

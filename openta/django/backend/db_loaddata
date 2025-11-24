@@ -1,0 +1,18 @@
+export SUBDOMAIN=$1
+subdomain=$1
+dbnamefile="/subdomain-data/${subdomain}/dbname.txt"
+echo $dbnamefile
+if test -e $dbnamefile ; then
+	echo "FILE FOUND"
+	dbname=`cat $dbnamefile | tr -d '\n'`
+else
+	echo $dbnamefile not found so exit;
+	exit
+fi
+echo "MIGRATE " ${subdomain}
+sed s/SUBDOMAIN/${subdomain}/ < fixtures/all.json | sed s/SUBDOMAIN/${dbname}/ > /tmp/all.json
+SUBDOMAIN=${subdomain} python manage.py  loaddata  -i  fixtures/auth.json --settings=backend.settings_manage --database=${subdomain}
+SUBDOMAIN=${subdomain} python manage.py  loaddata  -i  /tmp/all.json --settings=backend.settings_manage --database=${subdomain}
+python manage.py createcachetable --settings=backend.settings_manage --database=${subdomain}
+./db_repair ${subdomain}
+

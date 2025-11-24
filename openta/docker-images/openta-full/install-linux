@@ -1,0 +1,12 @@
+#!/bin/bash
+export BASE_VERSION=multi
+export FULL_VERSION=linux
+cp ../../django/requirements.txt .
+sudo rm -rf srv
+git clone https://${GIT_USER}:${GIT_TOKEN}@github.com/openta-development/openta-private.git -b development srv
+python3.11 ./srv/openta/django/backend/backend/version.py
+echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+echo creating dockerfile base:${FULL_VERSION}
+echo "The next command may take a few minutes"
+docker build -t opentaproject/openta-full:${FULL_VERSION}   .
+docker push opentaproject/openta-full:${FULL_VERSION}
