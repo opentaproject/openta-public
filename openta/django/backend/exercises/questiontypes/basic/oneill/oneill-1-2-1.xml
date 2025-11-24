@@ -1,0 +1,26 @@
+<exercise updated="true">
+  <exercisename>1.2.1</exercisename>
+  <global>
+    <vars>x,y,z,pp </vars>
+U1(pp) := [1,0,0];
+U2(pp) := [0,1,0];
+U3(pp) := [0,0,1];
+v(pp) := -2 U1(pp) + U2(pp) - U3(pp);
+w(pp) := 0 U1(pp) + U2(pp) + 3 U3(pp);
+p = [x,y,z];
+ans = 3 v(p) - 2 w(p);
+</global>
+  <text>
+    <h3> Let $ v = [-2,1,-1] $ and $ w = [0,1,3] $ </h3>
+    <em> In the following, one writes $ U_1(p) $ etc to stress that $ U_1 (p) $ is a tangent vector at the point $ p $. But since $ U_1 $ is identically valued for all $ p $ , this notation will be dropped in later problems and $ U_1(p) $ will simply be labeled $ U_1 $ </em>
+  </text>
+  <question key="a" type="matrix">
+    <hint>
+      <regex present="forbidden">\]</regex>
+      <comment> U1(p), U2(p) and U3(p) are required </comment>
+    </hint>
+    <text> (a) At an arbitrary point $ { p } $ express the tangent vector \[ 3 v_p - 2 w_p \] as a linear combination of $ U_1(p) $, $ U_2(p) $ and $ U_3(p) $. </text>
+    <vars> U1,U2,U3,p </vars>
+    <expression> -6 U1(p) + U2(p) - 9 U3(p) </expression>
+  </question>
+</exercise>

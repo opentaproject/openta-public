@@ -1,0 +1,182 @@
+html {
+  overflow-y: scroll;
+}
+
+.CodeMirror {
+  height: 80vh;
+}
+
+.options {
+  height: 100vh;
+  width: 100%;
+}
+
+.exercise-menu {
+  border-right: 1px solid #929292;
+}
+
+.border-top {
+  border-top: 1px solid #929292;
+}
+
+.revision-needed {
+  background-color: rgb(255, 237, 236);
+}
+
+.revision-not-needed {
+  background-color: rgb(244, 250, 228);
+}
+
+.audit-feedback {
+  background-color: red;
+}
+
+.border-bottom {
+  border-bottom: 1px solid #929292;
+}
+
+$exercise: 0.33;
+$exerciselist: 0.1;
+
+@function round($frac) {
+  @return floor($frac * 100) / 100;
+}
+
+@mixin layout($exerciselist, $exercise, $calcadmin, $onecolumn) {
+  .exercise-list-on-canvas {
+    @if $onecolumn {
+      display: none;
+    }
+  }
+  .exercise-list-off-canvas-old {
+    @if not($onecolumn) {
+      display: none;
+    }
+  }
+  .exercise-list {
+    //width: percentage($exerciselist);
+    max-width: 300px;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .exercise {
+    width: percentage($exercise);
+    max-width: 800px;
+    box-sizing: border-box;
+  }
+
+  .exercise-spacing {
+    width: round(percentage((1 - $exercise - $exerciselist)/2));
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .admin {
+    @if not($onecolumn) {
+      width: percentage(1); //percentage(1 - $exerciselist);
+    } @else {
+      width: 100%;
+    }
+    box-sizing: border-box;
+  }
+
+  .exercise-admin {
+    @if $calcadmin {
+      /*width: round(percentage($exercise / (1-$exerciselist)));*/
+      width: 50%;
+    } @else {
+      width: 100%;
+    }
+    box-sizing: border-box;
+  }
+
+  .xmleditor {
+    @if $calcadmin {
+      /*width: round(percentage(1 - $exercise / (1-$exerciselist)));*/
+      width: 50%;
+    } @else {
+      width: 100%;
+    }
+    box-sizing: border-box;
+  }
+}
+
+/*@media (min-width: 960px) {
+  @include layout(0.1, 0.33);
+}*/
+@media (max-width: 480px) {
+  @include layout(0, 1, false, true);
+}
+@media (min-width: 480px) and (max-width: 768px) {
+  @include layout(0.2, 0.8, false, false);
+}
+@media (min-width: 768px) and (max-width: 960px) {
+  @include layout(0.2, 0.8, false, false);
+}
+@media (min-width: 960px) {
+  @include layout(0.2, 0.8, true, false);
+}
+
+.ta-nav {
+  background-color: #eeeeee;
+}
+.exercise-list-thumb-wrap {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  min-height: 1em;
+  left: 0;
+  top: 0;
+}
+
+.exercise-thumb-wrap {
+  display: inline-block;
+  position: relative;
+  left: 0;
+  top: 0;
+}
+.exercise-thumb-nav {
+  position: relative;
+  top: 0;
+  left: 0;
+  -webkit-backface-visibility: hidden;
+  max-width: 100px;
+}
+
+.exercise-thumb-badge {
+  position: relative;
+  width: 100%;
+  text-align: left;
+}
+
+.exercise-thumb-nav-caption {
+  max-width: 100px;
+}
+
+.exercise-thumb-correct {
+  background-color: #00ff00;
+}
+
+.exercise-unpublished {
+  background-color: #f8c57a;
+}
+
+.exercise-a {
+  text-align: center;
+  background-color: #666666;
+}
+
+.results-table {
+  max-width: 800px;
+  box-sizing: border-box;
+}
+
+.results-filters {
+  max-width: 200px;
+  box-sizing: border-box;
+}
+
+.pointer {
+  cursor: pointer;
+}

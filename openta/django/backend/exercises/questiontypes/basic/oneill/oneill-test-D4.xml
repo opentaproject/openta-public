@@ -1,0 +1,27 @@
+<exercise exercise_key="a0462cc7-75b2-4bbd-afe5-b83508144c2c" updated="2024-10-21 01:50:10.857" by="super">
+  <exercisename>test-dD4</exercisename>
+  <global>
+    <oneforms>dx,dy,dz</oneforms>
+    <vars>g</vars>
+    <ops>X </ops>
+dxyz = [dx,dy,dz];
+id3 = [[1,0,0],[0,1,0],[0,0,1]];
+d(g) := dD( g , [dx,dy,dz],[x,y,z] ,[[1,0,0],[0,1,0],[0,0,1]] );
+G(X) := [ exp( X[1] ) - exp( X[2]) , exp( X[1] ) , exp( X[3] ) ];
+Gi(X) := mlog( [ X[2], X[2] - X[1], X[3] ]);
+p =[ 3.9123 , 2.632, 1.7727 ];
+xyz = [x,y,z];
+</global>
+  <question key="1">
+    <expression>[x,y,z] </expression>
+    <iscorrect>mexp( mlog( [x,y,z] ) ) </iscorrect>
+  </question>
+  <question key="2">
+    <expression>p </expression>
+    <iscorrect>G( Gi( p ) ) </iscorrect>
+  </question>
+  <question validate="False" key="3">
+    <expression>[[1,0,0],[0,1,0],[0,0,1]] </expression>
+    <istrue>$$ == dD( G(xyz ), dxyz , Gi( p ),id3 ) dD( Gi( xyz ), dxyz, p , id3 ) </istrue>
+  </question>
+</exercise>

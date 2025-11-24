@@ -1,0 +1,78 @@
+import React from 'react';
+import { connect } from 'react-redux';
+import ExerciseSelect from './ExerciseSelect';
+import { SUBPATH } from '../settings';
+import { enqueueTask } from '../fetchers';
+import { updateCustomResults } from '../actions';
+
+const BaseCustomResult = ({ onGenerateResults, exerciseState, taskId, progress, done, activeCourse }) => {
+  var selected = exerciseState
+    .filter((exercise) => typeof exercise == 'object')
+    .filter((exercise) => exercise.get('selected'));
+  var keys = selected.keySeq().toJS();
+  var urlkeys = keys.join(',');
+  return (
+    <div className="uk-flex uk-flex-wrap">
+      <div className="uk-panel-box" style={{ flex: '1' }}>
+        <ExerciseSelect />
+      </div>
+      <div data-uk-sticky="{top:100}">
+        <div className="uk-flex uk-flex-column uk-flex-middle uk-margin-left uk-panel uk-panel-box">
+          <div>
+            <p>Select exercises on the left</p>
+          </div>
+          {selected.size > 0 && (
+            <div>
+              <a className="uk-button" onClick={() => onGenerateResults(exerciseState, activeCourse)}>
+                Generate results
+              </a>
+            </div>
+          )}
+          <div className="uk-width-1-1 uk-margin-top">
+            {progress >= 0 && done !== true && (
+              <div className="uk-progress">
+                <div className="uk-progress-bar" style={{ width: progress + '%' }}>
+                  {progress}%
+                </div>
+              </div>
+            )}
+          </div>
+          {done && (
+            <div>
+              <a href={SUBPATH + '/queuetask/' + taskId + '/resultfile'}>Download excel file</a>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const mapDispatchToProps = (dispatch) => ({
+  onGenerateResults: (exerciseState, activeCourse) => {
+    var selected = exerciseState
+      .filter((exercise) => typeof exercise == 'object')
+      .filter((exercise) => exercise.get('selected'));
+    var exercises = selected.keySeq().toJS();
+    // dispatch(fetchCustomResults(exercises));
+    dispatch(
+      enqueueTask('/course/' + activeCourse + '/statistics/customresult', {
+        data: { exercises: exercises },
+        method: 'POST'
+      })
+    ).then((taskId) => dispatch(updateCustomResults({ taskId: taskId })));
+  }
+});
+
+const mapStateToProps = (state) => {
+  var taskId = state.getIn(['results', 'customResults', 'taskId']);
+  return {
+    taskId: taskId,
+    exerciseState: state.get('exerciseState'),
+    progress: state.getIn(['tasks', taskId, 'progress']),
+    done: state.getIn(['tasks', taskId, 'done']),
+    activeCourse: state.get('activeCourse')
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BaseCustomResult);

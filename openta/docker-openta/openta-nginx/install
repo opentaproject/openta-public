@@ -1,0 +1,3 @@
+echo creating docker openta-nginx:${VERSION}
+docker build --tag opentaproject/openta-nginx:${VERSION} .
+docker push opentaproject/openta-nginx:${VERSION}

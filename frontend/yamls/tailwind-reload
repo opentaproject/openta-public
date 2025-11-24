@@ -1,0 +1,2 @@
+#!/bin/bash
+kubectl delete statefulsets tailwind ; kubectl apply -f tailwind.yaml ; kubectl apply -f tailwind-service.yaml

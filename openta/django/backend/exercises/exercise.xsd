@@ -1,0 +1,365 @@
+<?xml version="1.1" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+<xs:include schemaLocation="html.xsd" />
+<xs:include schemaLocation="question.xsd" />
+
+<xs:attribute name="hidden" type="xs:string"/>
+
+
+  <xs:element name="exercise">
+    <xs:complexType mixed="false"> <!-- RESTRICT XML: used to be true -->
+      <xs:choice minOccurs="1" maxOccurs="unbounded">
+        <!-- xs:group ref="Html" / -->
+	<xs:element minOccurs="1" ref="exercisename"/>
+	<xs:element maxOccurs="1" ref="global"/>
+        <xs:element ref="text"/>
+	<xs:element ref="question"/>
+	<xs:element maxOccurs="1" ref="studentasset"/>
+        <xs:element maxOccurs="1" ref="macros"/>
+	<xs:element maxOccurs="1" ref="solution"/>
+	<xs:element maxOccurs="1" ref="figure"/>
+	<xs:element maxOccurs="1" ref="right"/>
+	<xs:element ref="ignore"/>
+	<xs:element ref="hidden"/>
+	<xs:element ref="ignore"/>
+      </xs:choice>
+     <xs:attribute name="updated" type="xs:string"/>
+<xs:attribute name="by" type="xs:string"/>
+<xs:attribute name="exercise_key" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="exercisename">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="alt"/>
+      </xs:sequence>
+       <xs:attribute name="hashkey" type="xs:NMTOKEN"/>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="studentasset">
+    <xs:complexType mixed="true">
+    </xs:complexType>
+  </xs:element>
+
+
+
+  <xs:element name="algorithm" type="xs:string"/>
+
+  <xs:element name="difficulty" type="xs:integer"/>
+
+  <xs:element name="name" type="xs:string"/>
+
+  <xs:element name="name7" type="xs:string"/>
+
+  <xs:element name="osolution">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="image"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="solutionsheet" type="xs:NCName"/>
+
+  <xs:element name="log">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="logitem"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="logitem">
+    <xs:complexType mixed="true">
+      <xs:attribute name="date" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="div">
+  <xs:complexType mixed="true">
+    <xs:attribute name="id" type="xs:NMTOKEN"/>
+   </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="notes">
+    <xs:complexType/>
+  </xs:element>
+
+<xs:element name="span">
+    <xs:complexType/>
+  </xs:element>
+
+<xs:element name="button">
+    <xs:complexType mixed="true">
+	<xs:attribute name="onclick" type="xs:string"/>
+	<xs:attribute name="style" type="xs:string"/>
+   </xs:complexType>
+  </xs:element>
+
+  <xs:element name="script">
+    <xs:complexType mixed="true">
+	<xs:attribute name="src" type="xs:string"/>
+   </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="link">
+    <xs:complexType mixed="true">
+	<xs:attribute name="rel" type="xs:string" use="required"/>
+	<xs:attribute name="href" type="xs:string" use="required"/>
+   </xs:complexType>
+  </xs:element>
+
+  <xs:element name="style">
+	  <xs:complexType mixed="true">
+	</xs:complexType>
+ </xs:element>
+
+
+
+
+  <xs:element name="snippet">
+    <xs:complexType mixed="true">
+      <xs:sequence minOccurs="0">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="Html" />
+	<xs:element ref="span"/>
+	<xs:element ref="button"/>
+	<xs:element ref="div"/>
+        <xs:element ref="text"/>
+      </xs:choice>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="script"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="style"/>
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="link"/>
+      </xs:sequence>
+
+      <xs:attribute name="id" type="xs:NMTOKEN"/>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="text">
+    <xs:complexType mixed="true">
+	 <xs:sequence minOccurs="9" maxOccurs="unbounded">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="Html" />
+        <xs:element ref="alt"/>
+        <xs:element ref="figure"/>
+        <xs:element ref="hidden"/>
+	<xs:element ref="ignore"/>
+	<xs:element ref="asset"/>
+        <xs:element ref="qmath"/>
+        <xs:element ref="right"/>
+        <xs:element ref="asset"/>
+        <xs:element ref="solution"/>
+	<xs:element ref="code"/>
+	<xs:element ref="div"/>
+	<xs:element ref="span"/>
+	<xs:element ref="snippet"/>
+        <xs:element ref="asciimath"/>
+      </xs:choice>
+      </xs:sequence> 
+      <xs:attribute name="class" type="xs:NCName"/>
+<xs:attribute name="hidden" type="xs:NCName"/>
+
+      <xs:attribute name="lang" type="xs:NCName"/>
+      <xs:attribute name="method" type="xs:NCName"/>
+      <xs:attribute name="hashkey" type="xs:NMTOKEN"/>
+    </xs:complexType>
+  </xs:element> 
+
+   <xs:element name="alt">
+    <xs:complexType mixed="true">
+	 <xs:sequence minOccurs="9" maxOccurs="unbounded">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="Html" />
+        <xs:element ref="figure"/>
+        <xs:element ref="hidden"/>
+	<xs:element ref="ignore"/>
+	<xs:element ref="asset"/>
+        <xs:element ref="qmath"/>
+        <xs:element ref="right"/>
+        <xs:element ref="asset"/>
+        <xs:element ref="solution"/>
+        <xs:element ref="code"/>
+	<xs:element ref="div"/>
+	<xs:element ref="span"/>
+	<xs:element ref="snippet"/>
+        <xs:element ref="asciimath"/>
+      </xs:choice>
+      </xs:sequence> 
+      <xs:attribute name="class" type="xs:NCName"/>
+      <xs:attribute name="lang" type="xs:NCName"/>
+      <xs:attribute name="method" type="xs:NCName"/>
+      <xs:attribute name="hashkey" type="xs:NMTOKEN"/>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="asciimath" type="xs:string"/>
+
+  <xs:element name="qmath" type="xs:string"/>
+
+  <xs:element name="solution">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:group ref="Html"/>
+        <xs:element ref="figure"/>
+        <xs:element ref="hint"/>
+        <xs:element ref="image"/>
+        <xs:element ref="qmath"/>
+        <xs:element ref="solution"/>
+        <xs:element ref="text"/>
+        <xs:element ref="asset"/>
+      </xs:choice>
+      <xs:attribute name="label"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="asset">
+          <xs:complexType>
+            <xs:simpleContent>
+              <xs:extension base="xs:normalizedString">
+                <xs:attribute type="xs:string" name="name"/>
+              </xs:extension>
+            </xs:simpleContent>
+          </xs:complexType>
+ </xs:element>
+
+<xs:element name="figure"  type="xs:normalizedString">
+  </xs:element>
+
+<xs:element name="code"  type="xs:normalizedString">
+  </xs:element>
+
+    <xs:element name="hidden">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="ignore">
+    <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+
+
+
+
+  <xs:element name="strong" type="xs:string"/>
+
+
+
+  <xs:element name="right">
+    <xs:complexType>
+      <xs:choice>
+        <xs:group ref="Html" />
+        <xs:element minOccurs='0' maxOccurs='unbounded' ref="figure"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="answer">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="hide"/>
+        <xs:element ref="parsed"/>
+        <xs:element ref="text"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="hide">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" ref="answer"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="hint"/>
+        <xs:choice minOccurs="0">
+          <xs:element ref="solution"/>
+          <xs:element ref="text"/>
+        </xs:choice>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="image">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:NMTOKEN">
+          <xs:attribute name="type" type="xs:NCName"/>
+          <xs:attribute name="width" type="xs:integer"/>
+        </xs:extension>
+      </xs:simpleContent>
+
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="parsed">
+    <xs:complexType/>
+  </xs:element>
+
+
+  <xs:element name="plot">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+	<xs:element ref="data"/>
+        <xs:element ref="layout"/>
+<xs:element ref="config"/>
+<xs:element ref="vars"/>
+      </xs:choice>
+      <xs:attribute name="schema" type="xs:NCName"/>
+    </xs:complexType>
+ </xs:element>
+
+ <xs:element name="data">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="func"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+<xs:element name="layout">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="func"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+<xs:element name="vars">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="func"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+<xs:element name="config">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="func"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+
+
+
+
+
+</xs:schema>
+
+

@@ -1,0 +1,7 @@
+FROM node:bullseye-slim
+EXPOSE 3000
+WORKDIR /srv
+COPY package.json .
+RUN apt update && apt install -y vim  git
+RUN npm install -g npm@9.8.1
+RUN npm install --force

@@ -1,0 +1,13 @@
+{% if progress %}
+  {% for message in progress %}
+    {% if message.0 == "info" %}
+    <li class="uk-text-primary">{{ message.1 }}</li>
+    {% elif message.0 == "error" %}
+    <li class="uk-text-danger">{{ message.1 }}</li>
+    {% elif message.0 == "warning" %}
+    <li class="uk-text-warning">{{ message.1 }}</li>
+    {% elif message.0 == "success" %}
+    <li class="uk-text-success">{{ message.1 }}</li>
+    {% endif %}
+  {% endfor %}
+{% endif %}

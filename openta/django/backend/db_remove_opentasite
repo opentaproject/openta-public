@@ -1,0 +1,15 @@
+#!/bin/bash
+export SUBDOMAIN=$1
+subdomain=$1
+dbnamefile="/subdomain-data/${subdomain}/dbname.txt"
+echo $dbnamefile
+if test -e $dbnamefile ; then
+	echo "FILE FOUND"
+	dbname=`cat $dbnamefile | tr -d '\n'`
+else
+	echo $dbnamefile not found so exit;
+	exit
+fi
+echo "MIGRATE " ${subdomain}
+SUBDOMAIN=$subdomain python manage.py remove_opentasite --settings=backend.settings_manage
+

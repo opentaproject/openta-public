@@ -1,0 +1,27 @@
+{% load i18n l10n admin_urls static %} 
+    <form method="post" class="uk-form uk-form-stacked">
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="uk-form-row">
+        {% for error in field.errors %}
+        <div class="uk-alert uk-alert-danger">{{ error | escape }}</div>
+        {% endfor %}
+        {% if field.help_text %}
+        <div class="uk-alert uk-text-left"><p class="help">{{ field.help_text|safe }}</p></div>
+        {% endif %}
+        <label class="uk-form-label" for={{ field.id_for_label }}> {{ field.label }} </label>
+        <div class="uk-form-controls"> {{ field }}</div>
+      </div>
+      {% endfor %}
+      {% for obj in queryset %}
+      <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
+      {% endfor %}
+      {% if action %}
+      <input type="hidden" name="action" value="{{action}}" />
+      {% endif %}
+      {% for key, item in hidden.items %}
+      <input type="hidden" name="{{ key }}" value="{{item}}" />
+      {% endfor %}
+      <input type="hidden" name="do_action" value="true" />
+      <input class="uk-button uk-margin-small-top uk-button-success" type="submit" value="{{ submit_text }}" />
+    </form>

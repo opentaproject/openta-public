@@ -1,0 +1,9 @@
+Welcome to OpenTA for {{course_name}}
+
+Your account has username {{ username }} but is not yet activated. Use the link below to activate the account.
+{{ activate_url }}
+
+After activation, you will be redirected to the login page, which you can find at
+{{ course_url }}
+
+If there are questions, comments or suggestions, you can answer this email or write to {{ course_email }}.

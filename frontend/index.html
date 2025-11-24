@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>-OpenTA-</title>
+    <meta charset="UTF-8" />
+
+    <link rel="stylesheet" href="/css/uikit.css" />
+    <link rel="stylesheet" type="text/css" href="/katex/katex.min.css" />
+    <link rel="icon" sizes="any" href="favicon.ico" />
+    <link rel="apple-touch-icon-precomposed" href="/icons/apple.png" />
+    <link rel="stylesheet" href="/css/app.css" />
+
+    <!-- see https://github.com/scniro/react-codemirror2/issues/66 -->
+    <script>
+      window.global = window;
+    </script>
+
+    <script>
+      var globalInit = {
+        coursePk: parseInt('1'),
+        timezone: 'Europe/Stockholm',
+        subpath: '',
+        openTAVersion: 'v968-5-g031ac5e0 031ac5e0 2022-08-27',
+        help_url: 'https://opentaproject.com',
+        new_folder: '0:New',
+        trash_folder: 'z:Trash',
+        use_stars: 'False',
+	use_sidecar: 'True',
+	answer_delay: parseInt('3'),
+	user_permissions: 'view_xml',
+        language_code: 'en',
+        exerciseKey: 'None',
+        subdomain: 'localhost',
+        username: 'super',
+        use_devtools: 'True',
+        adminurl: 'administration',
+	env_source: 'index.html',
+	course_pk: 1,
+	student_pk: 6,
+	adobe_id: 'adobe_id',
+	student_dialog: 'False',
+	sidecar_url : 'http://localhost:8080',
+	use_mathpix : 'True',
+	use_chatgpt : 'True',
+      };
+    </script>
+     <script>
+  window.MathJax = {
+    tex: {
+      packages: { '[+]': ['ams'] }, 
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true
+    },
+    svg: { fontCache: 'global' } // or use "chtml" if you prefer HTML output
+  };
+</script>
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" >
+</script>
+
+
+  </head>
+  <body>
+    <div id="app" exerciseKey="None"></div>
+
+    <script type="module" crossorigin src="/js/jquery.js"></script>
+    <script type="module" crossorigin src="/js/uikit.min.js"></script>
+    <script type="module" crossorigin src="/js/components/notify.min.js"></script>
+    <script type="module" crossorigin src="/js/components/lightbox.min.js"></script>
+    <script type="module" crossorigin src="/js/components/tooltip.min.js"></script>
+    <script type="module" crossorigin src="/js/components/sticky.min.js"></script>
+    <script type="module" crossorigin src="/katex/katex.min.js"></script>
+    <script type="module" src="/js/auto-render.min.js"></script>
+    <script type="module" src="/js/ASCIIMathTeXImg.js"></script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

@@ -1,0 +1,2 @@
+#!/bin/bash
+python manage.py dumpdata auth.group auth.group_permissions --natural-primary  --indent 2 --settings=backend.settings_manage --database=$1

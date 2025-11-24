@@ -1,0 +1,810 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-07-26 12:29+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+#: backend/forms.py:45 backend/forms.py:130
+msgid "User already exists, added you to the course."
+msgstr "المستخدم موجود بالفعل ، تمت إضافتك إلى الدورة التدريبية."
+
+#: backend/forms.py:97
+msgid "Email domain must be "
+msgstr "يجب أن يكون مجال البريد الإلكتروني"
+
+#: backend/forms.py:156
+msgid "Registration password"
+msgstr "كلمة مرور التسجيل"
+
+#: backend/maintenance.py:24 templates/maintenance.html:10
+msgid "Site is down for maintenance."
+msgstr "الموقع تحت الصيانة."
+
+#: backend/user_utilities.py:92
+msgid " account activation"
+msgstr "تفعيل الحساب"
+
+#: backend/views.py:279
+#, python-format
+msgid "EMAIL %s ALREADY EXISTS"
+msgstr "EMAIL %s EXISTS بالفعل"
+
+#: backend/views.py:293 backend/views.py:305
+#, python-format
+msgid "Password is now set, please login as %s."
+msgstr "تم تعيين كلمة المرور الآن ، يرجى تسجيل الدخول كـ %s."
+
+#: backend/views.py:482
+#, python-format
+msgid "Database \"%s\" is not configured."
+msgstr "لم يتم تكوين قاعدة البيانات &quot;%s&quot;."
+
+#: backend/views.py:486
+#, fuzzy
+#| msgid "Allow anonymous student login"
+msgid "Anonymous student not allowed"
+msgstr "السماح بتسجيل الدخول المجهول للطالب"
+
+#: backend/views.py:534 backend/views.py:903
+msgid "5 times per 30 seconds"
+msgstr "5 مرات في 30 ثانية"
+
+#: backend/views.py:587
+msgid "Activation successful, please login."
+msgstr "تم التفعيل بنجاح ، يرجى تسجيل الدخول."
+
+#: backend/views.py:633
+#, python-format
+msgid "User %s is already activated "
+msgstr "تم تنشيط المستخدم %s بالفعل"
+
+#: backend/views.py:636
+#, python-format
+msgid "Activating user %s which  does not exist"
+msgstr "تفعيل المستخدم %s وهو غير موجود"
+
+#: backend/views.py:758
+#, fuzzy
+#| msgid "Password must be changed from email"
+msgid "Your insecure password must be changed"
+msgstr "يجب تغيير كلمة المرور من البريد الإلكتروني"
+
+#: backend/views.py:790
+msgid "No courses yet"
+msgstr "لا توجد دورات بعد"
+
+#: backend/views.py:795
+msgid "Course requested does not exist "
+msgstr ""
+
+#: backend/views.py:825
+msgid "Not enrolled!"
+msgstr "لم يدرج اسمه!"
+
+#: backend/views.py:944
+msgid ""
+"Password reset link sent to your email (check your spam folder as well)."
+msgstr ""
+"تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني (راجع مجلد البريد "
+"العشوائي أيضًا)."
+
+#: backend/views.py:957
+msgid ""
+"If you are not receiving an reset link by email, check your spam filter or "
+"junk mail. The email was sent from "
+msgstr ""
+"إذا كنت لا تتلقى رابط إعادة التعيين عن طريق البريد الإلكتروني ، فتحقق من "
+"عامل تصفية البريد العشوائي أو البريد غير الهام. تم إرسال البريد الإلكتروني من"
+
+#: backend/views.py:957
+msgid " with the subject "
+msgstr "مع الموضوع"
+
+#: backend/views.py:963
+msgid "times per hour."
+msgstr "مرات في الساعة."
+
+#: backend/views.py:978
+msgid "Password reset successful, please login."
+msgstr "إعادة تعيين كلمة المرور بنجاح ، يرجى تسجيل الدخول."
+
+#: course/forms.py:43
+msgid "reveal LTI/Canvas parameters"
+msgstr "تكشف عن معلمات LTI / Canvas"
+
+#: course/forms.py:44
+msgid "Check to enable the use of  email"
+msgstr "تحقق لتمكين استخدام البريد الإلكتروني"
+
+#: course/forms.py:47
+msgid ""
+"Comma separated list of email domains that are permitted to self-register. "
+"Regex such as .* is accepted"
+msgstr ""
+"قائمة مفصولة بفواصل لمجالات البريد الإلكتروني المسموح لها بالتسجيل الذاتي. "
+"يتم قبول Regex مثل. *"
+
+#: course/forms.py:51
+msgid ""
+"A short name without spaces , capitals or special characters; appears in "
+"course-url. Saving the course name enforces this. Do not plan to change this "
+"after students have begun using the course via canvas/lti. "
+msgstr ""
+"اسم قصير بدون مسافات أو أحرف كبيرة أو أحرف خاصة ؛ يظهر في عنوان url بالطبع. "
+"حفظ اسم الدورة يفرض هذا. لا تخطط لتغيير هذا بعد أن يبدأ الطلاب في استخدام "
+"الدورة التدريبية عبر canvas / lti."
+
+#: course/forms.py:56
+msgid "A descriptive name appearing in on web pages. Can include blanks"
+msgstr "اسم وصفي يظهر في صفحات الويب. يمكن أن تشمل الفراغات"
+
+#: course/forms.py:59
+msgid "Check to enable the autotranslation; needs google_auth_string "
+msgstr "تحقق لتمكين الترجمة التلقائية ؛ يحتاج google_auth_string"
+
+#: course/forms.py:62
+msgid "Set up a password which can be used for self-registration"
+msgstr "قم بإعداد كلمة مرور يمكن استخدامها للتسجيل الذاتي"
+
+#: course/forms.py:64
+msgid "Temporary message to appear on the login page and top of OpenTA pages"
+msgstr "تظهر رسالة مؤقتة على صفحة تسجيل الدخول وأعلى صفحات OpenTA"
+
+#: course/forms.py:66
+msgid "Allow self-registration with email from the listed domains"
+msgstr "السماح بالتسجيل الذاتي مع البريد الإلكتروني من المجالات المدرجة"
+
+#: course/forms.py:69
+msgid ""
+"Password for your email account (Please use SSO, the password is stored in "
+"cleartext on the server)"
+msgstr ""
+"كلمة المرور لحساب بريدك الإلكتروني (يرجى استخدام SSO ، يتم تخزين كلمة المرور "
+"في نص واضح على الخادم)"
+
+#: course/forms.py:75
+msgid "For instance smtp.chalmers.se Uses port 587/TLS"
+msgstr "على سبيل المثال smtp.chalmers.se يستخدم المنفذ 587 / TLS"
+
+#: course/forms.py:76
+msgid "For instance CID@chalmers.se"
+msgstr "على سبيل المثال CID@chalmers.se"
+
+#: course/forms.py:77
+msgid "Email of smtp account owner ,i.e. CID@chalmers.se"
+msgstr "البريد الإلكتروني لمالك حساب smtp ، مثل CID@chalmers.se"
+
+#: course/forms.py:78
+msgid "Allow anonymous student login"
+msgstr "السماح بتسجيل الدخول المجهول للطالب"
+
+#: course/forms.py:79
+msgid "Usually CID, but is net.chalmers.se\\CID at chalmers"
+msgstr "عادةً ما يكون CID ، ولكنه net.chalmers.se \\ CID في chalmers"
+
+#: course/forms.py:82
+msgid "List of labels which can be displayed as option for each exercise."
+msgstr "قائمة التسميات التي يمكن عرضها كخيار لكل تمرين."
+
+#: course/forms.py:85
+msgid ""
+"Languages for translations in the course: the first language is dominant and "
+"used in emails."
+msgstr ""
+"لغات الترجمة في الدورة: اللغة الأولى هي السائدة وتستخدم في رسائل البريد "
+"الإلكتروني."
+
+#: course/models.py:181
+msgid "Auto translation cannot be enabled with a blank Google auth string."
+msgstr "لا يمكن تمكين الترجمة التلقائية بسلسلة مصادقة فارغة من Google."
+
+#: course/models.py:192
+msgid "Auto translation can only be enabled if Languages is nonempty."
+msgstr "لا يمكن تمكين الترجمة الآلية إلا إذا كانت اللغات غير فارغة."
+
+#: course/views/views.py:43
+msgid "Save"
+msgstr "يحفظ"
+
+#: exercises/models.py:161
+msgid "Added exercise "
+msgstr "تمرين إضافي"
+
+#: exercises/models.py:164
+msgid "Updated exercise "
+msgstr "تمرين محدث"
+
+#: exercises/models.py:241
+msgid "Checking status of file tree..."
+msgstr "جاري التحقق من حالة شجرة الملفات ..."
+
+#: exercises/models.py:350 exercises/models.py:376
+msgid "Duplicate exercise keys!"
+msgstr "مفاتيح تمرين مكررة!"
+
+#: exercises/models.py:354 exercises/models.py:380
+msgid "Exercise at ["
+msgstr "تمرن في ["
+
+#: exercises/models.py:357
+msgid "] has the same key as exercise in other course:"
+msgstr "] له نفس مفتاح التمرين في دورة أخرى:"
+
+#: exercises/models.py:382
+msgid "] has the same key as exercise at ["
+msgstr "] له نفس مفتاح التمرين في ["
+
+#: exercises/models.py:426 exercises/models.py:436 exercises/models.py:456
+msgid "The exercise with path "
+msgstr "التمرين مع المسار"
+
+#: exercises/models.py:428
+msgid " seems to have been moved to "
+msgstr "يبدو أنه قد تم نقله إلى"
+
+#: exercises/models.py:439
+msgid " does no longer contain an exercise.xml file and will be deleted."
+msgstr "لم يعد يحتوي على ملف Practice.xml وسيتم حذفه."
+
+#: exercises/models.py:459
+msgid ""
+" changed exercise key, this will result in a new exercise being added and "
+"the old one deleted."
+msgstr ""
+"تغيير مفتاح التمرين ، سيؤدي ذلك إلى إضافة تمرين جديد وحذف التمرين القديم."
+
+#: exercises/models.py:479
+msgid ""
+"Something will prevent a reload from being carried out, please review "
+"messages above."
+msgstr "شيء ما سيمنع إعادة التحميل ، يرجى مراجعة الرسائل أعلاه."
+
+#: exercises/models.py:487
+msgid "Are you sure you want to do these actions?"
+msgstr "هل أنت متأكد أنك تريد القيام بهذه الإجراءات؟"
+
+#: exercises/models.py:495
+msgid ""
+"Do you want to do a reload? This will update all existing exercises and "
+"perform any additional actions listed above."
+msgstr ""
+"هل تريد أن تفعل إعادة التحميل؟ سيؤدي هذا إلى تحديث جميع التمارين الحالية "
+"وتنفيذ أي إجراءات إضافية مذكورة أعلاه."
+
+#: exercises/models.py:520
+msgid "Deleted "
+msgstr "تم الحذف"
+
+#: exercises/models.py:522
+msgid " since it is not present on disc anymore"
+msgstr "لأنه لم يعد موجودًا على القرص بعد الآن"
+
+#: exercises/models.py:534
+msgid "Deleted an entry for "
+msgstr "تم حذف إدخال لـ"
+
+#: exercises/models.py:537
+msgid ""
+" since the stored exercise key did not correspond to the exercisekey in the "
+"folder."
+msgstr "نظرًا لأن مفتاح التمرين المخزن لا يتوافق مع مفتاح التمرين في المجلد."
+
+#: exercises/models.py:543
+msgid "Finished syncing exercises."
+msgstr "تم الانتهاء من تمارين المزامنة."
+
+#: exercises/question.py:285
+msgid "Answer rate exceeded, please wait before trying again. (Rate: "
+msgstr "تم تجاوز معدل الإجابة ، يرجى الانتظار قبل المحاولة مرة أخرى. (معدل:"
+
+#: exercises/questiontypes/basic/demo.py:78
+#: exercises/questiontypes/demo/demo.py:78
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:346
+#: exercises/questiontypes/numeric/numeric.py:313
+#: exercises/questiontypes/symbolic/symbolic.py:437
+#: exercises/questiontypes/symbolic/symbolic.py:467
+#: exercises/tests/e2e/questiontypes/pythonic/testdir/exercises/b1fd69bd-05b8-42a0-ab61-e8dcb9e30d99/pythonic/questions.py:194
+#: exercises/tests/e2e/questiontypes/pythonic/testdir/exercises/b1fd69bd-05b8-42a0-ab61-e8dcb9e30d99/pythonic/questions.py:213
+#: exercises/tests/e2e/questiontypes/pythonic/testdir/exercises/b1fd69bd-05b8-42a0-ab61-e8dcb9e30d99/pythonic/questions.py:235
+msgid "Failed to evaluate expression."
+msgstr "فشل في تقييم التعبير."
+
+#: exercises/questiontypes/basic/demo.py:81
+#: exercises/questiontypes/demo/demo.py:81
+#: exercises/questiontypes/numeric/numeric.py:316
+#: exercises/questiontypes/symbolic/symbolic.py:358
+msgid "Unknown error, check your expression."
+msgstr "خطأ غير معروف ، تحقق من تعبيرك."
+
+#: exercises/questiontypes/basic/demo.py:97
+#: exercises/questiontypes/demo/demo.py:97
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:573
+#: exercises/questiontypes/numeric/numeric.py:334
+#: exercises/questiontypes/pythonic/pythonic.py:66
+#: exercises/questiontypes/symbolic/symbolic.py:511
+#: exercises/tests/e2e/questiontypes/pythonic/testdir/exercises/b1fd69bd-05b8-42a0-ab61-e8dcb9e30d99/pythonic/questions.py:181
+#: exercises/utils/checks.py:202
+msgid "Answer contains invalid character "
+msgstr "تحتوي الإجابة على حرف غير صالح"
+
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:212
+msgid "ERROR IN AUTHOR EXPRESSION. "
+msgstr "خطأ في تعبير المؤلف."
+
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:484
+#, python-format
+msgid "Illegal matrix operation in %s"
+msgstr "عملية مصفوفة غير قانونية في %s"
+
+#: exercises/questiontypes/dev_linear_algebra/linear_algebra.py:489
+#, python-format
+msgid "Error 533 Failed to evaluate expression. %s "
+msgstr "خطأ 533 فشل تقييم التعبير. %s "
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:289
+#: exercises/questiontypes/numeric/numeric.py:130
+msgid "Seems like the expression does not have the correct units."
+msgstr "يبدو أن التعبير لا يحتوي على الوحدات الصحيحة."
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:325
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:327
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:329
+msgid "The answer does not have the correct dimensions."
+msgstr "الجواب ليس له الأبعاد الصحيحة."
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:334
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:340
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:342
+msgid "Forbidden token: "
+msgstr "رمز ممنوع:"
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:352
+#: exercises/questiontypes/symbolic/symbolic.py:350
+msgid ""
+"There seems to be a vector or matrix operation with incompatible dimensions."
+msgstr "يبدو أن هناك عملية متجه أو مصفوفة ذات أبعاد غير متوافقة."
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:357
+msgid "Syntax error; only spaces give implicity multiply "
+msgstr "خطأ في بناء الجملة؛ الفراغات فقط هي التي تعطي الضمنية مضاعفة"
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:361
+msgid "Syntax error; look for misplaced comma "
+msgstr ""
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:366
+#, fuzzy
+#| msgid "Unknown error "
+msgid "Unknown syntax error "
+msgstr "خطأ غير معروف"
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:372
+#, fuzzy, python-brace-format
+#| msgid "Unidentified error 310 , check your expression. %s %s "
+msgid "Illegal operation - error 310 check your expression {student_answer}  "
+msgstr "خطأ غير معروف 310 ، تحقق من التعبير. %s %s "
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:473
+#: exercises/questiontypes/numeric/numeric.py:309
+msgid " are not valid variables."
+msgstr "ليست متغيرات صالحة."
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:529
+#, fuzzy
+#| msgid "Name error. Hint: space necessary for implicit multiply "
+msgid ""
+"Name error 427. Hint: Possible issue: space necessary for implicit multiply "
+msgstr "خطأ في الاسم. تلميح: مساحة ضرورية لعملية الضرب الضمني"
+
+#: exercises/questiontypes/linear_algebra/linear_algebra.py:550
+#, fuzzy
+#| msgid "Unidentified error 409 , check your expression. %s %s "
+msgid "Unidentified error 409 , check your expression."
+msgstr "خطأ غير معروف 409 ، تحقق من التعبير الخاص بك. %s %s "
+
+#: exercises/questiontypes/multiple_choice/__init__.py:75
+#: exercises/questiontypes/multiple_choice/__init__.py:76
+msgid "There are more correct alternatives."
+msgstr "هناك بدائل أكثر صحة."
+
+#: exercises/questiontypes/numeric/numeric.py:117
+msgid "Terms do not seem to have the same unit."
+msgstr "لا يبدو أن الشروط لها نفس الوحدة."
+
+#: exercises/questiontypes/numeric/numeric.py:303
+msgid "Incorrect: variables missing: "
+msgstr "غير صحيح: المتغيرات مفقودة:"
+
+#: exercises/questiontypes/numeric/numeric.py:305
+msgid "Failed to evaluate expression"
+msgstr "فشل في تقييم التعبير"
+
+#: exercises/questiontypes/numeric/numeric.py:307
+msgid " are not valid variables"
+msgstr "ليست متغيرات صالحة"
+
+#: exercises/questiontypes/safe_run.py:56
+msgid "Could not parse expression"
+msgstr "تعذر تحليل التعبير"
+
+#: exercises/questiontypes/symbolic/symbolic.py:256
+#: exercises/questiontypes/symbolic/symbolic.py:264
+#: exercises/questiontypes/symbolic/symbolic.py:269
+#: exercises/utils/checks.py:393
+msgid "incorrect dimensions"
+msgstr "أبعاد غير صحيحة"
+
+#: exercises/questiontypes/symbolic/symbolic.py:287
+#: exercises/utils/checks.py:424
+msgid "(E) Forbidden token: "
+msgstr "(هـ) رمز ممنوع:"
+
+#: exercises/questiontypes/symbolic/symbolic.py:293
+#: exercises/utils/checks.py:430
+msgid "(F) Forbidden token: "
+msgstr "(و) رمز ممنوع:"
+
+#: exercises/questiontypes/symbolic/symbolic.py:295
+#: exercises/utils/checks.py:432
+msgid "(G) Forbidden token: "
+msgstr "(ز) رمز ممنوع:"
+
+#: exercises/questiontypes/symbolic/symbolic.py:450
+msgid "Unknown error2, check your expression."
+msgstr "خطأ غير معروف 2 ، تحقق من تعبيرك."
+
+#: exercises/questiontypes/symbolic/symbolic.py:481
+msgid "Unknown error 1, check your expression."
+msgstr "خطأ غير معروف 1 ، تحقق من التعبير الخاص بك."
+
+#: exercises/tests/e2e/questiontypes/pythonic/testdir/exercises/b1fd69bd-05b8-42a0-ab61-e8dcb9e30d99/pythonic/questions.py:196
+#: exercises/tests/e2e/questiontypes/pythonic/testdir/exercises/b1fd69bd-05b8-42a0-ab61-e8dcb9e30d99/pythonic/questions.py:215
+#: exercises/tests/e2e/questiontypes/pythonic/testdir/exercises/b1fd69bd-05b8-42a0-ab61-e8dcb9e30d99/pythonic/questions.py:237
+msgid "Unknown error "
+msgstr "خطأ غير معروف"
+
+#: exercises/utils/checks.py:172
+msgid "Incorrect units"
+msgstr "وحدات غير صحيحة"
+
+#: exercises/utils/checks.py:207
+#, python-format
+msgid "Illegal pattern %s in %s "
+msgstr "نمط غير قانوني %s في %s "
+
+#: exercises/utils/checks.py:225
+#, python-format
+msgid "%s"
+msgstr "%s"
+
+#: exercises/utils/checks.py:229
+msgid "Unbalanced parenthesis"
+msgstr "أقواس غير متوازنة"
+
+#: exercises/utils/checks.py:258
+msgid "(A) Forbidden token: "
+msgstr "(أ) رمز ممنوع:"
+
+#: exercises/utils/checks.py:268
+msgid "answer in terms of an equality using == "
+msgstr "الإجابة من حيث المساواة باستخدام =="
+
+#: exercises/utils/checks.py:271
+msgid "an equality is not permitted as answer"
+msgstr "لا يجوز المساواة كإجابة"
+
+#: exercises/utils/checks.py:279
+#, fuzzy
+#| msgid "inverse trig function"
+msgid "The inverse trig function "
+msgstr "دالة حساب المثلث العكسي"
+
+#: exercises/utils/checks.py:279
+#, fuzzy
+#| msgid " is forbidden"
+msgid " is forbidden "
+msgstr "ممنوع"
+
+#: exercises/utils/checks.py:282
+msgid "forbidden function"
+msgstr "وظيفة ممنوعة"
+
+#: exercises/utils/checks.py:314
+#, fuzzy
+#| msgid "use square brackets for vectors and matrices"
+msgid ""
+"Look for misplaced comma. Use square brackets if you are using vectors or "
+"matrices."
+msgstr "استخدم الأقواس المربعة للمتجهات والمصفوفات"
+
+#: exercises/utils/checks.py:317
+msgid ""
+"Unknown error 279: Look for missing square brackets for vectors, stray or "
+"incorrectly placed commas."
+msgstr ""
+
+#: exercises/utils/checks.py:323
+msgid "function is missing an argument"
+msgstr "وظيفة تفتقد إلى وسيطة"
+
+#: exercises/utils/checks.py:339
+#, fuzzy
+#| msgid ""
+#| "Matrix dimensions inconsistent with each other or with the result. You "
+#| "must mul(A,B) for multiplying a matrix or matrix times vector"
+msgid ""
+"Matrix dimensions inconsistent with each other or with the result. Possible "
+"reasons: You must mul(A,B) for multiplying a matrix or matrix times vector. "
+"The matrices must have proper dimenions for that. You also can't divide by a "
+"matrix or vector. "
+msgstr ""
+"أبعاد المصفوفة غير متوافقة مع بعضها البعض أو مع النتيجة. يجب أن تضرب "
+"المصفوفة (A، B) لضرب متجه مصفوفة أو مضروبة في المصفوفة"
+
+#: exercises/utils/checks.py:365
+#, python-format
+msgid ""
+"%s \n"
+" %s %s"
+msgstr ""
+"%s \n"
+" %s %s"
+
+#: exercises/utils/checks.py:369
+#, fuzzy, python-format
+#| msgid ""
+#| "%s \n"
+#| " %s %s"
+msgid "%s answer=>%s< %s %s"
+msgstr ""
+"%s \n"
+" %s %s"
+
+#: exercises/utils/checks.py:375
+msgid ""
+" Error 213: Unidentified Error\n"
+" "
+msgstr "خطأ 213: خطأ غير معروف"
+
+#: exercises/utils/checks.py:380
+#, python-format
+msgid "%s %s %s"
+msgstr "%s %s %s"
+
+#: exercises/utils/checks.py:402
+msgid "Error 182 incorrect dimensions"
+msgstr "خطأ 182 أبعاد غير صحيحة"
+
+#: exercises/utils/checks.py:407
+msgid "Error 188 incorrect dimensions"
+msgstr "خطأ 188 أبعاد غير صحيحة"
+
+#: exercises/views/api.py:194
+msgid "Permission denied"
+msgstr "طلب الاذن مرفوض"
+
+#: exercises/views/api.py:1229
+msgid "Exercise not activated."
+msgstr "التمرين غير مفعل."
+
+#: exercises/views/api.py:1237
+msgid "You are limited to "
+msgstr "أنت مقيد بـ"
+
+#: exercises/views/api.py:1237
+msgid " exercise check tries per minute."
+msgstr "تحقق من التمرين يحاول في الدقيقة."
+
+#: exercises/views/api.py:1380 exercises/views/api.py:1441
+#, fuzzy
+#| msgid ""
+#| "File larger than 10mb, please try to reduce the size and upload again. "
+#| "(For images try to reduce the resolution and for pdf files it is most "
+#| "likely large embedded images)"
+msgid ""
+"File upload failed. File larger than 14mb, please try to reduce the size and "
+"upload again. (For images try to reduce the resolution and for pdf files the "
+"problem is most likely large embedded images.) There is actually no good "
+"reason to upload files of any type larger than approx 3mb."
+msgstr ""
+"ملف أكبر من 10 ميغا بايت ، يرجى محاولة تقليل الحجم وإعادة التحميل. (بالنسبة "
+"للصور ، حاول تقليل الدقة وبالنسبة لملفات pdf ، فمن المرجح أن تكون صورًا مدمجة "
+"كبيرة)"
+
+#: exercises/views/api.py:1668
+msgid "You cannot delete after the deadline has passed."
+msgstr "لا يمكنك الحذف بعد انقضاء الموعد النهائي."
+
+#: opentalti/templates/bye.html:6
+msgid "Permission Denied"
+msgstr "طلب الاذن مرفوض"
+
+#: opentalti/templates/bye.html:9
+msgid "Bye!"
+msgstr "وداعا!"
+
+#: opentalti/templates/bye.html:11
+msgid "Session terminated"
+msgstr "إنهاء الجلسة"
+
+#: opentalti/templates/denied.html:6 opentalti/templates/denied.html:9
+#: templates/denied.html:6 templates/denied.html:9
+msgid "LTI authentication failed:"
+msgstr "فشلت مصادقة LTI:"
+
+#: opentalti/templates/lti_consumer.html:20
+#: templates/registration/login.html:20
+msgid "Your username is usually your email"
+msgstr "عادة ما يكون اسم المستخدم الخاص بك هو بريدك الإلكتروني"
+
+#: opentalti/templates/lti_consumer.html:22
+#: templates/registration/login.html:22
+msgid "Login failed"
+msgstr "فشل عملية الدخول"
+
+#: opentalti/templates/lti_consumer.html:58
+msgid "Log in anonymously to"
+msgstr "تسجيل الدخول مجهول إلى"
+
+#: templates/activation_failed.html:10
+msgid "Activation failed."
+msgstr "فشل التفعيل."
+
+#: templates/audit/subject.txt:2
+msgid "Random audit - Exercise "
+msgstr "تدقيق عشوائي - تمرين"
+
+#: templates/base_failed.html:12
+msgid "Request failed ."
+msgstr "الطلب فشل ."
+
+#: templates/change_password.html:14
+msgid "Save changes"
+msgstr ""
+
+#: templates/change_password.html:15
+msgid "Cancel"
+msgstr ""
+
+#: templates/csrf_failure.html:6
+msgid "CSRF authentication failed:"
+msgstr "فشل مصادقة CSRF:"
+
+#: templates/csrf_failure.html:9
+msgid "CSRF failure :"
+msgstr "فشل CSRF:"
+
+#: templates/email_users.html:39
+msgid "Send batch email"
+msgstr "إرسال بريد إلكتروني مجمّع"
+
+#: templates/examine/not_passed_exercises.html:10
+#: templates/examine/passed_exercises.html:24
+msgid "Home"
+msgstr "منزل، بيت"
+
+#: templates/examine/not_passed_exercises.html:11
+#: templates/examine/passed_exercises.html:25
+msgid "Exercises"
+msgstr "تمارين"
+
+#: templates/examine/not_passed_exercises.html:77
+msgid "Send email to users"
+msgstr "أرسل بريدًا إلكترونيًا إلى المستخدمين"
+
+#: templates/examine/passed_exercises.html:52
+msgid "Username"
+msgstr "اسم المستخدم"
+
+#: templates/info.html:10
+msgid "Info."
+msgstr "معلومات."
+
+#: templates/rate_limit.html:10
+msgid "You can only access this page "
+msgstr "يمكنك فقط الوصول إلى هذه الصفحة"
+
+#: templates/register.html:15
+msgid "Valid domains: "
+msgstr "المجالات الصالحة:"
+
+#: templates/register.html:35
+msgid "Send verification email"
+msgstr "ارسل ايميل التفعيل"
+
+#: templates/registration/login.html:50
+msgid "Log in"
+msgstr "تسجيل الدخول"
+
+#: templates/registration/login.html:54
+msgid "Proceed without registration"
+msgstr "أكمل بدون تسجيل"
+
+#: templates/registration/login.html:61 templates/registration/login.html:63
+msgid "Register by email"
+msgstr "التسجيل عن طريق البريد الإلكتروني"
+
+#: templates/registration/login.html:70
+msgid "Lost password?"
+msgstr "كلمة مرور مفقودة؟"
+
+#: templates/registration/login.html:74
+#: templates/registration/register_anonymous_user.html:25
+#: templates/registration/set_password.html:25
+msgid "Register"
+msgstr "يسجل"
+
+#: templates/registration/login.html:78
+msgid "Problem?"
+msgstr "مشكلة؟"
+
+#: templates/registration/login.html:85
+msgid "Privacy"
+msgstr "خصوصية"
+
+#: templates/registration/password_reset_confirm.html:23
+msgid "Set password"
+msgstr "ضبط كلمة السر"
+
+#: templates/registration/password_reset_confirm.html:26
+msgid "This reset link is no longer valid."
+msgstr "رابط إعادة التعيين هذا لم يعد صالحًا."
+
+#: templates/registration/password_reset_form.html:22
+msgid "Send reset link"
+msgstr "أرسل رابط إعادة التعيين"
+
+#: templates/registration/register_with_password.html:23
+msgid "To registration"
+msgstr "للتسجيل"
+
+#, python-format
+#~ msgid "Site %s exists but is misconfigured."
+#~ msgstr "الموقع %s موجود ولكن لم يتم تكوينه بشكل خاطئ."
+
+#~ msgid ""
+#~ "Google Auth string does not pass validation. Set it to blank to avoid "
+#~ "error. "
+#~ msgstr ""
+#~ "لا تجتاز سلسلة &quot;مصادقة Google&quot; عملية التحقق من الصحة. اضبطه على "
+#~ "فارغ لتجنب الخطأ."
+
+#~ msgid "Attribute error 279"
+#~ msgstr "خطأ في السمة 279"
+
+#~ msgid "Error subsituting  for variable"
+#~ msgstr "خطأ في التحويل للمتغير"
+
+#~ msgid "ILLEGAL CHARACTER "
+#~ msgstr "شخصية غير قانونية"
+
+#~ msgid "Error in facit: "
+#~ msgstr "خطأ في المظهر:"
+
+#~ msgid "Expression could not be parsed."
+#~ msgstr "لا يمكن تحليل التعبير."
+
+#~ msgid "E2-illegal character "
+#~ msgstr "E2- شخصية غير قانونية"
+
+#~ msgid "1-Answer contains invalid character "
+#~ msgstr "1-إجابة تحتوي على حرف غير صالح"
+
+#, python-format
+#~ msgid "Unidentified error 428 , check your expression. %s %s "
+#~ msgstr "خطأ غير معروف 428 ، تحقق من التعبير الخاص بك. %s %s "

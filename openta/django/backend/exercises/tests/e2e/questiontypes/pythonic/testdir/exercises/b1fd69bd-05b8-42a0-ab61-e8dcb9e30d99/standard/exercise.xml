@@ -1,0 +1,16 @@
+<exercise>
+
+  <exercisename>standard</exercisename>
+
+  <global>
+      a = 3;
+      b = 5
+  </global>
+  <text>
+    <p><em>This is an exercise template, see the <a href="https://hlinander.github.io/openta/author/index.html">OpenTA documentation</a> for a detailed reference.</em></p>
+  </text>
+  <question key="0" type="devLinearAlgebra">
+    <text>What is the length of the hypothenuse of a right angled triangle with sides $a$ and $b$?</text>
+    <expression>sqrt(a^2+b^2)</expression>
+  </question>
+</exercise>

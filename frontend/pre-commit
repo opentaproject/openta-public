@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+echo "DOING PRE-COMMIT"
+FILES=$(git diff --cached --name-only --diff-filter=ACMR | sed 's| |\\ |g')
+gh=`git log -n 1 | head -n 1 | sed -e "s/^commit //" | head -c 8`
+
+# exit if there are no staged files
+[ -z "$FILES" ] && exit 0
+
+# for each staged file
+for FILE in $FILES; do
+    if [[ "$FILE" =~ \.jsx?$ ]]; then
+        # ensure there are no ESLint errors
+        ./node_modules/.bin/eslint --quiet $FILE
+
+        if [[ "$?" != 0 ]]; then
+            echo "ERROR: ESLint is reporing a problem with $FILE "
+            exit 1
+        fi
+    fi
+
+    # Prettify the file
+    ./node_modules/.bin/prettier --ignore-unknown --write $FILE
+
+    # Add back the file to staging
+    git add $FILE
+done
+
+
+exit 0

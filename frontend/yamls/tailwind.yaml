@@ -1,0 +1,249 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: tailwind
+  labels:
+    app: tailwind
+spec:
+  serviceName: "tailwind-stateful-set"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tailwind
+  template:
+    metadata:
+      labels:
+        app: tailwind
+    spec:
+      volumes:
+        - name: pv-claim-demo
+          persistentVolumeClaim:
+            claimName: pv-claim-demo
+        - name: deploystatic
+          emptyDir: {} 
+        - name: static
+          emptyDir: {} 
+
+
+      containers:
+        - name: redis-local
+          image: redis:7.0.4
+          args: ["--appendonly", "yes"]
+          ports:
+            - name: redis-local
+              containerPort: 6379
+          env:
+              - name: ALLOW_EMPTY_PASSWORD
+
+        - name: frontend
+          image: opentaproject/openta-frontend:v1500
+          imagePullPolicy: Always
+          command:  ["/bin/bash","-c"] 
+          args: 
+            - cp -rp /srv/dist/* /static;
+              touch /srv/dist/copy-done;
+              touch /static/copy-done;
+              npm run dev
+          volumeMounts:
+            - mountPath: /static
+              name: static
+            - mountPath: /deploystatic
+              name: deploystatic
+          ports: 
+            - containerPort: 3200
+
+
+
+
+        - name: web
+          command: ["/bin/bash","-c"] 
+          args:
+            - cd backend; 
+              export ADMINURL=`uuid`;
+              ln -s   /srv/openta/django/backend/supervisord_kub_combined.conf  /srv/openta/django/backend/supervisord.conf;
+              python manage.py migrate;
+              python manage.py clear_cache;
+              cp -rp /subdomain-data/auth/ssh /root ; 
+              mv /root/ssh /root/.ssh;
+              rm -rf  /srv/openta/django/backend/deploystatic/*;
+              while ! test -f /static/copy-done ; do sleep 2 ; done ;
+              rm -rf /srv/openta/django/backend/static;
+              ln -s /static /srv/openta/django/backend/static;
+              python manage.py collectstatic --noinput ;
+              cp -rp /srv/openta/django/backend/deploystatic/* /deploystatic;
+              /usr/local/bin/supervisord -c /srv/openta/django/backend/supervisord.conf ;
+          image: opentaproject/openta:v1500
+          imagePullPolicy: Always
+          env: 
+            - name: VALIDATE_IDENTIFIER
+              value: 'False'
+            - name: WEBWORK_LIBRARY 
+              value: '/opt/webwork/libraries/webwork-open-problem-library'
+            - name: HTDOCS_TMP
+              value: '/subdomain-data/htdocs'
+            - name: HTTP_PROTOCOL
+              value: 'https'
+            - name: OPENTA_SERVER
+              value: 'tailwind.opentaproject.org'
+            - name: HTTP_SERVER_PORT
+              value: '443'
+            - name: ANSWER_DELAY
+              value: '1000'
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                    fieldPath: metadata.name
+            - name: PGUSER
+              valueFrom:
+                configMapKeyRef:
+                  name: openta-org-config
+                  key: PGUSER
+            - name: SUPERUSER_PASSWORD 
+              valueFrom:
+                configMapKeyRef:
+                  name: openta-org-config
+                  key: SUPERUSER_PASSWORD
+            - name: USE_INVITATIONS
+              value: 'True'
+            - name: USE_GMAIL 
+              value: 'True'
+            - name: EMAIL_BACKLOG
+              value: '48'
+            - name: TRUST_LTI_USER_ID
+              value: 'False'
+            - name: USE_DEEPL
+              value: 'False'
+            - name: DEEPL_AUTH_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: openta-org-config
+                  key: DEEPL_AUTH_KEY
+
+            - name: MAILGUN_API_KEY
+              valueFrom:
+                configMapKeyRef:
+                  name: openta-org-config
+                  key: MAILGUN_API_KEY
+
+            - name: PGPASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: openta-org-config
+                  key: PGPASSWORD
+            - name: EMAIL_HOST_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: openta-org-config
+                  key: EMAIL_HOST_PASSWORD
+
+            - name: EMAIL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: openta-org-config
+                  key: EMAIL_HOST
+
+            - name: EMAIL_HOST_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: openta-org-config
+                  key: EMAIL_HOST_USER
+
+            - name: EMAIL_REPLY_TO
+              valueFrom:
+                configMapKeyRef:
+                  name: openta-org-config
+                  key: EMAIL_REPLY_TO
+
+
+
+
+            - name: SERVER
+              value: 'opentaproject.org'
+            - name: TZ
+              value: Europe/Stockholm
+            - name: HANDLER_500
+              value: 'True'
+            - name: DO_CACHE
+              value: 'False'
+            - name: USE_DEVTOOLS
+              value: 'True'
+            - name: CHECK_REFERER
+              value: 'True'
+            - name: RUNNING_DEVSERVER
+              value: 'False'
+            - name: USE_CDN
+              value: 'False'
+            - name: ENABLE_AUTO_TRANSLATE 
+              value: 'True'
+            - name: USE_VITE 
+              value: 'False'
+            - name: LEVEL
+              value: 'ERROR'
+            - name: LEGACY_FILE_SERVE
+              value: 'False'
+            - name: USE_ACCEL_REDIRECT
+              value: 'False'
+            - name: VERSION
+              value: 'v1500'
+            - name: CACHE_FOLDERS
+              value: 'True'
+            - name: DEBUG
+              value: 'True'
+            - name: MEMCACHEDLOCATION
+              value: 'memcached-service:11211'
+            - name: REDIS_HOST
+              value: 'localhost'
+            - name: PGHOST
+              value: pgbouncer-service
+            - name: DB_NUMBER
+              value: '1'
+            - name: ADOBE_ID
+              value: '266ee8eb31544da8926852e4314e9373'
+            - name: STATIC_URL
+              value: "/static/"
+            - name: NOT_OK_STATIC_URL
+              value: "http://10.3.248.103:3200/" # not exposed to outside
+            - name: STATICFILES_STORAGE
+              value: "django.contrib.staticfiles.storage.StaticFilesStorage"
+
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: ISRQWORKER
+              value: 'False'
+          resources:
+            requests:
+              memory: "170Mi"
+
+          volumeMounts:
+            - mountPath: /subdomain-data
+              name: pv-claim-demo
+              subPath: data/openta/subdomain-data
+            - mountPath: /static
+              name: static
+            - mountPath: /deploystatic
+              name: deploystatic
+
+        - name: nginx
+          image: opentaproject/openta-nginx:v1400
+          imagePullPolicy: Always
+          ports: 
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /subdomain-data
+              name: pv-claim-demo
+              subPath: data/openta/subdomain-data
+            - mountPath: /etc/nginx/conf.d # DO THIS IN ORDER TO FIDLE WITH CONF FILE
+              name: pv-claim-demo
+              subPath: data/openta/subdomain-data/conf.d
+            - mountPath: /static # DO THIS IN ORDER TO FIDLE WITH CONF FILE
+              name: static
+            - mountPath: /deploystatic #  DO THIS IN ORDER TO FIDLE WITH CONF FILE
+              name: deploystatic
+
+          
+      restartPolicy: Always
+      priorityClassName: lowest-priority
+      imagePullSecrets:
+        - name: opentaproject-docker-image-pull-secret

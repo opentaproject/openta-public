@@ -1,0 +1,29 @@
+{
+  "include": ["django/backend"],
+  "exclude": ["**/node_modules", "**/__pycache__"],
+  "ignore": ["**/node_modules", "**/__pycache__"],
+
+  "pythonPlatform": "Linux",
+  "pythonVersion": "3.9",
+
+  "reportGeneralTypeIssues": false,
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": true,
+  "reportUnknownArgumentType": false,
+  "reportUnknownMemberType": false,
+  "reportUnknownVariableType": false,
+  "reportUntypedFunctionDecorator": false,
+  "reportUnusedImport": true,
+  "typeCheckingMode": "strict",
+  "useLibraryCodeForTypes": false,
+
+  "executionEnvironments": [
+    {
+      "root": "django/backend",
+      "venvPath": "django",
+      "venv": ".venv",
+      "pythonPlatform": "Linux",
+      "pythonVersion": "3.9"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+<exercise updated="true">
+  <exercisename>1.3.4</exercisename>
+  <global>
+    <vars>x,y,z,U1,U2,U3,h</vars>
+V = y^2 U1 - x U3;
+f = x y;
+g = z^3;
+opV(h) := partial( V, U1 ) partial(h ,x )  + partial(V,U3) partial( h , z );
+</global>
+  <text> Compute the following quantities
+  </text>
+  <question key="a" type="default">
+    <text> (a) $ V = y^2 U_1 - x U_3 $ and $ f = x y $  \[ V [f] \]
+    </text>
+    <expression> y^3 </expression>
+    <iscorrect> partial(V, U1 ) partial(f,x) + partial(V,U2) partial(f,y) + partial(V,U3) partial(f,z) </iscorrect>
+  </question>
+  <question key="b" type="default">
+    <text> (b) $ V = y^2 U_1 - x U_3 $ ,  $ f = x y $  and $ g = z^3 $  \[ V [g] \] 
+    </text>
+    <expression> - 3 x z^2  </expression>
+    <iscorrect> partial(V, U1 ) partial(g,x) + partial(V,U2) partial(g,y) + partial(V,U3) partial(g,z) </iscorrect>
+  </question>
+  <question key="c" type="default">
+    <text> (c) $ V = y^2 U_1 - x U_3 $ and $ f = x y $ and $ g = z^3 $ \[ V [fg] \]  
+    </text>
+    <expression> - x y 3 x z^2 +  y^3 z^3  </expression>
+    <iscorrect>  partial(V, U1 ) partial(f g ,x) + partial(V,U2) partial(f g ,y) + partial(V,U3) partial(f g ,z) </iscorrect>
+    <iscorrect>  g answera +  f answerb </iscorrect>
+  </question>
+  <question key="d" type="default">
+    <text> (d) $ V = y^2 U_1 - x U_3 $ and $ f = x y $ and $ g = z^3 $ \[  f V[g] - g V[f] \] 
+    </text>
+    <expression> - x y 3 x z^2 -   y^3 z^3  </expression>
+    <iscorrect>  f answerb - g answera  </iscorrect>
+  </question>
+  <question key="e" type="default">
+    <text> (e) $ V = y^2 U_1 - x U_3 $ and $ f = x y $ and $ g = z^3 $  \[ V [f^2 + g^2  ] \] 
+    </text>
+    <expression>  2 x y^4 - 6 x z^5   </expression>
+    <iscorrect> opV( f^2 + g^2)    </iscorrect> 
+    <vars>f,g,x,y,z</vars>
+    <iscorrect> partial( V, U1 ) partial( f^2 + g^2 ,x ) + partial(V,U2) partial( f^2 + g^2,y)  + partial(V,U3) partial( f^2 + g^2 , z ) </iscorrect>
+  </question>
+  <question key="f" type="default">
+    <text> (f) $ V = y^2 U_1 - x U_3 $ and $ f = x y $ and $ g = z^3 $  \[ V [ V [f] ] \] 
+    </text>
+    <expression> 0 x y z   </expression>
+    <iscorrect> opV( opV( f) )</iscorrect>
+  </question>
+</exercise>

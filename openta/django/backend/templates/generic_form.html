@@ -1,0 +1,32 @@
+{% extends "admin/base_site.html" %}
+{% load widget_tweaks %}
+{% load i18n l10n admin_urls static %}
+
+{% block extrastyle %}{{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "css/uikit.min.css" %}" />
+  <link rel="stylesheet" href="{% static "css/components/datepicker.min.css" %}" />
+  <link rel="stylesheet" href="{% static "css/components/autocomplete.min.css" %}" />
+  <link rel="stylesheet" href="{% static "css/components/tooltip.min.css" %}" />
+  <link rel="stylesheet" type="text/css" href="{% static "css/app.css" %}">
+{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script src="{% static "js/jquery.js" %}"></script>
+  <script src="{% static "js/uikit.js" %}"></script>
+  <script src="{% static "js/components/datepicker.min.js" %}"></script>
+  <script src="{% static "js/components/timepicker.min.js" %}"></script>
+  <script src="{% static "js/components/autocomplete.min.js" %}"></script>
+  <script src="{% static "js/components/tooltip.min.js" %}"></script>
+  <script src="{% static "js/components/lightbox.js" %}"></script>
+{% endblock %}
+
+{% block content %}
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center">
+
+{% include "messages.html" %}
+{% include "generic_form_bare.html" %}
+
+</div>
+</div>
+{% endblock %}

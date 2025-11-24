@@ -1,0 +1,4 @@
+FROM opentaproject/frontend-base:VERSION
+COPY . /srv
+RUN npm run build
+EXPOSE 3000

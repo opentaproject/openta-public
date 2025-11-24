@@ -1,0 +1,6 @@
+#!/usr/local/bin/bash
+echo "DOING POST-COMMIT"
+gh=`git log -n 1 | head -n 1 | sed -e "s/^commit //" | head -c 8`
+#echo $PWD
+rm -f dist/static-[a-e0-9]*
+touch dist/static-${gh}

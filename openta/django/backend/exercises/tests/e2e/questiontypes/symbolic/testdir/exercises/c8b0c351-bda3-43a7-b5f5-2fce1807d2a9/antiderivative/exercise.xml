@@ -1,0 +1,9 @@
+<exercise>
+    <exercisename>Antiderivative</exercisename>
+    <global> 
+ </global>
+  <question key="5" type="symbolic">
+        <istrue> ($$)' == x^2 + 2 x + 1  </istrue>
+        <expression>1/3 x^3 + x^2 + x  </expression>
+    </question>
+</exercise>

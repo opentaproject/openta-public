@@ -1,0 +1,76 @@
+.env
+*/.ipynb*
+!/.gitignore
+*.asc
+*.swp
+*.pyc
+.log/
+bak/
+*.ipynb
+tmp*
+fig*.png
+deploystatic*
+*.out 
+*.nok
+*do_nightly*
+frontend-src
+*.swp
+*.swo
+webwork2
+django/backend/backend/settings_private.py
+django/backend/google_auth_string.txt
+
+django/backend/deploystatic.*
+django/backend/dist*
+
+__pycache__/
+
+keyfile.json
+cert.*
+
+docs/
+docs_src/_build_html
+legacy_convert/
+logfile
+untracked/
+subdomain-data/
+
+# django files
+django/backend/backend/service_account.pkl
+django/backend/povray.conf
+django/backend/povray.ini
+django/backend/requirements.txt
+django/backend/supervisord.conf
+django/backend/deploystatic
+django/backend/logfile*
+django/backend/media
+django/backend/static
+django/env
+django/env3.5/
+
+
+# sqllite files
+db.sqlite3
+default.dbtest.sqlite3
+openta.dbtest.sqlite3
+sites.dbtest.sqlite3
+
+# code coverage analyzer report
+.coverage
+coverage_html_report/
+
+# python virtual environments
+env/
+.venv/
+
+# direnv related
+.direnv/
+.envrc
+
+# Visual Studio Code related
+typings/
+
+# Emacs project settings
+.dir-locals.el
+Dockerfile
+/database

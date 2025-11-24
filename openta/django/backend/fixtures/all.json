@@ -1,0 +1,180 @@
+[
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$216000$ks8MI9vi9TAo$JN+7xEGdQ34tgPJw1rFmeUaQTuSIME0fJDPf7N1DT4o=",
+    "last_login": "2021-06-16T21:19:01Z",
+    "is_superuser": true,
+    "username": "super",
+    "first_name": "",
+    "last_name": "",
+    "email": "super@localhost",
+    "is_staff": true,
+    "is_active": true,
+    "groups": [
+      [
+        "Admin"
+      ],
+      [
+        "Author"
+      ],
+      [
+        "View"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$216000$aiqqkbgWZOQi$aDSrF7lVq2UXbfgrkQbl6cK+i5zCdC3fr52GbG47+ZI=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "view",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [
+      [
+        "View"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$216000$uHKAO7qPmMi4$pDJK/KNs/QRsfi1EUNZegYAjYUmsUdsU6NYEVWqLCYM=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "student",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [
+      [
+        "Student"
+      ]
+    ],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$216000$gZ91htw3sQKN$RAEnOvGJpLuF0+ilWuqvGm8Eu3av9zTwwLuYqFauEJE=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "tester",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "course.course",
+  "pk": 1,
+  "fields": {
+    "opentasite": "SUBDOMAIN",
+    "course_name": "course-SUBDOMAIN",
+    "icon": "",
+    "motd": "",
+    "course_long_name": "Course-SUBDOMAIN",
+    "registration_password": null,
+    "registration_by_password": false,
+    "deadline_time": "23:59:59",
+    "url": "https://SUBDOMAIN.opentaproject.com/course-SUBDOMAIN/",
+    "registration_domains": null,
+    "registration_by_domain": false,
+    "languages": null,
+    "difficulties": "+:Recommended,*:Easy,**:Medium,***:Hard",
+    "email_reply_to": "super@localhost",
+    "email_host": "localhost",
+    "email_host_user": null,
+    "email_username": "",
+    "email_host_password": null,
+    "published": true,
+    "use_auto_translation": false,
+    "google_auth_string": "",
+    "stars": 0,
+    "use_email": false,
+    "use_lti": false,
+    "allow_anonymous_student": false,
+    "owners": [],
+    "data" : "{}"
+  }
+},
+{
+  "model": "users.opentauser",
+  "pk": 2,
+  "fields": {
+    "user": [
+      "view"
+    ],
+    "lti_user_id": null,
+    "lis_person_contact_email_primary": null,
+    "lti_tool_consumer_instance_guid": null,
+    "lti_context_id": null,
+    "lti_roles": null,
+    "lis_person_name_full": null,
+    "lis_person_name_given": null,
+    "lis_person_name_family": null,
+    "immutable_user_id": null,
+    "courses": [
+      1
+    ]
+  }
+},
+{
+  "model": "users.opentauser",
+  "pk": 3,
+  "fields": {
+    "user": [
+      "student"
+    ],
+    "lti_user_id": null,
+    "lis_person_contact_email_primary": null,
+    "lti_tool_consumer_instance_guid": null,
+    "lti_context_id": null,
+    "lti_roles": null,
+    "lis_person_name_full": null,
+    "lis_person_name_given": null,
+    "lis_person_name_family": null,
+    "immutable_user_id": null,
+    "courses": [
+      1
+    ]
+  }
+},
+{
+  "model": "users.opentauser",
+  "pk": 4,
+  "fields": {
+    "user": [
+      "tester"
+    ],
+    "lti_user_id": null,
+    "lis_person_contact_email_primary": null,
+    "lti_tool_consumer_instance_guid": null,
+    "lti_context_id": null,
+    "lti_roles": null,
+    "lis_person_name_full": null,
+    "lis_person_name_given": null,
+    "lis_person_name_family": null,
+    "immutable_user_id": null,
+    "courses": [
+      1
+    ]
+  }
+}
+]

@@ -1,0 +1,4 @@
+export BASE_VERSION='v20250717'
+echo creating dockerfile openta-base:${BASE_VERSION}
+docker build  -t opentaproject/openta-base:${BASE_VERSION} .
+docker push opentaproject/openta-base:${BASE_VERSION}

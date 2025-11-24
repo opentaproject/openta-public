@@ -1,0 +1,4 @@
+#!/bin/bash
+cp -rp ~/WWW/frontend-v1500/dist/* static
+#cp -rp ~/WWW/frontend-v1500/src/* frontend-src
+python manage.py collectstatic

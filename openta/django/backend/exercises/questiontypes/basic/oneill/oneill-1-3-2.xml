@@ -1,0 +1,25 @@
+<exercise updated="true">
+  <exercisename>1.3.2</exercisename>
+  <global>
+    <vars> x,y,z</vars>
+p = [2,0,1];
+vp = [2,-1,3];
+fa = y^2 z;
+fb = x^7;
+fc = e^x cos(y);
+</global>
+  <question type="default" key="randomkey1">
+    <text> (a) F or $ p = [2,0,1] $ and $ v_p = [2,-1,3] $ compute $ v_p[f] $ for \[ f = y^2 z \] </text>
+    <expression> 0 </expression>
+    <iscorrect> ( partial( fa , x ) * 2 - partial( fa ,y) + 3 partial( fa,z ) ).subs({ x : 2, y:0,z:1 }) </iscorrect>
+  </question>
+  <question type="default" key="randomkeyb">
+    <iscorrect> ( partial( fb , x ) * 2 - partial( fb ,y) + 3 partial( fb,z ) ).subs({ x : 2, y:0,z:1 }) </iscorrect>
+    <iscorrect> dot(vp, [  partial( fb , x ) ,  partial( fb ,y) , partial( fb,z ) ]).subs({ x : 2, y:0 ,z:1 }) </iscorrect>
+    <expression> 7 2^7 </expression>
+  </question>
+  <question type="default" key="randomkeyc">
+    <expression> 2 exp(2) </expression>
+    <iscorrect> ( partial( fc , x ) * 2 -  partial( fc ,y) + 3 partial( fc,z ) ).subs({ x : 2  , y:0,z:1 }) </iscorrect>
+  </question>
+</exercise>
