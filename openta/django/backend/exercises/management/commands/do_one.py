@@ -20,7 +20,7 @@ class Command(BaseCommand):
     help = "reinitialize Aggregations and Bincounts"
 
     def handle(self, *args, **options):
-        exercise_key = "0d242c5f-57a0-410b-962c-0dad92bcd55e"
+        exercise_key = "EXAMPLE_EXERICSE_KEY"
         exercise = Exercise.objects.get(exercise_key=exercise_key)
         questions = Question.objects.filter(exercise=exercise)
         for question in questions:

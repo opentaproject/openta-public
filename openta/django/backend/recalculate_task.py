@@ -39,7 +39,7 @@ async def main(loop):
     tasks = []
     nworkers = 8
     course_key = None
-    course_key = "4e9f9f01-dcf6-4ad0-a387-d567cddf1fcf"
+    course_key = "EXAMPLE"
     if os.path.exists("/tmp/whitelist.txt"):
         print("/tmp/whitelist.txt exists so process only those ")
         nworkers = 1
