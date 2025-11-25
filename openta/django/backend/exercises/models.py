@@ -969,7 +969,6 @@ class Exercise(models.Model):
     def __str__(self):
         return self.name + ": " + self.path
 
-    # https://nn-2021.opentaproject.com/exercise/07957f1d-6144-49b2-9e25-fceda3ec88c3/asset/training_set.csv
     def db( self ):
         if settings.RUNTESTS :
             db = 'default'

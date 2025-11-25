@@ -187,6 +187,11 @@ TWILIO_SID = globals().get('TWILIO_SID',os.environ.get('TWILIO_SID',None))
 TWILIO_TO = globals().get('TWILIO_TO',os.environ.get('TWILIO_TO',None))
 TWILIO_TOKEN = globals().get('TWILIO_TOKEN',os.environ.get('TWILIO_TOKEN',None))
 OAUTH_SECRET = globals().get('OAUTH_SECRET',os.environ.get('OAUTH_SECRET',None))
+EMAIL_HOST = globals().get('EMAIL_HOST',os.environ.get('EMAIL_HOST',None))
+EMAIL_HOST_PASSWORD = globals().get('EMAIL_HOST_PASSWORD',os.environ.get('EMAIL_HOST_PASSWORD',None))
+EMAIL_HOST_USER = globals().get('EMAIL_HOST_USER',os.environ.get('EMAIL_HOST_USER',None))
+EMAIL_REPLY_TO = globals().get('EMAIL_REPLY_TO',os.environ.get('EMAIL_REPLY_TO',None))
+BASE_SERVER = globals().get('BASE_SERVER',os.environ.get('BASE_SERVER','localhost'))
 
 USE_MATHPIX = os.environ.get('USE_MATHPIX','False') == 'True'
 if APP_KEY == None or APP_ID == None :

@@ -48,13 +48,7 @@ class CourseSerializer(serializers.ModelSerializer):
         if os.path.exists("/subdomain-data/auth/motds/all"):
             fp = open("/subdomain-data/auth/motds/all")
             motd = fp.read() + motd
-        baseserver = settings.SERVER
-        #if "opentaproject.org" in settings.SERVER:
-        #    baseserver = "opentaproject.org"
-        #elif "opentaproject.com" in settings.SERVER:
-        #    baseserver = "opentaproject.com"
-        #elif "localhost" in settings.SERVER:
-        #    baseserver = "localhost"
+        baseserver = settings.BASE_SERVER
         if os.path.exists(f"/subdomain-data/auth/motds/{baseserver}-motd"):
             fp = open(f"/subdomain-data/auth/motds/{baseserver}-motd")
             motd = fp.read() + motd
@@ -102,13 +96,7 @@ class CourseStudentSerializer(serializers.ModelSerializer):
         if os.path.exists("/subdomain-data/auth/motds/all"):
             fp = open("/subdomain-data/auth/motds/all")
             motd = fp.read() + motd
-        baseserver = None
-        if "opentaproject.org" in settings.SERVER:
-            baseserver = "opentaproject.org"
-        elif "opentaproject.com" in settings.SERVER:
-            baseserver = "opentaproject.com"
-        elif "localhost" in settings.SERVER:
-            baseserver = "localhost"
+        baseserver = settings.BASE_SERVER
         if baseserver and os.path.exists(f"/subdomain-data/auth/motds/{baseserver}-motd"):
             fp = open(f"/subdomain-data/auth/motds/{baseserver}-motd")
             motd = fp.read() + motd

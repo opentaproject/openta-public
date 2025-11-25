@@ -29,10 +29,13 @@ DEBUG_PLUS = os.environ.get("DEBUG_PLUS", False) == "True"
 DEEPL_AUTH_KEY = os.environ.get("DEEPL_AUTH_KEY", "")
 DO_CACHE = os.environ.get("DO_CACHE", 'True') != "False"
 EDITABLE = os.environ.get('EDITABLE',False) == "True"
+
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "app-password")
-EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "opentaproject@gmail.com")
-EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO", "info@opentaproject.com")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", None)
+EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO", None)
+
+
 ENABLE_AUTO_TRANSLATE = os.environ.get("ENABLE_AUTO_TRANSLATE", "False") == "True"
 ENV_SOURCE = os.environ.get("ENV_SOURCE", "DEFAULT_FROM_SETTINGS")
 FILEBASED_EMAIL = os.environ.get("FILEBASED_EMAIL", "False") == "True"
@@ -89,12 +92,7 @@ ATOMIC_REQUESTS = False
 
 
 ISRQWORKER = os.environ.get("ISRQWORKER", "True") == "True"
-if SERVER == "opentaproject.com":
-    DB_NUMBER = 1 + int(POD_NUMBER)
-elif SERVER == "opentaproject.org":
-    DB_NUMBER = 8 + int(POD_NUMBER)
-else:
-    DB_NUMBER = 13 + int(POD_NUMBER)
+DB_NUMBER = 1 + int(POD_NUMBER)
 DB_NUMBER = os.environ.get("DB_NUMBER", DB_NUMBER)
 # Default to handling queue tasks in main thread
 
