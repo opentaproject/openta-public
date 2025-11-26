@@ -237,8 +237,8 @@ NO_OTP_FOR_SUPER = True
 EMAIL_TIMEOUT = 10
 if USE_OTP :
     AUTHENTICATION_BACKENDS = ['opentalti.apps.LTIAuth', 'django.contrib.auth.backends.ModelBackend' , 'twofactor.views.twofactorauth','users.models.AnonymousPermissions']
-    ALLOW_OTP_ONLY = os.environ.get("ALLOW_OTP_ONLY", "False") == "True"
-    OTP_BYPASS_MAX_AGE =  int( os.environ.get("OTP_BYPASS_MAX_AGE", 0 )  )
+    ALLOW_OTP_ONLY = os.environ.get("ALLOW_OTP_ONLY", "False") == "True" # HAS BEEN COMMENTED OUT IN otp/views.py
+    OTP_BYPASS_MAX_AGE =  int( os.environ.get("OTP_BYPASS_MAX_AGE", 10 )  )
 
 SAFE_IP = []
 ACTIVITY_WINDOW = os.environ.get("ACTIVITY_WINDOW","300")
