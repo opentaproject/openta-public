@@ -1517,7 +1517,7 @@ def main(request, course_pk=None, exerciseKey=None, passed_subdomain=None,refere
         ip = request.META.get("REMOTE_ADDR", None)
     safe_ips = get_safe_ips( user )
     print(f"SAFE_IPS = {user.username}  {safe_ips}")
-    if not settings.RUNTESTS  and not ip in safe_ips :
+    if not settings.RUNTESTS  and not ip in safe_ips  and not request.session.get("lti_login", False):
         require_otp =  not hijacked  and request.session.get('REQUIRE-OTP', True )  #
         if settings.NO_OTP_FOR_SUPER and username == 'super' :
             require_otp = False
