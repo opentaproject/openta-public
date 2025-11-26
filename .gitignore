@@ -7,6 +7,7 @@ __pycache__/
 *.so
 
 # --- Distribution / packaging ---
+info/
 openta/django/backend/backend/settings_secrets.py
 .Python
 build/

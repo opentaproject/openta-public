@@ -15,6 +15,7 @@ import base64
 from PIL import Image
 import logging
 import io
+from django.contrib.auth import logout as syslogout
 import os
 import time
 import json
@@ -31,6 +32,7 @@ class twofactorauth:
     db = None
     
     def authenticate(self, request, username=None, password=None, **kwargs):
+        print(f"AUTHENGICATE")
         #safe_ips = get_safe_ips( request.user )
         #print(f"SAFE IPS = {safe_ips}")
         subdomain,db = get_subdomain_and_db( request )
@@ -85,6 +87,7 @@ class twofactorauth:
 @xframe_options_exempt
 def otp_validate(request):
     subdomain,db = get_subdomain_and_db( request )
+    print(f"OTP_VALIDATE")
     in_progress = request.session.get('OTP-IN-PROGRESS', False )
     if in_progress :
         delete_otp_secret( request.user )
@@ -92,7 +95,8 @@ def otp_validate(request):
     data = request.META
     action = request.POST.get('ACTION',None)
     if action == 'Cancel' :
-        return redirect("/logout/?next=login")
+        syslogout(request)
+        return redirect('/')
     user = request.user
     otpform = OTPTokenForm
     form = otpform(request.user, request)

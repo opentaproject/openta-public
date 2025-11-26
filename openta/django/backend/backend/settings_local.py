@@ -232,12 +232,13 @@ WOLFRAM_ENGINE = f"http://" + os.environ.get('WOLFRAM_ENGINE_SERVICE_HOST', 'loc
 USE_OTP = os.environ.get("USE_OTP", "False") == "True"
 USE_URKUND =  os.environ.get("USE_URKUND", "False") == "True"
 ALLOW_OTP_ONLY = False
-OTP_BYPASS_MAX_AGE = 60 * 60 * 12 
+OTP_BYPASS_MAX_AGE = 0
 NO_OTP_FOR_SUPER = True
 EMAIL_TIMEOUT = 10
 if USE_OTP :
     AUTHENTICATION_BACKENDS = ['opentalti.apps.LTIAuth', 'django.contrib.auth.backends.ModelBackend' , 'twofactor.views.twofactorauth','users.models.AnonymousPermissions']
     ALLOW_OTP_ONLY = os.environ.get("ALLOW_OTP_ONLY", "False") == "True"
+    OTP_BYPASS_MAX_AGE =  int( os.environ.get("OTP_BYPASS_MAX_AGE", 0 )  )
 
 SAFE_IP = []
 ACTIVITY_WINDOW = os.environ.get("ACTIVITY_WINDOW","300")
