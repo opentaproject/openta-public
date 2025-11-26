@@ -197,4 +197,4 @@ TWILIO_FROM = os.environ.get("TWILIO_FROM",None)
 BUG_TO_EMAIL = os.environ.get("BUG_TO_EMAIL",None)
 BUG_FROM_EMAIL = os.environ.get("BUG_FROM_EMAIL",None) 
 BUG_CC_EMAIL = os.environ.get("BUG_CC_EMAIL",None) 
-
+BASE_SERVER = 'localhost'
