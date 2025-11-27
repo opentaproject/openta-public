@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Send Many Invites</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    .field { margin-bottom: 1rem; }
+    .results { margin-top: 2rem; }
+    textarea { width: 100%; max-width: 480px; }
+  </style>
+  </head>
+<body>
+  <h1>Send Multiple Invitations</h1>
+  <form method="post">
+    {% csrf_token %}
+    <div class="field">
+      <label for="id_emails">Emails (comma-separated)</label><br />
+      {{ form.emails }}
+      {% if form.emails.help_text %}<div class="help">{{ form.emails.help_text|safe }}</div>{% endif %}
+      {% for error in form.emails.errors %}<div class="error">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="field">
+      <label>Role</label><br />
+      {{ form.role }}
+      {% for error in form.role.errors %}<div class="error">{{ error }}</div>{% endfor %}
+    </div>
+    <div class="actions">
+      <button type="submit">Send Invites</button>
+    </div>
+  </form>
+
+  {% if results %}
+  <div class="results">
+    <h2>Results</h2>
+    <h3>Invited</h3>
+    <ul>
+      {% for item in results.invited %}
+        {% for email, status in item.items %}
+          <li>{{ email }} – {{ status }}</li>
+        {% endfor %}
+      {% empty %}
+        <li>None</li>
+      {% endfor %}
+    </ul>
+    <h3>Skipped</h3>
+    <ul>
+      {% for item in results.skipped %}
+        {% for email, reason in item.items %}
+          <li>{{ email }} – {{ reason }}</li>
+        {% endfor %}
+      {% empty %}
+        <li>None</li>
+      {% endfor %}
+    </ul>
+    <h3>Errors</h3>
+    <ul>
+      {% for item in results.errors %}
+        {% for email, reason in item.items %}
+          <li>{{ email }} – {{ reason }}</li>
+        {% endfor %}
+      {% empty %}
+        <li>None</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+</body>
+</html>
+
