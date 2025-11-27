@@ -2,21 +2,26 @@
 <!DOCTYPE html>
 <html>
 <head>
+   <link rel="stylesheet" href="{% static "css/uikit.css" %}" />
+
   <meta charset="utf-8" />
   <title>Send Many Invites</title>
   <style>
     body { font-family: sans-serif; margin: 2rem; }
     .field { margin-bottom: 1rem; }
     .results { margin-top: 2rem; }
-    textarea { width: 100%; max-width: 480px; }
+   textarea {
+    height: 1.5em;     /* or any small height you want */
+    width: 80ch;
+	}
   </style>
   </head>
 <body>
-  <h1>Send Multiple Invitations</h1>
+  <h3>Send invitations to join the course.</h3>
   <form method="post">
     {% csrf_token %}
     <div class="field">
-      <label for="id_emails">Emails (comma-separated)</label><br />
+      <label for="id_emails">comma-separated list of emails</label><br />
       {{ form.emails }}
       {% if form.emails.help_text %}<div class="help">{{ form.emails.help_text|safe }}</div>{% endif %}
       {% for error in form.emails.errors %}<div class="error">{{ error }}</div>{% endfor %}
