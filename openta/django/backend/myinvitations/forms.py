@@ -214,3 +214,13 @@ class InvitationAdminChangeForm(forms.ModelForm):
     class Meta:
         model = Invitation
         fields = "__all__"
+
+
+class SendManyInvitesForm(forms.Form):
+    emails = MultiEmailField(
+        label="emails",
+        widget=forms.Textarea(attrs={"rows": 4, "cols": 40}),
+        help_text="Enter a comma-separated list of emails.",
+    )
+    CHOICES = [("1", "Student"), ("2", "View"), ("3", "Author"), ("4", "Admin")]
+    role = forms.ChoiceField(label="roles", initial="1", widget=forms.RadioSelect, choices=CHOICES)

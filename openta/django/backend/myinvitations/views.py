@@ -31,6 +31,41 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def _send_many_invites_logic(request, emails, role="1"):
+    results = {"invited": [], "skipped": [], "errors": []}
+    subdomain, db = get_subdomain_and_db(request)
+    existing_invites = set(Invitation.objects.using(db).all().values_list("email", flat=True))
+    existing_users = set(User.objects.using(db).all().values_list("email", flat=True))
+
+    for email in emails:
+        try:
+            validate_email(email)
+        except ValidationError:
+            results["errors"].append({email: "invalid email"})
+            continue
+
+        if email in existing_users:
+            results["skipped"].append({email: "user exists"})
+            continue
+        if email in existing_invites:
+            results["skipped"].append({email: "invite exists"})
+            continue
+
+        try:
+            params = {"email": email, "inviter": request.user}
+            instance = Invitation.create(**params)
+            from django.utils.crypto import get_random_string
+            key = f"{role}{get_random_string(5).lower()}"
+            instance.key = key
+            instance.save()
+            instance.send_invitation(request)
+            results["invited"].append({email: "sent"})
+        except Exception as e:
+            logger.error(f"INVITE_SEND_FAILED {type(e).__name__} {str(e)} for {email}")
+            results["errors"].append({email: "send failed"})
+    return results
+
+
 class SendInvite(FormView):
     template_name = "invitations/forms/_invite.html"
     form_class = InviteForm
@@ -98,6 +133,55 @@ class SendJSONInvite(View):
             status_code = 201
 
         return HttpResponse(json.dumps(response), status=status_code, content_type="application/json")
+
+
+class SendManyInvites(View):
+    http_method_names = ["post"]
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(SendManyInvites, self).dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            payload = json.loads(request.body.decode()) if request.body else {}
+        except Exception:
+            payload = {}
+
+        # Accept either a comma-separated string or a list under "emails".
+        emails_raw = payload.get("emails", request.POST.get("emails", ""))
+        role = str(payload.get("role", request.POST.get("role", "1")))
+
+        if isinstance(emails_raw, list):
+            emails = emails_raw
+        elif isinstance(emails_raw, str):
+            emails = [e.strip() for e in emails_raw.split(",") if e.strip()]
+        else:
+            emails = []
+
+        # Map role digit to label is handled downstream; we only prefix key with role digit here.
+        results = _send_many_invites_logic(request, emails, role)
+
+        status_code = 201 if results["invited"] else 400
+        return HttpResponse(json.dumps(results), status=status_code, content_type="application/json")
+
+
+from .forms import SendManyInvitesForm
+
+
+class SendManyInvitesPage(FormView):
+    template_name = "invitations/send_many.html"
+    form_class = SendManyInvitesForm
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(SendManyInvitesPage, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        emails = form.cleaned_data["emails"]
+        role = form.cleaned_data["role"]
+        results = _send_many_invites_logic(self.request, emails, role)
+        return self.render_to_response(self.get_context_data(form=form, results=results))
 
 
 def create_user_with_email_password(db, email, course, password=None, role="Student"):

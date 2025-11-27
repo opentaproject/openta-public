@@ -289,6 +289,15 @@ const BaseLoginInfo = ({
                   </a>
                 </li>
               )}
+		{author && !iframed && (
+                <li>
+                  <a title="Invitations" href='/invitations/send-many-form/'>
+			<i className="uk-icon uk-icon-user-plus uk-text-middle"></i>
+                  </a>
+                </li>
+              )}
+	
+
               <li>
                 <a
                   href={'mailto:' + replyTo + '?subject=' + openTAVersion}
