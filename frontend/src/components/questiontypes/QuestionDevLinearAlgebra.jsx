@@ -339,19 +339,22 @@ class QuestionDevLinearAlgebra extends Component {
     if ( typeof nprevious == 'undefined' ){
             var nprevious = 0
     }
-//console.log("NRESPONSE = ", nresponse )
-//console.log("NPREVIOUS = ", nprevious )
-//console.log("hasChanged = ", hasChanged)
-//console.log("input = ", input )    //var renderedResult = this.renderAsciiMath(input);
+console.log("NRESPONSE = ", nresponse )
+console.log("NPREVIOUS = ", nprevious )
+console.log("hasChanged = ", hasChanged)
+console.log("input = ", input )    //var renderedResult = this.renderAsciiMath(input);
+console.log("old_correct = ", old_correct)
 var danger = 'error'
  var isai = false
  if (   nprevious > 0  && ! hasChanged ) {
+	    console.log("INNER LOOP")
             stype = danger
-            comment = ''
+	    var comment  = comment ?? '';
             old_correct = ''
             warning = null;
             student_error = null
             var g = JSON.parse(p[nresponse].grader_response);
+	    console.log("G = ", g )
             proposed_input = p[nresponse].answer
             input = proposed_input
             try {
@@ -364,6 +367,7 @@ var danger = 'error'
            } else if ( 'correct'  in p[nresponse] ){
                 correct = p[nresponse].correct
                 }
+	    console.log("CORRECT1", correct , "OLD_CORRECT = ",old_correct)
             if ( correct ){
                     old_correct = '\\text{  is correct }'
                     stype = 'success'
@@ -371,12 +375,15 @@ var danger = 'error'
                     old_correct = '\\text{  is not correct}'
                     stype = danger
             }
+	    console.log("CORRECT2", correct , "OLD_CORRECT = ",old_correct)
+
             if ( isai ) {
                 comment = g.comment;
                  }
             if ( comment.trim() == '<p></p>' ){
                     comment = '' 
             }
+	    console.log(nresponse, "CORRECT3", correct , "OLD_CORRECT = ",old_correct)
             if ( 'error' in g ){
                     student_error = g.error
                     stype = danger
@@ -417,21 +424,21 @@ if ( warning  && domath ){
  warning = head + " " + tail;
  }
 }
-//console.log("STUDENT_ERROR", student_error)
-//console.log("WARNING ", warning )
-//console.log("COMMENT", comment )
-//console.log("G nklicks ", this.state.nclicks)
-//console.log("G proposed_input", proposed_input)
-//console.log("G NRESPONS = ", nresponse)
-//console.log("G CORRECT = ", correct )
-//console.log("G WARNING = ", warning )
-//console.log("G COMMENT = ", comment )
-//console.log("G OLD_CORRECT = ", old_correct)
-//console.log("G STYPE = ", stype)
-//console.log("G STUDENT_ERROR " , student_error )
-//console.log("G DOMATH" , domath)
-//console.log("G NOMATH", nomath )
-//console.log("G INPUT ", input )
+console.log("STUDENT_ERROR", student_error)
+console.log("WARNING ", warning )
+console.log("COMMENT", comment )
+console.log("G nklicks ", this.state.nclicks)
+console.log("G proposed_input", proposed_input)
+console.log("G NRESPONS = ", nresponse)
+console.log("G CORRECT = ", correct )
+console.log("G WARNING = ", warning )
+console.log("G COMMENT = ", comment )
+console.log("G OLD_CORRECT = ", old_correct)
+console.log("G STYPE = ", stype)
+console.log("G STUDENT_ERROR " , student_error )
+console.log("G DOMATH" , domath)
+console.log("G NOMATH", nomath )
+console.log("G INPUT ", input )
 if( comment ){
 comment = comment.replace(/\\iff/g, "\\Leftrightarrow"); 
 comment = comment.replace(/\\\[/g,'<p style="text-align: center;">$$');
@@ -446,7 +453,7 @@ comment = comment.replace(/\\boldsymbol/g, "\\mathbf");
   nprevious = Math.max(nprevious,1)    
   var renderedResult = external_renderAsciiMath(input, this);
     var renderedMath = renderedResult.out;
-    renderedMath  = renderedMath + String( old_correct )
+    renderedMath  = renderedMath + ( correct  ? " \\text{ is correct }" : "\\text{ is not correct }" )
     //console.log("RENDERED MATH = ", renderedMath )
     var syntaxerror = renderedResult.syntaxerror;
     var unchecked = '(' + t('unchecked') + ')';

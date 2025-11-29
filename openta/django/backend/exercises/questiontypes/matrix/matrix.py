@@ -136,10 +136,10 @@ class BaseMatrixQuestionOps( ExtraMethods, BasicQuestionOps):
     #    return self.scope 
 
     def reduce_using_defs(self, expression, global_text, preamble, units , use_wedgerules=True , docache=settings.DO_CACHE):
-        try :
-            r = super().reduce_using_defs( expression , global_text, preamble, units, use_wedgerules, docache)
-        except Exception as e :
-            assert False, "Unknown error2: try again"
+        logger.error(f"CORE_REDUCE_USING_DEFS {global_text}")
+        #try :
+        r = super().reduce_using_defs( expression , global_text, preamble, units, use_wedgerules, docache)
+        #except Exception as e :
         return r
     
     def get_precision(self, v, precision_string ):
@@ -243,6 +243,8 @@ class BaseMatrixQuestionOps( ExtraMethods, BasicQuestionOps):
         #if res.get('error',False ) :
         #    return res
         # STUDENT = expression1 CORRECT =expression2
+        logger.error(f"MATRIX_COMPARE_EXPRESSIONS {expression1} {expression2}")
+        logger.error(f"GLOBAL_TEXT_RAW = {global_text_raw}")
         if 'set' == expression1.strip()[0:3] :
             ex1 = sympify( self.asciiToSympy( declash( expression1 ) ) , self.scope );
             print(f"EX1 = {ex1}")

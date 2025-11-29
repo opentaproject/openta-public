@@ -367,7 +367,7 @@ class CoreQuestionOps():
 
 
     def reduce_using_defs(self, expression, global_text, preamble, units , **kwargs ) :
-        logger.error(f"CORE REDUCE_USING_DEFS {expression}")
+        logger.error(f"CORE REDUCE_USING_DEFS {expression} {global_text}")
         #use_wedgerules = kwargs.get('use_wedgerules', True);
         docache = kwargs.get('docache', settings.DO_CACHE);
         rulename = kwargs.get('use_wedgerules',None)
@@ -379,10 +379,10 @@ class CoreQuestionOps():
         expression = expression.strip();
         expression_orig = expression
         sexpression = expression
+        print(f"SEXPRESSION1 = {sexpression}")
         varhash =  get_hash_from_string(global_text + preamble  + str( units )  + f"{self.userpk}" )
         varhashb = get_hash_from_string(varhash + expression)
         cache = caches["default"]
-        docache = False
         resd = cache.get(varhashb )
         if ':=' in global_text  and settings.SAFE_CACHE :
             docache = False # CANNOT PICKLE LAMBDADEFS
@@ -392,6 +392,7 @@ class CoreQuestionOps():
         pr = []
 
         global_text = resub.sub(r"[;]+",";",global_text)
+        logger.error(f"GLOBAL_TEXTA = {global_text}")
         msg = None
         if preamble :
             exec( preamble, globals() , locals() )
@@ -537,19 +538,20 @@ class CoreQuestionOps():
                 sexpression = str(res) 
 
 
-        except ShapeError as e :
-            assert False, f"ShapeError {str(e)}"
-        except AssertionError as e :
-            raise e
-        except ValueError as e :
-            if 'callable' in str(e) :
-                msg = "illegal function use in {expression}"
-            assert False, f"{str(e)}"
-        except SyntaxError as e :
-            msg = str(e)
-            res['error'] = str(e)
-            #return res
+        #except ShapeError as e :
+        #    assert False, f"ShapeError {str(e)}"
+        #except AssertionError as e :
+        #    raise e
+        #except ValueError as e :
+        #    if 'callable' in str(e) :
+        #        msg = "illegal function use in {expression}"
+        #    assert False, f"{str(e)}"
+        #except SyntaxError as e :
+        #    msg = str(e)
+        #    res['error'] = str(e)
+        #    #return res
         except Exception as e :
+            logger.error("FAILED")
             formatted_lines = traceback.format_exc()
             msg = ''
             res = sympify(sexpression, evaluate=False)
@@ -573,25 +575,27 @@ class CoreQuestionOps():
                     pat = pat[0:len(pat)-1];
                     msg = msg + f"Illegal use of function {free}    ";
             
+        logger.error(f"NOW RES1 = {res} {type(res)} ")
         if msg :
             #if formatted_lines :
             #    logger.info(f"FORMATTED_LINES {formatted_lines}")
             assert False, msg
 
-        try :
-            res = res.replace(partial, myPartial)
-            res = res.replace(myFactorial, factorial)
-        except :
-            pass
+        #res = res.replace(partial, myPartial)
+        res = res.replace(myFactorial, factorial)
+        logger.error(f"NOW RES2 = {res}")
         if docache and isinstance( res, Float)  or isinstance(res, float ) or isinstance(res, int ) :
+            print(f"DID CACHE")
             resd = dill.dumps( res)
             cache.set(varhashb, resd )
             #return res 
         else :
+            print(f"DID NOT CACHE")
             try :
                 res = res.replace(Add,self.add);
             except :
                 pass
+        logger.error(f"RES3 = {res}")
         try :
             res = expand( simplify( res.doit()  ) );
         except  AttributeError as e :
@@ -1481,10 +1485,10 @@ class CoreQuestionOps():
             assert brackets_are_balanced( line ), f"Unbalanced brackes in expresion {i}  \n \" {line} \""
             i = i + 1 ;
         others = question_json.get('other_answers',{} )
-        
+        question_key = question_json['@attr']['key']
         for key in others.keys() :
             val = others[key]
-            if val :
+            if val  and not key == question_key :
                 global_text += f"answer{key} = {val};\n"
         local_text = ''
         for tag in ['variables','local'] :
@@ -1653,6 +1657,7 @@ class CoreQuestionOps():
                 res = (("error",f"A5 Validation error of {txt} in {qtype} question {key}  as incorrect fails. ::"))
                 return res
         global_texts =  samples( global_text )
+        print(f"GLOBAL_TEXTS0 = {global_texts}")
         kseed = 200;
         if correct_answer == None :
             return res 

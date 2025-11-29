@@ -330,6 +330,7 @@ def register_question_type(
 
 
 def question_check(request, db, user, user_agent, exercise_key, question_key, answer_data, old_answer_object=None):
+    logger.error(f"QUESTION_CHECK {answer_data} ")
     subdomain = db
     dbexercise = Exercise.objects.using(db).get(exercise_key=exercise_key)
     hijacked = request.session.get("hijacked", False)
@@ -388,6 +389,7 @@ def question_check(request, db, user, user_agent, exercise_key, question_key, an
         ):
             error_msg = _("Answer rate exceeded, " "please wait before trying again. (Rate: ")
             return {"error": error_msg + rate + ")"}
+    logger.error(f"NOW RUN _question_check on {answer_data}")
     ret = _question_check(
         hijacked,
         view_solution_permission,
@@ -544,6 +546,7 @@ def _question_check(
     if qtype in question_check_dispatch:
         result = {}
         try:
+            logger.error(f"NOW DISPATCH {qtype} {answer_data}")
             result = question_check_dispatch[qtype]( question_json, question_xmltree, answer_data, global_xmltree)
             if user.username == "super":
                 result["expression"] = expression
