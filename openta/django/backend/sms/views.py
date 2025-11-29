@@ -63,12 +63,8 @@ def bug_report(request):
         message = (payload.get('message') or '').strip()
         page_url = payload.get('url') or request.META.get('HTTP_REFERER', '')
         user_agent = payload.get('userAgent') or request.META.get('HTTP_USER_AGENT', '')
-        if request.user.is_authenticated :
-            user = request.user 
-            username = user.username
-        else :
-            user = None
-            username = 'Anonymous'
+        user = request.user 
+        username = user.username
         subject = f"Bugreport {subdomain}.{settings.OPENTA_SERVER}:{username}   " + (payload.get('subject') or '').strip()
         if not message:
             return JsonResponse({'ok': False, 'error': 'message is required'}, status=400)
