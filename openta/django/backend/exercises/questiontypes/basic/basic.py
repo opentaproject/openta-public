@@ -188,11 +188,8 @@ class BasicQuestionOps(CoreQuestionOps):
 
 
     def reduce_using_defs(self, expression, global_text, preamble, units , use_wedgerules='wedgerules', docache=settings.DO_CACHE):
-        try :
-            r = super().reduce_using_defs(expression, global_text, preamble, units , use_wedgerules=use_wedgerules, docache=docache)
-        except Exception as e :
-            logger.error(f"ERROR REDUCE_USING_DEFS {str(e)}")
-            return 100
+        #try :
+        r = super().reduce_using_defs(expression, global_text, preamble, units , use_wedgerules=use_wedgerules, docache=docache)
         return r
 
     def is_zero(self, v, precision=COMPARISON_PRECISION , float_allowed=True, scale=1.0):

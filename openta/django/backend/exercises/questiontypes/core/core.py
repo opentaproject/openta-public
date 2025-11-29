@@ -367,6 +367,7 @@ class CoreQuestionOps():
 
 
     def reduce_using_defs(self, expression, global_text, preamble, units , **kwargs ) :
+        logger.error(f"CORE REDUCE_USING_DEFS {expression}")
         #use_wedgerules = kwargs.get('use_wedgerules', True);
         docache = kwargs.get('docache', settings.DO_CACHE);
         rulename = kwargs.get('use_wedgerules',None)
@@ -381,12 +382,13 @@ class CoreQuestionOps():
         varhash =  get_hash_from_string(global_text + preamble  + str( units )  + f"{self.userpk}" )
         varhashb = get_hash_from_string(varhash + expression)
         cache = caches["default"]
+        docache = False
         resd = cache.get(varhashb )
         if ':=' in global_text  and settings.SAFE_CACHE :
             docache = False # CANNOT PICKLE LAMBDADEFS
-        if docache and not resd == None  and settings.DO_CACHE :
-            res = dill.loads( resd )
-            return res
+        #if docache and not resd == None  and settings.DO_CACHE :
+        #    res = dill.loads( resd )
+        #    return res
         pr = []
 
         global_text = resub.sub(r"[;]+",";",global_text)
@@ -413,14 +415,16 @@ class CoreQuestionOps():
                 key = line.split('=',1)[0].strip();
                 gdefs[key] = sympify( key, self.scope );
         splits = global_text.split(";");
-        
+        logger.error("B") 
         if gdefs == None  : # or ':=' in global_text  :
             gdefs = {}
             ps = [ item.strip()   for item in global_text.split(";") ];
+            logger.error(f"PS = {ps}")
             for p in ps :
                 p = p.strip();
                 p = p.rstrip(';')
                 parts = [ i.strip() for i in p.split('=',2 ) ]
+                logger.error(f" PARTS = {parts}")
                 if len(parts) == 2 and  '[' in parts[0]  and not ':' == parts[0][-1]  :
                     lhs = sympify(parts[0] )
                     rhs = sympify(parts[1], self.scope)
@@ -430,6 +434,7 @@ class CoreQuestionOps():
                         ppnew.append(f"{right} = {left}")
                 else :
                     ppnew = [p] 
+                logger.error(f"PPNEW = {ppnew}")
                 try :
                     for q in ppnew :
                         q = self.asciiToSympy( q )
@@ -462,6 +467,7 @@ class CoreQuestionOps():
                         raise SympifyError(f"line {q} gives errors { str(e)} ");
                     if 'name' in str(e):
                         raise e
+            logger.error("E")
             try :
                 if docache :
                     lines = dill.dumps( lines );
@@ -472,7 +478,7 @@ class CoreQuestionOps():
         if gdefs :
             self.scope_update( gdefs)
         isin = rulename in self.scope
-        
+        logger.error("C") 
         wedgerules = {}
         if isin :
             wedgerules = self.scope[rulename]
@@ -482,6 +488,7 @@ class CoreQuestionOps():
         else :
             sexpression = str( expression )
         formatted_lines = ''
+        logger.error("D")
         try :
             sexpression = str( sexpression)
             sexpression = sexpression.rstrip().rstrip(';').rstrip();
@@ -541,7 +548,7 @@ class CoreQuestionOps():
         except SyntaxError as e :
             msg = str(e)
             res['error'] = str(e)
-            return res
+            #return res
         except Exception as e :
             formatted_lines = traceback.format_exc()
             msg = ''
@@ -579,7 +586,7 @@ class CoreQuestionOps():
         if docache and isinstance( res, Float)  or isinstance(res, float ) or isinstance(res, int ) :
             resd = dill.dumps( res)
             cache.set(varhashb, resd )
-            return res 
+            #return res 
         else :
             try :
                 res = res.replace(Add,self.add);
@@ -606,6 +613,7 @@ class CoreQuestionOps():
                 cache.set(varhashb, resd )
         except  Exception as e :
             pass
+        logger.error(f"RETURN REDUCE_USING_DEFS {res}")
         return res
 
     def get_free_atoms( self, v ):

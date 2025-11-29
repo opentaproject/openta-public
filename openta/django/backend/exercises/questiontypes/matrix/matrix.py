@@ -136,7 +136,11 @@ class BaseMatrixQuestionOps( ExtraMethods, BasicQuestionOps):
     #    return self.scope 
 
     def reduce_using_defs(self, expression, global_text, preamble, units , use_wedgerules=True , docache=settings.DO_CACHE):
-        return super().reduce_using_defs( expression , global_text, preamble, units, use_wedgerules, docache)
+        try :
+            r = super().reduce_using_defs( expression , global_text, preamble, units, use_wedgerules, docache)
+        except Exception as e :
+            assert False, "Unknown error2: try again"
+        return r
     
     def get_precision(self, v, precision_string ):
         if not isinstance(v, MatrixBase ):
@@ -235,9 +239,9 @@ class BaseMatrixQuestionOps( ExtraMethods, BasicQuestionOps):
 
 
     def compare_expressions(self, expression1, expression2,global_text_raw, preamble="" , precision_string="0", skip_syntax_check=False, testing_equality=False):  # {{{
-        res = self.check_syntax( expression2 , global_text_raw )
-        if res.get('error',False ) :
-            return res
+        #res = self.check_syntax( expression2 , global_text_raw )
+        #if res.get('error',False ) :
+        #    return res
         # STUDENT = expression1 CORRECT =expression2
         if 'set' == expression1.strip()[0:3] :
             ex1 = sympify( self.asciiToSympy( declash( expression1 ) ) , self.scope );
@@ -254,15 +258,15 @@ class BaseMatrixQuestionOps( ExtraMethods, BasicQuestionOps):
             expression1 = str(ex1);
             expression2 = str(ex2);
 
-        try :
+        if True :
             res = super().compare_expressions(expression1, expression2,global_text_raw, preamble , precision_string, skip_syntax_check, testing_equality)
-        except ShapeError as err :
-            if 'set' in expression1 :
-                msg = "incorrect number of unique element in your answer"
-            else :
-                msg =  f"{type(err).__name__} i.e.  {expression1} incorrect vector or matrix shapees : {str( err)} ";
-            r['error'] = msg
-            return r
+        #except ShapeError as err :
+        #    if 'set' in expression1 :
+        #        msg = "incorrect number of unique element in your answer"
+        #    else :
+        #        msg =  f"{type(err).__name__} i.e.  {expression1} incorrect vector or matrix shapees : {str( err)} ";
+        #    r['error'] = msg
+        #    return r
         return  res 
 
 
