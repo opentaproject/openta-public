@@ -351,7 +351,7 @@ class CoreQuestionOps():
                                 if 'answer' in q :
                                     pass
                                 else :
-                                    logger.error(f"EXCEPTION RAISED IN p= {p } PARSING GLOBALS {str(e)} ")
+                                    #logger.error(f"EXCEPTION RAISED IN p= {p } PARSING GLOBALS {str(e)} ")
                                     assert False, str(e) 
                 except Exception as e:
                     if not 'answer' in q : # DO NOT CHOKE ON OTHER ANSWERS BEING BROKEN
@@ -367,7 +367,7 @@ class CoreQuestionOps():
 
 
     def reduce_using_defs(self, expression, global_text, preamble, units , **kwargs ) :
-        logger.error(f"CORE REDUCE_USING_DEFS {expression} {global_text}")
+        #logger.error(f"CORE REDUCE_USING_DEFS {expression} {global_text}")
         #use_wedgerules = kwargs.get('use_wedgerules', True);
         docache = kwargs.get('docache', settings.DO_CACHE);
         rulename = kwargs.get('use_wedgerules',None)
@@ -392,7 +392,7 @@ class CoreQuestionOps():
         pr = []
 
         global_text = resub.sub(r"[;]+",";",global_text)
-        logger.error(f"GLOBAL_TEXTA = {global_text}")
+        #logger.error(f"GLOBAL_TEXTA = {global_text}")
         msg = None
         if preamble :
             exec( preamble, globals() , locals() )
@@ -416,16 +416,16 @@ class CoreQuestionOps():
                 key = line.split('=',1)[0].strip();
                 gdefs[key] = sympify( key, self.scope );
         splits = global_text.split(";");
-        logger.error("B") 
+        #logger.error("B") 
         if gdefs == None  : # or ':=' in global_text  :
             gdefs = {}
             ps = [ item.strip()   for item in global_text.split(";") ];
-            logger.error(f"PS = {ps}")
+            #logger.error(f"PS = {ps}")
             for p in ps :
                 p = p.strip();
                 p = p.rstrip(';')
                 parts = [ i.strip() for i in p.split('=',2 ) ]
-                logger.error(f" PARTS = {parts}")
+                #logger.error(f" PARTS = {parts}")
                 if len(parts) == 2 and  '[' in parts[0]  and not ':' == parts[0][-1]  :
                     lhs = sympify(parts[0] )
                     rhs = sympify(parts[1], self.scope)
@@ -435,7 +435,7 @@ class CoreQuestionOps():
                         ppnew.append(f"{right} = {left}")
                 else :
                     ppnew = [p] 
-                logger.error(f"PPNEW = {ppnew}")
+                #logger.error(f"PPNEW = {ppnew}")
                 try :
                     for q in ppnew :
                         q = self.asciiToSympy( q )
@@ -468,7 +468,7 @@ class CoreQuestionOps():
                         raise SympifyError(f"line {q} gives errors { str(e)} ");
                     if 'name' in str(e):
                         raise e
-            logger.error("E")
+            #logger.error("E")
             try :
                 if docache :
                     lines = dill.dumps( lines );
@@ -479,7 +479,7 @@ class CoreQuestionOps():
         if gdefs :
             self.scope_update( gdefs)
         isin = rulename in self.scope
-        logger.error("C") 
+        #logger.error("C") 
         wedgerules = {}
         if isin :
             wedgerules = self.scope[rulename]
@@ -489,7 +489,7 @@ class CoreQuestionOps():
         else :
             sexpression = str( expression )
         formatted_lines = ''
-        logger.error("D")
+        #logger.error("D")
         try :
             sexpression = str( sexpression)
             sexpression = sexpression.rstrip().rstrip(';').rstrip();
@@ -551,7 +551,7 @@ class CoreQuestionOps():
         #    res['error'] = str(e)
         #    #return res
         except Exception as e :
-            logger.error("FAILED")
+            #logger.error("FAILED")
             formatted_lines = traceback.format_exc()
             msg = ''
             res = sympify(sexpression, evaluate=False)
@@ -575,7 +575,7 @@ class CoreQuestionOps():
                     pat = pat[0:len(pat)-1];
                     msg = msg + f"Illegal use of function {free}    ";
             
-        logger.error(f"NOW RES1 = {res} {type(res)} ")
+        #logger.error(f"NOW RES1 = {res} {type(res)} ")
         if msg :
             #if formatted_lines :
             #    logger.info(f"FORMATTED_LINES {formatted_lines}")
@@ -583,7 +583,7 @@ class CoreQuestionOps():
 
         #res = res.replace(partial, myPartial)
         res = res.replace(myFactorial, factorial)
-        logger.error(f"NOW RES2 = {res}")
+        #logger.error(f"NOW RES2 = {res}")
         if docache and isinstance( res, Float)  or isinstance(res, float ) or isinstance(res, int ) :
             print(f"DID CACHE")
             resd = dill.dumps( res)
@@ -595,7 +595,7 @@ class CoreQuestionOps():
                 res = res.replace(Add,self.add);
             except :
                 pass
-        logger.error(f"RES3 = {res}")
+        #logger.error(f"RES3 = {res}")
         try :
             res = expand( simplify( res.doit()  ) );
         except  AttributeError as e :
@@ -617,7 +617,7 @@ class CoreQuestionOps():
                 cache.set(varhashb, resd )
         except  Exception as e :
             pass
-        logger.error(f"RETURN REDUCE_USING_DEFS {res}")
+        #logger.error(f"RETURN REDUCE_USING_DEFS {res}")
         return res
 
     def get_free_atoms( self, v ):
