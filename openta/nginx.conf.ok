@@ -42,9 +42,8 @@ location /development {
 	uwsgi_pass  development;
 	include     /srv/development/conf/uwsgi_params; 
 }
-error_page 502 @maintenance;
+error_page 500 502 503 504 @maintenance;
 location @maintenance {
 	root /srv/development;
 	rewrite ^(.*)$ /maintenance/maintenance.html break;	
 }
-
