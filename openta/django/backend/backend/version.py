@@ -16,12 +16,12 @@ def get_version_string():
 
     try:
         if os.path.isfile("/usr/bin/git"):
-            branch_name = subprocess.check_output(["/usr/bin/git", "rev-parse", "--abbrev-ref", "HEAD"])
-            short_hash = subprocess.check_output(["/usr/bin/git", "rev-parse", "--short", "HEAD"])
+            branch_name = subprocess.check_output(["/usr/bin/git",'-C','/srv/.git', "rev-parse", "--abbrev-ref", "HEAD"])
+            short_hash = subprocess.check_output(["/usr/bin/git",'-C','/srv/.git', "rev-parse", "--short", "HEAD"])
             commit_date = subprocess.check_output(
-                ["/usr/bin/git", "show", "-s", "--format=%cd", "--date=short", "HEAD"]
+                ["/usr/bin/git",'-C','/srv/.git', "show", "-s", "--format=%cd", "--date=short", "HEAD"]
             )
-            tag = subprocess.check_output(["/usr/bin/git", "describe", "--tags"])
+            tag = subprocess.check_output(["/usr/bin/git",'-C','/srv/.git', "describe", "--tags"])
             version = "{} {} {}".format(_decode(tag.strip()), _decode(short_hash.strip()), _decode(commit_date.strip()))
         else:
             version = os.environ.get("OPENTA_VERSION", "OpenTA")

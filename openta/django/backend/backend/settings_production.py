@@ -59,9 +59,10 @@ SAMESITE = 'None'
 RATELIMIT_VIEW='backend.views.ratelimit_error'
 RATE_LIMIT = "5/m"
 try :
-    GIT_HASH = subprocess.check_output(["/usr/bin/git", "rev-parse", "--short", "HEAD"]).decode('utf-8').strip()
+    GIT_HASH = subprocess.check_output(["/usr/bin/git", '-C','/srv/.git',"rev-parse", "--short", "HEAD"]).decode('utf-8').strip()
 except :
     GIT_HASH = 'GIT_HASH'
+logger.error(f"GIT_HASH = {GIT_HASH}")
 SIDECAR_URL = os.environ.get('SIDECAR_URL',False) and ( os.environ.get('USE_SIDECAR_URL','False') == 'True')
 USE_SIDECAR = SIDECAR_URL != None
 TARGET_WINDOW = os.environ.get("TARGET_WINDOW",'openta')
@@ -146,7 +147,7 @@ RUNNING_MANAGEMENT_COMMAND = (
     and not 'runserver' in sys.argv[1]
 )
 if not RUNNING_DEVSERVER :
-    STATIC_URL='https://storage.googleapis.com/opentaproject-cdn-bucket/v251123/deploystatic/'
+    STATIC_URL='https://storage.googleapis.com/opentaproject-cdn-bucket/v251201/deploystatic/'
 else :
     CACHES["default"] =  {
         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
