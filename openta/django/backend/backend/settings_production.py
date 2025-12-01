@@ -58,7 +58,10 @@ COMPUTER_SESSION_TIMEOUT = 60 * 60
 SAMESITE = 'None'
 RATELIMIT_VIEW='backend.views.ratelimit_error'
 RATE_LIMIT = "5/m"
-GIT_HASH = subprocess.check_output(["/usr/bin/git", "rev-parse", "--short", "HEAD"]).decode('utf-8').strip()
+try :
+    GIT_HASH = subprocess.check_output(["/usr/bin/git", "rev-parse", "--short", "HEAD"]).decode('utf-8').strip()
+except :
+    GIT_HASH = 'GIT_HASH'
 SIDECAR_URL = os.environ.get('SIDECAR_URL',False) and ( os.environ.get('USE_SIDECAR_URL','False') == 'True')
 USE_SIDECAR = SIDECAR_URL != None
 TARGET_WINDOW = os.environ.get("TARGET_WINDOW",'openta')
