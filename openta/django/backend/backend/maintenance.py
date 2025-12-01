@@ -23,8 +23,7 @@ def MaintenanceMiddleware(get_response):
                 messages.add_message(request, messages.WARNING, _("Site is down for maintenance."))
                 messages.add_message(request, messages.INFO, message)
                 logout(request)
-                return redirect(reverse("login"))
-                # return render(request, 'maintenance.html', { 'message': message })
+                return render(request, 'maintenance.html', { 'message': message })
         response = get_response(request)
         return response
 
