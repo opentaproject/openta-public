@@ -186,8 +186,10 @@ PGHOST = globals().get('PGHOST',os.environ.get('PGHOST','localhost'))
 PGPASSWORD = globals().get('PGPASSWORD',os.environ.get('PGPASSWORD',None))
 PGUSER = globals().get('PGUSER',os.environ.get('PGUSER',None))
 SECRET_KEY =globals().get('SECRET_KEY',os.environ.get('SECRET_KEY','abcddfghijklmnopqrst'))
-SUPERUSER = globals().get('SUPERUSER',os.environ.get('SUPERUSER',None))
-SUPERUSER_PASSWORD = globals().get('SUPERUSER_PASSWORD',os.environ.get('SUPERUSER_PASSWORD',None))
+SUPERUSER_PASSWORD = os.environ.get('SUPERUSER_PASSWORD', globals().get('SUPERUSER_PASSWORD',None) )
+SUPERUSER = os.environ.get('SUPERUSER', globals().get('SUPERUSER',None) )
+
+
 TWILIO_FROM = globals().get('TWILIO_FROM',os.environ.get('TWILIO_FROM',None))
 TWILIO_SID = globals().get('TWILIO_SID',os.environ.get('TWILIO_SID',None))
 TWILIO_TO = globals().get('TWILIO_TO',os.environ.get('TWILIO_TO',None))
@@ -204,6 +206,8 @@ if APP_KEY == None or APP_ID == None :
     USE_MATHPIX = False
 USE_CHATGPT = os.environ.get('USE_CHATGPT' ) and OPENAI_API_KEY and OPENAI_PROJECT_ID
 # ALWAYS GET SUPERUSER PASSWORD FROM ENVIRONMENT
-SUPERUSER_PASSWORD = os.environ.get('SUPERUSER_PASSWORD',None)
 APP_DIRS = True
 assert SUPERUSER_PASSWORD , 'SUPERUSER PASSWORD NOT SET'
+assert SUPERUSER , 'SUPERUSER NOT SET'
+print(f"SUPERUSER_PASSWORD = {SUPERUSER_PASSWORD}")
+print(f"SUPERUSER = {SUPERUSER}")
