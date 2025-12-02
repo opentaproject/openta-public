@@ -1,0 +1,178 @@
+# --- Python bytecode / cache ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- C extensions ---
+*.so
+
+# --- Distribution / packaging ---
+.envrc
+info/
+minikube/
+openta/django/backend/backend/settings_secrets.py
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# --- Installer logs ---
+pip-log.txt
+pip-delete-this-directory.txt
+
+# --- Unit test / coverage ---
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pytestdebug.log
+
+# --- PyBuilder ---
+.pybuilder/
+target/
+
+# --- Django stuff ---
+*.log
+local_settings.py
+
+# SQLite (if you use it locally)
+db.sqlite3
+db.sqlite3-journal
+
+# Collected static files (Django collectstatic)
+staticfiles/
+static_root/
+
+# User-uploaded media
+media/
+
+# --- Environments ---
+.env
+.env.*
+.venv
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# --- Type checkers ---
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# --- IDE / editor ---
+.vscode/
+.idea/
+*.swp
+*~
+.project
+.pydevproject
+
+# --- OS / misc ---
+.DS_Store
+Thumbs.db
+
+# --- Frontend (if applicable) ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Node / npm ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+package-lock.json
+.pnpm-store/
+
+# Optional: keep package-lock.json if you want reproducible builds
+# Remove the line above if you want to commit it.
+
+# --- Build output ---
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# --- Environment variables ---
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# --- OS / editor files ---
+.DS_Store
+Thumbs.db
+
+# --- IDE / editor ---
+.vscode/
+.idea/
+*.swp
+*~
+*.sublime-project
+*.sublime-workspace
+
+# --- Logs ---
+*.log
+logs/
+log/
+
+# --- Cache ---
+.cache/
+.parcel-cache/
+.eslintcache
+.prettier-cache
+.stylelintcache
+
+# --- Storybook / Vite / Webpack / Next.js ---
+storybook-static/
+out/
+.next/
+.vite/
+
+# --- Testing ---
+jest-cache/
+jest-output/
+jest-report/
+cypress/videos/
+cypress/screenshots/
+
+# --- UIkit2 (only if built assets are generated) ---
+# If you manually build UIkit from LESS/Sass:
+uikit/dist/
+uikit/custom/
+
+# If UIkit2 is installed via npm (typical):
+#   npm install uikit
+# then UIkit files inside node_modules/ are already ignored.
+
+# --- Misc build artifacts ---
+*.zip
+*.tar.gz

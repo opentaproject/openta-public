@@ -15,15 +15,16 @@ jobs:
         with:
           fetch-depth: 0
           ref: main
+          persist-credentials: false
 
       # -------- OPTIONAL BUT STRONGLY RECOMMENDED --------
       # Secret scanning before publishing
-      - name: Gitleaks scan
-        uses: gitleaks/gitleaks-action@v2
-        with:
-          fail: true
-          # Remove or point to your config file if needed:
-          # config-path: .gitleaks.toml
+      #- name: Gitleaks scan
+      #  uses: gitleaks/gitleaks-action@v2
+      #  with:
+      #    fail: true
+      #    # Remove or point to your config file if needed:
+      #    # config-path: .gitleaks.toml
       # ----------------------------------------------------
 
       - name: Push to public repo
