@@ -1,0 +1,10 @@
+Cheatsheet
+
+- Ensure the host directory exists: sudo mkdir -p /subdomain-data/db14 
+- docker compose up
+- docker compose up --pull always --force-recreate
+- docker exec XXXXXX bash
+- py_create_course example1
+- go to example1.localhhost:8000
+- docker compose down --remove-orphans
+
