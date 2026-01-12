@@ -1,0 +1,9 @@
+#!/bin/bash
+export SUPERUSER=changeme
+export SUPERUSER_PASSWORD=changeme
+export PGPASSWORD=changeme
+export PGUSER=changeme
+export SECRET_KEY=changeme
+export DJANGO_SECRETS_FILE="stub"
+export POSTGRES_DEFAULT_DB=changeme
+
