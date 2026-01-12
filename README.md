@@ -106,14 +106,17 @@ Hello from localhost
 1. Create a `.envrc` file with the following variables:
 
     ```conf
-    PGUSER=changeme
-    PGPASSWORD=changeme
-    SECRET_KEY=changeme
-    SUPERUSER_PASSWORD=changeme
-    POSTGRES_DEFAULT_DB=changeme
+    #!/bin/bash
+    export SUPERUSER=changeme
+    export SUPERUSER_PASSWORD=changeme
+    export PGPASSWORD=changeme
+    export PGUSER=changeme
+    export SECRET_KEY=changeme
+    export DJANGO_SECRETS_FILE="stub"
+    export POSTGRES_DEFAULT_DB=changeme
     ```
-    Replace `changeme` with suitable values.
 
+    Replace `changeme` with suitable values.
 
 1. Load the `.envrc` settings into your current shell. Either automatically or using the commands below.
 
