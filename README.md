@@ -34,12 +34,12 @@ OpenTA needs to store files on the machine it runs on. The following command cre
 folders and assigns the right permissions.
 
 ```bash
-sudo mkdir -p /subdomain-data \
-    /subdomain-data/db14 \
-    /subdomain-data/backups \
-    /subdomain-data/CACHE \
-    /subdomain-data/workqueue
-sudo chmod -R o+w /subdomain-data
+sudo mkdir -p /mnt/pv/subdomain-data \
+    /mnt/pv/subdomain-data/db14 \
+    /mnt/pv/subdomain-data/backups \
+    /mnt/pv/subdomain-data/CACHE \
+    /mnt/pv/subdomain-data/workqueue
+sudo chmod -R o+w /mnt/pv/subdomain-data
 ```
 
 ### Usage
@@ -69,7 +69,7 @@ Certain environment variables do not have defaults and **must be defined**.
     - The password used by `PGUSER` role. Cannot be easily changed; often set to `postgres`.
 
     - **Note:** There may be authentication issues with the database. If you have trouble with that,
-      you can modify the security settings in `/subdomain-data/db14/pg_hba.conf`.
+      you can modify the security settings in `/mnt/pv/subdomain-data/db14/pg_hba.conf`.
 
 - `SECRET_KEY='xxxxx'`
     - Can be anything; can be changed later; suitably an MD5 hash.
