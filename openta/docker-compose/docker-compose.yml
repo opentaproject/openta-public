@@ -1,6 +1,6 @@
 services:
   app:
-    image: opentaproject/openta-public:latest
+    image: opentaproject/openta-public:multi
     container_name: openta-se-app
     pull_policy: always
     environment:
@@ -24,8 +24,8 @@ services:
       TARGET_WINDOW: openta
       USE_LOCMEM: "True"
     volumes:
-      - /mnt/pv/subdomain-data:/subdomain-data
-      - /mnt/pv/deploystatic:/deploystatic
+      - ${DATA_MOUNT}/subdomain-data:/subdomain-data
+      - ${DATA_MOUNT}/deploystatic:/deploystatic
     ports:
       - "8000:8000"
     command:
@@ -73,7 +73,7 @@ services:
       POSTGRES_PASSWORD: ${PGPASSWORD}
       PGDATA: "/subdomain-data/db14"
     volumes:
-      - /mnt/pv/subdomain-data:/subdomain-data
+      - ${DATA_MOUNT}/subdomain-data:/subdomain-data
     restart: unless-stopped
 
 volumes:

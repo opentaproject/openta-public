@@ -34,12 +34,12 @@ OpenTA needs to store files on the machine it runs on. The following command cre
 folders and assigns the right permissions.
 
 ```bash
-sudo mkdir -p /mnt/pv/subdomain-data \
-    /mnt/pv/subdomain-data/db14 \
-    /mnt/pv/subdomain-data/backups \
-    /mnt/pv/subdomain-data/CACHE \
-    /mnt/pv/subdomain-data/workqueue
-sudo chmod -R o+w /mnt/pv/subdomain-data
+sudo mkdir -p ${DATA_MOUNT}/subdomain-data \
+    ${DATA_MOUNT}/subdomain-data/db14 \
+    ${DATA_MOUNT}/subdomain-data/backups \
+    ${DATA_MOUNT}/subdomain-data/CACHE \
+    ${DATA_MOUNT}/subdomain-data/workqueue
+sudo chmod -R o+w ${DATA_MOUNT}/subdomain-data
 ```
 
 ### Usage
@@ -69,7 +69,7 @@ Certain environment variables do not have defaults and **must be defined**.
     - The password used by `PGUSER` role. Cannot be easily changed; often set to `postgres`.
 
     - **Note:** There may be authentication issues with the database. If you have trouble with that,
-      you can modify the security settings in `/mnt/pv/subdomain-data/db14/pg_hba.conf`.
+      you can modify the security settings in `/subdomain-data/db14/pg_hba.conf`.
 
 - `SECRET_KEY='xxxxx'`
     - Can be anything; can be changed later; suitably an MD5 hash.
@@ -82,6 +82,8 @@ Certain environment variables do not have defaults and **must be defined**.
 
 - `DJANGO_SECRETS_FILE='stub'`
     - This is a stub for more more functionality not addressed in this early release document.
+- `DATA_MOUNT`
+  - The host base directory on which /subdomain-data/ is served in the container
 
 ### Test localhost
 
@@ -106,17 +108,15 @@ Hello from localhost
 1. Create a `.envrc` file with the following variables:
 
     ```conf
-    #!/bin/bash
-    export SUPERUSER=changeme
-    export SUPERUSER_PASSWORD=changeme
-    export PGPASSWORD=changeme
-    export PGUSER=changeme
-    export SECRET_KEY=changeme
-    export DJANGO_SECRETS_FILE="stub"
-    export POSTGRES_DEFAULT_DB=changeme
+    PGUSER=changeme
+    PGPASSWORD=changeme
+    SECRET_KEY=changeme
+    SUPERUSER_PASSWORD=changeme
+    POSTGRES_DEFAULT_DB=changeme
+    DATA_MOUNT=changeme 
     ```
-
     Replace `changeme` with suitable values.
+
 
 1. Load the `.envrc` settings into your current shell. Either automatically or using the commands below.
 
