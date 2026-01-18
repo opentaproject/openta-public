@@ -1,0 +1,206 @@
+# INSTRUCTIONS
+# set SUPERUSER_PASSWORD  to nonblank
+# set VERSION if appropriate and set STATIC_URL if you are going to use the CDN deploystatic to 
+# "https://storage.googleapis.org/opentaproject-cdn-bucket/VERSION/deploystatic/"
+#
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ${SERVER_NAME} # prefix for  pod names
+  labels:
+    app: ${SERVER_NAME}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app:  ${SERVER_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${SERVER_NAME}
+    spec:  
+      imagePullSecrets:
+        - name: dockerhub-secret
+      volumes:
+      - name: subdomain-vol
+        persistentVolumeClaim:
+          claimName: subdomain-pvc
+      - name: deploystatic-vol
+        persistentVolumeClaim:
+          claimName: deploystatic-pvc
+  
+      containers:
+        - name: ${SERVER_NAME}-app
+          image: 'opentaproject/openta-public:multi'
+          #  envFrom: 
+          #  - secretRef:
+          #      name: openai-secrets
+          volumeMounts:
+              - mountPath: "/subdomain-data"
+                name: subdomain-vol
+              - mountPath: "/deploystatic"
+                name: deploystatic-vol
+                #subPath: opentaserver-com
+    
+          env: 
+            - name: TZ
+              value: "Europe/Stockholm" # Set your desired timezone
+            - name: USE_OTP
+              value: 'False'
+            - name: USE_URKUND
+              value: 'False'
+            - name: NOT_PGHOST
+              value: 'db-server'
+            - name: SIDECAR_URL
+              value: 'https://sidecar.openta.se'
+            - name: PGHOST 
+              value: 'pgbouncer-service'
+            - name: MEMCACHEDLOCATION
+              value: 'localhost:11211'
+            - name: API_APP 
+              value: ${SERVER_NAME}
+            - name: STATIC_URL
+              value: "https://storage.googleapis.com/opentaproject-cdn-bucket/latest/deploystatic/" 
+            - name: DBHOST
+              value: 'db-server' # EDIT 
+            - name: OPENTA_SERVER
+              value: ${SERVER_NAME} # EDIT 
+            - name: DEBUG
+              value: 'True'
+            - name: USE_ACCEL_REDIRECT
+              value: 'False'
+            - name: USE_SIDECAR
+              value: 'False'
+            - name: DEBUG_PLUS # PROVIDES EXTRA TIMING INFORMATION FOR ADMIN ANSWERS
+              value: 'True'
+            - name: HANDLER_500
+              value: 'True'
+            - name: ENABLE_AUTO_TRANSLATE # ENABLE IF YOU PLAN TO USE AUTO TRANSLATION
+              value: 'False'
+            - name: USE_CHATGPT
+              value: 'False'
+            - name: REDIS_HOST
+              value: 'redis-service'
+            - name: NOT_REDIS_HOST
+              value: 'localhost'
+            - name: EMAIL_BACKEND 
+              value: "django.core.mail.backends.smtp.EmailBackend" #EDIT
+            - name: USE_TZ
+              value: 'True'
+            - name: USE_GMAIL
+              value: 'True'       # SET TO FALSE IF GMAIL IS NOT TO BE USED
+            - name: HTTP_PROTOCOL
+              value: "https"
+            - name: HTTP_SERVER_PORT
+              value: "443"
+            - name: DO_CACHE
+              value: 'True'
+            - name: TARGET_WINDOW
+              value: 'openta'
+            - name: DJANGO_SECRETS_FILE
+              value: 'dummy'
+            - name: PGPASSWORD
+              value: ${PGPASSWORD}
+            - name: PGUSER
+              value: ${PGUSER}
+            - name: SECRET_KEY
+              value: ${SECRET_KEY}
+            - name: SUPERUSER_PASSWORD
+              value: ${SUPERUSER_PASSWORD}
+
+          imagePullPolicy: Always
+          command: ["/bin/bash","-c"]
+          args: 
+            - echo "http.server is working on port 8000" > index.html;
+              export ADMINURL=`uuid`/; 
+              ln -s   /srv/openta/django/backend/supervisord_kub_combined.conf  /srv/openta/django/backend/supervisord.conf;
+              pip install --upgrade django_ragamuffin;
+              rm -rf /srv/openta/django/backend/opentasites;
+              python manage.py clear_cache --all;
+              /usr/local/bin/supervisord -c /srv/openta/django/backend/supervisord.conf ;
+        - name: memcached
+          ports:
+            - containerPort: 11211
+              name: "port-11211"
+          image:  memcached:latest
+
+        - name: redis-server
+          image: redis:7.0.4
+          args: ["--appendonly", "yes"]
+          ports:
+            - name: redis-server
+              containerPort: 6379
+          env:
+              - name: ALLOW_EMPTY_PASSWORD
+                value: "yes"
+
+        - name: nginx
+          image: 'opentaproject/openta-public-nginx:latest'
+          imagePullPolicy: Always
+          ports: 
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /subdomain-data
+              name: subdomain-vol
+            - mountPath: "/deploystatic"
+              name: deploystatic-vol
+    
+---
+
+kind: Service
+apiVersion: v1
+metadata:
+  name: ${SERVER_NAME}-service
+spec:
+  selector:
+    app: ${SERVER_NAME}
+  type: NodePort 
+  ports:
+    - port: 8000
+      targetPort: 8080
+      name: http
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name:  ${SERVER_NAME}-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Cache-Control: public, max-age=300, s-maxage=300, stale-while-revalidate=30";
+    nginx.ingress.kubernetes.io/proxy-body-size: "7000m"
+    nginx.ingress.kubernetes.io/server-snippet: |
+        if ($http_user_agent ~* "facebookexternalhit|Bytespider") { return 403; }
+
+
+spec:
+  tls:
+    - hosts:
+      - '${DOMAIN_NAME}'  #EDIT
+      - '*.${DOMAIN_NAME}'   #EDIR
+      secretName: openta-tls-secret
+  ingressClassName: nginx
+  rules:
+    - host: "${DOMAIN_NAME}" #EDIT THIS
+      http:
+        paths:
+          - pathType: "ImplementationSpecific"
+            path: /
+            backend:
+              service:
+                name: ${SERVER_NAME}-service
+                port:
+                  number: 8000
+
+
+
+    - host: "*.${DOMAIN_NAME}" #EDIT THIS
+      http:
+        paths:
+          - pathType: "ImplementationSpecific"
+            path: /
+            backend:
+              service:
+                name: ${SERVER_NAME}-service
+                port:
+                  number: 8000
