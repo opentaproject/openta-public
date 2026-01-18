@@ -1,0 +1,15 @@
+<exercise exercise_key="71218c82-edf0-421b-bb1f-0edab80c9465" updated="2024-07-08 22:25:20.480" by="super">
+  <exercisename>standard3</exercisename>
+  <global/>
+  <question key="randomkey1" type="default">
+    <text>1 </text>
+    <expression>1</expression>
+  </question> 
+  <hidden>    
+    <question key="randomkey2" type="default">
+      <text>1 </text>
+      <expression>1</expression>
+      <iscorrect>2 </iscorrect>
+    </question>
+  </hidden>
+</exercise>

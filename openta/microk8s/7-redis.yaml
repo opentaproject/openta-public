@@ -1,0 +1,32 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: redis-server
+  labels: 
+    app: redis-server
+spec:
+  containers:
+  - name: redis-server
+    image: redis:7.0.4
+    args: ["--appendonly", "yes"]
+    ports:
+      - name: redis-server
+        containerPort: 6379
+    env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+  labels: 
+    app: redis-server
+spec:
+  selector:
+    app: redis-server
+  ports:
+    - name: redis-port
+      protocol: TCP
+      port: 6379
+      targetPort: 6379

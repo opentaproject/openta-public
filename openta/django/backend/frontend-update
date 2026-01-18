@@ -1,0 +1,3 @@
+#!/bin/bash
+cp -rp  ../../../frontend/dist/* static
+python manage.py collectstatic

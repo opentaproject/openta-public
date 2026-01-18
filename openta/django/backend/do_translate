@@ -1,0 +1,11 @@
+#!/bin/bash
+lang=$1 ; shift
+subdomains=$*
+for  subdomain in $subdomains 
+do :
+	echo DO translate exercises in $subdomain to $lang
+	rm -rf /tmp/$subdomain
+	mkdir -p /tmp/$subdomain/translate
+	chmod a+w /tmp/$subdomain/translate
+	time python manage.py translate  --subdomain=$subdomain --action='translate' --language=$lang
+done

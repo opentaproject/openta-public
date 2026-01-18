@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+{% load static hijack %}
+<head>
+  <meta charset="utf-8">
+  <meta name="google" content="notranslate" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="user-scalable=yes, initial-scale=1, maximum-scale=3, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+  <title>{{ subdomain }}-OpenTA </title>
+  <link rel="stylesheet" href="{% static "css/uikit.css" %}" />
+  <link rel="stylesheet" type="text/css" href="{% static "css/app.css" %}">
+  <link rel="stylesheet" type="text/css" href="{% static "katex/katex.min.css" %}">
+  <link rel="stylesheet" href="{% static "css/components/tooltip.min.css" %}" />
+  <link rel="stylesheet" href="{% static "css/components/sticky.min.css" %}" />
+  <link rel="stylesheet" href="{% static "css/components/notify.min.css" %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'hijack/hijack.min.css' %}" media="screen">
+  <link rel="apple-touch-icon-precomposed" href="{% static "icons/apple.png" %}" />
+  <link rel="icon" sizes="any" href="{% static "icons/favicon.ico" %}"/>
+<link rel="icon"  href="{% static "icons/s.ico" %}"/>
+
+
+
+  <script>
+    var globalInit = {
+      coursePk: parseInt("{{ course.pk }}"),
+      timezone: "{{ timezone }}",
+      openTAVersion: "{{ openta_version }}",
+      help_url: "{{ help_url }}",
+      new_folder: "{{ new_folder }}",
+      trash_folder: "{{ trash_folder }}",
+      use_stars: "{{ use_stars }}",
+      chunk_size: "{{ chunk_size }}",
+      use_sidecar: "{{ use_sidecar }}",
+      sidecar_url: "{{ sidecar_url }}",
+      language_code: "{{ language_code }}",
+      exerciseKey: '{{ exerciseKey }}',
+      subdomain: '{{ subdomain}}',
+      username: '{{ username }}',
+      use_devtools: '{{ use_devtools }}',
+      adminurl: '{{ adminurl }}',
+      student_pk: "{{ student_pk }}",
+      env_source: "{{ env_source }}",
+      course_pk: "{{ course.pk }}",
+      adobe_id: "{{ adobe_id }}",
+      answer_delay: "{{ answer_delay }}",
+      user_permissions: "{{ user_permissions }}",
+      return_url: "{{ return_url }}",
+      use_chatgpt: "{{ use_chatgpt}}",
+      use_bugreport: "{{ use_bugreport }}",
+      source_url : "{{ source_url }}",
+
+
+    };
+
+  </script>
+  <script crossorigin  src="{% static "js/jquery.js" %}"></script>
+  <script crossorigin  src="{% static "js/uikit.js" %}"></script>
+  <script crossorigin  src="{% static "js/components/lightbox.js" %}"></script>
+  <script crossorigin  src="{% static "js/components/tooltip.min.js" %}"></script>
+  <script crossorigin  src="{% static "js/components/notify.min.js" %}"></script>
+  <script crossorigin  src="{% static "js/components/sticky.min.js" %}"></script>
+  <script type="module" crossorigin  src="{% static "main.js" %}"></script>
+  <script crossorigin  src="{% static "katex/katex.min.js" %}"></script>
+  <script src='https://documentservices.adobe.com/view-sdk/viewer.js'></script>
+  <script crossorigin  src="{% static "js/auto-render.min.js" %}"></script>
+  <script crossorigin  src="{% static "js/ASCIIMathTeXImg.js" %}"></script>
+  <script src="https://code.jquery.com/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.8.17/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+
+  <script>
+  window.MathJax = {
+    tex: {
+      packages: { '[+]': ['ams'] }, 
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true
+    },
+    svg: { fontCache: 'global' } // or use "chtml" if you prefer HTML output
+  };
+</script>
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+></script>
+ <style>
+        .uk-badge-dang{
+            background-color: white !important;
+            color: red !important;
+        }
+        .uk-badge-dang .uk-icon {
+            background-color: white !important;
+            color: red !important;
+	    font-size: 16px;
+        }
+
+	 .uk-badge-warn{
+            background-color: white !important;
+            color: orange !important;
+        }
+        .uk-badge-warn .uk-icon {
+            background-color: white !important;
+            color: orange !important;
+            font-size: 16px;
+        }
+
+
+
+    </style>
+
+
+</head>
+<body>
+{% if request.user.is_hijacked %}
+<div class="uk-width-1-1" id="djhj">
+	<span class="ndjhj-message"> You are currently working on behalf of <em>{{ user }}</em> in course {{course.pk}}
+    <form action="{% url 'hijack:release' %}" method="POST" class="djhj-actions">
+      {% csrf_token %}
+      <input type="hidden" name="next" value="{{ request.path }}">
+      <input type="hidden" name="course_pk" value={{ course.pk }} />
+      <input type="hidden" name="student_pk" value="6" />
+      <button class="djhj-button" onclick="document.getElementById('djhj').style.display = 'none';" type="button">
+        hide
+      </button>
+      <button class="djhj-button" type="submit">
+        release
+      </button>
+    </form>
+    </span>
+</div>
+{% endif %}
+
+
+{% csrf_token %}
+
+
+  <div id="app" exercisekey={{ exerciseKey }} > </div>
+  <script>
+	if ( window.location !== window.parent.location ) {
+	var isframe = "ISFRAME"
+	} else {
+	var isframe = "NOT ISFRAME"
+	}
+ </script>
+  
+  {% if messages %}
+    {% for message in messages %}
+    <script>
+      alert('{{ message }}')
+    </script>
+    {% endfor %}
+  {% endif %}
+</body>
+</html>

@@ -1,0 +1,16 @@
+#!/bin/bash
+subdomains=$*
+logdir=tmp
+#  do_regrade fim770-2023 ffm516-2023 tif375-2024 nn-2023  tms137-2023  ffy144-2023
+for  subdomain in $subdomains 
+do :
+	export SUBDOMAIN=subdomain
+	echo DO $subdomain
+	#rm -rf /tmp/$subdomain/recal* /tmp/$subdomain/*.txt
+	cp   /$logdir/$subdomain/nok.txt /$logdir/$subdomain/nok.old.txt
+	mv  /subddomain-data/$subdomain/regrade.out /$logdir/$subdomain/regrade.old.out
+	rm -rf /tmp/$subdomain/regrade/*
+	mkdir -p /tmp/$subdomain/regrade
+	chmod a+w /tmp/$subdomain/regrade
+	time SUBDOMAIN=$subdomain python manage.py recalculate --accept=False --subdomain=$subdomain 2> /tmp/$subdomain/recalculate.errors | tee  /$logdir/$subdomain/regrade.out
+done

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block content %}
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center">
+
+
+{% if progress %}
+<table> 
+  {% for message in progress %}
+  <tr> 
+    {% if message.0 == "info" %}
+    <td class="uk-text-primary">{{ message.1 }}</td>
+    {% elif message.0 == "error" %}
+    <td class="uk-text-danger">{{ message.1 }}</td>
+    {% elif message.0 == "warning" %}
+    <td class="uk-text-warning">{{ message.1 }}</td>
+    {% elif message.0 == "success" %}
+    <td class="uk-text-success">{{ message.1 }}</td>
+    {% endif %}
+  </tr>
+  {% endfor %}
+</table> 
+{% endif %}
+
+</div>
+</div>
+
+{% endblock %}

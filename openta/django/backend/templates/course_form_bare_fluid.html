@@ -1,0 +1,36 @@
+{% load i18n l10n admin_urls static widget_tweaks %}
+
+    <form method="post" class="uk-form uk-form-stacked" enctype="multipart/form-data">
+      {% csrf_token %}
+      <ul class="uk-grid uk-grid-match" data-uk-grid-margin="">
+
+      {% for field in form %}
+      {% if field.label  != "Data" %}
+      <li class="uk-width" style="min-width:300px; max-width:500px">
+	      {{ field.hidden }}
+      <div class="uk-form-row uk-panel uk-panel-box">
+        {% for error in field.errors %}
+        <div class="uk-alert uk-alert-danger">{{ error | escape }}</div>
+        {% endfor %}
+        <label class="uk-form-label" for={{ field.id_for_label }}> {{ field.label }} </label>
+        <div class="uk-form-controls"> {{ field }}</div>
+        {% if field.help_text %}
+        <div class="uk-alert uk-text-left"><p class="help">{{ field.help_text|safe }}</p></div>
+        {% endif %}
+      </div>
+      </li>
+      {% endif %}
+      {% endfor %}
+      </ul>
+      {% for obj in queryset %}
+      <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
+      {% endfor %}
+      {% if action %}
+      <input type="hidden" name="action" value="{{action}}" />
+      {% endif %}
+      {% for key, item in hidden.items %}
+      <input type="hidden" name="{{ key }}" value="{{item}}" />
+      {% endfor %}
+      <input type="hidden" name="do_action" value="true" />
+      <input class="uk-button uk-margin-small-top uk-button-success" type="submit" value="{{ submit_text }}" />
+    </form>

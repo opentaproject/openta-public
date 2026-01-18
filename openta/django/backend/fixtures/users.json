@@ -1,0 +1,59 @@
+[
+{
+  "model": "users.opentauser",
+  "pk": 2,
+  "fields": {
+    "user": 3,
+    "lti_user_id": null,
+    "lis_person_contact_email_primary": null,
+    "lti_tool_consumer_instance_guid": null,
+    "lti_context_id": null,
+    "lti_roles": null,
+    "lis_person_name_full": null,
+    "lis_person_name_given": null,
+    "lis_person_name_family": null,
+    "immutable_user_id": null,
+    "courses": [
+      1
+    ]
+  }
+},
+{
+  "model": "users.opentauser",
+  "pk": 3,
+  "fields": {
+    "user": 4,
+    "lti_user_id": null,
+    "lis_person_contact_email_primary": null,
+    "lti_tool_consumer_instance_guid": null,
+    "lti_context_id": null,
+    "lti_roles": null,
+    "lis_person_name_full": null,
+    "lis_person_name_given": null,
+    "lis_person_name_family": null,
+    "immutable_user_id": null,
+    "courses": [
+      1
+    ]
+  }
+},
+{
+  "model": "users.opentauser",
+  "pk": 4,
+  "fields": {
+    "user": 5,
+    "lti_user_id": null,
+    "lis_person_contact_email_primary": null,
+    "lti_tool_consumer_instance_guid": null,
+    "lti_context_id": null,
+    "lti_roles": null,
+    "lis_person_name_full": null,
+    "lis_person_name_given": null,
+    "lis_person_name_family": null,
+    "immutable_user_id": null,
+    "courses": [
+      1
+    ]
+  }
+}
+]

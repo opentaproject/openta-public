@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cartridge_basiclti_link xmlns="http://www.imsglobal.org/xsd/imslticc_v1p0"
+    xmlns:blti = "http://www.imsglobal.org/xsd/imsbasiclti_v1p0"
+    xmlns:lticm ="http://www.imsglobal.org/xsd/imslticm_v1p0"
+    xmlns:lticp ="http://www.imsglobal.org/xsd/imslticp_v1p0"
+    xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation = "http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0.xsd
+    http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0.xsd
+    http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd
+    http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">
+    <blti:title>OpenTA</blti:title>
+    <blti:description>OpenTA</blti:description>
+    <blti:icon></blti:icon>
+    <blti:launch_url>OPENTASERVER_LTI</blti:launch_url>
+    <blti:custom>
+        <lticm:property name="canvas_login_id">$Canvas.user.loginId</lticm:property>
+        <lticm:property name="user_id">$Canvas.user.id</lticm:property>
+        <lticm:property name="canvas_id">$Canvas.user.id</lticm:property>
+        <lticm:property name="lis_person_name_full">$Person.name.full</lticm:property>
+        <lticm:property name="lis_person_name_given">$Person.name.given</lticm:property>
+        <lticm:property name="lis_person_name_family">$Person.name.family</lticm:property>
+        <lticm:property name="lis_person_contact_email_primary">$Person.email.primary</lticm:property>
+        <lticm:property name="account_name">$Canvas.account.name</lticm:property>
+        <lticm:property name="windowTarget">_blank</lticm:property>
+	
+    </blti:custom>
+    <blti:extensions platform="canvas.instructure.com">
+      <lticm:property name="tool_id">COURSE_KEY</lticm:property>
+      <lticm:property name="privacy_level">anonymous</lticm:property>
+      <lticm:property name="domain">DOMAIN</lticm:property>
+      <lticm:options name="course_navigation">
+        <lticm:property name="url">OPENTASERVER_LTI</lticm:property>
+        <lticm:property name="text">OpenTA</lticm:property>
+        <lticm:property name="visibility">public</lticm:property>
+        <lticm:property name="default">enabled</lticm:property>
+        <lticm:property name="enabled">true</lticm:property>
+        <lticm:property name="windowTarget">_blank</lticm:property>
+	
+      </lticm:options>
+      <lticm:options name="account_navigation">
+        <lticm:property name="url">OPENTASERVER_LTI</lticm:property>
+        <lticm:property name="text">OpenTA</lticm:property>
+        <lticm:property name="enabled">true</lticm:property>
+        <lticm:property name="windowTarget">_blank</lticm:property>
+	
+      </lticm:options>
+      <lticm:options name="user_navigation">
+        <lticm:property name="url">OPENTASERVER_LTI</lticm:property>
+        <lticm:property name="text">OpenTA</lticm:property>
+        <lticm:property name="enabled">true</lticm:property>
+        <lticm:property name="windowTarget">_blank</lticm:property>
+	
+      </lticm:options>
+    </blti:extensions>
+    <cartridge_bundle identifierref="BLTI001_Bundle"/>
+    <cartridge_icon identifierref="BLTI001_Icon"/>
+</cartridge_basiclti_link>  

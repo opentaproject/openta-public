@@ -1,0 +1,62 @@
+<exercise exercise_key="dc966aa4-fdd2-4854-a08e-e33cce5d5241" updated="2024-10-20 21:40:52.167" by="super">
+  <exercisename>test-dD3</exercisename>
+  <global>
+    <oneforms>dx,dy,dz</oneforms>
+    <vars>g , w, X  </vars>
+v1 = [1,0,0];
+v2 = [0,1,0];
+v3 = [0,0,1];
+id = [[1,0,0],[0,1,0],[0,0,1]];
+d(g) := dD( g , [dx,dy,dz],[x,y,z],[[1,0,0],[0,1,0],[0,0,1]] );
+f(w) := w[1] + 2 w[2] + 3 w[3];
+G(X) := [ X[1], - X[2], X[3] ];
+H(X)  := [ X[1]^2 , X[1] * X[2] , X[2] * X[3] ];
+</global>
+  <question key="1">
+    <expression>v1 -  2 v2 + 3 v3 </expression>
+    <istrue>$$ == dD( f( G([x,y,z]) ), [dx,dy,dz], [x,y,z] , [v1,v2,v3] ) </istrue>
+  </question>
+  <question key="3">
+    <expression>v1  +   2 v2 + 3 v3 </expression>
+    <istrue>$$ == dD( f( G([x,y,z]) ), [dx,dy,dz], G([ x,y,z]) ,  d( G([x,y,z]) )  ) </istrue>
+    <istrue>$$ == dD( f( G(G([x,y,z])) ), [dx,dy,dz], [x,y,z] , [v1,v2,v3] ) </istrue>
+  </question>
+  <question key="4">
+    <expression>v1 * ( 2 x + 2 y )  + v2 ( 2 x + 3 z ) + 3 y v3  </expression>
+    <istrue>$$ == dD( f( H( [x,y,z] ) ), [dx,dy,dz],[x,y,z] , [v1,v2,v3] )</istrue>
+  </question>
+  <question key="5">
+    <expression>( 4*x^3 + 6*x^2*y + 3*y^2*z) * v1 + v2 * (  2*x^3 + 6*x*y*z ) + v3 *(  3*x*y^2 ) </expression>
+    <istrue>$$ == dD( f( H( H( [x,y,z] ) ) ), [dx,dy,dz],[x,y,z] , [v1,v2,v3] )</istrue>
+    <hidden>
+      <istrue>$$ == dD( f(  H( [x,y,z] ) ), [dx,dy,dz], H([x,y,z] ) , d( H([x,y,z] ))) </istrue>
+    </hidden>
+  </question>
+  <question key="6">
+    <expression>[ 2 v1 x + v2 y , v2 x + v3 z , v3 y ].T  </expression>
+    <istrue>$$ == d( H( [x,y,z] ) ) </istrue>
+    <istrue>$$ == [[ 2 x , y , 0 ],[0,x,z] , [ 0 , 0, y ]].T </istrue>
+  </question>
+  <question key="7">
+    <expression>[[ 2 x ,  y , 0 ], [ 0, x, z ], [ 0 , 0 , y]].T </expression>
+    <istrue>$$ == d(  H( [x,y,z]  ) ) </istrue>
+    <istrue>$$ == dD(  H( [x,y,z] ), [ dx,dy,dz] , [x,y,z] , id ) </istrue>
+  </question>
+  <question key="9b">
+    <text>d(G) </text>
+    <expression>[[1,0,0],[0,-1,0],[0,0,1] ] </expression>
+    <istrue>$$ == d(  G( [x,y,z]  ) ) </istrue>
+  </question>
+  <question key="9a">
+    <text>d(H) </text>
+    <expression>[[ 2 x ,  -y , 0 ], [ 0, x, z ], [ 0 , 0 , - y]].T </expression>
+    <istrue>$$ == dD(  H( [x,y,z] ) , [dx,dy,dz],[x,-y,z], id    ) </istrue>
+  </question>
+  <question key="9">
+    <expression>[[ 2 x , - y , 0 ], [ 0, -x, -z ], [ 0 , 0 , - y]].T </expression>
+    <istrue>$$ == [[2 x , -y , 0 ],[0,x,z],[0,0,-y]  ].T * [[ 1,0,0],[0,-1,0],[0,0,1]]   </istrue>
+    <istrue>$$ ==  mul(   [[2 x , -y , 0 ],[0,x,z],[0,0,-y]  ].T ,  d(  G( [x,y,z]  ) )    ) </istrue>
+    <istrue>$$ ==     dD(  H( [x,y,z] ) , [dx,dy,dz],G( [x,y,z] ), id      )  d(  G( [x,y,z]  ) )   </istrue>
+    <istrue>$$ == d(  H( G([x,y,z])  ) ) </istrue>
+  </question>
+</exercise>

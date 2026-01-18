@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block content %}
+
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center">
+  <div class="uk-alert uk-text-large">
+    {% trans "You can only access this page " %}
+    {{ rate }}
+  </div>
+  {% if extra_message %}
+  <div class="uk-alert uk-text-large">
+    {{ extra_message }}
+  </div>
+  {% endif %}
+</div>
+</div>
+
+{% endblock %}

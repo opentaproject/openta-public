@@ -1,0 +1,18 @@
+from numpy import *
+import math
+import matplotlib.pyplot as plt
+t = linspace(1,6,400)
+t2 = linspace(1,6,6)
+a = log(t)
+b = log( floor(t+.999) )
+c = log( floor(t2+.999))
+d = log( t2 + 1 ) 
+plt.plot(t, a)
+#plt.plot(t,b)
+plt.plot(t2,c)
+plt.bar(t2,d,1,alpha=0.10, align='edge',edgecolor="red" )
+plt.fill_between(t,b,0,alpha=0.05)
+plt.fill_between(t,a,0,color="red",alpha=0.1)
+plt.savefig("out.png",dpi=300)
+plt.savefig("out.pdf",dpi=300)
+exit()

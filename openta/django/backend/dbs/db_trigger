@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+subdomain=$2
+basedir=$1
+triggerfile=/subdomain-data/$subdomain/backuptrigger 
+
+# ATTACH A DANGLING backuptriggerfile to an at command 
+if find $triggerfile -type f -mmin +35 | grep -q .; then
+    #echo "The file is older than 35 minutes."
+    iscurrent=0
+else
+    #echo "The file is not older than 35 minutes."
+    iscurrent=1
+fi
+
+if [ -e $triggerfile ] &&  [ $iscurrent == 1 ]; then
+	echo  $triggerfile exists
+else :
+	#echo $triggerfile does not exist
+	touch $triggerfile
+	echo "rm $triggerfile; $basedir/db_backup $subdomain " | at now + 30 minutes
+fi
+

@@ -1,0 +1,11 @@
+    <exercise>
+    <exercisename> DevLinearAlgebraTest </exercisename>
+    <global> a = 1;  b = 2; 
+    </global>
+    <text> Pythagoras test </text>
+    <question key='1' exposeglobals='true' type='devLinearAlgebra'>
+         <text>test pythagoras</text>
+         <expression> sqrt(a^2 + b^2) </expression>
+    </question>
+    </exercise>
+    

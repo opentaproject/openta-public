@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>matrix_defs: Functions, Args, Results</title>
+  <style>body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;padding:16px}table{border-collapse:collapse;width:100%;max-width:1200px}th,td{border:1px solid #ccc;padding:6px 8px;text-align:left;vertical-align:top}th{background:#f7f7f7}</style>
+</head>
+<body>
+  <h1>Functions from matrix_defs (functions.py)</h1>
+  <table>
+    <thead><tr><th>Function</th><th>Arguments</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>abs</td><td>x</td><td>nonnegative magnitude</td></tr>
+      <tr><td>Adjoint</td><td>x</td><td>Matrix</td></tr>
+      <tr><td>And</td><td>*x</td><td>expression/value</td></tr>
+      <tr><td>AreEigenvaluesOf</td><td>y, x</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>AreEigenvectorsOf</td><td>m, mtests</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>AreOrthogonal</td><td>*xx</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>Array</td><td>(…)</td><td>Array</td></tr>
+      <tr><td>asin</td><td>x</td><td>expression</td></tr>
+      <tr><td>Conjugate</td><td>x</td><td>Matrix</td></tr>
+      <tr><td>cross</td><td>x,y</td><td>cross product of x,y</td></tr>
+      <tr><td>curl</td><td>M</td><td>3-vector (Matrix)</td></tr>
+      <tr><td>del2</td><td>fun</td><td>scalar (Laplacian)</td></tr>
+      <tr><td>DiagonalOf</td><td>x</td><td>Matrix (diagonal)</td></tr>
+      <tr><td>diagonalpart</td><td>x</td><td>Matrix (diagonal)</td></tr>
+      <tr><td>dim</td><td>x</td><td>Matrix([rows, cols])</td></tr>
+      <tr><td>dimensions</td><td>x</td><td>Matrix([rows, cols])</td></tr>
+      <tr><td>div</td><td>M</td><td>scalar (divergence)</td></tr>
+      <tr><td>Eigenvalues</td><td>x</td><td>FiniteSet of eigenvalues</td></tr>
+      <tr><td>eq</td><td>*xx</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>exp</td><td>x</td><td>expression</td></tr>
+      <tr><td>false</td><td></td><td>constant</td></tr>
+      <tr><td>False</td><td></td><td>constant</td></tr>
+      <tr><td>Ge</td><td>x, y</td><td>expression/value</td></tr>
+      <tr><td>grad</td><td>fun</td><td>3-vector (Matrix)</td></tr>
+      <tr><td>Gt</td><td>x, y</td><td>expression/value</td></tr>
+      <tr><td>iden</td><td>x</td><td>expression/value</td></tr>
+      <tr><td>Inverse</td><td>x</td><td>Matrix</td></tr>
+      <tr><td>IsDiagonal</td><td>x</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>IsDiagonalizable</td><td>x</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>IsDiagonalizationOf</td><td>m, u</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>IsEqual</td><td>*xx</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>IsHermitian</td><td>x</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>IsNotEqual</td><td>x, y</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>IsNullSpaceOf</td><td>x, y</td><td>expression/value</td></tr>
+      <tr><td>IsUnitary</td><td>x</td><td>1 or 0 (boolean)</td></tr>
+      <tr><td>Le</td><td>x, y</td><td>expression/value</td></tr>
+      <tr><td>len</td><td>x</td><td>integer</td></tr>
+      <tr><td>localadjoint</td><td>x</td><td>Matrix</td></tr>
+      <tr><td>localAnd</td><td>*x</td><td>expression/value</td></tr>
+      <tr><td>localconjugate</td><td>x</td><td>Matrix</td></tr>
+      <tr><td>localdiv</td><td>M</td><td>scalar (divergence)</td></tr>
+      <tr><td>localGe</td><td>x, y</td><td>expression/value</td></tr>
+      <tr><td>localGt</td><td>x, y</td><td>expression/value</td></tr>
+      <tr><td>localinverse</td><td>x</td><td>Matrix</td></tr>
+      <tr><td>localLt</td><td>x, y</td><td>expression/value</td></tr>
+      <tr><td>localNot</td><td>x</td><td>expression/value</td></tr>
+      <tr><td>localOr</td><td>*x</td><td>expression/value</td></tr>
+      <tr><td>localtranspose</td><td>x</td><td>Matrix</td></tr>
+      <tr><td>Lt</td><td>x, y</td><td>expression/value</td></tr>
+      <tr><td>matrixElements</td><td>*arg</td><td>element or row/column Matrix</td></tr>
+      <tr><td>mexp</td><td>x</td><td>Matrix (elementwise)</td></tr>
+      <tr><td>mlog</td><td>x</td><td>Matrix (elementwise)</td></tr>
+      <tr><td>mul</td><td>*arg</td><td>Matrix product</td></tr>
+      <tr><td>norm</td><td>x</td><td>nonnegative magnitude</td></tr>
+      <tr><td>Not</td><td>x</td><td>expression/value</td></tr>
+      <tr><td>NullRank</td><td>zmat, mvars</td><td>expression/value</td></tr>
+      <tr><td>Or</td><td>*x</td><td>expression/value</td></tr>
+      <tr><td>Rank</td><td>x</td><td>integer</td></tr>
+      <tr><td>RankOf</td><td>x</td><td>integer</td></tr>
+      <tr><td>RotationArguments</td><td>m</td><td>(vector, angle)</td></tr>
+      <tr><td>RotationMatrix</td><td>n, theta</td><td>3x3 Matrix</td></tr>
+      <tr><td>shape</td><td>x</td><td>Matrix([rows, cols])</td></tr>
+      <tr><td>sort</td><td>x</td><td>Matrix (sorted)</td></tr>
+      <tr><td>Sort</td><td>x</td><td>Matrix (sorted)</td></tr>
+      <tr><td>times</td><td>x, y</td><td>Matrix (elementwise)</td></tr>
+      <tr><td>Trace</td><td>x</td><td>number (trace)</td></tr>
+      <tr><td>Transpose</td><td>x</td><td>Matrix</td></tr>
+      <tr><td>true</td><td></td><td>constant</td></tr>
+      <tr><td>True</td><td></td><td>constant</td></tr>
+      <tr><td>xhat</td><td></td><td>constant</td></tr>
+      <tr><td>yhat</td><td></td><td>constant</td></tr>
+      <tr><td>zhat</td><td></td><td>constant</td></tr>
+    </tbody>
+  </table>
+  <p>Source: functions.py</p>
+</body>
+</html>

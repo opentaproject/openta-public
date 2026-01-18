@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: memcached
+spec:
+  replicas: 1  # Can be increased for read scalability (not write)
+  selector:
+    matchLabels:
+      app: memcached
+  template:
+    metadata:
+      labels:
+        app: memcached
+    spec:
+      containers:
+        - name: memcached
+          image: memcached:1.6.38
+          args: ["-m", "256", "-o", "modern", "-v"]  # 64MB memory, modern features
+          ports:
+            - containerPort: 11211
+          livenessProbe:
+            tcpSocket:
+              port: 11211
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          readinessProbe:
+            tcpSocket:
+              port: 11211
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "250m"
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: memcached-service
+  labels:
+    app: memcached
+spec:
+  ports:
+  - port: 11211
+    name: "port-11211"
+  #type: NodePort
+  selector:
+    app: memcached

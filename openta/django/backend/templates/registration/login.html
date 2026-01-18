@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center">
+
+
+
+
+{% if form.errors %}
+<div class="uk-alert uk-alert-danger">
+  {% if not '@' in form.username.value %}
+    {% trans 'Student usernames is usually the email' %}
+  {% else %}
+    {% trans 'Login failed' %}
+  {% endif %}
+</div>
+{% endif %}
+
+{% if messages %}
+  {% for message in messages %}
+  {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+    <div class="uk-alert uk-alert-success">{{ message }}</div>
+  {% else %}
+    <div class="uk-alert">{{ message }}</div>
+  {% endif %}
+  {% endfor %}
+{% endif %}
+
+
+
+
+
+<form method="post" class="uk-form" action="{% url  'login' course_name=course_name  %}">
+
+{% if course.icon %}
+  <div class="uk-margin-top" >
+      <img class="uk-width-1-2" src="{{ course.icon }}"/>
+  </div>
+{% endif %}
+
+{% csrf_token %}
+
+
+
+{% if course.description  %}
+<div style="position: relative">
+<div data-uk-dropdown="{mode:'click', justify:'content'}">
+
+
+<button class="uk-button  uk-margin-small-bottom uk-button-link"> 
+<legend><i class="uk-icon uk-icon-medium uk-icon-circle-o uk-text-primary"></i>
+	<span class="uk-text-medium uk-text-middle"> {{ course.course_name }} 
+
+<i class="uk-icon uk-icon-small uk-icon-info uk-padding-large uk-text-primary"></i>
+	</span>
+</legend>
+
+
+</button>
+
+<div id="description" class="uk-dropdown uk-text-left" >
+ {{ course.description }}
+</div>
+</div>
+</div>
+{% else %}
+<legend><i class="uk-icon uk-icon-medium uk-icon-circle-o uk-text-primary"></i><span class="uk-text-small uk-text-middle"> {{ course.course_name }} </span> !! </legend>
+{% endif %}
+
+{% if course.motd %}
+  <p class="uk-ikon uk-icon-info uk-text uk-text-primary uk-padding-large"> {{course.motd}} </p>
+{% endif %}
+
+
+
+
+
+
+
+
+{% if username %}
+    <div class="uk-form-row"> {% render_field form.username value=username  %} </div>
+{% else %}
+    <div class="uk-form-row"> {% render_field form.username placeholder=form.username.label  %} </div>
+{% endif %}
+    <div class="uk-form-row"> {% render_field form.password placeholder=form.password.label %} </div>
+    <div class="uk-form-row"> <input type="submit" class="uk-button" value="{% trans "Log in" %}" /> </div>
+    <input type="hidden" name="course_name" value="{{course_name}}" />
+{% if not username  and allow_anonymous %}
+<a class='uk-button uk-button-default' href='/lti/index/'>{% trans "Proceed without registration" %}</a>
+{% endif %}
+  </form>
+
+{% if not username %}
+{% if course.registration_by_domain  %} 
+	{% if anonymous_user  %}
+	<a href="{% url 'register-with-domain' course_pk=course.pk  anonymoususer=anonymous_user %}" class="uk-button uk-button-mini uk-margin-small-bottom">{% trans "Register by email" %}</a>
+	{% else %}
+	<a href="{% url 'register-with-domain' course_pk=course.pk %}" class="uk-button uk-button-mini uk-margin-small-bottom">{% trans "Register by email" %}</a>
+	{% endif %}
+{% endif %}
+{% endif %}
+
+{% if not username %}
+{% if  course.use_email %}
+<a class="uk-button uk-button-mini uk-margin-small-bottom" href="{% url 'password_reset' %}">{% trans "Lost password?" %}</a>
+{% endif %}
+
+{% if course.registration_by_password %}
+<a href="{% url 'register-with-password' course_pk=course.pk %}" class="uk-button uk-button-mini uk-margin-small-bottom">{% trans "Register" %}</a>
+{% endif %}
+{% endif %}
+{% if True %}
+<a class="uk-button uk-button-mini uk-margin-small-bottom" href="mailto:{{course.email_reply_to}}">{% trans "Problem?" %}</a>
+
+
+{% endif %}
+
+<div style="position: relative">
+<div data-uk-dropdown="{mode:'click', justify:'content'}">
+<button class="uk-button uk-button-mini uk-margin-small-bottom"> {% trans "Privacy" %} </button>
+<div id="privacy" class="uk-dropdown uk-text-small uk-text-left" >
+  {% include 'privacy.html' %}
+</div>
+</div>
+</div>
+
+
+
+
+<p class="uk-text uk-text-primary uk-text-muted uk-text-small"> {{ openta_version }}   </p>
+<p class="uk-text uk-text-primary uk-text-muted uk-text-small"> logged in: {{ nlogin }}  activity: {{activity_all}} {{activity}} {{ cpu_usage }}    </p>
+</div>
+</div>
+{% endblock %}

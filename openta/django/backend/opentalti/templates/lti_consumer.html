@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center uk-width-1-2">
+
+{% if course.icon %}
+  <div class="uk-position-top uk-margin-top" >
+      <img class="uk-width-1-1 uk-width-large-1-5" src="{{ course.icon }}"/>
+  </div>
+{% endif %}
+
+{% if form.errors %}
+<div class="uk-alert uk-alert-danger">
+  {% if not '@' in form.username.value %}
+    {% trans 'Your username is usually your email' %}
+  {% else %}
+    {% trans 'Login failed' %}
+  {% endif %}
+</div>
+{% endif %}
+{% if messages %}
+  {% for message in messages %}
+  {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+    <div class="uk-alert uk-alert-success">{{ message }}</div>
+  {% else %}
+    <div class="uk-alert">{{ message }}</div>
+  {% endif %}
+  {% endfor %}
+{% endif %}
+
+<div><i class="uk-icon uk-icon-medium uk-icon-circle-o uk-text-primary"></i><span class="uk-text-small uk-text-middle"> {{ course.course_name }} </span></div>
+<hr/>
+{% if course.motd %}
+  <p class="uk-ikon uk-icon-info uk-text uk-text-primary uk-padding-large">
+      {{course.motd}}
+  </p>
+{% endif %}
+    <div class="uk-form-row">
+      {% render_field form.username placeholder=form.username.label %}
+      </div>
+
+
+
+
+<form action="{{ launch_url }}"
+      name="ltiLaunchForm"
+      id="ltiLaunchForm"
+      method="POST"
+      encType="application/x-www-form-urlencoded">
+  {% for key, value in launch_data.items %}
+    <input type="hidden" name="{{ key }}" value="{{ value }}"/>
+  {% endfor %}
+  <button class='uk-button uk-button-primary uk-button-large' type="submit">{% trans "Log in anonymously to" %}  {{course.course_name}} </button>
+</form>
+
+<div style="position: relative">
+<div data-uk-dropdown="{mode:'click', justify:'content'}">
+<div id="privacy" class="uk-dropdown uk-text-small uk-text-left" >
+  {% include 'privacy.html' %}
+</div>
+</div>
+</div>
+
+<p class="uk-text uk-text-primary uk-text-muted uk-text-small"> {{ openta_version }} </p>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,292 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+import os
+import sys
+import json
+import string
+import random
+from pathlib import Path
+import tempfile
+import subprocess
+import shutil
+
+# Optional: support psycopg (v3) or psycopg2 (v2)
+try:
+    import psycopg
+    HAVE_PSYCOPG3 = True
+except Exception:
+    HAVE_PSYCOPG3 = False
+    try:
+        import psycopg2
+        import psycopg2.errors
+    except Exception as e:
+        psycopg2 = None
+
+
+def rand_dbname(length: int = 8) -> str:
+    alphabet = string.ascii_lowercase
+    return "".join(random.choice(alphabet) for _ in range(length))
+
+
+def ensure_course_dir(subdomain: str) -> Path:
+    base = Path("/subdomain-data") / subdomain
+    base.mkdir(parents=True, exist_ok=True)
+    return base
+
+
+def ensure_dbname(course_dir: Path) -> str:
+    dbname_file = course_dir / "dbname.txt"
+    if dbname_file.exists():
+        return dbname_file.read_text(encoding="utf-8").strip()
+    name = rand_dbname()
+    dbname_file.write_text(name + "\n", encoding="utf-8")
+    return name
+
+
+def pg_connect_as_admin():
+    # Mirror: `psql -U postgres` connecting to default 'postgres' db
+    user = os.getenv("PGADMINUSER", "postgres")
+    host = os.getenv("PGHOST","localhost")
+    port = int( os.getenv("PGPORT",5432) )
+    password = os.getenv("PGADMINPASSWORD") or os.getenv("PGPASSWORD")
+    dbname = os.getenv("PGADMINDB", "postgres")
+
+    if HAVE_PSYCOPG3:
+        conn = psycopg.connect(
+            dbname=dbname,
+            user=user,
+            password=password,
+            host=host,
+            port=port,
+            autocommit=True,
+        )
+        return conn
+    else:
+        if psycopg2 is None:
+            raise RuntimeError(
+                "psycopg or psycopg2 is required to create the database without subprocess."
+            )
+        conn = psycopg2.connect(
+            dbname=dbname,
+            user=user,
+            password=password,
+            host=host,
+            port=port,
+        )
+        # CREATE DATABASE must run outside transactions; ensure autocommit for psycopg2
+        try:
+            from psycopg2 import extensions as _pg2ext  # type: ignore
+            conn.set_isolation_level(_pg2ext.ISOLATION_LEVEL_AUTOCOMMIT)
+        except Exception:
+            # Fallback in case extensions import/path differs
+            conn.autocommit = True
+        return conn
+
+
+def create_database(dbname: str, owner: str):
+    # Avoid using the connection as a context manager here, as some drivers
+    # may implicitly open a transaction. We need autocommit for CREATE DATABASE.
+    conn = pg_connect_as_admin()
+    try:
+        # Double‑ensure autocommit for safety on psycopg2
+        try:
+            conn.autocommit = True  # psycopg2 attribute; harmless on psycopg3
+        except Exception:
+            pass
+        with conn.cursor() as cur:
+            try:
+                cur.execute(f"CREATE DATABASE {dbname} OWNER {owner};")
+            except Exception as e:
+                # Ignore if the DB already exists; re-raise other errors
+                msg = str(e).lower()
+                if "already exists" in msg or "duplicate database" in msg:
+                    pass
+                else:
+                    raise
+    finally:
+        try:
+            conn.close()
+        except Exception:
+            pass
+
+
+def django_setup(subdomain: str):
+    # Ensure settings and SUBDOMAIN are set before importing Django
+    # Force the manage settings which populate per-subdomain DATABASES
+    os.environ["DJANGO_SETTINGS_MODULE"] = "backend.settings_manage"
+    os.environ["SETTINGS_MODULE"] = "backend.settings_manage"
+    os.environ["SUBDOMAIN"] = subdomain
+    import django
+    from django.conf import settings
+
+    django.setup()
+    return settings
+
+
+def run_migrations(database_alias: str):
+    from django.core.management import call_command
+
+    call_command("migrate", database=database_alias, interactive=False, verbosity=1)
+    call_command("createcachetable", database=database_alias, verbosity=1)
+
+
+def load_fixture_with_subdomain(fixture_name: str, subdomain: str, database_alias: str):
+    from django.core.management import call_command
+
+    fixtures_dir = Path("fixtures")
+    src = fixtures_dir / fixture_name
+    if not src.exists():
+        raise FileNotFoundError(f"Fixture not found: {src}")
+
+    content = src.read_text(encoding="utf-8")
+    content = content.replace("SUBDOMAIN", subdomain)
+
+    # loaddata expects a file; use a NamedTemporaryFile to avoid /tmp coupling
+    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
+        tmp.write(content)
+        tmp_path = tmp.name
+
+    try:
+        call_command(
+            "loaddata",
+            tmp_path,
+            database=database_alias,
+            ignorenonexistent=True,
+            verbosity=1,
+        )
+    finally:
+        try:
+            os.unlink(tmp_path)
+        except OSError:
+            pass
+
+
+def post_create_updates(subdomain: str):
+    # Update course fields using the ORM against the per-subdomain DB alias
+    from course.models import Course
+    from exercises.models import Exercise
+
+    dbcourse = Course.objects.using(subdomain).all().update(
+        opentasite=subdomain, course_name=f"course-{subdomain}", data={}
+    )
+    dbcourse = Course.objects.using(subdomain).get(pk=1)
+    course_key = dbcourse.course_key
+    print(f"COURSE_KEY={course_key}")
+    path =  os.path.join('/subdomain-data',subdomain,'exercises',str( course_key))
+    os.makedirs(path, exist_ok=True)
+    os.chmod(path, 0o755)
+
+
+
+def ensure_dirs(subdomain: str):
+    base = Path("/subdomain-data") / subdomain
+    (base / "backups").mkdir(parents=True, exist_ok=True)
+    media = base / "media"
+    media.mkdir(parents=True, exist_ok=True)
+    try:
+        os.chmod(media, 0o755)
+    except Exception:
+        # On some platforms/filesystems chmod may be restricted; ignore
+        pass
+
+
+def dump_database(dbname: str, subdomain: str) -> str:
+    """Create a custom-format dump for the new course DB.
+
+    Places the snapshot at /subdomain-data/<subdomain>/<dbname>.db
+    """
+    out_path = f"/subdomain-data/{subdomain}/{dbname}.db"
+    # Prefer DBHOST when set, else PGHOST; normalize pgbouncer-service
+    env = os.environ.copy()
+    pghost = env.get("DBHOST") or env.get("PGHOST")
+    if pghost == "pgbouncer-service":
+        pghost = "db-server"
+    if pghost:
+        env["PGHOST"] = pghost
+    # Ensure PGUSER is set; default to postgres
+    env.setdefault("PGUSER", env.get("PGADMINUSER", "postgres"))
+    # PGPASSWORD may be present already via env
+
+    # Prefer system pg_dump
+    pg_dump = shutil.which("pg_dump")
+    if not pg_dump:
+        raise RuntimeError("pg_dump not found in PATH; cannot create database dump")
+
+    cmd = [pg_dump, "-C", "-Fc", dbname, "-f", out_path]
+    try:
+        res = subprocess.run(cmd, check=True, capture_output=True, text=True, env=env)
+    except subprocess.CalledProcessError as e:
+        raise RuntimeError(f"pg_dump failed: {e.stderr or e.stdout}")
+    return out_path
+
+
+def copy_dump_to_backups(dump_path: str, subdomain: str, dbname: str) -> str:
+    """Copy the dump file into the backups subdirectory.
+
+    Returns the destination path.
+    """
+    backups_dir = Path(f"/subdomain-data/{subdomain}/backups")
+    backups_dir.mkdir(parents=True, exist_ok=True)
+    # Timestamped name to avoid overwriting on repeated runs
+    ts = os.popen("date +%Y%m%d-%H%M%S").read().strip() or "now"
+    dest = backups_dir / f"{dbname}-{ts}.db"
+    shutil.copy2(dump_path, dest)
+    return str(dest)
+
+
+def main(argv: list[str]) -> int:
+    if len(argv) < 2:
+        print("Usage: db_create_course_from_gz <subdomain>", file=sys.stderr)
+        return 2
+
+    subdomain = argv[1]
+    print(f"SUBDOMAIN = {subdomain}")
+    course_dir = ensure_course_dir(subdomain)
+    print(f"COURSEDIR = {course_dir}")
+
+    dbname = ensure_dbname(course_dir)
+    print(f"DBNAME = {dbname}")
+
+    owner = os.getenv("PGUSER")
+    if not owner:
+        # Fall back to postgres if PGUSER is not provided
+        owner = "postgres"
+        print("PGUSER not set; defaulting OWNER to 'postgres'", file=sys.stderr)
+
+    print(f"Creating database '{dbname}' owned by '{owner}' (if needed)...")
+    create_database(dbname, owner)
+
+    # Setup Django and run migrations for this subdomain alias
+    django_setup(subdomain)
+    print("Running migrations...")
+    run_migrations(subdomain)
+
+    # Load essential fixtures with SUBDOMAIN substitutions
+    for fix in ["auth.json", "mini.json"]:
+        print(f"Loading fixture: {fix}")
+        load_fixture_with_subdomain(fix, subdomain, subdomain)
+
+    # Run migrations again (mirrors original script)
+    print("Re-running migrations...")
+    run_migrations(subdomain)
+
+    # Apply post-load updates
+    print("Applying post-create course updates...")
+    post_create_updates(subdomain)
+
+    # Ensure directories
+    ensure_dirs(subdomain)
+    # Create a fresh dump snapshot for the new course DB
+    print("Creating initial database dump snapshot...")
+    try:
+        dump_path = dump_database(dbname, subdomain)
+        backup_copy = copy_dump_to_backups(dump_path, subdomain, dbname)
+        print(f"Dumped to {dump_path} and copied to {backup_copy}")
+    except Exception as e:
+        print(f"WARNING: failed to create initial dump: {e}", file=sys.stderr)
+    print("Done.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv))

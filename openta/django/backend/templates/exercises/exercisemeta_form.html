@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<form method="post" class="uk-form uk-form-stacked">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div class="uk-flex">
+      <div class="uk-margin-right">
+        <div class="uk-form-row">
+          {{ form.difficulty.errors }}
+          <label class="uk-form-label" for={{ form.difficulty.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.difficulty.help_text}}">{{ form.difficulty.label }}</label>
+          <div class="uk-form-controls">{{ form.difficulty | add_class:"uk-form-small" }}</div>
+        </div>
+        <div class="uk-form-row">
+          {{ form.deadline_date.errors }}
+          <label class="uk-form-label" for={{ form.deadline_date.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.deadline_date.help_text}}" >{{ form.deadline_date.label }}</label>
+          <div class="uk-form-controls">
+              <i class="uk-icon-calendar"></i>
+            {{ form.deadline_date | set_data:"uk-datepicker:{format:'YYYY-MM-DD'}" | add_class:"uk-form-small " }}
+          </div>
+        </div>
+        <div class="uk-form-row">
+          {{ form.sort_key.errors }}
+          <label class="uk-form-label" for={{ form.sort_key.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.sort_key.help_text}}">{{ form.sort_key.label }}</label>
+          <div class="uk-form-controls">{{ form.sort_key }}</div>
+        </div>
+
+        <div class="uk-form-row">
+          {{ form.student_assets.errors }}
+          <label class="uk-form-label" for={{ form.sort_key.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.student_assets.help_text}}">{{ form.student_assets.label }}</label>
+          <div class="uk-form-controls">{{ form.student_assets }}</div>
+        </div>
+
+        <div class="uk-form-row">
+          {{ form.allow_ai.errors }} 
+          <label class="uk-form-label" for={{ form.sort_key.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.allow_ai.help_text}}">{{ form.allow_ai.label }}</label>
+          <div class="uk-form-controls">{{ form.allow_ai}}</div>
+        </div>
+
+
+
+      </div>
+
+
+      <div>
+        <div class="uk-form-row">
+          {{ form.published.errors }}
+          <label class="uk-form-label" for={{ form.published.id_for_label }}>{{ form.published.label }}</label>
+          <div class="uk-form-controls">{{ form.published }}</div>
+        </div>
+        <div class="uk-form-row">
+          {{ form.image.errors }}
+          <label class="uk-form-label" for={{ form.image.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.image.help_text}}" >{{ form.image.label }}</label>
+          <div class="uk-form-controls">{{ form.image }}</div>
+        </div>
+        <div class="uk-form-row">
+          {{ form.allow_pdf.errors }}
+	  <label class="uk-form-label" for={{ form.allow_pdf.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.allow_pdf.help_text}}">{{ form.allow_pdf.label }}</label>
+	  <div class
+          <div class="uk-form-controls">{{ form.allow_pdf }}</div>
+        </div>
+        <div class="uk-form-row">
+          {{ form.required.errors }}
+          <label class="uk-form-label" for={{ form.required.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.required.help_text}}">{{ form.required.label }}</label>
+          <div class="uk-form-controls">{{ form.required }}</div>
+        </div>
+        <div class="uk-form-row">
+          {{ form.bonus.errors }}
+          <label class="uk-form-label" for={{ form.bonus.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.bonus.help_text}}">{{ form.bonus.label }}</label>
+          <div class="uk-form-controls">{{ form.bonus }}</div>
+        </div>
+
+         <div class="uk-form-row">
+          {{ form.feedback.errors }}
+          <label class="uk-form-label" for={{ form.bonus.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.feedback.help_text}}">{{ form.feedback.label }}</label>
+          <div class="uk-form-controls">{{ form.feedback}} </div>
+        </div>
+
+	
+         <div class="uk-form-row">
+          {{ form.locked.errors }}
+          <label class="uk-form-label" for={{ form.bonus.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.locked.help_text}}">{{ form.locked.label }}</label>
+          <div class="uk-form-controls">{{ form.locked}} </div>
+        </div>
+	
+	
+
+
+        <div class="uk-form-row">
+          {{ form.solution.errors }}
+          <label class="uk-form-label" for={{ form.solution.id_for_label }} data-uk-tooltip="{pos:'bottom'}" title="{{form.solution.help_text}}">{{ form.solution.label }} </label>
+          <div class="uk-form-controls">{{ form.solution }}</div>
+        </div>
+        <div class="uk-form-row">
+          {{ form.server_reply_time.errors }}
+          <label class="uk-form-label" for={{ form.server_reply_time.id_for_label }}>{{ form.server_reply_time.label }}</label>
+          <div class="uk-form-controls">{{ form.server_reply_time | add_class:"uk-form-small"}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="uk-width-1-1">
+    <input class="uk-button uk-margin-small-top uk-button-success uk-text-contrast" type="submit" value="Save" />
+    </div>
+</form>
+
+{% endblock %}

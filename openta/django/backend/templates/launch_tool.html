@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{% block content %}
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/oauth-signature@1.5.0/dist/oauth-signature.min.js"></script>
+</head>
+
+<body>
+
+    <pre><code class="language-json"></code></pre>
+    <form id="ltiForm"></form>
+
+    <script type="module">
+	var action = "{{ destination_url }}"
+        var method = 'POST';
+        var timestamp = Math.round(Date.now() / 1000);
+
+        var params = {
+            // LTI Required Parameters
+            lti_message_type: 'basic-lti-launch-request',
+            lti_version: 'LTI-1p0',
+	    subdomain :  "{{ subdomain }}",
+	    csrf_token : "{{ thecsrftoken }}",
+	    resource_link_id: "{{ resource_link_id }}",
+	    resource_link_title: "{{ resource_link_title }}",
+            // OAuth 1.0a Required Parameters
+	    custom_canvas_login_id: "{{ custom_canvas_login_id }}",
+	    lis_person_name_contact_email_primary: "{{ lis_person_name_contact_email_primary}}",
+	    lti_roles: 'Student',
+	    roles: "{{ roles }}",
+	    oauth_consumer_key: "{{ consumer_key }}",
+            oauth_nonce: btoa(timestamp),
+            oauth_signature_method: 'HMAC-SHA1',
+	    oauth_timestamp: "{{ timestamp }}",
+            oauth_version: '1.0',
+	    filter_key: "{{ filter_key }}",
+	    referer: "{{ referer }}",
+	    filter_title: '{{ filter_title }}',
+	    server: '{{ server }}',
+	    course_pk: '{{ course_pk }}',
+        };
+
+	var secret = '{{ oauth_secret }}'
+        var signature = oauthSignature.generate(method, action, params, secret); // THIS IS FROM THE oauth-signature cdn package
+        params.oauth_signature = signature;
+
+        var form = document.querySelector("#ltiForm");
+        form.action = action;
+        form.method = method;
+	form.style = "display:none;"
+        for (var name in params) {
+            var node = document.createElement("input");
+            node.name = name;
+            node.type = 'hidden';
+            node.value = params[name];
+            form.appendChild(node);
+        }
+
+	form.submit()
+    </script>
+
+</body>
+
+</html>
+{% endblock %}

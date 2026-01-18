@@ -1,0 +1,48 @@
+<exercise updated="2024-07-08 22:48:20.895" by="super" exercise_key="b49b175b-4a22-4208-96e5-bbf389d24ece">
+  <exercisename hashkey="9c6cc7f">3-87<alt lang="en" hashkey="9c6cc7f">3/87</alt>
+  </exercisename>
+  <global>
+T = 5 kg * meter / second^2
+</global>
+  <text hashkey="e40af54">
+    <figure>broken.png</figure>Ber&#228;kna f&#246;r&#228;ndringen i de vertikala; krafterna i $A,B$ och $C$ n&#228;r motorn s&#228;tts p&#229; och ger uppehov till en kraft $T$ enligt figuren. Hjulen vid $B$ och $C$ &#228;r bromsade medan $A$ &#228;r obromsat.
+    <alt lang="en" hashkey="e40af54">Calculate the change in the <b>vertical</b>forces in $A,B$ and $C$ when the engine is turned on and gives rise to a force $T$ according to the figure. The wheels at $B$ and $C$ are braked while $A$ is unbraked.  
+
+    </alt>
+  </text>
+  <question key="0">
+    <hint>
+      <regex present="discouraged">-</regex>
+      <comment hashkey="186ac3e">Hint: As the motor starts, the force presses down on the nosewheel. Hence the answer must be positive! <alt lang="en" hashkey="186ac3e">Hint: As the motor starts, the force presses down on the nosewheel. Hence the answer must be positive!</alt>
+      </comment>
+    </hint>
+    <hint>
+      <regex present="discouraged">^ *0 *$</regex>
+      <comment hashkey="102eb68">Hint: As the motor starts, the force presses down on the nosewheel.  So the answer cannot possiblty  be zero.   <alt lang="en" hashkey="102eb68">Hint: As the motor starts, the force presses down on the nosewheel.  So the answer cannot possiblty  be zero.</alt>
+      </comment>
+    </hint>
+    <text hashkey="1f439dc">$\Delta N_A$<alt lang="en" hashkey="1f439dc">$\Delta N_A$</alt>
+    </text>
+    <expression>T/2;</expression>
+  </question>
+  <question key="1">
+    <hint>
+      <regex present="encouraged">-</regex>
+      <comment hashkey="8dae315">Hint: As the motor starts, the force presses down on the nosewheel.  So the back wheel must get less force on them i.e. answer must be negative.   <alt lang="en" hashkey="8dae315">Hint: As the motor starts, the force presses down on the nosewheel.  So the back wheel must get less force on them i.e. answer must be negative.</alt>
+      </comment>
+    </hint>
+    <text hashkey="ea771de">$\Delta N_B$<alt lang="en" hashkey="ea771de">$\Delta N_B$</alt>
+    </text>
+    <expression>-T/4;</expression>
+  </question>
+  <question key="2">
+    <hint>
+      <regex present="encouraged">-</regex>
+      <comment hashkey="190f0e3">Hint: Same discussion as in for $ \Delta N_B $ <alt lang="en" hashkey="190f0e3">Hint: Same discussion as in for $ \Delta N_B $</alt>
+      </comment>
+    </hint>
+    <text hashkey="2d7f010">$\Delta N_C$<alt lang="en" hashkey="2d7f010">$\Delta N_C$</alt>
+    </text>
+    <expression>-T/4;</expression>
+  </question>
+</exercise>

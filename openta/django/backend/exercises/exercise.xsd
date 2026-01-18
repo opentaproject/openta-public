@@ -1,0 +1,756 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:element name="a">
+    <xs:complexType mixed="true">
+      <xs:attribute name="href" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="algorithm">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="alt">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="plot"/>
+        <xs:element ref="p"/>
+        <xs:element ref="pre"/>
+        <xs:element ref="b"/>
+        <xs:element ref="ul"/>
+        <xs:element ref="li"/>
+        <xs:element ref="em"/>
+        <xs:element ref="strong"/>
+        <xs:element ref="h1"/>
+        <xs:element ref="h2"/>
+        <xs:element ref="h3"/>
+        <xs:element ref="i"/>
+        <xs:element ref="hr"/>
+        <xs:element ref="br"/>
+        <xs:element ref="a"/>
+        <xs:element ref="table"/>
+        <xs:element ref="figure"/>
+        <xs:element ref="hidden"/>
+        <xs:element ref="ignore"/>
+        <xs:element ref="asset"/>
+        <xs:element ref="qmath"/>
+        <xs:element ref="right"/>
+        <xs:element ref="solution"/>
+        <xs:element ref="code"/>
+        <xs:element ref="div"/>
+        <xs:element ref="span"/>
+        <xs:element ref="snippet"/>
+        <xs:element ref="asciimath"/>
+      </xs:choice>
+      <xs:attribute name="class" type="xs:string"/>
+      <xs:attribute name="lang" type="xs:string"/>
+      <xs:attribute name="method" type="xs:string"/>
+      <xs:attribute name="hashkey" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="answer">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="hide"/>
+        <xs:element ref="parsed"/>
+        <xs:element ref="text"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="args">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="asciimath">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="asset">
+    <xs:complexType mixed="true">
+      <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="b">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="p"/>
+      </xs:choice>
+      <xs:attribute name="class" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="blacklist">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="token"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="br">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="button">
+    <xs:complexType mixed="true">
+      <xs:attribute name="onclick" type="xs:string"/>
+      <xs:attribute name="style" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="choice">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="alt"/>
+        <xs:element ref="figure"/>
+        <xs:element ref="text"/>
+      </xs:choice>
+      <xs:attribute name="correct" type="xs:string"/>
+      <xs:attribute name="key" type="xs:string"/>
+      <xs:attribute name="order" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="code">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="comment">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="alt"/>
+      </xs:choice>
+      <xs:attribute name="hashkey" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="config">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="func"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="data">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="func"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="difficulty">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="div">
+    <xs:complexType mixed="true">
+      <xs:attribute name="id" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="em">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="p"/>
+        <xs:element ref="a"/>
+      </xs:choice>
+      <xs:attribute name="class" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="equality">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="exercise">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="exercisename"/>
+        <xs:element ref="global"/>
+        <xs:element ref="text"/>
+        <xs:element ref="question"/>
+        <xs:element ref="studentasset"/>
+        <xs:element ref="macros"/>
+        <xs:element ref="solution"/>
+        <xs:element ref="figure"/>
+        <xs:element ref="right"/>
+        <xs:element ref="ignore"/>
+        <xs:element ref="hidden"/>
+      </xs:choice>
+      <xs:attribute name="updated" type="xs:string"/>
+      <xs:attribute name="by" type="xs:string"/>
+      <xs:attribute name="exercise_key" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="exercisename">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="alt"/>
+      </xs:choice>
+      <xs:attribute name="hashkey" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="expression">
+    <xs:complexType mixed="true">
+      <xs:attribute name="label" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="figure">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="func">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="token"/>
+        <xs:element ref="args"/>
+        <xs:element ref="value"/>
+        <xs:element ref="tex"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="funcs">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="functions">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="func"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="global">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="blacklist"/>
+        <xs:element ref="vars"/>
+        <xs:element ref="ops"/>
+        <xs:element ref="funcs"/>
+        <xs:element ref="oneforms"/>
+        <xs:element ref="op"/>
+        <xs:element ref="var"/>
+        <xs:element ref="hint"/>
+        <xs:element ref="func"/>
+      </xs:choice>
+      <xs:attribute name="type" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="h1">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="h2">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="h3">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="hidden">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="hide">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="answer"/>
+        <xs:element ref="hint"/>
+        <xs:element ref="solution"/>
+        <xs:element ref="text"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="hint">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="hide"/>
+        <xs:element ref="hint"/>
+        <xs:element ref="image"/>
+        <xs:element ref="text"/>
+        <xs:element ref="comment"/>
+        <xs:element ref="regex"/>
+      </xs:choice>
+      <xs:attribute name="label" type="xs:string"/>
+      <xs:attribute name="lang" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="hr">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="html">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="plot"/>
+        <xs:element ref="p"/>
+        <xs:element ref="pre"/>
+        <xs:element ref="b"/>
+        <xs:element ref="ul"/>
+        <xs:element ref="li"/>
+        <xs:element ref="em"/>
+        <xs:element ref="strong"/>
+        <xs:element ref="h1"/>
+        <xs:element ref="h2"/>
+        <xs:element ref="h3"/>
+        <xs:element ref="i"/>
+        <xs:element ref="hr"/>
+        <xs:element ref="br"/>
+        <xs:element ref="a"/>
+        <xs:element ref="table"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="i">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="if-not-so">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="if-so">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="ignore">
+    <xs:complexType mixed="true">
+      <xs:sequence>
+        <xs:any minOccurs="0" maxOccurs="unbounded" processContents="lax"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="image">
+    <xs:complexType mixed="true">
+      <xs:attribute name="type" type="xs:string"/>
+      <xs:attribute name="width" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="import">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="instructions">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="iscorrect">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="isfalse">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="if-so"/>
+        <xs:element ref="if-not-so"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="isincorrect">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="istrue">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="if-so"/>
+        <xs:element ref="if-not-so"/>
+      </xs:choice>
+      <xs:attribute name="sufficient" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="layout">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="func"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="li">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="b"/>
+        <xs:element ref="p"/>
+        <xs:element ref="button"/>
+        <xs:element ref="br"/>
+        <xs:element ref="em"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="link">
+    <xs:complexType mixed="true">
+      <xs:attribute name="rel" type="xs:string"/>
+      <xs:attribute name="href" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="local">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="blacklist"/>
+        <xs:element ref="var"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="log">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="logitem"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="logitem">
+    <xs:complexType mixed="true">
+      <xs:attribute name="date" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="macros">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="name">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="name7">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="notes">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="oneforms">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="op">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="ops">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="osolution">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="image"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="p">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="b"/>
+        <xs:element ref="em"/>
+        <xs:element ref="br"/>
+        <xs:element ref="figure"/>
+        <xs:element ref="i"/>
+        <xs:element ref="p"/>
+        <xs:element ref="ul"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="parsed">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="plot">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="data"/>
+        <xs:element ref="layout"/>
+        <xs:element ref="config"/>
+        <xs:element ref="vars"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="pre">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="qmath">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="querypath">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="question">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="blacklist"/>
+        <xs:element ref="ops"/>
+        <xs:element ref="oneforms"/>
+        <xs:element ref="funcs"/>
+        <xs:element ref="vars"/>
+        <xs:element ref="hint"/>
+        <xs:element ref="parsed"/>
+        <xs:element ref="text"/>
+        <xs:element ref="source"/>
+        <xs:element ref="var"/>
+        <xs:element ref="func"/>
+        <xs:element ref="choice"/>
+        <xs:element ref="equality"/>
+        <xs:element ref="expression"/>
+        <xs:element ref="istrue"/>
+        <xs:element ref="isfalse"/>
+        <xs:element ref="iscorrect"/>
+        <xs:element ref="isincorrect"/>
+        <xs:element ref="rate"/>
+        <xs:element ref="querypath"/>
+        <xs:element ref="resources"/>
+        <xs:element ref="instructions"/>
+        <xs:element ref="wl"/>
+        <xs:element ref="import"/>
+        <xs:element ref="variables"/>
+        <xs:element ref="local"/>
+        <xs:element ref="functions"/>
+        <xs:element ref="macros"/>
+        <xs:element ref="hidden"/>
+        <xs:element ref="ignore"/>
+      </xs:choice>
+      <xs:attribute name="exposeglobals" type="xs:string"/>
+      <xs:attribute name="points" type="xs:string"/>
+      <xs:attribute name="key" type="xs:string"/>
+      <xs:attribute name="precision" type="xs:string"/>
+      <xs:attribute name="validate" type="xs:string"/>
+      <xs:attribute name="silent" type="xs:string"/>
+      <xs:attribute name="hidden" type="xs:string"/>
+      <xs:attribute name="showerrors" type="xs:string"/>
+      <xs:attribute name="type" type="xs:string"/>
+      <xs:attribute name="mode" type="xs:string"/>
+      <xs:attribute name="function" type="xs:string"/>
+      <xs:attribute name="file" type="xs:string"/>
+      <xs:attribute name="answerbox" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="rate">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="regex">
+    <xs:complexType mixed="true">
+      <xs:attribute name="present" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="resources">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="right">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="plot"/>
+        <xs:element ref="p"/>
+        <xs:element ref="pre"/>
+        <xs:element ref="b"/>
+        <xs:element ref="ul"/>
+        <xs:element ref="li"/>
+        <xs:element ref="em"/>
+        <xs:element ref="strong"/>
+        <xs:element ref="h1"/>
+        <xs:element ref="h2"/>
+        <xs:element ref="h3"/>
+        <xs:element ref="i"/>
+        <xs:element ref="hr"/>
+        <xs:element ref="br"/>
+        <xs:element ref="a"/>
+        <xs:element ref="table"/>
+        <xs:element ref="figure"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="script">
+    <xs:complexType mixed="true">
+      <xs:attribute name="src" type="xs:string"/>
+      <xs:attribute name="type" type="xs:string"/>
+      <xs:attribute name="module" type="xs:string"/>
+      <xs:attribute name="nomodule" type="xs:string"/>
+      <xs:attribute name="async" type="xs:string"/>
+      <xs:attribute name="defer" type="xs:string"/>
+      <xs:attribute name="crossorigin" type="xs:string"/>
+      <xs:attribute name="integrity" type="xs:string"/>
+      <xs:attribute name="referrerpolicy" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="snippet">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="plot"/>
+        <xs:element ref="p"/>
+        <xs:element ref="pre"/>
+        <xs:element ref="b"/>
+        <xs:element ref="ul"/>
+        <xs:element ref="li"/>
+        <xs:element ref="em"/>
+        <xs:element ref="strong"/>
+        <xs:element ref="h1"/>
+        <xs:element ref="h2"/>
+        <xs:element ref="h3"/>
+        <xs:element ref="i"/>
+        <xs:element ref="hr"/>
+        <xs:element ref="br"/>
+        <xs:element ref="a"/>
+        <xs:element ref="table"/>
+        <xs:element ref="span"/>
+        <xs:element ref="button"/>
+        <xs:element ref="div"/>
+        <xs:element ref="text"/>
+        <xs:element ref="script"/>
+        <xs:element ref="style"/>
+        <xs:element ref="link"/>
+      </xs:choice>
+      <xs:attribute name="id" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="solution">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="plot"/>
+        <xs:element ref="p"/>
+        <xs:element ref="pre"/>
+        <xs:element ref="b"/>
+        <xs:element ref="ul"/>
+        <xs:element ref="li"/>
+        <xs:element ref="em"/>
+        <xs:element ref="strong"/>
+        <xs:element ref="h1"/>
+        <xs:element ref="h2"/>
+        <xs:element ref="h3"/>
+        <xs:element ref="i"/>
+        <xs:element ref="hr"/>
+        <xs:element ref="br"/>
+        <xs:element ref="a"/>
+        <xs:element ref="table"/>
+        <xs:element ref="figure"/>
+        <xs:element ref="hint"/>
+        <xs:element ref="image"/>
+        <xs:element ref="qmath"/>
+        <xs:element ref="solution"/>
+        <xs:element ref="text"/>
+        <xs:element ref="asset"/>
+      </xs:choice>
+      <xs:attribute name="label" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="solutionsheet">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="source">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="span">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="strong">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="studentasset">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="style">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="table">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="tr"/>
+        <xs:element ref="thead"/>
+        <xs:element ref="tbody"/>
+      </xs:choice>
+      <xs:attribute name="class" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="tbody">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="tr"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="td">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="b"/>
+        <xs:element ref="qmath"/>
+        <xs:element ref="em"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="tex">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="text">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="plot"/>
+        <xs:element ref="p"/>
+        <xs:element ref="pre"/>
+        <xs:element ref="b"/>
+        <xs:element ref="ul"/>
+        <xs:element ref="li"/>
+        <xs:element ref="em"/>
+        <xs:element ref="strong"/>
+        <xs:element ref="h1"/>
+        <xs:element ref="h2"/>
+        <xs:element ref="h3"/>
+        <xs:element ref="i"/>
+        <xs:element ref="hr"/>
+        <xs:element ref="br"/>
+        <xs:element ref="a"/>
+        <xs:element ref="table"/>
+        <xs:element ref="alt"/>
+        <xs:element ref="figure"/>
+        <xs:element ref="hidden"/>
+        <xs:element ref="ignore"/>
+        <xs:element ref="asset"/>
+        <xs:element ref="qmath"/>
+        <xs:element ref="right"/>
+        <xs:element ref="solution"/>
+        <xs:element ref="code"/>
+        <xs:element ref="div"/>
+        <xs:element ref="span"/>
+        <xs:element ref="snippet"/>
+        <xs:element ref="asciimath"/>
+      </xs:choice>
+      <xs:attribute name="class" type="xs:string"/>
+      <xs:attribute name="hidden" type="xs:string"/>
+      <xs:attribute name="lang" type="xs:string"/>
+      <xs:attribute name="method" type="xs:string"/>
+      <xs:attribute name="hashkey" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="th">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="thead">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="tr"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="thecorrectanswer">
+    <xs:complexType mixed="true">
+      <xs:attribute name="id" type="xs:string"/>
+      <xs:attribute name="lang" type="xs:string"/>
+      <xs:attribute name="question" type="xs:string"/>
+      <xs:attribute name="questionkey" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="token">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="tr">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="td"/>
+        <xs:element ref="th"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="ul">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="figure"/>
+        <xs:element ref="p"/>
+        <xs:element ref="li"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="value">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+  <xs:element name="var">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="token"/>
+        <xs:element ref="tex"/>
+        <xs:element ref="value"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="variables">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="blacklist"/>
+        <xs:element ref="var"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="vars">
+    <xs:complexType mixed="true">
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element ref="func"/>
+      </xs:choice>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="wl">
+    <xs:complexType mixed="true"/>
+  </xs:element>
+</xs:schema>

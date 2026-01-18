@@ -1,0 +1,2 @@
+{% load i18n %}
+{{course.course_name}}: {% trans "Random audit - Exercise " %} {{exercise.name}}

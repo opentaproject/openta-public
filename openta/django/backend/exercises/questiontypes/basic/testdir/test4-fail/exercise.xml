@@ -1,0 +1,84 @@
+<exercise exercise_key="1fe4041f-f609-45c4-ab46-46a38cc75c58" updated="2024-08-27 11:31:37.296" by="super">
+  <exercisename>test4-fail</exercisename>
+  <global>
+e1 =  [1,1,0 ];
+e2 = [1,-1,1];
+e3 = [1,-1,-2];
+f1 = [1,0,1];
+f2 = [-1,2,1];
+f3 = [-1,-1,1];
+m1 = ( e1 / | e1 | );
+m2 = ( e2 / | e2 | );
+m3 = ( e3 / | e3 | );
+v1 = m1;
+v2 = m2;
+v3 = m3;
+n1 = f1 / | f1 |;
+n2 = f2 / | f2 |;
+n3 = f3 / | f3 |;
+w1 = n1;
+w2 = n2;
+w3 = n3;
+Me = [  m1 , m2 , m3  ];
+Mf = [  n1 , n2 , n3  ];
+x1 = [1,0,0];
+x2 = [0,1,0];
+x3 = [0,0,1 ]
+</global>
+  <question key="mf" type="matrix">
+    <istrue>Rank( $$ ) == 3 
+              <if-not-so>Rank must be 3 </if-not-so>
+    </istrue>
+    <istrue>Transpose( $$ ) * $$ == [[1,0,0],[0,1,0],[0,0,1]] 
+              <if-not-so>Matrix is not orthgonal </if-not-so>
+    </istrue>
+    <istrue>x1 == $$ * ( v1 ) ; 
+              <if-not-so>The matrix does not map e1 into v1 </if-not-so>
+    </istrue>
+    <istrue>x2 == $$ * ( v2 ) ; 
+              <if-not-so>The matrix does not map e2 into v2 </if-not-so>
+    </istrue>
+    <istrue>x3 == $$ * ( v3 )  
+              <if-not-so>The matrix does not map e3 into v3 </if-not-so>
+    </istrue>
+    <expression>[m1,m2,m3]  </expression>
+  </question>
+  <question key="mf2" type="matrix">
+    <istrue>Rank( $$ ) == 3 
+              <if-not-so>Rank must be 3 </if-not-so>
+    </istrue>
+    <istrue>Transpose( $$ ) * $$ == [[1,0,0],[0,1,0],[0,0,1]] 
+              <if-not-so>Matrix is not orthgonal </if-not-so>
+    </istrue>
+    <istrue>x1 == $$ * ( w1 )   <if-not-so>The matrix does not map f1 into w1 </if-not-so>
+    </istrue>
+    <istrue>x2 == $$ * ( w2 ) 
+              <if-not-so>The matrix does not map f2 into w2 </if-not-so>
+    </istrue>
+    <istrue>x3 == $$ * ( w3 ) 
+              <if-not-so>The matrix does not map f3 into w3 </if-not-so>
+    </istrue>
+    <expression>[n1,n2,n3]  </expression>
+  </question>
+  <question key="randomkey5" type="matrix">
+    <blacklist>
+      <token>Me </token>
+    </blacklist>
+    <variables>Qe = [m1,m2,m3] ; Qf = [n1,n2,n3]  </variables>
+    <istrue>$$ == Transpose( Me ) * Mf </istrue>
+    <expression>Transpose( Me ) * Mf ; </expression>
+    <istrue>Transpose( $$ ) * $$ == [[1,0,0],[0,1,0],[0,0,1]] 
+              <if-not-so>Matrix is not orthgonal </if-not-so>
+    </istrue>
+    <istrue>v1 == $$ * w1 
+              <if-not-so>e1 is not mapped to f1 </if-not-so>
+    </istrue>
+    <istrue>v2 == $$ * w2 
+              <if-not-so>e2 is not mapped to f2 </if-not-so>
+    </istrue>
+    <istrue>v3 == $$ * w3 
+              <if-not-so>e3 is not mapped to f3 </if-not-so>
+    </istrue>
+    <isincorrect>[m1,m2,m3 ] </isincorrect>
+  </question>
+</exercise>

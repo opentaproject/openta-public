@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html class="uk-height-1-1">
+<head>
+  <meta charset="utf-8">
+  <meta name="google" content="notranslate" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <!-- WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323 -->
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" /> 
+  <title>OpenTA</title>
+  <link rel="stylesheet" href="{% static "css/uikit.css" %}" />
+  <link rel="stylesheet" href="{% static "css/components/tooltip.min.css" %}" />
+  <link rel="stylesheet" type="text/css" href="{% static "css/app.css" %}" />
+  <link rel="apple-touch-icon-precomposed" href="{% static "icons/apple.png" %}" />
+  <link rel="icon" sizes="any" href="{% static "icons/favicon.ico" %}"/>
+  <link rel="icon"  href="{% static "icons/s.ico" %}"/>
+  <script crossorigin src="{% static "js/jquery.js" %}"></script>
+  <script crossorigin src="{% static "js/uikit.js" %}"></script>
+  <script crossorigin src="{% static "js/components/tooltip.min.js" %}"></script>
+  <script src="{% static "js/components/datepicker.min.js" %}"></script>
+  <link rel="stylesheet" href="{% static "css/components/datepicker.min.css" %}" />
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+  <script>
+  window.MathJax = {
+    tex: {
+      packages: { '[+]': ['ams'] }, 
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$','$$'], ['\\[','\\]']],
+      processEscapes: true
+    },
+    svg: { fontCache: 'global' } // or use "chtml" if you prefer HTML output
+  };
+</script>
+<script
+  id="MathJax-script"
+  async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"
+></script>
+
+
+ <style>
+
+
+ .uk-badge-dang{
+            background-color: white !important;
+            color: red !important;
+        }
+        .uk-badge-dang .uk-icon {
+            background-color: white !important;
+            color: red !important;
+	    font-size: 16px;
+        }
+
+	 .uk-badge-warn{
+            background-color: white !important;
+            color: orange !important;
+        }
+        .uk-badge-warn .uk-icon {
+            background-color: white !important;
+            color: orange !important;
+            font-size: 16px;
+        }
+
+
+
+
+
+    </style>
+  
+  
+  
+</head>
+<body class="uk-height-1-1">
+        {% block content %}{% endblock %}
+</body>
+</html>

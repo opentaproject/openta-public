@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      volumes:
+        - name: subdomain-vol
+          persistentVolumeClaim:
+            claimName: subdomain-pvc
+
+
+      containers:
+        - name: nginx
+          image: nginx:stable
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: "/usr/share/nginx/html"
+              name: subdomain-vol
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  selector:
+    app: nginx
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx
+spec:
+  tls:
+    - hosts:
+        - '${DOMAIN_NAME}'
+        - '*.${DOMAIN_NAME}'
+      secretName: openta-tls-secret
+  rules:
+    - host: ${DOMAIN_NAME}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx
+                port:
+                  number: 80
+
+    - host: '*.${DOMAIN_NAME}'
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx
+                port:
+                  number: 80

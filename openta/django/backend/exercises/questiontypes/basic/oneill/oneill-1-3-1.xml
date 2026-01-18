@@ -1,0 +1,43 @@
+<exercise updated="true">
+  <exercisename>1.3.1</exercisename>
+  <global>
+    <vars> x,y,z,s,D</vars>
+    <var>
+      <token>vp</token>
+      <tex>v_p</tex>
+    </var>
+p = [2,0,1];
+vp = [2,-1,3];
+fa(x,y,z)  := y^2 z;
+fb(x,y,z) := x^7;
+fc(x,y,z) := e^x cos(y)</global>
+  <text> The directional derivative $ v_p[f] $ is given by $ v_p[f] = \frac{d}{dt} \sigma(t) |_{s=0} $ where $\sigma(s) = f(p + s v_p ) $ 
+    <p/>
+  </text>
+  <text> Let $ v_p = [2,-1,3] $ and let $ p = [2,0,1] $. Working directly with the definition, compute $ \sigma(s) = f(p + s v_p ) $ and $ v_p[f] = \frac{d}{dt}sigma(t) |_{s=0} $ where </text>
+  <question key="randomkey1" type="default">
+    <text> (a) F or $ p = [2,0,1] $ and $ v_p = [2,-1,3]  $ compute $ \sigma(s)  $ for \[ f = y^2 z \] </text>
+    <expression>    s^2 ( 1 + 3 s )</expression>
+    <iscorrect> ( y^2 z ).subs({x: 2 + 2 s , y: 0 - s , z: 1 + 3 s })  </iscorrect>
+    <iscorrect>  fa( 2 + 2 s , 0 - s , 1 + 3 s )
+    </iscorrect>
+  </question>
+  <question key="randomkeyb" type="default">
+    <text> (a) For $ p = [2,0,1] $ and $ v_p = [2,-1,3]  $ compute $ \sigma(s)  = f(p + s v_p )  $ for \[ f = x^7 \] </text>
+    <iscorrect> 
+      fb( 2 + 2 s , 0 - s , 1 + 3 s );
+    </iscorrect>
+    <expression>
+2^7 ( 1 + s)^7
+
+ </expression>
+  </question>
+  <question key="randomkeyc" type="default">
+    <text> (a) F or $ p = [2,0,1] $ and $ v_p = [2,-1,3]  $ compute $ \sigma(s) = f(p + s v_p )  $ for \[ f = e^x cos(y)  \] </text>
+    <expression>
+      exp( 2 ( 1 + s ) ) cos(s) 
+    </expression>
+    <iscorrect> 
+fc( 2 + 2 s , 0 - s , 1 + 3 s )</iscorrect>
+  </question>
+</exercise>

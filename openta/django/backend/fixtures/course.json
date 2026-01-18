@@ -1,0 +1,30 @@
+[ {
+  "model": "course.course",
+  "pk": 1,
+  "fields": {
+    "opentasite": "SUBDOMAIN",
+    "course_name": "Course SUBDOMAIN",
+    "icon": "",
+    "motd": "",
+    "course_long_name": "Course SUBDOMAIN",
+    "registration_password": null,
+    "registration_by_password": false,
+    "deadline_time": "23:59:59",
+    "url": null,
+    "registration_domains": null,
+    "registration_by_domain": false,
+    "languages": null,
+    "difficulties": "+:Recommended,*:Easy,**:Medium,***:Hard",
+    "email_reply_to": "localhost",
+    "email_host": "localhost",
+    "email_host_user": null,
+    "email_username": "",
+    "email_host_password": null,
+    "published": false,
+    "use_auto_translation": false,
+    "google_auth_string": "",
+    "use_email": false,
+    "use_lti": false,
+    "owners": []
+  }
+}]

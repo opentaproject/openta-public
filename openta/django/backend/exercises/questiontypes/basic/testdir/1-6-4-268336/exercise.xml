@@ -1,0 +1,25 @@
+<exercise exercise_key="f60dc6b2-09a9-4ff7-a096-10d4c643194c" updated="2024-08-31 23:04:30.174" by="super">
+  <exercisename>1-6-4</exercisename>
+  <global>
+    <oneforms>df , dg </oneforms>
+  </global>
+  <question exposeglobals="true" type="basic" key="a">
+    <text>\[ d( f \; dg + g \;df ) \] </text>
+    <expression>0 * df dg</expression>
+  </question>
+  <question key="b">
+    <text>\[ d( (f - g ) ( df + dg ) \] </text>
+    <expression>0 * df dg</expression>
+  </question>
+  <question key="c">
+    <text>\[ d(  f \; dg   \wedge ( g \; df ) ) \] </text>
+    <expression>0 df dg </expression>
+  </question>
+  <question key="d">
+    <text>\[ d(   \; g \, f \; df  )  + d( f \; dg \] </text>
+    <expression>( 1 - f ) df * dg </expression>
+    <isfalse>$$ == ( f - 1 ) dg * df <if-not-so>You need to write the answer in canonical form, i.e. df * dg not dg * df</if-not-so>
+    </isfalse>
+    <isincorrect>( f - 1  )  dg * df   </isincorrect>
+  </question>
+</exercise>

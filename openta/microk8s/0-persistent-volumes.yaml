@@ -1,0 +1,108 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: subdomain-vol
+spec:
+  capacity:
+    storage: 200Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-hostpath
+  local:
+    path: /mnt/pv/subdomain-vol
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${SERVER_NAME}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: subdomain-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-hostpath
+  volumeName: subdomain-vol
+  resources:
+    requests:
+      storage: 200Gi
+---
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: deploystatic-vol
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-hostpath
+  local:
+    path: /mnt/pv/deploystatic-vol
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${SERVER_NAME}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: deploystatic-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-hostpath
+  volumeName: deploystatic-vol
+  resources:
+    requests:
+      storage: 10Gi
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: minikube-vol
+spec:
+  capacity:
+    storage: 80Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: local-hostpath
+  local:
+    path: /mnt/pv/minikube-vol
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - ${SERVER_NAME}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: minikube-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-hostpath
+  volumeName: minikube-vol
+  resources:
+    requests:
+      storage: 80Gi

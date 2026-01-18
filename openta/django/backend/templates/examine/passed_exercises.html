@@ -1,0 +1,113 @@
+{% extends "admin/base_site.html" %}
+{% load widget_tweaks %}
+{% load i18n l10n admin_urls static %}
+
+{% block extrastyle %}{{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "css/uikit.min.css" %}" />
+  <link rel="stylesheet" href="{% static "css/components/datepicker.min.css" %}" />
+  <link rel="stylesheet" href="{% static "css/components/autocomplete.min.css" %}" />
+  <link rel="stylesheet" href="{% static "css/components/tooltip.min.css" %}" />
+  <link rel="stylesheet" type="text/css" href="{% static "app.css" %}">
+{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+  <script src="{% static "js/jquery.js" %}"></script>
+  <script src="{% static "js/uikit.js" %}"></script>
+  <script src="{% static "js/components/datepicker.min.js" %}"></script>
+  <script src="{% static "js/components/timepicker.min.js" %}"></script>
+  <script src="{% static "js/components/autocomplete.min.js" %}"></script>
+  <script src="{% static "js/components/tooltip.min.js" %}"></script>
+  <script src="{% static "js/components/lightbox.min.js" %}"></script>
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{% url 'admin:exercises_exercise_changelist' %}">{% trans 'Exercises' %}</a>
+        {% block crumbs %}
+            {% if title %} &rsaquo; {{ title }}{% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}
+{% block content %}
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center">
+
+{% include "messages.html" %}
+  <div class="uk-alert">
+    Showing passed students with their latest correct answer before deadline together with their latest image answer.
+  </div>
+  <div class="uk-alert">
+    {% for key, exercise in exercises.items %}
+      <div class="uk-thumbnail">
+        <img src="/{{SUBPATH}}exercise/{{key}}/asset/thumbnail.png"/>
+        <div class="uk-thumbnail-caption">{{exercise.name}}</div>
+      </div>
+    {% endfor %}
+  </div>
+  <form method="post" class="uk-form uk-form-stacked">
+  <table class="uk-table">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>{% trans "Username"%}</th>
+        {% for key, exercise in exercises.items %}
+        {% for qkey, question in exercise.questions.items %}
+          <th>{{exercise.name}}:{{qkey}}</th>
+        {% endfor %}
+          <th>Image answers</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in users %}
+      <tr>
+        <td>
+          <input type="checkbox" name="selected_users" value="{{ user.id }}"/>
+        </td>
+        <td>
+          {% if show_users %}
+            {{user.username}}
+          {% else %}
+            {{user.id}}
+          {% endif %}
+        </td>
+        {% for key, exercise in user.exercises.items %}
+          {% for key, answer in exercise.questions.items %}
+            <td>{{answer}}</td>
+          {% endfor %}
+          <td>
+            {% for pk in exercise.imageanswers %}
+            <a href="/{{SUBPATH}}imageanswer/{{pk}}" data-uk-lightbox data-lightbox-type="image"><img src="/{{SUBPATH}}imageanswerthumb/{{pk}}"/></a>
+            {% endfor %}
+          </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <h2>Email selected students</h2>
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="uk-form-row">
+        {% for error in field.errors %}
+        <div class="uk-alert uk-alert-danger">{{ error | escape }}</div>
+        {% endfor %}
+        {% if field.help_text %}
+        <div class="uk-alert uk-text-left"><p class="help">{{ field.help_text|safe }}</p></div>
+        {% endif %}
+        <label class="uk-form-label" for={{ field.id_for_label }}> {{ field.label }} </label>
+        <div class="uk-form-controls"> {{ field }}</div>
+      </div>
+      {% endfor %}
+      {% for obj in queryset %}
+      <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk|unlocalize }}" />
+      {% endfor %}
+      {% if action %}
+      <input type="hidden" name="action" value="{{action}}" />
+      {% endif %}
+      {% for key, item in hidden.items %}
+      <input type="hidden" name="{{ key }}" value="{{item}}" />
+      {% endfor %}
+      <input class="uk-button uk-margin-small-top" type="submit" value="{{ submit_text }}" />
+    </form>
+{% endblock %}

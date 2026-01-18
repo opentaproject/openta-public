@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>OpenTA Matrix Functions</title>
+  <style>
+    body { font-family: -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; padding: 16px; }
+    table { border-collapse: collapse; width: 100%; max-width: 1200px; }
+    th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; }
+    th { background: #f7f7f7; }
+    code { white-space: pre; }
+  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Functions available via matrix_defs in functions.py with their arguments." />
+ </head>
+<body>
+  <h1>OpenTA Matrix Functions (from functions.py matrix_defs)</h1>
+  <table>
+    <thead>
+      <tr><th>Function</th><th>Arguments (as per functions.py)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Array</td><td>unspecified in this file (SymPy Array)</td></tr>
+      <tr><td>abs</td><td>x</td></tr>
+      <tr><td>Trace</td><td>x (Matrix)</td></tr>
+      <tr><td>iden</td><td>x</td></tr>
+
+      <tr><td>Transpose</td><td>x (Matrix)</td></tr>
+      <tr><td>localtranspose</td><td>x (Matrix)</td></tr>
+
+      <tr><td>Conjugate</td><td>x (Matrix)</td></tr>
+      <tr><td>localconjugate</td><td>x (Matrix)</td></tr>
+
+      <tr><td>Adjoint</td><td>x (Matrix)</td></tr>
+      <tr><td>localadjoint</td><td>x (Matrix)</td></tr>
+
+      <tr><td>Inverse</td><td>x (Matrix)</td></tr>
+      <tr><td>localinverse</td><td>x (Matrix)</td></tr>
+
+      <tr><td>AreEigenvaluesOf</td><td>y, x (Matrices)</td></tr>
+      <tr><td>IsDiagonalizationOf</td><td>m, u (Matrices)</td></tr>
+      <tr><td>IsHermitian</td><td>x (Matrix)</td></tr>
+
+      <tr><td>xhat</td><td>constant (Matrix([1,0,0]))</td></tr>
+      <tr><td>yhat</td><td>constant (Matrix([0,1,0]))</td></tr>
+      <tr><td>zhat</td><td>constant (Matrix([0,0,1]))</td></tr>
+
+      <tr><td>RankOf</td><td>x (Matrix)</td></tr>
+      <tr><td>Rank</td><td>x (Matrix)</td></tr>
+      <tr><td>IsUnitary</td><td>x (Matrix)</td></tr>
+
+      <tr><td>mul</td><td>*arg (1–5 Matrices)</td></tr>
+      <tr><td>cross</td><td>x, y (3-vectors/Arrays)</td></tr>
+
+      <tr><td>Gt</td><td>x, y</td></tr>
+      <tr><td>len</td><td>x (Matrix)</td></tr>
+      <tr><td>dim</td><td>x (Matrix)</td></tr>
+      <tr><td>localGt</td><td>x, y</td></tr>
+      <tr><td>localLt</td><td>x, y</td></tr>
+      <tr><td>Ge</td><td>x, y</td></tr>
+      <tr><td>localGe</td><td>x, y</td></tr>
+      <tr><td>Lt</td><td>x, y</td></tr>
+      <tr><td>Le</td><td>x, y</td></tr>
+
+      <tr><td>Or</td><td>*x (Integers 0/1)</td></tr>
+      <tr><td>localOr</td><td>*x (Integers 0/1)</td></tr>
+      <tr><td>And</td><td>*x (Integers 0/1)</td></tr>
+      <tr><td>localAnd</td><td>*x (Integers 0/1)</td></tr>
+
+      <tr><td>curl</td><td>M (3-vector field/Matrix)</td></tr>
+      <tr><td>div</td><td>M (3-vector field/Matrix)</td></tr>
+      <tr><td>localdiv</td><td>M (3-vector field/Matrix)</td></tr>
+      <tr><td>grad</td><td>fun (scalar function of x,y,z)</td></tr>
+
+      <tr><td>Not</td><td>x (Integer 0/1)</td></tr>
+      <tr><td>localNot</td><td>x (Integer 0/1)</td></tr>
+
+      <tr><td>IsEqual</td><td>x, y</td></tr>
+      <tr><td>eq</td><td>x, y</td></tr>
+      <tr><td>IsNotEqual</td><td>x, y</td></tr>
+
+      <tr><td>diagonalpart</td><td>x (Matrix)</td></tr>
+      <tr><td>DiagonalOf</td><td>x (Matrix)</td></tr>
+      <tr><td>IsDiagonal</td><td>x (Matrix)</td></tr>
+      <tr><td>IsDiagonalizable</td><td>x (Matrix)</td></tr>
+
+      <tr><td>true</td><td>constant (1)</td></tr>
+      <tr><td>false</td><td>constant (0)</td></tr>
+      <tr><td>True</td><td>constant (1)</td></tr>
+      <tr><td>False</td><td>constant (0)</td></tr>
+
+      <tr><td>times</td><td>x, y (elementwise Matrix multiply)</td></tr>
+      <tr><td>exp</td><td>x (from SymPy; unspecified here)</td></tr>
+      <tr><td>del2</td><td>fun (scalar function)</td></tr>
+      <tr><td>sort</td><td>x (Matrix)</td></tr>
+      <tr><td>Sort</td><td>x (Matrix)</td></tr>
+      <tr><td>norm</td><td>x (Matrix or scalar)</td></tr>
+      <tr><td>NullRank</td><td>zmat, mvars</td></tr>
+      <tr><td>Eigenvalues</td><td>x (Matrix)</td></tr>
+      <tr><td>IsNullSpaceOf</td><td>x, y (Matrices)</td></tr>
+      <tr><td>RotationMatrix</td><td>n, theta</td></tr>
+      <tr><td>RotationArguments</td><td>m (Matrix)</td></tr>
+      <tr><td>AreEigenvectorsOf</td><td>m, mtests</td></tr>
+      <tr><td>AreOrthogonal</td><td>x1, x2, … (1–6 vectors)</td></tr>
+      <tr><td>shape</td><td>x (Matrix)</td></tr>
+      <tr><td>dimensions</td><td>x (Matrix)</td></tr>
+      <tr><td>mlog</td><td>x (Matrix)</td></tr>
+      <tr><td>mexp</td><td>x (Matrix)</td></tr>
+      <tr><td>matrixElements</td><td>m, i or m, [i, j] (1-based indices)</td></tr>
+      <tr><td>asin</td><td>x (from SymPy; unspecified here)</td></tr>
+    </tbody>
+  </table>
+
+  <p>Source: <code>exercises/questiontypes/matrix/functions.py</code>, table built from <code>matrix_defs</code>.</p>
+</body>
+</html>
+

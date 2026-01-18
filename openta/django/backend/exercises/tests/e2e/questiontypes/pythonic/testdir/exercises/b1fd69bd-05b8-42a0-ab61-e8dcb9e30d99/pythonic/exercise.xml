@@ -1,0 +1,29 @@
+<exercise>
+  <exercisename> Demo- pythonic</exercisename>
+ 
+  <question key="1" type="pythonic"   function='dotrainingset' answerbox='false'>
+    <text>  $ C_{\Omega} $ and $ H_{\Omega} $ of training set
+     </text> </question>
+  
+  <question key="2" type="pythonic"  answerbox='false' function='doevaluationset'>
+    <text>  $ C_{\Omega} $ and $ H_{\Omega} $ of evaluation set
+     </text> </question>
+  
+  
+  <question key="3" type="pythonic"  file='questions' function='simple_symbolic'>
+    <text>What is the length of the hypothenuse of a right angled triangle with sides $a$ and $b$?</text>
+    <expression>sqrt(a^2+b^2)</expression>
+  </question>
+  
+   <question key="4" type="pythonic"   function='has_determinant_one'>
+     <text>Write a matrix whose determinant is on e </text>
+     <expression>[[0,1],[-1,0]] </expression>
+  </question>
+  
+   <question key="5" type="pythonic"   function='add_one'>
+     <text>Write a matrix which when added to the previous answer has  determinant one.  </text>
+     <expression>[[0,0],[0,0]] </expression>
+  </question>
+ 
+    
+</exercise>

@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pgbouncer-auth
+data:
+  userlist.txt: |
+    "${PGUSER}" "${SCRAM_PASSWORD}"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgbouncer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pgbouncer
+  template:
+    metadata:
+      labels:
+        app: pgbouncer
+    spec:
+      volumes:
+      - name: subdomain-vol
+        persistentVolumeClaim:
+          claimName: subdomain-pvc
+      - name: pgbouncer-auth
+        configMap:
+          name: pgbouncer-auth
+
+      containers:
+      - env:
+        - name: TZ
+          value: "Europe/Stockholm" # Set your desired timezone
+        - name: DB_HOST
+          value: db-server
+        - name: DB_PASSWORD
+          value: 'postgres'
+        - name: PGPASSWORD
+          value: 'postgres'
+        - name: DB_USER
+          value: 'postgres'
+        - name: PG_HOST
+          value: 'pgbouncer-service'
+        - name: POOL_MODE
+          value: transaction
+        - name: SERVER_RESET_QUERY
+          value: "DISCARD ALL"
+        - name: PGHOST
+          value: 'pgbouncer-service'
+        - name: MAX_CLIENT_CONN
+          value: '1000'
+        image: 'opentaproject/openta-pgbouncer:latest'
+        imagePullPolicy: Always
+        volumeMounts:
+          - mountPath: "/subdomain-data"
+            name: subdomain-vol
+          - name: pgbouncer-auth
+            mountPath: /etc/pgbouncer/userlist.txt
+            subPath: userlist.txt
+    
+        name: pgbouncer
+        ports:
+        - containerPort: 5432
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - all
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgbouncer-service
+spec:
+  ports:
+  - port: 5432
+    protocol: TCP
+    targetPort: 5432
+  selector:
+    app: pgbouncer
+

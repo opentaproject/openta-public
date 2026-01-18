@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% load i18n %}
+
+{% block content %}
+<div id="content" class="uk-vertical-align uk-text-center">
+<div class="uk-vertical-align-middle uk-container-center">
+
+<div class="uk-alert uk-alert-warning">
+  {% trans "Activation failed."%}
+</div>
+
+{% include "messages.html" %}
+
+{% endblock %}

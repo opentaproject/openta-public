@@ -1,0 +1,226 @@
+<?xml version="1.0" ?>
+<exercise>
+	<exercisename>
+		 Translation Dictionary 
+		<alt lang="en"> Translation Dictionary </alt>
+		<alt lang="sv">Översättningsordbok</alt>
+		<alt lang="de">Übersetzung Wörterbuch</alt>
+		<alt lang="ar">قاموس الترجمة</alt>
+	</exercisename>
+	<text key="df206">
+		 Logout and delete my answers. 
+		<alt lang="sv">Logga ut och ta bort mina svar.</alt>
+		<alt lang="en">Logout and delete my answers.</alt>
+		<alt lang="ar">تسجيل الخروج وحذف إجاباتي.</alt>
+	</text>
+	<text key="4994a">
+		 Language 
+		<alt lang="sv">Språk</alt>
+		<alt lang="en">Language</alt>
+		<alt lang="ar">لغة</alt>
+	</text>
+	<text key="bb7af">
+		 Maxwell Equations 
+		<alt lang="sv">Maxwell ekvationer</alt>
+		<alt lang="en">Maxwell Equations</alt>
+		<alt lang="ar">معادلات ماكسويل</alt>
+	</text>
+	<text key="bf506">
+		 En ytterigare mapp 
+		<alt lang="sv">En ytterigare mapp</alt>
+		<alt lang="en">An additional folder</alt>
+		<alt lang="ar">مجلد إضافي</alt>
+	</text>
+	<text key="e25e5">
+		 simplysymbolic 
+		<alt lang="sv">simplysymbolic</alt>
+		<alt lang="en">simplysymbolic</alt>
+		<alt lang="ar">ببساطة رمزية</alt>
+	</text>
+	<text key="9fd9f">
+		 Obligatory 
+		<alt lang="sv">Obligatorisk</alt>
+		<alt lang="en">Obligatory</alt>
+		<alt lang="ar">واجب</alt>
+	</text>
+	<text key="38a2b">
+		 textbased 
+		<alt lang="sv">textbaserad</alt>
+		<alt lang="en">textbased</alt>
+		<alt lang="ar">مستند إلى النص</alt>
+	</text>
+	<text key="eeae1">
+		 v320a-copy 
+		<alt lang="sv">v320a-kopia</alt>
+		<alt lang="en">v320a-copy</alt>
+		<alt lang="ar">نسخة v320a</alt>
+	</text>
+	<text key="94e94">
+		 STANDARD 
+		<alt lang="sv">STANDARD</alt>
+		<alt lang="en">STANDARD</alt>
+		<alt lang="ar">اساسي</alt>
+	</text>
+	<text key="3c0ee">
+		 Bonus 
+		<alt lang="sv">Bonus</alt>
+		<alt lang="en">Bonus</alt>
+		<alt lang="ar">علاوة</alt>
+	</text>
+	<text key="8ecfc">
+		 is correct. 
+		<alt lang="sv">stämmer.</alt>
+		<alt lang="en">is correct.</alt>
+		<alt lang="ar">صحيح.</alt>
+	</text>
+	<text key="729a4">
+		 in terms of 
+		<alt lang="sv">i form av</alt>
+		<alt lang="en">in terms of</alt>
+		<alt lang="ar">من ناحية</alt>
+	</text>
+	<text key="ad91a">
+		 unchecked 
+		<alt lang="sv">okontrollerad</alt>
+		<alt lang="en">unchecked</alt>
+		<alt lang="ar">دون رادع</alt>
+	</text>
+	<text key="79845">
+		 attempts 
+		<alt lang="sv">Försök</alt>
+		<alt lang="en">attempts</alt>
+		<alt lang="ar">محاولات</alt>
+	</text>
+	<text key="0774e">
+		 Unpublished 
+		<alt lang="sv">Opublicerad</alt>
+		<alt lang="en">Unpublished</alt>
+		<alt lang="ar">غير منشورة</alt>
+	</text>
+	<text key="a7e25">
+		 Trash 
+		<alt lang="sv">Skräp</alt>
+		<alt lang="en">Trash</alt>
+		<alt lang="ar">نفاية</alt>
+	</text>
+	<text key="3730c">
+		 Course 
+		<alt lang="sv">Kurs</alt>
+		<alt lang="en">Course</alt>
+		<alt lang="ar">مسار</alt>
+	</text>
+	<text key="850f2">
+		 Uppgift 3 
+		<alt lang="sv">Uppgift 3</alt>
+		<alt lang="en">Task 3</alt>
+		<alt lang="ar">المهمة 3</alt>
+	</text>
+	<text key="f3122">
+		 newtext 
+		<alt lang="sv">newtext</alt>
+		<alt lang="en">newtext</alt>
+		<alt lang="ar">نص جديد</alt>
+	</text>
+	<text key="a6dd5">
+		 CORRECT FIRST TIME! 
+		<alt lang="sv">KORREKT FÖRSTA GÅNGEN!</alt>
+		<alt lang="en">CORRECT FIRST TIME!</alt>
+		<alt lang="ar">المرة الأولى الصحيحة!</alt>
+	</text>
+	<text key="6635c">
+		 choose your language at the top 
+		<alt lang="sv">välj ditt språk högst upp</alt>
+		<alt lang="en">choose your language at the top</alt>
+		<alt lang="ar">اختر لغتك في الأعلى</alt>
+	</text>
+	<text key="881b3">
+		 Unchecked 
+		<alt lang="sv">Okontrollerad</alt>
+		<alt lang="en">Unchecked</alt>
+		<alt lang="ar">لم يتم التحقق منه</alt>
+	</text>
+	<text key="9fbce">
+		 Uppgift 7 
+		<alt lang="sv">Uppgift 7</alt>
+		<alt lang="en">Task 7</alt>
+		<alt lang="ar">المهمة 7</alt>
+	</text>
+	<text key="01656">
+		 Uppgift 2-copy 
+		<alt lang="sv">Uppgift 2-copy</alt>
+		<alt lang="en">Task 2-copy</alt>
+		<alt lang="ar">المهمة 2 - نسخة</alt>
+	</text>
+	<text key="95766">
+		 Uppgift 8 
+		<alt lang="sv">Uppgift 8</alt>
+		<alt lang="en">Task 8</alt>
+		<alt lang="ar">المهمة 8</alt>
+	</text>
+	<text key="4d9ae">
+		 Uppgift 5 
+		<alt lang="sv">Uppgift 5</alt>
+		<alt lang="en">Task 5</alt>
+		<alt lang="ar">المهمة 5</alt>
+	</text>
+	<text key="0eaa4">
+		 functions 
+		<alt lang="sv">funktioner</alt>
+		<alt lang="en">functions</alt>
+		<alt lang="ar">المهام</alt>
+	</text>
+	<text key="2bb92">
+		 Öva kryssprodukter 
+		<alt lang="sv">Öva kryssprodukter</alt>
+		<alt lang="en">Practice cross products</alt>
+		<alt lang="ar">تدرب على المنتجات المتقاطعة</alt>
+	</text>
+	<text key="7ca56">
+		 is not correct. 
+		<alt lang="sv">är inte korrekt.</alt>
+		<alt lang="en">is not correct.</alt>
+		<alt lang="ar">ليس صحيحا.</alt>
+	</text>
+	<text key="e5a79">
+		 STOP GUESSING! 
+		<alt lang="sv">Sluta gissa!</alt>
+		<alt lang="en">STOP GUESSING!</alt>
+		<alt lang="ar">توقف عن التخمين!</alt>
+	</text>
+	<text key="bc42a">
+		 Exercise name 
+		<alt lang="sv">Övningsnamn</alt>
+		<alt lang="en">Exercise name</alt>
+		<alt lang="ar">اسم التمرين</alt>
+	</text>
+	<text key="62658">
+		 Någonting speciellt 
+		<alt lang="sv">Någonting speciellt</alt>
+		<alt lang="en">Something special</alt>
+		<alt lang="ar">شئ مميز</alt>
+	</text>
+	<text key="23273">
+		 previous 
+		<alt lang="sv">tidigare</alt>
+		<alt lang="en">previous</alt>
+		<alt lang="ar">السابق</alt>
+	</text>
+	<text key="aef48">
+		 Annat namn än förut 
+		<alt lang="sv">Annat namn än förut</alt>
+		<alt lang="en">Different name than before</alt>
+		<alt lang="ar">اسم مختلف عن ذي قبل</alt>
+	</text>
+	<text key="e3154">
+		 Kombinationslås 
+		<alt lang="sv">Kombinationslås</alt>
+		<alt lang="en">Combination lock</alt>
+		<alt lang="ar">قفل بالرمز</alt>
+	</text>
+	<text key="41e52">
+		Skattekista
+		<alt lang="sv">Treasury</alt>
+		<alt lang="en">Treasury</alt>
+		<alt lang="ar">خزينة</alt>
+	</text>
+</exercise>
