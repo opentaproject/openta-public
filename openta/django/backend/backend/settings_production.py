@@ -151,7 +151,7 @@ RUNNING_MANAGEMENT_COMMAND = (
     and sys.argv[0].endswith("manage.py")
     and not 'runserver' in sys.argv[1]
 )
-if RUNNING_DEVSERVER :
+if RUNNING_DEVSERVER  and os.path.exists("./deploystatic") :
     STATIC_URL = "/static/"
 else :
     STATIC_URL='https://storage.googleapis.com/opentaproject-cdn-bucket/multi/deploystatic/'
