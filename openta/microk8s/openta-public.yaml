@@ -49,11 +49,11 @@ spec:
               value: 'False'
             - name: USE_URKUND
               value: 'False'
-            - name: NOT_PGHOST
+            - name: PGHOST
               value: 'db-server'
             - name: SIDECAR_URL
               value: 'https://sidecar.openta.se'
-            - name: PGHOST 
+            - name: NOT_PGHOST 
               value: 'pgbouncer-service'
             - name: MEMCACHEDLOCATION
               value: 'localhost:11211'

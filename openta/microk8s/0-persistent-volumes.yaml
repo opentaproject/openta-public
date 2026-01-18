@@ -19,7 +19,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - ${SERVER_NAME}
+          - ${HOST_NAME}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -55,7 +55,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - ${SERVER_NAME}
+          - ${HOST_NAME}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -92,7 +92,7 @@ spec:
         - key: kubernetes.io/hostname
           operator: In
           values:
-          - ${SERVER_NAME}
+          - ${HOST_NAME}
 ---
 kind: PersistentVolumeClaim
 apiVersion: v1

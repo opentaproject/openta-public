@@ -62,8 +62,8 @@ export SERVER_NAME=changeme
 Logout and back in again to get alias working. 
 
 - set machine name
-  - ```sudo hostnamectl set-hostname ${SERVER_NAME}```
-  - ```sudo echo "127.0.1.1 ${SERVER_NAME}" >> /etc/hosts```
+  - ```sudo hostnamectl set-hostname ${HOST_NAME}```
+  - ```sudo echo "127.0.1.1 ${HOST_NAME}" >> /etc/hosts```
 
 - install mikrok8s 
   - ```sudo snap install microk8s --classic --channel=1.30```
@@ -120,8 +120,7 @@ Now try the web address  from the internet
 #### Clean up
 ```
 sudo rm /mnt/pv/subdomain-vol/index.html
-k delete ingress nginx
-k delete deployment nginx
+k delete -f 1-test-nginx.yaml 
 ```
 ### Install more components
 
@@ -134,8 +133,8 @@ export PGPASSWORD=changeme
 export PGUSER=changeme              # default postgres
 export SECRET_KEY=changeme
 export DJANGO_SECRETS_FILE=stub
-export DOMAIN_NAME=myfqdname.org
-export SERVER_NAME=myfqdname
+export DOMAIN_NAME=example.com # your FQDN
+export SERVER_NAME=example # suggestion to just keep basename
 ```
 
 Replace `changeme` with suitable values; replace myfqdname by your fully qualified domain name
@@ -181,7 +180,7 @@ envsubst <  openta.yaml  | k apply -f -
 
 ### Instructions for first time install  of openta
 ```
-create-docker-secret
+# create-docker-secret ## ONLY IF YOU ARE GOING TO BE PULLING FROM RESTRICTED REPO
 k exec -it openta -- /bin/bash
 python manage.py createcachetable
 python manage.py migrate
