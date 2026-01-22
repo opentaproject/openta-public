@@ -1148,8 +1148,13 @@ class Exercise(models.Model):
         touchfile = "last_admin_activity"
         subdomain = self.course.opentasite
         fname = os.path.join(settings.VOLUME, subdomain, touchfile)
-        if not settings.RUNTESTS :
-            os.utime( os.path.join(settings.VOLUME, subdomain) )
+        if not settings.RUNTESTS:
+            try:
+                _dir = os.path.join(settings.VOLUME, subdomain)
+                os.makedirs(_dir, exist_ok=True)
+                os.utime(_dir)
+            except Exception:
+                logger.warning(f"Could not touch subdomain dir {_dir}")
             if os.path.exists(fname):
                 os.utime(fname, None)
 

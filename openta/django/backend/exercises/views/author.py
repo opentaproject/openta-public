@@ -94,7 +94,9 @@ def split_or_repeat(txt):
 @permission_required("exercises.administer_exercise")
 def ExerciseMetaUpdateView(request, exercise):
     subdomain, db = get_subdomain_and_db(request)
+    from exercises.modelhelpers import get_selectedExercisesKeys
     #exercisekeys = request.session.get("selectedExercises", [])
+    exercisekeys = get_selectedExercisesKeys( request.user, db )
     # dbexercise = Exercise.objects.using(db).select_related('meta').get(exercise_key=exercise)
     method = request.method
     try:

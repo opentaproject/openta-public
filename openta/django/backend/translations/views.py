@@ -403,7 +403,9 @@ def auto_translate_strings(txts, lang, course_pk=None, altkey=None, exercise=Non
                 translations = translate_client.translate(txtsin, target_language=lang, format_="html")
             else:
                 logger.info(f"NEW DEEPL TRANSLATION TXTSIN = {lang} {txtsin}")
-                translator = deepl.Translator(settings.DEEPL_AUTH_KEY)
+                #translator = deepl.Translator(settings.DEEPL_AUTH_KEY)
+                auth_key = settings.DEEPL_AUTH_KEY
+                translator = deepl.DeepLClient(auth_key)
                 translations = translator.translate_text(
                     txtsin, target_lang=deepl_lang, split_sentences="nonewlines", tag_handling="html"
                 )
@@ -467,16 +469,14 @@ def auto_translate_strings(txts, lang, course_pk=None, altkey=None, exercise=Non
         #caches["default"].set(block_hash, True, 10) # Prevent recursion
         return txtsout
 
-    #except FileNotFoundError as e:
-    #    pass
-    #except ValueError as e :
-    #    return None
-    #except IntegrityError as e :
-    #    return None
-    #except AttributeError as e :
-    #    return None
-    #except MultipleObjectsReturned as e:
-    #    logger.error(f"MULT OBJECTS: ERROR in  auto_translate_strings { type(e).__name__} {str(e)  }")
+    except ValueError as e :
+        return None
+    except IntegrityError as e :
+        return None
+    except AttributeError as e :
+        return None
+    except MultipleObjectsReturned as e:
+        logger.error(f"MULT OBJECTS: ERROR in  auto_translate_strings { type(e).__name__} {str(e)  }")
     except Exception as e:
         logger.error(f"TRANSLATIONS: ERROR in  auto_translate_strings { type(e).__name__} {str(e)  }")
         return None

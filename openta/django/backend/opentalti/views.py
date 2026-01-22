@@ -72,7 +72,35 @@ def denied(r, msg="", help_url=None, clobber_cookies=False):
 @csrf_exempt
 @xframe_options_exempt
 def lti_main(request, course_pk=None):
+    #logger.error(f"LTI_MAIN REQUEST = {request.method}")
+    #if request.method == 'GET' :
+    #    logger.error(f"REQUEST = {request.GET}")
+    #    for key, value in request.GET.items():
+    #        logger.error(f"GET {key}, {value}")
+    #requestsave = request
+    #if request.method == 'POST' :
+    #    for key, value in request.POST.items():
+    #        logger.error(f"POST {key}, {value}")
+    #    referer = request.environ.get('HTTP_REFERER',request.META.get("HTTP_REFERER", "NO_REFERER") )
     requestsave = request
+    # Handle Canvas page reloads: GET without LTI params
+    if request.method == 'GET':
+        subdomain, db = get_subdomain_and_db(request)
+        settings.DB_NAME = db
+        settings.SUBDOMAIN = subdomain
+        # Resolve course for routing
+        if course_pk is None:
+            try:
+                course = Course.objects.using(db).order_by("-published", "-pk")[0]
+                course_pk = course.pk
+            except IndexError:
+                return denied(request, "No course available for this site.")
+        # If session still authenticated, render main directly
+        if request.user.is_authenticated:
+            referer = request.environ.get('HTTP_REFERER', request.META.get("HTTP_REFERER", "NO_REFERER"))
+            return backendviews.main(requestsave, course_pk, exerciseKey=None, passed_subdomain=subdomain, referer=referer)
+        # Otherwise redirect to the course index (anonymous entry)
+        return redirect(f"/{settings.SUBPATH}lti/index/")
     if request.method == 'POST' :
         referer = request.environ.get('HTTP_REFERER',request.META.get("HTTP_REFERER", "NO_REFERER") )
     subdomain, db = get_subdomain_and_db(request)
@@ -585,5 +613,3 @@ def launch_sidecar(request,*args, **kwargs ):
 #    #    print(f'  {header}: {value}')
 #
 #    return response
-
-

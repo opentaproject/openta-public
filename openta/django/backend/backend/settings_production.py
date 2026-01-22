@@ -250,7 +250,7 @@ print(f"SUPERUSER_PASSWORD = {SUPERUSER_PASSWORD}")
 print(f"USE_CHATGPT2 = ", USE_CHATGPT)
 print(f"OPENTA_VERSION = {OPENTA_VERSION}")
 CHUNK_SIZE = 2 * 5242880
-if False and RUNNING_DEVSERVER :
+if RUNNING_DEVSERVER :
     LOGGING.update({
         "version": 1,
         "disable_existing_loggers": False,

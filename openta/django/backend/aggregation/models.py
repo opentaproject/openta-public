@@ -73,16 +73,19 @@ def handle_new_answer_available(sender, **kwargs):
         date = kwargs['date']
         exercise_key = exercise.exercise_key
 
-        path = "/subdomain-data/aggregations/"
-        if not settings.RUNTESTS :
+        path = os.path.join(settings.VOLUME, "aggregations")
+        if not settings.RUNTESTS:
             host = settings.OPENTA_SERVER
             pathbak = os.path.join(path, f"bak/{host}")
-            os.makedirs(path, exist_ok=True)
-            os.makedirs(pathbak, exist_ok=True)
-            filepath =  os.path.join(path,       f"{subdomain}:{userpk}:{str(exercise_key)}")
-            filepathbak =  os.path.join(pathbak, f"{subdomain}:{userpk}:{str(exercise_key)}")
-            with open(filepath,"w") as fp : 
-                fp.write(f"{subdomain} {userpk} {str(exercise_key)} {src} {username} \n")
+            try:
+                os.makedirs(path, exist_ok=True)
+                os.makedirs(pathbak, exist_ok=True)
+                filepath = os.path.join(path, f"{subdomain}:{userpk}:{str(exercise_key)}")
+                filepathbak = os.path.join(pathbak, f"{subdomain}:{userpk}:{str(exercise_key)}")
+                with open(filepath, "w") as fp:
+                    fp.write(f"{subdomain} {userpk} {str(exercise_key)} {src} {username} \n")
+            except Exception:
+                logger.warning(f"Could not write aggregation marker in {path}")
         course_key = course.course_key
         touch_(db)
         if not user  == None :
@@ -93,14 +96,18 @@ def handle_new_answer_available(sender, **kwargs):
         else :
             touchfile = "last_student_activity"
         fname = os.path.join(settings.VOLUME, subdomain, touchfile)
-        if not settings.RUNTESTS :
-            os.utime( os.path.join( settings.VOLUME, subdomain),None)
-            if os.path.exists(fname):
-                os.utime(fname, None)
-            else:
-                dname = os.path.join(settings.VOLUME, subdomain)
-                if os.path.exists(dname):
+        if not settings.RUNTESTS:
+            tenant_dir = os.path.join(settings.VOLUME, subdomain)
+            try:
+                os.makedirs(tenant_dir, exist_ok=True)
+                os.utime(tenant_dir, None)
+                if os.path.exists(fname):
+                    os.utime(fname, None)
+                else:
+                    # Only create the file if the directory exists and is writable
                     open(fname, "a").close()
+            except Exception:
+                logger.warning(f"Could not touch tenant dir or touchfile under {tenant_dir}")
     
     
 
@@ -183,8 +190,12 @@ def handle_new_answer_available(sender, **kwargs):
                 for key in cache.keys(cachekey_pat):
                     cache.delete(key)
             logger.info(f"HANDLE_NEW_ANSWER OK {settings.GIT_HASH} ")
-        if not settings.RUNTESTS :
-            os.rename(filepath,filepathbak)
+        if not settings.RUNTESTS:
+            try:
+                if 'filepath' in locals() and 'filepathbak' in locals() and os.path.exists(filepath):
+                    os.rename(filepath, filepathbak)
+            except Exception:
+                logger.warning("Could not rotate aggregation marker file")
     except Exception as e :
         logger.error(tb)
         logger.error(f"XXX SIGNAL_ERROR sender={sender} KWARGS = {kwargs}")
@@ -488,8 +499,15 @@ class Aggregation(models.Model):
             return
         subdomain = db
         triggerfile = os.path.join(settings.VOLUME, db , "backuptrigger")
-        if not settings.RUNTESTS :
-            os.utime( os.path.join(settings.VOLUME, subdomain) )
+        if not settings.RUNTESTS:
+            # Ensure the tenant directory exists before touching it
+            tenant_dir = os.path.join(settings.VOLUME, subdomain)
+            try:
+                os.makedirs(tenant_dir, exist_ok=True)
+                os.utime(tenant_dir)
+            except Exception:
+                # If the directory cannot be created/touched, continue without crashing
+                logger.warning(f"Could not touch tenant dir {tenant_dir}")
         isold = False
         pathexists =  os.path.exists( triggerfile ) 
         questions = []

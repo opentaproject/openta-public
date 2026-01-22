@@ -180,7 +180,7 @@ envsubst <  openta.yaml  | k apply -f -
 
 ### Instructions for first time install  of openta
 ```
-# create-docker-secret ## ONLY IF YOU ARE GOING TO BE PULLING FROM RESTRICTED REPO
+create-docker-secret
 k exec -it openta -- /bin/bash
 python manage.py createcachetable
 python manage.py migrate
