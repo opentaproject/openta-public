@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+cd /srv/openta/django/backend
+export PGUSER=postgres
+export PGHOST=db-server
+export PGPORT=5432
+export PGUSER=postgres
+export PGPASSWORD=postgres
+#if [ -n $DBHOST ] ; then
+#	export PGHOST=$DBHOST
+#fi
+#export PGHOST='db-server'
+hash=`date "+%Y-%m-%d-%H:%M:%S"`
+hash=$(( ($(date +%s) / 60) % 10 ))
+if test -f  /usr/local/opt/postgresql/bin/pg_dump 
+then
+	pg_dump=/usr/local/opt/postgresql/bin/pg_dump
+elif  test -f  /usr/bin/pg_dump  
+then
+	pg_dump=/usr/bin/pg_dump
+fi 
+echo "backup ${hash}"
+if [[ "$*" == *"--force"* ]]
+then
+    force=true
+else
+    force=false
+fi
+mkdir -p /subdomain-data/db-backup
+for i in 'opentadefault1' 
+do
+	echo $i
+	${pg_dump} -C -Fc $i -f /subdomain-data/db-backup/${i}-${hash}.db
+
+done
+
+for i in /subdomain-data/$1
+do
+	subdomain=`basename $i`
+	dbnamefile="/subdomain-data/${subdomain}/dbname.txt"
+	touchfile="/subdomain-data/${subdomain}/touchfile"
+
+
+	if test -e $touchfile || ${force}; then
+		crtime=$(stat -c %W ${touchfile})
+		echo "CRTIME = ${crtime}"
+		now=$(date +%s)
+		if (( crtime > 0 && now - crtime > 600 )); then
+    			dobackup=true
+		else
+    			dobackup=false
+		fi
+		if ${force} ; then
+			dobackup=true
+		fi
+		echo "dobackup = ${dobackup}"
+		echo "touchfile ${subdomain} ${touchfile} exists"
+    		age_seconds=$(( now - crtime ))
+		echo "Age = ${age_seconds}  seonds  dobackup=${dobackup}"
+    		if test -e $dbnamefile && $dobackup ; then
+			PGHOST=$DBHOST SUBDOMAIN=$subdomain python manage.py migrate --settings=backend.settings_manage --database=${subdomain}
+			mkdir -p "/subdomain-data/${subdomain}/backups"
+    			dbname=`cat $dbnamefile | xargs`
+			#/usr/bin/pg_dump -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db
+ 			#echo /usr/bin/pg_dump -Fc $dbname > /subdomain-data/${subdomain}/${dbname}.db
+			echo cp /subdomain-data/${subdomain}/${dbname}.db  /subdomain-data/${subdomain}/backups/${dbname}-${hash}.db
+			#cp /subdomain-data/${subdomain}/${dbname}.db  /subdomain-data/${subdomain}/backups/${dbname}-${hash}.db
+			rm /tmp/dump.db
+			echo "${pg_dump}  -C -Fc $dbname -f /tmp/dump.db"
+			env > /tmp/envvars.txt;
+			${pg_dump}  -C -Fc $dbname -f "/tmp/dump.db"
+			filesize=`ls -s /tmp/dump.db | awk '{print $1}'`
+			echo FILESIZE=${filesize}
+			dat=`date`
+			if [[ $filesize -gt "100" ]] ; then
+				mv "/tmp/dump.db" /subdomain-data/${subdomain}/${dbname}.db
+				echo "${dat} subdomain ${subdomain} with datatabse ${dbname} was backed up to  ${dbname}-${hash}.db "
+				rm -f ${touchfile}
+				dir=/subdomain-data/${subdomain}/backups
+				latest=`ls -rt ${dir}/*-V*.db 2> /dev/null | tail -n 1`
+				echo latest=${latest}
+				if [[ ${latest}  == '' ]] ; then
+				        echo 'V file not found'
+					num='0'
+				else
+				        echo 'V file found'
+					latest=`basename ${latest}`
+					num=`echo ${latest} | sed 's/[a-zA-Z\.]//g' | sed 's/-//'`
+					num="$(( ( $num + 1 )%28  ))"
+				fi
+				wnum=`date +"%U"`
+				cp ${dir}/../${dbname}.db ${dir}/${dbname}-V${num}.db
+				cp ${dir}/../${dbname}.db ${dir}/${dbname}-W${wnum}.db
+				echo DONE $wnum
+			else :
+				echo NOT DONE  ERROR IN BACKUP
+			fi
+
+		fi
+
+	fi
+
+
+done

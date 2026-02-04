@@ -31,15 +31,15 @@ Then access the remote instance at [http://localhost:8000](http://localhost:8000
 ### Persistent storage
 
 OpenTA needs to store files on the machine it runs on. The following command creates the required
-folders and assigns the right permissions. The directory ```DATA_MOUNT```  will contain the course data including postgres data, exercises, student uploads.
+folders and assigns the right permissions.
 
 ```bash
-sudo mkdir -p ${DATA_MOUNT}/subdomain-data \
-    ${DATA_MOUNT}/subdomain-data/db14 \
-    ${DATA_MOUNT}/subdomain-data/backups \
-    ${DATA_MOUNT}/subdomain-data/CACHE \
-    ${DATA_MOUNT}/subdomain-data/workqueue
-sudo chmod -R o+w ${DATA_MOUNT}/subdomain-data
+sudo mkdir -p /subdomain-data \
+    /subdomain-data/db14 \
+    /subdomain-data/backups \
+    /subdomain-data/CACHE \
+    /subdomain-data/workqueue
+sudo chmod -R o+w /subdomain-data
 ```
 
 ### Usage
@@ -129,11 +129,6 @@ Hello from localhost
     ```bash
     cd __install_folder__/openta/docker-compose
     docker compose up -d --pull always --force-recreate
-    ```
-
-    If running under osx
-    ```
-    docker compose up
     ```
 
 1. Create the database and cache:

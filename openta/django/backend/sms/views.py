@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # Copyright (C) 2018-2025 Stellan Östlund and Hampus Linander
+from django.contrib import messages
 
+from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import os
@@ -23,6 +25,7 @@ from twilio.rest import Client
 #BUG_TO_EMAIL = os.environ.get("BUG_TO_EMAIL",None)
 #BUG_FROM_EMAIL = os.environ.get("BUG_FROM_EMAIL",None) 
 #BUG_CC_EMAIL = os.environ.get("BUG_CC_EMAIL",None) 
+from django.contrib.auth import logout as syslogout
 
 
 def truncate_words(s: str, limit: int = 55) -> str:
@@ -55,9 +58,24 @@ logger = logging.getLogger('bugreport')
 def bug_report(request):
     print(f"BUG_REPORT {request.POST}")
     subdomain, db = get_subdomain_and_db( request )
-    user = request.user
-    print(f"USERNAME = {user.username}")
-    print(f"DB = {db} SUBDOMAIN={subdomain}")
+    failed = False
+    try:
+        user = request.user
+        is_authenticated = getattr(request.user, 'is_authenticated', False)
+        failed = not is_authenticated
+    except Exception as err:
+        logger.error("REQUEST USER IS NOT AUTHENTICATED FOR SMS")
+        failed = True
+        is_authenticated = False
+    logger.error(f"SMS FAILED = {failed}")
+    if failed:
+        messages.add_message(request, messages.WARNING, "Not enrolled!")
+        messages.error(request, "Message failed.")
+        syslogout(request)
+        if not is_authenticated :
+            return JsonResponse({'ok': False,  'error': 'Message was not sent; You need to be logged in'}, status=403)
+        else :
+            return JsonResponse({'ok': False,  'error': 'Message could not be sent. '}, status=403)
     try:
         if request.META.get('CONTENT_TYPE', '').startswith('application/json'):
             payload = json.loads(request.body.decode('utf-8') or '{}')
