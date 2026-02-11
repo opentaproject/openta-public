@@ -1,6 +1,6 @@
 services:
   app:
-    image: opentaproject/openta-public:multi
+    image: opentaproject/openta-public:latest
     container_name: openta-se-app
     pull_policy: always
     environment:

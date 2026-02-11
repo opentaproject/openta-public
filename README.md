@@ -30,7 +30,7 @@ Then access the remote instance at [http://localhost:8000](http://localhost:8000
 
 ### Persistent storage
 
-OpenTA needs to store files on the machine it runs on. The following command creates the required
+OpenTA needs to store files on the machine it runs on. Make a writable directory DATA_MOUNT for instance DATA_MOUNT=/tmp/mnt/pv that will be persistent. TThe following command creates the required
 folders and assigns the right permissions.
 
 ```bash
@@ -112,7 +112,7 @@ Hello from localhost
     PGPASSWORD=changeme
     SECRET_KEY=changeme
     SUPERUSER_PASSWORD=changeme
-    POSTGRES_DEFAULT_DB=changeme
+    POSTGRES_DEFAULT_DB=changeme  # ANYTHING BUT NOT 'default'
     DATA_MOUNT=changeme 
     ```
     Replace `changeme` with suitable values.
@@ -135,8 +135,8 @@ Hello from localhost
 
     ```bash
     docker compose exec app psql -U ${PGUSER} -c "CREATE DATABASE ${POSTGRES_DEFAULT_DB} OWNER ${PGUSER};"
-    docker compose exec app python manage.py migrate
-    docker compose exec app python manage.py createcachetable
+    docker compose exec app python /srv/openta/django/backend/manage.py migrate
+    docker compose exec app python /srv/openta/django/backend/manage.py createcachetable
     ```
 
     You can ensure the database has been created using this command:

@@ -1,9 +1,10 @@
 Cheatsheet
 
-- Ensure the host directory exists: sudo mkdir -p /subdomain-data/db14 
+- Ensure the host directory exists: sudo mkdir -p ${DATA_MOUNT}/subdomain-data/db14 
 - docker compose up
 - docker compose up --pull always --force-recreate
-- docker exec XXXXXX bash
+- use docker.ps to the id of the docker container
+- docker exec -it XXXXXX bash 2
 - py_create_course example1
 - go to example1.localhhost:8000
 - docker compose down --remove-orphans
