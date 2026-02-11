@@ -1,2 +1,0 @@
-python manage.py dumpdata auth.Group --settings=backend.settings_manage --database=tmp99
-python manage.py dumpdata auth.group auth.group_permissions --settings=backend.settings_manage --database=tmp99

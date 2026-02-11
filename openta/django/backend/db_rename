@@ -1,5 +1,0 @@
-#!/bin/bash
-old_subdomain=$1
-new_subdomain=$2
-mv "/subdomain-data/${old_subdomain}" "/subdomain-data/${new_subdomain}"
-./db_reset ${new_subdomain}

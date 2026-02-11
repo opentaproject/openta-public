@@ -1,5 +1,0 @@
-#!/bin/bash
-export VERSION=multi
-echo creating docker openta-pgbouncer:${VERSION}
-docker buildx build --builder cloud-opentaproject-openta --platform linux/amd64,linux/arm64   -t opentaproject/openta-pgbouncer:${VERSION}   -t opentaproject/openta-pgbouncer:latest  --push .
-

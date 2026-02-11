@@ -1,4 +1,0 @@
-#!/bin/bash
-isort $1
-autoflake --in-place --remove-unused-variables --remove-all-unused-imports $1
-black $1

@@ -1,5 +1,0 @@
-#!/bin/bash
-# shellscript to cull inactive databases
-
-
-python manage.py  sync_opentasite_database 
